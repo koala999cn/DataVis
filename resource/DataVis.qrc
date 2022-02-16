@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/kRecorder">
+        <file alias="goon">goon.ico</file>
+        <file alias="pause">pause.ico</file>
+        <file alias="play">play.ico</file>
+        <file alias="record">record.ico</file>
+        <file alias="stop">stop.ico</file>
+        <file alias="stop_play">stop_play.ico</file>
+    </qresource>
+</RCC>
