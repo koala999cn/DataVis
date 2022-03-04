@@ -1,28 +1,30 @@
 ﻿#pragma once
-#include "KvInputStream.h"
+#include "KvDataStream.h"
 
 
-class KcAudioInputStream : public KvInputStream
+class KcAudioInputStream : public KvDataStream
 {
 public:
 	KcAudioInputStream();
 	virtual ~KcAudioInputStream();
 
-	bool start() override;
-	void stop() override;
-	bool running() const override;
+	bool pushData() final;
+	void stop() final;
+	bool running() const final;
+
+	unsigned dim() const final { return 1; };
+
+	kRange range(int axis) const final;
+
+	kReal step(int axis) const final;
 
 	kPropertySet propertySet() const override;
 
 	void onPropertyChanged(int id, const QVariant& newVal) override;
 
-	int channels() const {
-		return channels_;
-	}
+	int channels() const { return channels_; }
 
-	double sampleRate() const {
-		return sampleRate_;
-	}
+	double sampleRate() const { return sampleRate_; }
 
 private:
 	void* dptr_;

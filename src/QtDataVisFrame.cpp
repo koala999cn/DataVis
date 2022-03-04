@@ -1,6 +1,10 @@
 ﻿#include <fstream>
 #include <string>
 #include <QFileDialog>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QApplication>
 #include "QtDataVisFrame.h"
 #include "KcFormulaDlg.h"
 #include "KcAudioCaptureDlg.h"
@@ -11,29 +15,56 @@
 #include "audio/KcAudio.h"
 #include "audio/KcAudioRender.h"
 #include "gui/QtAudioUtils.h"
-#include "QtDataTreeView.h"
+#include "QtWorkspaceWidget.h"
 #include "QtnPropertyWidgetX.h"
 #include "kddockwidgets/Config.h"
 #include "KcDataSnapshot.h"
-#include "KcDockPlotter.h"
+#include "KcDataPlot.h"
 #include "QtAppEventHub.h"
 #include "KcAudioInputStream.h"
+#include "op/KcFft.h"
+#include "op/KcHisto.h"
 
 
 using namespace KDDockWidgets;
+
+namespace kPrivate
+{
+    template<typename T, typename...ARGS>
+    T* insertObject(DockWidget* workDock, bool asRootChild, ARGS...args)
+    {
+        auto tree = dynamic_cast<QtWorkspaceWidget*>(workDock->widget());
+        auto obj = new T(args...);
+        tree->insertObject(obj, asRootChild);
+
+        return obj;
+    }
+
+    // 带parent的构建
+    template<typename T, typename...ARGS>
+    T* insertObjectP(DockWidget* workDock, bool asRootChild, ARGS...args)
+    {
+        auto tree = dynamic_cast<QtWorkspaceWidget*>(workDock->widget());
+        auto parent = asRootChild ? tree->rootObject() : tree->currentObject();
+        return insertObject<T>(workDock, asRootChild,
+            dynamic_cast<KvDataProvider*>(parent),
+            args...);
+    }
+}
+
 
 QtDataVisFrame::QtDataVisFrame()
     : MainWindow("DataVis"/*, MainWindowOption_HasCentralFrame*/)
 {
     initLauout_();
+    setupMenu_(); // 须在initLauout_之后调用
 }
 
 
 QtDataVisFrame::~QtDataVisFrame()
 {
-    delete dockDataSource_;
-    delete dockDataProp_;
-    delete dockPlotProp_;
+    delete workDock_;
+    delete propDock_;
 }
 
 
@@ -41,62 +72,108 @@ bool QtDataVisFrame::setupMenu_()
 {
     auto menubar = menuBar();
 
-    /// 准备<文件>菜单
-    auto fileMenu = new QMenu(u8"载入(&F)", this);
+    /// prepare <Source> menu
+    auto fileMenu = new QMenu(u8"Source(&S)", this);
     menubar->addMenu(fileMenu);
 
-    QAction* dataFile = fileMenu->addAction(u8"数据文件(&D)...");
+    QAction* dataFile = fileMenu->addAction(u8"Data File(&D)...");
     connect(dataFile, &QAction::triggered, this, &QtDataVisFrame::openDataFile);
 
-    QAction* audioFile = fileMenu->addAction(u8"音频文件(&A)...");
+    QAction* audioFile = fileMenu->addAction(u8"Audio File(&A)...");
     connect(audioFile, &QAction::triggered, this, &QtDataVisFrame::openAudioFile);
 
     fileMenu->addSeparator();
 
 
-    QAction* formula = fileMenu->addAction(u8"数学表达式(&E)...");
+    QAction* formula = fileMenu->addAction(u8"Math Expression(&E)...");
     connect(formula, &QAction::triggered, this, &QtDataVisFrame::openFormula);
 
     fileMenu->addSeparator();
 
 
-    QAction* audioCapture = fileMenu->addAction(u8"录制音频(&C)...");
+    QAction* audioCapture = fileMenu->addAction(u8"Audio Capture(&C)...");
     connect(audioCapture, &QAction::triggered, this, &QtDataVisFrame::openAudioCapture);
 
-    QAction* audioDevice = fileMenu->addAction(tr(u8"录音设备(&I)"));
+    QAction* audioDevice = fileMenu->addAction(tr(u8"Audio Input Device(&I)"));
     connect(audioDevice, &QAction::triggered, this, &QtDataVisFrame::openAudioInput);
 
     fileMenu->addSeparator();
 
 
-    QAction* quit = fileMenu->addAction(u8"退出(&X)");
+    QAction* quit = fileMenu->addAction(u8"Exit(&X)");
     connect(quit, &QAction::triggered, qApp, &QApplication::quit);
 
 
-    /// 准备<视图>菜单
-    auto viewMenu = new QMenu(u8"视图(&F)", this);
+    /// prepare <View> menu
+    auto viewMenu = new QMenu(u8"View(&V)", this);
     menubar->addMenu(viewMenu);
-    viewMenu->addAction(dockDataSource_->toggleAction());
-    viewMenu->addAction(dockDataProp_->toggleAction());
-    viewMenu->addAction(dockPlotProp_->toggleAction());
+    viewMenu->addAction(workDock_->toggleAction());
+    viewMenu->addAction(propDock_->toggleAction());
 
     viewMenu->addSeparator();
 
 
-    auto layoutEqually = viewMenu->addAction(u8"平均布局(&E)");
+    auto layoutEqually = viewMenu->addAction(u8"Layout Equally(&E)");
     connect(layoutEqually, &QAction::triggered, this, &MainWindow::layoutEqually);
 
-    auto indicatorSupport = viewMenu->addAction(u8"停靠指示(&D)");
+    auto indicatorSupport = viewMenu->addAction(u8"Drop Indicators(&D)");
     indicatorSupport->setCheckable(true);
     indicatorSupport->setChecked(true);
-    connect(indicatorSupport, &QAction::toggled, this, [](bool b) {
+    connect(indicatorSupport, &QAction::toggled, [](bool b) {
         KDDockWidgets::Config::self().setDropIndicatorsInhibited(!b);
         });
 
     viewMenu->addSeparator();
 
-    auto closeAll = viewMenu->addAction(u8"关闭全部(&A)");
-    connect(closeAll, &QAction::triggered, this, [this] { closeDockWidgets(true); });
+    auto closeAll = viewMenu->addAction(u8"Close All(&A)");
+    connect(closeAll, &QAction::triggered, [this] { closeDockWidgets(true); });
+
+
+    /// prepare <Operator> menu
+    auto opMenu = new QMenu(u8"Operator(&O)", this);
+    menubar->addMenu(opMenu);
+
+    QAction* fft = opMenu->addAction(u8"Fft(&F)");
+    connect(fft, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFft>(workDock_, false); });
+
+    QAction* hist = opMenu->addAction(u8"Histo(&H)");
+    connect(hist, &QAction::triggered, [this] { kPrivate::insertObjectP<KcHisto>(workDock_, false); });
+
+
+    connect(opMenu, &QMenu::aboutToShow, [=] {
+        auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
+        auto item = treeView->currentItem();
+        bool enable = item && treeView->getObject(item); // TODO:
+        fft->setEnabled(enable);
+        });
+
+
+    /// prepare <Render> menu
+    auto renderMenu = new QMenu(u8"Render(&R)", this);
+    menubar->addMenu(renderMenu);
+
+    QAction* scatter = renderMenu->addAction(u8"Scatter Plot(&P)");
+    connect(scatter, &QAction::triggered, [this] {
+        kPrivate::insertObjectP<KcDataPlot>(workDock_, false, KcDataPlot::KePlot1dType::k_scatter);
+        });
+
+    QAction* line = renderMenu->addAction(u8"Line Plot(&L)");
+    connect(line, &QAction::triggered, [this] {
+        kPrivate::insertObjectP<KcDataPlot>(workDock_, false, KcDataPlot::KePlot1dType::k_line);
+        });
+
+    QAction* bar = renderMenu->addAction(u8"Bars Plot(&B)");
+    connect(bar, &QAction::triggered, [this] { 
+        kPrivate::insertObjectP<KcDataPlot>(workDock_, false, KcDataPlot::KePlot1dType::k_bars);
+        });
+
+
+    connect(renderMenu, &QMenu::aboutToShow, [=] {
+        auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
+        auto item = treeView->currentItem();
+        bool enable = item && treeView->getObject(item); // TODO:
+        fft->setEnabled(enable);
+        });
 
     return true;
 }
@@ -104,73 +181,31 @@ bool QtDataVisFrame::setupMenu_()
 
 bool QtDataVisFrame::initLauout_()
 {
-    setAffinities({ "source-dock", "prop-dock", "plot-dock" });
+    setAffinities({ "workspace", "property", "render" });
 
-    auto dataTreeView = new QtDataTreeView(this);
-    dockDataSource_ = new DockWidget{ u8"输入源" };
-    dockDataSource_->setAffinities({ "source-dock" });
-    dockDataSource_->setWidget(dataTreeView);
-    addDockWidget(dockDataSource_, Location_OnLeft);
-    dockDataSource_->show(); // TODO: 如何控制close按钮的行为，关闭还是隐藏？
+    auto workWidget = new QtWorkspaceWidget(this);
+    workDock_ = new DockWidget{ u8"Workspace" };
+    workDock_->setAffinities({ "workspace" });
+    workDock_->setWidget(workWidget);
+    addDockWidget(workDock_, Location_OnLeft);
+    workDock_->show();
 
-    // 用户选择不同的显示类型触发：同步绘图属性视图
-    connect(dataTreeView, &QtDataTreeView::outputTypeChanged, this, [this](KcDockPlotter* plot) {
-        if (dockPlotProp_->isVisible()) {
-            QtnPropertyWidgetX* view = dynamic_cast<QtnPropertyWidgetX*>(dockPlotProp_->widget());
-            view->sync(plot);
-        }
+
+    auto propWidget = new QtnPropertyWidgetX(this);
+    propDock_ = new DockWidget{ u8"Property" };
+    propDock_->setAffinities({ "property" });
+    propDock_->setWidget(propWidget);
+    addDockWidget(propDock_, Location_OnRight);
+    propDock_->show();
+    connect(propWidget, &QtnPropertyWidgetX::propertyChanged, this, [workWidget](int id, const QVariant& val) {
+        auto obj = workWidget->getObject(workWidget->currentItem());
+        if(obj) obj->onPropertyChanged(id, val);
         });
 
-    // 当前tree-item发生变化触发：同步数据属性和绘图属性视图
-    connect(dataTreeView, &QtDataTreeView::currentItemChanged, this,
-        [this, dataTreeView](QTreeWidgetItem* current, QTreeWidgetItem* previous) {
-
-        if (dockPlotProp_->isVisible()) {
-            QtnPropertyWidgetX* view = dynamic_cast<QtnPropertyWidgetX*>(dockPlotProp_->widget());
-            view->sync(dataTreeView->getAttachedPlot(current));
-        }
-
-        if (dockDataProp_->isVisible()) {
-            QtnPropertyWidgetX* view = dynamic_cast<QtnPropertyWidgetX*>(dockDataProp_->widget());
-            view->sync(dataTreeView->getAttachedSource(current));
-        }
-        });
+    propWidget->connect(kAppEventHub, &QtAppEventHub::objectActivated, propWidget, &QtnPropertyWidgetX::sync);
 
 
-    // 用户双击tree-item触发：弹出显示窗口
-    connect(dataTreeView, &QtDataTreeView::itemDoubleClicked, this, [dataTreeView](QTreeWidgetItem* item, int) {
-        auto plot = dataTreeView->getAttachedPlot(item);
-        if (plot && plot->type() >= 0) plot->show();
-        });
-
-
-
-    auto dataPropView = new QtnPropertyWidgetX(this);
-    dockDataProp_ = new DockWidget{ u8"属性" };
-    dockDataProp_->setAffinities({ "prop-dock" });
-    dockDataProp_->setWidget(dataPropView);
-    addDockWidget(dockDataProp_, Location_OnRight);
-    dockDataProp_->show();
-    connect(dataPropView, &QtnPropertyWidgetX::propertyChanged, this, [dataTreeView](int id, const QVariant& val) {
-        auto source = dataTreeView->getAttachedSource(dataTreeView->currentItem());
-        if(source) source->onPropertyChanged(id, val);
-        // TODO: 视情同步更新plotPropView
-        });
-
-
-    auto plotPropView = new QtnPropertyWidgetX(this);
-    dockPlotProp_ = new DockWidget{ u8"绘图" };
-    dockPlotProp_->setAffinities({ "prop-dock" });
-    dockPlotProp_->setWidget(plotPropView);
-    addDockWidget(dockPlotProp_, Location_OnBottom, dockDataProp_);
-    //dockDataProp_->addDockWidgetAsTab(dockPlotProp_);
-    dockPlotProp_->show();
-    connect(plotPropView, &QtnPropertyWidgetX::propertyChanged, this, [dataTreeView](int id, const QVariant& val) {
-        auto plot = dataTreeView->getAttachedPlot(dataTreeView->currentItem());
-        if(plot) plot->onPropertyChanged(id, val);
-        });
-
-    return setupMenu_();
+    return true;
 }
 
 
@@ -180,11 +215,9 @@ void QtDataVisFrame::openDataFile()
 
     if (!path.isEmpty()) {
         auto data = loadData_(path);
-        if (data) {
-            auto fi = QFileInfo(path);
-            auto ds = new KcDataSnapshot(fi.fileName(), data, KcDataSnapshot::k_sampled);
-            newInputSource_(ds);
-        }
+        if (data) 
+            kPrivate::insertObject<KcDataSnapshot>(workDock_, true, 
+                QFileInfo(path).fileName(), data, KcDataSnapshot::k_sampled);
     }
 }
 
@@ -201,9 +234,8 @@ void QtDataVisFrame::openAudioFile()
         return;
     }
 
-    auto fi = QFileInfo(path);
-    auto ds = new KcDataSnapshot(fi.fileName(), audio, KcDataSnapshot::k_sampled);
-    newInputSource_(ds);
+    kPrivate::insertObject<KcDataSnapshot>(workDock_, true,
+        QFileInfo(path).fileName(), audio, KcDataSnapshot::k_sampled);
 }
 
 
@@ -211,26 +243,24 @@ void QtDataVisFrame::openAudioCapture()
 {
     KcAudioCaptureDlg dlg;
     dlg.setEmbeddingMode(true);
-    if (dlg.exec() == QDialog::Accepted) {
-        auto ds = new KcDataSnapshot(u8"录音片段", dlg.audio_, KcDataSnapshot::k_sampled);
-        newInputSource_(ds);
-    }
+    if (dlg.exec() == QDialog::Accepted) 
+        kPrivate::insertObject<KcDataSnapshot>(workDock_, true,
+            tr("audio slice"), dlg.audio_, KcDataSnapshot::k_sampled);
 }
 
 
 void QtDataVisFrame::openAudioInput()
 {
-    newInputSource_(new KcAudioInputStream);
+    kPrivate::insertObject<KcAudioInputStream>(workDock_, true);
 }
 
 
 void QtDataVisFrame::openFormula()
 {
     KcFormulaDlg dlg;
-    if (dlg.exec() == QDialog::Accepted) {
-        auto ds = new KcDataSnapshot(dlg.exprText(), dlg.data, KcDataSnapshot::k_continued);
-        newInputSource_(ds);
-    }
+    if (dlg.exec() == QDialog::Accepted) 
+        kPrivate::insertObject<KcDataSnapshot>(workDock_, true,
+            dlg.exprText(), dlg.data, KcDataSnapshot::k_continued);
 }
 
 
@@ -272,17 +302,37 @@ std::shared_ptr<KvData> QtDataVisFrame::loadData_(const QString& filePath)
     return data;
 }
 
-
-void QtDataVisFrame::newInputSource_(KvInputSource* is)
+/*
+void QtDataVisFrame::insertDataProvider_(KvDataProvider* dp)
 {
-    // 创建与is关联的output
-    auto plot = new KcDockPlotter(is, this);
-    auto dataTreeView = dynamic_cast<QtDataTreeView*>(dockDataSource_->widget());
-    assert(dataTreeView);
-
-    dataTreeView->insertItem(is, plot);
+    auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
+    treeView->insertProvider(dp);
 }
 
+
+void QtDataVisFrame::insertDataOperator_(KvDataOperator* op)
+{
+    auto dataTreeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
+    dataTreeView->insertOperator(op);
+}
+
+
+void QtDataVisFrame::insertDataRender_(KvDataRender* dr)
+{
+    auto dataTreeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
+    dataTreeView->insertRender(dr);
+}
+
+
+void QtDataVisFrame::insertDataPlot_(int type)
+{
+    auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
+    auto obj = treeView->getObject(treeView->currentItem());
+    auto provider = dynamic_cast<KvDataProvider*>(obj);
+    assert(provider);
+    insertDataRender_(new KcDataPlot(provider, type));
+}
+*/
 
 void QtDataVisFrame::connectAppEvents_()
 {

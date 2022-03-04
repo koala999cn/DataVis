@@ -24,11 +24,12 @@ int main(int argc, char *argv[])
     KDDockWidgets::Config::self().setSeparatorThickness(3);
 
     QtDataVisFrame* mainWindow = new QtDataVisFrame;
-    mainWindow->setWindowTitle("DataVis");
+    mainWindow->setWindowTitle(u8"DataVis");
     mainWindow->setWindowIcon(app.style()->standardIcon(QStyle::SP_DesktopIcon));
     mainWindow->showMaximized();
 
     app.connect(&app, &QApplication::aboutToQuit, kAppEventHub, &singletonAppEventHub::destroy);
 
+    app.activeWindow();
     return app.exec();
 }

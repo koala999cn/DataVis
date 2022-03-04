@@ -19,13 +19,13 @@ namespace kPrivate
             auto data = std::make_shared<KcAudio>(dx_, 0, channles_);
             data->addSamples(static_cast<kReal*>(inputBuffer), frames);
             //data->sampling().shift(streamTime);
-            emit stream_->onStreamData(data);
+            emit stream_->onData(data);
             return true;
         }
 
     private:
         KcAudioInputStream* stream_; 
-        double dx_;
+        kReal dx_;
         int channles_;
     };
 
@@ -41,7 +41,7 @@ namespace kPrivate
 
 
 KcAudioInputStream::KcAudioInputStream() 
-    : KvInputStream("AudioInput")
+    : KvDataStream("AudioInput")
 {
     dptr_ = new KcAudioDevice;
     deviceId_ = ((KcAudioDevice*)dptr_)->defaultInput();
@@ -57,7 +57,7 @@ KcAudioInputStream::~KcAudioInputStream()
 }
 
 
-bool KcAudioInputStream::start()
+bool KcAudioInputStream::pushData()
 {
     auto device = (KcAudioDevice*)dptr_;
     if (device->opened())
@@ -94,6 +94,18 @@ bool KcAudioInputStream::running() const
 }
 
 
+kRange KcAudioInputStream::range(int axis) const
+{
+	return axis == 0 ? kRange{ 0, frameTime_ } : kRange{ -1, 1 };
+}
+
+
+kReal KcAudioInputStream::step(int axis) const
+{
+	return axis == 0 ? 1 / sampleRate() : KvData::k_nonuniform_step;
+}
+
+
 KcAudioInputStream::kPropertySet KcAudioInputStream::propertySet() const
 {
 	KvPropertiedObject::kPropertySet ps;
@@ -102,8 +114,7 @@ KcAudioInputStream::kPropertySet KcAudioInputStream::propertySet() const
 	KvPropertiedObject::KpProperty prop;
 	prop.id = kPrivate::k_device_id;
 	prop.name = u8"Device";
-	prop.disp = u8"Device list";
-	prop.desc = u8"available audio input devices";
+	prop.desc = u8"device used to capture audio";
 	prop.val = QVariant::fromValue<int>(deviceId_); // int类型代表enum类型
 	for (unsigned i = 0; i < device->count(); i++) {
 		auto info = device->info(i);
@@ -111,7 +122,7 @@ KcAudioInputStream::kPropertySet KcAudioInputStream::propertySet() const
 			KvPropertiedObject::KpProperty sub;
 			sub.name = QString::number(i);
 			sub.disp = QString::fromLocal8Bit(info.name);
-			sub.attr.enumValue = i;
+			sub.val = static_cast<int>(i);
 			prop.children.push_back(sub);
 		}
 	}
@@ -123,8 +134,7 @@ KcAudioInputStream::kPropertySet KcAudioInputStream::propertySet() const
 	prop.children.clear();
 	prop.id = kPrivate::k_channels;
 	prop.name = u8"Channles";
-	prop.disp.clear();
-	prop.desc = u8"channels of audio input";
+	prop.desc = u8"channels of audio input device";
 	prop.val = channels_; // int类型代表enum类型
 	prop.minVal = 1; 
 	prop.maxVal = info.inputChannels; 
@@ -135,13 +145,13 @@ KcAudioInputStream::kPropertySet KcAudioInputStream::propertySet() const
 	prop.id = kPrivate::k_sample_rate;
 	prop.name = u8"SampleRate";
 	prop.disp = u8"Sampling rate";
-	prop.desc = u8"input audio's sampling rate in Hz";
+	prop.desc = u8"sampling rate of audio input device in Hz";
 	prop.val = QVariant::fromValue<int>(sampleRate_);
 	for (auto rate : info.sampleRates) {
 		KvPropertiedObject::KpProperty sub;
 		sub.name = QString::number(rate);
 		sub.disp.clear();
-		sub.attr.enumValue = static_cast<int>(rate);
+		sub.val = static_cast<int>(rate);
 		prop.children.push_back(sub);
 	}
 	ps.push_back(prop);
@@ -152,7 +162,7 @@ KcAudioInputStream::kPropertySet KcAudioInputStream::propertySet() const
 	prop.disp = u8"Frame time";
 	prop.desc = u8"time in second per frame of audio input";
 	prop.val = frameTime_; 
-	prop.minVal = 0.01; // 最小10ms
+	prop.minVal = 0.005; // 最小5ms
 	prop.maxVal = 1.0; // 最大1s
 	prop.step = 0.01;
 	ps.push_back(prop);

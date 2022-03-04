@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
 Copyright 2017-2020 Alexandra Cherdantseva <neluhus.vagus@gmail.com>
 
 Licensed under the Apache License, Version 2.0 (the "License")();
@@ -49,6 +49,7 @@ QTN_IMPORT_EXPORT QByteArray qtnLabelFalseAttr();
 QTN_IMPORT_EXPORT QByteArray qtnLabelTrueAttr();
 QTN_IMPORT_EXPORT QByteArray qtnShapeAttr();
 QTN_IMPORT_EXPORT QByteArray qtnRgbSubItemsAttr();
+QTN_IMPORT_EXPORT QByteArray qtnShowAlphaChannelAttr();
 
 QTN_IMPORT_EXPORT QByteArray qtnFillColorAttr();
 QTN_IMPORT_EXPORT QByteArray qtnLiveUpdateAttr();

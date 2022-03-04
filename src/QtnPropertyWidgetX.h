@@ -4,6 +4,8 @@
 #include "KvPropertiedObject.h"
 
 
+// 根据KvPropertiedObject动态构建Qt属性窗口元素
+// 提供基于属性id的取值、赋值等操作
 class QtnPropertyWidgetX : public QtnPropertyWidget
 {
 	Q_OBJECT
@@ -37,6 +39,7 @@ private:
 
 private:
 	std::vector<void*> bufs_; // 用于保存临时对象
+	KvPropertiedObject* obj_; // 当前显示的obj
 };
 
 

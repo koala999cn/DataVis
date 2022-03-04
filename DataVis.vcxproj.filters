@@ -71,13 +71,13 @@
     <ClCompile Include="src\base\KuPathUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\KcDockPlotter.cpp">
+    <ClCompile Include="src\KcDataPlot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\KcDataSnapshot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\QtDataTreeView.cpp">
+    <ClCompile Include="src\QtWorkspaceWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
@@ -90,6 +90,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\KcAudioInputStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\op\KcFft.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgRdft.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KvData1d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\QtAppEventHub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\op\KcHisto.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -109,10 +124,7 @@
     <QtMoc Include="src\QtDataVisFrame.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\QtDataTreeView.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtComboBoxDelegate.h">
+    <QtMoc Include="src\QtWorkspaceWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\QtnPropertyWidgetX.h">
@@ -127,10 +139,13 @@
     <QtMoc Include="src\KvPropertiedObject.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\KcDockPlotter.h">
+    <QtMoc Include="src\KcDataPlot.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\KvInputStream.h">
+    <QtMoc Include="src\KvDataProvider.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\op\KvDataOperator.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -186,16 +201,13 @@
     <ClInclude Include="src\dsp\KvData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\KvInputSource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\base\KuPathUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\KcDataSnapshot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\KvOutputDevice.h">
+    <ClInclude Include="src\KvDataRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtSingleton.h">
@@ -208,6 +220,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\KcAudioInputStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcFft.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgRdft.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KvDataStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcHisto.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

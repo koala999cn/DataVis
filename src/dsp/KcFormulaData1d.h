@@ -14,11 +14,17 @@ public:
         : expr_(expr) { samp_.resetn(xmin, xmax, nx); }
 
 
+    kReal step(int axis) const override;
+
+    void clear() override;
+
     kIndex count() const override;
 
     kIndex channels() const override {
         return 1; // 暂时只支持单通道
     }
+
+    void reserve(kIndex size) override {}
 
     kPoint2d value(kIndex idx, kIndex channel = 0) const override;
 

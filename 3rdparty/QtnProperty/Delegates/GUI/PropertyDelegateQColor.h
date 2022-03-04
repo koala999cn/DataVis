@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
 Copyright (c) 2012-2016 Alex Zhondin <lexxmark.dev@gmail.com>
 Copyright (c) 2015-2019 Alexandra Cherdantseva <neluhus.vagus@gmail.com>
 
@@ -45,6 +45,7 @@ protected:
 
 private:
 	quint32 m_shape;
+	bool m_hasAlpha;
 };
 
 class QTN_IMPORT_EXPORT QtnPropertyDelegateQColorSolid

@@ -5,11 +5,9 @@
 
 
 class KvData;
-class KcPlotWidget;
-class KcAudioRender;
-class KvInputSource;
-class QTreeWidgetItem;
-class KcDataSnapshot;
+class KvDataProvider;
+class KvDataOperator;
+class KvDataRender;
 
 
 class QtDataVisFrame : public KDDockWidgets::MainWindow
@@ -31,14 +29,21 @@ private:
     bool setupMenu_();
     bool initLauout_();
 
-    void newInputSource_(KvInputSource* is);
+    /*
+    void insertDataPlot_(int type);
+
+    // TODO: 以下三个函数是否可合为一个
+    void insertDataProvider_(KvDataProvider* dp);
+    void insertDataOperator_(KvDataOperator* op);
+    void insertDataRender_(KvDataRender* dr);*/
+
     std::shared_ptr<KvData> loadData_(const QString& filePath);
 
     // 连接app全局信号槽
     void connectAppEvents_();
 
 private:
-    KDDockWidgets::DockWidget* dockDataSource_; // 数据源列表
-    KDDockWidgets::DockWidget* dockDataProp_; // 数据属性
-    KDDockWidgets::DockWidget* dockPlotProp_; // 绘图设置
+    KDDockWidgets::DockWidget* workDock_;
+    KDDockWidgets::DockWidget* propDock_;
+    //KDDockWidgets::DockWidget* dockPlotProp_; // 绘图设置
 };

@@ -19,11 +19,21 @@ public:
     KcSampled1d(kReal dx, kReal x0_rel = 0, kIndex channel = 1);
 
 
+    /// KvData接口实现
+
+    kReal step(int axis) const override;
+
+    // 清空数据, 重置采样区间(xmax = xmin)，但保持dx, d0基本设置
+    void clear() override;
+
+
     /// KvData1d接口实现
 
     kIndex count() const override;
 
     kIndex channels() const override;
+
+    void reserve(kIndex size) override;
 
     kPoint2d value(kIndex idx, kIndex channel = 0) const override;
 
@@ -54,11 +64,14 @@ public:
     // 增加N组采样点，第n采样点第i通道的值为v[n*channels()+i]
     void addSamples(kReal* v, kIndex N);
 
-    // 清空数据, 重置采样区间(xmax = xmin)，但保持dx, d0基本设置
-    void clear();
-
     // 按参数重置数据存储和采样参数
     void reset(kReal dx, kIndex channels, kIndex samples = 0);
+
+
+    // 设置第channel通道的数据，确保data的大小等于this->count()
+    // 如果channel=-1，则data包含所有通道数据
+    void setChannel(kReal* data, kIndex channel);
+
 
     // bps
     auto bytesPerSample() const { return sizeof(kReal) * channels(); }

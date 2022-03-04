@@ -34,7 +34,7 @@ public:
         x0_ = x0;
         dx_ = dx;
 
-        assert(interval_.cover(x0));
+        assert(interval_.empty() || interval_.cover(x0));
         assert(indexToX(nx()) > xmax && xToIndex(xmax) >= nx() - 1);
     }
 

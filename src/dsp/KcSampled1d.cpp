@@ -60,6 +60,12 @@ kIndex KcSampled1d::channels() const
 }
 
 
+void KcSampled1d::reserve(kIndex size)
+{
+    data_.reserve(static_cast<size_t>(size) * static_cast<size_t>(channels()));
+}
+
+
 kPoint2d KcSampled1d::value(kIndex idx, kIndex channel) const
 {
     assert(channel < channels() && idx < count());
@@ -94,7 +100,7 @@ void KcSampled1d::setSample(kIndex idx, kReal val, kIndex channel)
 
 void KcSampled1d::setSamples(kIndex idx, const kReal* v, kIndex N)
 {
-    assert(idx < count());
+    assert(idx + N <= count());
     kReal* p = data_.data() + offset_(idx);
 
     ::memcpy_s(p, bytesOfSamples(count()-idx), v, bytesOfSamples(N));
@@ -106,7 +112,7 @@ void KcSampled1d::getSamples(kIndex idx, kReal* v, kIndex N) const
     assert(idx + N <= count());
     const kReal* p = data_.data() + offset_(idx);
 
-    ::memcpy_s(v, bytesOfSamples(N), p, bytesOfSamples(N));
+    ::memcpy_s(v, bytesOfSamples(N), p, bytesOfSamples(count() - idx));
 }
 
 
@@ -116,6 +122,12 @@ void KcSampled1d::addSamples(kReal* v, kIndex N)
     samp_.growup(N); // 同步增大xmax
     kReal* p = data_.data() + offset_(count() - N);
     ::memcpy_s(p, bytesOfSamples(N), v, bytesOfSamples(N));
+}
+
+
+kReal KcSampled1d::step(int axis) const
+{
+    return axis == 0 ? samp_.dx() : k_nonuniform_step;
 }
 
 
@@ -131,4 +143,18 @@ void KcSampled1d::reset(kReal dx, kIndex channels, kIndex samples)
      samp_.resetn(samples, dx);
      channels_ = channels;
      data_.resize(static_cast<std::vector<kReal>::size_type>(samples) * channels);
+}
+
+
+void KcSampled1d::setChannel(kReal* data, kIndex channel)
+{
+    assert(channel < channels());
+
+    if (channel == -1 || channels() == 1) {
+        ::memcpy_s(data_.data(), bytesOfSamples(count()), data, bytesOfSamples(count()));
+    }
+    else {
+        for (kIndex i = 0; i < count(); i++)
+            setSample(i, *data++, channel);
+    }
 }

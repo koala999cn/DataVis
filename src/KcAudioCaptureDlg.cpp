@@ -114,7 +114,7 @@ KcAudioCaptureDlg::KcAudioCaptureDlg(QWidget *parent) :
 
 
     // 连接信号处理槽
-    connect(ui->cbDeviceList, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(ui->cbDeviceList, qOverload<int>(&QComboBox::currentIndexChanged),
         [=](int index){
         assert(index == ui->cbDeviceList->currentIndex());
         syncDeviceInfo_();

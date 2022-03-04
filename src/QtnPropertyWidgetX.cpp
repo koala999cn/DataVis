@@ -1,5 +1,5 @@
 ﻿#include "QtnPropertyWidgetX.h"
-#include "KvInputSource.h"
+#include "KvDataProvider.h"
 #include "QtnProperty/PropertyCore.h"
 #include "QtnProperty/PropertyGUI.h"
 #include "QtnProperty/PropertyQVariant.h"
@@ -9,6 +9,7 @@
 
 QtnPropertyWidgetX::QtnPropertyWidgetX(QWidget* parent)
     : QtnPropertyWidget(parent)
+    , obj_(nullptr)
 {
     auto propSet = new QtnPropertySet(this);
     setPropertySet(propSet);
@@ -27,6 +28,10 @@ QtnPropertyWidgetX::~QtnPropertyWidgetX()
 
 void QtnPropertyWidgetX::sync(KvPropertiedObject* propObj)
 {
+    if (obj_ == propObj)
+        return;
+
+    obj_ = propObj;
     propertySet()->clearChildProperties();
 
     for (auto p : bufs_) free(p);
@@ -156,6 +161,9 @@ void QtnPropertyWidgetX::setDelegateAttributes_(QtnPropertyBase* qtn, const KvPr
     if (!prop.maxVal.isNull())
         qtn->setDelegateAttribute(qtnMaxAttr(), prop.maxVal);
 
+    if (!prop.step.isNull())
+        qtn->setDelegateAttribute(qtnStepAttr(), prop.step);
+
 
     if (prop.flag & KvPropertiedObject::k_readonly)
         qtn->setState(QtnPropertyStateImmutable);
@@ -172,17 +180,34 @@ void QtnPropertyWidgetX::setDelegateAttributes_(QtnPropertyBase* qtn, const KvPr
         bufs_.push_back(buf);
         QtnEnumInfo* enumInfo = new(buf) QtnEnumInfo;
         for (auto& c : prop.children)
-            enumInfo->getVector().push_back(QtnEnumValueInfo(c.attr.enumValue, c.name, c.disp));
+            enumInfo->getVector().push_back(QtnEnumValueInfo(c.val.toInt(), c.name, c.disp));
         qtnEnum->setEnumInfo(enumInfo);
         qtnEnum->setValue(prop.val.value<int>()); // 添加enumInfo之后，需要重新设置value
     }
     else if (prop.val.type() == QMetaType::QPen) { // config pen's atrributes
-        if (prop.attr.penFlags & KvPropertiedObject::k_pen_color)
-            qtn->setDelegateAttribute(qtnEditColorAttr(), true);
-        if (prop.attr.penFlags & KvPropertiedObject::k_pen_style)
-            qtn->setDelegateAttribute(qtnEditStyleAttr(), true);
-        if (prop.attr.penFlags & KvPropertiedObject::k_pen_width)
-            qtn->setDelegateAttribute(qtnEditWidthAttr(), true);
+        qtn->setDelegateAttribute(qtnShowNoPenAttr(),
+            prop.attr.penFlags & KvPropertiedObject::k_show_no_pen);
+        qtn->setDelegateAttribute(qtnEditColorAttr(), 
+            prop.attr.penFlags & KvPropertiedObject::k_pen_color);
+        qtn->setDelegateAttribute(qtnEditStyleAttr(), 
+            prop.attr.penFlags & KvPropertiedObject::k_pen_style);
+        qtn->setDelegateAttribute(qtnEditWidthAttr(), 
+            prop.attr.penFlags & KvPropertiedObject::k_pen_width);
+        qtn->setDelegateAttribute(qtnEditCapStyleAttr(),
+            prop.attr.penFlags & KvPropertiedObject::k_pen_cap_style);
+        qtn->setDelegateAttribute(qtnEditJoinStyleAttr(),
+            prop.attr.penFlags & KvPropertiedObject::k_pen_join_style);
+    }
+    else if (prop.val.type() == QMetaType::QBrush) {
+        qtn->fromVariant(static_cast<int>(prop.val.value<QBrush>().style())); // 须调整QBrush类型的赋值
+        qtn->setDelegateAttribute(qtnShowAllAttr(), prop.attr.showAllBrushStyle);
+    }
+    else if (prop.val.type() == QMetaType::QColor) {
+        qtn->setDelegateAttribute(qtnRgbSubItemsAttr(),
+            prop.attr.colorFlags & KvPropertiedObject::k_show_color_items);
+        qtn->setDelegateAttribute(qtnShowAlphaChannelAttr(),
+            prop.attr.colorFlags & KvPropertiedObject::k_show_alpha_channel);
+        //qtn->setDelegateAttribute(qtnShapeAttr(), QtnColorDelegateShapeCircle);
     }
     else if (prop.val.type() != QMetaType::UnknownType && !prop.children.empty()) { // config subProperty's attributes
         if(!prop.children[0].name.isEmpty())

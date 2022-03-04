@@ -3,6 +3,7 @@
 #include <QPointF>
 #include "KcSampled1d.h"
 #include "KcFormulaData1d.h"
+#include "KtuMath.h"
 
 
 QString KcDataSnapshot::typeText() const
@@ -82,4 +83,29 @@ KvPropertiedObject::kPropertySet KcDataSnapshot::propertySet() const
 
 
 	return ps;
+}
+
+
+unsigned KcDataSnapshot::dim() const
+{
+	return data_->dim();
+}
+
+
+kRange KcDataSnapshot::range(int axis) const
+{
+	return data_->range(axis);
+}
+
+
+kReal KcDataSnapshot::step(int axis) const
+{
+	return data_->step(axis);
+}
+
+
+bool KcDataSnapshot::pushData()
+{
+	emit onData(data_);
+	return true;
 }
