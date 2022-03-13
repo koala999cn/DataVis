@@ -94,13 +94,13 @@ bool KcAudioInputStream::running() const
 }
 
 
-kRange KcAudioInputStream::range(int axis) const
+kRange KcAudioInputStream::range(kIndex axis) const
 {
 	return axis == 0 ? kRange{ 0, frameTime_ } : kRange{ -1, 1 };
 }
 
 
-kReal KcAudioInputStream::step(int axis) const
+kReal KcAudioInputStream::step(kIndex axis) const
 {
 	return axis == 0 ? 1 / sampleRate() : KvData::k_nonuniform_step;
 }

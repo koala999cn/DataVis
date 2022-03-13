@@ -77,7 +77,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>QCUSTOMPLOT_USE_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -92,6 +92,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(Qt_INCLUDEPATH_);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
+      <PreprocessorDefinitions>QCUSTOMPLOT_USE_LIBRARY;$(Qt_DEFINES_);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -133,11 +134,17 @@
     <ClCompile Include="src\audio\KgAudioFile.cpp" />
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
+    <ClCompile Include="src\dsp\KcSampled2d.cpp" />
     <ClCompile Include="src\dsp\KgRdft.cpp" />
     <ClCompile Include="src\dsp\KvData1d.cpp" />
+    <ClCompile Include="src\dsp\KvData2d.cpp" />
     <ClCompile Include="src\KcAudioInputStream.cpp" />
+    <ClCompile Include="src\KcPlot2d.cpp" />
+    <ClCompile Include="src\KvCustomPlot.cpp" />
     <ClCompile Include="src\op\KcFft.cpp" />
+    <ClCompile Include="src\op\KcFraming.cpp" />
     <ClCompile Include="src\op\KcHisto.cpp" />
+    <ClCompile Include="src\op\KcSpectrogram.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
     <ClCompile Include="src\QtDataVisFrame.cpp" />
     <ClCompile Include="src\dsp\KcFormulaData1d.cpp" />
@@ -146,7 +153,7 @@
     <ClCompile Include="src\gui\QtVolumnBar.cpp" />
     <ClCompile Include="src\gui\QtWaveBar.cpp" />
     <ClCompile Include="src\KcAudioCaptureDlg.cpp" />
-    <ClCompile Include="src\KcDataPlot.cpp" />
+    <ClCompile Include="src\KcPlot1d.cpp" />
     <ClCompile Include="src\KcDataSnapshot.cpp" />
     <ClCompile Include="src\KcFormulaDlg.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -172,16 +179,23 @@
     <ClInclude Include="src\base\KuPathUtil.h" />
     <ClInclude Include="src\base\KuStrUtil.h" />
     <ClInclude Include="src\base\KvRefObject.h" />
+    <ClInclude Include="src\dsp\KcSampled2d.h" />
     <ClInclude Include="src\dsp\KgRdft.h" />
+    <ClInclude Include="src\dsp\KtSampledN.h" />
+    <ClInclude Include="src\dsp\KvData2d.h" />
     <ClInclude Include="src\KcAudioInputStream.h" />
+    <ClInclude Include="src\KcPlot2d.h" />
+    <ClInclude Include="src\KvCustomPlot.h" />
     <ClInclude Include="src\KvDataStream.h" />
     <ClInclude Include="src\op\KcFft.h" />
     <QtMoc Include="src\op\KvDataOperator.h" />
+    <ClInclude Include="src\op\KcFraming.h" />
     <ClInclude Include="src\op\KcHisto.h" />
+    <ClInclude Include="src\op\KcSpectrogram.h" />
     <ClInclude Include="src\QtnPropertyDelegatePropertySetX.h" />
     <QtMoc Include="src\QtnPropertySetX.h" />
     <QtMoc Include="src\QtAppEventHub.h" />
-    <QtMoc Include="src\KcDataPlot.h" />
+    <ClInclude Include="src\KcPlot1d.h" />
     <ClInclude Include="src\KcDataSnapshot.h" />
     <QtMoc Include="src\KvDataProvider.h" />
     <ClInclude Include="src\KvDataRender.h" />

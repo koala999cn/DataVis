@@ -9,7 +9,7 @@
 #include "audio/KcAudioCapture.h"
 #include "audio/KgAudioFile.h"
 #include "audio/KcAudio.h"
-#include "dsp/KtuMath.h"
+#include "base/KtuMath.h"
 #include "dsp/KtSampling.h"
 #include "gui/QtAudioUtils.h"
 
@@ -55,7 +55,7 @@ namespace kPrivate
             auto bars = ui_->wgWave->getBarCount();
             std::vector<std::pair<float, float>> ranges(bars);
             KtSampling<kReal> samp;
-            samp.resetn(0, frames-1, bars, 0);
+            samp.resetn(bars, 0, frames, 0);
             for(int i = 0; i < bars; i++) {
                 long x0 = std::ceil(samp.indexToX(i));
                 long x1 = std::floor(samp.indexToX(i+1));

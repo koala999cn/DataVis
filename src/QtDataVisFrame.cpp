@@ -19,7 +19,7 @@
 #include "QtnPropertyWidgetX.h"
 #include "kddockwidgets/Config.h"
 #include "KcDataSnapshot.h"
-#include "KcDataPlot.h"
+#include "KcPlot1d.h"
 #include "QtAppEventHub.h"
 #include "KcAudioInputStream.h"
 #include "op/KcFft.h"
@@ -154,17 +154,17 @@ bool QtDataVisFrame::setupMenu_()
 
     QAction* scatter = renderMenu->addAction(u8"Scatter Plot(&P)");
     connect(scatter, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcDataPlot>(workDock_, false, KcDataPlot::KePlot1dType::k_scatter);
+        kPrivate::insertObjectP<KcPlot1d>(workDock_, false, KcPlot1d::KeType::k_scatter);
         });
 
     QAction* line = renderMenu->addAction(u8"Line Plot(&L)");
     connect(line, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcDataPlot>(workDock_, false, KcDataPlot::KePlot1dType::k_line);
+        kPrivate::insertObjectP<KcPlot1d>(workDock_, false, KcPlot1d::KeType::k_line);
         });
 
     QAction* bar = renderMenu->addAction(u8"Bars Plot(&B)");
     connect(bar, &QAction::triggered, [this] { 
-        kPrivate::insertObjectP<KcDataPlot>(workDock_, false, KcDataPlot::KePlot1dType::k_bars);
+        kPrivate::insertObjectP<KcPlot1d>(workDock_, false, KcPlot1d::KeType::k_bars);
         });
 
 

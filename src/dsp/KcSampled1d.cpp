@@ -31,7 +31,7 @@ KcSampled1d::KcSampled1d(const KcSampled1d& other)
 }
 
 
-KcSampled1d::KcSampled1d(KcSampled1d&& other)
+KcSampled1d::KcSampled1d(KcSampled1d&& other) 
     : samp_(other.samp_)
     , data_(std::move(other.data_))
     , channels_(other.channels_)
@@ -60,13 +60,13 @@ kIndex KcSampled1d::channels() const
 }
 
 
-void KcSampled1d::reserve(kIndex size)
+void KcSampled1d::reserve(kIndex size, kIndex channels)
 {
-    data_.reserve(static_cast<size_t>(size) * static_cast<size_t>(channels()));
+    data_.reserve(size * channels);
 }
 
 
-kPoint2d KcSampled1d::value(kIndex idx, kIndex channel) const
+KcSampled1d::kPoint2d KcSampled1d::value(kIndex idx, kIndex channel) const
 {
     assert(channel < channels() && idx < count());
     return kPoint2d{ samp_.indexToX(idx),
@@ -74,15 +74,11 @@ kPoint2d KcSampled1d::value(kIndex idx, kIndex channel) const
 }
 
 
-kRange KcSampled1d::xrange() const
+kRange KcSampled1d::range(kIndex axis) const
 {
-    return kRange{ samp_.xmin(), samp_.xmax() };
-}
-
-
-kRange KcSampled1d::yrange() const
-{
-    return KtuMath<kReal>::minmax(data_.data(), data_.size());
+    return axis == 0 ? 
+        kRange{ samp_.xmin(), samp_.xmax() } : 
+        KtuMath<kReal>::minmax(data_.data(), data_.size());
 }
 
 
@@ -116,16 +112,54 @@ void KcSampled1d::getSamples(kIndex idx, kReal* v, kIndex N) const
 }
 
 
-void KcSampled1d::addSamples(kReal* v, kIndex N)
+void KcSampled1d::addSamples(const kReal* v, kIndex N)
 {
-    data_.resize(data_.size() + channels() * static_cast<std::vector<kReal>::size_type>(N)); // 增加c组通道数据
-    samp_.growup(N); // 同步增大xmax
-    kReal* p = data_.data() + offset_(count() - N);
-    ::memcpy_s(p, bytesOfSamples(N), v, bytesOfSamples(N));
+    auto nc = channels() * static_cast<std::vector<kReal>::size_type>(N);
+    data_.resize(data_.size() + nc); // 增加c组通道数据
+    samp_.growTail(N); // 同步增大xmax
+    std::copy(v, v + nc, data_.end() - nc);
 }
 
 
-kReal KcSampled1d::step(int axis) const
+void KcSampled1d::append(const KvData1d& d, kIndex pos, kIndex nx)
+{
+    assert(step(0) == d.step(0) && channels() == d.channels());
+    if (nx <= 0) nx = d.count() - pos;
+    assert(pos + nx <= d.count());
+    reserve(count() + nx, channels_);
+    
+    auto sampled1d = dynamic_cast<const KcSampled1d*>(&d);
+    if (sampled1d) { // 批量增加样本点
+        addSamples(sampled1d->data() + sampled1d->offset_(pos), nx);
+    }
+    else { // 逐个增加样本点
+        std::vector<kReal> samp(d.channels());
+        for (kIndex i = pos; i < nx; i++) {
+            for (kIndex channel = 0; channel < d.channels(); channel++) 
+                samp[channel] = d.value(i, channel).y;
+            
+            addSamples(samp.data(), 1);
+        }
+    }
+}
+
+
+void KcSampled1d::copy(const KvData1d& d, kIndex pos, kIndex count)
+{
+    reset(d.step(0), d.channels());
+    append(d, pos, count);
+}
+
+
+kIndex KcSampled1d::length(kIndex axis) const
+{
+    assert(axis == 0);
+    assert(data_.size() == samp_.count());
+    return data_.size();
+}
+
+
+kReal KcSampled1d::step(kIndex axis) const
 {
     return axis == 0 ? samp_.dx() : k_nonuniform_step;
 }
@@ -138,11 +172,18 @@ void KcSampled1d::clear()
 }
 
 
-void KcSampled1d::reset(kReal dx, kIndex channels, kIndex samples)
+void KcSampled1d::reset(kReal dx, kIndex channels, kIndex nx)
 {
-     samp_.resetn(samples, dx);
+     samp_.resetn(nx, dx, 0);
      channels_ = channels;
-     data_.resize(static_cast<std::vector<kReal>::size_type>(samples) * channels);
+     data_.resize(static_cast<std::vector<kReal>::size_type>(nx) * channels);
+}
+
+
+void KcSampled1d::resize(kIndex nx, kIndex channels)
+{
+    data_.resize(nx * channels);
+    samp_.resetn(nx, samp_.dx(), samp_.x0ref());
 }
 
 
@@ -157,4 +198,58 @@ void KcSampled1d::setChannel(kReal* data, kIndex channel)
         for (kIndex i = 0; i < count(); i++)
             setSample(i, *data++, channel);
     }
+}
+
+
+void KcSampled1d::popFront(kIndex n)
+{
+    assert(n <= count());
+    data_.erase(data_.begin(), data_.begin() + offset_(n));
+    samp_.cutHead(n);
+}
+
+
+void KcSampled1d::popBack(kIndex n)
+{
+    assert(n <= count());
+    data_.erase(data_.begin() + offset_(count() - n), data_.end());
+    samp_.cutTail(n);
+}
+
+
+void KcSampled1d::cutBefore(kReal x)
+{
+    if (x <= samp_.xmin())
+        return;
+
+    auto nx = std::min(samp_.countLength(x - samp_.xmin()), count());
+    if (nx <= 0) {
+        assert(data_.empty() || value(0).x >= x);
+    }
+    else {
+        assert(value(nx - 1).x < x);
+        if (nx < count())
+            assert(value(nx).x >= x);
+    }
+
+    popFront(nx);
+}
+
+
+void KcSampled1d::cutAfter(kReal x)
+{
+    if (x >= samp_.xmax())
+        return;
+
+    auto nx = std::min(samp_.countLength(samp_.xmax() - x), count());
+    if (nx <= 0) {
+        assert(data_.empty() || value(count() - 1).x < x);
+    }
+    else {
+        assert(value(count() - nx).x >= x);
+        if (nx < count())
+            assert(value(count() - nx - 1).x < x);
+    }
+
+    popBack(nx);
 }

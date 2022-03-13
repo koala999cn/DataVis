@@ -35,7 +35,7 @@ void KcFft::onPropertyChanged(int id, const QVariant& newVal)
 }
 
 
-kRange KcFft::range(int axis) const
+kRange KcFft::range(kIndex axis) const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
@@ -48,21 +48,21 @@ kRange KcFft::range(int axis) const
 	}
 	else if (axis == 1) {
 		auto r = KvDataOperator::range(1);
-		return { 0, KtuMath<kReal>::absMax(r.first, r.second) };
+		return { 0, KtuMath<kReal>::absMax(r.low(), r.high()) };
 	}
 	
 	return KvDataOperator::range(axis);
 }
 
 
-kReal KcFft::step(int axis) const
+kReal KcFft::step(kIndex axis) const
 {
 	if (axis == 0) {
 		auto objp = dynamic_cast<const KvDataProvider*>(parent());
 		assert(objp != nullptr);
 
 		auto xrange = objp->range(0);
-		auto len = xrange.second - xrange.first;
+		auto len = xrange.length();
 		return len == 0 ? KvData::k_unknown_step : 1 / len;
 	}
 
@@ -77,18 +77,15 @@ std::shared_ptr<KvData> KcFft::processImpl_(std::shared_ptr<KvData> data)
 		auto data1d = std::dynamic_pointer_cast<KvData1d>(data);
 		assert(data1d);
 		
-		if (data1d->count() < 2)
+		if (data1d->count() < 2 || data1d->range(0).empty())
 			return data;
 
 		if (rdft_ == nullptr || rdft_->sizeT() != data1d->count())
 			rdft_ = std::make_unique<KgRdft>(data1d->count(), false, true); 
 
 		auto df = step(0);
-		if (df == KvData::k_unknown_step) {
-			auto xrange = data1d->xrange();
-			auto len = xrange.second - xrange.first;
-			df = 1 / len;
-		}
+		if (df == KvData::k_unknown_step) 
+			df = 1 / data1d->range(0).length();
 
 		auto res = std::make_shared<KcSampled1d>();
 		
@@ -98,7 +95,7 @@ std::shared_ptr<KvData> KcFft::processImpl_(std::shared_ptr<KvData> data)
 		for (kIndex c = 0; c < data1d->channels(); c++) {
 			std::vector<kReal> rawData(data1d->count());
 			for (kIndex i = 0; i < data1d->count(); i++)
-				rawData[i] = data1d->value(i, c).second;
+				rawData[i] = data1d->value(i, c).y;
 
 			rdft_->forward(rawData.data());
 			rdft_->powerSpectrum(rawData.data());

@@ -71,7 +71,7 @@
     <ClCompile Include="src\base\KuPathUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\KcDataPlot.cpp">
+    <ClCompile Include="src\KcPlot1d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\KcDataSnapshot.cpp">
@@ -107,6 +107,24 @@
     <ClCompile Include="src\op\KcHisto.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcFraming.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KcSampled2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KvData2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\op\KcSpectrogram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\KcPlot2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\KvCustomPlot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\KcAudioCaptureDlg.h">
@@ -137,9 +155,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\KvPropertiedObject.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\KcDataPlot.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\KvDataProvider.h">
@@ -232,6 +247,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\op\KcHisto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcFraming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KvData2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KtSampledN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KcSampled2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcSpectrogram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KvCustomPlot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KcPlot1d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KcPlot2d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

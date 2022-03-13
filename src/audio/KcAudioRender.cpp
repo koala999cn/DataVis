@@ -96,7 +96,7 @@ bool KcAudioRender::playback(const std::shared_ptr<KcAudio>& audio, unsigned dev
     assert(get<kPrivate::KcFileRenderObserver>() == nullptr);
     pushFront(std::make_shared<kPrivate::KcAudioRenderObserver>(audio)); // 放在最前面，这样写入的数据才能被其他观察者看到
 
-    device_->setStreamTime(audio->xrange().first);
+    device_->setStreamTime(audio->range(0).low());
     return device_->start();
 }
 

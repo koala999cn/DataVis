@@ -60,8 +60,8 @@ KvPropertiedObject::kPropertySet KcDataSnapshot::propertySet() const
 		xrange.name = u8"xrange";
 		xrange.disp = u8"Keys";
 		xrange.desc = u8"properties of data keys";
-		auto xpt = data->xrange();
-		xrange.val = QVariant(QPointF(xpt.first, xpt.second));
+		auto xpt = data->range(0);
+		xrange.val = QVariant(QPointF(xpt.low(), xpt.high()));
 		xrange.flag = KvPropertiedObject::k_readonly;
 		xrange.children.push_back(x); 
 		xrange.children.push_back(y);
@@ -71,8 +71,8 @@ KvPropertiedObject::kPropertySet KcDataSnapshot::propertySet() const
 		yrange.name = u8"yrange";
 		yrange.disp = u8"Values";
 		yrange.desc = u8"properties of data values";
-		auto ypt = data->yrange();
-		yrange.val = QVariant(QPointF(ypt.first, ypt.second));
+		auto ypt = data->range(1);
+		yrange.val = QVariant(QPointF(ypt.low(), ypt.high()));
 		yrange.flag = KvPropertiedObject::k_readonly;
 		x.desc = u8"minimum value of data values";
 		y.desc = u8"maximum value of data values";
@@ -92,13 +92,13 @@ unsigned KcDataSnapshot::dim() const
 }
 
 
-kRange KcDataSnapshot::range(int axis) const
+kRange KcDataSnapshot::range(kIndex axis) const
 {
 	return data_->range(axis);
 }
 
 
-kReal KcDataSnapshot::step(int axis) const
+kReal KcDataSnapshot::step(kIndex axis) const
 {
 	return data_->step(axis);
 }

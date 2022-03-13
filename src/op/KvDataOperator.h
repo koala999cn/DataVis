@@ -29,11 +29,11 @@ public:
 		return dynamic_cast<const KvDataProvider*>(parent())->dim();
 	}
 
-	kRange range(int axis) const override {
+	kRange range(kIndex axis) const override {
 		return dynamic_cast<const KvDataProvider*>(parent())->range(axis);
 	}
 
-	kReal step(int axis) const override {
+	kReal step(kIndex axis) const override {
 		return dynamic_cast<const KvDataProvider*>(parent())->step(axis);
 	}
 
@@ -53,7 +53,7 @@ public:
 	/// 执行operator操作
 	void process(std::shared_ptr<KvData> data) {
 		auto res = processImpl_(data);
-		emit onData(res);
+		if(res) emit onData(res);
 	}
 
 signals:
@@ -63,7 +63,8 @@ signals:
 
 
 protected:
-	// 返回的KvDataProvider对象由processImpl_创建，由调用者释放
+
+	// @data: 待处理数据，为null表示本轮此处理结束，相当于flush提示
 	virtual std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) = 0;
 };
 

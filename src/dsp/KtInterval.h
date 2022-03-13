@@ -9,82 +9,88 @@ class KtInterval
 {
 public:
 
-    KtInterval() : start_(0), end_(0) {}
+    KtInterval() : low_(0), high_(0) {}
 
-    KtInterval(T start, T end) : start_(start), end_(end) {
-        assert(start_ <= end_);
+    KtInterval(T low, T high) : low_(low), high_(high) {
+        assert(low_ <= high_);
+    }
+
+    KtInterval(const std::pair<T, T>& p) : low_(p.first), high_(p.second) {
+        assert(low_ <= high_);
     }
 
     KtInterval(const KtInterval& other)
-        : start_(other.start())
-        , end_(other.end()) {
+        : low_(other.low())
+        , high_(other.high()) {
     }
 
 
-    void reset(T start, T end) {
-        assert(start <= end);
-        start_ = start, end_ = end;
+    void reset(T low, T high) {
+        assert(low <= high);
+        low_ = low, high_ = high;
     }
 
-    void resetStart(T start) { start_ = start; }
-    void resetEnd(T end) { end_ = end; }
+    void resetLow(T low) { low_ = low; }
+    void resetHigh(T high) { high_ = high; }
 
 
-    T start() const { return start_; }
-    T end() const { return end_; }
+    T low() const { return low_; }
+    T high() const { return high_; }
 
     // 区间的长度
-    T length() const { return end_ - start_; }
+    T length() const { return high_ - low_; }
 
 
     // 判定是否为空区间
     bool empty() const {
-        return start_ == end_;
+        return low_ == high_;
     }
 
 
     KtInterval& operator=(const KtInterval& other) {
-        start_ = other.start(), end_ == other.end();
+        low_ = other.low(), high_ == other.high();
     }
 
 
     bool operator==(const KtInterval& other) const {
-        return start_ == other.start() && end_ == other.end();
+        return low_ == other.low() && high_ == other.high();
     }
 
     bool operator!=(const KtInterval& other) const {
-        return start_ != other.start() || end_ != other.end();
+        return low_ != other.low() || high_ != other.high();
     }
 
 
-    // 区间偏移offset
+    // 区间偏移offset，保持区间长度不变
     void shift(T offset) {
-        start_ += offset, end_ += offset;
+        low_ += offset, high_ += offset;
     }
 
-    void shiftStart(T offset) { start_ += offset; }
-    void shiftEnd(T offset) { end_ += offset; }
-
-
-    // 移动区间，以确保区间起点为newStart
-    void shiftTo(T newStart) {
-        end_ += newStart - start_;
-        start_ = newStart;
+    // 移动区间，以确保区间起点为newLow，保持区间长度不变
+    void shiftLowTo(T newLow) {
+        high_ += newLow - low_;
+        low_ = newLow;
     }
 
-
-    // 移动区间，以确保区间起点为零点
-    void shiftToSource() const {
-        shiftTo(0);
+    // 移动区间，以确保区间终点为newHigh，保持区间长度不变
+    void shiftHighTo(T newHigh) {
+        low_ += newHigh - high_;
+        high_ = newHigh;
     }
+
+    // 以下变换不保持区间长度
+
+    void shiftLow(T offset) { low_ += offset; }
+    void shiftHigh(T offset) { high_ += offset; }
+
 
     // 区间缩放factor尺度
     void scale(T factor) {
-        start_ *= factor, end_ *= factor;
+        low_ *= factor, high_ *= factor;
     }
 
 
-    // // 缩放区间，以确保区间长度为newLength
+    // 缩放区间，以确保区间长度为newLength
     void scaleToLength(T newLength) {
         assert(!empty());
         scale(newLength / length());
@@ -101,12 +107,12 @@ public:
     void transform(const KtInterval& from, const KtInterval& to) {
         shiftToSource();
         scale(to.length() / from.length());
-        shift(to.start());
+        shift(to.low());
     }
 
 
-    // 判定x是否在本区间内
-    bool cover(T x) const { return x >= start_ && x <= end_; }
+    // 判定x是否在本区间内（左闭右开）
+    bool cover(T x) const { return x >= low_ && x < high_; }
 
 
     // 规整[x1, x2]为与本区间的交集
@@ -114,13 +120,13 @@ public:
     // 返回false表示[x1, x2]与本区间不相交
     bool intersect(T& x1, T& x2) const {
         if(x1 < x2) {
-            if(x1 < start_) x1 = start_;   // intersect requested range with logical domain
-            if(x2 > end_) x2 = end_;
+            if(x1 < low_) x1 = low_;   // intersect requested range with logical domain
+            if(x2 > high_) x2 = high_;
             if(x2 <= x1) return false; // requested range and logical domain do not intersect
         }
         else {
-            if(x2 < start_) x2 = start_;   // intersect requested range with logical domain
-            if(x1 > end_) x1 = end_;
+            if(x2 < low_) x2 = low_;   // intersect requested range with logical domain
+            if(x1 > high_) x1 = high_;
             if(x1 <= x2) return false; // requested range and logical domain do not intersect
         }
         assert(x1 != x2);
@@ -132,36 +138,36 @@ public:
 
     T fitNearest(T x) const {
         assert(!conver(x));
-        return x > end() ? end() : start();
+        return x > high() ? high() : low();
     }
 
 
     T fitMirror(T x) {
         assert(!conver(x));
 
-        if(x > end()) {
-            auto ratio = std::fmod(x - end(), length());
-            return end() - ratio * length();
+        if(x > high()) {
+            auto ratio = std::fmod(x - high(), length());
+            return high() - ratio * length();
         }
         else {
-            auto ratio = std::fmod(start() - x, length());
-            return start() + ratio * length();
+            auto ratio = std::fmod(low() - x, length());
+            return low() + ratio * length();
         }
     }
 
     T fitPeriod(T x) {
         assert(!conver(x));
 
-        if(x > end()) {
-            auto ratio = std::fmod(x - end(), length());
-            return start() + ratio * length();
+        if(x > high()) {
+            auto ratio = std::fmod(x - high(), length());
+            return low() + ratio * length();
         }
         else {
-            auto ratio = std::fmod(start() - x, length());
-            return end() - ratio * length();
+            auto ratio = std::fmod(low() - x, length());
+            return high() - ratio * length();
         }
     }
 
 private:
-    T start_, end_; // 数据所在区间
+    T low_, high_; // 数据所在区间
 };

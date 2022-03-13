@@ -17,9 +17,9 @@ public:
 	// key轴为频率轴，非时间轴，故非stream
 	bool isStream() const override { return false; }
 
-	kRange range(int axis) const override;
+	kRange range(kIndex axis) const override;
 
-	kReal step(int axis) const override;
+	kReal step(kIndex axis) const override;
 
 	unsigned ins() const final { return 1u; }
 

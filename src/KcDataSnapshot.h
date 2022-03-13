@@ -29,9 +29,9 @@ public:
 
 	unsigned dim() const final;
 
-	kRange range(int axis) const final;
+	kRange range(kIndex axis) const final;
 
-	kReal step(int axis) const final;
+	kReal step(kIndex axis) const final;
 
 	bool pushData() final;
 

@@ -2,7 +2,6 @@
 #include "KtSampling.h"
 #include <vector>
 #include "KcSampled1d.h"
-#include "KtuMath.h"
 #include <QPointF>
 
 
@@ -10,7 +9,7 @@ KcHisto::KcHisto(KvDataProvider* prov)
     : KvDataOperator("histo", prov)
 {
     auto xrange = prov->range(0);
-    xmin_ = xrange.first, xmax_ = xrange.second;
+    xmin_ = xrange.low(), xmax_ = xrange.high();
 
     bands_ = 9;
 }
@@ -73,7 +72,7 @@ void KcHisto::onPropertyChanged(int id, const QVariant& newVal)
 }
 
 
-kRange KcHisto::range(int axis) const
+kRange KcHisto::range(kIndex axis) const
 {
     if (axis == 0) 
         return  { xmin_, xmax_ };
@@ -82,11 +81,11 @@ kRange KcHisto::range(int axis) const
 }
 
 
-kReal KcHisto::step(int axis) const
+kReal KcHisto::step(kIndex axis) const
 {
     if (axis == 0) {
         KtSampling<kReal> samp;
-        samp.resetn(xmin_, xmax_, bands_, 0.5);
+        samp.resetn(bands_, xmin_, xmax_, 0.5);
         return samp.dx();
     }
 
@@ -96,55 +95,58 @@ kReal KcHisto::step(int axis) const
 
 std::shared_ptr<KvData> KcHisto::processImpl_(std::shared_ptr<KvData> data)
 {
+    assert(xmin_ < xmax_);
+
     auto xrange = data->range(0);
-    auto xmin = xmin_;
-    auto xmax = KtuMath<kReal>::clamp(xmax_, xrange.first, xrange.second);
 
     assert(bands_ > 0);
 
     KtSampling<kReal> samp;
-    samp.resetn(xmin, xmax, bands_, 0.5);
+    samp.resetn(bands_, xmin_, xmax_, 0.5);
 
     auto res = std::make_shared<KcSampled1d>(samp.dx(), 0.5);
-    res->sampling().shift(xmin);
-    res->reserve(samp.nx());
+    res->sampling().shiftLowTo(xmin_);
+    res->reserve(samp.count(), res->channels());
 
     // skip points that out of left range
     auto data1d = std::dynamic_pointer_cast<KvData1d>(data);
+
+
+    // 跳过统计区间（左）之外的数据点
     kIndex i = 0;
-    while (i < data1d->count() && data1d->value(i).first < xmin)
+    while (i < data1d->count() && data1d->value(i).x < xmin_)
         ++i;
 
-    if (xmin < xmax) {
-        auto limit = xmin + samp.dx();
-        kReal sum(0);
-        unsigned c(0);
+    auto barRight = xmin_ + samp.dx();
+    kReal sum(0);
+    unsigned c(0);
 
-        for (; i < data1d->count(); i++) {
-            if (data1d->value(i).first < limit) { // accumulate current bar
-                sum += data1d->value(i).second;
-                ++c;
-            }
-            else { // goto next bar
-                
+    while (i < data1d->count()) {
+        if (data1d->value(i).x < barRight) { // accumulate current bar
+            sum += data1d->value(i++).y;
+            ++c;
+        }
+        else { // goto next bar
+             
+            if (c > 0) {
                 sum /= c;
                 res->addSamples(&sum, 1);
-
-                if (limit >= xmax)
-                    break;
-
-                limit += samp.dx();
-                sum = 0;
-                c = 0;
             }
-        }
 
-        if (c > 0) {
-            sum /= c;
-            res->addSamples(&sum, 1);
-        }
+            if (barRight >= xmax_)
+                break;
 
+            barRight += samp.dx();
+            sum = 0;
+            c = 0;
+        }
     }
+
+    if (c > 0) {
+        sum /= c;
+        res->addSamples(&sum, 1);
+    }
+
 
     return res;
 }

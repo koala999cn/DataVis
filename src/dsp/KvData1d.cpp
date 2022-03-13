@@ -1,19 +1,18 @@
 ﻿#include "KvData1d.h"
-#include "KtuMath.h"
+#include <cmath>
+#include <limits>
 
 
 // TODO: 使用极值修正算法
-kRange KvData1d::yrange(kIndex channel) const 
+kRange KvData1d::valueRange(kIndex channel) const 
 {
-    kIndex i = 0;
-    kReal ymin = value(0, channel).second;
-    while (std::isnan<kReal>(ymin) && i < count() - 1)
-        ymin = value(++i, channel).second; // 搜索定位第一个有效数据
+    if (empty()) return { 0, 0 };
 
-    kReal ymax(ymin);
+    kReal ymin = std::numeric_limits<kReal>::max();
+    kReal ymax = std::numeric_limits<kReal>::lowest();
 
-    for (i; i < count(); i++) {
-        auto y = value(i, channel).second;
+    for (kIndex i = 0; i < count(); i++) {
+        auto y = value(i, channel).y;
         if (std::isnan<kReal>(y))
             continue;
 

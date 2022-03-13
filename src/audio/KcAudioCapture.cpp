@@ -127,7 +127,7 @@ bool KcAudioCapture::record(std::shared_ptr<KcAudio>& audio, unsigned deviceId, 
     
     pushBack(std::make_shared<KcAudioCaptureObserver>(audio));
 
-    device_->setStreamTime(audio->xrange().first);
+    device_->setStreamTime(audio->range(0).low());
     return device_->start();
 }
 
