@@ -6,11 +6,11 @@ data visualization
 #### 依赖库
 - [blitz](https://github.com/blitzpp/blitz)
 - [exprtkX](https://gitee.com/koala999/exprtk-x)
-- KDDockWidgets
-- libsndfile
-- praat
-- QCustomPlot
+- [KDDockWidgets](https://github.com/KDAB/KDDockWidgets)
+- [libsndfile](http://libsndfile.github.io/libsndfile/)
+- [praat](https://www.fon.hum.uva.nl/praat/)
+- [QCustomPlot](https://www.qcustomplot.com/)
 - [QtnProperty](https://github.com/koala999cn/QtnProperty)
-- rtaudio
-- smarc
+- [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/)
+- [smarc](http://audio-smarc.sourceforge.net/)
 
