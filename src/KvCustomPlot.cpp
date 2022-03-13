@@ -32,7 +32,7 @@ KvCustomPlot::KvCustomPlot(KvDataProvider* is, const QString& name)
 
 KvCustomPlot::~KvCustomPlot()
 {
-	customPlot_->setParent(nullptr); // NOTE: 这很重要
+	show(false);
 	delete customPlot_;
 }
 
