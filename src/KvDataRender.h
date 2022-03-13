@@ -18,6 +18,12 @@ public:
 		return ""; // 空字符串表示无错误
 	}
 
+	// 该render是否可被显示
+	virtual bool canShown() const = 0;
+
+	// 该render是否可见
+	virtual bool isVisible() const = 0;
+
 
 public slots:
 

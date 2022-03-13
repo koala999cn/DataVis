@@ -20,6 +20,10 @@ public:
 	KvCustomPlot(KvDataProvider* is, const QString& name);
 	virtual ~KvCustomPlot();
 
+	bool canShown() const override;
+
+	bool isVisible() const override;
+
 	void show(bool bShow) override;
 
 

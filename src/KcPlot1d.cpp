@@ -589,11 +589,12 @@ bool KcPlot1d::render(std::shared_ptr<KvData> data)
 
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 
-	if (type_ == KeType::k_bars) 
+	if (type_ == KeType::k_bars) {
 		kPrivate::doPlot<QCPBars>(plot, data1d, prov->isStream());
+		updateBarWidth_();
+	}
 	else {
 		kPrivate::doPlot<QCPGraph>(plot, data1d, prov->isStream());
-		updateBarWidth_();
 	}
 
 	show(true);

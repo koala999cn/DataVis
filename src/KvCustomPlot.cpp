@@ -32,8 +32,20 @@ KvCustomPlot::KvCustomPlot(KvDataProvider* is, const QString& name)
 
 KvCustomPlot::~KvCustomPlot()
 {
-	customPlot_->setParent(nullptr); // TODO: 这很重要，QCustomPlot析构时貌似没有执行该操作
+	customPlot_->setParent(nullptr); // NOTE: 这很重要
 	delete customPlot_;
+}
+
+
+bool KvCustomPlot::canShown() const
+{
+	return true;
+}
+
+
+bool KvCustomPlot::isVisible() const
+{
+	return customPlot_->isVisible();
 }
 
 

@@ -149,8 +149,9 @@ void QtWorkspaceWidget::contextMenuEvent(QContextMenuEvent*)
 
 	QMenu menu(this);
 
-	QAction renderItem(tr("render"), this);
-	QAction stopItem(tr("stop"), this);
+	QAction renderItem(tr("render"), this); // 仅stream
+	QAction stopItem(tr("stop"), this); // 仅stream
+	QAction showItem(tr("show"), this); // 仅render
 
 	auto obj = getObject(curItem);
 	auto provider = dynamic_cast<KvDataProvider*>(obj);
@@ -164,6 +165,15 @@ void QtWorkspaceWidget::contextMenuEvent(QContextMenuEvent*)
 		else {
 			connect(&renderItem, &QAction::triggered, provider, &KvDataStream::pushData);
 			menu.addAction(&renderItem);
+		}
+	}
+	else {
+		auto render = dynamic_cast<KvDataRender*>(obj);
+		if (render && render->canShown()) {
+			showItem.setCheckable(true);
+			showItem.setChecked(render->isVisible());
+			connect(&showItem, &QAction::triggered, render, &KvDataRender::show);
+			menu.addAction(&showItem);
 		}
 	}
 

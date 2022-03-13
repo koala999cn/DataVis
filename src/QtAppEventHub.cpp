@@ -56,6 +56,7 @@ void QtAppEventHub::slotShowInDock(KvPropertiedObject* obj, QWidget* widget)
 
 	if (dock->widget() == nullptr) {
 		dock->setWidget(widget);
+		widget->show();
 
 		connect(dock, &DockWidget::isFocusedChanged, [=](bool focus) {
 			if(focus) slotObjectActivated(obj);
@@ -63,6 +64,7 @@ void QtAppEventHub::slotShowInDock(KvPropertiedObject* obj, QWidget* widget)
 
 		connect(dock, &DockWidget::aboutToDeleteOnClose, [=]() {
 			dock->setWidget(nullptr); // 不释放关联的widget
+			widget->setVisible(false);
 			emit dockClosed(obj);
 			});
 
@@ -84,6 +86,12 @@ void QtAppEventHub::slotCloseDock(KvPropertiedObject* obj)
 {
 	auto dock = kPrivate::getDock(obj, false);
 	if (dock) {
+		auto widget = dock->widget();
+		if (widget) {
+			dock->setWidget(nullptr); // 不释放关联的widget
+			widget->setVisible(false);
+		}
+
 		delete dock;
 		assert(kPrivate::getDock(obj, false) == nullptr);
 
