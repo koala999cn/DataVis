@@ -15,15 +15,13 @@ namespace kPrivate
 		case KcPlot1d::KeType::k_scatter:
 			return QObject::tr(u8"scatter_plot");
 
-		case KcPlot1d::KeType::k_line:
-			return QObject::tr(u8"line_plot");
-
 		case KcPlot1d::KeType::k_bars:
 			return QObject::tr(u8"bars_plot");
-		}
 
-		assert(false);
-		return QObject::tr(u8"unknown");
+		case KcPlot1d::KeType::k_line:
+		default:
+			return QObject::tr(u8"line_plot");
+		}
 	}
 }
 
@@ -38,10 +36,6 @@ KcPlot1d::KcPlot1d(KvDataProvider* is, KeType type)
 		graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross));
 		graph->setAntialiasedScatters(true);
 	}
-	else if(type == KeType::k_line) {
-		auto graph = customPlot_->addGraph();
-	    graph->setAdaptiveSampling(true);
-	}
 	else if (type == KeType::k_bars) {
 		auto bars = new QCPBars(customPlot_->xAxis, customPlot_->yAxis);
 		bars->setWidthType(QCPBars::wtPlotCoords);
@@ -49,42 +43,18 @@ KcPlot1d::KcPlot1d(KvDataProvider* is, KeType type)
 		updateBarWidth_();
 	}
 	else {
-		assert(false);
+		assert(type == KeType::k_line);
+		auto graph = customPlot_->addGraph();
+		graph->setAdaptiveSampling(true);
 	}
 }
 
 
 namespace kPrivate
 {
-	enum KePlotPropertyId 
+	enum KePlot1dProperty
 	{
-		k_auto_scale,
-		k_axis_bottom,
-		k_axis_bottom_visible = k_axis_bottom,
-		k_axis_bottom_range,
-		k_axis_bottom_log,
-		k_axis_bottom_tick_length,
-		k_axis_bottom_subtick_length,
-		k_axis_left,
-		k_axis_left_visible = k_axis_left,
-		k_axis_left_range,
-		k_axis_left_log,
-		k_axis_left_tick_length,
-		k_axis_left_subtick_length,
-		k_axis_top,
-		k_axis_top_visible = k_axis_top,
-		k_axis_top_range,
-		k_axis_top_log,
-		k_axis_top_tick_length,
-		k_axis_top_subtick_length,
-		k_axis_right,
-		k_axis_right_visible = k_axis_right,
-		k_axis_right_range,
-		k_axis_right_log,
-		k_axis_right_tick_length,
-		k_axis_right_subtick_length,
-
-		k_background,
+		k_plot1d_prop_id = 200, // 此前的id预留给KvCustomPlot
 
 		k_line_pen,
 		k_line_style,
@@ -99,93 +69,7 @@ namespace kPrivate
 		k_bar_width,
 		k_bar_fill_brush,
 		k_bar_fill_color,
-
-		k_axis_visible = k_axis_bottom_visible - k_axis_bottom,
-		k_axis_range = k_axis_bottom_range - k_axis_bottom,
-		k_axis_log = k_axis_bottom_log - k_axis_bottom,
-		k_axis_tick_length = k_axis_bottom_tick_length - k_axis_bottom,
-		k_axis_subtick_length = k_axis_bottom_subtick_length - k_axis_bottom,
-		k_axis_max = k_axis_subtick_length
 	};
-
-
-	// @idBase: 用来计算真实id的基数
-	static KvPropertiedObject::kPropertySet getAxisProperties(QCPAxis* axis, int idBase)
-	{
-		KvPropertiedObject::kPropertySet psAxis;
-		KvPropertiedObject::KpProperty prop;
-
-		prop.id = idBase + k_axis_visible;
-		prop.name = QStringLiteral("Visible");
-		prop.flag = 0;
-		prop.val = axis->visible();
-		psAxis.push_back(prop);
-
-		prop.id = idBase + k_axis_range;
-		prop.name = QStringLiteral("Range");
-		prop.flag = KvPropertiedObject::k_restrict;
-		prop.val = QPointF(axis->range().lower, axis->range().upper);
-		KvPropertiedObject::KpProperty subProp;
-		subProp.name = QStringLiteral("min");
-		prop.children.push_back(subProp);
-		subProp.name = QStringLiteral("max");
-		prop.children.push_back(subProp);
-		psAxis.push_back(prop);
-
-		prop.id = idBase + k_axis_log;
-		prop.name = QStringLiteral("log");
-		prop.disp = QStringLiteral("Log Scale");
-		prop.val = axis->stLogarithmic == axis->scaleType();
-		psAxis.push_back(prop);
-
-		prop.id = idBase + k_axis_tick_length;
-		prop.name = QStringLiteral("tick-length");
-		prop.disp = QStringLiteral("Tick Length");
-		prop.flag = 0;
-		prop.val = QPoint(axis->tickLengthIn(), axis->tickLengthOut());
-		subProp.name = QStringLiteral("in");
-		prop.children.push_back(subProp);
-		subProp.name = QStringLiteral("out");
-		prop.children.push_back(subProp);
-		psAxis.push_back(prop);
-
-		prop.id = idBase + k_axis_subtick_length;
-		prop.name = QStringLiteral("subtick-length");
-		prop.disp = QStringLiteral("Subtick Length");
-		prop.val = QPoint(axis->subTickLengthIn(), axis->subTickLengthOut());
-		psAxis.push_back(prop);
-
-		return psAxis;
-	}
-
-	static void onAxisPropertyChanged(QCPAxis* axis, int idDiff, const QVariant& newVal)
-	{
-		switch(idDiff) {
-		case k_axis_visible:
-			axis->setVisible(newVal.toBool());
-			break;
-
-		case k_axis_range:
-			axis->setRange(newVal.toPointF().x(), newVal.toPointF().y());
-			break;
-
-		case k_axis_log:
-			axis->setScaleType(newVal.toBool() ? axis->stLogarithmic : axis->stLinear);
-			break;
-
-		case k_axis_tick_length:
-			axis->setTickLength(newVal.toPoint().x(), newVal.toPoint().y());
-			break;
-
-		case k_axis_subtick_length:
-			axis->setSubTickLength(newVal.toPoint().x(), newVal.toPoint().y());
-			break;
-
-		default:
-			assert(false);
-			break;
-		}
-	}
 
 
 	template<typename PLOT_TYPE>
@@ -261,16 +145,10 @@ KvPropertiedObject::kPropertySet KcPlot1d::propertySet() const
 {
 	using namespace kPrivate;
 
-	kPropertySet ps;
+	kPropertySet ps = KvCustomPlot::propertySet();
 
 	KpProperty prop;
 	KpProperty subProp;
-
-	prop.id = k_background;
-	prop.name = QStringLiteral("Background");
-	prop.flag = 0;
-	prop.val = back_;
-	ps.push_back(prop);
 
 	if(type_ == KeType::k_line)
 		ps.push_back(lineProperty_(false));
@@ -280,8 +158,6 @@ KvPropertiedObject::kPropertySet KcPlot1d::propertySet() const
 
 	if (type_ != KeType::k_bars)
 		ps.push_back(scatterProperty_(type_ == KeType::k_line));
-
-	ps.push_back(axisProperty_());
 
 	return ps;
 }
@@ -354,6 +230,7 @@ KvPropertiedObject::KpProperty KcPlot1d::scatterProperty_(bool hasNone) const
 		customPlot_->graph()->setScatterStyle(style);
 	}
 	subProp.val = style.pen();
+	subProp.attr.penFlags = KvPropertiedObject::k_pen_color | KvPropertiedObject::k_pen_width;
 	prop.children.push_back(subProp);
 
     return prop;
@@ -399,6 +276,7 @@ KvPropertiedObject::KpProperty KcPlot1d::lineProperty_(bool hasNone) const
 	return prop;
 }
 
+
 KvPropertiedObject::KpProperty KcPlot1d::barProperty_() const
 {
 	KpProperty prop;
@@ -436,50 +314,9 @@ KvPropertiedObject::KpProperty KcPlot1d::barProperty_() const
 	subProp.id = kPrivate::k_bar_fill_color;
 	subProp.name = QStringLiteral("Color");
 	subProp.val = QVariant::fromValue(customPlot_->plottable()->brush().color());
-	subProp.attr.colorFlags = KvPropertiedObject::k_show_color_items | KvPropertiedObject::k_show_alpha_channel;
+	subProp.attr.colorFlags = KvPropertiedObject::k_show_alpha_channel;
 	prop.children.push_back(subProp);
 
-
-	return prop;
-}
-
-KvPropertiedObject::KpProperty KcPlot1d::axisProperty_() const
-{
-	KpProperty prop;
-	KpProperty subProp;
-
-	prop.id = KvPropertiedObject::kInvalidId;
-	prop.name = QStringLiteral("Axis");
-	prop.val.clear();
-	prop.flag = KvPropertiedObject::k_collapsed;
-
-	if (!dynamic_cast<KvDataProvider*>(parent())->isStream()) {
-		subProp.id = kPrivate::k_auto_scale;
-		subProp.name = QStringLiteral("Auto-scale");
-		subProp.disp = QStringLiteral("Auto scale");
-		subProp.val = autoScale_;
-		prop.children.push_back(subProp);
-	}
-
-	subProp.id = KvPropertiedObject::kInvalidId;
-	subProp.name = QStringLiteral("Bottom");
-	subProp.disp.clear();
-	subProp.val.clear();
-	subProp.flag = KvPropertiedObject::k_collapsed;
-	subProp.children = kPrivate::getAxisProperties(customPlot_->xAxis, kPrivate::k_axis_bottom);
-	prop.children.push_back(subProp);
-
-	subProp.name = QStringLiteral("Left");
-	subProp.children = kPrivate::getAxisProperties(customPlot_->yAxis, kPrivate::k_axis_left);
-	prop.children.push_back(subProp);
-
-	subProp.name = QStringLiteral("Top");
-	subProp.children = kPrivate::getAxisProperties(customPlot_->xAxis2, kPrivate::k_axis_top);
-	prop.children.push_back(subProp);
-
-	subProp.name = QStringLiteral("Right");
-	subProp.children = kPrivate::getAxisProperties(customPlot_->yAxis2, kPrivate::k_axis_right);
-	prop.children.push_back(subProp);
 
 	return prop;
 }
@@ -487,37 +324,16 @@ KvPropertiedObject::KpProperty KcPlot1d::axisProperty_() const
 
 void KcPlot1d::onPropertyChanged(int id, const QVariant& newVal)
 {
-	assert(id >= 0);
-
 	using namespace kPrivate;
 
-	if (id >= k_axis_bottom && id - k_axis_bottom <= k_axis_max)
-		onAxisPropertyChanged(customPlot_->xAxis, id - k_axis_bottom, newVal);
-	else if (id >= k_axis_left && id - k_axis_left <= k_axis_max)
-		onAxisPropertyChanged(customPlot_->yAxis, id - k_axis_left, newVal);
-	else if (id >= k_axis_top && id - k_axis_top <= k_axis_max)
-		onAxisPropertyChanged(customPlot_->xAxis2, id - k_axis_top, newVal);
-	else if (id >= k_axis_right && id - k_axis_right <= k_axis_max)
-		onAxisPropertyChanged(customPlot_->yAxis2, id - k_axis_right, newVal);
+	assert(id >= 0);
+
+	if (id <= k_plot1d_prop_id) {
+		KvCustomPlot::onPropertyChanged(id, newVal);
+	}
 	else {
+
 		switch (id) {
-		case k_auto_scale:
-			autoScale_ = newVal.toBool();
-			if (autoScale_) {
-				rescaleAxes();
-
-				// TODO: 同步axis的range属性
-			}
-			else {
-				return; // no replot
-			}
-			break;
-
-		case k_background:
-			back_ = newVal.value<QColor>();
-			customPlot_->setBackground(QBrush(back_));
-			break;
-
 		case k_line_pen:
 		case k_bar_pen:
 			customPlot_->plottable()->setPen(newVal.value<QPen>());
@@ -527,22 +343,22 @@ void KcPlot1d::onPropertyChanged(int id, const QVariant& newVal)
 			auto style = customPlot_->graph()->scatterStyle();
 			style.setShape(QCPScatterStyle::ScatterShape(newVal.toInt()));
 			customPlot_->graph()->setScatterStyle(style);
-		    }
 			break;
+		    }
 
 		case k_scatter_size: {
 			auto style = customPlot_->graph()->scatterStyle();
 			style.setSize(newVal.toDouble());
 			customPlot_->graph()->setScatterStyle(style);
-		    }
 			break;
+		    }
 
 		case k_scatter_pen: {
 			auto style = customPlot_->graph()->scatterStyle();
 			style.setPen(newVal.value<QPen>());
 			customPlot_->graph()->setScatterStyle(style);
+			break;
 		    }
-		break;
 
 		case k_scatter_skip:
 			customPlot_->graph()->setScatterSkip(newVal.toInt());
@@ -556,21 +372,21 @@ void KcPlot1d::onPropertyChanged(int id, const QVariant& newVal)
 			auto brush = customPlot_->plottable()->brush();
 			brush.setStyle(Qt::BrushStyle(newVal.value<qint32>()));
 			customPlot_->plottable()->setBrush(brush);
-		    }
 			break;
+		    }
 
 		case k_bar_fill_color: {
 			auto brush = customPlot_->plottable()->brush();
 			brush.setColor(newVal.value<QColor>());
 			customPlot_->plottable()->setBrush(brush);
-		    }
 			break;
-
+		    }
+			
 		case k_bar_width: {
 			barWidthRatio_ = newVal.toFloat();
 			updateBarWidth_();
-		    }
 			break;
+		    }
 		}
 	}
 

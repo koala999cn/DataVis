@@ -27,7 +27,6 @@ private:
 	KpProperty scatterProperty_(bool hasNone) const;
 	KpProperty lineProperty_(bool hasNone) const;
 	KpProperty barProperty_() const;
-	KpProperty axisProperty_() const;
 	void updateBarWidth_();
 
 
