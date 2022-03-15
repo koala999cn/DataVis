@@ -66,7 +66,6 @@ public:
 
 	enum KePropertyFlag
 	{
-		k_none,
 		k_readonly = 0x01, // 属性只读，默认为可编辑
 		k_collapsed = 0x02, // 属性处于折叠状态，不展开子属性，默认为展开状态
 		k_restrict = 0x04  // 属性的最大最小值相互制约，仅对QPoint, QPointF类型有效
@@ -74,21 +73,21 @@ public:
 
 	enum KeColorFlag
 	{
-		k_color_none,
 		k_show_color_items = 0x01,
 		k_show_alpha_channel = 0x02
 	};
 
 	enum KePenFlag
 	{
-		k_pen_none,
-		k_show_no_pen = 0x01, // 缺省为false
+		k_pen_none = 0x01, // 缺省为false
 		k_pen_color = 0x02, // 缺省为true
 		k_pen_style = 0x04, // 缺省为true
 		k_pen_width = 0x08, // 缺省为true
 		k_pen_cap_style = 0x10, // 缺省为true
 		k_pen_join_style = 0x20, // 缺省为true
-		k_pen_all = k_pen_color | k_pen_style | k_pen_width | k_pen_cap_style | k_pen_join_style
+		k_pen_color_alpha = 0x40,
+		k_pen_all = k_pen_color | k_pen_style | k_pen_width | k_pen_cap_style 
+		          | k_pen_join_style | k_pen_color_alpha
 	};
 
 	static constexpr int kInvalidId = -1;

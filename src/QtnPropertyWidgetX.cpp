@@ -186,7 +186,7 @@ void QtnPropertyWidgetX::setDelegateAttributes_(QtnPropertyBase* qtn, const KvPr
     }
     else if (prop.val.type() == QMetaType::QPen) { // config pen's atrributes
         qtn->setDelegateAttribute(qtnShowNoPenAttr(),
-            prop.attr.penFlags & KvPropertiedObject::k_show_no_pen);
+            prop.attr.penFlags & KvPropertiedObject::k_pen_none);
         qtn->setDelegateAttribute(qtnEditColorAttr(), 
             prop.attr.penFlags & KvPropertiedObject::k_pen_color);
         qtn->setDelegateAttribute(qtnEditStyleAttr(), 
@@ -197,6 +197,8 @@ void QtnPropertyWidgetX::setDelegateAttributes_(QtnPropertyBase* qtn, const KvPr
             prop.attr.penFlags & KvPropertiedObject::k_pen_cap_style);
         qtn->setDelegateAttribute(qtnEditJoinStyleAttr(),
             prop.attr.penFlags & KvPropertiedObject::k_pen_join_style);
+        qtn->setDelegateAttribute(qtnShowAlphaChannelAttr(),
+            prop.attr.colorFlags & KvPropertiedObject::k_pen_color_alpha);
     }
     else if (prop.val.type() == QMetaType::QBrush) {
         qtn->fromVariant(static_cast<int>(prop.val.value<QBrush>().style())); // 须调整QBrush类型的赋值

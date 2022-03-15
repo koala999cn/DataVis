@@ -2,10 +2,10 @@
 #include "KvDataOperator.h"
 
 
-class KcFraming : public KvDataOperator
+class KcFramingOp : public KvDataOperator
 {
 public:
-	KcFraming(KvDataProvider* prov);
+	KcFramingOp(KvDataProvider* prov);
 
 	kPropertySet propertySet() const override;
 

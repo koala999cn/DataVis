@@ -48,13 +48,6 @@ public:
     }
 
 
-    // reshape the array
-    // 目前blitz++只支持到11个维度的多参数实现，更多维度的可使用TinyVector
-    //std::enable_if_t<sizeof...(Indices) <= std::min(DIM + 1, 11), void>
-    //void resize(int... indices) {
-    //    array_.resizeAndPreserve(indices...);
-    //}
-
     // 重置通道数
     void resizeChannel(int c) {
         auto extent = array_.extent();
@@ -66,16 +59,6 @@ public:
     void addChannel() {
         resizeChannel(channels() + 1);
     }
-
- 
-    //at(int... indices) {
-    ///    return array_(indices...);
-    //}
-
-
-    //at(int... indices) const {
-    //    return array_(indices...);
-    //}
 
 
     // 第channel通道的最大最小值
@@ -104,16 +87,13 @@ public:
         return KtuMath<value_type>::minmax(array_.dataFirst(), array_.size());
     }
 
-/*
-    value_type indexToValue(int axis, long idx) const {
-        return samp_[axis].indexToX(idx);
-    }
+    kReal* at(int row) { return &array_(row); }
+    const kReal* at(int row) const { return &array_(row); }
 
-
-    long valueToIndex(int axis, value_type val) const {
-        return samp_[axis].xToIndex(val);
+    // 调整第axis轴的采样参数
+    void reset(kIndex axis, kReal low, kReal step, kReal t0_ref = 0) {
+        samp_[axis].reset(low, low + step * length(axis), step, low + step * t0_ref);
     }
-*/
 
 protected:
 	blitz::Array<value_type, DIM+1> array_; // 增加1维度，以提供多通道支持

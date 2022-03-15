@@ -2,10 +2,10 @@
 #include "KvDataOperator.h"
 
 
-class KcSpectrogram : public KvDataOperator
+class KcSpectrogramOp : public KvDataOperator
 {
 public:
-	KcSpectrogram(KvDataProvider* prov);
+	KcSpectrogramOp(KvDataProvider* prov);
 
 	kPropertySet propertySet() const override;
 

@@ -107,7 +107,7 @@
     <ClCompile Include="src\op\KcHisto.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcFraming.cpp">
+    <ClCompile Include="src\op\KcFramingOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KcSampled2d.cpp">
@@ -116,13 +116,19 @@
     <ClCompile Include="src\dsp\KvData2d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcSpectrogram.cpp">
+    <ClCompile Include="src\op\KcSpectrogramOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\KcPlot2d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\KvCustomPlot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\KgSpectrogram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\KgFraming.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -249,7 +255,7 @@
     <ClInclude Include="src\op\KcHisto.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcFraming.h">
+    <ClInclude Include="src\op\KcFramingOp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KvData2d.h">
@@ -261,7 +267,7 @@
     <ClInclude Include="src\dsp\KcSampled2d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcSpectrogram.h">
+    <ClInclude Include="src\op\KcSpectrogramOp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\KvCustomPlot.h">
@@ -271,6 +277,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\KcPlot2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KgSpectrogram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KgFraming.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

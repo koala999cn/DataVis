@@ -1,9 +1,9 @@
-﻿#include "KcFraming.h"
+﻿#include "KcFramingOp.h"
 #include <assert.h>
 #include "KcSampled1d.h"
 
 
-KcFraming::KcFraming(KvDataProvider* prov) 
+KcFramingOp::KcFramingOp(KvDataProvider* prov) 
 	: KvDataOperator("framing", prov)
 	, length_(0.05) // 50ms
 	, shift_(0.025) // 25ms
@@ -12,7 +12,7 @@ KcFraming::KcFraming(KvDataProvider* prov)
 }
 
 
-KcFraming::kPropertySet KcFraming::propertySet() const
+KcFramingOp::kPropertySet KcFramingOp::propertySet() const
 {
 	kPropertySet ps;
 
@@ -20,13 +20,13 @@ KcFraming::kPropertySet KcFraming::propertySet() const
 }
 
 
-void KcFraming::onPropertyChanged(int id, const QVariant& newVal)
+void KcFramingOp::onPropertyChanged(int id, const QVariant& newVal)
 {
 
 }
 
 
-kRange KcFraming::range(kIndex axis) const
+kRange KcFramingOp::range(kIndex axis) const
 {
 	if (axis == 0)
 		return { 0, length_ };
@@ -35,7 +35,7 @@ kRange KcFraming::range(kIndex axis) const
 }
 
 
-kReal KcFraming::step(kIndex axis) const
+kReal KcFramingOp::step(kIndex axis) const
 {
 	if (axis == 0)
 		return shift_;
@@ -44,7 +44,7 @@ kReal KcFraming::step(kIndex axis) const
 }
 
 
-std::shared_ptr<KvData> KcFraming::processImpl_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcFramingOp::processImpl_(std::shared_ptr<KvData> data)
 {
 	assert(data && data->dim() == 1);
 	auto buf = dynamic_cast<KcSampled1d*>(buf_.get());

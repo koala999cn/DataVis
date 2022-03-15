@@ -301,13 +301,14 @@ KvPropertiedObject::KpProperty KcPlot1d::barProperty_() const
 	subProp.id = kPrivate::k_bar_pen;
 	subProp.name = QStringLiteral("Pen");
 	subProp.val = customPlot_->plottable()->pen();
-	subProp.attr.penFlags = KvPropertiedObject::k_pen_all;
+	subProp.attr.penFlags = KvPropertiedObject::k_pen_color |
+		KvPropertiedObject::k_pen_none | KvPropertiedObject::k_pen_width | KvPropertiedObject::k_show_alpha_channel;
 	prop.children.push_back(subProp);
 
 	subProp.id = kPrivate::k_bar_fill_brush;
 	subProp.name = QStringLiteral("Brush");
 	subProp.val = QVariant::fromValue(customPlot_->plottable()->brush());
-	//subProp.attr.showAllBrushStyle = true;
+	subProp.attr.showAllBrushStyle = false;
 	prop.children.push_back(subProp);
 
 	
