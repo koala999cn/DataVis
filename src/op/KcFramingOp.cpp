@@ -1,14 +1,22 @@
 ﻿#include "KcFramingOp.h"
 #include <assert.h>
 #include "KcSampled1d.h"
+#include "KcSampled2d.h"
+#include "KgFraming.h"
 
 
 KcFramingOp::KcFramingOp(KvDataProvider* prov) 
 	: KvDataOperator("framing", prov)
-	, length_(0.05) // 50ms
-	, shift_(0.025) // 25ms
 {
 	assert(prov->dim() == 1);
+	assert(prov->step(0) != KvData::k_unknown_step && prov->step(0) != KvData::k_nonuniform_step);
+	d_ptr_ = new KgFraming(1 / prov->step(0));
+}
+
+
+KcFramingOp::~KcFramingOp()
+{
+	delete (KgFraming*)d_ptr_;
 }
 
 
@@ -28,61 +36,39 @@ void KcFramingOp::onPropertyChanged(int id, const QVariant& newVal)
 
 kRange KcFramingOp::range(kIndex axis) const
 {
-	if (axis == 0)
-		return { 0, length_ };
-
-	return KvDataOperator::range(axis);
+	if (axis == 1)
+		return { 0, ((KgFraming*)d_ptr_)->length() };
+	else if(axis == 0)
+	    return KvDataOperator::range(0);
+	else 
+		return KvDataOperator::range(1);
 }
 
 
 kReal KcFramingOp::step(kIndex axis) const
 {
 	if (axis == 0)
-		return shift_;
+		return ((KgFraming*)d_ptr_)->shift();
 
-	return KvDataOperator::step(axis);
+	return KvDataOperator::step(axis - 1);
 }
 
 
 std::shared_ptr<KvData> KcFramingOp::processImpl_(std::shared_ptr<KvData> data)
 {
 	assert(data && data->dim() == 1);
-	auto buf = dynamic_cast<KcSampled1d*>(buf_.get());
 
-	std::shared_ptr<KcSampled1d> res;
-	auto frameLen = length_;
-	auto shift = shift_;
+	auto framObj = (KgFraming*)d_ptr_;
+	assert(framObj);
+	
+	auto data1d = std::dynamic_pointer_cast<KcSampled1d>(data);
 
-	if (data->empty()) { // flush. 返回缓存的数据，并清空缓存
-		if (buf && !buf->empty()) {
-			res->copy(*buf);
-			buf->clear();
+	auto res = std::make_shared<KcSampled2d>();
 
-			// 给res后面补0
-			auto nx = res->sampling().countLength(frameLen);
-			res->resize(nx, 0);
-		}
-	}
-	else {
-		auto data1d = std::dynamic_pointer_cast<KvData1d>(data);
-		assert(data1d);
-
-		if (buf == 0) { // 第一次接收数据，初始化
-			auto x0_ref = (data1d->value(0).x - data1d->range(0).low()) / data->step(0);
-			buf = new KcSampled1d(data1d->step(0), x0_ref, data1d->channels());
-			buf_.reset(buf);
-		}
-
-		buf->append(*data1d);
-
-		auto samplesPerFrame = buf->sampling().countLength(frameLen);
-		while (buf->count() >= samplesPerFrame) {
-			res->copy(*buf, 0, samplesPerFrame);
-			buf->cutFront(shift);
-
-			// TODO: 
-		}
-	}
+	if (data->empty())
+		framObj->flush(*res);
+	else
+		framObj->process(*data1d, *res);
 
 	return res;
 }

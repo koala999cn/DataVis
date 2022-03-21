@@ -13,10 +13,18 @@ public:
 	KgFraming(kReal sampleRate, kIndex channels = 1);
 
 	void reset(kReal sampleRate, kIndex channels = 1);
-	void flush(KcSampled2d& out);
+
+	kReal shift() const { return shift_; }
+	void setShift(kReal shift) { shift_ = shift; }
+
+	kReal length() const { return length_; }
+	void setLength(kReal len) { length_ = len; }
+
 
 	// 输出的分帧结果可能有多个，所以用二维信号out表示
 	void process(const KcSampled1d& in, KcSampled2d& out);
+
+	void flush(KcSampled2d& out);
 
 	// 给定采样点数目，计算可分帧数
 	kIndex numFrames(kIndex samples);
@@ -33,9 +41,6 @@ private:
 
 	// If true, round window size to power of two by zero-padding input to FFT.
 	bool  roundPower2_; 
-
-	// If true, allow the input waveform to have a higher frequency than sampleRate_
-	//TODO: bool  allowDownsample_; 
 
 	std::unique_ptr<KcSampled1d> buf_; // 待处理数据，长度小于length_
 };

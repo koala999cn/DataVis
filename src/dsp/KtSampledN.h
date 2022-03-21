@@ -90,9 +90,12 @@ public:
     kReal* at(int row) { return &array_(row); }
     const kReal* at(int row) const { return &array_(row); }
 
+    auto stride(kIndex axis) const { return array_.stride(axis); }
+
+
     // 调整第axis轴的采样参数
-    void reset(kIndex axis, kReal low, kReal step, kReal t0_ref = 0) {
-        samp_[axis].reset(low, low + step * length(axis), step, low + step * t0_ref);
+    void reset(kIndex axis, kReal low, kReal step, kReal x0_ref = 0) {
+        samp_[axis].reset(low, low + step * length(axis), step, low + step * x0_ref);
     }
 
 protected:

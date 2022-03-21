@@ -10,11 +10,10 @@ KvCustomPlot::KvCustomPlot(KvDataProvider* is, const QString& name)
 	: KvDataRender(name, is)
 {
 	customPlot_ = new QCustomPlot(nullptr);
-	customPlot_->setOpenGl(false); // TODO: QCustomPlot在Opengl模式下有bug，待修复
 	rescaleAxes(); // 设置缺省的坐标轴范围
 	autoScale_ = !is->isStream();
 
-	// 根据style设置背景色???TODO: 是否需要？前景色呢？
+	// TODO: 根据style设置背景色
 	back_ = QColor(255, 255, 255); // dockFrame->style()->standardPalette().color(QPalette::Base);
 	customPlot_->setBackground(QBrush(back_));
 

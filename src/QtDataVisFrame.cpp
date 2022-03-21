@@ -20,10 +20,12 @@
 #include "kddockwidgets/Config.h"
 #include "KcDataSnapshot.h"
 #include "KcPlot1d.h"
+#include "KcPlot2d.h"
 #include "QtAppEventHub.h"
 #include "KcAudioInputStream.h"
-#include "op/KcFft.h"
-#include "op/KcHisto.h"
+#include "op/KcFftOp.h"
+#include "op/KcHistoOp.h"
+#include "op/KcFramingOp.h"
 
 
 using namespace KDDockWidgets;
@@ -134,10 +136,13 @@ bool QtDataVisFrame::setupMenu_()
     menubar->addMenu(opMenu);
 
     QAction* fft = opMenu->addAction(u8"Fft(&F)");
-    connect(fft, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFft>(workDock_, false); });
+    connect(fft, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFftOp>(workDock_, false); });
 
     QAction* hist = opMenu->addAction(u8"Histo(&H)");
-    connect(hist, &QAction::triggered, [this] { kPrivate::insertObjectP<KcHisto>(workDock_, false); });
+    connect(hist, &QAction::triggered, [this] { kPrivate::insertObjectP<KcHistoOp>(workDock_, false); });
+
+    QAction* framing = opMenu->addAction(u8"Framing(&M)");
+    connect(framing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFramingOp>(workDock_, false); });
 
 
     connect(opMenu, &QMenu::aboutToShow, [=] {
@@ -167,6 +172,10 @@ bool QtDataVisFrame::setupMenu_()
         kPrivate::insertObjectP<KcPlot1d>(workDock_, false, KcPlot1d::KeType::k_bars);
         });
 
+    QAction* color_map = renderMenu->addAction(u8"Color Map(&M)");
+    connect(color_map, &QAction::triggered, [this] {
+        kPrivate::insertObjectP<KcPlot2d>(workDock_, false);
+        });
 
     connect(renderMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());

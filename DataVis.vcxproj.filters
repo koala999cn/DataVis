@@ -92,7 +92,7 @@
     <ClCompile Include="src\KcAudioInputStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcFft.cpp">
+    <ClCompile Include="src\op\KcFftOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KgRdft.cpp">
@@ -104,7 +104,7 @@
     <ClCompile Include="src\QtAppEventHub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcHisto.cpp">
+    <ClCompile Include="src\op\KcHistoOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\op\KcFramingOp.cpp">
@@ -129,6 +129,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\KgFraming.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgMultiply.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -243,7 +246,7 @@
     <ClInclude Include="src\KcAudioInputStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcFft.h">
+    <ClInclude Include="src\op\KcFftOp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgRdft.h">
@@ -252,7 +255,7 @@
     <ClInclude Include="src\KvDataStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcHisto.h">
+    <ClInclude Include="src\op\KcHistoOp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\op\KcFramingOp.h">
@@ -283,6 +286,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\KgFraming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgMultiply.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -135,6 +135,7 @@
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
     <ClCompile Include="src\dsp\KcSampled2d.cpp" />
+    <ClCompile Include="src\dsp\KgMultiply.cpp" />
     <ClCompile Include="src\dsp\KgRdft.cpp" />
     <ClCompile Include="src\dsp\KvData1d.cpp" />
     <ClCompile Include="src\dsp\KvData2d.cpp" />
@@ -143,9 +144,9 @@
     <ClCompile Include="src\KgFraming.cpp" />
     <ClCompile Include="src\KgSpectrogram.cpp" />
     <ClCompile Include="src\KvCustomPlot.cpp" />
-    <ClCompile Include="src\op\KcFft.cpp" />
+    <ClCompile Include="src\op\KcFftOp.cpp" />
     <ClCompile Include="src\op\KcFramingOp.cpp" />
-    <ClCompile Include="src\op\KcHisto.cpp" />
+    <ClCompile Include="src\op\KcHistoOp.cpp" />
     <ClCompile Include="src\op\KcSpectrogramOp.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
     <ClCompile Include="src\QtDataVisFrame.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="src\base\KuStrUtil.h" />
     <ClInclude Include="src\base\KvRefObject.h" />
     <ClInclude Include="src\dsp\KcSampled2d.h" />
+    <ClInclude Include="src\dsp\KgMultiply.h" />
     <ClInclude Include="src\dsp\KgRdft.h" />
     <ClInclude Include="src\dsp\KtSampledN.h" />
     <ClInclude Include="src\dsp\KvData2d.h" />
@@ -191,10 +193,10 @@
     <ClInclude Include="src\KgSpectrogram.h" />
     <ClInclude Include="src\KvCustomPlot.h" />
     <ClInclude Include="src\KvDataStream.h" />
-    <ClInclude Include="src\op\KcFft.h" />
+    <ClInclude Include="src\op\KcFftOp.h" />
     <QtMoc Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\op\KcFramingOp.h" />
-    <ClInclude Include="src\op\KcHisto.h" />
+    <ClInclude Include="src\op\KcHistoOp.h" />
     <ClInclude Include="src\op\KcSpectrogramOp.h" />
     <ClInclude Include="src\QtnPropertyDelegatePropertySetX.h" />
     <QtMoc Include="src\QtnPropertySetX.h" />

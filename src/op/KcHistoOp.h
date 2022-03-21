@@ -2,10 +2,10 @@
 #include "KvDataOperator.h"
 
 
-class KcHisto : public KvDataOperator
+class KcHistoOp : public KvDataOperator
 {
 public:
-	KcHisto(KvDataProvider* prov);
+	KcHistoOp(KvDataProvider* prov);
 
 	kPropertySet propertySet() const override;
 

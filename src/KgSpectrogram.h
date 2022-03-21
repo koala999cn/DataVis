@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-class KvData;
+class KcSampled1d;
+class KcSampled2d;
+
 
 class KgSpectrogram
 {
@@ -14,16 +16,20 @@ public:
 		k_mag // |FFT|
 	};
 
-	KgSpectrogram() : type_(k_power), s0UseEnergy_(true) {}
+	KgSpectrogram() : type_(k_power), useEnergy_(true) {}
 
 	int type() const { return type_; }
 	void setType(int type) { type_ = type; }
 
-	bool useEnergy() const { return s0UseEnergy_; }
-	void setUseEnergy(bool b) { s0UseEnergy_ = b; }
+	bool useEnergy() const { return useEnergy_; }
+	void setUseEnergy(bool b) { useEnergy_ = b; }
+
+	void process(const KcSampled1d& in, KcSampled2d& out);
 
 private:
 	int type_;
-	bool s0UseEnergy_; // if true (default), the zeroth spectrogram component is set to the frame energy.
+
+	// if true (default), the zeroth spectrogram component is set to the frame energy.
+	bool useEnergy_;
 };
 

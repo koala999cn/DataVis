@@ -108,7 +108,7 @@ void KcSampled1d::getSamples(kIndex idx, kReal* v, kIndex N) const
     assert(idx + N <= count());
     const kReal* p = data_.data() + offset_(idx);
 
-    ::memcpy_s(v, bytesOfSamples(N), p, bytesOfSamples(count() - idx));
+    ::memcpy_s(v, bytesOfSamples(N), p, bytesOfSamples(N));
 }
 
 

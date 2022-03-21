@@ -6,12 +6,13 @@
 class KcSampled2d : public KtSampledN<KvData2d, 2>
 {
 public:
-	//KcSampled2d();
-	//virtual ~KcSampled2d();
-
 
     void resize(kIndex nx, kIndex ny, kIndex channels) override;
 
+    void resize(const KvData2d& data) override;
+
     kPoint3d value(kIndex ix, kIndex iy, kIndex channel = 0) const override;
+
+    void setChannel(kIndex row, kReal* data, kIndex channel);
 };
 

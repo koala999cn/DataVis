@@ -1,11 +1,11 @@
-﻿#include "KcHisto.h"
+﻿#include "KcHistoOp.h"
 #include "KtSampling.h"
 #include <vector>
 #include "KcSampled1d.h"
 #include <QPointF>
 
 
-KcHisto::KcHisto(KvDataProvider* prov)
+KcHistoOp::KcHistoOp(KvDataProvider* prov)
     : KvDataOperator("histo", prov)
 {
     auto xrange = prov->range(0);
@@ -24,7 +24,7 @@ namespace kPrivate
     };
 };
 
-KcHisto::kPropertySet KcHisto::propertySet() const
+KcHistoOp::kPropertySet KcHistoOp::propertySet() const
 {
     kPropertySet ps;
     KpProperty prop;
@@ -57,7 +57,7 @@ KcHisto::kPropertySet KcHisto::propertySet() const
 }
 
 
-void KcHisto::onPropertyChanged(int id, const QVariant& newVal)
+void KcHistoOp::onPropertyChanged(int id, const QVariant& newVal)
 {
     switch (id) {
     case kPrivate::k_range:
@@ -72,7 +72,7 @@ void KcHisto::onPropertyChanged(int id, const QVariant& newVal)
 }
 
 
-kRange KcHisto::range(kIndex axis) const
+kRange KcHistoOp::range(kIndex axis) const
 {
     if (axis == 0) 
         return  { xmin_, xmax_ };
@@ -81,7 +81,7 @@ kRange KcHisto::range(kIndex axis) const
 }
 
 
-kReal KcHisto::step(kIndex axis) const
+kReal KcHistoOp::step(kIndex axis) const
 {
     if (axis == 0) {
         KtSampling<kReal> samp;
@@ -93,7 +93,7 @@ kReal KcHisto::step(kIndex axis) const
 }
 
 
-std::shared_ptr<KvData> KcHisto::processImpl_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcHistoOp::processImpl_(std::shared_ptr<KvData> data)
 {
     assert(xmin_ < xmax_);
 

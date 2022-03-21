@@ -35,7 +35,10 @@ public:
         x0_ = x0;
         dx_ = dx;
 
-        assert(verify());
+        //if (xmax > x0 + count() * dx)
+        //    resetHigh(x0 + count() * dx);
+
+        //assert(verify());
     }
 
 
