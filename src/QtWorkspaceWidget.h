@@ -20,8 +20,8 @@ public:
 	void insertObject(KvPropertiedObject* obj, bool asRootChild);
 
 	KvPropertiedObject* getObject(const QTreeWidgetItem* item) const;
-	KvPropertiedObject* currentObject() const { return getObject(currentItem()); }
-	KvPropertiedObject* rootObject() const { return getObject(rootItem()); }
+	KvPropertiedObject* currentObject() const;
+	KvPropertiedObject* rootObject() const;
 
 	void selectObject(const KvPropertiedObject* obj);
 

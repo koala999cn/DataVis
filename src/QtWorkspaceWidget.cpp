@@ -75,9 +75,23 @@ void QtWorkspaceWidget::insertObject(KvPropertiedObject* obj, bool asRootChild)
 
 KvPropertiedObject* QtWorkspaceWidget::getObject(const QTreeWidgetItem* item) const
 {
+	assert(item != nullptr);
+
 	auto var = item->data(0, Qt::UserRole);
 	auto obj = reinterpret_cast<KvPropertiedObject*>(var.toLongLong());
 	return obj;
+}
+
+
+KvPropertiedObject* QtWorkspaceWidget::currentObject() const
+{
+	return currentItem() ? getObject(currentItem()) : nullptr;
+}
+
+
+KvPropertiedObject* QtWorkspaceWidget::rootObject() const
+{ 
+	return rootItem() ? getObject(rootItem()) : nullptr;
 }
 
 
