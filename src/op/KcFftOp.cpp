@@ -42,19 +42,19 @@ kRange KcFftOp::range(kIndex axis) const
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
 
-	if (axis == 0) {
+	// 对信号的最高2维进行变换，其他低维度保持原信号尺度不变
+	if (axis == objp->dim() - 1) {
 		auto dx = objp->step(objp->dim() - 1);
 		assert(dx != KvData::k_nonuniform_step);
 		auto xmax = dx != KvData::k_unknown_step ? 0.5 / dx : 8000; // 未知情况下，显示8khz频率范围
 		return { 0, xmax };
 	}
-	else if (axis == 1) {
+	else if (axis == objp->dim()) {
 		auto r = KvDataOperator::range(objp->dim());
 		return { 0, KtuMath<kReal>::absMax(r.low(), r.high()) };
 	}
 	
-	assert(false);
-	return { 0, 0 };
+	return KvDataOperator::range(axis);
 }
 
 
