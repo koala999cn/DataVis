@@ -147,9 +147,10 @@ bool QtMainFrame::setupMenu_()
 
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
-        auto item = treeView->currentItem();
-        bool enable = item && treeView->getObject(item); // TODO:
-        fft->setEnabled(enable);
+        auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
+        fft->setEnabled(obj && obj->step(obj->dim() - 1) != KvData::k_nonuniform_step);
+        hist->setEnabled(obj && obj->dim() == 1);
+        framing->setEnabled(obj && obj->dim() == 1);
         });
 
 
@@ -179,9 +180,11 @@ bool QtMainFrame::setupMenu_()
 
     connect(renderMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
-        auto item = treeView->currentItem();
-        bool enable = item && treeView->getObject(item); // TODO:
-        fft->setEnabled(enable);
+        auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
+        scatter->setEnabled(obj && obj->dim() == 1);
+        line->setEnabled(obj && obj->dim() == 1);
+        bar->setEnabled(obj && obj->dim() == 1);
+        color_map->setEnabled(obj && obj->dim() == 2);
         });
 
     return true;
