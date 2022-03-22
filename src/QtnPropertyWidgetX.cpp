@@ -4,7 +4,6 @@
 #include "QtnProperty/PropertyGUI.h"
 #include "QtnProperty/PropertyQVariant.h"
 #include "QtnProperty/PropertyDelegateAttrs.h"
-#include "QtnPropertySetX.h"
 
 
 QtnPropertyWidgetX::QtnPropertyWidgetX(QWidget* parent)

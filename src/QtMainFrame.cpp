@@ -5,7 +5,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QApplication>
-#include "QtDataVisFrame.h"
+#include "QtMainFrame.h"
 #include "KcFormulaDlg.h"
 #include "KcAudioCaptureDlg.h"
 #include "base/KuStrUtil.h"
@@ -55,7 +55,7 @@ namespace kPrivate
 }
 
 
-QtDataVisFrame::QtDataVisFrame()
+QtMainFrame::QtMainFrame()
     : MainWindow("DataVis"/*, MainWindowOption_HasCentralFrame*/)
 {
     initLauout_();
@@ -63,14 +63,14 @@ QtDataVisFrame::QtDataVisFrame()
 }
 
 
-QtDataVisFrame::~QtDataVisFrame()
+QtMainFrame::~QtMainFrame()
 {
     delete workDock_;
     delete propDock_;
 }
 
 
-bool QtDataVisFrame::setupMenu_()
+bool QtMainFrame::setupMenu_()
 {
     auto menubar = menuBar();
 
@@ -79,25 +79,25 @@ bool QtDataVisFrame::setupMenu_()
     menubar->addMenu(fileMenu);
 
     QAction* dataFile = fileMenu->addAction(u8"Data File(&D)...");
-    connect(dataFile, &QAction::triggered, this, &QtDataVisFrame::openDataFile);
+    connect(dataFile, &QAction::triggered, this, &QtMainFrame::openDataFile);
 
     QAction* audioFile = fileMenu->addAction(u8"Audio File(&A)...");
-    connect(audioFile, &QAction::triggered, this, &QtDataVisFrame::openAudioFile);
+    connect(audioFile, &QAction::triggered, this, &QtMainFrame::openAudioFile);
 
     fileMenu->addSeparator();
 
 
     QAction* formula = fileMenu->addAction(u8"Math Expression(&E)...");
-    connect(formula, &QAction::triggered, this, &QtDataVisFrame::openFormula);
+    connect(formula, &QAction::triggered, this, &QtMainFrame::openFormula);
 
     fileMenu->addSeparator();
 
 
     QAction* audioCapture = fileMenu->addAction(u8"Audio Capture(&C)...");
-    connect(audioCapture, &QAction::triggered, this, &QtDataVisFrame::openAudioCapture);
+    connect(audioCapture, &QAction::triggered, this, &QtMainFrame::openAudioCapture);
 
     QAction* audioDevice = fileMenu->addAction(tr(u8"Audio Input Device(&I)"));
-    connect(audioDevice, &QAction::triggered, this, &QtDataVisFrame::openAudioInput);
+    connect(audioDevice, &QAction::triggered, this, &QtMainFrame::openAudioInput);
 
     fileMenu->addSeparator();
 
@@ -188,7 +188,7 @@ bool QtDataVisFrame::setupMenu_()
 }
 
 
-bool QtDataVisFrame::initLauout_()
+bool QtMainFrame::initLauout_()
 {
     setAffinities({ "workspace", "property", "render" });
 
@@ -206,19 +206,21 @@ bool QtDataVisFrame::initLauout_()
     propDock_->setWidget(propWidget);
     addDockWidget(propDock_, Location_OnRight);
     propDock_->show();
-    connect(propWidget, &QtnPropertyWidgetX::propertyChanged, this, [workWidget](int id, const QVariant& val) {
-        auto obj = workWidget->getObject(workWidget->currentItem());
-        if(obj) obj->onPropertyChanged(id, val);
-        });
+    connect(propWidget, &QtnPropertyWidgetX::propertyChanged, this, 
+        [workWidget](int id, const QVariant& val) {
+            auto obj = workWidget->getObject(workWidget->currentItem());
+            if(obj) obj->onPropertyChanged(id, val);
+            });
 
-    propWidget->connect(kAppEventHub, &QtAppEventHub::objectActivated, propWidget, &QtnPropertyWidgetX::sync);
+    propWidget->connect(kAppEventHub, &QtAppEventHub::objectActivated, 
+          propWidget, &QtnPropertyWidgetX::sync);
 
 
     return true;
 }
 
 
-void QtDataVisFrame::openDataFile()
+void QtMainFrame::openDataFile()
 {
     auto path = QFileDialog::getOpenFileName(this);
 
@@ -231,7 +233,7 @@ void QtDataVisFrame::openDataFile()
 }
 
 
-void QtDataVisFrame::openAudioFile()
+void QtMainFrame::openAudioFile()
 {
     auto path = QtAudioUtils::getOpenPath();
     if (path.isEmpty()) return;
@@ -248,7 +250,7 @@ void QtDataVisFrame::openAudioFile()
 }
 
 
-void QtDataVisFrame::openAudioCapture()
+void QtMainFrame::openAudioCapture()
 {
     KcAudioCaptureDlg dlg;
     dlg.setEmbeddingMode(true);
@@ -258,13 +260,13 @@ void QtDataVisFrame::openAudioCapture()
 }
 
 
-void QtDataVisFrame::openAudioInput()
+void QtMainFrame::openAudioInput()
 {
     kPrivate::insertObject<KcAudioInputStream>(workDock_, true);
 }
 
 
-void QtDataVisFrame::openFormula()
+void QtMainFrame::openFormula()
 {
     KcFormulaDlg dlg;
     if (dlg.exec() == QDialog::Accepted) 
@@ -273,7 +275,7 @@ void QtDataVisFrame::openFormula()
 }
 
 
-std::shared_ptr<KvData> QtDataVisFrame::loadData_(const QString& filePath)
+std::shared_ptr<KvData> QtMainFrame::loadData_(const QString& filePath)
 {
     std::shared_ptr<KvData> data; // the result to returned
 
@@ -312,28 +314,28 @@ std::shared_ptr<KvData> QtDataVisFrame::loadData_(const QString& filePath)
 }
 
 /*
-void QtDataVisFrame::insertDataProvider_(KvDataProvider* dp)
+void QtMainFrame::insertDataProvider_(KvDataProvider* dp)
 {
     auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
     treeView->insertProvider(dp);
 }
 
 
-void QtDataVisFrame::insertDataOperator_(KvDataOperator* op)
+void QtMainFrame::insertDataOperator_(KvDataOperator* op)
 {
     auto dataTreeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
     dataTreeView->insertOperator(op);
 }
 
 
-void QtDataVisFrame::insertDataRender_(KvDataRender* dr)
+void QtMainFrame::insertDataRender_(KvDataRender* dr)
 {
     auto dataTreeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
     dataTreeView->insertRender(dr);
 }
 
 
-void QtDataVisFrame::insertDataPlot_(int type)
+void QtMainFrame::insertDataPlot_(int type)
 {
     auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
     auto obj = treeView->getObject(treeView->currentItem());
@@ -343,7 +345,7 @@ void QtDataVisFrame::insertDataPlot_(int type)
 }
 */
 
-void QtDataVisFrame::connectAppEvents_()
+void QtMainFrame::connectAppEvents_()
 {
 
 }

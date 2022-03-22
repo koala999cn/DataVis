@@ -62,7 +62,7 @@
     <ClCompile Include="src\KcFormulaDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\QtDataVisFrame.cpp">
+    <ClCompile Include="src\QtMainFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\QtnPropertyWidgetX.cpp">
@@ -81,12 +81,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\QtnPropertyDelegatePropertySetX.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\QtnPropertySetX.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\KcAudioInputStream.cpp">
@@ -148,7 +142,7 @@
     <QtMoc Include="src\KcFormulaDlg.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\QtDataVisFrame.h">
+    <QtMoc Include="src\QtMainFrame.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\QtWorkspaceWidget.h">
@@ -158,9 +152,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\QtAppEventHub.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\QtnPropertySetX.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\KvPropertiedObject.h">
@@ -235,9 +226,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtSingleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\QtnPropertyDelegatePropertySetX.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KvRefObject.h">

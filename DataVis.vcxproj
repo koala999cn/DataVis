@@ -149,7 +149,7 @@
     <ClCompile Include="src\op\KcHistoOp.cpp" />
     <ClCompile Include="src\op\KcSpectrogramOp.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
-    <ClCompile Include="src\QtDataVisFrame.cpp" />
+    <ClCompile Include="src\QtMainFrame.cpp" />
     <ClCompile Include="src\dsp\KcFormulaData1d.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
     <ClCompile Include="src\gui\QtAuidoUtils.cpp" />
@@ -160,10 +160,8 @@
     <ClCompile Include="src\KcDataSnapshot.cpp" />
     <ClCompile Include="src\KcFormulaDlg.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\QtnPropertyDelegatePropertySetX.cpp" />
     <ClCompile Include="src\QtnPropertyWidgetX.cpp" />
     <ClCompile Include="src\QtWorkspaceWidget.cpp" />
-    <ClCompile Include="src\QtnPropertySetX.cpp" />
     <QtUic Include="src\audio_capture_dlg.ui" />
     <QtUic Include="src\formula_dlg.ui" />
   </ItemGroup>
@@ -198,8 +196,6 @@
     <ClInclude Include="src\op\KcFramingOp.h" />
     <ClInclude Include="src\op\KcHistoOp.h" />
     <ClInclude Include="src\op\KcSpectrogramOp.h" />
-    <ClInclude Include="src\QtnPropertyDelegatePropertySetX.h" />
-    <QtMoc Include="src\QtnPropertySetX.h" />
     <QtMoc Include="src\QtAppEventHub.h" />
     <ClInclude Include="src\KcPlot1d.h" />
     <ClInclude Include="src\KcDataSnapshot.h" />
@@ -208,7 +204,7 @@
     <QtMoc Include="src\KvPropertiedObject.h" />
     <QtMoc Include="src\QtnPropertyWidgetX.h" />
     <QtMoc Include="src\QtWorkspaceWidget.h" />
-    <QtMoc Include="src\QtDataVisFrame.h" />
+    <QtMoc Include="src\QtMainFrame.h" />
     <ClInclude Include="src\dsp\KcFormulaData1d.h" />
     <ClInclude Include="src\dsp\KcSampled1d.h" />
     <ClInclude Include="src\dsp\kDsp.h" />

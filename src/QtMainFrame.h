@@ -10,13 +10,13 @@ class KvDataOperator;
 class KvDataRender;
 
 
-class QtDataVisFrame : public KDDockWidgets::MainWindow
+class QtMainFrame : public KDDockWidgets::MainWindow
 {
     Q_OBJECT
 
 public:
-    QtDataVisFrame();
-    ~QtDataVisFrame();
+    QtMainFrame();
+    ~QtMainFrame();
 
 private slots:
     void openDataFile();
@@ -29,14 +29,6 @@ private:
     bool setupMenu_();
     bool initLauout_();
 
-    /*
-    void insertDataPlot_(int type);
-
-    // TODO: 以下三个函数是否可合为一个
-    void insertDataProvider_(KvDataProvider* dp);
-    void insertDataOperator_(KvDataOperator* op);
-    void insertDataRender_(KvDataRender* dr);*/
-
     std::shared_ptr<KvData> loadData_(const QString& filePath);
 
     // 连接app全局信号槽
@@ -45,5 +37,4 @@ private:
 private:
     KDDockWidgets::DockWidget* workDock_;
     KDDockWidgets::DockWidget* propDock_;
-    //KDDockWidgets::DockWidget* dockPlotProp_; // 绘图设置
 };
