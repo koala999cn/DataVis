@@ -7,8 +7,8 @@
 
 
 KgFraming::KgFraming(kReal sampleRate, kIndex channels)
-    : shift_(0.01)
-    , length_(0.025)
+    : shift_(20 / sampleRate)
+    , length_(100 / sampleRate)
     , roundPower2_(false)
 {
 	buf_ = std::make_unique<KcSampled1d>(1 / sampleRate, 0, channels);
@@ -91,10 +91,10 @@ kIndex KgFraming::shiftSize() const
 kIndex KgFraming::numFrames(kIndex samples)
 {
 	auto frameSize = this->frameSize();
-	if (samples < frameSize)
+	if (samples < frameSize || frameSize == 0)
 		return 0;
 
-	return 1 + (samples - frameSize) / shiftSize();
+	return shiftSize() == 0 ? 1 : 1 + (samples - frameSize) / shiftSize();
 }
 
 
