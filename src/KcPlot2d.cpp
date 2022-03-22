@@ -6,6 +6,7 @@
 #include <assert.h>
 
 
+
 KcPlot2d::KcPlot2d(KvDataProvider* is)
     : KvCustomPlot(is, "color_map")
 {
@@ -23,6 +24,8 @@ KcPlot2d::KcPlot2d(KvDataProvider* is)
 
     auto zrange = is->range(2);
     colorMap->setDataRange(QCPRange(zrange.low(), zrange.high()));
+
+    colorMap->setGradient(QCPColorGradient::gpSpectrum);
 }
 
 
@@ -73,8 +76,7 @@ bool KcPlot2d::render(std::shared_ptr<KvData> data)
     show(true);
 
     customPlot_->replot(prov->isStream()
-        ? QCustomPlot::rpQueuedRefresh
-        : QCustomPlot::rpRefreshHint);
+        ? QCustomPlot::rpQueuedRefresh : QCustomPlot::rpRefreshHint);
 
     return true;
 }
@@ -87,4 +89,120 @@ void KcPlot2d::reset()
 
     colorMap->data()->clear();
     colorMap->data()->clearAlpha();
+}
+
+
+namespace kPrivate
+{
+    enum KePlot2dProperty
+    {
+        k_plot2d_prop_id = 200, // 此前的id预留给KvCustomPlot
+
+        k_gradient,
+        k_interpolate,
+        k_zrange
+    };
+}
+
+
+KvPropertiedObject::kPropertySet KcPlot2d::propertySet() const
+{
+    using namespace kPrivate;
+
+    kPropertySet ps = KvCustomPlot::propertySet();
+
+    KpProperty prop;
+    prop.id = KvPropertiedObject::kInvalidId;
+    prop.name = QStringLiteral("ColorMap");
+
+    KpProperty subProp;
+
+    auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
+    assert(colorMap);
+
+    subProp.id = kPrivate::k_gradient;
+    subProp.name = "Gradient";
+    subProp.val = QVariant::fromValue<int>(QCPColorGradient::gpSpectrum);
+
+    static const std::pair<QString, int> gradients[] = {
+        { "Grayscale", QCPColorGradient::gpGrayscale },
+        { "Hot", QCPColorGradient::gpHot },
+        { "Cold", QCPColorGradient::gpCold },
+        { "Night", QCPColorGradient::gpNight },
+        { "Candy", QCPColorGradient::gpCandy },
+        { "Geography", QCPColorGradient::gpGeography },
+        { "Ion", QCPColorGradient::gpIon },
+        { "Thermal", QCPColorGradient::gpThermal },
+        { "Polar", QCPColorGradient::gpPolar },
+        { "Spectrum", QCPColorGradient::gpSpectrum },
+        { "Jet", QCPColorGradient::gpJet },
+        { "Hues", QCPColorGradient::gpHues }
+    };
+
+    for (unsigned i = 0; i < sizeof(gradients) / sizeof(std::pair<QString, int>); i++) {
+        KvPropertiedObject::KpProperty sub;
+        sub.name = gradients[i].first;
+        sub.val = gradients[i].second;
+        subProp.children.push_back(sub);
+    }
+    prop.children.push_back(subProp);
+    subProp.children.clear();
+
+
+    subProp.id = kPrivate::k_interpolate;
+    subProp.name = "Interpolate";
+    subProp.val = colorMap->interpolate();
+    prop.children.push_back(subProp);
+
+
+    subProp.id = kPrivate::k_zrange;
+    subProp.name = QStringLiteral("ZRange");
+    subProp.desc = QStringLiteral("Data Range");
+    subProp.flag = KvPropertiedObject::k_restrict;
+    auto dr = colorMap->dataRange();
+    subProp.val = QPointF(dr.lower, dr.upper);
+    KvPropertiedObject::KpProperty subsubProp;
+    subsubProp.name = QStringLiteral("low");
+    subProp.children.push_back(subsubProp);
+    subsubProp.name = QStringLiteral("high");
+    subProp.children.push_back(subsubProp);
+    prop.children.push_back(subProp);
+
+
+    ps.push_back(prop);
+
+    return ps;
+}
+
+
+void KcPlot2d::onPropertyChanged(int id, const QVariant& newVal)
+{
+    using namespace kPrivate;
+
+    assert(id >= 0);
+
+    if (id <= k_plot2d_prop_id) {
+        KvCustomPlot::onPropertyChanged(id, newVal);
+    }
+    else {
+        auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
+        assert(colorMap);
+
+        switch (id) {
+        case k_gradient:
+            colorMap->setGradient(QCPColorGradient::GradientPreset(newVal.toInt()));
+            break;
+
+        case k_interpolate:
+            colorMap->setInterpolate(newVal.toBool());
+            break;
+
+        case k_zrange:
+            colorMap->setDataRange(QCPRange(newVal.toPointF().x(), newVal.toPointF().y()));
+            break;
+        }
+    }
+
+    if (customPlot_->isVisible())
+        customPlot_->replot();
 }
