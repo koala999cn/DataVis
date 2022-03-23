@@ -40,7 +40,7 @@
     </QtHeaderSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.2.2</QtInstall>
+    <QtInstall>Qt6.2.2_msvc2019_x64</QtInstall>
     <QtModules>core;gui;widgets;opengl;</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
     <QtDeploy>false</QtDeploy>
@@ -97,7 +97,7 @@
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <Version>0.1</Version>
-      <AdditionalDependencies>exprtkX.lib;sndfile.lib;rtaudio.lib;kddockwidgets-qt6.lib;QCustomPlot.lib;qpropertybrowser.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
+      <AdditionalDependencies>exprtkX.lib;sndfile.lib;rtaudio.lib;kddockwidgets-qt6.lib;QCustomPlot.lib;QtnProperty.lib;smarc.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
