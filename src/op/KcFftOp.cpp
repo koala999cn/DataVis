@@ -54,22 +54,25 @@ kRange KcFftOp::range(kIndex axis) const
 		return { 0, KtuMath<kReal>::absMax(r.low(), r.high()) };
 	}
 	
-	return KvDataOperator::range(axis);
+	return objp->range(axis);
 }
 
 
 kReal KcFftOp::step(kIndex axis) const
 {
-	if (axis == 0) {
-		auto objp = dynamic_cast<const KvDataProvider*>(parent());
-		assert(objp != nullptr);
+	auto objp = dynamic_cast<const KvDataProvider*>(parent());
+	assert(objp != nullptr);
 
+	if (axis == objp->dim() - 1) {
 		auto xrange = objp->range(objp->dim() - 1);
 		auto len = xrange.length();
 		return len == 0 ? KvData::k_unknown_step : 1 / len;
 	}
+	else if (axis == objp->dim()) {
+		return KvData::k_nonuniform_step;
+	}
 
-	return KvData::k_nonuniform_step;
+	return objp->step(axis);
 }
 
 
