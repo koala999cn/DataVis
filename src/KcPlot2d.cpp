@@ -40,7 +40,10 @@ bool KcPlot2d::render(std::shared_ptr<KvData> data)
     if (prov->isStream()) {
         
         if (mapData->valueSize() != data->length(1)) {
-            qDebug("====%d vs %d", mapData->valueSize(), data->length(1));
+            mapData->setValueSize(data->length(1));
+            auto r = prov->range(1);
+            mapData->setValueRange({ r.low(), r.high() });
+            customPlot_->yAxis->setRange({ r.low(), r.high() });
         }
 
         // TODO: 假定data均匀采样
