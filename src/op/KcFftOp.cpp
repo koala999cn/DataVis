@@ -128,6 +128,7 @@ std::shared_ptr<KvData> KcFftOp::process2d(std::shared_ptr<KvData> data)
 
 	auto data2d = std::dynamic_pointer_cast<KvData2d>(data);
 	assert(data2d && data->step(1) != KvData::k_nonuniform_step);
+	assert(KtuMath<kReal>::almostEqualRel(data->step(1) * range(1).length(), kReal(0.5)));
 
 	if (data2d->length(1) < 2 || data2d->range(1).empty())
 		return data;
@@ -135,13 +136,15 @@ std::shared_ptr<KvData> KcFftOp::process2d(std::shared_ptr<KvData> data)
 	if (rdft_ == nullptr || rdft_->sizeT() != data2d->length(1))
 		rdft_ = std::make_unique<KgRdft>(data2d->length(1), false, true);
 
-	auto df = step(0);
+	auto df = step(1);
 	if (df == KvData::k_unknown_step)
 		df = 1 / data2d->range(1).length();
 
 	auto res = std::make_shared<KcSampled2d>();
 
 	res->resize(*data2d);
+	res->reset(1, 0, df); // 修正fft变换后的频率参数
+	assert(res->length(1) == rdft_->sizeF());
 
 	std::vector<kReal> rawData(data2d->length(1));
 	for (kIndex c = 0; c < data2d->channels(); c++) {
