@@ -24,6 +24,11 @@ public:
 	void setValue(int id, const QVariant& val);
 
 
+	// 属性页当前显示的关联对象
+	KvPropertiedObject* currentObject() const {
+		return obj_;
+	}
+
 private slots:
 	void onPropertyDidChange(QtnPropertyChangeReason reason);
 
@@ -39,7 +44,7 @@ private:
 
 private:
 	std::vector<void*> bufs_; // 用于保存临时对象
-	KvPropertiedObject* obj_; // 当前显示的obj
+	KvPropertiedObject* obj_; 
 };
 
 
