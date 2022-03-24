@@ -25,8 +25,9 @@ void KcSampled2d::setChannel(kIndex row, kReal* src, kIndex channel)
 {
 	assert(channel >= 0 && channel < channels());
 	kReal* dst = at(row);
+	dst += channel;
 	for (kIndex col = 0; col < length(1); col++) {
-		dst[channel] = *src++;
+		*dst = *src++;
 		dst += stride(1);
 	}
 }
