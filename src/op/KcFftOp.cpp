@@ -142,9 +142,9 @@ std::shared_ptr<KvData> KcFftOp::process2d(std::shared_ptr<KvData> data)
 
 	auto res = std::make_shared<KcSampled2d>();
 
-	res->resize(*data2d);
-	res->reset(1, 0, df); // 修正fft变换后的频率参数
-	assert(res->length(1) == rdft_->sizeF());
+	res->resize(data->length(0), rdft_->sizeF(), data->channels());
+	res->reset(0, data->range(0).low(), data->step(0));
+	res->reset(1, 0, df);
 
 	std::vector<kReal> rawData(data2d->length(1));
 	for (kIndex c = 0; c < data2d->channels(); c++) {
