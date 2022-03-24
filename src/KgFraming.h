@@ -15,10 +15,10 @@ public:
 	void reset(kReal sampleRate, kIndex channels = 1);
 
 	kReal shift() const { return shift_; }
-	void setShift(kReal shift) { shift_ = shift; }
+	void setShift(kReal shift);
 
 	kReal length() const { return length_; }
-	void setLength(kReal len) { length_ = len; }
+	void setLength(kReal len);
 
 
 	// 输出的分帧结果可能有多个，所以用二维信号out表示
@@ -29,15 +29,20 @@ public:
 	// 给定采样点数目，计算可分帧数
 	kIndex numFrames(kIndex samples);
 
-	kIndex frameSize() const; // 每帧的采样点数目
-	kIndex shiftSize() const; // 每次偏移的采样点数目
+	kIndex frameSize() const { return frameSize_; }
+	kIndex shiftSize() const { return shiftSize_; }
 
 	// roundPower2_为false时，返回值等于frameSize，否则等于ceilPower2(frameSize)
-	kIndex samplesPerFrame() const;
+	kIndex samplesPerFrame() const { return samplesPerFrame_; }
+
 
 private:
 	kReal shift_; // in second
 	kReal length_; // in second
+
+	kIndex frameSize_; // 每帧的采样点数目
+	kIndex shiftSize_; // 每次偏移的采样点数目
+	kIndex samplesPerFrame_;
 
 	// If true, round window size to power of two by zero-padding input to FFT.
 	bool  roundPower2_; 
