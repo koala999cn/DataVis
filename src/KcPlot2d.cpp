@@ -90,10 +90,10 @@ bool KcPlot2d::render(std::shared_ptr<KvData> data)
             for (int y = 0; y < data2d->length(1); ++y)
                 mapData->setCell(x, y, data2d->value(x, y).z);
       
-        if (autoScale_) {
-            customPlot_->rescaleAxes();
-            colorMap->rescaleDataRange();
-        }
+        //if (autoScale_) {
+       //     customPlot_->rescaleAxes();
+       //     colorMap->rescaleDataRange();
+       // }
     }
     
     show(true);
