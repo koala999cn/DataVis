@@ -88,15 +88,16 @@ void KgFraming::process(const KcSampled1d& in, KcSampled2d& out)
 
 	// 修正缓存
 	buf_->popFront(frameFirst);
-	assert(buf_->count() < frameSize);
+	assert(buf_->count() < frameSize + shiftSize);
 }
 
 
 kIndex KgFraming::numFrames(kIndex samples)
 {
-	auto frameSize = this->frameSize();
-	if (samples < frameSize || frameSize == 0)
+	if (samples < frameSize() || frameSize() == 0
+		|| samples < shiftSize()) // 考虑shift > length的情况，保证最少能执行一次shift操作时再分帧
 		return 0;
 
-	return shiftSize() == 0 ? 1 : 1 + (samples - frameSize) / shiftSize();
+	assert(shiftSize() != 0);
+	return (samples - frameSize()) / shiftSize();
 }
