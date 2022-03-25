@@ -218,6 +218,12 @@ bool QtMainFrame::initLauout_()
     propWidget->connect(kAppEventHub, &QtAppEventHub::objectActivated, 
           propWidget, &QtnPropertyWidgetX::sync);
 
+    this->connect(kAppEventHub, &QtAppEventHub::objectPropertyChanged, this, 
+        [propWidget](KvPropertiedObject* obj, int propId, const QVariant& newVal) {
+            if (propWidget->currentObject() == obj) {
+                propWidget->setValue(propId, newVal);
+            }
+        });
 
     return true;
 }
