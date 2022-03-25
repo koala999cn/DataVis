@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
 Copyright (c) 2012-2016 Alex Zhondin <lexxmark.dev@gmail.com>
 Copyright (c) 2015-2019 Alexandra Cherdantseva <neluhus.vagus@gmail.com>
 
@@ -49,7 +49,7 @@ public:
 			return false;
 		}
 
-		if (!isWritable() || !isValueAcceptedImpl(newValue))
+		if (/*!isWritable() || */!isValueAcceptedImpl(newValue))
 			return false;
 
 		if (!(reason & QtnPropertyChangeReasonMultiEdit) &&
