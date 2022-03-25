@@ -3,6 +3,7 @@
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
 #include "KgFraming.h"
+#include "QtAppEventHub.h"
 
 
 KcFramingOp::KcFramingOp(KvDataProvider* prov) 
@@ -24,7 +25,9 @@ namespace kPrivate
 	enum KeFramingPropertyId
 	{
 		k_length,
-		k_shift
+		k_frame_size,
+		k_shift,
+		k_shift_size
 	};
 }
 
@@ -41,9 +44,15 @@ KcFramingOp::kPropertySet KcFramingOp::propertySet() const
 	prop.val = float(((KgFraming*)d_ptr_)->length());
 	prop.minVal = float(prov->step(0));
 	prop.maxVal = std::numeric_limits<float>::max();
-
 	ps.push_back(prop);
 
+	prop.id = kPrivate::k_frame_size;
+	prop.name = tr(u8"frame_size");
+	prop.disp = tr(u8"Frame Size");
+	prop.desc = tr(u8"number of samples per frame");
+	prop.val = ((KgFraming*)d_ptr_)->frameSize();
+	prop.flag = k_readonly;
+	ps.push_back(prop);
 
 	prop.id = kPrivate::k_shift;
 	prop.name = tr(u8"shift");
@@ -52,6 +61,15 @@ KcFramingOp::kPropertySet KcFramingOp::propertySet() const
 	prop.val = float(((KgFraming*)d_ptr_)->shift());
 	prop.minVal = float(prov->step(0));
 	prop.maxVal = std::numeric_limits<float>::max();
+	prop.flag = 0;
+	ps.push_back(prop);
+
+	prop.id = kPrivate::k_shift_size;
+	prop.name = tr(u8"shift_size");
+	prop.disp = tr(u8"Shift Size");
+	prop.desc = tr(u8"number of samples once shift");
+	prop.val = ((KgFraming*)d_ptr_)->shiftSize();
+	prop.flag = k_readonly;
 	ps.push_back(prop);
 
 	return ps;
@@ -63,10 +81,14 @@ void KcFramingOp::onPropertyChanged(int id, const QVariant& newVal)
 	switch (id) {
 	case kPrivate::k_length:
 		((KgFraming*)d_ptr_)->setLength(newVal.toFloat());
+		kAppEventHub->slotObjectPropertyChanged(this, 
+			kPrivate::k_frame_size, ((KgFraming*)d_ptr_)->frameSize());
 		break;
 
 	case kPrivate::k_shift:
 		((KgFraming*)d_ptr_)->setShift(newVal.toFloat());
+		kAppEventHub->slotObjectPropertyChanged(this,
+			kPrivate::k_shift_size, ((KgFraming*)d_ptr_)->shiftSize());
 		break;
 	};
 }
