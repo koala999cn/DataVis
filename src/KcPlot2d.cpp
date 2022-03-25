@@ -21,11 +21,22 @@ KcPlot2d::KcPlot2d(KvDataProvider* is)
     data->setSize(xsamp.count(), ysamp.count());
     data->setRange(QCPRange(xrange.low(),xrange.high()),
         QCPRange(yrange.low(), yrange.high()));
+    dx_ = xstep;
 
     auto zrange = is->range(2);
     colorMap->setDataRange(QCPRange(zrange.low(), zrange.high()));
 
     colorMap->setGradient(QCPColorGradient::gpSpectrum);
+
+    connect(customPlot_->xAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
+        [this, colorMap](const QCPRange& newRange) {
+            if (colorMap->data()->keyRange() != newRange) {
+                colorMap->data()->setKeyRange(newRange);
+
+                KtSampling<kReal> xsamp(0, dx_, dx_, 0);
+                colorMap->data()->setKeySize(xsamp.countLength(newRange.size()));
+            }
+        });
 }
 
 
@@ -42,11 +53,20 @@ bool KcPlot2d::render(std::shared_ptr<KvData> data)
         if (mapData->valueSize() != data->length(1)) {
             mapData->setValueSize(data->length(1));
             auto r = prov->range(1);
-            mapData->setValueRange({ r.low(), r.high() });
+            mapData->setValueRange({ r.low(), r.high() }); 
             customPlot_->yAxis->setRange({ r.low(), r.high() });
         }
 
+        if (dx_ != data->step(0)) { // framing的shift值可能动态改变
+            dx_ = data->step(0);
+            KtSampling<kReal> xsamp(0, dx_, dx_, 0);
+            mapData->setKeySize(xsamp.countLength(mapData->keyRange().size()));
+        }
+
+
         // TODO: 假定data均匀采样
+        //assert(data2d->range(1) == prov->range(1));
+        assert(data2d->step(1) == prov->step(1));
 
         int mapOffset(0), dataOffset(0);
         if (mapData->keySize() > data->length(0)) { // 平移map数据
