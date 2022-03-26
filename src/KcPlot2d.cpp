@@ -4,7 +4,7 @@
 #include "qcustomplot/qcustomplot.h"
 #include "../dsp/KtSampling.h"
 #include <assert.h>
-
+#include "../base/KtuMath.h"
 
 
 KcPlot2d::KcPlot2d(KvDataProvider* is)
@@ -42,59 +42,78 @@ KcPlot2d::KcPlot2d(KvDataProvider* is)
 
 bool KcPlot2d::render(std::shared_ptr<KvData> data)
 {
+    if (data == nullptr || data->count() == 0)
+        return true;
+
     auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
     auto data2d = std::dynamic_pointer_cast<KvData2d>(data);
     assert(colorMap && data2d);
 
     auto mapData = colorMap->data();
     auto prov = dynamic_cast<KvDataProvider*>(parent());
-    if (prov->isStream()) {
+
+    if (mapData->valueSize() != data->length(1)) {
+        mapData->setValueSize(data->length(1));
+        auto r = prov->range(1);
+        mapData->setValueRange({ r.low(), r.high() });
+        customPlot_->yAxis->setRange({ r.low(), r.high() });
+    }
+
+    if (dx_ != data->step(0)) { // framing的shift值可能动态改变
+        dx_ = data->step(0);
+        KtSampling<kReal> xsamp(0, dx_, dx_, 0);
+        auto keySize = xsamp.countLength(mapData->keyRange().size());
+
+        if (keySize == 0) { // 用户调大了输入数据的dx，导致dx > keyRange
+            // 调整绘图参数，确保keySize等于1
+            keySize = 1;
+            mapData->setKeyRange({ 0, dx_ });
+            customPlot_->xAxis->setRange({ 0, dx_ });
+        }
+
+        mapData->setKeySize(keySize);
+    }
+
+    //if (prov->isStream()) {
+
+    assert(data2d->step(1) == prov->step(1));
         
-        if (mapData->valueSize() != data->length(1)) {
-            mapData->setValueSize(data->length(1));
-            auto r = prov->range(1);
-            mapData->setValueRange({ r.low(), r.high() }); 
-            customPlot_->yAxis->setRange({ r.low(), r.high() });
-        }
 
-        if (dx_ != data->step(0)) { // framing的shift值可能动态改变
-            dx_ = data->step(0);
-            KtSampling<kReal> xsamp(0, dx_, dx_, 0);
-            mapData->setKeySize(xsamp.countLength(mapData->keyRange().size()));
-        }
+    // 允许length相差一个dx
+    // 比如fft变换时，频域range: F = 0.5/dt，频域step: df = 1 / T
+    // 若时域采样点为奇数N，频率采样点为N/2+1，此时计算的F' = df * (N/2+1) = F + df
+    assert(KtuMath<kReal>::almostEqual(
+        data2d->range(1).length() - prov->range(1).length(),
+        0, prov->step(1) * 1.001));
 
 
-        // TODO: 假定data均匀采样
-        //assert(data2d->range(1) == prov->range(1));
-        assert(data2d->step(1) == prov->step(1));
-
-        int mapOffset(0), dataOffset(0);
-        if (mapData->keySize() > data->length(0)) { // 平移map数据
-            mapOffset = mapData->keySize() - data->length(0);
-            for (int x = 0; x < mapOffset; x++)
-                for (int y = 0; y < mapData->valueSize(); y++)
-                    mapData->setCell(x, y, mapData->cell(mapData->keySize() - mapOffset + x, y));
-        }
-        else {
-            dataOffset = data->length(0) - mapData->keySize();
-        }
-
-        for (int x = dataOffset; x < data->length(0); x++)
-            for (int y = 0; y < std::min<int>(mapData->valueSize(), data->length(1)); y++)
-                mapData->setCell(mapOffset + x - dataOffset, y, data2d->value(x, y).z);
+    int mapOffset(0), dataOffset(0);
+    if (mapData->keySize() > data->length(0)) { // 平移map数据
+        mapOffset = mapData->keySize() - data->length(0);
+        for (int x = 0; x < mapOffset; x++)
+            for (int y = 0; y < mapData->valueSize(); y++)
+                mapData->setCell(x, y, mapData->cell(mapData->keySize() - mapOffset + x, y));
     }
     else {
-        mapData->setSize(data2d->length(0), data2d->length(1));
+        dataOffset = data->length(0) - mapData->keySize();
+    }
 
-        for (int x = 0; x < data2d->length(0); ++x)
-            for (int y = 0; y < data2d->length(1); ++y)
-                mapData->setCell(x, y, data2d->value(x, y).z);
+    for (int x = dataOffset; x < data->length(0); x++)
+        for (int y = 0; y < std::min<int>(mapData->valueSize(), data->length(1)); y++)
+            mapData->setCell(mapOffset + x - dataOffset, y, data2d->value(x, y).z);
+    //}
+    //else {
+    //    mapData->setSize(data2d->length(0), data2d->length(1));
+
+    //    for (int x = 0; x < data2d->length(0); ++x)
+    //        for (int y = 0; y < data2d->length(1); ++y)
+    //            mapData->setCell(x, y, data2d->value(x, y).z);
       
         //if (autoScale_) {
        //     customPlot_->rescaleAxes();
        //     colorMap->rescaleDataRange();
        // }
-    }
+   // }
     
     show(true);
 
