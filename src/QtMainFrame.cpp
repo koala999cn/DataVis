@@ -127,7 +127,7 @@ bool QtMainFrame::setupMenu_()
 
     viewMenu->addSeparator();
 
-    auto closeAll = viewMenu->addAction(u8"Close All(&A)");
+    auto closeAll = viewMenu->addAction(u8"Close All(&A)"); // TODO: stop rendering
     connect(closeAll, &QAction::triggered, [this] { closeDockWidgets(true); });
 
 
@@ -209,15 +209,18 @@ bool QtMainFrame::initLauout_()
     propDock_->setWidget(propWidget);
     addDockWidget(propDock_, Location_OnRight);
     propDock_->show();
+
+    // 处理用户编辑而导致的对象属性变化
     connect(propWidget, &QtnPropertyWidgetX::propertyChanged, this, 
         [workWidget](int id, const QVariant& val) {
             auto obj = workWidget->getObject(workWidget->currentItem());
-            if(obj) obj->onPropertyChanged(id, val);
+            if(obj) obj->setProperty(id, val);
             });
 
     propWidget->connect(kAppEventHub, &QtAppEventHub::objectActivated, 
           propWidget, &QtnPropertyWidgetX::sync);
 
+    // 处理对象自行发起的属性变化信号，通常用于同步属性页的显示
     this->connect(kAppEventHub, &QtAppEventHub::objectPropertyChanged, this, 
         [propWidget](KvPropertiedObject* obj, int propId, const QVariant& newVal) {
             if (propWidget->currentObject() == obj) {
@@ -322,37 +325,6 @@ std::shared_ptr<KvData> QtMainFrame::loadData_(const QString& filePath)
     return data;
 }
 
-/*
-void QtMainFrame::insertDataProvider_(KvDataProvider* dp)
-{
-    auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
-    treeView->insertProvider(dp);
-}
-
-
-void QtMainFrame::insertDataOperator_(KvDataOperator* op)
-{
-    auto dataTreeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
-    dataTreeView->insertOperator(op);
-}
-
-
-void QtMainFrame::insertDataRender_(KvDataRender* dr)
-{
-    auto dataTreeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
-    dataTreeView->insertRender(dr);
-}
-
-
-void QtMainFrame::insertDataPlot_(int type)
-{
-    auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
-    auto obj = treeView->getObject(treeView->currentItem());
-    auto provider = dynamic_cast<KvDataProvider*>(obj);
-    assert(provider);
-    insertDataRender_(new KcDataPlot(provider, type));
-}
-*/
 
 void QtMainFrame::connectAppEvents_()
 {
