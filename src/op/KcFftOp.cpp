@@ -10,30 +10,84 @@
 
 KcFftOp::KcFftOp(KvDataProvider* prov)
 	: KvDataOperator("fft", prov) 
+	, df_(KvData::k_unknown_step) 
+	, nyquistFreq_(0)
 {
-
+	syncParent();
 }
 
+
+namespace kPrivate
+{
+	enum KeFftPropertyId
+	{
+		k_nyquist_freq,
+		k_freq_step,
+		k_time_size,
+		k_freq_size,
+	};
+}
 
 KcFftOp::kPropertySet KcFftOp::propertySet() const
 {
 	kPropertySet ps;
 
 	KpProperty prop;
-	prop.id = 0;
-	prop.name = tr(u8"name");
-	prop.desc = tr(u8"fast fourier transform");
-	prop.val = u8"fft";
+	prop.id = kPrivate::k_nyquist_freq;
+	prop.name = tr(u8"Freq");
+	prop.disp = tr(u8"Nyquist Frequency");
+	prop.val = nyquistFreq_;
 	prop.flag = k_readonly;
 	ps.push_back(prop);
 	
+	prop.id = kPrivate::k_freq_step;
+	prop.name = tr(u8"df");
+	prop.disp.clear();
+	prop.desc = tr("step in frequency domain");
+	prop.val = df_;
+	ps.push_back(prop);
+
+	prop.id = kPrivate::k_time_size;
+	prop.name = tr(u8"sizeT");
+	prop.desc = tr("number of samples in time domain");
+	prop.val = rdft_->sizeT();
+	ps.push_back(prop);
+
+	prop.id = kPrivate::k_freq_size;
+	prop.name = tr(u8"sizeF");
+	prop.desc = tr("number of samples in frequency domain");
+	prop.val = rdft_->sizeF();
+	ps.push_back(prop);
+
 	return ps;
 }
 
 
-void KcFftOp::onPropertyChanged(int id, const QVariant& newVal)
+void KcFftOp::syncParent()
 {
+	auto prov = dynamic_cast<KvDataProvider*>(parent());
+	assert(prov);
 
+	if (rdft_ == nullptr || rdft_->sizeT() != prov->length(prov->dim() - 1)) {
+		rdft_ = std::make_unique<KgRdft>(prov->length(prov->dim() - 1), false, true);
+
+		if (prov->step(prov->dim() - 1) != KvData::k_unknown_step)
+			nyquistFreq_ = 1 / prov->step(prov->dim() - 1) / 2;
+		else
+			nyquistFreq_ = 8000; // 未知情况下，假定8khz
+
+		df_ = nyquistFreq_ / rdft_->sizeF();
+		// 此处没有采用df = 1/T的计算公式，主要原因有2：
+		// 一是此处获取的T值不准确，大多数时候比真实的T值大1个dt；
+		// 二是由此根据df推导出的频域range比nyquist频率大1-2个df。
+		// 例如：当采样点为偶数N，频率采样点为N/2+1，此时计算的F' = df * (N/2+1) = F + 2*df 
+	}
+}
+
+
+void KcFftOp::setPropertyImpl_(int id, const QVariant& newVal)
+{
+	
 }
 
 
@@ -42,14 +96,11 @@ kRange KcFftOp::range(kIndex axis) const
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
 
-	// 对信号的最高2维进行变换，其他低维度保持原信号尺度不变
+	// 对信号的最高维进行变换，其他低维度保持原信号尺度不变
 	if (axis == objp->dim() - 1) {
-		auto dx = objp->step(objp->dim() - 1);
-		assert(dx != KvData::k_nonuniform_step);
-		auto xmax = dx != KvData::k_unknown_step ? 0.5 / dx : 8000; // 未知情况下，显示8khz频率范围
-		return { 0, xmax };
+		return { 0, nyquistFreq_ };
 	}
-	else if (axis == objp->dim()) {
+	else if (axis == objp->dim()) { // 频率幅值域
 		auto r = KvDataOperator::range(objp->dim());
 		return { 0, KtuMath<kReal>::absMax(r.low(), r.high()) };
 	}
@@ -64,9 +115,7 @@ kReal KcFftOp::step(kIndex axis) const
 	assert(objp != nullptr);
 
 	if (axis == objp->dim() - 1) {
-		auto xrange = objp->range(objp->dim() - 1);
-		auto len = xrange.length();
-		return len == 0 ? KvData::k_unknown_step : 1 / len;
+		return df_;
 	}
 	else if (axis == objp->dim()) {
 		return KvData::k_nonuniform_step;
@@ -81,11 +130,11 @@ std::shared_ptr<KvData> KcFftOp::processImpl_(std::shared_ptr<KvData> data)
 	if (data->empty())
 		return data;
 
-	return data->dim() == 1 ? process1d(data) : process2d(data); 
+	return data->dim() == 1 ? process1d_(data) : process2d_(data); 
 }
 
 
-std::shared_ptr<KvData> KcFftOp::process1d(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcFftOp::process1d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 1);
 
@@ -95,10 +144,11 @@ std::shared_ptr<KvData> KcFftOp::process1d(std::shared_ptr<KvData> data)
 	if (data1d->count() < 2 || data1d->range(0).empty())
 		return data;
 
-	if (rdft_ == nullptr || rdft_->sizeT() != data1d->count())
-		rdft_ = std::make_unique<KgRdft>(data1d->count(), false, true);
+	assert(rdft_->sizeT() == data1d->count());
+	//if (rdft_ == nullptr || rdft_->sizeT() != data1d->count())
+	//	rdft_ = std::make_unique<KgRdft>(data1d->count(), false, true);
 
-	auto df = step(0);
+	auto df = df_;
 	if (df == KvData::k_unknown_step)
 		df = 1 / data1d->range(0).length();
 
@@ -122,7 +172,7 @@ std::shared_ptr<KvData> KcFftOp::process1d(std::shared_ptr<KvData> data)
 }
 
 
-std::shared_ptr<KvData> KcFftOp::process2d(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcFftOp::process2d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 2);
 
@@ -133,10 +183,12 @@ std::shared_ptr<KvData> KcFftOp::process2d(std::shared_ptr<KvData> data)
 	if (data2d->length(1) < 2 || data2d->range(1).empty())
 		return data;
 
-	if (rdft_ == nullptr || rdft_->sizeT() != data2d->length(1))
-		rdft_ = std::make_unique<KgRdft>(data2d->length(1), false, true);
+	syncParent();
+	assert(rdft_->sizeT() == data2d->length(1));
+	//if (rdft_ == nullptr || rdft_->sizeT() != data2d->length(1))
+	//	rdft_ = std::make_unique<KgRdft>(data2d->length(1), false, true);
 
-	auto df = step(1);
+	auto df = df_;
 	if (df == KvData::k_unknown_step)
 		df = 1 / data2d->range(1).length();
 

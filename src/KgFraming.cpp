@@ -6,12 +6,12 @@
 #include <assert.h>
 
 
-KgFraming::KgFraming(kReal sampleRate, kIndex channels)
+KgFraming::KgFraming(kReal dt, kIndex channels)
     : roundPower2_(false)
 {
-	buf_ = std::make_unique<KcSampled1d>(1 / sampleRate, 0, channels);
-	setLength(500 / sampleRate);
-	setShift(250 / sampleRate);
+	buf_ = std::make_unique<KcSampled1d>(dt, 0, channels);
+	setLength(500 * dt); // 默认帧长500个采样点
+	setShift(200 * dt); // 默认帧移200个采样点
 }
 
 
@@ -30,9 +30,9 @@ void KgFraming::setLength(kReal len)
 }
 
 
-void KgFraming::reset(kReal sampleRate, kIndex channels)
+void KgFraming::reset(kReal dt, kIndex channels)
 {
-	buf_->reset(1 / sampleRate, channels);
+	buf_->reset(dt, channels);
 	setShift(shift_);
 	setLength(length_);
 }
@@ -71,6 +71,7 @@ void KgFraming::process(const KcSampled1d& in, KcSampled2d& out)
 	out.resize(frames, samplesPerFrame, buf_->channels());
 	out.reset(0, buf_->sampling().low() + length_ / 2, shift_);
 	out.reset(1, buf_->sampling().low(), buf_->step(0));
+
 
 	// 输出分帧
 	auto shiftSize = this->shiftSize();

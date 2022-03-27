@@ -16,14 +16,14 @@ public:
 
 	kPropertySet propertySet() const override;
 
-	void onPropertyChanged(int id, const QVariant& newVal) override;
-
-
-	bool render(std::shared_ptr<KvData> data) override;
-
 	void reset() override;
 
+
 private:
+	void setPropertyImpl_(int id, const QVariant& newVal) override;
+	bool renderImpl_(std::shared_ptr<KvData> data) override;
+	void syncParent() override {}
+
 	KpProperty scatterProperty_(bool hasNone) const;
 	KpProperty lineProperty_(bool hasNone) const;
 	KpProperty barProperty_() const;

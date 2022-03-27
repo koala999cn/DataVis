@@ -22,9 +22,6 @@ public:
 
 	kPropertySet propertySet() const override;
 
-	void onPropertyChanged(int id, const QVariant& newVal) override;
-
-
 	bool canShown() const override;
 
 	bool isVisible() const override;
@@ -36,6 +33,11 @@ public:
 	QString exportAs();
 
 	virtual void rescaleAxes();
+
+
+protected:
+	void setPropertyImpl_(int id, const QVariant& newVal) override;
+
 
 protected:
 	QCustomPlot* customPlot_;

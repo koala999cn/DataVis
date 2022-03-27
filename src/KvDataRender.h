@@ -28,12 +28,20 @@ public:
 public slots:
 
 	// 渲染数据
-	virtual bool render(std::shared_ptr<KvData> data) = 0;
+	bool render(std::shared_ptr<KvData> data) {
+		syncParent();
+		return renderImpl_(data);
+	}
 
 	// 重置
 	virtual void reset() = 0;
 
 	// 显示/隐藏用于render的窗口或其他信息
 	virtual void show(bool bShow) = 0;
+
+
+private:
+	virtual void syncParent() = 0;
+	virtual bool renderImpl_(std::shared_ptr<KvData> data) = 0;
 };
 

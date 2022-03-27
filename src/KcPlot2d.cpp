@@ -5,7 +5,22 @@
 #include "../dsp/KtSampling.h"
 #include <assert.h>
 #include "../base/KtuMath.h"
+#include "QtAppEventHub.h"
 
+
+namespace kPrivate
+{
+    enum KePlot2dProperty
+    {
+        k_plot2d_prop_id = 200, // 此前的id预留给KvCustomPlot
+
+        k_gradient,
+        k_interpolate,
+        k_zrange,
+        k_key_size,
+        k_value_size
+    };
+}
 
 KcPlot2d::KcPlot2d(KvDataProvider* is)
     : KvCustomPlot(is, "color_map")
@@ -14,33 +29,32 @@ KcPlot2d::KcPlot2d(KvDataProvider* is)
     auto data = colorMap->data();
 
     assert(is->dim() == 2);
-    auto xrange = is->range(0); auto yrange = is->range(1);
-    auto xstep = is->step(0); auto ystep = is->step(1);
-    KtSampling<kReal> xsamp(xrange.low(), xrange.high(), xstep, xrange.low()), 
-        ysamp(yrange.low(), yrange.high(), ystep, yrange.low());
-    data->setSize(xsamp.count(), ysamp.count());
-    data->setRange(QCPRange(xrange.low(),xrange.high()),
-        QCPRange(yrange.low(), yrange.high()));
-    dx_ = xstep;
+    data->setKeySize(0); // 清零，以保证syncParentImpl_正确初始化
+    syncParent();
 
+    // data range需要手动初始化
     auto zrange = is->range(2);
     colorMap->setDataRange(QCPRange(zrange.low(), zrange.high()));
 
+    // 设置默认的渐变器
     colorMap->setGradient(QCPColorGradient::gpSpectrum);
 
+    // 当用户修改x轴范围时，需要响应调整keySize
     connect(customPlot_->xAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
         [this, colorMap](const QCPRange& newRange) {
             if (colorMap->data()->keyRange() != newRange) {
                 colorMap->data()->setKeyRange(newRange);
 
                 KtSampling<kReal> xsamp(0, dx_, dx_, 0);
-                colorMap->data()->setKeySize(xsamp.countLength(newRange.size()));
+                auto keySize = xsamp.countLength(newRange.size());
+                colorMap->data()->setKeySize(keySize);
+                kAppEventHub->slotObjectPropertyChanged(this, kPrivate::k_key_size, keySize);
             }
         });
 }
 
 
-bool KcPlot2d::render(std::shared_ptr<KvData> data)
+bool KcPlot2d::renderImpl_(std::shared_ptr<KvData> data)
 {
     if (data == nullptr || data->count() == 0)
         return true;
@@ -52,40 +66,12 @@ bool KcPlot2d::render(std::shared_ptr<KvData> data)
     auto mapData = colorMap->data();
     auto prov = dynamic_cast<KvDataProvider*>(parent());
 
-    if (mapData->valueSize() != data->length(1)) {
-        mapData->setValueSize(data->length(1));
-        auto r = prov->range(1);
-        mapData->setValueRange({ r.low(), r.high() });
-        customPlot_->yAxis->setRange({ r.low(), r.high() });
-    }
-
-    if (dx_ != data->step(0)) { // framing的shift值可能动态改变
-        dx_ = data->step(0);
-        KtSampling<kReal> xsamp(0, dx_, dx_, 0);
-        auto keySize = xsamp.countLength(mapData->keyRange().size());
-
-        if (keySize == 0) { // 用户调大了输入数据的dx，导致dx > keyRange
-            // 调整绘图参数，确保keySize等于1
-            keySize = 1;
-            mapData->setKeyRange({ 0, dx_ });
-            customPlot_->xAxis->setRange({ 0, dx_ });
-        }
-
-        mapData->setKeySize(keySize);
-    }
+    syncParent();
 
     //if (prov->isStream()) {
 
     assert(data2d->step(1) == prov->step(1));
-        
-
-    // 允许length相差一个dx
-    // 比如fft变换时，频域range: F = 0.5/dt，频域step: df = 1 / T
-    // 若时域采样点为奇数N，频率采样点为N/2+1，此时计算的F' = df * (N/2+1) = F + df
-    assert(KtuMath<kReal>::almostEqual(
-        data2d->range(1).length() - prov->range(1).length(),
-        0, prov->step(1) * 1.001));
-
+    assert(KtuMath<kReal>::almostEqual(data2d->range(1).length(), prov->range(1).length()));
 
     int mapOffset(0), dataOffset(0);
     if (mapData->keySize() > data->length(0)) { // 平移map数据
@@ -131,19 +117,6 @@ void KcPlot2d::reset()
 
     colorMap->data()->clear();
     colorMap->data()->clearAlpha();
-}
-
-
-namespace kPrivate
-{
-    enum KePlot2dProperty
-    {
-        k_plot2d_prop_id = 200, // 此前的id预留给KvCustomPlot
-
-        k_gradient,
-        k_interpolate,
-        k_zrange
-    };
 }
 
 
@@ -210,6 +183,22 @@ KvPropertiedObject::kPropertySet KcPlot2d::propertySet() const
     subProp.children.push_back(subsubProp);
     prop.children.push_back(subProp);
 
+    subProp.id = kPrivate::k_key_size;
+    subProp.name = "KeySize";
+    subProp.disp = tr("Key Size");
+    subProp.desc.clear();
+    subProp.val = colorMap->data()->keySize();
+    subProp.flag = KvPropertiedObject::k_readonly;
+    subProp.children.clear();
+    prop.children.push_back(subProp);
+
+    subProp.id = kPrivate::k_key_size;
+    subProp.name = "ValueSize";
+    subProp.disp = tr("Value Size");
+    subProp.desc.clear();
+    subProp.val = colorMap->data()->valueSize();
+    subProp.flag = KvPropertiedObject::k_readonly;
+    prop.children.push_back(subProp);
 
     ps.push_back(prop);
 
@@ -217,14 +206,14 @@ KvPropertiedObject::kPropertySet KcPlot2d::propertySet() const
 }
 
 
-void KcPlot2d::onPropertyChanged(int id, const QVariant& newVal)
+void KcPlot2d::setPropertyImpl_(int id, const QVariant& newVal)
 {
     using namespace kPrivate;
 
     assert(id >= 0);
 
-    if (id <= k_plot2d_prop_id) {
-        KvCustomPlot::onPropertyChanged(id, newVal);
+     if (id <= k_plot2d_prop_id) {
+        KvCustomPlot::setPropertyImpl_(id, newVal);
     }
     else {
         auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
@@ -247,4 +236,44 @@ void KcPlot2d::onPropertyChanged(int id, const QVariant& newVal)
 
     if (customPlot_->isVisible())
         customPlot_->replot();
+}
+
+
+void KcPlot2d::syncParent()
+{
+    auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
+    auto mapData = colorMap->data();
+    auto prov = dynamic_cast<KvDataProvider*>(parent());
+
+    if (mapData->keySize() == 0) { // 初始化
+        assert(prov->dim() == 2);
+        dx_ = prov->step(0);
+        mapData->setKeySize(prov->length(0));
+        auto xrange = prov->range(0);
+        auto qrange = QCPRange(xrange.low(), xrange.high());
+        mapData->setKeyRange(qrange);
+        customPlot_->yAxis->setRange(qrange);
+    }
+
+    if (dx_ != prov->step(0)) { // framing的shift值可能动态改变
+        dx_ = prov->step(0);
+        KtSampling<kReal> xsamp(0, dx_, dx_, 0);
+        auto keySize = xsamp.countLength(mapData->keyRange().size());
+
+        if (keySize == 0) { // 用户调大了输入数据的dx，导致dx > keyRange
+            // 调整绘图参数，确保keySize等于1
+            keySize = 1;
+            mapData->setKeyRange({ 0, dx_ });
+            customPlot_->xAxis->setRange({ 0, dx_ });
+        }
+
+        mapData->setKeySize(keySize);
+    }
+
+    if (mapData->valueSize() != prov->length(1)) {
+        mapData->setValueSize(prov->length(1));
+        auto r = prov->range(1);
+        mapData->setValueRange({ r.low(), r.high() });
+        customPlot_->yAxis->setRange({ r.low(), r.high() });
+    }
 }

@@ -102,7 +102,7 @@ kRange KcAudioInputStream::range(kIndex axis) const
 
 kReal KcAudioInputStream::step(kIndex axis) const
 {
-	return axis == 0 ? 1 / sampleRate() : KvData::k_nonuniform_step;
+	return axis == 0 ? static_cast<kReal>(1) / sampleRate() : KvData::k_nonuniform_step;
 }
 
 
@@ -171,7 +171,7 @@ KcAudioInputStream::kPropertySet KcAudioInputStream::propertySet() const
 }
 
 
-void KcAudioInputStream::onPropertyChanged(int id, const QVariant& newVal)
+void KcAudioInputStream::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id) {
 	case kPrivate::k_device_id:
@@ -191,7 +191,6 @@ void KcAudioInputStream::onPropertyChanged(int id, const QVariant& newVal)
 		break;
 
 	default:
-		assert(false);
 		break;
 	}
 }

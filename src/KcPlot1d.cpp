@@ -323,14 +323,14 @@ KvPropertiedObject::KpProperty KcPlot1d::barProperty_() const
 }
 
 
-void KcPlot1d::onPropertyChanged(int id, const QVariant& newVal)
+void KcPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	using namespace kPrivate;
 
 	assert(id >= 0);
 
 	if (id <= k_plot1d_prop_id) {
-		KvCustomPlot::onPropertyChanged(id, newVal);
+		KvCustomPlot::setPropertyImpl_(id, newVal);
 	}
 	else {
 
@@ -391,12 +391,12 @@ void KcPlot1d::onPropertyChanged(int id, const QVariant& newVal)
 		}
 	}
 
-	if (customPlot_->isVisible()) 	
+	if (customPlot_->isVisible())
 		customPlot_->replot();
 }
 
 
-bool KcPlot1d::render(std::shared_ptr<KvData> data)
+bool KcPlot1d::renderImpl_(std::shared_ptr<KvData> data)
 {
 	auto plot = customPlot_->plottable();
 

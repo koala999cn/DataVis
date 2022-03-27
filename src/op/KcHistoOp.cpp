@@ -57,7 +57,7 @@ KcHistoOp::kPropertySet KcHistoOp::propertySet() const
 }
 
 
-void KcHistoOp::onPropertyChanged(int id, const QVariant& newVal)
+void KcHistoOp::setPropertyImpl_(int id, const QVariant& newVal)
 {
     switch (id) {
     case kPrivate::k_range:

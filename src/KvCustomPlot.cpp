@@ -257,7 +257,7 @@ KvCustomPlot::kPropertySet KvCustomPlot::propertySet() const
 }
 
 
-void KvCustomPlot::onPropertyChanged(int id, const QVariant& newVal)
+void KvCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	assert(id >= 0);
 

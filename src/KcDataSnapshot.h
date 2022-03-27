@@ -27,15 +27,21 @@ public:
 
 	bool isStream() const final { return false; }
 
-	unsigned dim() const final;
+	kIndex dim() const final;
+
+	kIndex channels() const final;
 
 	kRange range(kIndex axis) const final;
 
 	kReal step(kIndex axis) const final;
 
+	kIndex length(kIndex axis) const final;
+
 	bool pushData() final;
 
 	kPropertySet propertySet() const override;
+
+	void setPropertyImpl_(int id, const QVariant& newVal) override {}
 
 	std::shared_ptr<KvData> data() { return data_; }
 

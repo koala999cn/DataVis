@@ -10,9 +10,9 @@ class KcSampled2d;
 class KgFraming
 {
 public:
-	KgFraming(kReal sampleRate, kIndex channels = 1);
+	KgFraming(kReal dt, kIndex channels = 1);
 
-	void reset(kReal sampleRate, kIndex channels = 1);
+	void reset(kReal dt, kIndex channels = 1);
 
 	kReal shift() const { return shift_; }
 	void setShift(kReal shift);

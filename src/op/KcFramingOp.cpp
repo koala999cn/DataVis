@@ -8,17 +8,14 @@
 
 KcFramingOp::KcFramingOp(KvDataProvider* prov) 
 	: KvDataOperator("framing", prov)
+	, dx_(prov->step(0))
+	, channels_(prov->channels())
 {
 	assert(prov->dim() == 1);
-	assert(prov->step(0) != KvData::k_unknown_step && prov->step(0) != KvData::k_nonuniform_step);
-	d_ptr_ = new KgFraming(1 / prov->step(0));
+	assert(dx_ != KvData::k_unknown_step && dx_ != KvData::k_nonuniform_step);
+	syncParent();
 }
 
-
-KcFramingOp::~KcFramingOp()
-{
-	delete (KgFraming*)d_ptr_;
-}
 
 namespace kPrivate
 {
@@ -41,7 +38,7 @@ KcFramingOp::kPropertySet KcFramingOp::propertySet() const
 	prop.name = tr(u8"length");
 	prop.disp = tr(u8"Frame Length");
 	prop.desc = tr(u8"frame duration in second");
-	prop.val = float(((KgFraming*)d_ptr_)->length());
+	prop.val = float(framing_->length());
 	prop.minVal = float(prov->step(0));
 	prop.maxVal = std::numeric_limits<float>::max();
 	ps.push_back(prop);
@@ -50,7 +47,7 @@ KcFramingOp::kPropertySet KcFramingOp::propertySet() const
 	prop.name = tr(u8"frame_size");
 	prop.disp = tr(u8"Frame Size");
 	prop.desc = tr(u8"number of samples per frame");
-	prop.val = ((KgFraming*)d_ptr_)->frameSize();
+	prop.val = framing_->frameSize();
 	prop.flag = k_readonly;
 	ps.push_back(prop);
 
@@ -58,7 +55,7 @@ KcFramingOp::kPropertySet KcFramingOp::propertySet() const
 	prop.name = tr(u8"shift");
 	prop.disp = tr(u8"Frame Shift");
 	prop.desc = tr(u8"frame by frame shift in second");
-	prop.val = float(((KgFraming*)d_ptr_)->shift());
+	prop.val = float(framing_->shift());
 	prop.minVal = float(prov->step(0));
 	prop.maxVal = std::numeric_limits<float>::max();
 	prop.flag = 0;
@@ -68,7 +65,7 @@ KcFramingOp::kPropertySet KcFramingOp::propertySet() const
 	prop.name = tr(u8"shift_size");
 	prop.disp = tr(u8"Shift Size");
 	prop.desc = tr(u8"number of samples once shift");
-	prop.val = ((KgFraming*)d_ptr_)->shiftSize();
+	prop.val = framing_->shiftSize();
 	prop.flag = k_readonly;
 	ps.push_back(prop);
 
@@ -76,59 +73,85 @@ KcFramingOp::kPropertySet KcFramingOp::propertySet() const
 }
 
 
-void KcFramingOp::onPropertyChanged(int id, const QVariant& newVal)
+kIndex KcFramingOp::dim() const
+{
+	return KvDataOperator::dim() + 1; // 比父数据多一个维度
+}
+
+
+void KcFramingOp::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id) {
 	case kPrivate::k_length:
-		((KgFraming*)d_ptr_)->setLength(newVal.toFloat());
+		framing_->setLength(newVal.toFloat());
 		kAppEventHub->slotObjectPropertyChanged(this, 
-			kPrivate::k_frame_size, ((KgFraming*)d_ptr_)->frameSize());
+			kPrivate::k_frame_size, framing_->frameSize()); // 同步属性页的k_frame_size值
 		break;
 
 	case kPrivate::k_shift:
-		((KgFraming*)d_ptr_)->setShift(newVal.toFloat());
+		framing_->setShift(newVal.toFloat());
 		kAppEventHub->slotObjectPropertyChanged(this,
-			kPrivate::k_shift_size, ((KgFraming*)d_ptr_)->shiftSize());
+			kPrivate::k_shift_size, framing_->shiftSize()); // // 同步属性页的k_shift_size值
 		break;
 	};
+}
+
+
+void KcFramingOp::syncParent()
+{
+	auto prov = dynamic_cast<KvDataProvider*>(parent());
+	if (!framing_ || dx_ != prov->step(0) || channels_ != prov->channels()) {
+		dx_ = prov->step(0);
+		channels_ = prov->channels();
+		framing_ = std::make_unique<KgFraming>(dx_, channels_);
+	}
 }
 
 
 kRange KcFramingOp::range(kIndex axis) const
 {
 	if (axis == 1)
-		return { 0, ((KgFraming*)d_ptr_)->length() };
+		return { 0, framing_->length() };
 	else if(axis == 0)
 	    return KvDataOperator::range(0);
-	else 
-		return KvDataOperator::range(1);
+	
+	return KvDataOperator::range(axis - 1);
 }
 
 
 kReal KcFramingOp::step(kIndex axis) const
 {
 	if (axis == 0)
-		return ((KgFraming*)d_ptr_)->shift();
+		return framing_->shift();
 
 	return KvDataOperator::step(axis - 1);
+}
+
+
+kIndex KcFramingOp::length(kIndex axis) const
+{
+	if (axis == 1)
+		return framing_->frameSize();
+	else if (axis == 0)
+		return framing_->numFrames(KvDataOperator::length(0));
+
+	return KvDataOperator::length(axis - 1);
 }
 
 
 std::shared_ptr<KvData> KcFramingOp::processImpl_(std::shared_ptr<KvData> data)
 {
 	assert(data && data->dim() == 1);
-
-	auto framObj = (KgFraming*)d_ptr_;
-	assert(framObj);
+	assert(framing_);
 	
 	auto data1d = std::dynamic_pointer_cast<KcSampled1d>(data);
 
 	auto res = std::make_shared<KcSampled2d>();
 
 	if (data->empty())
-		framObj->flush(*res);
+		framing_->flush(*res);
 	else
-		framObj->process(*data1d, *res);
+		framing_->process(*data1d, *res);
 
 	return res;
 }

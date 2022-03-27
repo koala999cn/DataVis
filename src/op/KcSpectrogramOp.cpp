@@ -16,7 +16,7 @@ KcSpectrogramOp::kPropertySet KcSpectrogramOp::propertySet() const
 }
 
 
-void KcSpectrogramOp::onPropertyChanged(int id, const QVariant& newVal)
+void KcSpectrogramOp::setPropertyImpl_(int id, const QVariant& newVal)
 {
 
 }

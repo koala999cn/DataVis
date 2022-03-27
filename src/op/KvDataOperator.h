@@ -25,8 +25,12 @@ public:
 		return dynamic_cast<const KvDataProvider*>(parent())->isStream();
 	}
 
-	unsigned dim() const override {
+	kIndex dim() const override {
 		return dynamic_cast<const KvDataProvider*>(parent())->dim();
+	}
+
+	kIndex channels() const override  { 
+		return dynamic_cast<const KvDataProvider*>(parent())->channels();
 	}
 
 	kRange range(kIndex axis) const override {
@@ -35,6 +39,10 @@ public:
 
 	kReal step(kIndex axis) const override {
 		return dynamic_cast<const KvDataProvider*>(parent())->step(axis);
+	}
+
+	kIndex length(kIndex axis) const override {
+		return dynamic_cast<const KvDataProvider*>(parent())->length(axis);
 	}
 
 	bool pushData() override {
@@ -52,6 +60,7 @@ public:
 
 	/// 执行operator操作
 	void process(std::shared_ptr<KvData> data) {
+		syncParent(); // 支持用户实时调整参数，每次都同步父亲对象
 		auto res = processImpl_(data);
 		if(res) emit onData(res);
 	}
@@ -63,6 +72,10 @@ signals:
 
 
 protected:
+
+	// parent的属性变更，同步this属性
+	virtual void syncParent() = 0;
+
 
 	// @data: 待处理数据，为null表示本轮此处理结束，相当于flush提示
 	virtual std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) = 0;

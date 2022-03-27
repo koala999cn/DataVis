@@ -86,9 +86,15 @@ KvPropertiedObject::kPropertySet KcDataSnapshot::propertySet() const
 }
 
 
-unsigned KcDataSnapshot::dim() const
+kIndex KcDataSnapshot::dim() const
 {
 	return data_->dim();
+}
+
+
+kIndex KcDataSnapshot::channels() const
+{
+	return data_->channels();
 }
 
 
@@ -100,7 +106,13 @@ kRange KcDataSnapshot::range(kIndex axis) const
 
 kReal KcDataSnapshot::step(kIndex axis) const
 {
-	return data_->step(axis);
+	return data_->step(axis); 
+}
+
+
+kIndex KcDataSnapshot::length(kIndex axis) const
+{
+	return data_->length(axis);
 }
 
 
