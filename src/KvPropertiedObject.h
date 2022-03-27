@@ -19,14 +19,21 @@ public:
 
 	virtual ~KvPropertiedObject() {}
 
-	// 属性名字不能含有" "和"."
 	QString name() const { return objectName(); }
 	void setName(const QString& newName) { setObjectName(newName); }
 
-	
-	// 属性id赋值变化的notify函数
-	virtual void onPropertyChanged(int id, const QVariant& newVal) {}
 
+public slots:
+
+	// 属性id的值在属性页中被用户编辑更改了，同步指定的属性
+	void setProperty(int id, const QVariant& newVal) {
+		setPropertyImpl_(id, newVal);
+	}
+
+private:
+	virtual void setPropertyImpl_(int id, const QVariant& newVal) = 0;
+
+public:
 
 	struct KpProperty
 	{
@@ -61,6 +68,7 @@ public:
 	using kPropertySet = std::vector<KpProperty>;
 
 	virtual kPropertySet propertySet() const = 0; // 返回对象的属性集合
+
 
 public:
 
