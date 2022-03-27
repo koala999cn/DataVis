@@ -59,7 +59,7 @@ void QtAppEventHub::slotShowInDock(KvPropertiedObject* obj, QWidget* widget)
 		widget->setVisible(true);
 
 		connect(dock, &DockWidget::isFocusedChanged, [=](bool focus) {
-			if(focus) slotObjectActivated(obj);
+			if(focus) emit objectActivated(obj);
 			});
 
 		connect(dock, &DockWidget::aboutToDeleteOnClose, [=]() {

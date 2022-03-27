@@ -84,13 +84,13 @@ void KcFramingOp::setPropertyImpl_(int id, const QVariant& newVal)
 	switch (id) {
 	case kPrivate::k_length:
 		framing_->setLength(newVal.toFloat());
-		kAppEventHub->slotObjectPropertyChanged(this, 
+		emit kAppEventHub->objectPropertyChanged(this, 
 			kPrivate::k_frame_size, framing_->frameSize()); // 同步属性页的k_frame_size值
 		break;
 
 	case kPrivate::k_shift:
 		framing_->setShift(newVal.toFloat());
-		kAppEventHub->slotObjectPropertyChanged(this,
+		emit kAppEventHub->objectPropertyChanged(this,
 			kPrivate::k_shift_size, framing_->shiftSize()); // // 同步属性页的k_shift_size值
 		break;
 	};

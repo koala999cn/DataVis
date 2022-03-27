@@ -17,18 +17,6 @@ class QtAppEventHub : public QObject
 
 public slots:
 
-	void slotObjectActivated(KvPropertiedObject* obj) {
-		emit objectActivated(obj);
-	}
-
-	void slotObjectNameChanged(KvPropertiedObject* obj) {
-		emit objectNameChanged(obj);
-	}
-
-	void slotObjectPropertyChanged(KvPropertiedObject* obj, int propId, const QVariant& newVal) {
-		emit objectPropertyChanged(obj, propId, newVal);
-	}
-
 	void slotShowInDock(KvPropertiedObject* obj, QWidget* widget);
 
 	void slotCloseDock(KvPropertiedObject* obj);

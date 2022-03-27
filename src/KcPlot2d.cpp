@@ -48,7 +48,7 @@ KcPlot2d::KcPlot2d(KvDataProvider* is)
                 KtSampling<kReal> xsamp(0, dx_, dx_, 0);
                 auto keySize = xsamp.countLength(newRange.size());
                 colorMap->data()->setKeySize(keySize);
-                kAppEventHub->slotObjectPropertyChanged(this, kPrivate::k_key_size, keySize);
+                emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
             }
         });
 }

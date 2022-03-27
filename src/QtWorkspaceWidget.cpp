@@ -132,7 +132,7 @@ void QtWorkspaceWidget::connectSignals_()
 		[this](QTreeWidgetItem* current, QTreeWidgetItem*) {
 			assert(current);
 			auto obj = getObject(current);
-			emit kAppEventHub->slotObjectActivated(obj);
+			emit kAppEventHub->objectActivated(obj);
 		});
 
 
