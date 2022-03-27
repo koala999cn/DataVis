@@ -8,6 +8,8 @@
 KcHistoOp::KcHistoOp(KvDataProvider* prov)
     : KvDataOperator("histo", prov)
 {
+    assert(prov->dim() == 1);
+
     auto xrange = prov->range(0);
     xmin_ = xrange.low(), xmax_ = xrange.high();
 
@@ -90,6 +92,12 @@ kReal KcHistoOp::step(kIndex axis) const
     }
 
     return KvDataOperator::step(axis);
+}
+
+
+void KcHistoOp::syncParent()
+{
+
 }
 
 

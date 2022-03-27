@@ -23,7 +23,7 @@ public:
 private:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
-	void syncParent() override {}
+	void syncParent() override;
 
 private:
 	kReal xmin_, xmax_; // 统计区间

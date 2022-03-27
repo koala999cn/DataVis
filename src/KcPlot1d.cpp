@@ -402,7 +402,6 @@ bool KcPlot1d::renderImpl_(std::shared_ptr<KvData> data)
 
 	assert(data->dim() == 1);
 	auto data1d = std::dynamic_pointer_cast<KvData1d>(data);
-	assert(data1d->channels() == 1); // TODO: 暂且假定单通道数据
 
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 
@@ -417,8 +416,7 @@ bool KcPlot1d::renderImpl_(std::shared_ptr<KvData> data)
 	show(true);
 
 	customPlot_->replot(prov->isStream() 
-		? QCustomPlot::rpQueuedRefresh 
-		: QCustomPlot::rpRefreshHint);
+		? QCustomPlot::rpQueuedRefresh : QCustomPlot::rpRefreshHint);
 
 	return true;
 }
@@ -447,4 +445,10 @@ void KcPlot1d::updateBarWidth_()
 	}
 
 	bars->setWidth(dx * barWidthRatio_);
+}
+
+
+void KcPlot1d::syncParent()
+{
+
 }
