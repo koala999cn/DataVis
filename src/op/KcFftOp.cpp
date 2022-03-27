@@ -125,6 +125,18 @@ kReal KcFftOp::step(kIndex axis) const
 }
 
 
+kIndex KcFftOp::length(kIndex axis) const
+{
+	auto objp = dynamic_cast<const KvDataProvider*>(parent());
+	assert(objp != nullptr);
+
+	if (axis == objp->dim() - 1) 
+		return rdft_->sizeF();
+
+	return objp->length(axis);
+}
+
+
 std::shared_ptr<KvData> KcFftOp::processImpl_(std::shared_ptr<KvData> data)
 {
 	if (data->empty())
