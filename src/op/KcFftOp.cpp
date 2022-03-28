@@ -137,6 +137,17 @@ kIndex KcFftOp::length(kIndex axis) const
 }
 
 
+bool KcFftOp::isStream() const
+{
+	auto objp = dynamic_cast<const KvDataProvider*>(parent());
+
+	if (objp->dim() == 1)
+		return false; // key轴为频率轴，非时间轴，故非stream
+	else
+		return objp->isStream();
+}
+
+
 std::shared_ptr<KvData> KcFftOp::processImpl_(std::shared_ptr<KvData> data)
 {
 	if (data->empty())
@@ -157,8 +168,6 @@ std::shared_ptr<KvData> KcFftOp::process1d_(std::shared_ptr<KvData> data)
 		return data;
 
 	assert(rdft_->sizeT() == data1d->count());
-	//if (rdft_ == nullptr || rdft_->sizeT() != data1d->count())
-	//	rdft_ = std::make_unique<KgRdft>(data1d->count(), false, true);
 
 	auto df = df_;
 	if (df == KvData::k_unknown_step)
@@ -197,8 +206,6 @@ std::shared_ptr<KvData> KcFftOp::process2d_(std::shared_ptr<KvData> data)
 
 	syncParent();
 	assert(rdft_->sizeT() == data2d->length(1));
-	//if (rdft_ == nullptr || rdft_->sizeT() != data2d->length(1))
-	//	rdft_ = std::make_unique<KgRdft>(data2d->length(1), false, true);
 
 	auto df = df_;
 	if (df == KvData::k_unknown_step)

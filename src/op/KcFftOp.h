@@ -12,8 +12,7 @@ public:
 
 	kPropertySet propertySet() const override;
 
-	// key轴为频率轴，非时间轴，故非stream
-	bool isStream() const override { return false; }
+	bool isStream() const override;
 
 	kRange range(kIndex axis) const override;
 
