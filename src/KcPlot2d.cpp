@@ -71,7 +71,7 @@ bool KcPlot2d::renderImpl_(std::shared_ptr<KvData> data)
     //if (prov->isStream()) {
 
     assert(data2d->step(1) == prov->step(1));
-    assert(KtuMath<kReal>::almostEqual(data2d->range(1).length(), prov->range(1).length()));
+    assert(data2d->length(1) == prov->length(1));
 
     int mapOffset(0), dataOffset(0);
     if (mapData->keySize() > data->length(0)) { // 平移map数据
