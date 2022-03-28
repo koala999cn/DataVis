@@ -76,9 +76,11 @@ void QtAppEventHub::slotShowInDock(KvPropertiedObject* obj, QWidget* widget)
 		assert(dock->widget() == widget);
 		assert(dock->title() == kPrivate::getDockTitle(obj));
 	}
-	
-	dock->show();
-	dock->raise();
+
+	if (dock->isHidden()) {
+		dock->show();
+		dock->raise();
+	}
 }
 
 
