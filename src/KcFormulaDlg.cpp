@@ -40,7 +40,7 @@ void KcFormulaDlg::on_nx_textEdited(const QString& text)
         auto nx = text.toLong();
         if (nx > 0) {
             KtSampling<kReal> samp;
-            samp.resetn(nx, xmin, xmax);
+            samp.resetn(nx, xmin, xmax, 0);
             ui->rate->setText(QString("%1").arg(samp.rate()));
         }
         else {
