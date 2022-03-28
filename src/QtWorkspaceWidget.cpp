@@ -20,7 +20,7 @@ QtWorkspaceWidget::QtWorkspaceWidget(QWidget* parent)
 	setHeaderHidden(true);
 	setColumnCount(1);
 	//setHeaderLabels( { tr("name"), tr("type") } );
-	root_ = new QTreeWidgetItem(this, { u8"DataProvider" });
+	root_ = new QTreeWidgetItem(this, { u8"Pipeline" });
 	//auto comboBoxDelegate = new QtComboBoxDelegate(this);
 	//QStringList plotTypes = KcDockPlotter::supportedTypeStrs();
 	//plotTypes.push_front(u8"无");
@@ -128,7 +128,7 @@ void QtWorkspaceWidget::connectSignals_()
 
 	connect(kAppEventHub, &QtAppEventHub::objectActivated, this, &QtWorkspaceWidget::selectObject);
 
-	connect(this, &QTreeWidget::currentItemChanged, this, 
+	connect(this, &QTreeWidget::currentItemChanged, 
 		[this](QTreeWidgetItem* current, QTreeWidgetItem*) {
 			assert(current);
 			auto obj = getObject(current);
@@ -137,10 +137,11 @@ void QtWorkspaceWidget::connectSignals_()
 
 
 	// 用户双击tree-item触发：弹出显示窗口
-	//connect(treeView, &QtWorkspaceWidget::itemDoubleClicked, this, [treeView](QTreeWidgetItem* item, int) {
-	//    auto obj = dynamic_cast<KvDataRender*>(treeView->getObject(item));
-	//    if (obj) obj->render();
-	//    });
+	connect(this, &QTreeWidget::itemDoubleClicked, [this](QTreeWidgetItem* item, int) {
+	    auto obj = dynamic_cast<KvDataRender*>(getObject(item));
+	    if ( obj && obj->canShown())
+			obj->show(true);
+	    });
 }
 
 void QtWorkspaceWidget::selectObject(const KvPropertiedObject* obj)
