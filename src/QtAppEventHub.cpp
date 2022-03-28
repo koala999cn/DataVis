@@ -48,7 +48,7 @@ namespace kPrivate
 }
 
 
-void QtAppEventHub::slotShowInDock(KvPropertiedObject* obj, QWidget* widget)
+void QtAppEventHub::showDock(KvPropertiedObject* obj, QWidget* widget)
 {
 	using namespace KDDockWidgets;
 
@@ -70,7 +70,7 @@ void QtAppEventHub::slotShowInDock(KvPropertiedObject* obj, QWidget* widget)
 
 		connect(obj, &QObject::objectNameChanged, dock, &DockWidget::setTitle);
 
-		connect(obj, &QObject::destroyed, [=]() { slotCloseDock(obj); });
+		connect(obj, &QObject::destroyed, [=]() { closeDock(obj); });
 	}
 	else {
 		assert(dock->widget() == widget);
@@ -84,7 +84,7 @@ void QtAppEventHub::slotShowInDock(KvPropertiedObject* obj, QWidget* widget)
 }
 
 
-void QtAppEventHub::slotCloseDock(KvPropertiedObject* obj)
+void QtAppEventHub::closeDock(KvPropertiedObject* obj)
 {
 	auto dock = kPrivate::getDock(obj, false);
 	if (dock) {

@@ -17,9 +17,11 @@ class QtAppEventHub : public QObject
 
 public slots:
 
-	void slotShowInDock(KvPropertiedObject* obj, QWidget* widget);
-
-	void slotCloseDock(KvPropertiedObject* obj);
+	// 将obj的widget显示到dock
+	void showDock(KvPropertiedObject* obj, QWidget* widget);
+	
+	// 关闭与对象obj关联的dock
+	void closeDock(KvPropertiedObject* obj);
 
 signals:
 

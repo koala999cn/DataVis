@@ -52,9 +52,9 @@ bool KvCustomPlot::isVisible() const
 void KvCustomPlot::show(bool bShow)
 {
 	if (bShow)
-		kAppEventHub->slotShowInDock(this, customPlot_);
+		kAppEventHub->showDock(this, customPlot_);
 	else
-		kAppEventHub->slotCloseDock(this);
+		kAppEventHub->closeDock(this);
 }
 
 
