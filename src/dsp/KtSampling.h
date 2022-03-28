@@ -51,7 +51,7 @@ public:
         KtInterval::reset(0, xmax);
         x0_ = x0_rel_offset, dx_ = 1;
 
-        assert(count() == nx && verify());
+        //assert(count() == nx && verify());
     }
 
 
@@ -62,7 +62,7 @@ public:
         KtInterval::reset(0, nx * dx);
         x0_ = dx * x0_rel_offset, dx_ = dx;
 
-        assert(count() == nx && verify());
+        //assert(count() == nx && verify());
     }
 
 
@@ -76,13 +76,13 @@ public:
         dx_ = (xmax - xmin) / (nx + x0_rel_offset);
         x0_ = xmin + x0_rel_offset * dx_;
 
-        if (xmax <= indexToX(nx - 1))
-            dx_ = std::nextafter(dx_, xmin);
+        //if (xmax <= indexToX(nx - 1))
+        //    dx_ = std::nextafter(dx_, xmin);
         
-        if (xmax > indexToX(nx))
-            dx_ = std::nextafter(dx_, xmax);
+        //if (xmax > indexToX(nx))
+        //    dx_ = std::nextafter(dx_, xmax);
 
-        assert(count() == nx && verify());
+        //assert(count() == nx && verify());
     }
 
 
