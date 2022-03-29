@@ -18,8 +18,15 @@
 Qt6 + MSVC2019
 
 #### ScreenShots
+
+线形图演示：
+
 ![线形图](screenshots/line_plot.gif)
 
+柱状图演示：
+
 ![柱状图](screenshots/bar_plot.gif)
+
+颜色映射图演示：
 
 ![颜色映射图](screenshots/color_map.gif)
