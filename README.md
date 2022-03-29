@@ -15,4 +15,11 @@
 - [smarc](http://audio-smarc.sourceforge.net/)
 
 #### 编译
-Qt6 + VS2019
+Qt6 + MSVC2019
+
+#### ScreenShots
+![线形图](screenshots/line_plot.gif)
+
+![柱状图](screenshots/bar_plot.gif)
+
+![颜色映射图](screenshots/color_map.gif)
