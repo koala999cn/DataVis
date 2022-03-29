@@ -16,6 +16,7 @@ namespace kPrivate
 
         k_gradient,
         k_interpolate,
+        k_color_scale,
         k_zrange,
         k_key_size,
         k_value_size
@@ -32,12 +33,23 @@ KcPlot2d::KcPlot2d(KvDataProvider* is)
     data->setKeySize(0); // 清零，以保证syncParentImpl_正确初始化
     syncParent();
 
+    // 添加colorScale
+    colorScale_ = new QCPColorScale(customPlot_);
+    customPlot_->plotLayout()->addElement(0, 1, colorScale_);
+    colorMap->setColorScale(colorScale_);
+
+    // 设置colorScale_与坐标轴的顶部和底部margin一致
+    QCPMarginGroup* group = new QCPMarginGroup(customPlot_);
+    colorScale_->setMarginGroup(QCP::msTop | QCP::msBottom, group);
+    customPlot_->axisRect()->setMarginGroup(QCP::msTop | QCP::msBottom, group);
+
     // data range需要手动初始化
     auto zrange = is->range(2);
     colorMap->setDataRange(QCPRange(zrange.low(), zrange.high()));
 
     // 设置默认的渐变器
     colorMap->setGradient(QCPColorGradient::gpSpectrum);
+
 
     // 当用户修改x轴范围时，需要响应调整keySize
     connect(customPlot_->xAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
@@ -170,6 +182,12 @@ KvPropertiedObject::kPropertySet KcPlot2d::propertySet() const
     prop.children.push_back(subProp);
 
 
+    subProp.id = kPrivate::k_color_scale;
+    subProp.name = "ColorScale";
+    subProp.val = colorScale_->visible();
+    prop.children.push_back(subProp);
+    
+
     subProp.id = kPrivate::k_zrange;
     subProp.name = QStringLiteral("ZRange");
     subProp.desc = QStringLiteral("Data Range");
@@ -226,6 +244,17 @@ void KcPlot2d::setPropertyImpl_(int id, const QVariant& newVal)
 
         case k_interpolate:
             colorMap->setInterpolate(newVal.toBool());
+            break;
+
+        case k_color_scale:
+            colorScale_->setVisible(newVal.toBool());
+            if (newVal.toBool()) {
+                customPlot_->plotLayout()->addElement(0, 1, colorScale_);
+            }
+            else {
+                customPlot_->plotLayout()->take(colorScale_);
+                customPlot_->plotLayout()->simplify();
+            }
             break;
 
         case k_zrange:

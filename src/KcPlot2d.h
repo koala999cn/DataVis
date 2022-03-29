@@ -3,6 +3,8 @@
 #include "kDsp.h" // for kReal
 
 
+class QCPColorScale;
+
 class KcPlot2d : public KvCustomPlot
 {
 public:
@@ -20,5 +22,6 @@ private:
 
 private:
 	kReal dx_;
+	QCPColorScale* colorScale_;
 };
 
