@@ -29,6 +29,9 @@ public slots:
 
 	// 渲染数据
 	bool render(std::shared_ptr<KvData> data) {
+		if (canShown() && !isVisible())
+			return true; // skip render when widget hidden
+
 		syncParent();
 		return renderImpl_(data);
 	}

@@ -113,8 +113,6 @@ bool KcPlot2d::renderImpl_(std::shared_ptr<KvData> data)
        // }
    // }
     
-    show(true);
-
     customPlot_->replot(prov->isStream()
         ? QCustomPlot::rpQueuedRefresh : QCustomPlot::rpRefreshHint);
 

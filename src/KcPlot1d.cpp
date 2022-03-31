@@ -413,8 +413,6 @@ bool KcPlot1d::renderImpl_(std::shared_ptr<KvData> data)
 		kPrivate::doPlot<QCPGraph>(plot, data1d, prov->isStream());
 	}
 
-	show(true);
-
 	customPlot_->replot(prov->isStream() 
 		? QCustomPlot::rpQueuedRefresh : QCustomPlot::rpRefreshHint);
 
