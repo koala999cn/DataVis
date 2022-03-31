@@ -12,6 +12,8 @@ KcFftOp::KcFftOp(KvDataProvider* prov)
 	: KvDataOperator("fft", prov) 
 	, df_(KvData::k_unknown_step) 
 	, nyquistFreq_(0)
+	, type_(0)
+	, floor_(1e-12f)
 {
 	syncParent();
 }
@@ -21,10 +23,20 @@ namespace kPrivate
 {
 	enum KeFftPropertyId
 	{
+		k_spectrom_type,
+		k_spectrom_floor,
 		k_nyquist_freq,
 		k_freq_step,
 		k_time_size,
 		k_freq_size,
+	};
+
+	enum KeSpectrogramType
+	{
+		k_power, // |FFT|^2
+		k_log,   // log(|FFT|^2)
+		k_db,    // 10*log10(|FFT|^2)
+		k_mag    // |FFT|
 	};
 }
 
@@ -33,6 +45,30 @@ KcFftOp::kPropertySet KcFftOp::propertySet() const
 	kPropertySet ps;
 
 	KpProperty prop;
+	KpProperty subProp;
+
+	static const std::pair<QString, int> type[] = {
+		{ "Power", kPrivate::k_power },
+		{ "Log", kPrivate::k_log },
+		{ "dB", kPrivate::k_db },
+		{ "Mag", kPrivate::k_mag }
+	};
+
+	prop.id = kPrivate::k_spectrom_type;
+	prop.name = tr("Type");
+	prop.val = type_;
+	for (unsigned i = 0; i < sizeof(type) / sizeof(std::pair<QString, int>); i++) {
+		subProp.name = type[i].first;
+		subProp.val = type[i].second;
+		prop.children.push_back(subProp);
+	}
+	ps.push_back(prop);
+
+	prop.id = kPrivate::k_spectrom_floor;
+	prop.name = tr(u8"Floor");
+	prop.val = floor_;
+	ps.push_back(prop);
+
 	prop.id = kPrivate::k_nyquist_freq;
 	prop.name = tr(u8"Freq");
 	prop.disp = tr(u8"Nyquist Frequency");
@@ -87,7 +123,15 @@ void KcFftOp::syncParent()
 
 void KcFftOp::setPropertyImpl_(int id, const QVariant& newVal)
 {
-	
+	switch (id) {
+	case kPrivate::k_spectrom_type:
+		type_ = newVal.toInt();
+		break;
+
+	case kPrivate::k_spectrom_floor:
+		floor_ = newVal.value<kReal>();
+		break;
+	}
 }
 
 
@@ -102,7 +146,14 @@ kRange KcFftOp::range(kIndex axis) const
 	}
 	else if (axis == objp->dim()) { // 频率幅值域
 		auto r = KvDataOperator::range(objp->dim());
-		return { 0, KtuMath<kReal>::absMax(r.low(), r.high()) };
+		auto mag = KtuMath<kReal>::absMax(r.low(), r.high());
+		mag = std::max(mag, floor_);
+		if (type_ == kPrivate::k_log)
+			mag = log(mag);
+		else if (type_ == kPrivate::k_db)
+			mag = 10 * log10(mag);
+
+		return { 0, mag };
 	}
 	
 	return objp->range(axis);
@@ -186,6 +237,7 @@ std::shared_ptr<KvData> KcFftOp::process1d_(std::shared_ptr<KvData> data)
 
 		rdft_->forward(rawData.data());
 		rdft_->powerSpectrum(rawData.data());
+		postProcess_(rawData.data());
 		res->setChannel(rawData.data(), c);
 	}
 
@@ -225,9 +277,31 @@ std::shared_ptr<KvData> KcFftOp::process2d_(std::shared_ptr<KvData> data)
 
 			rdft_->forward(rawData.data());
 			rdft_->powerSpectrum(rawData.data());
+			postProcess_(rawData.data());
 			res->setChannel(i, rawData.data(), c);
 		}
 	}
 
 	return res;
+}
+
+
+void KcFftOp::postProcess_(kReal* data) const
+{
+	auto c = rdft_->sizeF();
+
+	if (type_ == kPrivate::k_mag) {
+		for (unsigned n = 0; n < c; n++)
+			data[n] = sqrt(data[n]);
+	}
+	else if (type_ == kPrivate::k_log) {
+		KtuMath<kReal>::applyFloor(data, c, floor_);
+		KtuMath<kReal>::applyLog(data, c);
+	}
+	else if (type_ == kPrivate::k_db) {
+		for (unsigned n = 0; n < c; n++) {
+			data[n] = std::max(data[n], floor_);
+			data[n] = 10 * log10(data[n]);
+		}
+	}
 }
