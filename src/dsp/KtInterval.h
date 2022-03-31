@@ -36,6 +36,7 @@ public:
 
     T low() const { return low_; }
     T high() const { return high_; }
+    T mid() const { return (high_ - low_) / 2; }
 
     // 区间的长度
     T length() const { return high_ - low_; }
@@ -49,6 +50,7 @@ public:
 
     KtInterval& operator=(const KtInterval& other) {
         low_ = other.low(), high_ == other.high();
+        return *this;
     }
 
 

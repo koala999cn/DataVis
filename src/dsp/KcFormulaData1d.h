@@ -39,6 +39,8 @@ public:
 
     kRange range(kIndex axis) const override;
 
+    kReal y(kReal x, kIndex channel = 0) const override; // 插值
+
 
     /// 基本属性
 

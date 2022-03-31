@@ -74,6 +74,13 @@ KcSampled1d::kPoint2d KcSampled1d::value(kIndex idx, kIndex channel) const
 }
 
 
+kReal KcSampled1d::y(kReal, kIndex) const
+{
+    assert(false); // TODO:
+    return 0;
+}
+
+
 kRange KcSampled1d::range(kIndex axis) const
 {
     return axis == 0 ? 

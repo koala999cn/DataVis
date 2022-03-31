@@ -43,6 +43,11 @@ kRange KcFormulaData1d::range(kIndex axis) const
 KcFormulaData1d::kPoint2d KcFormulaData1d::value(kIndex idx, kIndex) const
 {
     auto x = samp_.indexToX(idx);
-    return kPoint2d{ x, expr_->value(x) };
+    return kPoint2d{ x, y(x) };
 }
 
+
+kReal KcFormulaData1d::y(kReal x, kIndex) const
+{
+    return expr_->value(x);
+}

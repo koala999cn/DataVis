@@ -19,6 +19,9 @@ public:
     KcSampled1d(kReal dx, kReal x0_rel = 0, kIndex channel = 1);
 
 
+    KcSampled1d& operator=(const KcSampled1d& rhs) = default;
+    KcSampled1d& operator=(KcSampled1d&& rhs) = default;
+
     /// KvData接口实现
 
     kIndex count() const override;
@@ -42,6 +45,8 @@ public:
     /// KvData1d接口实现
 
     kPoint2d value(kIndex idx, kIndex channel = 0) const override;
+
+    kReal y(kReal, kIndex) const override; // 插值
 
 
     /// 基本属性

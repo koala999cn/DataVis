@@ -24,6 +24,9 @@ public:
     struct kPoint2d { kReal x, y; };
     virtual kPoint2d value(kIndex idx, kIndex channel = 0) const = 0;
 
+    virtual kReal y(kReal x, kIndex channle = 0) const = 0;
+
+
     /// helper funtions
     
     // 获取指定通道的y值范围，用于设置纵轴坐标. 提供暴力求解的缺省实现
