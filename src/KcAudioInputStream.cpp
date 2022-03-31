@@ -1,6 +1,7 @@
 ﻿#include "KcAudioInputStream.h"
 #include "audio/KcAudio.h"
 #include "audio/KcAudioDevice.h"
+#include "KtSampling.h"
 
 
 namespace kPrivate
@@ -68,7 +69,9 @@ bool KcAudioInputStream::pushData()
     KcAudioDevice::KpStreamParameters iParam;
     iParam.deviceId = deviceId_;
     iParam.channels = channels_;
-    unsigned bufferFrames = unsigned(sampleRate_ * frameTime_ + 0.5);
+
+	KtSampling<kReal> samp(kReal(0), kReal(frameTime_), kReal(1) / sampleRate_, 0);
+	unsigned bufferFrames = samp.count(); // unsigned(sampleRate_ * frameTime_ + 0.5);
 
     if (!device->open(nullptr, &iParam,
         std::is_same<kReal, double>::value ? KcAudioDevice::k_float64 : KcAudioDevice::k_float32,
