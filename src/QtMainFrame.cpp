@@ -26,7 +26,7 @@
 #include "op/KcFftOp.h"
 #include "op/KcHistoOp.h"
 #include "op/KcFramingOp.h"
-
+#include "op/KcWindowingOp.h"
 
 using namespace KDDockWidgets;
 
@@ -144,6 +144,8 @@ bool QtMainFrame::setupMenu_()
     QAction* framing = opMenu->addAction(u8"Framing(&M)");
     connect(framing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFramingOp>(workDock_, false); });
 
+    QAction* windowing = opMenu->addAction(u8"Windowing(&W)");
+    connect(windowing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcWindowingOp>(workDock_, false); });
 
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
@@ -151,6 +153,7 @@ bool QtMainFrame::setupMenu_()
         fft->setEnabled(obj && obj->step(obj->dim() - 1) != KvData::k_nonuniform_step);
         hist->setEnabled(obj && obj->dim() == 1);
         framing->setEnabled(obj && obj->dim() == 1);
+        windowing->setEnabled(obj && obj->step(obj->dim() - 1) != KvData::k_nonuniform_step);
         });
 
 

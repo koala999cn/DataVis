@@ -119,13 +119,22 @@
     <ClCompile Include="src\KvCustomPlot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\KgSpectrogram.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\KgFraming.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KgMultiply.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgWindowing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KuWindowFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgFraming.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgSpectrogram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\op\KcWindowingOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -204,9 +213,6 @@
     <ClInclude Include="src\dsp\KtSampling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KtuMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KvData1d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -270,13 +276,28 @@
     <ClInclude Include="src\KcPlot2d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\KgSpectrogram.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KgFraming.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KgMultiply.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgWindowing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuWindowFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtuMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgFraming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgSpectrogram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcWindowingOp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
