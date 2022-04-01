@@ -146,7 +146,7 @@
     <ClCompile Include="src\KcAudioInputStream.cpp" />
     <ClCompile Include="src\KcPlot2d.cpp" />
     <ClCompile Include="src\KvCustomPlot.cpp" />
-    <ClCompile Include="src\op\KcFftOp.cpp" />
+    <ClCompile Include="src\op\KcSpectrumOp.cpp" />
     <ClCompile Include="src\op\KcFramingOp.cpp" />
     <ClCompile Include="src\op\KcHistoOp.cpp" />
     <ClCompile Include="src\op\KcSpectrogramOp.cpp" />
@@ -198,7 +198,7 @@
     <ClInclude Include="src\KcPlot2d.h" />
     <ClInclude Include="src\KvCustomPlot.h" />
     <ClInclude Include="src\KvDataStream.h" />
-    <ClInclude Include="src\op\KcFftOp.h" />
+    <ClInclude Include="src\op\KcSpectrumOp.h" />
     <ClInclude Include="src\op\KcWindowingOp.h" />
     <QtMoc Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\op\KcFramingOp.h" />

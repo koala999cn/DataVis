@@ -86,7 +86,7 @@
     <ClCompile Include="src\KcAudioInputStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcFftOp.cpp">
+    <ClCompile Include="src\op\KcSpectrumOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KgRdft.cpp">
@@ -240,7 +240,7 @@
     <ClInclude Include="src\KcAudioInputStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcFftOp.h">
+    <ClInclude Include="src\op\KcSpectrumOp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgRdft.h">

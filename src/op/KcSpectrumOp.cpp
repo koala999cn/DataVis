@@ -1,4 +1,4 @@
-﻿#include "KcFftOp.h"
+﻿#include "KcSpectrumOp.h"
 #include "KgRdft.h"
 #include "KvData1d.h"
 #include "KvData2d.h"
@@ -8,8 +8,8 @@
 #include "KtuMath.h"
 
 
-KcFftOp::KcFftOp(KvDataProvider* prov)
-	: KvDataOperator("fft", prov) 
+KcSpectrumOp::KcSpectrumOp(KvDataProvider* prov)
+	: KvDataOperator("spectrum", prov) 
 	, df_(KvData::k_unknown_step) 
 	, nyquistFreq_(0)
 	, type_(0)
@@ -40,7 +40,7 @@ namespace kPrivate
 	};
 }
 
-KcFftOp::kPropertySet KcFftOp::propertySet() const
+KcSpectrumOp::kPropertySet KcSpectrumOp::propertySet() const
 {
 	kPropertySet ps;
 
@@ -99,7 +99,7 @@ KcFftOp::kPropertySet KcFftOp::propertySet() const
 }
 
 
-void KcFftOp::syncParent()
+void KcSpectrumOp::syncParent()
 {
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	assert(prov);
@@ -121,7 +121,7 @@ void KcFftOp::syncParent()
 }
 
 
-void KcFftOp::setPropertyImpl_(int id, const QVariant& newVal)
+void KcSpectrumOp::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id) {
 	case kPrivate::k_spectrom_type:
@@ -135,7 +135,7 @@ void KcFftOp::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-kRange KcFftOp::range(kIndex axis) const
+kRange KcSpectrumOp::range(kIndex axis) const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
@@ -160,7 +160,7 @@ kRange KcFftOp::range(kIndex axis) const
 }
 
 
-kReal KcFftOp::step(kIndex axis) const
+kReal KcSpectrumOp::step(kIndex axis) const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
@@ -176,7 +176,7 @@ kReal KcFftOp::step(kIndex axis) const
 }
 
 
-kIndex KcFftOp::length(kIndex axis) const
+kIndex KcSpectrumOp::length(kIndex axis) const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
@@ -188,7 +188,7 @@ kIndex KcFftOp::length(kIndex axis) const
 }
 
 
-bool KcFftOp::isStream() const
+bool KcSpectrumOp::isStream() const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 
@@ -199,7 +199,7 @@ bool KcFftOp::isStream() const
 }
 
 
-std::shared_ptr<KvData> KcFftOp::processImpl_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcSpectrumOp::processImpl_(std::shared_ptr<KvData> data)
 {
 	if (data->empty())
 		return data;
@@ -208,7 +208,7 @@ std::shared_ptr<KvData> KcFftOp::processImpl_(std::shared_ptr<KvData> data)
 }
 
 
-std::shared_ptr<KvData> KcFftOp::process1d_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcSpectrumOp::process1d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 1);
 
@@ -245,7 +245,7 @@ std::shared_ptr<KvData> KcFftOp::process1d_(std::shared_ptr<KvData> data)
 }
 
 
-std::shared_ptr<KvData> KcFftOp::process2d_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcSpectrumOp::process2d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 2);
 
@@ -286,7 +286,7 @@ std::shared_ptr<KvData> KcFftOp::process2d_(std::shared_ptr<KvData> data)
 }
 
 
-void KcFftOp::postProcess_(kReal* data) const
+void KcSpectrumOp::postProcess_(kReal* data) const
 {
 	auto c = rdft_->sizeF();
 

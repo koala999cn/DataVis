@@ -23,7 +23,7 @@
 #include "KcPlot2d.h"
 #include "QtAppEventHub.h"
 #include "KcAudioInputStream.h"
-#include "op/KcFftOp.h"
+#include "op/KcSpectrumOp.h"
 #include "op/KcHistoOp.h"
 #include "op/KcFramingOp.h"
 #include "op/KcWindowingOp.h"
@@ -135,8 +135,8 @@ bool QtMainFrame::setupMenu_()
     auto opMenu = new QMenu(u8"Operator(&O)", this);
     menubar->addMenu(opMenu);
 
-    QAction* fft = opMenu->addAction(u8"Fft(&F)");
-    connect(fft, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFftOp>(workDock_, false); });
+    QAction* fft = opMenu->addAction(u8"Spectrum(&S)");
+    connect(fft, &QAction::triggered, [this] { kPrivate::insertObjectP<KcSpectrumOp>(workDock_, false); });
 
     QAction* hist = opMenu->addAction(u8"Histo(&H)");
     connect(hist, &QAction::triggered, [this] { kPrivate::insertObjectP<KcHistoOp>(workDock_, false); });

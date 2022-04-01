@@ -4,11 +4,11 @@
 
 class KgRdft;
 
-class KcFftOp : public KvDataOperator
+class KcSpectrumOp : public KvDataOperator
 {
 public:
 
-	KcFftOp(KvDataProvider* prov);
+	KcSpectrumOp(KvDataProvider* prov);
 
 	kPropertySet propertySet() const override;
 
