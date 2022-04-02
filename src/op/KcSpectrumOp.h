@@ -2,7 +2,7 @@
 #include "KvDataOperator.h"
 
 
-class KgRdft;
+class KgSpectrum;
 
 class KcSpectrumOp : public KvDataOperator
 {
@@ -34,13 +34,7 @@ private:
 	std::shared_ptr<KvData> process1d_(std::shared_ptr<KvData> data);
 	std::shared_ptr<KvData> process2d_(std::shared_ptr<KvData> data);
 
-	void postProcess_(kReal* data) const; // 根据type_对data进行变换
-
 private:
-	std::unique_ptr<KgRdft> rdft_;
-	kReal df_;
-	kReal nyquistFreq_;
-	int type_; // 频谱类型
-	kReal floor_; // 频谱底值，适用于log谱
+	std::unique_ptr<KgSpectrum> spec_;
 };
 

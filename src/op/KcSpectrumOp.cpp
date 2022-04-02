@@ -1,20 +1,14 @@
 ﻿#include "KcSpectrumOp.h"
-#include "KgRdft.h"
-#include "KvData1d.h"
-#include "KvData2d.h"
-#include <assert.h>
+#include "KgSpectrum.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
-#include "KtuMath.h"
+#include <assert.h>
 
 
 KcSpectrumOp::KcSpectrumOp(KvDataProvider* prov)
 	: KvDataOperator("spectrum", prov) 
-	, df_(KvData::k_unknown_step) 
-	, nyquistFreq_(0)
-	, type_(0)
-	, floor_(1e-12f)
 {
+	spec_ = std::make_unique<KgSpectrum>();
 	syncParent();
 }
 
@@ -30,14 +24,6 @@ namespace kPrivate
 		k_time_size,
 		k_freq_size,
 	};
-
-	enum KeSpectrogramType
-	{
-		k_power, // |FFT|^2
-		k_log,   // log(|FFT|^2)
-		k_db,    // 10*log10(|FFT|^2)
-		k_mag    // |FFT|
-	};
 }
 
 KcSpectrumOp::kPropertySet KcSpectrumOp::propertySet() const
@@ -48,15 +34,15 @@ KcSpectrumOp::kPropertySet KcSpectrumOp::propertySet() const
 	KpProperty subProp;
 
 	static const std::pair<QString, int> type[] = {
-		{ "Power", kPrivate::k_power },
-		{ "Log", kPrivate::k_log },
-		{ "dB", kPrivate::k_db },
-		{ "Mag", kPrivate::k_mag }
+		{ "Power", KgSpectrum::k_power },
+		{ "Log", KgSpectrum::k_log },
+		{ "dB", KgSpectrum::k_db },
+		{ "Mag", KgSpectrum::k_mag }
 	};
 
 	prop.id = kPrivate::k_spectrom_type;
 	prop.name = tr("Type");
-	prop.val = type_;
+	prop.val = spec_->type();
 	for (unsigned i = 0; i < sizeof(type) / sizeof(std::pair<QString, int>); i++) {
 		subProp.name = type[i].first;
 		subProp.val = type[i].second;
@@ -66,13 +52,13 @@ KcSpectrumOp::kPropertySet KcSpectrumOp::propertySet() const
 
 	prop.id = kPrivate::k_spectrom_floor;
 	prop.name = tr(u8"Floor");
-	prop.val = floor_;
+	prop.val = spec_->floor();
 	ps.push_back(prop);
 
 	prop.id = kPrivate::k_nyquist_freq;
 	prop.name = tr(u8"Freq");
 	prop.disp = tr(u8"Nyquist Frequency");
-	prop.val = nyquistFreq_;
+	prop.val = spec_->nyqiustFreq();
 	prop.flag = k_readonly;
 	ps.push_back(prop);
 	
@@ -80,19 +66,19 @@ KcSpectrumOp::kPropertySet KcSpectrumOp::propertySet() const
 	prop.name = tr(u8"df");
 	prop.disp.clear();
 	prop.desc = tr("step in frequency domain");
-	prop.val = df_;
+	prop.val = spec_->df();
 	ps.push_back(prop);
 
 	prop.id = kPrivate::k_time_size;
 	prop.name = tr(u8"sizeT");
 	prop.desc = tr("number of samples in time domain");
-	prop.val = rdft_->sizeT();
+	prop.val = spec_->countInTime();
 	ps.push_back(prop);
 
 	prop.id = kPrivate::k_freq_size;
 	prop.name = tr(u8"sizeF");
 	prop.desc = tr("number of samples in frequency domain");
-	prop.val = rdft_->sizeF();
+	prop.val = spec_->countInFreq();
 	ps.push_back(prop);
 
 	return ps;
@@ -104,20 +90,7 @@ void KcSpectrumOp::syncParent()
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	assert(prov);
 
-	if (rdft_ == nullptr || rdft_->sizeT() != prov->length(prov->dim() - 1)) {
-		rdft_ = std::make_unique<KgRdft>(prov->length(prov->dim() - 1), false, true);
-
-		if (prov->step(prov->dim() - 1) != KvData::k_unknown_step)
-			nyquistFreq_ = 1 / prov->step(prov->dim() - 1) / 2;
-		else
-			nyquistFreq_ = 8000; // 未知情况下，假定8khz
-
-		df_ = nyquistFreq_ / rdft_->sizeF();
-		// 此处没有采用df = 1/T的计算公式，主要原因有2：
-		// 一是此处获取的T值不准确，大多数时候比真实的T值大1个dt；
-		// 二是由此根据df推导出的频域range比nyquist频率大1-2个df。
-		// 例如：当采样点为偶数N，频率采样点为N/2+1，此时计算的F' = df * (N/2+1) = F + 2*df 
-	}
+	spec_->reset(prov->step(prov->dim() - 1), prov->length(prov->dim() - 1));
 }
 
 
@@ -125,11 +98,11 @@ void KcSpectrumOp::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id) {
 	case kPrivate::k_spectrom_type:
-		type_ = newVal.toInt();
+		spec_->setType(newVal.toInt());
 		break;
 
 	case kPrivate::k_spectrom_floor:
-		floor_ = newVal.value<kReal>();
+		spec_->setFloor(newVal.value<kReal>());
 		break;
 	}
 }
@@ -142,15 +115,15 @@ kRange KcSpectrumOp::range(kIndex axis) const
 
 	// 对信号的最高维进行变换，其他低维度保持原信号尺度不变
 	if (axis == objp->dim() - 1) {
-		return { 0, nyquistFreq_ };
+		return { 0, spec_->nyqiustFreq() };
 	}
 	else if (axis == objp->dim()) { // 频率幅值域
 		auto r = KvDataOperator::range(objp->dim());
 		auto mag = KtuMath<kReal>::absMax(r.low(), r.high());
-		mag = std::max(mag, floor_);
-		if (type_ == kPrivate::k_log)
+		mag = std::max(mag, spec_->floor());
+		if (spec_->type() == KgSpectrum::k_log)
 			mag = log(mag);
-		else if (type_ == kPrivate::k_db)
+		else if (spec_->type() == KgSpectrum::k_db)
 			mag = 10 * log10(mag);
 
 		return { 0, mag };
@@ -166,7 +139,7 @@ kReal KcSpectrumOp::step(kIndex axis) const
 	assert(objp != nullptr);
 
 	if (axis == objp->dim() - 1) {
-		return df_;
+		return spec_->df();
 	}
 	else if (axis == objp->dim()) {
 		return KvData::k_nonuniform_step;
@@ -182,7 +155,7 @@ kIndex KcSpectrumOp::length(kIndex axis) const
 	assert(objp != nullptr);
 
 	if (axis == objp->dim() - 1) 
-		return rdft_->sizeF();
+		return spec_->countInFreq();
 
 	return objp->length(axis);
 }
@@ -212,34 +185,11 @@ std::shared_ptr<KvData> KcSpectrumOp::process1d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 1);
 
-	auto data1d = std::dynamic_pointer_cast<KvData1d>(data);
+	auto data1d = std::dynamic_pointer_cast<KcSampled1d>(data);
 	assert(data1d && data->step(0) != KvData::k_nonuniform_step);
 
-	if (data1d->count() < 2 || data1d->range(0).empty())
-		return data;
-
-	assert(rdft_->sizeT() == data1d->count());
-
-	auto df = df_;
-	if (df == KvData::k_unknown_step)
-		df = 1 / data1d->range(0).length();
-
 	auto res = std::make_shared<KcSampled1d>();
-
-	res->reset(df, data1d->channels(), rdft_->sizeF());
-	assert(res->count() == rdft_->sizeF());
-
-	// TODO: 优化单通道的情况
-	std::vector<kReal> rawData(data1d->count());
-	for (kIndex c = 0; c < data1d->channels(); c++) {
-		for (kIndex i = 0; i < data1d->count(); i++)
-			rawData[i] = data1d->value(i, c).y;
-
-		rdft_->forward(rawData.data());
-		rdft_->powerSpectrum(rawData.data());
-		postProcess_(rawData.data());
-		res->setChannel(rawData.data(), c);
-	}
+	spec_->porcess(*data1d, *res);
 
 	return res;
 }
@@ -257,15 +207,15 @@ std::shared_ptr<KvData> KcSpectrumOp::process2d_(std::shared_ptr<KvData> data)
 		return data;
 
 	syncParent();
-	assert(rdft_->sizeT() == data2d->length(1));
+	assert(spec_->countInTime() == data2d->length(1));
 
-	auto df = df_;
+	auto df = spec_->df();
 	if (df == KvData::k_unknown_step)
 		df = 1 / data2d->range(1).length();
 
 	auto res = std::make_shared<KcSampled2d>();
 
-	res->resize(data->length(0), rdft_->sizeF(), data->channels());
+	res->resize(data->length(0), spec_->countInFreq(), data->channels());
 	res->reset(0, data->range(0).low(), data->step(0));
 	res->reset(1, 0, df);
 
@@ -275,33 +225,10 @@ std::shared_ptr<KvData> KcSpectrumOp::process2d_(std::shared_ptr<KvData> data)
 			for (kIndex j = 0; j < data2d->length(1); j++)
 				rawData[j] = data2d->value(i, j, c).z;
 
-			rdft_->forward(rawData.data());
-			rdft_->powerSpectrum(rawData.data());
-			postProcess_(rawData.data());
+			spec_->porcess(rawData.data());
 			res->setChannel(i, rawData.data(), c);
 		}
 	}
 
 	return res;
-}
-
-
-void KcSpectrumOp::postProcess_(kReal* data) const
-{
-	auto c = rdft_->sizeF();
-
-	if (type_ == kPrivate::k_mag) {
-		for (unsigned n = 0; n < c; n++)
-			data[n] = sqrt(data[n]);
-	}
-	else if (type_ == kPrivate::k_log) {
-		KtuMath<kReal>::applyFloor(data, c, floor_);
-		KtuMath<kReal>::applyLog(data, c);
-	}
-	else if (type_ == kPrivate::k_db) {
-		for (unsigned n = 0; n < c; n++) {
-			data[n] = std::max(data[n], floor_);
-			data[n] = 10 * log10(data[n]);
-		}
-	}
 }

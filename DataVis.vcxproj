@@ -139,6 +139,7 @@
     <ClCompile Include="src\dsp\KgMultiply.cpp" />
     <ClCompile Include="src\dsp\KgRdft.cpp" />
     <ClCompile Include="src\dsp\KgSpectrogram.cpp" />
+    <ClCompile Include="src\dsp\KgSpectrum.cpp" />
     <ClCompile Include="src\dsp\KgWindowing.cpp" />
     <ClCompile Include="src\dsp\KuWindowFactory.cpp" />
     <ClCompile Include="src\dsp\KvData1d.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="src\dsp\KgMultiply.h" />
     <ClInclude Include="src\dsp\KgRdft.h" />
     <ClInclude Include="src\dsp\KgSpectrogram.h" />
+    <ClInclude Include="src\dsp\KgSpectrum.h" />
     <ClInclude Include="src\dsp\KgWindowing.h" />
     <ClInclude Include="src\dsp\KtSampledN.h" />
     <ClInclude Include="src\dsp\functions.h" />

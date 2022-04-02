@@ -137,6 +137,9 @@
     <ClCompile Include="src\op\KcWindowingOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\dsp\KgSpectrum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\KcAudioCaptureDlg.h">
@@ -298,6 +301,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\op\KcWindowingOp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgSpectrum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
