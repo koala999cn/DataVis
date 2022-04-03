@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include "KvDataOperator.h"
+#include <memory>
 
+
+class KgHist;
 
 class KcHistoOp : public KvDataOperator
 {
@@ -26,7 +29,9 @@ private:
 	void syncParent() override;
 
 private:
-	kReal xmin_, xmax_; // 统计区间
-	unsigned bands_; // 
+	////kReal xmin_, xmax_; // 统计区间
+	//unsigned bands_; // 
+
+	std::unique_ptr<KgHist> hist_;
 };
 

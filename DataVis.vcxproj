@@ -136,6 +136,7 @@
     <ClCompile Include="src\base\KuStrUtil.cpp" />
     <ClCompile Include="src\dsp\KcSampled2d.cpp" />
     <ClCompile Include="src\dsp\KgFraming.cpp" />
+    <ClCompile Include="src\dsp\KgHist.cpp" />
     <ClCompile Include="src\dsp\KgMultiply.cpp" />
     <ClCompile Include="src\dsp\KgRdft.cpp" />
     <ClCompile Include="src\dsp\KgSpectrogram.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="src\base\KvRefObject.h" />
     <ClInclude Include="src\dsp\KcSampled2d.h" />
     <ClInclude Include="src\dsp\KgFraming.h" />
+    <ClInclude Include="src\dsp\KgHist.h" />
     <ClInclude Include="src\dsp\KgMultiply.h" />
     <ClInclude Include="src\dsp\KgRdft.h" />
     <ClInclude Include="src\dsp\KgSpectrogram.h" />
