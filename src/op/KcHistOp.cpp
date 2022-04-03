@@ -1,4 +1,4 @@
-﻿#include "KcHistoOp.h"
+﻿#include "KcHistOp.h"
 #include "KtSampling.h"
 #include <vector>
 #include "KcSampled1d.h"
@@ -6,7 +6,7 @@
 #include "KgHist.h"
 
 
-KcHistoOp::KcHistoOp(KvDataProvider* prov)
+KcHistOp::KcHistOp(KvDataProvider* prov)
     : KvDataOperator("hist", prov)
 {
     assert(prov->dim() == 1);
@@ -19,14 +19,14 @@ KcHistoOp::KcHistoOp(KvDataProvider* prov)
 
 namespace kPrivate
 {
-    enum KeHistoPropertyId
+    enum KeHistPropertyId
     {
         k_range,
         k_bands
     };
 };
 
-KcHistoOp::kPropertySet KcHistoOp::propertySet() const
+KcHistOp::kPropertySet KcHistOp::propertySet() const
 {
     kPropertySet ps;
     KpProperty prop;
@@ -60,7 +60,7 @@ KcHistoOp::kPropertySet KcHistoOp::propertySet() const
 }
 
 
-void KcHistoOp::setPropertyImpl_(int id, const QVariant& newVal)
+void KcHistOp::setPropertyImpl_(int id, const QVariant& newVal)
 {
     switch (id) {
     case kPrivate::k_range:
@@ -74,7 +74,7 @@ void KcHistoOp::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-kRange KcHistoOp::range(kIndex axis) const
+kRange KcHistOp::range(kIndex axis) const
 {
     if (axis == 0) 
         return { hist_->range().first, hist_->range().second };
@@ -83,7 +83,7 @@ kRange KcHistoOp::range(kIndex axis) const
 }
 
 
-kReal KcHistoOp::step(kIndex axis) const
+kReal KcHistOp::step(kIndex axis) const
 {
     if (axis == 0) {
         return hist_->binWidth(0); // bin是线性的
@@ -93,13 +93,13 @@ kReal KcHistoOp::step(kIndex axis) const
 }
 
 
-void KcHistoOp::syncParent()
+void KcHistOp::syncParent()
 {
 
 }
 
 
-std::shared_ptr<KvData> KcHistoOp::processImpl_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcHistOp::processImpl_(std::shared_ptr<KvData> data)
 {
     auto res = std::make_shared<KcSampled1d>();
     hist_->process(*std::dynamic_pointer_cast<KcSampled1d>(data), *res);

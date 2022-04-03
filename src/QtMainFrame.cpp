@@ -24,7 +24,7 @@
 #include "QtAppEventHub.h"
 #include "KcAudioInputStream.h"
 #include "op/KcSpectrumOp.h"
-#include "op/KcHistoOp.h"
+#include "op/KcHistOp.h"
 #include "op/KcFramingOp.h"
 #include "op/KcWindowingOp.h"
 
@@ -138,8 +138,8 @@ bool QtMainFrame::setupMenu_()
     QAction* fft = opMenu->addAction(u8"Spectrum(&S)");
     connect(fft, &QAction::triggered, [this] { kPrivate::insertObjectP<KcSpectrumOp>(workDock_, false); });
 
-    QAction* hist = opMenu->addAction(u8"Histo(&H)");
-    connect(hist, &QAction::triggered, [this] { kPrivate::insertObjectP<KcHistoOp>(workDock_, false); });
+    QAction* hist = opMenu->addAction(u8"Histogram(&H)");
+    connect(hist, &QAction::triggered, [this] { kPrivate::insertObjectP<KcHistOp>(workDock_, false); });
 
     QAction* framing = opMenu->addAction(u8"Framing(&M)");
     connect(framing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFramingOp>(workDock_, false); });

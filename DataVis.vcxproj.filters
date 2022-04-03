@@ -98,7 +98,7 @@
     <ClCompile Include="src\QtAppEventHub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcHistoOp.cpp">
+    <ClCompile Include="src\op\KcHistOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\op\KcFramingOp.cpp">
@@ -255,7 +255,7 @@
     <ClInclude Include="src\KvDataStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcHistoOp.h">
+    <ClInclude Include="src\op\KcHistOp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\op\KcFramingOp.h">

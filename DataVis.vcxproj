@@ -150,7 +150,7 @@
     <ClCompile Include="src\KvCustomPlot.cpp" />
     <ClCompile Include="src\op\KcSpectrumOp.cpp" />
     <ClCompile Include="src\op\KcFramingOp.cpp" />
-    <ClCompile Include="src\op\KcHistoOp.cpp" />
+    <ClCompile Include="src\op\KcHistOp.cpp" />
     <ClCompile Include="src\op\KcSpectrogramOp.cpp" />
     <ClCompile Include="src\op\KcWindowingOp.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
@@ -206,7 +206,7 @@
     <ClInclude Include="src\op\KcWindowingOp.h" />
     <QtMoc Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\op\KcFramingOp.h" />
-    <ClInclude Include="src\op\KcHistoOp.h" />
+    <ClInclude Include="src\op\KcHistOp.h" />
     <ClInclude Include="src\op\KcSpectrogramOp.h" />
     <QtMoc Include="src\QtAppEventHub.h" />
     <ClInclude Include="src\KcPlot1d.h" />

@@ -5,10 +5,10 @@
 
 class KgHist;
 
-class KcHistoOp : public KvDataOperator
+class KcHistOp : public KvDataOperator
 {
 public:
-	KcHistoOp(KvDataProvider* prov);
+	KcHistOp(KvDataProvider* prov);
 
 	kPropertySet propertySet() const override;
 
