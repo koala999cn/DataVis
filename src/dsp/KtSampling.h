@@ -73,7 +73,7 @@ public:
         assert(x0_rel_offset >= 0 && x0_rel_offset < 1);
 
         KtInterval::reset(xmin, xmax);
-        dx_ = (xmax - xmin) / (nx + x0_rel_offset);
+        dx_ = (xmax - xmin) / nx;
         x0_ = xmin + x0_rel_offset * dx_;
 
         //if (xmax <= indexToX(nx - 1))
@@ -161,6 +161,7 @@ public:
         KtInterval::shift(offset);
     }
 
+    // TODO: 要对KtInterval其他的shift操作进行重载，确保x0值正确 
 
     void scale(KREAL factor) {
         dx_ *= factor;
