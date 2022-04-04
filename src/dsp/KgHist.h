@@ -6,11 +6,14 @@ class KcSampled1d;
 class KvData1d;
 
 
+// 均值直方图：每个bin的数值为累积数据的平均值
+
 class KgHist
 {
 public:
 	KgHist() : bins_(1, 0) {}
 	
+	// 在[low, high)区间，划分numBins个bin进行数据统计
 	void reset(kIndex numBins, kReal low, kReal high); // 线性尺度，每个bin的宽度相同
 
 	auto range() const -> std::pair<kReal, kReal> {
