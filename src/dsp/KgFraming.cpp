@@ -10,8 +10,8 @@ KgFraming::KgFraming(kReal dt, kIndex channels)
     : roundPower2_(false)
 {
 	buf_ = std::make_unique<KcSampled1d>(dt, 0, channels);
-	setLength(500 * dt); // 默认帧长500个采样点
-	setShift(200 * dt); // 默认帧移200个采样点
+	setLength(512 * dt); // 默认帧长512个采样点
+	setShift(256 * dt); // 默认帧移256个采样点
 }
 
 
