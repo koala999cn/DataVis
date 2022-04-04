@@ -206,7 +206,6 @@ std::shared_ptr<KvData> KcSpectrumOp::process2d_(std::shared_ptr<KvData> data)
 	if (data2d->length(1) < 2 || data2d->range(1).empty())
 		return data;
 
-	syncParent();
 	assert(spec_->countInTime() == data2d->length(1));
 
 	auto df = spec_->df();

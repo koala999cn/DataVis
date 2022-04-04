@@ -32,19 +32,19 @@ KcHistOp::kPropertySet KcHistOp::propertySet() const
     KpProperty prop;
 
     prop.id = kPrivate::k_range;
-    prop.name = QStringLiteral("range");
+    prop.name = tr("Range");
     prop.flag = KvPropertiedObject::k_restrict;
     auto r = hist_->range();
     prop.val = QPointF(r.first, r.second);
     KvPropertiedObject::KpProperty subProp;
-    subProp.name = QStringLiteral("min");
+    subProp.name = tr("min");
     prop.children.push_back(subProp);
-    subProp.name = QStringLiteral("max");
+    subProp.name = tr("max");
     prop.children.push_back(subProp);
     ps.push_back(prop);
 
     prop.id = kPrivate::k_bands;
-    prop.name = QStringLiteral("bands");
+    prop.name = tr("Bands");
     prop.val = hist_->numBins();
     prop.minVal = 1;
     prop.step = 1;
@@ -104,56 +104,4 @@ std::shared_ptr<KvData> KcHistOp::processImpl_(std::shared_ptr<KvData> data)
     auto res = std::make_shared<KcSampled1d>();
     hist_->process(*std::dynamic_pointer_cast<KcSampled1d>(data), *res);
     return res;
-
-    /*assert(xmin_ < xmax_);
-
-    auto xrange = data->range(0);
-
-    assert(bands_ > 0);
-
-    KtSampling<kReal> samp;
-    samp.resetn(hist_->numBins(), hist_->range().first, hist_->range().second, 0.5);
-
-    auto res = std::make_shared<KcSampled1d>(samp.dx(), 0.5);
-    res->sampling().shiftLowTo(samp.x0());
-    res->reserve(samp.count(), res->channels());
-
-    // skip points that out of left range
-    auto data1d = std::dynamic_pointer_cast<KvData1d>(data);
-
-
-    // 跳过统计区间（左）之外的数据点
-    kIndex i = 0;
-    while (i < data1d->count() && data1d->value(i).x < xmin_)
-        ++i;
-
-    auto barRight = xmin_ + samp.dx();
-    kReal sum(0);
-    unsigned c(0);
-
-    while (i < data1d->count()) {
-        if (data1d->value(i).x < barRight) { // accumulate current bar
-            sum += data1d->value(i++).y;
-            ++c;
-        }
-        else { // goto next bar
-             
-            if (c > 0) {
-                sum /= c;
-                res->addSamples(&sum, 1);
-            }
-
-            if (barRight >= xmax_)
-                break;
-
-            barRight += samp.dx();
-            sum = 0;
-            c = 0;
-        }
-    }
-
-    if (c > 0) {
-        sum /= c;
-        res->addSamples(&sum, 1);
-    }*/
 }
