@@ -135,6 +135,7 @@
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
     <ClCompile Include="src\dsp\KcSampled2d.cpp" />
+    <ClCompile Include="src\dsp\KgFilterBank.cpp" />
     <ClCompile Include="src\dsp\KgFraming.cpp" />
     <ClCompile Include="src\dsp\KgHist.cpp" />
     <ClCompile Include="src\dsp\KgMultiply.cpp" />
@@ -142,6 +143,7 @@
     <ClCompile Include="src\dsp\KgSpectrogram.cpp" />
     <ClCompile Include="src\dsp\KgSpectrum.cpp" />
     <ClCompile Include="src\dsp\KgWindowing.cpp" />
+    <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
     <ClCompile Include="src\dsp\KuWindowFactory.cpp" />
     <ClCompile Include="src\dsp\KvData1d.cpp" />
     <ClCompile Include="src\dsp\KvData2d.cpp" />
@@ -151,7 +153,7 @@
     <ClCompile Include="src\op\KcSpectrumOp.cpp" />
     <ClCompile Include="src\op\KcFramingOp.cpp" />
     <ClCompile Include="src\op\KcHistOp.cpp" />
-    <ClCompile Include="src\op\KcSpectrogramOp.cpp" />
+    <ClCompile Include="src\op\KcFilterBankOp.cpp" />
     <ClCompile Include="src\op\KcWindowingOp.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
     <ClCompile Include="src\QtMainFrame.cpp" />
@@ -187,6 +189,7 @@
     <ClInclude Include="src\base\KuStrUtil.h" />
     <ClInclude Include="src\base\KvRefObject.h" />
     <ClInclude Include="src\dsp\KcSampled2d.h" />
+    <ClInclude Include="src\dsp\KgFilterBank.h" />
     <ClInclude Include="src\dsp\KgFraming.h" />
     <ClInclude Include="src\dsp\KgHist.h" />
     <ClInclude Include="src\dsp\KgMultiply.h" />
@@ -196,6 +199,7 @@
     <ClInclude Include="src\dsp\KgWindowing.h" />
     <ClInclude Include="src\dsp\KtSampledN.h" />
     <ClInclude Include="src\dsp\functions.h" />
+    <ClInclude Include="src\dsp\KuFreqUnit.h" />
     <ClInclude Include="src\dsp\KuWindowFactory.h" />
     <ClInclude Include="src\dsp\KvData2d.h" />
     <ClInclude Include="src\KcAudioInputStream.h" />
@@ -207,7 +211,7 @@
     <QtMoc Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\op\KcFramingOp.h" />
     <ClInclude Include="src\op\KcHistOp.h" />
-    <ClInclude Include="src\op\KcSpectrogramOp.h" />
+    <ClInclude Include="src\op\KcFilterBankOp.h" />
     <QtMoc Include="src\QtAppEventHub.h" />
     <ClInclude Include="src\KcPlot1d.h" />
     <ClInclude Include="src\KcDataSnapshot.h" />

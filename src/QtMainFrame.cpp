@@ -27,6 +27,8 @@
 #include "op/KcHistOp.h"
 #include "op/KcFramingOp.h"
 #include "op/KcWindowingOp.h"
+#include "op/KcFilterBankOp.h"
+
 
 using namespace KDDockWidgets;
 
@@ -146,6 +148,9 @@ bool QtMainFrame::setupMenu_()
 
     QAction* windowing = opMenu->addAction(u8"Windowing(&W)");
     connect(windowing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcWindowingOp>(workDock_, false); });
+
+    QAction* fbank = opMenu->addAction(u8"FBank(&F)");
+    connect(fbank, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFilterBankOp>(workDock_, false); });
 
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());

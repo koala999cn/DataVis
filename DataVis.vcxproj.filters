@@ -110,7 +110,7 @@
     <ClCompile Include="src\dsp\KvData2d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcSpectrogramOp.cpp">
+    <ClCompile Include="src\op\KcFilterBankOp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\KcPlot2d.cpp">
@@ -141,6 +141,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KgHist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgFilterBank.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KuFreqUnit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -270,7 +276,7 @@
     <ClInclude Include="src\dsp\KcSampled2d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcSpectrogramOp.h">
+    <ClInclude Include="src\op\KcFilterBankOp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\KvCustomPlot.h">
@@ -310,6 +316,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgHist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgFilterBank.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuFreqUnit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

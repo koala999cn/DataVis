@@ -21,13 +21,19 @@ KvData2d::kPoint3d KcSampled2d::value(kIndex ix, kIndex iy, kIndex channel) cons
 }
 
 
-void KcSampled2d::setChannel(kIndex row, kReal* src, kIndex channel)
+void KcSampled2d::setChannel(kIndex row, const kReal* src, kIndex channel)
 {
+	assert(row >= 0 && row < length(0));
 	assert(channel >= 0 && channel < channels());
 	kReal* dst = at(row);
-	dst += channel;
-	for (kIndex col = 0; col < length(1); col++) {
-		*dst = *src++;
-		dst += stride(1);
+	if (channels() == 1) {
+		std::copy(src, src + length(1), dst);
+	}
+	else {
+		dst += channel * stride(2);
+		for (kIndex col = 0; col < length(1); col++) {
+			*dst = *src++;
+			dst += stride(1);
+		}
 	}
 }

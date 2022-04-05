@@ -13,6 +13,6 @@ public:
 
     kPoint3d value(kIndex ix, kIndex iy, kIndex channel = 0) const override;
 
-    void setChannel(kIndex row, kReal* data, kIndex channel);
+    void setChannel(kIndex row, const kReal* data, kIndex channel);
 };
 
