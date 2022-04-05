@@ -87,7 +87,7 @@ public:
 
     // 设置第channel通道的数据，确保data的大小等于this->count()
     // 如果channel=-1，则data包含所有通道数据
-    void setChannel(kReal* data, kIndex channel);
+    void setChannel(const kReal* data, kIndex channel);
 
 
     // bps

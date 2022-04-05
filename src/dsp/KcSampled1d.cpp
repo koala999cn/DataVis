@@ -194,7 +194,7 @@ void KcSampled1d::resize(kIndex nx, kIndex channels)
 }
 
 
-void KcSampled1d::setChannel(kReal* data, kIndex channel)
+void KcSampled1d::setChannel(const kReal* data, kIndex channel)
 {
     assert(channel < channels());
 
