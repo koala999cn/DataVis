@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOpHelper1d.h"
 #include <memory>
 
 class KgFilterBank;
 
-class KcFilterBankOp : public KvDataOperator
+class KcFilterBankOp : public KvOpHelper1d
 {
 public:
 	KcFilterBankOp(KvDataProvider* prov);
@@ -28,11 +28,14 @@ public:
 private:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 
-	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
+	void processNaive_(const kReal* in, unsigned len, kReal* out) override;
+
+
+	//std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
 
 	void syncParent() override;
 
-	std::shared_ptr<KvData> process2d_(std::shared_ptr<KvData> data);
+	//std::shared_ptr<KvData> process2d_(std::shared_ptr<KvData> data);
 
 private:
 	std::unique_ptr<KgFilterBank> fbank_;

@@ -155,6 +155,7 @@
     <ClCompile Include="src\op\KcHistOp.cpp" />
     <ClCompile Include="src\op\KcFilterBankOp.cpp" />
     <ClCompile Include="src\op\KcWindowingOp.cpp" />
+    <ClCompile Include="src\op\KvOpHelper1d.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
     <ClCompile Include="src\QtMainFrame.cpp" />
     <ClCompile Include="src\dsp\KcFormulaData1d.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="src\KvDataStream.h" />
     <ClInclude Include="src\op\KcSpectrumOp.h" />
     <ClInclude Include="src\op\KcWindowingOp.h" />
+    <ClInclude Include="src\op\KvOpHelper1d.h" />
     <QtMoc Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\op\KcFramingOp.h" />
     <ClInclude Include="src\op\KcHistOp.h" />

@@ -6,7 +6,7 @@
 
 
 KcFilterBankOp::KcFilterBankOp(KvDataProvider* prov)
-	: KvDataOperator("FilterBank", prov)
+	: KvOpHelper1d("FilterBank", prov)
 {
 	fbank_ = std::make_unique<KgFilterBank>();
     auto r = prov->range(prov->dim() - 1);
@@ -139,10 +139,25 @@ void KcFilterBankOp::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
+void KcFilterBankOp::syncParent()
+{
+    KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());
+    if (objp->step(objp->dim() - 1) != df_) {
+        df_ = objp->step(objp->dim() - 1);
+        fbank_->reset(fbank_->type(), fbank_->numBins(), df_, low_, high_);
+    }
+}
+
+
+void KcFilterBankOp::processNaive_(const kReal* in, unsigned len, kReal* out)
+{
+    fbank_->process(in, len, out);
+}
+
+
+/*
 std::shared_ptr<KvData> KcFilterBankOp::processImpl_(std::shared_ptr<KvData> data)
 {
-	assert(data->channels() == 1);
-
     if (data->dim() == 1) {
         std::shared_ptr<KcSampled1d> res = std::make_shared<KcSampled1d>();
         res->reset(step(0), data->channels(), fbank_->numBins()); // TODO: nonuniform
@@ -152,16 +167,6 @@ std::shared_ptr<KvData> KcFilterBankOp::processImpl_(std::shared_ptr<KvData> dat
     }
    
     return process2d_(data);
-}
-
-
-void KcFilterBankOp::syncParent()
-{
-    KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());
-    if (objp->step(objp->dim() - 1) != df_) {
-        df_ = objp->step(objp->dim() - 1);
-        fbank_->reset(fbank_->type(), fbank_->numBins(), df_, low_, high_);
-    }
 }
 
 
@@ -195,4 +200,4 @@ std::shared_ptr<KvData> KcFilterBankOp::process2d_(std::shared_ptr<KvData> data)
     }
 
     return res;
-}
+}*/
