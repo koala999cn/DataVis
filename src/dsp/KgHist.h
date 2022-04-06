@@ -26,6 +26,9 @@ public:
 
 	kReal binLeft(kIndex idx) const { return bins_[idx]; }
 	kReal binRight(kIndex idx) const { return bins_[idx + 1]; }
+	kReal binCenter(kIndex idx) const {
+		return (binLeft(idx) + binRight(idx)) / 2;
+	}
 
 	kReal binWidth(kIndex idx) const {
 		return binRight(idx) - binLeft(idx);
@@ -38,6 +41,7 @@ public:
 	// 适用于in均匀间隔采样，bin不要求线性尺度
 	// @out: 大小等于numBins()*in.channels()
 	void process(const KcSampled1d& in, kReal* out);
+	//void process(const kReal* in, unsigned len, kReal* out); // TODO:
 
 
 	// 更一般的情况，既不要求in均匀间隔采样，也不要求bin线性尺度
