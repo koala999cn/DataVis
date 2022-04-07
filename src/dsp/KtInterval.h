@@ -9,19 +9,21 @@ class KtInterval
 {
 public:
 
-    KtInterval() : low_(0), high_(0) {}
+    KtInterval() = default;
+    KtInterval(const KtInterval&) = default;
+    KtInterval(KtInterval&&) = default;
 
-    KtInterval(T low, T high) : low_(low), high_(high) {
+    KtInterval& operator=(const KtInterval&) = default;
+    KtInterval& operator=(KtInterval&&) = default;
+
+    KtInterval(T low, T high) {
         assert(low_ <= high_);
+        low_ = low, high_ = high;
     }
 
-    KtInterval(const std::pair<T, T>& p) : low_(p.first), high_(p.second) {
+    KtInterval(const std::pair<T, T>& p) {
         assert(low_ <= high_);
-    }
-
-    KtInterval(const KtInterval& other)
-        : low_(other.low())
-        , high_(other.high()) {
+        low_ = p.first, high_ = p.second;
     }
 
 
@@ -48,12 +50,6 @@ public:
     }
 
 
-    KtInterval& operator=(const KtInterval& other) {
-        low_ = other.low(), high_ == other.high();
-        return *this;
-    }
-
-
     bool operator==(const KtInterval& other) const {
         return low_ == other.low() && high_ == other.high();
     }
@@ -69,21 +65,21 @@ public:
     }
 
     // 移动区间，以确保区间起点为newLow，保持区间长度不变
-    void shiftLowTo(T newLow) {
+    void shiftLeftTo(T newLow) {
         high_ += newLow - low_;
         low_ = newLow;
     }
 
     // 移动区间，以确保区间终点为newHigh，保持区间长度不变
-    void shiftHighTo(T newHigh) {
+    void shiftRightTo(T newHigh) {
         low_ += newHigh - high_;
         high_ = newHigh;
     }
 
     // 以下变换不保持区间长度
 
-    void shiftLow(T offset) { low_ += offset; }
-    void shiftHigh(T offset) { high_ += offset; }
+    void extendLeft(T offset) { low_ += offset; }
+    void extendRight(T offset) { high_ += offset; }
 
 
     // 区间缩放factor尺度
@@ -93,21 +89,21 @@ public:
 
 
     // 缩放区间，以确保区间长度为newLength
-    void scaleToLength(T newLength) {
+    void scaleTo(T newLength) {
         assert(!empty());
         scale(newLength / length());
     }
 
 
     // 缩放区间，以确保区间长度为1
-    void scaleToUnitLength() {
-        scaleToLength(1);
+    void scaleToUnit() {
+        scaleTo(1);
     }
 
 
     // 按照from到to的尺度，对本区间进行变换
     void transform(const KtInterval& from, const KtInterval& to) {
-        shiftToSource();
+        shiftLeftTo(0);
         scale(to.length() / from.length());
         shift(to.low());
     }

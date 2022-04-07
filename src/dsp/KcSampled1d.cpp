@@ -175,7 +175,7 @@ kReal KcSampled1d::step(kIndex axis) const
 void KcSampled1d::clear()
 {
     data_.clear();
-    samp_.reset(samp_.xmin(), samp_.xmin(), samp_.dx(), samp_.x0());
+    samp_.clear();
 }
 
 

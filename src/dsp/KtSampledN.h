@@ -95,7 +95,7 @@ public:
 
     // 调整第axis轴的采样参数
     void reset(kIndex axis, kReal low, kReal step, kReal x0_ref = 0) {
-        samp_[axis].reset(low, low + step * length(axis), step, low + step * x0_ref);
+        samp_[axis].reset(low, low + step * length(axis), step, x0_ref);
     }
 
 protected:

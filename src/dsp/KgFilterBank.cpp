@@ -23,7 +23,7 @@ void KgFilterBank::reset(int type, kIndex numBins, kReal df, kReal lowFreq, kRea
 
     // Hz尺度的采样参数
     KtSampling<kReal> sampHz;
-    sampHz.reset(lowFreq, highFreq, df, lowFreq + 0.5 * df);
+    sampHz.reset(lowFreq, highFreq, df, 0.5);
 
     // 目标(type_)尺度的采样参数
     auto lowScale = fromHertz_(lowFreq);

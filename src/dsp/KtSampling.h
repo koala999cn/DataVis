@@ -11,28 +11,23 @@ class KtSampling : public KtInterval<KREAL>
 {
 public:
 
-    KtSampling() : dx_(1), x0_(0) {}
+    KtSampling() = default;
+    KtSampling(const KtSampling&) = default;
+    KtSampling(KtSampling&&) = default;
+
+    KtSampling& operator=(const KtSampling&) = default;
+    KtSampling& operator=(KtSampling&&) = default;
+
     KtSampling(long nx) { resetn(nx, 0); }
 
-    KtSampling(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0) {
-        reset(xmin, xmax, dx, x0);
+    KtSampling(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0) 
+        : KtInterval(xmin, xmax) {
+        dx_ = dx, x0_ = x0;
     }
 
-    KtSampling(const KtSampling& samp)
-        : x0_(samp.x0_)
-        , dx_(samp.dx_)
-        , KtInterval(samp) {}
-
-    KtSampling& operator=(const KtSampling& samp) {
-        x0_ = samp.x0_, dx_ = samp.dx_;
-        KtInterval::operator=(samp);
-        return *this;
-    }
-
-
-    void reset(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0) {
+    void reset(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0_ref) {
         KtInterval::reset(xmin, xmax);
-        x0_ = x0;
+        x0_ = xmin + x0_ref * dx;
         dx_ = dx;
 
         //if (xmax > x0 + count() * dx)
@@ -85,6 +80,14 @@ public:
         //assert(count() == nx && verify());
     }
 
+    void resample(KREAL dx) {
+        dx_ = dx;
+    }
+
+    void clear() {
+        resetHigh(low()); // making high_ == low_
+    }
+
 
     KREAL x0() const { return x0_; } // 首个采样点的采样时间
     KREAL x0ref() const { return (x0_ - xmin()) / dx_; }
@@ -94,14 +97,13 @@ public:
     KREAL rate() const { return 1  /dx_; } // 采样率
     bool empty() const { return !cover(x0_); }
 
-
     // 增长nx个采样点
-    void growTail(unsigned nx = 1) { shiftHigh(nx * dx_); }
-    void growHead(unsigned nx = 1) { shiftLow(nx * -dx); }
+    void growTail(unsigned nx = 1) { extendRight(nx * dx_); }
+    void growHead(unsigned nx = 1) { extendLeft(nx * -dx); }
 
     // 减少nx个采样点
-    void cutTail(unsigned nx = 1) { shiftHigh(nx * -dx_); }
-    void cutHead(unsigned nx = 1) { shiftLow(nx * dx_); }
+    void cutTail(unsigned nx = 1) { extendRight(nx * -dx_); }
+    void cutHead(unsigned nx = 1) { extendLeft(nx * dx_); }
 
 
     // 计算第idx个采样点的采样时间

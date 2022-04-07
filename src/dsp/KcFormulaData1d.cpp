@@ -11,7 +11,7 @@ kReal KcFormulaData1d::step(kIndex axis) const
 
 void KcFormulaData1d::clear()
 {
-    samp_.reset(samp_.xmin(), samp_.xmin(), samp_.dx(), samp_.x0());
+    samp_.clear();
 }
 
 
