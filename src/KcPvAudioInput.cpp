@@ -1,4 +1,4 @@
-﻿#include "KcAudioInputStream.h"
+﻿#include "KcPvAudioInput.h"
 #include "audio/KcAudio.h"
 #include "audio/KcAudioDevice.h"
 #include "KtSampling.h"
@@ -10,7 +10,7 @@ namespace kPrivate
     {
     public:
 
-        KcAudioStreamObserver(KcAudioInputStream* ais) {
+        KcAudioStreamObserver(KcPvAudioInput* ais) {
             stream_ = ais;
             dx_ = kReal(1) / ais->sampleRate();
             channles_ = ais->channels();
@@ -25,7 +25,7 @@ namespace kPrivate
         }
 
     private:
-        KcAudioInputStream* stream_; 
+        KcPvAudioInput* stream_; 
         kReal dx_;
         int channles_;
     };
@@ -41,7 +41,7 @@ namespace kPrivate
 }
 
 
-KcAudioInputStream::KcAudioInputStream() 
+KcPvAudioInput::KcPvAudioInput() 
     : KvDataStream("AudioInput")
 {
     dptr_ = new KcAudioDevice;
@@ -52,13 +52,13 @@ KcAudioInputStream::KcAudioInputStream()
 }
 
 
-KcAudioInputStream::~KcAudioInputStream()
+KcPvAudioInput::~KcPvAudioInput()
 {
     delete (KcAudioDevice*)dptr_;
 }
 
 
-bool KcAudioInputStream::pushData()
+bool KcPvAudioInput::pushData()
 {
     auto device = (KcAudioDevice*)dptr_;
     if (device->opened())
@@ -83,7 +83,7 @@ bool KcAudioInputStream::pushData()
 }
 
 
-void KcAudioInputStream::stop()
+void KcPvAudioInput::stop()
 {
     ((KcAudioDevice*)dptr_)->stop(true);
     ((KcAudioDevice*)dptr_)->close();
@@ -91,25 +91,25 @@ void KcAudioInputStream::stop()
 }
 
 
-bool KcAudioInputStream::running() const
+bool KcPvAudioInput::running() const
 {
 	return ((KcAudioDevice*)dptr_)->running();
 }
 
 
-kRange KcAudioInputStream::range(kIndex axis) const
+kRange KcPvAudioInput::range(kIndex axis) const
 {
 	return axis == 0 ? kRange{ 0, frameTime_ } : kRange{ -1, 1 };
 }
 
 
-kReal KcAudioInputStream::step(kIndex axis) const
+kReal KcPvAudioInput::step(kIndex axis) const
 {
 	return axis == 0 ? static_cast<kReal>(1) / sampleRate() : KvData::k_nonuniform_step;
 }
 
 
-KcAudioInputStream::kPropertySet KcAudioInputStream::propertySet() const
+KcPvAudioInput::kPropertySet KcPvAudioInput::propertySet() const
 {
 	KvPropertiedObject::kPropertySet ps;
 	auto device = (KcAudioDevice*)dptr_;
@@ -174,7 +174,7 @@ KcAudioInputStream::kPropertySet KcAudioInputStream::propertySet() const
 }
 
 
-void KcAudioInputStream::setPropertyImpl_(int id, const QVariant& newVal)
+void KcPvAudioInput::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id) {
 	case kPrivate::k_device_id:

@@ -4,10 +4,10 @@
 
 class KgFilterBank;
 
-class KcFilterBankOp : public KvOpHelper1d
+class KcOpFilterBank : public KvOpHelper1d
 {
 public:
-	KcFilterBankOp(KvDataProvider* prov);
+	KcOpFilterBank(KvDataProvider* prov);
 
 	bool isStream() const override { return false; }
 

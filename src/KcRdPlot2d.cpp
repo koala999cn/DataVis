@@ -1,4 +1,4 @@
-﻿#include "KcPlot2d.h"
+﻿#include "KcRdPlot2d.h"
 #include "KvData2d.h"
 #include "KvDataProvider.h"
 #include "qcustomplot/qcustomplot.h"
@@ -12,7 +12,7 @@ namespace kPrivate
 {
     enum KePlot2dProperty
     {
-        k_plot2d_prop_id = 200, // 此前的id预留给KvCustomPlot
+        k_plot2d_prop_id = 200, // 此前的id预留给KvRdCustomPlot
 
         k_gradient,
         k_interpolate,
@@ -23,8 +23,8 @@ namespace kPrivate
     };
 }
 
-KcPlot2d::KcPlot2d(KvDataProvider* is)
-    : KvCustomPlot(is, "color_map")
+KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
+    : KvRdCustomPlot(is, "color_map")
 {
     auto colorMap = new QCPColorMap(customPlot_->xAxis, customPlot_->yAxis);
     auto data = colorMap->data();
@@ -66,7 +66,7 @@ KcPlot2d::KcPlot2d(KvDataProvider* is)
 }
 
 
-bool KcPlot2d::renderImpl_(std::shared_ptr<KvData> data)
+bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
 {
     if (data == nullptr || data->count() == 0)
         return true;
@@ -120,7 +120,7 @@ bool KcPlot2d::renderImpl_(std::shared_ptr<KvData> data)
 }
 
 
-void KcPlot2d::reset()
+void KcRdPlot2d::reset()
 {
     auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
     assert(colorMap);
@@ -130,11 +130,11 @@ void KcPlot2d::reset()
 }
 
 
-KvPropertiedObject::kPropertySet KcPlot2d::propertySet() const
+KvPropertiedObject::kPropertySet KcRdPlot2d::propertySet() const
 {
     using namespace kPrivate;
 
-    kPropertySet ps = KvCustomPlot::propertySet();
+    kPropertySet ps = KvRdCustomPlot::propertySet();
 
     KpProperty prop;
     prop.id = KvPropertiedObject::kInvalidId;
@@ -222,14 +222,14 @@ KvPropertiedObject::kPropertySet KcPlot2d::propertySet() const
 }
 
 
-void KcPlot2d::setPropertyImpl_(int id, const QVariant& newVal)
+void KcRdPlot2d::setPropertyImpl_(int id, const QVariant& newVal)
 {
     using namespace kPrivate;
 
     assert(id >= 0);
 
      if (id <= k_plot2d_prop_id) {
-        KvCustomPlot::setPropertyImpl_(id, newVal);
+        KvRdCustomPlot::setPropertyImpl_(id, newVal);
     }
     else {
         auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
@@ -266,7 +266,7 @@ void KcPlot2d::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcPlot2d::syncParent()
+void KcRdPlot2d::syncParent()
 {
     auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
     auto mapData = colorMap->data();

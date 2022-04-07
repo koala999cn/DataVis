@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "KvCustomPlot.h"
+#include "KvRdCustomPlot.h"
 
 
-class KcPlot1d : public KvCustomPlot
+class KcRdPlot1d : public KvRdCustomPlot
 {
 public:
 	enum class KeType
@@ -12,7 +12,7 @@ public:
 		k_bars,   // 柱状图
 	};
 
-	KcPlot1d(KvDataProvider* is, KeType type);
+	KcRdPlot1d(KvDataProvider* is, KeType type);
 
 	kPropertySet propertySet() const override;
 

@@ -30,6 +30,9 @@
     <Filter Include="dsp">
       <UniqueIdentifier>{3e0efaef-0f86-4445-bc4a-ee348f27cafa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="prov">
+      <UniqueIdentifier>{3d5191d1-d907-41e4-aed6-0f635364f63d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\KcAudioCaptureDlg.cpp">
@@ -74,16 +77,10 @@
     <ClCompile Include="src\base\KuPathUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\KcDataSnapshot.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\QtWorkspaceWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\KcAudioInputStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\QtAppEventHub.cpp">
@@ -92,28 +89,28 @@
     <ClCompile Include="src\op\KvOpHelper1d.cpp">
       <Filter>op</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcSpectrumOp.cpp">
+    <ClCompile Include="src\op\KcOpSpectrum.cpp">
       <Filter>op</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcFramingOp.cpp">
+    <ClCompile Include="src\op\KcOpFraming.cpp">
       <Filter>op</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcHistOp.cpp">
+    <ClCompile Include="src\op\KcOpHist.cpp">
       <Filter>op</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcFilterBankOp.cpp">
+    <ClCompile Include="src\op\KcOpFilterBank.cpp">
       <Filter>op</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcWindowingOp.cpp">
+    <ClCompile Include="src\op\KcOpWindowing.cpp">
       <Filter>op</Filter>
     </ClCompile>
-    <ClCompile Include="src\KcPlot2d.cpp">
+    <ClCompile Include="src\KcRdPlot2d.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="src\KcPlot1d.cpp">
+    <ClCompile Include="src\KcRdPlot1d.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="src\KvCustomPlot.cpp">
+    <ClCompile Include="src\KvRdCustomPlot.cpp">
       <Filter>render</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KcSampled1d.cpp">
@@ -161,6 +158,12 @@
     <ClCompile Include="src\dsp\KvData2d.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\KcPvAudioInput.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
+    <ClCompile Include="src\KcPvDataSnapshot.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\KcAudioCaptureDlg.h">
@@ -190,11 +193,11 @@
     <QtMoc Include="src\KvPropertiedObject.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\KvDataProvider.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="src\op\KvDataOperator.h">
       <Filter>op</Filter>
+    </QtMoc>
+    <QtMoc Include="src\KvDataProvider.h">
+      <Filter>prov</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -231,19 +234,10 @@
     <ClInclude Include="src\base\KuPathUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\KcDataSnapshot.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\base\KtSingleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KvRefObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KcAudioInputStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KvDataStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\functions.h">
@@ -252,31 +246,31 @@
     <ClInclude Include="src\op\KvOpHelper1d.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcWindowingOp.h">
+    <ClInclude Include="src\op\KcOpWindowing.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcFilterBankOp.h">
+    <ClInclude Include="src\op\KcOpFilterBank.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcSpectrumOp.h">
+    <ClInclude Include="src\op\KcOpSpectrum.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcFramingOp.h">
+    <ClInclude Include="src\op\KcOpFraming.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcHistOp.h">
+    <ClInclude Include="src\op\KcOpHist.h">
       <Filter>op</Filter>
     </ClInclude>
     <ClInclude Include="src\KvDataRender.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="src\KvCustomPlot.h">
+    <ClInclude Include="src\KvRdCustomPlot.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="src\KcPlot2d.h">
+    <ClInclude Include="src\KcRdPlot2d.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="src\KcPlot1d.h">
+    <ClInclude Include="src\KcRdPlot1d.h">
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KvData1d.h">
@@ -338,6 +332,15 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KuWindowFactory.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KcPvAudioInput.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KcPvDataSnapshot.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KvDataStream.h">
+      <Filter>prov</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

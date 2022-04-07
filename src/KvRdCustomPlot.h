@@ -14,11 +14,11 @@ class QCustomPlot;
 class KvDataProvider;
 
 
-class KvCustomPlot : public KvDataRender
+class KvRdCustomPlot : public KvDataRender
 {
 public:
-	KvCustomPlot(KvDataProvider* is, const QString& name);
-	virtual ~KvCustomPlot();
+	KvRdCustomPlot(KvDataProvider* is, const QString& name);
+	virtual ~KvRdCustomPlot();
 
 	kPropertySet propertySet() const override;
 

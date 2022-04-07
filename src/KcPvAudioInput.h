@@ -2,11 +2,11 @@
 #include "KvDataStream.h"
 
 
-class KcAudioInputStream : public KvDataStream
+class KcPvAudioInput : public KvDataStream
 {
 public:
-	KcAudioInputStream();
-	virtual ~KcAudioInputStream();
+	KcPvAudioInput();
+	virtual ~KcPvAudioInput();
 
 	bool pushData() final;
 	void stop() final;

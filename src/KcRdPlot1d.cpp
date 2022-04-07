@@ -1,6 +1,6 @@
-﻿#include "KcPlot1d.h"
+﻿#include "KcRdPlot1d.h"
 #include <assert.h>
-#include "KcDataSnapshot.h"
+#include "KcPvDataSnapshot.h"
 #include "KvData1d.h"
 #include <QBrush>
 #include "qcustomplot/qcustomplot.h"
@@ -8,17 +8,17 @@
 
 namespace kPrivate
 {
-	static QString typeToStr(KcPlot1d::KeType type)
+	static QString typeToStr(KcRdPlot1d::KeType type)
 	{
 		switch (type)
 		{
-		case KcPlot1d::KeType::k_scatter:
+		case KcRdPlot1d::KeType::k_scatter:
 			return QObject::tr(u8"scatter_plot");
 
-		case KcPlot1d::KeType::k_bars:
+		case KcRdPlot1d::KeType::k_bars:
 			return QObject::tr(u8"bars_plot");
 
-		case KcPlot1d::KeType::k_line:
+		case KcRdPlot1d::KeType::k_line:
 		default:
 			return QObject::tr(u8"line_plot");
 		}
@@ -26,8 +26,8 @@ namespace kPrivate
 }
 
 
-KcPlot1d::KcPlot1d(KvDataProvider* is, KeType type)
-	: KvCustomPlot(is, kPrivate::typeToStr(type))
+KcRdPlot1d::KcRdPlot1d(KvDataProvider* is, KeType type)
+	: KvRdCustomPlot(is, kPrivate::typeToStr(type))
 	, type_(type)
 {
 	if (type == KeType::k_scatter) {
@@ -54,7 +54,7 @@ namespace kPrivate
 {
 	enum KePlot1dProperty
 	{
-		k_plot1d_prop_id = 200, // 此前的id预留给KvCustomPlot
+		k_plot1d_prop_id = 200, // 此前的id预留给KvRdCustomPlot
 
 		k_line_pen,
 		k_line_style,
@@ -141,11 +141,11 @@ namespace kPrivate
 }
 
 
-KvPropertiedObject::kPropertySet KcPlot1d::propertySet() const
+KvPropertiedObject::kPropertySet KcRdPlot1d::propertySet() const
 {
 	using namespace kPrivate;
 
-	kPropertySet ps = KvCustomPlot::propertySet();
+	kPropertySet ps = KvRdCustomPlot::propertySet();
 
 	KpProperty prop;
 	KpProperty subProp;
@@ -163,7 +163,7 @@ KvPropertiedObject::kPropertySet KcPlot1d::propertySet() const
 }
 
 
-KvPropertiedObject::KpProperty KcPlot1d::scatterProperty_(bool hasNone) const
+KvPropertiedObject::KpProperty KcRdPlot1d::scatterProperty_(bool hasNone) const
 {
 	KpProperty prop;
 	KpProperty subProp;
@@ -236,7 +236,7 @@ KvPropertiedObject::KpProperty KcPlot1d::scatterProperty_(bool hasNone) const
     return prop;
 }
 
-KvPropertiedObject::KpProperty KcPlot1d::lineProperty_(bool hasNone) const
+KvPropertiedObject::KpProperty KcRdPlot1d::lineProperty_(bool hasNone) const
 {
 	KpProperty prop;
 	KpProperty subProp;
@@ -277,7 +277,7 @@ KvPropertiedObject::KpProperty KcPlot1d::lineProperty_(bool hasNone) const
 }
 
 
-KvPropertiedObject::KpProperty KcPlot1d::barProperty_() const
+KvPropertiedObject::KpProperty KcRdPlot1d::barProperty_() const
 {
 	KpProperty prop;
 	KpProperty subProp;
@@ -323,14 +323,14 @@ KvPropertiedObject::KpProperty KcPlot1d::barProperty_() const
 }
 
 
-void KcPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
+void KcRdPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	using namespace kPrivate;
 
 	assert(id >= 0);
 
 	if (id <= k_plot1d_prop_id) {
-		KvCustomPlot::setPropertyImpl_(id, newVal);
+		KvRdCustomPlot::setPropertyImpl_(id, newVal);
 	}
 	else {
 
@@ -396,7 +396,7 @@ void KcPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-bool KcPlot1d::renderImpl_(std::shared_ptr<KvData> data)
+bool KcRdPlot1d::renderImpl_(std::shared_ptr<KvData> data)
 {
 	auto plot = customPlot_->plottable();
 
@@ -420,7 +420,7 @@ bool KcPlot1d::renderImpl_(std::shared_ptr<KvData> data)
 }
 
 
-void KcPlot1d::reset()
+void KcRdPlot1d::reset()
 {
 	auto plot = customPlot_->plottable();
 	if (type_ == KeType::k_bars)
@@ -430,7 +430,7 @@ void KcPlot1d::reset()
 }
 
 
-void KcPlot1d::updateBarWidth_()
+void KcRdPlot1d::updateBarWidth_()
 {
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	auto bars = dynamic_cast<QCPBars*>(customPlot_->plottable());
@@ -446,7 +446,7 @@ void KcPlot1d::updateBarWidth_()
 }
 
 
-void KcPlot1d::syncParent()
+void KcRdPlot1d::syncParent()
 {
 
 }

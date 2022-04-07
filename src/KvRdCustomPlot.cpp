@@ -1,4 +1,4 @@
-﻿#include "KvCustomPlot.h"
+﻿#include "KvRdCustomPlot.h"
 #include "KvDataProvider.h"
 #include "base/KuPathUtil.h"
 #include <QFileDialog>
@@ -6,7 +6,7 @@
 #include "qcustomplot/qcustomplot.h"
 
 
-KvCustomPlot::KvCustomPlot(KvDataProvider* is, const QString& name)
+KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
 	: KvDataRender(name, is)
 {
 	customPlot_ = new QCustomPlot(nullptr);
@@ -29,7 +29,7 @@ KvCustomPlot::KvCustomPlot(KvDataProvider* is, const QString& name)
 }
 
 
-KvCustomPlot::~KvCustomPlot()
+KvRdCustomPlot::~KvRdCustomPlot()
 {
 	show(false);
 	delete customPlot_;
@@ -37,19 +37,19 @@ KvCustomPlot::~KvCustomPlot()
 
 
 
-bool KvCustomPlot::canShown() const
+bool KvRdCustomPlot::canShown() const
 {
 	return true;
 }
 
 
-bool KvCustomPlot::isVisible() const
+bool KvRdCustomPlot::isVisible() const
 {
 	return customPlot_->isVisible();
 }
 
 
-void KvCustomPlot::show(bool bShow)
+void KvRdCustomPlot::show(bool bShow)
 {
 	if (bShow)
 		kAppEventHub->showDock(this, customPlot_);
@@ -58,7 +58,7 @@ void KvCustomPlot::show(bool bShow)
 }
 
 
-QString KvCustomPlot::exportAs()
+QString KvRdCustomPlot::exportAs()
 {
 	auto filter = QWidget::tr("export file type(*.pdf *.png *.jpg *.bmp)");
 	auto path = QFileDialog::getSaveFileName(customPlot_, QWidget::tr("export plot"), "", filter);
@@ -79,7 +79,7 @@ QString KvCustomPlot::exportAs()
 }
 
 
-void KvCustomPlot::rescaleAxes()
+void KvRdCustomPlot::rescaleAxes()
 {
 	auto objp = dynamic_cast<KvDataProvider*>(parent());
 	assert(objp);
@@ -213,7 +213,7 @@ namespace kPrivate
 }
 
 
-KvCustomPlot::kPropertySet KvCustomPlot::propertySet() const
+KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 {
 	using namespace kPrivate;
 
@@ -257,7 +257,7 @@ KvCustomPlot::kPropertySet KvCustomPlot::propertySet() const
 }
 
 
-void KvCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
+void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	assert(id >= 0);
 

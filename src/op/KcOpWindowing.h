@@ -3,10 +3,10 @@
 
 class KgWindowing;
 
-class KcWindowingOp : public KvDataOperator
+class KcOpWindowing : public KvDataOperator
 {
 public:
-	KcWindowingOp(KvDataProvider* prov);
+	KcOpWindowing(KvDataProvider* prov);
 
 	kPropertySet propertySet() const override;
 

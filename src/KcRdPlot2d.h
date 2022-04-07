@@ -1,14 +1,14 @@
 ﻿#pragma once
-#include "KvCustomPlot.h"
+#include "KvRdCustomPlot.h"
 #include "kDsp.h" // for kReal
 
 
 class QCPColorScale;
 
-class KcPlot2d : public KvCustomPlot
+class KcRdPlot2d : public KvRdCustomPlot
 {
 public:
-	KcPlot2d(KvDataProvider* is);
+	KcRdPlot2d(KvDataProvider* is);
 
 	kPropertySet propertySet() const override;
 

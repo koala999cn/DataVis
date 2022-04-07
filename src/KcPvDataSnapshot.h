@@ -4,7 +4,7 @@
 class KvData;
 
 // 底层基于KvData接口实现的数据快照
-class KcDataSnapshot : public KvDataProvider
+class KcPvDataSnapshot : public KvDataProvider
 {
 public:
 	enum KeDataType
@@ -15,7 +15,7 @@ public:
 	};
 
 
-	KcDataSnapshot(const QString& name, std::shared_ptr<KvData> data, int type)
+	KcPvDataSnapshot(const QString& name, std::shared_ptr<KvData> data, int type)
 		: KvDataProvider(name, false), data_(data), type_(type) {}
 
 

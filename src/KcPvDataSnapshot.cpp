@@ -1,4 +1,4 @@
-﻿#include "KcDataSnapshot.h"
+﻿#include "KcPvDataSnapshot.h"
 #include "KvData1d.h"
 #include <QPointF>
 #include "KcSampled1d.h"
@@ -6,7 +6,7 @@
 #include "KtuMath.h"
 
 
-QString KcDataSnapshot::typeText() const
+QString KcPvDataSnapshot::typeText() const
 {
 	switch (type_) {
 	case k_sampled:   return u8"采样数据";
@@ -18,7 +18,7 @@ QString KcDataSnapshot::typeText() const
 }
 
 
-KvPropertiedObject::kPropertySet KcDataSnapshot::propertySet() const
+KvPropertiedObject::kPropertySet KcPvDataSnapshot::propertySet() const
 {
 	KvPropertiedObject::kPropertySet ps;
 
@@ -86,37 +86,37 @@ KvPropertiedObject::kPropertySet KcDataSnapshot::propertySet() const
 }
 
 
-kIndex KcDataSnapshot::dim() const
+kIndex KcPvDataSnapshot::dim() const
 {
 	return data_->dim();
 }
 
 
-kIndex KcDataSnapshot::channels() const
+kIndex KcPvDataSnapshot::channels() const
 {
 	return data_->channels();
 }
 
 
-kRange KcDataSnapshot::range(kIndex axis) const
+kRange KcPvDataSnapshot::range(kIndex axis) const
 {
 	return data_->range(axis);
 }
 
 
-kReal KcDataSnapshot::step(kIndex axis) const
+kReal KcPvDataSnapshot::step(kIndex axis) const
 {
 	return data_->step(axis); 
 }
 
 
-kIndex KcDataSnapshot::length(kIndex axis) const
+kIndex KcPvDataSnapshot::length(kIndex axis) const
 {
 	return data_->length(axis);
 }
 
 
-bool KcDataSnapshot::pushData()
+bool KcPvDataSnapshot::pushData()
 {
 	emit onData(data_);
 	return true;

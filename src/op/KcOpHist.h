@@ -2,40 +2,33 @@
 #include "KvDataOperator.h"
 #include <memory>
 
-class KgFraming;
 
-class KcFramingOp : public KvDataOperator
+class KgHist;
+
+class KcOpHist : public KvDataOperator
 {
 public:
-	KcFramingOp(KvDataProvider* prov);
+	KcOpHist(KvDataProvider* prov);
 
 	kPropertySet propertySet() const override;
 
-	bool isStream() const override { return true; }
-
-	kIndex dim() const override;
+	bool isStream() const override { return false; }
 
 	kRange range(kIndex axis) const override;
 
 	kReal step(kIndex axis) const override;
 
-	kIndex length(kIndex axis) const override;
-
 	unsigned ins() const final { return 1u; }
 
-	unsigned outs() const final { return 2u; }
+	unsigned outs() const final { return 1u; }
 
 
 private:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
-
+	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
 	void syncParent() override;
 
-	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
-
 private:
-	std::unique_ptr<KgFraming> framing_;
-	kIndex channels_;
-	kReal dx_;
+	std::unique_ptr<KgHist> hist_;
 };
 

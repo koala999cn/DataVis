@@ -1,11 +1,11 @@
-﻿#include "KcSpectrumOp.h"
+﻿#include "KcOpSpectrum.h"
 #include "KgSpectrum.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
 #include <assert.h>
 
 
-KcSpectrumOp::KcSpectrumOp(KvDataProvider* prov)
+KcOpSpectrum::KcOpSpectrum(KvDataProvider* prov)
 	: KvDataOperator("spectrum", prov) 
 {
 	spec_ = std::make_unique<KgSpectrum>();
@@ -26,7 +26,7 @@ namespace kPrivate
 	};
 }
 
-KcSpectrumOp::kPropertySet KcSpectrumOp::propertySet() const
+KcOpSpectrum::kPropertySet KcOpSpectrum::propertySet() const
 {
 	kPropertySet ps;
 
@@ -85,7 +85,7 @@ KcSpectrumOp::kPropertySet KcSpectrumOp::propertySet() const
 }
 
 
-void KcSpectrumOp::syncParent()
+void KcOpSpectrum::syncParent()
 {
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	assert(prov);
@@ -94,7 +94,7 @@ void KcSpectrumOp::syncParent()
 }
 
 
-void KcSpectrumOp::setPropertyImpl_(int id, const QVariant& newVal)
+void KcOpSpectrum::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id) {
 	case kPrivate::k_spectrom_type:
@@ -108,7 +108,7 @@ void KcSpectrumOp::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-kRange KcSpectrumOp::range(kIndex axis) const
+kRange KcOpSpectrum::range(kIndex axis) const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
@@ -133,7 +133,7 @@ kRange KcSpectrumOp::range(kIndex axis) const
 }
 
 
-kReal KcSpectrumOp::step(kIndex axis) const
+kReal KcOpSpectrum::step(kIndex axis) const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
@@ -149,7 +149,7 @@ kReal KcSpectrumOp::step(kIndex axis) const
 }
 
 
-kIndex KcSpectrumOp::length(kIndex axis) const
+kIndex KcOpSpectrum::length(kIndex axis) const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
@@ -161,7 +161,7 @@ kIndex KcSpectrumOp::length(kIndex axis) const
 }
 
 
-bool KcSpectrumOp::isStream() const
+bool KcOpSpectrum::isStream() const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 
@@ -172,7 +172,7 @@ bool KcSpectrumOp::isStream() const
 }
 
 
-std::shared_ptr<KvData> KcSpectrumOp::processImpl_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcOpSpectrum::processImpl_(std::shared_ptr<KvData> data)
 {
 	if (data->empty())
 		return data;
@@ -181,7 +181,7 @@ std::shared_ptr<KvData> KcSpectrumOp::processImpl_(std::shared_ptr<KvData> data)
 }
 
 
-std::shared_ptr<KvData> KcSpectrumOp::process1d_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcOpSpectrum::process1d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 1);
 
@@ -195,7 +195,7 @@ std::shared_ptr<KvData> KcSpectrumOp::process1d_(std::shared_ptr<KvData> data)
 }
 
 
-std::shared_ptr<KvData> KcSpectrumOp::process2d_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcOpSpectrum::process2d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 2);
 

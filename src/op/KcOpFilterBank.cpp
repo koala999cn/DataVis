@@ -1,11 +1,11 @@
-﻿#include "KcFilterBankOp.h"
+﻿#include "KcOpFilterBank.h"
 #include "KgFilterBank.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
 #include <QPointF>
 
 
-KcFilterBankOp::KcFilterBankOp(KvDataProvider* prov)
+KcOpFilterBank::KcOpFilterBank(KvDataProvider* prov)
 	: KvOpHelper1d("FilterBank", prov)
 {
 	fbank_ = std::make_unique<KgFilterBank>();
@@ -17,7 +17,7 @@ KcFilterBankOp::KcFilterBankOp(KvDataProvider* prov)
 }
 
 
-kRange KcFilterBankOp::range(kIndex axis) const
+kRange KcOpFilterBank::range(kIndex axis) const
 {
     auto objp = dynamic_cast<const KvDataProvider*>(parent());
     assert(objp != nullptr);
@@ -29,7 +29,7 @@ kRange KcFilterBankOp::range(kIndex axis) const
 }
 
 
-kReal KcFilterBankOp::step(kIndex axis) const
+kReal KcOpFilterBank::step(kIndex axis) const
 {
     auto objp = dynamic_cast<const KvDataProvider*>(parent());
     assert(objp != nullptr);
@@ -41,7 +41,7 @@ kReal KcFilterBankOp::step(kIndex axis) const
 }
 
 
-kIndex KcFilterBankOp::length(kIndex axis) const
+kIndex KcOpFilterBank::length(kIndex axis) const
 {
     auto objp = dynamic_cast<const KvDataProvider*>(parent());
     assert(objp != nullptr);
@@ -64,7 +64,7 @@ namespace kPrivate
 }
 
 
-KcFilterBankOp::kPropertySet KcFilterBankOp::propertySet() const
+KcOpFilterBank::kPropertySet KcOpFilterBank::propertySet() const
 {
     kPropertySet ps;
 
@@ -116,7 +116,7 @@ KcFilterBankOp::kPropertySet KcFilterBankOp::propertySet() const
 }
 
 
-void KcFilterBankOp::setPropertyImpl_(int id, const QVariant& newVal)
+void KcOpFilterBank::setPropertyImpl_(int id, const QVariant& newVal)
 {
     KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());
 
@@ -139,7 +139,7 @@ void KcFilterBankOp::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcFilterBankOp::syncParent()
+void KcOpFilterBank::syncParent()
 {
     KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());
     if (objp->step(objp->dim() - 1) != df_) {
@@ -149,14 +149,14 @@ void KcFilterBankOp::syncParent()
 }
 
 
-void KcFilterBankOp::processNaive_(const kReal* in, unsigned len, kReal* out)
+void KcOpFilterBank::processNaive_(const kReal* in, unsigned len, kReal* out)
 {
     fbank_->process(in, len, out);
 }
 
 
 /*
-std::shared_ptr<KvData> KcFilterBankOp::processImpl_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcOpFilterBank::processImpl_(std::shared_ptr<KvData> data)
 {
     if (data->dim() == 1) {
         std::shared_ptr<KcSampled1d> res = std::make_shared<KcSampled1d>();
@@ -170,7 +170,7 @@ std::shared_ptr<KvData> KcFilterBankOp::processImpl_(std::shared_ptr<KvData> dat
 }
 
 
-std::shared_ptr<KvData> KcFilterBankOp::process2d_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcOpFilterBank::process2d_(std::shared_ptr<KvData> data)
 {
     assert(data->dim() == 2);
     assert(fbank_->numBins() == length(1));

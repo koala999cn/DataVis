@@ -1,10 +1,10 @@
-﻿#include "KcWindowingOp.h"
+﻿#include "KcOpWindowing.h"
 #include "../dsp/KgWindowing.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
 
 
-KcWindowingOp::KcWindowingOp(KvDataProvider* prov)
+KcOpWindowing::KcOpWindowing(KvDataProvider* prov)
     : KvDataOperator("windowing", prov)
     , type_(KuWindowFactory::k_hamming)
     , arg_(0)
@@ -13,7 +13,7 @@ KcWindowingOp::KcWindowingOp(KvDataProvider* prov)
 }
 
 
-KcWindowingOp::kPropertySet KcWindowingOp::propertySet() const
+KcOpWindowing::kPropertySet KcOpWindowing::propertySet() const
 {
     kPropertySet ps;
 
@@ -45,7 +45,7 @@ KcWindowingOp::kPropertySet KcWindowingOp::propertySet() const
 }
 
 
-void KcWindowingOp::setPropertyImpl_(int id, const QVariant& newVal)
+void KcOpWindowing::setPropertyImpl_(int id, const QVariant& newVal)
 {
     assert(id == 0);
     type_ = newVal.toInt();
@@ -58,7 +58,7 @@ void KcWindowingOp::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcWindowingOp::syncParent()
+void KcOpWindowing::syncParent()
 {
     if (type_ >= 0) {
         KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());
@@ -69,7 +69,7 @@ void KcWindowingOp::syncParent()
 }
 
 
-std::shared_ptr<KvData> KcWindowingOp::processImpl_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcOpWindowing::processImpl_(std::shared_ptr<KvData> data)
 {
     if (win_ == nullptr)
         return data;

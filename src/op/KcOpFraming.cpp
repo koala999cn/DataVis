@@ -1,4 +1,4 @@
-﻿#include "KcFramingOp.h"
+﻿#include "KcOpFraming.h"
 #include <assert.h>
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
@@ -6,7 +6,7 @@
 #include "QtAppEventHub.h"
 
 
-KcFramingOp::KcFramingOp(KvDataProvider* prov) 
+KcOpFraming::KcOpFraming(KvDataProvider* prov) 
 	: KvDataOperator("framing", prov)
 	, dx_(prov->step(0))
 	, channels_(prov->channels())
@@ -28,7 +28,7 @@ namespace kPrivate
 	};
 }
 
-KcFramingOp::kPropertySet KcFramingOp::propertySet() const
+KcOpFraming::kPropertySet KcOpFraming::propertySet() const
 {
 	kPropertySet ps;
 
@@ -73,13 +73,13 @@ KcFramingOp::kPropertySet KcFramingOp::propertySet() const
 }
 
 
-kIndex KcFramingOp::dim() const
+kIndex KcOpFraming::dim() const
 {
 	return KvDataOperator::dim() + 1; // 比父数据多一个维度
 }
 
 
-void KcFramingOp::setPropertyImpl_(int id, const QVariant& newVal)
+void KcOpFraming::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id) {
 	case kPrivate::k_length:
@@ -97,7 +97,7 @@ void KcFramingOp::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcFramingOp::syncParent()
+void KcOpFraming::syncParent()
 {
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	if (!framing_ || dx_ != prov->step(0) || channels_ != prov->channels()) {
@@ -108,7 +108,7 @@ void KcFramingOp::syncParent()
 }
 
 
-kRange KcFramingOp::range(kIndex axis) const
+kRange KcOpFraming::range(kIndex axis) const
 {
 	if (axis == 1)
 		return { 0, framing_->length() };
@@ -119,7 +119,7 @@ kRange KcFramingOp::range(kIndex axis) const
 }
 
 
-kReal KcFramingOp::step(kIndex axis) const
+kReal KcOpFraming::step(kIndex axis) const
 {
 	if (axis == 0)
 		return framing_->shift();
@@ -128,7 +128,7 @@ kReal KcFramingOp::step(kIndex axis) const
 }
 
 
-kIndex KcFramingOp::length(kIndex axis) const
+kIndex KcOpFraming::length(kIndex axis) const
 {
 	if (axis == 1)
 		return framing_->frameSize();
@@ -139,7 +139,7 @@ kIndex KcFramingOp::length(kIndex axis) const
 }
 
 
-std::shared_ptr<KvData> KcFramingOp::processImpl_(std::shared_ptr<KvData> data)
+std::shared_ptr<KvData> KcOpFraming::processImpl_(std::shared_ptr<KvData> data)
 {
 	assert(data && data->dim() == 1);
 	assert(framing_);

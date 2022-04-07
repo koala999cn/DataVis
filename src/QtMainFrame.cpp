@@ -18,16 +18,16 @@
 #include "QtWorkspaceWidget.h"
 #include "QtnPropertyWidgetX.h"
 #include "kddockwidgets/Config.h"
-#include "KcDataSnapshot.h"
-#include "KcPlot1d.h"
-#include "KcPlot2d.h"
+#include "KcPvDataSnapshot.h"
+#include "KcRdPlot1d.h"
+#include "KcRdPlot2d.h"
 #include "QtAppEventHub.h"
-#include "KcAudioInputStream.h"
-#include "op/KcSpectrumOp.h"
-#include "op/KcHistOp.h"
-#include "op/KcFramingOp.h"
-#include "op/KcWindowingOp.h"
-#include "op/KcFilterBankOp.h"
+#include "KcPvAudioInput.h"
+#include "op/KcOpSpectrum.h"
+#include "op/KcOpHist.h"
+#include "op/KcOpFraming.h"
+#include "op/KcOpWindowing.h"
+#include "op/KcOpFilterBank.h"
 
 
 using namespace KDDockWidgets;
@@ -138,19 +138,19 @@ bool QtMainFrame::setupMenu_()
     menubar->addMenu(opMenu);
 
     QAction* fft = opMenu->addAction(u8"Spectrum(&S)");
-    connect(fft, &QAction::triggered, [this] { kPrivate::insertObjectP<KcSpectrumOp>(workDock_, false); });
+    connect(fft, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpSpectrum>(workDock_, false); });
 
     QAction* hist = opMenu->addAction(u8"Histogram(&H)");
-    connect(hist, &QAction::triggered, [this] { kPrivate::insertObjectP<KcHistOp>(workDock_, false); });
+    connect(hist, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpHist>(workDock_, false); });
 
     QAction* framing = opMenu->addAction(u8"Framing(&M)");
-    connect(framing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFramingOp>(workDock_, false); });
+    connect(framing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpFraming>(workDock_, false); });
 
     QAction* windowing = opMenu->addAction(u8"Windowing(&W)");
-    connect(windowing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcWindowingOp>(workDock_, false); });
+    connect(windowing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpWindowing>(workDock_, false); });
 
     QAction* fbank = opMenu->addAction(u8"FBank(&F)");
-    connect(fbank, &QAction::triggered, [this] { kPrivate::insertObjectP<KcFilterBankOp>(workDock_, false); });
+    connect(fbank, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpFilterBank>(workDock_, false); });
 
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
@@ -168,22 +168,22 @@ bool QtMainFrame::setupMenu_()
 
     QAction* scatter = renderMenu->addAction(u8"Scatter Plot(&P)");
     connect(scatter, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcPlot1d>(workDock_, false, KcPlot1d::KeType::k_scatter);
+        kPrivate::insertObjectP<KcRdPlot1d>(workDock_, false, KcRdPlot1d::KeType::k_scatter);
         });
 
     QAction* line = renderMenu->addAction(u8"Line Plot(&L)");
     connect(line, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcPlot1d>(workDock_, false, KcPlot1d::KeType::k_line);
+        kPrivate::insertObjectP<KcRdPlot1d>(workDock_, false, KcRdPlot1d::KeType::k_line);
         });
 
     QAction* bar = renderMenu->addAction(u8"Bars Plot(&B)");
     connect(bar, &QAction::triggered, [this] { 
-        kPrivate::insertObjectP<KcPlot1d>(workDock_, false, KcPlot1d::KeType::k_bars);
+        kPrivate::insertObjectP<KcRdPlot1d>(workDock_, false, KcRdPlot1d::KeType::k_bars);
         });
 
     QAction* color_map = renderMenu->addAction(u8"Color Map(&M)");
     connect(color_map, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcPlot2d>(workDock_, false);
+        kPrivate::insertObjectP<KcRdPlot2d>(workDock_, false);
         });
 
     connect(renderMenu, &QMenu::aboutToShow, [=] {
@@ -247,8 +247,8 @@ void QtMainFrame::openDataFile()
     if (!path.isEmpty()) {
         auto data = loadData_(path);
         if (data) 
-            kPrivate::insertObject<KcDataSnapshot>(workDock_, true, 
-                QFileInfo(path).fileName(), data, KcDataSnapshot::k_sampled);
+            kPrivate::insertObject<KcPvDataSnapshot>(workDock_, true, 
+                QFileInfo(path).fileName(), data, KcPvDataSnapshot::k_sampled);
     }
 }
 
@@ -265,8 +265,8 @@ void QtMainFrame::openAudioFile()
         return;
     }
 
-    kPrivate::insertObject<KcDataSnapshot>(workDock_, true,
-        QFileInfo(path).fileName(), audio, KcDataSnapshot::k_sampled);
+    kPrivate::insertObject<KcPvDataSnapshot>(workDock_, true,
+        QFileInfo(path).fileName(), audio, KcPvDataSnapshot::k_sampled);
 }
 
 
@@ -275,14 +275,14 @@ void QtMainFrame::openAudioCapture()
     KcAudioCaptureDlg dlg;
     dlg.setEmbeddingMode(true);
     if (dlg.exec() == QDialog::Accepted) 
-        kPrivate::insertObject<KcDataSnapshot>(workDock_, true,
-            tr("audio slice"), dlg.audio_, KcDataSnapshot::k_sampled);
+        kPrivate::insertObject<KcPvDataSnapshot>(workDock_, true,
+            tr("audio slice"), dlg.audio_, KcPvDataSnapshot::k_sampled);
 }
 
 
 void QtMainFrame::openAudioInput()
 {
-    kPrivate::insertObject<KcAudioInputStream>(workDock_, true);
+    kPrivate::insertObject<KcPvAudioInput>(workDock_, true);
 }
 
 
@@ -290,8 +290,8 @@ void QtMainFrame::openFormula()
 {
     KcFormulaDlg dlg;
     if (dlg.exec() == QDialog::Accepted) 
-        kPrivate::insertObject<KcDataSnapshot>(workDock_, true,
-            dlg.exprText(), dlg.data, KcDataSnapshot::k_continued);
+        kPrivate::insertObject<KcPvDataSnapshot>(workDock_, true,
+            dlg.exprText(), dlg.data, KcPvDataSnapshot::k_continued);
 }
 
 
