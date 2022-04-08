@@ -18,14 +18,14 @@ KgFraming::KgFraming(kReal dt, kIndex channels)
 void KgFraming::setShift(kReal shift)
 {
 	shift_ = shift;
-	shiftSize_ = buf_->sampling().countLength(shift);
+	shiftSize_ = buf_->sampling().count(shift);
 }
 
 
 void KgFraming::setLength(kReal len)
 {
 	length_ = len;
-	frameSize_ = buf_->sampling().countLength(len);
+	frameSize_ = buf_->sampling().count(len);
 	samplesPerFrame_ = roundPower2_ ? KtuBitwise<kIndex>::ceilPower2(frameSize_) : frameSize_;
 }
 

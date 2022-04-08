@@ -43,7 +43,7 @@ void KgFilterBank::reset(int type, kIndex numBins, kReal df, kReal lowFreq, kRea
         // 换算到Hertz尺度上保存
         auto flhz = toHertz_(fl);
         auto frhz = toHertz_(fr);
-        auto idx = sampHz.xRangeToIndex(flhz, frhz);
+        auto idx = sampHz.rangeToIndex(flhz, frhz);
         assert(idx.first >= 0);
         firstIdx_[bin] = idx.first;
         fc_[bin] = toHertz_(fc);
