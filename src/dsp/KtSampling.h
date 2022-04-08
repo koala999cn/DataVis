@@ -140,7 +140,7 @@ public:
 
     // 计算区间[xl, xr)所对应的采样点序号
     // 未对返回值作clamp处理，需要调用者自行判断返回值的合理性
-    std::pair<long, long> xRangeToIndex(KREAL xl, KREAL xr) const {
+    std::pair<long, long> rangeToIndex(KREAL xl, KREAL xr) const {
         auto left = xToLowIndex(xl);
         auto right = xToHighIndex(xr);
         return { left, right };
@@ -148,28 +148,58 @@ public:
 
 
     // 计算长度len的区间所包含的采样点数量
-    long countLength(KREAL len) const {
-        auto i = xRangeToIndex(low(), low() + len);
+    long count(KREAL len) const {
+        auto i = rangeToIndex(low(), low() + len);
         return i.second - i.first;
     }
 
     // 计算全区间的采样点数量
     long count() const {
-        return countLength(length());
+        return count(length());
     }
 
+
+    // 重新实现KtInterval的shift和scale系列操作，同步调整x0值 
     void shift(KREAL offset) {
         x0_ += offset;
         KtInterval::shift(offset);
     }
 
-    // TODO: 要对KtInterval其他的shift操作进行重载，确保x0值正确 
+    void shiftLeftTo(KREAL newLow) {
+        x0_ += newLow - low();
+        KtInterval::shiftLeftTo(newLow);
+    }
+
+    void shiftRightTo(KREAL newHigh) {
+        x0_ += newHigh - high();
+        KtInterval::shiftRightTo(newHigh);
+    }
+
+    void extendLeft(KREAL offset) {
+        x0_ += offset;
+        KtInterval::extendLeft(offset);
+    }
 
     void scale(KREAL factor) {
         dx_ *= factor;
-        auto offset = x0_ - xmin();
-        x0_ = xmin() + offset * factor;
+        auto offset = x0_ - low();
         KtInterval::scale(factor);
+        x0_ = low() + offset * factor;
+    }
+
+    void scaleTo(KREAL newLength) {
+        assert(!empty());
+        scale(newLength / length());
+    }
+
+    void scaleToUnit() {
+        scaleTo(1);
+    }
+
+    void transform(const KtInterval& from, const KtInterval& to) {
+        shiftLeftTo(0);
+        scale(to.length() / from.length());
+        shift(to.low());
     }
 
 
