@@ -17,12 +17,12 @@ public:
     KtInterval& operator=(KtInterval&&) = default;
 
     KtInterval(T low, T high) {
-        assert(low_ <= high_);
+        assert(low <= high);
         low_ = low, high_ = high;
     }
 
     KtInterval(const std::pair<T, T>& p) {
-        assert(low_ <= high_);
+        assert(p.first <= p.second);
         low_ = p.first, high_ = p.second;
     }
 
@@ -32,8 +32,15 @@ public:
         low_ = low, high_ = high;
     }
 
-    void resetLow(T low) { low_ = low; }
-    void resetHigh(T high) { high_ = high; }
+    void resetLow(T low) { 
+        assert(low <= high_);
+        low_ = low; 
+    }
+
+    void resetHigh(T high) { 
+        assert(high >= low_);
+        high_ = high; 
+    }
 
 
     T low() const { return low_; }
