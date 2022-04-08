@@ -190,7 +190,7 @@ void KcSampled1d::reset(kReal dx, kIndex channels, kIndex nx)
 void KcSampled1d::resize(kIndex nx, kIndex channels)
 {
     data_.resize(nx * channels);
-    samp_.resetn(nx, samp_.dx(), samp_.x0ref());
+    samp_.resetn(nx, 0.5);
 }
 
 
@@ -229,7 +229,7 @@ void KcSampled1d::cutBefore(kReal x)
     if (x <= samp_.xmin())
         return;
 
-    auto nx = std::min(samp_.countLength(x - samp_.xmin()), count());
+    auto nx = std::min(samp_.count(x - samp_.xmin()), count());
     if (nx <= 0) {
         assert(data_.empty() || value(0).x >= x);
     }
@@ -248,7 +248,7 @@ void KcSampled1d::cutAfter(kReal x)
     if (x >= samp_.xmax())
         return;
 
-    auto nx = std::min(samp_.countLength(samp_.xmax() - x), count());
+    auto nx = std::min(samp_.count(samp_.xmax() - x), count());
     if (nx <= 0) {
         assert(data_.empty() || value(count() - 1).x < x);
     }

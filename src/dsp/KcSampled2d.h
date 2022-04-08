@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "KtSampledN.h"
+#include "KtSampledArray.h"
 #include "KvData2d.h"
 
 
-class KcSampled2d : public KtSampledN<KvData2d, 2>
+class KcSampled2d : public KtSampledArray<KvData2d, 2>
 {
 public:
 

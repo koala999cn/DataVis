@@ -112,12 +112,12 @@ public:
 
     // 移除头部x轴长len的数据
     void cutFront(kReal len) {
-        popFront(samp_.countLength(len));
+        popFront(samp_.count(len));
     }
 
     // 移除尾部x轴长len的数据
     void cutBack(kReal len) {
-        popBack(samp_.countLength(len));
+        popBack(samp_.count(len));
     }
 
 

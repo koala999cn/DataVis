@@ -17,7 +17,7 @@ void KcSampled2d::resize(const KvData2d& data)
 
 KvData2d::kPoint3d KcSampled2d::value(kIndex ix, kIndex iy, kIndex channel) const
 {
-	return { samp_[0].indexToX(ix), samp_[1].indexToX(iy), array_(int(ix), int(iy), int(channel)) };
+	return { indexToValue(0, ix), indexToValue(1, iy), array_(int(ix), int(iy), int(channel)) };
 }
 
 

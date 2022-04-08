@@ -198,7 +198,8 @@
     <ClInclude Include="src\dsp\KgSpectrogram.h" />
     <ClInclude Include="src\dsp\KgSpectrum.h" />
     <ClInclude Include="src\dsp\KgWindowing.h" />
-    <ClInclude Include="src\dsp\KtSampledN.h" />
+    <ClInclude Include="src\dsp\KtSampled.h" />
+    <ClInclude Include="src\dsp\KtSampledArray.h" />
     <ClInclude Include="src\dsp\functions.h" />
     <ClInclude Include="src\dsp\KuFreqUnit.h" />
     <ClInclude Include="src\dsp\KuWindowFactory.h" />
