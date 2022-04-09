@@ -17,9 +17,10 @@ namespace kPrivate
         }
 
         bool update(void*/*outputBuffer*/, void* inputBuffer, unsigned frames, double streamTime) override {
-            auto data = std::make_shared<KcAudio>(dx_, 0, channles_);
-            data->addSamples(static_cast<kReal*>(inputBuffer), frames);
-            //data->sampling().shift(streamTime);
+            auto data = std::make_shared<KcAudio>();
+			data->resizeChannel(channles_);
+			data->reset(0, streamTime, dx_);
+            data->pushBack(static_cast<kReal*>(inputBuffer), frames);
             emit stream_->onData(data);
             return true;
         }

@@ -15,6 +15,8 @@ KgWindowing::KgWindowing(int type, kIndex nx, ...)
 	KtSampling<kReal> samp;
 	samp.resetn(nx, win->range(0).low(), win->range(0).high(), 0.5f);
 
-	for (kIndex i = 0; i < nx; i++)
-		data->setSample(i, win->y(samp.indexToX(i)), 0);
+	for (kIndex i = 0; i < nx; i++) {
+		auto x = samp.indexToX(i);
+		*data->row(i) = win->value(&x, 0);
+	}
 }

@@ -6,14 +6,16 @@
 
 
 // 基于blitz++多维数组实现的采样数据
-template<typename BASE, int DIM>
-class KtSampledArray : public KtSampled<BASE, DIM>
+template<int DIM>
+class KtSampledArray : public KtSampled<DIM>
 {
 public:
-    using super_ = KtSampled<BASE, DIM>;
+    using super_ = KtSampled<DIM>;
 
     KtSampledArray() = default;
 
+
+    /// 重载基类接口
 
     // 每个通道的数据总数
     kIndex count() const override {
@@ -36,14 +38,26 @@ public:
         return array_.length(axis); 
     }
 
-    value_type value(std::array<kIndex, DIM> idx, kIndex channel) const override {
-        blitz::TinyVector<int, DIM + 1> index;
-        for (unsigned i = 0; i < idx.size(); i++)
-            index[i] = idx[i];
-        index[DIM] = channel;
-        return array_(index);
+    value_type value(kIndex idx[], kIndex channel) const override {
+        return array_(makeTinyVector_(idx, channel));
     }
 
+    // 更快速的实现
+    kRange valueRange() const override {
+        return KtuMath<value_type>::minmax(array_.dataFirst(), array_.size());
+    }
+
+
+    /// 有关写操作的成员方法
+
+    void resize(kIndex shape[], kIndex channel) {
+        super_::resize(shape);
+        array_.resizeAndPreserve(makeTinyVector_(shape, channel));
+    }
+
+    void resize(kIndex shape[]) {
+        resize(shape, channels());
+    }
 
     // 重置通道数
     void resizeChannel(kIndex c) {
@@ -57,18 +71,72 @@ public:
         resizeChannel(channels() + 1);
     }
 
+    kReal* data() { return array_.dataFirst(); }
+    const kReal* data() const { return array_.dataFirst(); }
 
-    // 更快速的实现
-    kRange valueRange() const override {
-        return KtuMath<value_type>::minmax(array_.dataFirst(), array_.size());
-    }
 
-    kReal* at(kIndex row) { return &array_(int(row)); }
-    const kReal* at(kIndex row) const { return &array_(int(row)); }
+    kReal* row(kIndex idx) { return &array_(int(idx)); }
+    const kReal* row(kIndex idx) const { return &array_(int(idx)); }
 
     auto stride(kIndex axis) const { return array_.stride(axis); }
 
+    // 设置特定通道的数据
+    // @idx: 大小等于DIM-1
+    // @data: 设置的数据，长度等于length(DIM-1)
+    void setChannel(kIndex idx[], kIndex channel, const kReal* data);
 
-protected:
+
+    // bps
+    auto bytesPerSample() const { return sizeof(kReal) * channels(); }
+
+    // N个采样点占据的内存大小(字节数)
+    auto bytesOfSamples(kIndex N) const { return bytesPerSample() * N; }
+
+    // 删除前rows行
+    void popFront(kIndex rows);
+
+private:
+    static auto makeTinyVector_(kIndex idx[], kIndex channel) {
+        blitz::TinyVector<int, DIM + 1> tv;
+        std::copy(idx, idx + DIM, tv.begin());
+        tv[DIM] = channel;
+        return tv;
+    }
+
+private:
 	blitz::Array<value_type, DIM+1> array_; // 增加1维度，以提供多通道支持
 };
+
+
+template<int DIM>
+void KtSampledArray<DIM>::setChannel(kIndex idx[], kIndex channel, const kReal* data) {
+    assert(channel >= 0 && channel < channels());
+
+    blitz::TinyVector<int, DIM + 1> tv;
+    std::copy(idx, idx + DIM - 1, tv.begin());
+    tv[DIM - 1] = 0;
+    tv[DIM] = channel;
+
+    kReal* dst = &array_(tv);
+    if (stride(DIM - 1) == 1) {
+        std::copy(data, data + length(DIM - 1), dst);
+    }
+    else {
+        dst += channel * stride(DIM);
+        for (kIndex i = 0; i < length(DIM - 1); i++) {
+            *dst = *data++;
+            dst += stride(DIM - 1);
+        }
+    }
+}
+
+
+template<int DIM>
+void KtSampledArray<DIM>::popFront(kIndex rows)
+{
+    std::copy(row(rows), array_.dataFirst() + array_.size(), array_.dataFirst());
+    auto shape = array_.extent();
+    shape[0] -= rows;
+    array_.resizeAndPreserve(shape);
+    samp_[0].cutHead(rows);
+}

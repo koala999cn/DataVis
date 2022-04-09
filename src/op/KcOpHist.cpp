@@ -49,11 +49,8 @@ KcOpHist::kPropertySet KcOpHist::propertySet() const
     prop.minVal = 1;
     prop.step = 1;
     auto objp = dynamic_cast<const KvDataProvider*>(parent());
-    assert(objp != nullptr);
-    if (objp->step(0) == KvData::k_unknown_step)
-        prop.maxVal = 99;
-    else
-        prop.maxVal = std::floor((r.second - r.first) / objp->step(0));  
+    assert(objp != nullptr && objp->step(0) != 0);
+    prop.maxVal = std::floor((r.second - r.first) / objp->step(0));  
     ps.push_back(prop);
 
     return ps;

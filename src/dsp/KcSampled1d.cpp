@@ -4,6 +4,33 @@
 #include "KtuMath.h"
 
 
+void KcSampled1d::pushBack(const kReal* v, kIndex N)
+{
+    auto len = length(0);
+    resize(len + N);
+    std::copy(v, v + N * channels(), row(len));
+}
+
+
+void KcSampled1d::pushBack(const KcSampled1d& d, kIndex pos, kIndex nx)
+{
+    assert(step(0) == d.step(0) && channels() == d.channels());
+    if (nx <= 0) nx = d.count() - pos;
+    assert(pos + nx <= d.count());
+    
+    pushBack(d.row(pos), nx);
+}
+
+
+void KcSampled1d::extract(kIndex idx, kReal* buf, kIndex N) const
+{
+    assert(idx + N <= count());
+    const kReal* data = row(idx);
+
+    ::memcpy_s(buf, bytesOfSamples(N), data, bytesOfSamples(N));
+}
+
+/*
 KcSampled1d::KcSampled1d(const std::vector<kReal>& data, kIndex channels)
     : samp_(data.size())
     , data_(data)
@@ -208,13 +235,6 @@ void KcSampled1d::setChannel(const kReal* data, kIndex channel)
 }
 
 
-void KcSampled1d::popFront(kIndex n)
-{
-    assert(n <= count());
-    data_.erase(data_.begin(), data_.begin() + offset_(n));
-    samp_.cutHead(n);
-}
-
 
 void KcSampled1d::popBack(kIndex n)
 {
@@ -260,3 +280,4 @@ void KcSampled1d::cutAfter(kReal x)
 
     popBack(nx);
 }
+*/

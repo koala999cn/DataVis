@@ -28,18 +28,24 @@ public:
         return 1; // 暂时只支持单通道
     }
 
-    void reserve(kIndex nx, kIndex channel) override {}
+    //void reserve(kIndex nx, kIndex channel) override {}
 
-    void resize(kIndex nx, kIndex channel) override {
+    void resize(kIndex nx, kIndex channel)  {
         samp_.resetn(nx, samp_.dx(), samp_.x0ref());
     }
 
 
-    kPoint2d value(kIndex idx, kIndex channel = 0) const override;
+    kReal value(kIndex idx[], kIndex channel) const override;
+
+    // 参数同上，不同的是返回数据数组，含有各坐标轴的数据值
+    std::vector<kReal> point(kIndex idx[], kIndex channel) const override;
+
+    // 通过坐标值获取数据值
+    // @pt: 大小为dim，各元素分表表示对应坐标轴的坐标值
+    kReal value(kReal pt[], kIndex channel) const override;
+
 
     kRange range(kIndex axis) const override;
-
-    kReal y(kReal x, kIndex channel = 0) const override; // 插值
 
 
     /// 基本属性

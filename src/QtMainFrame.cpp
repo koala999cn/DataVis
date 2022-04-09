@@ -323,7 +323,9 @@ std::shared_ptr<KvData> QtMainFrame::loadData_(const QString& filePath)
             v.push_back(std::stod(tokens[0]));
         } while (std::getline(ifs, line) && (tokens = KuStrUtil::split(line, "\t ,")).size() == 1);
 
-        data = std::make_shared<KcSampled1d>(std::move(v));
+        auto data1d = std::make_shared<KcSampled1d>();
+        data1d->resize(v.size(), 1);
+        data1d->setChannel(nullptr, 0, v.data()); // TODO: 优化
     }
     else {
         assert(false); // TODO:

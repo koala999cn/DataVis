@@ -34,12 +34,12 @@ namespace kPrivate
         bool update(void* outputBuffer, unsigned frames, double streamTime) override {
 
             auto buf = (kReal*)outputBuffer;
-            auto pos = audio_->sampling().xToHighIndex(streamTime);
+            auto pos = audio_->sampling(0).xToHighIndex(streamTime);
             if (pos > audio_->count())
                 pos = audio_->count();
 
             kIndex total = std::min<kIndex>(frames, audio_->count() - pos);
-            audio_->getSamples(pos, buf, total);
+            audio_->extract(pos, buf, total);
             ::memset(buf + audio_->channels() * total, 0, audio_->bytesOfSamples(frames - total));
 
             pos += total;
@@ -89,7 +89,7 @@ bool KcAudioRender::playback(const std::shared_ptr<KcAudio>& audio, unsigned dev
 {
     assert(audio);
   
-    if (!open_(deviceId, audio->samplingRate(), audio->channels(), frameTime))
+    if (!open_(deviceId, audio->sampleRate(), audio->channels(), frameTime))
         return false;
 
     assert(get<kPrivate::KcAudioRenderObserver>() == nullptr);

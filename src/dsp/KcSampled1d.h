@@ -1,12 +1,42 @@
 ﻿#pragma once
-#include "KvData1d.h"
-#include <vector>
-#include "kDsp.h"
-#include "KtSampling.h"
+#include "KtSampledArray.h"
 
 
-class KcSampled1d : public KvData1d
+class KcSampled1d : public KtSampledArray<1>
 {
+public:
+    using super_ = KtSampledArray<1>;
+
+    void resize(kIndex nx, kIndex channels) {
+        super_::resize(&nx, channels);
+    }
+
+    void resize(kIndex nx) {
+        super_::resize(&nx);
+    }
+
+    value_type value(kIndex idx, kIndex channel) const {
+        return super_::value(&idx, channel);
+    }
+
+    auto sampleRate() const { 
+        assert(step(0) != 0);
+        return static_cast<kReal>(1) / step(0); 
+    }
+
+    // 增加N组采样点，data的长度等于N * channels()
+    void pushBack(const kReal* data, kIndex N);
+
+    // 从d的pos位置开始，附加count个数据到this
+    // assert(d.step(0) == this->step(0) && d.channles() == this->channles())
+    // @nx: 0表示从pos往后的所有数据
+    void pushBack(const KcSampled1d& d, kIndex pos = 0, kIndex nx = 0);
+
+
+    // 从第idx个采样点开始，提取N组采样点的数据到buf
+    void extract(kIndex idx, kReal* buf, kIndex N) const;
+
+/*
 public:
     KcSampled1d() : channels_(1) {}
     KcSampled1d(const std::vector<kReal>& data, kIndex channel = 1);
@@ -69,14 +99,6 @@ public:
     // 从第idx个采样点开始，拷贝N组采样点的数据到v
     void getSamples(kIndex idx, kReal* v, kIndex N) const;
 
-    // 增加N组采样点，第n采样点第i通道的值为v[n*channels()+i]
-    void addSamples(const kReal* v, kIndex N);
-
-    // 从d的pos位置开始，附加count个数据到this
-    // assert(d.step(0) == this->step(0) && d.channles() == this->channles())
-    // @nx: 0表示从pos往后的所有数据
-    void append(const KvData1d& d, kIndex pos = 0, kIndex nx = 0);
-
     // 从d的pos位置开始，拷贝count个数据到this
     void copy(const KvData1d& d, kIndex pos = 0, kIndex nx = 0);
 
@@ -89,16 +111,6 @@ public:
     // 如果channel=-1，则data包含所有通道数据
     void setChannel(const kReal* data, kIndex channel);
 
-
-    // bps
-    auto bytesPerSample() const { return sizeof(kReal) * channels(); }
-
-    // N个采样点占据的内存大小(字节数)
-    auto bytesOfSamples(kIndex N) const { return bytesPerSample() * N; }
-
-
-    // 移除最前面的n个数据点
-    void popFront(kIndex n);
 
     // 移除最后面的n个数据点
     void popBack(kIndex n);
@@ -136,5 +148,6 @@ protected:
     KtSampling<kReal> samp_;
     std::vector<kReal> data_;
     kIndex channels_; // 通道数量
+    */
 };
 

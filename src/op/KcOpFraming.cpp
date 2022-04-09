@@ -12,7 +12,7 @@ KcOpFraming::KcOpFraming(KvDataProvider* prov)
 	, channels_(prov->channels())
 {
 	assert(prov->dim() == 1);
-	assert(dx_ != KvData::k_unknown_step && dx_ != KvData::k_nonuniform_step);
+	assert(dx_ != KvData::k_nonuniform_step);
 	syncParent();
 }
 

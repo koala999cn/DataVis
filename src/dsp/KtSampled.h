@@ -8,20 +8,25 @@
 
 // 采样数据基类接口
 
-// @BASE: 须是KvData的子类
-// @DIM: DIM=1时创建2维array, DIM=2时创建3维array, ...
-template<typename BASE, int DIM>
-class KtSampled : public BASE
+// @DIM: DIM=1时创建2维采样数据, DIM=2时创建3维采样数据, ...
+template<int DIM>
+class KtSampled : public KvData
 {
 public:
+	using super_ = KvData;
 	using value_type = kReal;
 
 	KtSampled() = default;
+	KtSampled(const KtSampled&) = default;
+	KtSampled(KtSampled&&) = default;
+
+	KtSampled& operator=(const KtSampled&) = default;
+	KtSampled& operator=(KtSampled&&) = default;
 
 	// 实现基类接口
-	//constexpr kIndex dim() const override {
-	//	return DIM;
-	//}
+	constexpr kIndex dim() const override {
+		return DIM;
+	}
 
 	kIndex count() const override {
 		kIndex c(1);
@@ -33,6 +38,10 @@ public:
 	void clear() override {
 		for (kIndex i = 0; i < dim(); i++)
 			samp_[i].clear();
+	}
+
+	bool empty() const override {
+		return samp_[0].empty();
 	}
 
 	kIndex length(kIndex axis) const override {
@@ -50,12 +59,44 @@ public:
 		return samp_[axis].dx();
 	}
 
+	// make compiler happy
+	kReal value(kIndex[], kIndex) const override {
+		assert(false);
+		return 0;
+	}
 
-	// 新的接口
-	virtual value_type value(std::array<kIndex, DIM> idx, kIndex channel) const = 0;
+	std::vector<kReal> point(kIndex idx[], kIndex channel) const override {
+		std::vector<kReal> pt(DIM + 1);
+		for (kIndex i = 0; i < DIM; i++)
+			pt[i] = indexToValue(i, idx[i]);
+		pt[DIM] = value(idx, channel);
+		return pt;
+	}
 
+	// 不插值，取距离pt最近的离散点值
+	kReal value(kReal pt[], kIndex channel) const override {
+		kIndex idx[DIM];
+		for (kIndex i = 0; i < DIM; i++)
+			idx[i] = samp_[i].xToNearestIndex(pt[i]);
+
+		return value(idx, channel);
+	}
 
 	// 帮助函数
+
+	const KtSampling<value_type>& sampling(kIndex axis) const {
+		return samp_[axis];
+	}
+
+	kReal indexToValue(kIndex axis, kIndex idx) const {
+		assert(axis >= 0 && axis < dim());
+		return samp_[axis].indexToX(idx);
+	}
+
+	void resize(kIndex shape[]) {
+		for (kIndex i = 0; i < DIM; i++)
+			samp_[i].resetn(shape[i]);
+	}
 
 	// 调整第axis轴的采样参数
 	void reset(kIndex axis, value_type low, value_type step, value_type x0_ref = 0) {
@@ -66,29 +107,8 @@ public:
 
 	void reset(kIndex axis, const KtSampling<value_type>& samp) {
 		assert(axis >= 0 && axis < dim());
+		assert(samp.count() == count());
 		samp_[axis] = samp;
-	}
-
-	kReal indexToValue(kIndex axis, kIndex idx) const {
-		assert(axis >= 0 && axis < dim());
-		return samp_[axis].indexToX(idx);
-	}
-
-	auto point(std::array<kIndex, DIM> idx, kIndex channel) const {
-		std::array<kIndex, DIM + 1> pt;
-		for (kIndex i = 0; i < DIM; i++)
-			pt[i] = indexToValue(idx[i]);
-		pt[DIM] = value(idx, channel);
-		return pt;
-	}
-
-	void nextIndex(std::array<kIndex, DIM>& idx) const {
-		for (kIndex i = 0; i < DIM; i++) {
-			if (++idx[i] < length(i))
-				break;
-
-			idx[i] = 0; // 进位
-		}
 	}
 
 	// 第channel通道的最大最小值
@@ -98,7 +118,7 @@ public:
 		value_type vmin = std::numeric_limits<value_type>::max();
 		value_type vmax = std::numeric_limits<value_type>::lowest();
 
-		std::array<kIndex, DIM> idx; idx.fill(0);
+		kIndex idx[DIM] = { 0 };
 		for(kIndex i = 0; i < count(); i++) {
 			auto val = value(idx, channel);
 			if (std::isnan<value_type>(val))
@@ -107,7 +127,7 @@ public:
 			vmin = std::min(vmin, val);
 			vmax = std::max(vmax, val);
 
-			nextIndex(idx);
+			nextIndex_(idx);
 		}
 
 		return { vmin, vmax };
@@ -128,6 +148,17 @@ public:
 		return r;
 	}
 
-private:
+protected:
+	void nextIndex_(kIndex idx[]) const {
+		for (kIndex i = 0; i < DIM; i++) {
+			if (++idx[i] < length(i))
+				break;
+
+			idx[i] = 0; // 进位
+		}
+	}
+
+
+protected:
 	std::array<KtSampling<value_type>, DIM> samp_; // 各维度的采样参数
 };

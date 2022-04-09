@@ -18,7 +18,6 @@ public:
 
 	// 包含的数据总数，返回inf对应连续数据
 	virtual kIndex count() const = 0;
-
 	constexpr static kReal k_inf_count = std::numeric_limits<kReal>::infinity();
 
 	// 支持多通道数据，返回通道数目
@@ -37,13 +36,20 @@ public:
 	virtual kRange range(kIndex axis) const = 0;
 
 	// 返回axis维度的步进，即dx, dy, dz...
-	// 返回0表示步进未知，对应于连续数据
-	// 返回inf表示步进非均匀，对应于散点数据
+	// 返回0表示步进非均匀，对应于散点数据
 	virtual kReal step(kIndex axis) const = 0;
+	constexpr static kReal k_nonuniform_step = 0;
 
-	constexpr static kReal k_unknown_step = 0;
-	constexpr static kReal k_nonuniform_step = std::numeric_limits<kReal>::infinity();
+	// 通过索引获取数据值
+	// @idx: 大小为dim，各元素分表表示对应坐标轴的数据点索引
+	virtual kReal value(kIndex idx[], kIndex channel) const = 0;
 
+	// 参数同上，不同的是返回数据数组，含有各坐标轴的数据值
+	virtual std::vector<kReal> point(kIndex idx[], kIndex channel) const = 0;
+
+	// 通过坐标值获取数据值
+	// @pt: 大小为dim，各元素分表表示对应坐标轴的坐标值
+	virtual kReal value(kReal pt[], kIndex channel) const = 0;
 
 	// 是否连续数据？
 	bool isContinued() const {
@@ -57,7 +63,7 @@ public:
 
 	// 是否采样数据
 	bool isSampled() const {
-		return count() != k_inf_count && step(0) != k_nonuniform_step;
+		return !isContinued() && !isScattered();
 	}
 
 };

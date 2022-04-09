@@ -229,7 +229,8 @@ void KcAudioCaptureDlg::on_btStart_clicked()
     else if(ui->rbStereo->isChecked())
         channels = 2;
 
-    audio_->reset(1.0/sampleRate, channels);
+    audio_->reset(0, 0, 1.0 / sampleRate, 0.5);
+    audio_->resizeChannel(channels);
     if(!capture_->record(audio_, deviceId)) {
         ui->btStart->setDisabled(false);
         QMessageBox::information(this, u8"错误", QString::fromLocal8Bit(capture_->errorText())); // TODO: fromLocal8Bit???

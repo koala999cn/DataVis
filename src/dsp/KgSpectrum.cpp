@@ -5,7 +5,7 @@
 
 
 KgSpectrum::KgSpectrum()
-	: df_(KvData::k_unknown_step)
+	: df_(1)
 	, nyquistFreq_(0)
 	, type_(k_power)
 	, floor_(1e-12f)
@@ -65,10 +65,10 @@ void KgSpectrum::porcess(const KcSampled1d& samp, KcSampled1d& spec) const
 	std::vector<kReal> buf(samp.count());
 	for (kIndex c = 0; c < samp.channels(); c++) {
 		for (kIndex i = 0; i < samp.count(); i++)
-			buf[i] = samp.value(i, c).y;
+			buf[i] = samp.value(i, c);
 
 		porcess(buf.data());
-		spec.setChannel(buf.data(), c);
+		spec.setChannel(nullptr, c, buf.data());
 	}
 }
 

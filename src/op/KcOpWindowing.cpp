@@ -85,7 +85,7 @@ std::shared_ptr<KvData> KcOpWindowing::processImpl_(std::shared_ptr<KvData> data
         auto samp = std::dynamic_pointer_cast<KcSampled2d>(data);
         assert(samp);
         for(kIndex i = 0; i < samp->length(0); i++)
-            win_->process(samp->at(i), samp->channels());
+            win_->process(samp->row(i), samp->channels());
     }
     else {
         assert(false);

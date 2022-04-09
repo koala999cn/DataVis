@@ -33,7 +33,7 @@ namespace kPrivate
         KcAudioCaptureObserver(std::shared_ptr<KcAudio>& audio) : audio_(audio) {}
 
         bool update(void* inputBuffer, unsigned frames, double streamTime) override {
-            audio_->addSamples((kReal*)inputBuffer, frames);
+            audio_->pushBack((kReal*)inputBuffer, frames);
             return true;
         }
 
@@ -118,7 +118,7 @@ bool KcAudioCapture::record(std::shared_ptr<KcAudio>& audio, unsigned deviceId, 
 {
     assert(audio);
 
-    if (!record(deviceId, static_cast<unsigned>(audio->samplingRate()), 
+    if (!record(deviceId, static_cast<unsigned>(audio->sampleRate()), 
         audio->channels(), frameTime, false))
         return false;
 

@@ -21,7 +21,7 @@ void KgMultiply::process(const KcSampled1d& in, KcSampled1d& out) const
 void KgMultiply::process(KcSampled1d& inout) const
 {
 	assert(inout.count() == sig_->count());
-	process(const_cast<kReal*>(inout.data()), inout.channels());
+	process(inout.data(), inout.channels());
 }
 
 

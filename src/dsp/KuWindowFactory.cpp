@@ -4,7 +4,7 @@
 #include "KuWindowFactory.h"
 #include "KtuMath.h"
 #include "KtuBitwise.h"
-#include "KvData1d.h"
+#include "KvData.h"
 #include "functions.h"
 #include "kDsp.h"
 
@@ -12,22 +12,17 @@
 namespace kPrivate
 {
 	template<typename OP>
-	class KtWindowImpl_ : public KvData1d
+	class KtWindowImpl_ : public KvData
 	{
 	public:
 		KtWindowImpl_(OP op) : op_(op) {}
 
-		void reserve(kIndex nx, kIndex channels) override {}
-
-		void resize(kIndex nx, kIndex channels) override {}
-
-		kPoint2d value(kIndex idx, kIndex channel = 0) const override {
-			kReal x = range(0).low() + idx * 0.001; // 默认采样频率1000
-			return { x, y(x) };
+		kIndex dim() const override {
+			return 1;
 		}
 
-		kIndex count() const override { 
-			return k_inf_count; 
+		kIndex count() const override {
+			return k_inf_count;
 		}
 
 		kIndex channels() const override { return 1; }
@@ -45,11 +40,19 @@ namespace kPrivate
 		}
 
 		kReal step(kIndex axis) const override {
-			return k_unknown_step;
+			return 0;
 		}
 
-		kReal y(kReal x, kIndex channle = 0) const override {
-			return op_(x);
+		kReal value(kIndex idx[], kIndex channel) const override {
+			return 0; // TODO:
+		}
+
+		std::vector<kReal> point(kIndex idx[], kIndex channel) const override {
+			return { 0 }; // TODO
+		}
+
+		kReal value(kReal pt[], kIndex channel) const override {
+			return op_(pt[0]);
 		}
 
 	private:
@@ -58,13 +61,13 @@ namespace kPrivate
 
 
 	template<typename OP>
-	std::shared_ptr<KvData1d> make_window(OP op) {
+	std::shared_ptr<KvData> make_window(OP op) {
 		return std::make_shared<KtWindowImpl_<OP>>(op);
 	}
 }
 
 
-std::shared_ptr<KvData1d> KuWindowFactory::create(int type, ...)
+std::shared_ptr<KvData> KuWindowFactory::create(int type, ...)
 {
 	switch (type)
 	{

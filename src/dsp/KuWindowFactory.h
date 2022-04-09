@@ -18,7 +18,7 @@
 //      Behavior,"  IEEE Transactions on Acoustics, Speech, and Signal
 //      Processing, vol. ASSP-29, no. 1, pp. 84-91, February, 1981.
 
-class KvData1d;
+class KvData;
 
 
 class KuWindowFactory
@@ -45,5 +45,5 @@ public:
 
 	// generic window object given type
 	// _type   :   window type, e.g. LIQUID_WINDOW_KAISER
-	static std::shared_ptr<KvData1d> create(int type, ...);
+	static std::shared_ptr<KvData> create(int type, ...);
 };

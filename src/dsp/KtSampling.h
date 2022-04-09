@@ -18,8 +18,7 @@ public:
     KtSampling& operator=(const KtSampling&) = default;
     KtSampling& operator=(KtSampling&&) = default;
 
-    KtSampling(long nx) { resetn(nx, 0); }
-
+    // 构造函数是唯一个能设置x0绝对值的地方，其他reset系函数均采用相对值进行设置
     KtSampling(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0) 
         : KtInterval(xmin, xmax) {
         dx_ = dx, x0_ = x0;
@@ -30,34 +29,30 @@ public:
         x0_ = xmin + x0_ref * dx;
         dx_ = dx;
 
-        //if (xmax > x0 + count() * dx)
-        //    resetHigh(x0 + count() * dx);
-
-        //assert(verify());
+        assert(verify());
     }
 
+    void resetn(long nx) {
+        if (dx_ == 0) dx_ = 1;
+        KtInterval::resetHigh(low() + nx * dx_);
+    }
 
     // 根据采样点数目nx重置本对象
     // @x0_rel_offset: x0的相对偏移，取值[0, 1)，=0时，x0 = xmin; =0.5时，x0 = xmin + dx / 2; 等等
     void resetn(long nx, KREAL x0_rel_offset) {
         assert(x0_rel_offset >= 0 && x0_rel_offset < 1);
 
-        kReal xmax = nx;
-        KtInterval::reset(0, xmax);
-        x0_ = x0_rel_offset, dx_ = 1;
+        resetn(nx);
+        x0_ = low() + x0_rel_offset * dx_;
 
-        //assert(count() == nx && verify());
+        assert(count() == nx && verify());
     }
 
 
     // 根据采样点数目nx和采样间隔dx重置本对象
     void resetn(long nx, KREAL dx, KREAL x0_rel_offset) {
-        assert(x0_rel_offset >= 0 && x0_rel_offset < 1);
-
-        KtInterval::reset(0, nx * dx);
-        x0_ = dx * x0_rel_offset, dx_ = dx;
-
-        //assert(count() == nx && verify());
+        dx_ = dx;
+        resetn(nx, x0_rel_offset);
     }
 
 
@@ -67,17 +62,9 @@ public:
         assert(xmax > xmin);
         assert(x0_rel_offset >= 0 && x0_rel_offset < 1);
 
-        KtInterval::reset(xmin, xmax);
         dx_ = (xmax - xmin) / nx;
-        x0_ = xmin + x0_rel_offset * dx_;
-
-        //if (xmax <= indexToX(nx - 1))
-        //    dx_ = std::nextafter(dx_, xmin);
-        
-        //if (xmax > indexToX(nx))
-        //    dx_ = std::nextafter(dx_, xmax);
-
-        //assert(count() == nx && verify());
+        resetLow(xmin);
+        resetn(nx, x0_rel_offset);
     }
 
     void resample(KREAL dx) {

@@ -19,10 +19,10 @@ std::shared_ptr<KvData> KvOpHelper1d::processImpl_(std::shared_ptr<KvData> data)
             std::vector<kReal> out(length(0));
             for (kIndex c = 0; c < data1d->channels(); c++) {
                 for (kIndex i = 0; i < data1d->length(0); i++) 
-                    rawData[i] = data1d->value(i, c).y;
+                    rawData[i] = data1d->value(i, c);
 
                 processNaive_(rawData.data(), rawData.size(), out.data());
-                res->setChannel(out.data(), c);
+                res->setChannel(nullptr, c, out.data());
             }
         }
         
@@ -41,7 +41,7 @@ std::shared_ptr<KvData> KvOpHelper1d::processImpl_(std::shared_ptr<KvData> data)
 
     if (data->channels() == 1) {
         for (kIndex i = 0; i < data2d->length(0); i++) 
-            processNaive_(data2d->at(i), data2d->length(1), res->at(i));
+            processNaive_(data2d->row(i), data2d->length(1), res->row(i));
     }
     else {
         std::vector<kReal> rawData(data2d->length(1));
@@ -49,10 +49,10 @@ std::shared_ptr<KvData> KvOpHelper1d::processImpl_(std::shared_ptr<KvData> data)
         for (kIndex c = 0; c < data2d->channels(); c++) {
             for (kIndex i = 0; i < data2d->length(0); i++) {
                 for (kIndex j = 0; j < data2d->length(1); j++)
-                    rawData[j] = data2d->value(i, j, c).z;
+                    rawData[j] = data2d->value(i, j, c);
 
                 processNaive_(rawData.data(), rawData.size(), out.data());
-                res->setChannel(i, out.data(), c);
+                res->setChannel(&i, c, out.data());
             }
         }
     }

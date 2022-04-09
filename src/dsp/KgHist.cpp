@@ -26,10 +26,9 @@ void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
     samp.resetn(numBins(), range().first, range().second, 0.5);
     assert(KtuMath<kReal>::almostEqual(samp.dx(), binWidth(0))); // 假定线性尺度
 
-    out.reset(samp.dx(), in.channels());
+    out.reset(0, samp);
     out.resize(numBins(), in.channels());
-    out.sampling() = samp; // TODO: 这个操作不安全
-
+    
     process(in, (kReal*)out.data());
 }
 
@@ -37,7 +36,7 @@ void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
 void KgHist::process(const KcSampled1d& in, kReal* out)
 {
     for (kIndex i = 0; i < numBins(); i++) {
-        auto range = in.sampling().xRangeToIndex(bins_[i], bins_[i + 1]);
+        auto range = in.sampling(0).rangeToIndex(bins_[i], bins_[i + 1]);
         if (range.first > range.second) std::swap(range.first, range.second);
         if (range.first < 0) range.first = 0;
         if (range.second > in.count()) range.second = in.count();
@@ -46,7 +45,7 @@ void KgHist::process(const KcSampled1d& in, kReal* out)
             kReal val(0);
             kIndex N = range.second - range.first;
             for (kIndex j = range.first; j < range.second; j++)
-                val += in.value(j, c).y;
+                val += in.value(j, c);
 
             *out++ = val / N;
         }
@@ -54,14 +53,21 @@ void KgHist::process(const KcSampled1d& in, kReal* out)
 }
 
 
-void KgHist::process(const KvData1d& in, kReal* out)
+void KgHist::process(const kReal* in, unsigned len, kReal* out)
+{
+    KtSampling<kReal> samp;
+    samp.resetn(len, bins_[0], bins_.back(), 0.5);
+}
+
+
+void KgHist::process(const KvData& in, kReal* out)
 {
     assert(numBins() > 0);
 
 
     // 跳过统计区间（左）之外的数据点
     kIndex i = 0;
-    while (i < in.count() && in.value(i).x < bins_[0])
+    while (i < in.count() && in.point(&i, 0)[0] < bins_[0])
         ++i;
 
 
@@ -71,9 +77,9 @@ void KgHist::process(const KvData1d& in, kReal* out)
     unsigned c(0);
 
     while (i < in.count()) {
-        if (in.value(i).x < barRight) { // accumulate current bar
+        if (in.point(&i, 0)[0] < barRight) { // accumulate current bar
             for(kIndex ch = 0; ch < in.channels(); ch++)
-                out[ch] += in.value(i, ch).y;
+                out[ch] += in.value(&i, ch);
             ++i, ++c;
         }
         else { // goto next bar

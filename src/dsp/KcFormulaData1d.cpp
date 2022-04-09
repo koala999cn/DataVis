@@ -40,14 +40,20 @@ kRange KcFormulaData1d::range(kIndex axis) const
 }
 
 
-KcFormulaData1d::kPoint2d KcFormulaData1d::value(kIndex idx, kIndex) const
+kReal KcFormulaData1d::value(kIndex idx[], kIndex channel) const
 {
-    auto x = samp_.indexToX(idx);
-    return kPoint2d{ x, y(x) };
+    auto x = samp_.indexToX(idx[0]);
+    return value(&x, channel);
 }
 
 
-kReal KcFormulaData1d::y(kReal x, kIndex) const
+std::vector<kReal> KcFormulaData1d::point(kIndex idx[], kIndex channel) const
 {
-    return expr_->value(x);
+    return { samp_.indexToX(idx[0]), value(idx, channel) };
+}
+
+
+kReal KcFormulaData1d::value(kReal pt[], kIndex channel) const
+{
+    return expr_->value(pt[0]);
 }

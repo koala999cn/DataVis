@@ -199,18 +199,17 @@ std::shared_ptr<KvData> KcOpSpectrum::process2d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 2);
 
-	auto data2d = std::dynamic_pointer_cast<KvData2d>(data);
-	assert(data2d && data->step(1) != KvData::k_nonuniform_step);
+	//auto data2d = std::dynamic_pointer_cast<KvData2d>(data);
+	assert(data->step(1) != KvData::k_nonuniform_step);
 	assert(KtuMath<kReal>::almostEqualRel(data->step(1) * range(1).length(), kReal(0.5)));
 
-	if (data2d->length(1) < 2 || data2d->range(1).empty())
+	if (data->length(1) < 2 || data->range(1).empty())
 		return data;
 
-	assert(spec_->countInTime() == data2d->length(1));
+	assert(spec_->countInTime() == data->length(1));
 
 	auto df = spec_->df();
-	if (df == KvData::k_unknown_step)
-		df = 1 / data2d->range(1).length();
+	assert(df > 0);
 
 	auto res = std::make_shared<KcSampled2d>();
 
@@ -218,14 +217,15 @@ std::shared_ptr<KvData> KcOpSpectrum::process2d_(std::shared_ptr<KvData> data)
 	res->reset(0, data->range(0).low(), data->step(0));
 	res->reset(1, 0, df);
 
-	std::vector<kReal> rawData(data2d->length(1));
-	for (kIndex c = 0; c < data2d->channels(); c++) {
-		for (kIndex i = 0; i < data2d->length(0); i++) {
-			for (kIndex j = 0; j < data2d->length(1); j++)
-				rawData[j] = data2d->value(i, j, c).z;
+	std::vector<kReal> rawData(data->length(1));
+	for (kIndex c = 0; c < data->channels(); c++) {
+		kIndex idx[2];
+		for (idx[0] = 0; idx[0] < data->length(0); idx[0]++) {
+			for (idx[1] = 0; idx[1] < data->length(1); idx[1]++)
+				rawData[idx[1]] = data->value(idx, c);
 
 			spec_->porcess(rawData.data());
-			res->setChannel(i, rawData.data(), c);
+			res->setChannel(idx, c, rawData.data());
 		}
 	}
 

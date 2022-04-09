@@ -1,6 +1,6 @@
 ﻿#include "KcSampled2d.h"
 
-
+/*
 void KcSampled2d::resize(kIndex nx, kIndex ny, kIndex c)
 {
 	array_.resizeAndPreserve(nx, ny, c);
@@ -36,4 +36,4 @@ void KcSampled2d::setChannel(kIndex row, const kReal* src, kIndex channel)
 			dst += stride(1);
 		}
 	}
-}
+}*/

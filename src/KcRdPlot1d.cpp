@@ -116,13 +116,13 @@ namespace kPrivate
 			auto keyOffset = plotRange.upper - dataRange.high();
 
 			for (kIndex idx = 0; idx < data1d->count(); idx++) {
-				auto val = data1d->value(idx);
-				auto key = val.x + keyOffset;
+				auto val = data1d->point(&idx, 0); // TODO: 多通道处理
+				auto key = val[0] + keyOffset;
 				if (key < plotRange.lower)
 					continue;
 
 				keys.push_back(key);
-				values.push_back(val.y);
+				values.push_back(val[1]);
 			}
 
 			graph->setData(keys, values);
@@ -130,8 +130,8 @@ namespace kPrivate
 		else {
 			graph->data()->clear();
 			for (kIndex idx = 0; idx < data1d->count(); idx++) {
-				auto val = data1d->value(idx);
-				graph->addData(val.x, val.y);
+				auto val = data1d->point(&idx, 0);
+				graph->addData(val[0], val[1]);
 			}
 		}
 
@@ -435,7 +435,7 @@ void KcRdPlot1d::updateBarWidth_()
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	auto bars = dynamic_cast<QCPBars*>(customPlot_->plottable());
 	auto dx = prov->step(0);
-	if (dx == KvData::k_unknown_step || dx == KvData::k_nonuniform_step) {
+	if (dx == KvData::k_nonuniform_step) {
 		if (bars->dataCount() > 0)
 			dx = prov->range(0).length() / bars->dataCount();
 		else

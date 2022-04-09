@@ -44,7 +44,7 @@ KvPropertiedObject::kPropertySet KcPvDataSnapshot::propertySet() const
 			rate.name = u8"rate";
 			rate.disp = u8"Sampling rate";
 			rate.desc = u8"sampling rate of this data";
-			rate.val = type() == k_sampled ? dynamic_cast<KcSampled1d*>(data)->samplingRate()
+			rate.val = type() == k_sampled ? dynamic_cast<KcSampled1d*>(data)->sampleRate()
 				: dynamic_cast<KcFormulaData1d*>(data)->samplingRate();
 			rate.flag = KvPropertiedObject::k_readonly;
 			ps.push_back(rate);

@@ -12,7 +12,7 @@ kRange KvData1d::valueRange(kIndex channel) const
     kReal ymax = std::numeric_limits<kReal>::lowest();
 
     for (kIndex i = 0; i < count(); i++) {
-        auto y = value(i, channel).y;
+        auto y = value(&i, channel);
         if (std::isnan<kReal>(y))
             continue;
 
