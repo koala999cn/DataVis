@@ -105,18 +105,13 @@ public:
 
     long xToLowIndex(KREAL t) const {
         auto idx = std::floor(xToIndex(t));
-        if (indexToX(idx + 1) <= t) // 处理0.9999999变为0的情况
-            idx++;
-
-        if (idx < 0)
-            idx = 0;
-        return idx;
+        assert(indexToX(idx + 1) > t); // TODO: 处理0.9999999变为0的情况
+        return idx >= 0 ? idx : 0;
     }
 
     long xToHighIndex(KREAL t) const {
         auto idx = std::ceil(xToIndex(t));
-        if (indexToX(idx) > t) // 处理1.0000001变为2的情况
-            idx--;
+        assert(empty() || indexToX(idx - 1) <= t); // TODO: 处理1.0000001变为2的情况
         return idx;
     }
 
@@ -137,7 +132,7 @@ public:
     // 计算长度len的区间所包含的采样点数量
     long count(KREAL len) const {
         auto i = rangeToIndex(low(), low() + len);
-        return i.second - i.first;
+        return i.second > i.first ? i.second - i.first : 0;
     }
 
     // 计算全区间的采样点数量
@@ -195,7 +190,7 @@ public:
             return true;
 
         return indexToX(count()) >= high() 
-            && xToIndex(high()) >= count() 
+            && xToIndex(high()) > (count() - 1) 
             && x0_ + (count() - 1) * dx_ < high()
             && x0_ + count() * dx_ >= high()
             && (empty() || cover(x0_));
