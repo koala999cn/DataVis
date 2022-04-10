@@ -59,9 +59,6 @@
     <ClCompile Include="src\gui\QtWaveBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KcFormulaData1d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\gui\QtAuidoUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -158,6 +155,9 @@
     <ClCompile Include="src\KcPvDataSnapshot.cpp">
       <Filter>prov</Filter>
     </ClCompile>
+    <ClCompile Include="src\dsp\KcFormulaData1d.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\KcAudioCaptureDlg.h">
@@ -217,9 +217,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KuStrUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KcFormulaData1d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\gui\QtAudioUtils.h">
@@ -331,6 +328,15 @@
       <Filter>prov</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtSampled.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KtContinued.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KtScattered.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KcFormulaData1d.h">
       <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
