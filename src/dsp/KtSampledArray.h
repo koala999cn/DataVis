@@ -95,6 +95,9 @@ public:
     // 删除前rows行
     void popFront(kIndex rows);
 
+    // 移除第0轴数值小于x的rows
+    void cutBefore(kReal x);
+
 private:
     static auto makeTinyVector_(kIndex idx[], kIndex channel) {
         blitz::TinyVector<int, DIM + 1> tv;
@@ -139,4 +142,26 @@ void KtSampledArray<DIM>::popFront(kIndex rows)
     shape[0] -= rows;
     array_.resizeAndPreserve(shape);
     samp_[0].cutHead(rows);
+}
+
+
+template<int DIM>
+void KtSampledArray<DIM>::cutBefore(kReal x)
+{
+    if (x <= samp_[0].low())
+        return;
+
+    auto nx = std::min(samp_[0].count(x - samp_[0].low()), length(0));
+/*
+    if (nx <= 0) {
+        assert(empty() || point(&x, 0)[0] >= x);
+    }
+    else {
+        assert(point(nx - 1)[0] < x);
+        if (nx < length(0))
+            assert(point(nx)[0] >= x);
+    }*/
+
+    if(nx > 0)
+        popFront(nx);
 }

@@ -1,5 +1,5 @@
 ﻿#include "KcPvDataSnapshot.h"
-#include "KvData1d.h"
+#include "KvData.h"
 #include <QPointF>
 #include "KcSampled1d.h"
 #include "KcFormulaData1d.h"
@@ -23,7 +23,7 @@ KvPropertiedObject::kPropertySet KcPvDataSnapshot::propertySet() const
 	KvPropertiedObject::kPropertySet ps;
 
 	if (data_->dim() == 1) {
-		auto data = dynamic_cast<KvData1d*>(data_.get());
+		auto data = dynamic_cast<KvData*>(data_.get());
 
 		KvPropertiedObject::KpProperty count;
 		count.name = u8"Amount";
@@ -39,13 +39,12 @@ KvPropertiedObject::kPropertySet KcPvDataSnapshot::propertySet() const
 		channels.flag = KvPropertiedObject::k_readonly;
 		ps.push_back(channels);
 
-		if (type() != k_scattered) {
+		if (data->isSampled()) {
 			KvPropertiedObject::KpProperty rate;
 			rate.name = u8"rate";
 			rate.disp = u8"Sampling rate";
 			rate.desc = u8"sampling rate of this data";
-			rate.val = type() == k_sampled ? dynamic_cast<KcSampled1d*>(data)->sampleRate()
-				: dynamic_cast<KcFormulaData1d*>(data)->samplingRate();
+			rate.val = 1 / data->step(0);
 			rate.flag = KvPropertiedObject::k_readonly;
 			ps.push_back(rate);
 		}

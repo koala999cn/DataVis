@@ -1,7 +1,7 @@
 ﻿#include "KcRdPlot1d.h"
 #include <assert.h>
 #include "KcPvDataSnapshot.h"
-#include "KvData1d.h"
+#include "KvData.h"
 #include <QBrush>
 #include "qcustomplot/qcustomplot.h"
 
@@ -86,8 +86,10 @@ namespace kPrivate
 
 
 	template<typename PLOT_TYPE>
-	bool doPlot(QCPAbstractPlottable* plot, std::shared_ptr<KvData1d> data1d, bool streaming)
+	bool doPlot(QCPAbstractPlottable* plot, std::shared_ptr<KvData> data1d, bool streaming)
 	{
+		assert(data1d->dim() == 1);
+
 		auto graph = dynamic_cast<PLOT_TYPE*>(plot);
 		if (graph == nullptr)
 			return false;
@@ -98,18 +100,18 @@ namespace kPrivate
 			auto plotRange = plot->keyAxis()->range();
 
 			auto duration = dataRange.length();
-			auto data = graph->data();
-			data->removeBefore(duration + plotRange.lower); // 前推已有数据
+			auto gdata = graph->data();
+			gdata->removeBefore(duration + plotRange.lower); // 前推已有数据
 
 			QVector<double> keys, values;
 			keys.reserve(data1d->count());
 			values.reserve(data1d->count());
-			if (duration < plotRange.upper - +plotRange.lower) { // 新数据比已有数据少, 须保留部分旧数据
-				for (unsigned i = 0; i < data->size(); i++) {
-					auto iter = data->at(i);
-					keys.push_back(iter->key - duration); // 修正残留数据的key值
-					values.push_back(iter->value);
-				}
+
+			// 修正残留数据的key值
+			for (unsigned i = 0; i < gdata->size(); i++) {
+				auto iter = gdata->at(i);
+				keys.push_back(iter->key - duration); 
+				values.push_back(iter->value);
 			}
 
 			// 新数据key值的偏移 
@@ -401,16 +403,15 @@ bool KcRdPlot1d::renderImpl_(std::shared_ptr<KvData> data)
 	auto plot = customPlot_->plottable();
 
 	assert(data->dim() == 1);
-	auto data1d = std::dynamic_pointer_cast<KvData1d>(data);
 
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 
 	if (type_ == KeType::k_bars) {
-		kPrivate::doPlot<QCPBars>(plot, data1d, prov->isStream());
+		kPrivate::doPlot<QCPBars>(plot, data, prov->isStream());
 		updateBarWidth_();
 	}
 	else {
-		kPrivate::doPlot<QCPGraph>(plot, data1d, prov->isStream());
+		kPrivate::doPlot<QCPGraph>(plot, data, prov->isStream());
 	}
 
 	customPlot_->replot(prov->isStream() 

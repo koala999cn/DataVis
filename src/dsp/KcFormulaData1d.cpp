@@ -3,53 +3,18 @@
 #include "exprtkX/KvExprtk.h"
 
 
-kReal KcFormulaData1d::step(kIndex axis) const
+KcFormulaData1d::KcFormulaData1d(kReal xmin, kReal xmax, kIndex nx, const std::shared_ptr<KvExprtk>& expr)
+    : expr_(expr), KtSampled<1>()
 {
-    return axis == 0 ? samp_.dx() : k_nonuniform_step;
+    KtSampled<1>::reset(0, xmin, (xmax - xmin) / nx, 0.5);
+    assert(count() == nx);
 }
 
 
-void KcFormulaData1d::clear()
+kReal KcFormulaData1d::value(kIndex idx[], kIndex) const
 {
-    samp_.clear();
-}
-
-
-bool KcFormulaData1d::empty() const
-{
-    return samp_.empty();
-}
-
-
-kIndex KcFormulaData1d::count() const
-{
-    return samp_.count();
-}
-
-
-kIndex KcFormulaData1d::length(kIndex axis) const
-{
-    assert(axis == 0);
-    return samp_.count();
-}
-
-
-kRange KcFormulaData1d::range(kIndex axis) const
-{
-    return axis == 0 ? kRange{ samp_.xmin(), samp_.xmax() } : valueRange();
-}
-
-
-kReal KcFormulaData1d::value(kIndex idx[], kIndex channel) const
-{
-    auto x = samp_.indexToX(idx[0]);
-    return value(&x, channel);
-}
-
-
-std::vector<kReal> KcFormulaData1d::point(kIndex idx[], kIndex channel) const
-{
-    return { samp_.indexToX(idx[0]), value(idx, channel) };
+    kReal pt = sampling(0).indexToX(idx[0]);
+    return value(&pt, 0);
 }
 
 

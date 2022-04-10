@@ -9,7 +9,6 @@
 #include "KcFormulaDlg.h"
 #include "KcAudioCaptureDlg.h"
 #include "base/KuStrUtil.h"
-#include "dsp/KvData1d.h"
 #include "dsp/KcFormulaData1d.h"
 #include "dsp/KcSampled1d.h"
 #include "audio/KcAudio.h"

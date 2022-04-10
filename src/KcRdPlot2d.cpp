@@ -1,5 +1,5 @@
 ﻿#include "KcRdPlot2d.h"
-#include "KvData2d.h"
+#include "KvData.h"
 #include "KvDataProvider.h"
 #include "qcustomplot/qcustomplot.h"
 #include "../dsp/KtSampling.h"
@@ -72,8 +72,7 @@ bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
         return true;
 
     auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
-    auto data2d = std::dynamic_pointer_cast<KvData2d>(data);
-    assert(colorMap && data2d);
+    assert(colorMap);
 
     auto mapData = colorMap->data();
     auto prov = dynamic_cast<KvDataProvider*>(parent());
@@ -82,8 +81,8 @@ bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
 
     //if (prov->isStream()) {
 
-    assert(data2d->step(1) == prov->step(1));
-    assert(data2d->length(1) == prov->length(1));
+    assert(data->step(1) == prov->step(1));
+    assert(data->length(1) == prov->length(1));
 
     int mapOffset(0), dataOffset(0);
     if (mapData->keySize() > data->length(0)) { // 平移map数据
@@ -96,9 +95,11 @@ bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
         dataOffset = data->length(0) - mapData->keySize();
     }
 
-    for (int x = dataOffset; x < data->length(0); x++)
-        for (int y = 0; y < std::min<int>(mapData->valueSize(), data->length(1)); y++)
-            mapData->setCell(mapOffset + x - dataOffset, y, data2d->value(x, y).z);
+    for (kIndex x = dataOffset; x < data->length(0); x++)
+        for (kIndex y = 0; y < std::min<int>(mapData->valueSize(), data->length(1)); y++) {
+            kIndex idx[2] = { x, y };
+            mapData->setCell(mapOffset + x - dataOffset, y, data->value(idx, 0));
+        }
     //}
     //else {
     //    mapData->setSize(data2d->length(0), data2d->length(1));

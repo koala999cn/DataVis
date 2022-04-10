@@ -152,12 +152,6 @@
     <ClCompile Include="src\dsp\KuWindowFactory.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KvData1d.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KvData2d.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
     <ClCompile Include="src\KcPvAudioInput.cpp">
       <Filter>prov</Filter>
     </ClCompile>
@@ -272,12 +266,6 @@
     </ClInclude>
     <ClInclude Include="src\KcRdPlot1d.h">
       <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KvData1d.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KvData2d.h">
-      <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KvData.h">
       <Filter>dsp</Filter>

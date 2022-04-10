@@ -4,7 +4,7 @@
 
 
 class KvExprtk;
-class KvData1d;
+class KvData;
 
 
 namespace Ui {
@@ -23,7 +23,7 @@ public:
 
     QString exprText() const;
     
-    std::shared_ptr<KvData1d> data;
+    std::shared_ptr<KvData> data;
     
 private slots:
     void on_nx_textEdited(const QString& text);
