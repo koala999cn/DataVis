@@ -155,9 +155,6 @@
     <ClCompile Include="src\KcPvDataSnapshot.cpp">
       <Filter>prov</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KcFormulaData1d.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\KcAudioCaptureDlg.h">
@@ -336,7 +333,7 @@
     <ClInclude Include="src\dsp\KtScattered.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KcFormulaData1d.h">
+    <ClInclude Include="src\dsp\KtContinuedExpr.h">
       <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
