@@ -152,7 +152,13 @@
     <ClCompile Include="src\KcPvAudioInput.cpp">
       <Filter>prov</Filter>
     </ClCompile>
-    <ClCompile Include="src\KcPvDataSnapshot.cpp">
+    <ClCompile Include="src\KcPvSampled.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KpExprtkHelper_.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\KcPvContinued.cpp">
       <Filter>prov</Filter>
     </ClCompile>
   </ItemGroup>
@@ -223,9 +229,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtSingleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KvRefObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\functions.h">
@@ -318,10 +321,7 @@
     <ClInclude Include="src\KcPvAudioInput.h">
       <Filter>prov</Filter>
     </ClInclude>
-    <ClInclude Include="src\KcPvDataSnapshot.h">
-      <Filter>prov</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KvDataStream.h">
+    <ClInclude Include="src\KcPvSampled.h">
       <Filter>prov</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtSampled.h">
@@ -335,6 +335,12 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KtContinuedExpr.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KtSampler.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KcPvContinued.h">
+      <Filter>prov</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

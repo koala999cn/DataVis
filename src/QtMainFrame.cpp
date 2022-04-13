@@ -9,7 +9,6 @@
 #include "KcFormulaDlg.h"
 #include "KcAudioCaptureDlg.h"
 #include "base/KuStrUtil.h"
-#include "dsp/KcFormulaData1d.h"
 #include "dsp/KcSampled1d.h"
 #include "audio/KcAudio.h"
 #include "audio/KcAudioRender.h"
@@ -17,7 +16,7 @@
 #include "QtWorkspaceWidget.h"
 #include "QtnPropertyWidgetX.h"
 #include "kddockwidgets/Config.h"
-#include "KcPvDataSnapshot.h"
+#include "KcPvSampled.h"
 #include "KcRdPlot1d.h"
 #include "KcRdPlot2d.h"
 #include "QtAppEventHub.h"
@@ -246,8 +245,7 @@ void QtMainFrame::openDataFile()
     if (!path.isEmpty()) {
         auto data = loadData_(path);
         if (data) 
-            kPrivate::insertObject<KcPvDataSnapshot>(workDock_, true, 
-                QFileInfo(path).fileName(), data, KcPvDataSnapshot::k_sampled);
+            kPrivate::insertObject<KcPvSampled>(workDock_, true, QFileInfo(path).fileName(), data);
     }
 }
 
@@ -264,8 +262,7 @@ void QtMainFrame::openAudioFile()
         return;
     }
 
-    kPrivate::insertObject<KcPvDataSnapshot>(workDock_, true,
-        QFileInfo(path).fileName(), audio, KcPvDataSnapshot::k_sampled);
+    kPrivate::insertObject<KcPvSampled>(workDock_, true, QFileInfo(path).fileName(), audio);
 }
 
 
@@ -274,8 +271,7 @@ void QtMainFrame::openAudioCapture()
     KcAudioCaptureDlg dlg;
     dlg.setEmbeddingMode(true);
     if (dlg.exec() == QDialog::Accepted) 
-        kPrivate::insertObject<KcPvDataSnapshot>(workDock_, true,
-            tr("audio slice"), dlg.audio_, KcPvDataSnapshot::k_sampled);
+        kPrivate::insertObject<KcPvSampled>(workDock_, true, tr("audio slice"), dlg.audio_);
 }
 
 
@@ -289,8 +285,7 @@ void QtMainFrame::openFormula()
 {
     KcFormulaDlg dlg;
     if (dlg.exec() == QDialog::Accepted) 
-        kPrivate::insertObject<KcPvDataSnapshot>(workDock_, true,
-            dlg.exprText(), dlg.data, KcPvDataSnapshot::k_continued);
+        kPrivate::insertObject<KcPvSampled>(workDock_, true, dlg.exprText(), dlg.data);
 }
 
 

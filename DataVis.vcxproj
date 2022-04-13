@@ -143,9 +143,11 @@
     <ClCompile Include="src\dsp\KgSpectrogram.cpp" />
     <ClCompile Include="src\dsp\KgSpectrum.cpp" />
     <ClCompile Include="src\dsp\KgWindowing.cpp" />
+    <ClCompile Include="src\dsp\KpExprtkHelper_.cpp" />
     <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
     <ClCompile Include="src\dsp\KuWindowFactory.cpp" />
     <ClCompile Include="src\KcPvAudioInput.cpp" />
+    <ClCompile Include="src\KcPvContinued.cpp" />
     <ClCompile Include="src\KcRdPlot2d.cpp" />
     <ClCompile Include="src\KvRdCustomPlot.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
@@ -162,7 +164,7 @@
     <ClCompile Include="src\gui\QtWaveBar.cpp" />
     <ClCompile Include="src\KcAudioCaptureDlg.cpp" />
     <ClCompile Include="src\KcRdPlot1d.cpp" />
-    <ClCompile Include="src\KcPvDataSnapshot.cpp" />
+    <ClCompile Include="src\KcPvSampled.cpp" />
     <ClCompile Include="src\KcFormulaDlg.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\QtnPropertyWidgetX.cpp" />
@@ -185,7 +187,6 @@
     <ClInclude Include="src\base\KuFileUtil.h" />
     <ClInclude Include="src\base\KuPathUtil.h" />
     <ClInclude Include="src\base\KuStrUtil.h" />
-    <ClInclude Include="src\base\KvRefObject.h" />
     <ClInclude Include="src\dsp\KcSampled2d.h" />
     <ClInclude Include="src\dsp\KgFilterBank.h" />
     <ClInclude Include="src\dsp\KgFraming.h" />
@@ -199,13 +200,14 @@
     <ClInclude Include="src\dsp\KtSampled.h" />
     <ClInclude Include="src\dsp\KtSampledArray.h" />
     <ClInclude Include="src\dsp\functions.h" />
+    <ClInclude Include="src\dsp\KtSampler.h" />
     <ClInclude Include="src\dsp\KtScattered.h" />
     <ClInclude Include="src\dsp\KuFreqUnit.h" />
     <ClInclude Include="src\dsp\KuWindowFactory.h" />
     <ClInclude Include="src\KcPvAudioInput.h" />
+    <ClInclude Include="src\KcPvContinued.h" />
     <ClInclude Include="src\KcRdPlot2d.h" />
     <ClInclude Include="src\KvRdCustomPlot.h" />
-    <ClInclude Include="src\KvDataStream.h" />
     <ClInclude Include="src\op\KcOpSpectrum.h" />
     <ClInclude Include="src\op\KcOpWindowing.h" />
     <ClInclude Include="src\op\KvOpHelper1d.h" />
@@ -215,7 +217,7 @@
     <ClInclude Include="src\op\KcOpFilterBank.h" />
     <QtMoc Include="src\QtAppEventHub.h" />
     <ClInclude Include="src\KcRdPlot1d.h" />
-    <ClInclude Include="src\KcPvDataSnapshot.h" />
+    <ClInclude Include="src\KcPvSampled.h" />
     <QtMoc Include="src\KvDataProvider.h" />
     <ClInclude Include="src\KvDataRender.h" />
     <QtMoc Include="src\KvPropertiedObject.h" />
