@@ -1,16 +1,14 @@
 ﻿#pragma once
-#include "KvDataStream.h"
+#include "KvDataProvider.h"
 
 
-class KcPvAudioInput : public KvDataStream
+class KcPvAudioInput : public KvDataProvider
 {
 public:
 	KcPvAudioInput();
 	virtual ~KcPvAudioInput();
 
-	bool pushData() final;
-	void stop() final;
-	bool running() const final;
+	bool isStream() const override { return true; }
 
 	kIndex dim() const final { return 1; };
 
@@ -18,14 +16,20 @@ public:
 
 	kReal step(kIndex axis) const final;
 
+	kIndex length(kIndex) const final;
+
 	kPropertySet propertySet() const override;
 
 	kIndex channels() const override { return channels_; }
+
+	bool running() const final;
 
 	auto sampleRate() const { return sampleRate_; }
 
 
 private:
+	bool startImpl_() final;
+	bool stopImpl_() final;
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 
 

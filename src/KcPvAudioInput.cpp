@@ -42,8 +42,7 @@ namespace kPrivate
 }
 
 
-KcPvAudioInput::KcPvAudioInput() 
-    : KvDataStream("AudioInput")
+KcPvAudioInput::KcPvAudioInput() : KvDataProvider("AudioInput")
 {
     dptr_ = new KcAudioDevice;
     deviceId_ = ((KcAudioDevice*)dptr_)->defaultInput();
@@ -59,11 +58,11 @@ KcPvAudioInput::~KcPvAudioInput()
 }
 
 
-bool KcPvAudioInput::pushData()
+bool KcPvAudioInput::startImpl_()
 {
     auto device = (KcAudioDevice*)dptr_;
-    if (device->opened())
-        device->close();
+    if (device->opened()) 
+        device->close(); // TODO: 若参数一致，则不关闭
 
     device->remove<kPrivate::KcAudioStreamObserver>(); // 根据当前参数重新添加观察者
 
@@ -84,11 +83,9 @@ bool KcPvAudioInput::pushData()
 }
 
 
-void KcPvAudioInput::stop()
+bool KcPvAudioInput::stopImpl_()
 {
-    ((KcAudioDevice*)dptr_)->stop(true);
-    ((KcAudioDevice*)dptr_)->close();
-
+    return ((KcAudioDevice*)dptr_)->stop(true);
 }
 
 
@@ -107,6 +104,13 @@ kRange KcPvAudioInput::range(kIndex axis) const
 kReal KcPvAudioInput::step(kIndex axis) const
 {
 	return axis == 0 ? static_cast<kReal>(1) / sampleRate() : KvData::k_nonuniform_step;
+}
+
+
+kIndex KcPvAudioInput::length(kIndex) const
+{
+	KtSampling<kReal> samp(kReal(0), kReal(frameTime_), kReal(1) / sampleRate_, 0);
+	return samp.count(); // TODO: 使用open时的bufferFrames参数
 }
 
 

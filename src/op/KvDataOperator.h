@@ -45,9 +45,15 @@ public:
 		return dynamic_cast<const KvDataProvider*>(parent())->length(axis);
 	}
 
-	bool pushData() override {
-		return dynamic_cast<KvDataProvider*>(parent())->pushData();
+	bool running() const override {
+		return dynamic_cast<const KvDataProvider*>(parent())->running();
 	}
+
+private:
+	bool startImpl_() override { return true; }
+	bool stopImpl_() override { return true; }
+
+public:
 
 	/// 声明自己的virtual方法接口
 
