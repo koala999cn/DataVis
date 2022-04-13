@@ -1,27 +1,23 @@
-﻿#include "KcPvDataSnapshot.h"
+﻿#include "KcPvSampled.h"
 #include "KvData.h"
 #include <QPointF>
 #include "KcSampled1d.h"
-#include "KcFormulaData1d.h"
 #include "KtuMath.h"
+#include <assert.h>
 
 
-QString KcPvDataSnapshot::typeText() const
+KcPvSampled::KcPvSampled(const QString& name, std::shared_ptr<KvData> data)
+	: KvDataProvider(name), data_(data) 
 {
-	switch (type_) {
-	case k_sampled:   return u8"采样数据";
-	case k_scattered: return u8"散列数据";
-	case k_continued: return u8"连续数据";
-	}
-
-	return u8"未知";
+	assert(data->isSampled());
 }
 
 
-KvPropertiedObject::kPropertySet KcPvDataSnapshot::propertySet() const
+KvPropertiedObject::kPropertySet KcPvSampled::propertySet() const
 {
 	KvPropertiedObject::kPropertySet ps;
 
+	// TODO: 处理多维和多通道
 	if (data_->dim() == 1) {
 		auto data = dynamic_cast<KvData*>(data_.get());
 
@@ -85,38 +81,49 @@ KvPropertiedObject::kPropertySet KcPvDataSnapshot::propertySet() const
 }
 
 
-kIndex KcPvDataSnapshot::dim() const
+kIndex KcPvSampled::dim() const
 {
 	return data_->dim();
 }
 
 
-kIndex KcPvDataSnapshot::channels() const
+kIndex KcPvSampled::channels() const
 {
 	return data_->channels();
 }
 
 
-kRange KcPvDataSnapshot::range(kIndex axis) const
+kRange KcPvSampled::range(kIndex axis) const
 {
 	return data_->range(axis);
 }
 
 
-kReal KcPvDataSnapshot::step(kIndex axis) const
+kReal KcPvSampled::step(kIndex axis) const
 {
 	return data_->step(axis); 
 }
 
 
-kIndex KcPvDataSnapshot::length(kIndex axis) const
+kIndex KcPvSampled::length(kIndex axis) const
 {
 	return data_->length(axis);
 }
 
 
-bool KcPvDataSnapshot::pushData()
+bool KcPvSampled::startImpl_()
 {
 	emit onData(data_);
 	return true;
+}
+
+
+bool KcPvSampled::stopImpl_()
+{
+	return true; // TODO
+}
+
+bool KcPvSampled::running() const
+{
+	return false;
 }
