@@ -14,13 +14,7 @@ namespace kPrivate
         KpExprtkHelper_(std::shared_ptr<KvExprtk> expr)
             : expr_(expr) {}
 
-        kReal operator()(kReal x, ...) const {
-            va_list args;
-            va_start(args, x);
-            kReal r = expr_->value(x, args);
-            va_end(args);
-            return r;
-        }
+        kReal operator()(kReal x, ...) const;
 
     private:
         std::shared_ptr<KvExprtk> expr_;
