@@ -68,6 +68,7 @@ public:
     }
 
     void resample(KREAL dx) {
+        assert(dx > 0);
         dx_ = dx;
     }
 
@@ -100,6 +101,7 @@ public:
 
     // 返回采样时间t对应的采样点序号. 序号类型为KREAL，以方便后续执行插值操作
     KREAL xToIndex(KREAL x) const {
+        assert(dx_ != 0);
         return (x - x0_) / dx_;
     }
 
@@ -131,6 +133,8 @@ public:
 
     // 计算长度len的区间所包含的采样点数量
     long count(KREAL len) const {
+        if (len == 0 || dx_ == 0)
+            return 0;
         auto i = rangeToIndex(low(), low() + len);
         return i.second > i.first ? i.second - i.first : 0;
     }
