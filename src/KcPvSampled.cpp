@@ -1,7 +1,6 @@
 ﻿#include "KcPvSampled.h"
-#include "KvData.h"
+#include "KvSampled.h"
 #include <QPointF>
-#include "KcSampled1d.h"
 #include "KtuMath.h"
 #include <assert.h>
 
@@ -9,7 +8,7 @@
 KcPvSampled::KcPvSampled(const QString& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-	assert(data->isSampled());
+	assert(std::dynamic_pointer_cast<KvSampled>(data));
 }
 
 

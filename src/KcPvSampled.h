@@ -26,7 +26,7 @@ public:
 
 	kPropertySet propertySet() const override;
 
-	std::shared_ptr<KvData> data() { return data_; }
+	auto data() { return data_; }
 
 private:
 	bool startImpl_() final;

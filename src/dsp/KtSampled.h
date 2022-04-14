@@ -3,28 +3,24 @@
 #include <assert.h>
 #include "kDsp.h" // for kReal
 #include "KtSampling.h"
-#include "KvData.h"
+#include "KvSampled.h"
 
 
 // 采样数据基类接口
 
 // @DIM: DIM=1时创建2维采样数据, DIM=2时创建3维采样数据, ...
 template<int DIM>
-class KtSampled : public KvData
+class KtSampled : public KvSampled
 {
 public:
 	using super_ = KvData;
 	using value_type = kReal;
 
-	KtSampled() = default;
-	KtSampled(const KtSampled&) = default;
-	KtSampled(KtSampled&&) = default;
+	KtSampled() : samp_() {}
 
-	KtSampled& operator=(const KtSampled&) = default;
-	KtSampled& operator=(KtSampled&&) = default;
 
 	// 实现基类接口
-	constexpr kIndex dim() const override {
+	kIndex dim() const override {
 		return DIM;
 	}
 
@@ -82,24 +78,14 @@ public:
 		return value(idx, channel);
 	}
 
-	// 帮助函数
 
-	const KtSampling<value_type>& sampling(kIndex axis) const {
-		return samp_[axis];
-	}
-
-	kReal indexToValue(kIndex axis, kIndex idx) const {
-		assert(axis >= 0 && axis < dim());
-		return samp_[axis].indexToX(idx);
-	}
-
-	void resize(kIndex shape[]) {
+	void resize(kIndex shape[]) override {
 		for (kIndex i = 0; i < DIM; i++)
 			samp_[i].resetn(shape[i]);
 	}
 
 	// 调整第axis轴的采样参数
-	void reset(kIndex axis, value_type low, value_type step, value_type x0_ref = 0) {
+	void reset(kIndex axis, value_type low, value_type step, value_type x0_ref = 0) override {
 		assert(axis >= 0 && axis < dim());
 		samp_[axis].resetn(length(axis), step, x0_ref);
 		samp_[axis].shiftLeftTo(low);
@@ -109,6 +95,18 @@ public:
 		assert(axis >= 0 && axis < dim());
 		assert(samp.count() == count());
 		samp_[axis] = samp;
+	}
+
+
+	// 帮助函数
+
+	const KtSampling<value_type>& sampling(kIndex axis) const {
+		return samp_[axis];
+	}
+
+	kReal indexToValue(kIndex axis, kIndex idx) const {
+		assert(axis >= 0 && axis < dim());
+		return samp_[axis].indexToX(idx);
 	}
 
 	// 第channel通道的最大最小值
