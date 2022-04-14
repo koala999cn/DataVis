@@ -6,9 +6,9 @@ template<typename FUN, unsigned DIM>
 class KtContinued : public KvData
 {
 public:
-	KtContinued(FUN fun) : fun_{ fun } {} // 单通道
-	KtContinued(FUN fun1, FUN fun2) : fun_{ fun1, fun2 } {} // 双通道
-	KtContinued(FUN funs[], unsigned channels) : fun_(funs, funs + channels) {} // 多通道
+	KtContinued(FUN fun) : fun_{ fun }, range_{} {} // 单通道
+	KtContinued(FUN fun1, FUN fun2) : fun_{ fun1, fun2 }, range_{} {} // 双通道
+	KtContinued(FUN funs[], unsigned channels) : fun_(funs, funs + channels), range_{} {} // 多通道
 
 	constexpr kIndex dim() const override {
 		return DIM;
