@@ -10,7 +10,7 @@
 #include "KvDataProvider.h"
 #include "KvDataRender.h"
 #include "op/KvDataOperator.h"
-#include "KvDataStream.h"
+#include "KvData.h"
 
 
 QtWorkspaceWidget::QtWorkspaceWidget(QWidget* parent)
@@ -171,14 +171,12 @@ void QtWorkspaceWidget::contextMenuEvent(QContextMenuEvent*)
 	auto obj = getObject(curItem);
 	auto provider = dynamic_cast<KvDataProvider*>(obj);
 	if (provider) {
-		
-		auto stream = dynamic_cast<KvDataStream*>(provider);
-		if (stream && stream->running()) {
-			connect(&stopItem, &QAction::triggered, stream, &KvDataStream::stop);
+		if (provider->isStream() && provider->running()) {
+			connect(&stopItem, &QAction::triggered, provider, &KvDataProvider::stop);
 			menu.addAction(&stopItem);
 		}
 		else {
-			connect(&renderItem, &QAction::triggered, provider, &KvDataStream::pushData);
+			connect(&renderItem, &QAction::triggered, provider, &KvDataProvider::start);
 			menu.addAction(&renderItem);
 		}
 	}
