@@ -13,10 +13,14 @@ public:
 		: internal_(cont) {}
 
 
+	kIndex channels() const final {
+		return internal_->channels();
+	}
+
 	kReal value(kIndex idx[], kIndex channel) const final {
 		kReal pt[DIM];
 		for (kIndex i = 0; i < DIM; i++)
-			pt[i] = indexToValue(idx[i]);
+			pt[i] = indexToValue(i, idx[i]);
 
 		return value(pt, channel);
 	}
