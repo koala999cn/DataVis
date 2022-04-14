@@ -18,7 +18,7 @@ public:
 
 	// 包含的数据总数，返回inf对应连续数据
 	virtual kIndex count() const = 0;
-	constexpr static kReal k_inf_count = std::numeric_limits<kReal>::infinity();
+	constexpr static kIndex k_inf_count = -1;
 
 	// 支持多通道数据，返回通道数目
 	virtual kIndex channels() const = 0;
