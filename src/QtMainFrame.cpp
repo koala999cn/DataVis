@@ -17,6 +17,7 @@
 #include "QtnPropertyWidgetX.h"
 #include "kddockwidgets/Config.h"
 #include "KcPvSampled.h"
+#include "KcPvContinued.h"
 #include "KcRdPlot1d.h"
 #include "KcRdPlot2d.h"
 #include "QtAppEventHub.h"
@@ -285,7 +286,7 @@ void QtMainFrame::openFormula()
 {
     KcFormulaDlg dlg;
     if (dlg.exec() == QDialog::Accepted) 
-        kPrivate::insertObject<KcPvSampled>(workDock_, true, dlg.exprText(), dlg.data);
+        kPrivate::insertObject<KcPvContinued>(workDock_, true, dlg.exprText(), dlg.data);
 }
 
 

@@ -342,6 +342,9 @@
     <ClInclude Include="src\KcPvContinued.h">
       <Filter>prov</Filter>
     </ClInclude>
+    <ClInclude Include="src\dsp\KvSampled.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\audio_capture_dlg.ui">
