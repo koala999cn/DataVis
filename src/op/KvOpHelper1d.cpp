@@ -8,7 +8,8 @@ std::shared_ptr<KvData> KvOpHelper1d::processImpl_(std::shared_ptr<KvData> data)
 {
     if (data->dim() == 1) {
         std::shared_ptr<KcSampled1d> res = std::make_shared<KcSampled1d>();
-        res->reset(step(0), data->channels(), length(0)); // TODO: nonuniform
+        res->resize(length(0), data->channels());
+        res->reset(0, range(0).low(), step(0), 0.5); // TODO: nonuniform
         auto data1d = std::dynamic_pointer_cast<KcSampled1d>(data);
 
         if (data->channels() == 1) {
@@ -36,8 +37,8 @@ std::shared_ptr<KvData> KvOpHelper1d::processImpl_(std::shared_ptr<KvData> data)
     auto res = std::make_shared<KcSampled2d>();
 
     res->resize(data2d->length(0), length(1), data2d->channels());
-    res->reset(0, range(0).low(), step(0));
-    res->reset(1, range(1).low(), step(1)); // TODO: nonuniform
+    res->reset(0, range(0).low(), step(0), 0.5);
+    res->reset(1, range(1).low(), step(1), 0.5); // TODO: nonuniform
 
     if (data->channels() == 1) {
         for (kIndex i = 0; i < data2d->length(0); i++) 
