@@ -1,18 +1,15 @@
-﻿#include "KcPvSampled.h"
-#include "KvSampled.h"
+﻿#include "KcPvData.h"
 #include <QPointF>
-#include "KtuMath.h"
-#include <assert.h>
 
 
-KcPvSampled::KcPvSampled(const QString& name, std::shared_ptr<KvData> data)
+KcPvData::KcPvData(const QString& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-	assert(std::dynamic_pointer_cast<KvSampled>(data));
+
 }
 
 
-KvPropertiedObject::kPropertySet KcPvSampled::propertySet() const
+KvPropertiedObject::kPropertySet KcPvData::propertySet() const
 {
 	KvPropertiedObject::kPropertySet ps;
 
@@ -80,49 +77,49 @@ KvPropertiedObject::kPropertySet KcPvSampled::propertySet() const
 }
 
 
-kIndex KcPvSampled::dim() const
+kIndex KcPvData::dim() const
 {
 	return data_->dim();
 }
 
 
-kIndex KcPvSampled::channels() const
+kIndex KcPvData::channels() const
 {
 	return data_->channels();
 }
 
 
-kRange KcPvSampled::range(kIndex axis) const
+kRange KcPvData::range(kIndex axis) const
 {
 	return data_->range(axis);
 }
 
 
-kReal KcPvSampled::step(kIndex axis) const
+kReal KcPvData::step(kIndex axis) const
 {
 	return data_->step(axis); 
 }
 
 
-kIndex KcPvSampled::length(kIndex axis) const
+kIndex KcPvData::length(kIndex axis) const
 {
 	return data_->length(axis);
 }
 
 
-bool KcPvSampled::startImpl_()
+bool KcPvData::startImpl_()
 {
 	emit onData(data_);
 	return true;
 }
 
 
-bool KcPvSampled::stopImpl_()
+bool KcPvData::stopImpl_()
 {
 	return true; // TODO
 }
 
-bool KcPvSampled::running() const
+bool KcPvData::running() const
 {
 	return false;
 }

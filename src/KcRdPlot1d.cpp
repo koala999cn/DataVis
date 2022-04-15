@@ -1,7 +1,8 @@
 ﻿#include "KcRdPlot1d.h"
 #include <assert.h>
-#include "KcPvSampled.h"
+#include "KcPvData.h"
 #include "KvData.h"
+#include "KtSampling.h"
 #include <QBrush>
 #include "qcustomplot/qcustomplot.h"
 
@@ -131,9 +132,21 @@ namespace kPrivate
 		}
 		else {
 			graph->data()->clear();
-			for (kIndex idx = 0; idx < data1d->count(); idx++) {
-				auto val = data1d->point(&idx, 0);
-				graph->addData(val[0], val[1]);
+			if (!data1d->isContinued()) {
+				for (kIndex idx = 0; idx < data1d->count(); idx++) {
+					auto val = data1d->point(&idx, 0);
+					graph->addData(val[0], val[1]);
+				}
+			}
+			else {
+				auto r = plot->keyAxis()->range();
+				KtSampling<kReal> samp;
+				samp.resetn(1000, r.lower, r.upper, 0.5); // TODO:
+				for (kIndex i = 0; i < samp.count(); i++) {
+					kReal x = samp.indexToX(i);
+					auto y = data1d->value(&x, 0);
+					graph->addData(x, y);
+				}
 			}
 		}
 

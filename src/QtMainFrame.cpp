@@ -16,8 +16,7 @@
 #include "QtWorkspaceWidget.h"
 #include "QtnPropertyWidgetX.h"
 #include "kddockwidgets/Config.h"
-#include "KcPvSampled.h"
-#include "KcPvContinued.h"
+#include "KcPvData.h"
 #include "KcRdPlot1d.h"
 #include "KcRdPlot2d.h"
 #include "QtAppEventHub.h"
@@ -246,7 +245,7 @@ void QtMainFrame::openDataFile()
     if (!path.isEmpty()) {
         auto data = loadData_(path);
         if (data) 
-            kPrivate::insertObject<KcPvSampled>(workDock_, true, QFileInfo(path).fileName(), data);
+            kPrivate::insertObject<KcPvData>(workDock_, true, QFileInfo(path).fileName(), data);
     }
 }
 
@@ -263,7 +262,7 @@ void QtMainFrame::openAudioFile()
         return;
     }
 
-    kPrivate::insertObject<KcPvSampled>(workDock_, true, QFileInfo(path).fileName(), audio);
+    kPrivate::insertObject<KcPvData>(workDock_, true, QFileInfo(path).fileName(), audio);
 }
 
 
@@ -272,7 +271,7 @@ void QtMainFrame::openAudioCapture()
     KcAudioCaptureDlg dlg;
     dlg.setEmbeddingMode(true);
     if (dlg.exec() == QDialog::Accepted) 
-        kPrivate::insertObject<KcPvSampled>(workDock_, true, tr("audio slice"), dlg.audio_);
+        kPrivate::insertObject<KcPvData>(workDock_, true, tr("audio slice"), dlg.audio_);
 }
 
 
@@ -286,7 +285,7 @@ void QtMainFrame::openFormula()
 {
     KcFormulaDlg dlg;
     if (dlg.exec() == QDialog::Accepted) 
-        kPrivate::insertObject<KcPvContinued>(workDock_, true, dlg.exprText(), dlg.data);
+        kPrivate::insertObject<KcPvData>(workDock_, true, dlg.exprText(), dlg.data);
 }
 
 

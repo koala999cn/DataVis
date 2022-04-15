@@ -4,11 +4,11 @@
 class KvData;
 
 // 采样数据provider
-class KcPvSampled : public KvDataProvider
+class KcPvData : public KvDataProvider
 {
 public:
 
-	KcPvSampled(const QString& name, std::shared_ptr<KvData> data);
+	KcPvData(const QString& name, std::shared_ptr<KvData> data);
 
 	bool isStream() const final { return false; }
 
