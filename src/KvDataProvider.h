@@ -48,6 +48,18 @@ public:
 	// 数据流是否在流动
 	virtual bool running() const = 0;
 
+	bool isContinued() const {
+		return length(0) == KvData::k_inf_count;
+	}
+
+	bool isScattered() const {
+		return step(0) == KvData::k_nonuniform_step;
+	}
+
+	bool isSampled() const {
+		return !isContinued() && !isScattered();
+	}
+
 signals:
 	void onStarting();
 	void onStarted(bool ok);

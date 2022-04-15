@@ -48,6 +48,20 @@ KcRdPlot1d::KcRdPlot1d(KvDataProvider* is, KeType type)
 		auto graph = customPlot_->addGraph();
 		graph->setAdaptiveSampling(true);
 	}
+
+
+	if (is->isContinued()) {
+
+		connect(customPlot_->xAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
+			[this](const QCPRange& newRange) {
+				requestData();
+			});
+
+		connect(customPlot_->yAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
+			[this](const QCPRange& newRange) {
+				requestData();
+			});
+	}
 }
 
 

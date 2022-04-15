@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "KvPropertiedObject.h"
+#include "KvDataProvider.h"
 #include <memory>
 
 class KvData;
@@ -23,6 +23,15 @@ public:
 
 	// 该render是否可见
 	virtual bool isVisible() const = 0;
+
+
+	// 请求父节点重新发送数据
+	void requestData() const {
+		auto p = rootParent();
+		auto prov = dynamic_cast<KvDataProvider*>(p);
+		if (prov)
+			prov->start();
+	}
 
 
 public slots:

@@ -22,6 +22,16 @@ public:
 	QString name() const { return objectName(); }
 	void setName(const QString& newName) { setObjectName(newName); }
 
+	KvPropertiedObject* rootParent() const {
+		auto p = parent();
+		if (p == nullptr)
+			return nullptr;
+		while (p->parent())
+			p = p->parent();
+
+		return dynamic_cast<KvPropertiedObject*>(p);
+	}
+
 
 public slots:
 
