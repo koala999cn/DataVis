@@ -153,10 +153,11 @@ bool QtMainFrame::setupMenu_()
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
-        fft->setEnabled(obj && obj->step(obj->dim() - 1) != KvData::k_nonuniform_step);
-        hist->setEnabled(obj && obj->dim() == 1);
-        framing->setEnabled(obj && obj->dim() == 1);
-        windowing->setEnabled(obj && obj->step(obj->dim() - 1) != KvData::k_nonuniform_step);
+        fft->setEnabled(obj && obj->isSampled());
+        hist->setEnabled(obj && !obj->isContinued());
+        framing->setEnabled(obj && obj->isSampled());
+        windowing->setEnabled(obj && obj->isSampled());
+        fbank->setEnabled(obj && obj->isSampled());
         });
 
 
