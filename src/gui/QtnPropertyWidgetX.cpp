@@ -1,5 +1,5 @@
 ﻿#include "QtnPropertyWidgetX.h"
-#include "KvDataProvider.h"
+#include "prov/KvDataProvider.h"
 #include "QtnProperty/PropertyCore.h"
 #include "QtnProperty/PropertyGUI.h"
 #include "QtnProperty/PropertyQVariant.h"

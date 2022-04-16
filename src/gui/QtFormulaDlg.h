@@ -11,13 +11,13 @@ namespace Ui {
 class formula_dlg;
 }
 
-class KcFormulaDlg : public QDialog
+class QtFormulaDlg : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit KcFormulaDlg(QWidget *parent = nullptr);
-    ~KcFormulaDlg();
+    explicit QtFormulaDlg(QWidget *parent = nullptr);
+    ~QtFormulaDlg();
 
     void accept() override;
 

@@ -26,8 +26,8 @@ void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
     samp.resetn(numBins(), range().first, range().second, 0.5);
     assert(KtuMath<kReal>::almostEqual(samp.dx(), binWidth(0))); // 假定线性尺度
 
-    out.reset(0, samp);
     out.resize(numBins(), in.channels());
+    out.reset(0, samp);
     
     process(in, (kReal*)out.data());
 }

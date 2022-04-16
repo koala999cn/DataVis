@@ -7,8 +7,8 @@
 #include <assert.h>
 #include "QtAppEventHub.h"
 #include "KvPropertiedObject.h"
-#include "KvDataProvider.h"
-#include "KvDataRender.h"
+#include "prov/KvDataProvider.h"
+#include "render/KvDataRender.h"
 #include "op/KvDataOperator.h"
 #include "KvData.h"
 

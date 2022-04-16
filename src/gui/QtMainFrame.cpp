@@ -6,26 +6,26 @@
 #include <QMessageBox>
 #include <QApplication>
 #include "QtMainFrame.h"
-#include "KcFormulaDlg.h"
-#include "KcAudioCaptureDlg.h"
+#include "QtFormulaDlg.h"
+#include "QtAudioCaptureDlg.h"
 #include "base/KuStrUtil.h"
 #include "dsp/KcSampled1d.h"
 #include "audio/KcAudio.h"
 #include "audio/KcAudioRender.h"
-#include "gui/QtAudioUtils.h"
+#include "QtAudioUtils.h"
 #include "QtWorkspaceWidget.h"
 #include "QtnPropertyWidgetX.h"
 #include "kddockwidgets/Config.h"
-#include "KcPvData.h"
-#include "KcRdPlot1d.h"
-#include "KcRdPlot2d.h"
-#include "QtAppEventHub.h"
-#include "KcPvAudioInput.h"
+#include "prov/KcPvData.h"
+#include "prov/KcPvAudioInput.h"
+#include "render/KcRdPlot1d.h"
+#include "render/KcRdPlot2d.h"
 #include "op/KcOpSpectrum.h"
 #include "op/KcOpHist.h"
 #include "op/KcOpFraming.h"
 #include "op/KcOpWindowing.h"
 #include "op/KcOpFilterBank.h"
+#include "QtAppEventHub.h"
 
 
 using namespace KDDockWidgets;
@@ -269,7 +269,7 @@ void QtMainFrame::openAudioFile()
 
 void QtMainFrame::openAudioCapture()
 {
-    KcAudioCaptureDlg dlg;
+    QtAudioCaptureDlg dlg;
     dlg.setEmbeddingMode(true);
     if (dlg.exec() == QDialog::Accepted) 
         kPrivate::insertObject<KcPvData>(workDock_, true, tr("audio slice"), dlg.audio_);
@@ -284,7 +284,7 @@ void QtMainFrame::openAudioInput()
 
 void QtMainFrame::openFormula()
 {
-    KcFormulaDlg dlg;
+    QtFormulaDlg dlg;
     if (dlg.exec() == QDialog::Accepted) 
         kPrivate::insertObject<KcPvData>(workDock_, true, dlg.exprText(), dlg.data);
 }

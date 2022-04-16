@@ -1,6 +1,6 @@
 ﻿#include "KcRdPlot1d.h"
 #include <assert.h>
-#include "KcPvData.h"
+#include "prov/KcPvData.h"
 #include "KvData.h"
 #include "KtSampling.h"
 #include <QBrush>

@@ -6,19 +6,19 @@
 class KcAudio;
 
 namespace Ui {
-class KcAudioCaptureDlg;
+class QtAudioCaptureDlg;
 }
 
 class KcAudioCapture;
 class KcAudioRender;
 
-class KcAudioCaptureDlg : public QDialog
+class QtAudioCaptureDlg : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit KcAudioCaptureDlg(QWidget *parent = nullptr);
-    ~KcAudioCaptureDlg();
+    explicit QtAudioCaptureDlg(QWidget *parent = nullptr);
+    ~QtAudioCaptureDlg();
 
     // 设置嵌入模式
     // 嵌入模式下，录音对话框显示“确定/取消”按钮
@@ -46,7 +46,7 @@ public:
     std::shared_ptr<KcAudio> audio_; // 录制的音频
 
 private:
-    Ui::KcAudioCaptureDlg *ui; // 录制界面
+    Ui::QtAudioCaptureDlg *ui; // 录制界面
     std::unique_ptr<KcAudioCapture> capture_; // 录制设备
     std::unique_ptr<KcAudioRender> render_; // 播放设备，用于试听
     int timerId_; // 定时器事件id

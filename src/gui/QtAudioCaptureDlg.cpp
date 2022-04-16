@@ -1,4 +1,4 @@
-﻿#include "KcAudioCaptureDlg.h"
+﻿#include "QtAudioCaptureDlg.h"
 #include "ui_audio_capture_dlg.h"
 #include <assert.h>
 #include <memory>
@@ -20,7 +20,7 @@ namespace kPrivate
     class KcWaveObserver : public KcAudioCapture::observer_type
     {
     public:
-        KcWaveObserver(Ui::KcAudioCaptureDlg *ui, const std::shared_ptr<KcAudio>& audio)
+        KcWaveObserver(Ui::QtAudioCaptureDlg *ui, const std::shared_ptr<KcAudio>& audio)
             : ui_(ui), audio_(audio) {}
 
         bool update(void *data, unsigned frames, double streamTime) override {
@@ -75,15 +75,15 @@ namespace kPrivate
 
 
     private:
-        Ui::KcAudioCaptureDlg *ui_;
+        Ui::QtAudioCaptureDlg *ui_;
         std::shared_ptr<KcAudio> audio_;
     };
 }
 
 
-KcAudioCaptureDlg::KcAudioCaptureDlg(QWidget *parent) :
+QtAudioCaptureDlg::QtAudioCaptureDlg(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::KcAudioCaptureDlg),
+    ui(new Ui::QtAudioCaptureDlg),
     timerId_(-1),
     embed_(false)
 {
@@ -131,7 +131,7 @@ KcAudioCaptureDlg::KcAudioCaptureDlg(QWidget *parent) :
 }
 
 
-KcAudioCaptureDlg::~KcAudioCaptureDlg()
+QtAudioCaptureDlg::~QtAudioCaptureDlg()
 {
     if(render_->running()) render_->stop(true);
     if(capture_->running()) capture_->stop(true);
@@ -140,7 +140,7 @@ KcAudioCaptureDlg::~KcAudioCaptureDlg()
 }
 
 
-void KcAudioCaptureDlg::setEmbeddingMode(bool embed)
+void QtAudioCaptureDlg::setEmbeddingMode(bool embed)
 {
     embed_ = embed;
 
@@ -159,7 +159,7 @@ void KcAudioCaptureDlg::setEmbeddingMode(bool embed)
 }
 
 
-void KcAudioCaptureDlg::syncDeviceInfo_()
+void QtAudioCaptureDlg::syncDeviceInfo_()
 {
     KcAudioDevice ad;
     auto deviceId = ui->cbDeviceList->currentData().toInt();
@@ -181,7 +181,7 @@ void KcAudioCaptureDlg::syncDeviceInfo_()
 }
 
 
-void KcAudioCaptureDlg::syncUiState_(kState state)
+void QtAudioCaptureDlg::syncUiState_(kState state)
 {
     ui->cbDeviceList->setEnabled(state == kState::ready);
     ui->cbRate->setEnabled(state == kState::ready);
@@ -217,7 +217,7 @@ void KcAudioCaptureDlg::syncUiState_(kState state)
 
 
 // 开始录音
-void KcAudioCaptureDlg::on_btStart_clicked()
+void QtAudioCaptureDlg::on_btStart_clicked()
 {
     ui->btStart->setDisabled(true); // 防止重复点击
 
@@ -242,7 +242,7 @@ void KcAudioCaptureDlg::on_btStart_clicked()
 
 
 // 停止录音
-void KcAudioCaptureDlg::on_btStop_clicked()
+void QtAudioCaptureDlg::on_btStop_clicked()
 {
     ui->btStop->setDisabled(true);
 
@@ -258,7 +258,7 @@ void KcAudioCaptureDlg::on_btStop_clicked()
 
 
 // 暂停/继续录音
-void KcAudioCaptureDlg::on_btPause_clicked()
+void QtAudioCaptureDlg::on_btPause_clicked()
 {
     ui->btPause->setDisabled(true);
 
@@ -281,7 +281,7 @@ void KcAudioCaptureDlg::on_btPause_clicked()
 
 
 // 回放/停止
-void KcAudioCaptureDlg::on_btPlay_clicked()
+void QtAudioCaptureDlg::on_btPlay_clicked()
 {
     if(render_->running()) { // 停止
         if (render_->stop(true)) {
@@ -308,7 +308,7 @@ void KcAudioCaptureDlg::on_btPlay_clicked()
 
 
 // 保存音频
-void KcAudioCaptureDlg::on_btOk_clicked()
+void QtAudioCaptureDlg::on_btOk_clicked()
 {
     if (embed_) {
         accept();
@@ -324,13 +324,13 @@ void KcAudioCaptureDlg::on_btOk_clicked()
 }
 
 
-void KcAudioCaptureDlg::on_btCancel_clicked()
+void QtAudioCaptureDlg::on_btCancel_clicked()
 {
     reject();
 }
 
 
-void KcAudioCaptureDlg::timerEvent( QTimerEvent *event)
+void QtAudioCaptureDlg::timerEvent( QTimerEvent *event)
 {
     if(event->timerId() == timerId_) {
         if(!render_->running()) {

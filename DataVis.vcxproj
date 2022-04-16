@@ -146,33 +146,30 @@
     <ClCompile Include="src\dsp\KpExprtkHelper_.cpp" />
     <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
     <ClCompile Include="src\dsp\KuWindowFactory.cpp" />
-    <ClCompile Include="src\KcPvAudioInput.cpp" />
-    <ClCompile Include="src\KcRdPlot2d.cpp" />
-    <ClCompile Include="src\KvRdCustomPlot.cpp" />
+    <ClCompile Include="src\gui\QtAudioCaptureDlg.cpp" />
+    <ClCompile Include="src\gui\QtFormulaDlg.cpp" />
+    <ClCompile Include="src\gui\QtMainFrame.cpp" />
+    <ClCompile Include="src\gui\QtnPropertyWidgetX.cpp" />
+    <ClCompile Include="src\gui\QtWorkspaceWidget.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
     <ClCompile Include="src\op\KcOpFraming.cpp" />
     <ClCompile Include="src\op\KcOpHist.cpp" />
     <ClCompile Include="src\op\KcOpFilterBank.cpp" />
     <ClCompile Include="src\op\KcOpWindowing.cpp" />
     <ClCompile Include="src\op\KvOpHelper1d.cpp" />
+    <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
+    <ClCompile Include="src\prov\KcPvData.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
-    <ClCompile Include="src\QtMainFrame.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
     <ClCompile Include="src\gui\QtAuidoUtils.cpp" />
     <ClCompile Include="src\gui\QtVolumnBar.cpp" />
     <ClCompile Include="src\gui\QtWaveBar.cpp" />
-    <ClCompile Include="src\KcAudioCaptureDlg.cpp" />
-    <ClCompile Include="src\KcRdPlot1d.cpp" />
-    <ClCompile Include="src\KcPvData.cpp" />
-    <ClCompile Include="src\KcFormulaDlg.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\QtnPropertyWidgetX.cpp" />
-    <ClCompile Include="src\QtWorkspaceWidget.cpp" />
+    <ClCompile Include="src\render\KcRdPlot1d.cpp" />
+    <ClCompile Include="src\render\KcRdPlot2d.cpp" />
+    <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
     <QtUic Include="src\audio_capture_dlg.ui" />
     <QtUic Include="src\formula_dlg.ui" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="src\KcAudioCaptureDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\audio\KcAudio.h" />
@@ -204,9 +201,18 @@
     <ClInclude Include="src\dsp\KuFreqUnit.h" />
     <ClInclude Include="src\dsp\KuWindowFactory.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
-    <ClInclude Include="src\KcPvAudioInput.h" />
-    <ClInclude Include="src\KcRdPlot2d.h" />
-    <ClInclude Include="src\KvRdCustomPlot.h" />
+    <ClInclude Include="src\prov\KcPvAudioInput.h" />
+    <ClInclude Include="src\prov\KcPvData.h" />
+    <ClInclude Include="src\render\KcRdPlot1d.h" />
+    <ClInclude Include="src\render\KcRdPlot2d.h" />
+    <ClInclude Include="src\render\KvDataRender.h" />
+    <ClInclude Include="src\render\KvRdCustomPlot.h" />
+    <QtMoc Include="src\prov\KvDataProvider.h" />
+    <QtMoc Include="src\gui\QtAudioCaptureDlg.h" />
+    <QtMoc Include="src\gui\QtFormulaDlg.h" />
+    <QtMoc Include="src\gui\QtMainFrame.h" />
+    <QtMoc Include="src\gui\QtnPropertyWidgetX.h" />
+    <QtMoc Include="src\gui\QtWorkspaceWidget.h" />
     <ClInclude Include="src\op\KcOpSpectrum.h" />
     <ClInclude Include="src\op\KcOpWindowing.h" />
     <ClInclude Include="src\op\KvOpHelper1d.h" />
@@ -215,14 +221,7 @@
     <ClInclude Include="src\op\KcOpHist.h" />
     <ClInclude Include="src\op\KcOpFilterBank.h" />
     <QtMoc Include="src\QtAppEventHub.h" />
-    <ClInclude Include="src\KcRdPlot1d.h" />
-    <ClInclude Include="src\KcPvData.h" />
-    <QtMoc Include="src\KvDataProvider.h" />
-    <ClInclude Include="src\KvDataRender.h" />
     <QtMoc Include="src\KvPropertiedObject.h" />
-    <QtMoc Include="src\QtnPropertyWidgetX.h" />
-    <QtMoc Include="src\QtWorkspaceWidget.h" />
-    <QtMoc Include="src\QtMainFrame.h" />
     <ClInclude Include="src\dsp\KtContinuedExpr.h" />
     <ClInclude Include="src\dsp\KcSampled1d.h" />
     <ClInclude Include="src\dsp\kDsp.h" />
@@ -230,7 +229,6 @@
     <ClInclude Include="src\dsp\KtSampling.h" />
     <ClInclude Include="src\dsp\KvData.h" />
     <ClInclude Include="src\gui\QtAudioUtils.h" />
-    <QtMoc Include="src\KcFormulaDlg.h" />
     <QtMoc Include="src\gui\QtWaveBar.h" />
     <QtMoc Include="src\gui\QtVolumnBar.h" />
   </ItemGroup>

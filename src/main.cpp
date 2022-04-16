@@ -1,4 +1,4 @@
-﻿#include "QtMainFrame.h"
+﻿#include "gui/QtMainFrame.h"
 #include <QApplication>
 #include <QStyleFactory>
 #include <QStyle>

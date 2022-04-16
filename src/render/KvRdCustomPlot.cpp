@@ -1,5 +1,5 @@
 ﻿#include "KvRdCustomPlot.h"
-#include "KvDataProvider.h"
+#include "prov/KvDataProvider.h"
 #include "base/KuPathUtil.h"
 #include <QFileDialog>
 #include "QtAppEventHub.h"

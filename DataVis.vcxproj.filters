@@ -33,50 +33,17 @@
     <Filter Include="prov">
       <UniqueIdentifier>{3d5191d1-d907-41e4-aed6-0f635364f63d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="gui">
+      <UniqueIdentifier>{d4abcb2d-cbe5-4338-9d25-181f5c7e50c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{33228e2a-3d79-4539-bc42-f98876ee3f3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio">
+      <UniqueIdentifier>{935b133f-f696-4b69-98fb-9386c7a1946a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\KcAudioCaptureDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\KcAudio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\KcAudioCapture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\KcAudioDevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\KcAudioRender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\base\KuStrUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtVolumnBar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtWaveBar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtAuidoUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\KcFormulaDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\QtMainFrame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\QtnPropertyWidgetX.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\base\KuPathUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\QtWorkspaceWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -100,15 +67,6 @@
     </ClCompile>
     <ClCompile Include="src\op\KcOpWindowing.cpp">
       <Filter>op</Filter>
-    </ClCompile>
-    <ClCompile Include="src\KcRdPlot2d.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\KcRdPlot1d.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\KvRdCustomPlot.cpp">
-      <Filter>render</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KcSampled1d.cpp">
       <Filter>dsp</Filter>
@@ -149,38 +107,68 @@
     <ClCompile Include="src\dsp\KuWindowFactory.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\KcPvAudioInput.cpp">
-      <Filter>prov</Filter>
-    </ClCompile>
-    <ClCompile Include="src\KcPvData.cpp">
-      <Filter>prov</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KpExprtkHelper_.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\gui\QtWaveBar.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\QtVolumnBar.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\QtAudioCaptureDlg.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\QtFormulaDlg.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\QtMainFrame.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\QtnPropertyWidgetX.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\QtWorkspaceWidget.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prov\KcPvAudioInput.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prov\KcPvData.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\KcRdPlot1d.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\KcRdPlot2d.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\KvRdCustomPlot.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\KcAudio.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\KcAudioCapture.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\KcAudioDevice.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\KcAudioRender.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\KuPathUtil.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\KuStrUtil.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\QtAuidoUtils.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="src\KcAudioCaptureDlg.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtVolumnBar.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtWaveBar.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\KcFormulaDlg.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\QtMainFrame.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\QtWorkspaceWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\QtnPropertyWidgetX.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="src\QtAppEventHub.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -190,47 +178,32 @@
     <QtMoc Include="src\op\KvDataOperator.h">
       <Filter>op</Filter>
     </QtMoc>
-    <QtMoc Include="src\KvDataProvider.h">
+    <QtMoc Include="src\gui\QtWaveBar.h">
+      <Filter>gui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\QtVolumnBar.h">
+      <Filter>gui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\QtAudioCaptureDlg.h">
+      <Filter>gui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\QtFormulaDlg.h">
+      <Filter>gui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\QtMainFrame.h">
+      <Filter>gui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\QtnPropertyWidgetX.h">
+      <Filter>gui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\QtWorkspaceWidget.h">
+      <Filter>gui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\prov\KvDataProvider.h">
       <Filter>prov</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\audio\KcAudio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\KcAudioCapture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\KcAudioDevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\KcAudioRender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\KgAudioFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtObservable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KuFileUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KuStrUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gui\QtAudioUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KuPathUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtSingleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\op\KvOpHelper1d.h">
       <Filter>op</Filter>
     </ClInclude>
@@ -248,18 +221,6 @@
     </ClInclude>
     <ClInclude Include="src\op\KcOpHist.h">
       <Filter>op</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KvDataRender.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KvRdCustomPlot.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KcRdPlot2d.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KcRdPlot1d.h">
-      <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KvData.h">
       <Filter>dsp</Filter>
@@ -315,12 +276,6 @@
     <ClInclude Include="src\dsp\KuWindowFactory.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\KcPvAudioInput.h">
-      <Filter>prov</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KcPvData.h">
-      <Filter>prov</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KtSampled.h">
       <Filter>dsp</Filter>
     </ClInclude>
@@ -338,6 +293,60 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KvSampled.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KcPvAudioInput.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KcPvData.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdPlot1d.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdPlot2d.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KvDataRender.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KvRdCustomPlot.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\KcAudio.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\KcAudioCapture.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\KcAudioDevice.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\KcAudioRender.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\KgAudioFile.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtObservable.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtSingleton.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuFileUtil.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuPathUtil.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuStrUtil.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\functions.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\QtAudioUtils.h">
+      <Filter>gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

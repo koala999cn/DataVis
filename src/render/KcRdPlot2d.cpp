@@ -1,10 +1,10 @@
 ﻿#include "KcRdPlot2d.h"
 #include "KvData.h"
-#include "KvDataProvider.h"
+#include "prov/KvDataProvider.h"
 #include "qcustomplot/qcustomplot.h"
 #include "../dsp/KtSampling.h"
 #include <assert.h>
-#include "../base/KtuMath.h"
+#include "KtuMath.h"
 #include "QtAppEventHub.h"
 
 

@@ -1,4 +1,4 @@
-﻿#include "KcFormulaDlg.h"
+﻿#include "QtFormulaDlg.h"
 #include "ui_formula_dlg.h"
 #include <QDoubleValidator>
 #include <QMessageBox>
@@ -10,7 +10,7 @@
 #include "exprtkX/KcExprtk3d.h"
 
 
-KcFormulaDlg::KcFormulaDlg(QWidget *parent) :
+QtFormulaDlg::QtFormulaDlg(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::formula_dlg)
 {
@@ -19,13 +19,13 @@ KcFormulaDlg::KcFormulaDlg(QWidget *parent) :
 }
 
 
-KcFormulaDlg::~KcFormulaDlg()
+QtFormulaDlg::~QtFormulaDlg()
 {
     delete ui;
 }
 
 
-QString KcFormulaDlg::exprText() const
+QString QtFormulaDlg::exprText() const
 {
     auto text = ui->expr->text();
     if (text.isEmpty())
@@ -35,7 +35,7 @@ QString KcFormulaDlg::exprText() const
 }
 
 
-void KcFormulaDlg::accept()
+void QtFormulaDlg::accept()
 {
     expr_ = std::make_shared<KcExprtk1d>();
     if(expr_->compile(exprText().toStdString())) { // 首先尝试编译一维表达式
