@@ -13,8 +13,7 @@ namespace kPrivate
 {
 	template<typename OP>
 	std::shared_ptr<KvData> make_window(OP op) {
-		auto w = std::make_shared<KtContinued<OP, 1>>(op);
-		w->setRange(0, 1);
+		auto w = std::make_shared<KtContinued<OP, 1>>(op, 0, 1);
 		return w;
 	}
 }
