@@ -54,18 +54,19 @@ unsigned KgSpectrum::countInFreq() const
 }
 
 
-void KgSpectrum::porcess(const KcSampled1d& samp, KcSampled1d& spec) const
+void KgSpectrum::porcess(const KvData& samp, KcSampled1d& spec) const
 {
 	assert(rdft_ && countInTime() == samp.count());
 	assert(samp.step(0) != KvData::k_nonuniform_step);
 
-	spec.reset(df_, samp.channels(), countInFreq());
+	spec.reset(0, 0, df_, 0.5);
+	spec.resize(countInFreq(), samp.channels());
 
 	// TODO: 优化单通道的情况
 	std::vector<kReal> buf(samp.count());
 	for (kIndex c = 0; c < samp.channels(); c++) {
 		for (kIndex i = 0; i < samp.count(); i++)
-			buf[i] = samp.value(i, c);
+			buf[i] = samp.value(&i, c);
 
 		porcess(buf.data());
 		spec.setChannel(nullptr, c, buf.data());

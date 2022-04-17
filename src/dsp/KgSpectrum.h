@@ -5,6 +5,7 @@
 /// 频谱分析功能类
 
 class KcSampled1d;
+class KvData;
 
 class KgSpectrum
 {
@@ -23,7 +24,7 @@ public:
 
 	void reset(kReal dt, kIndex count);
 
-	void porcess(const KcSampled1d& samp, KcSampled1d& spec) const;
+	void porcess(const KvData& samp, KcSampled1d& spec) const;
 
 
 	// 处理单通道规范化数据
