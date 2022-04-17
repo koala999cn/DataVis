@@ -25,6 +25,7 @@
 #include "op/KcOpFraming.h"
 #include "op/KcOpWindowing.h"
 #include "op/KcOpFilterBank.h"
+#include "op/KcOpSampler.h"
 #include "QtAppEventHub.h"
 
 
@@ -150,6 +151,9 @@ bool QtMainFrame::setupMenu_()
     QAction* fbank = opMenu->addAction(u8"FBank(&F)");
     connect(fbank, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpFilterBank>(workDock_, false); });
 
+    QAction* sampler = opMenu->addAction(u8"Sampler(&P)");
+    connect(sampler, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpSampler>(workDock_, false); });
+
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
@@ -158,6 +162,7 @@ bool QtMainFrame::setupMenu_()
         framing->setEnabled(obj && obj->isSampled());
         windowing->setEnabled(obj && obj->isSampled());
         fbank->setEnabled(obj && obj->isSampled());
+        sampler->setEnabled(obj && obj->isContinued());
         });
 
 

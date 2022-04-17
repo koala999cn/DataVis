@@ -49,6 +49,13 @@ public:
 		return dynamic_cast<const KvDataProvider*>(parent())->running();
 	}
 
+	kIndex count() const {
+		kIndex c(1);
+		for (kIndex i = 0; i < dim(); i++)
+			c *= length(i);
+		return c;
+	}
+
 private:
 	bool startImpl_() override { return true; }
 	bool stopImpl_() override { return true; }

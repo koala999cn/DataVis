@@ -167,6 +167,9 @@
     <ClCompile Include="src\gui\QtAuidoUtils.cpp">
       <Filter>gui</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcOpSampler.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\QtAppEventHub.h">
@@ -347,6 +350,9 @@
     </ClInclude>
     <ClInclude Include="src\gui\QtAudioUtils.h">
       <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpSampler.h">
+      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

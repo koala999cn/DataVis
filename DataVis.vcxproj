@@ -151,6 +151,7 @@
     <ClCompile Include="src\gui\QtMainFrame.cpp" />
     <ClCompile Include="src\gui\QtnPropertyWidgetX.cpp" />
     <ClCompile Include="src\gui\QtWorkspaceWidget.cpp" />
+    <ClCompile Include="src\op\KcOpSampler.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
     <ClCompile Include="src\op\KcOpFraming.cpp" />
     <ClCompile Include="src\op\KcOpHist.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="src\dsp\KuFreqUnit.h" />
     <ClInclude Include="src\dsp\KuWindowFactory.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\op\KcOpSampler.h" />
     <ClInclude Include="src\prov\KcPvAudioInput.h" />
     <ClInclude Include="src\prov\KcPvData.h" />
     <ClInclude Include="src\render\KcRdPlot1d.h" />
