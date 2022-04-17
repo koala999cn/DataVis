@@ -8,7 +8,7 @@ KgSpectrum::KgSpectrum()
 	: df_(1)
 	, nyquistFreq_(0)
 	, type_(k_power)
-	, floor_(1e-12f)
+	, floor_(1e-12f) // TODO: 重新设置
 	, rdft_(nullptr)
 {
 

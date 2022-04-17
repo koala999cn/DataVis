@@ -196,7 +196,6 @@ std::shared_ptr<KvData> KcOpSpectrum::process2d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 2);
 
-	//auto data2d = std::dynamic_pointer_cast<KvData2d>(data);
 	assert(data->step(1) != KvData::k_nonuniform_step);
 	assert(KtuMath<kReal>::almostEqualRel(data->step(1) * range(1).length(), kReal(0.5)));
 
