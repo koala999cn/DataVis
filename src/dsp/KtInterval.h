@@ -138,41 +138,6 @@ public:
         return true;
     }
 
-
-    /// 以下为处理超范围坐标的方式
-
-    T fitNearest(T x) const {
-        assert(!conver(x));
-        return x > high() ? high() : low();
-    }
-
-
-    T fitMirror(T x) {
-        assert(!conver(x));
-
-        if(x > high()) {
-            auto ratio = std::fmod(x - high(), length());
-            return high() - ratio * length();
-        }
-        else {
-            auto ratio = std::fmod(low() - x, length());
-            return low() + ratio * length();
-        }
-    }
-
-    T fitPeriod(T x) {
-        assert(!conver(x));
-
-        if(x > high()) {
-            auto ratio = std::fmod(x - high(), length());
-            return low() + ratio * length();
-        }
-        else {
-            auto ratio = std::fmod(low() - x, length());
-            return high() - ratio * length();
-        }
-    }
-
 private:
     T low_, high_; // 数据所在区间
 };
