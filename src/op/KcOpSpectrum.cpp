@@ -185,11 +185,8 @@ std::shared_ptr<KvData> KcOpSpectrum::process1d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 1);
 
-	auto data1d = std::dynamic_pointer_cast<KcSampled1d>(data);
-	assert(data1d && data->step(0) != KvData::k_nonuniform_step);
-
 	auto res = std::make_shared<KcSampled1d>();
-	spec_->porcess(*data1d, *res);
+	spec_->porcess(*data, *res);
 
 	return res;
 }
