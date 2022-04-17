@@ -80,7 +80,7 @@ public:
 		range_[axis] = { low, high };
 	}
 
-	// 第channel通道的最大最小值（使用二分算法）
+	// 第channel通道的最大最小值（使用二分算法粗略计算）
 	virtual kRange valueRange(kIndex channel) const {
 		if (count() == 0) return { 0, 0 };
 
@@ -95,7 +95,7 @@ public:
 		if (std::isinf(high)) high = 1e8;
 		kReal dx((high - low)/2);
 		kReal tol(0.001); // 百分之一的误差
-		int minIter(6), maxIter(12), numIter(0);
+		int minIter(10), maxIter(16), numIter(0);
 
 		while (true) {
 			kReal nmin = std::numeric_limits<kReal>::max();
