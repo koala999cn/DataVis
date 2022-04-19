@@ -2,6 +2,7 @@
 #include <vector> // for std::pair
 #include "kDsp.h" // for kReal
 #include "KtInterval.h"
+#include <assert.h>
 
 using kRange = KtInterval<kReal>;
 
@@ -50,6 +51,43 @@ public:
 	// 通过坐标值获取数据值
 	// @pt: 大小为dim，各元素分表表示对应坐标轴的坐标值
 	virtual kReal value(kReal pt[], kIndex channel) const = 0;
+
+
+	/// 几个helper函数
+
+	kReal value(kIndex idx, kIndex channel) const {
+		assert(dim() == 1);
+		return value(&idx, channel);
+	}
+
+	kReal value(kIndex idx0, kIndex idx1, kIndex channel) const {
+		assert(dim() == 2);
+		kIndex idx[2] = { idx0, idx1 };
+		return value(idx, channel);
+	}
+
+	std::vector<kReal> point(kIndex idx, kIndex channel) const {
+		assert(dim() == 1);
+		return point(&idx, channel);
+	}
+
+	std::vector<kReal> point(kIndex idx0, kIndex idx1, kIndex channel) const {
+		assert(dim() == 2);
+		kIndex idx[2] = { idx0, idx1 };
+		return point(idx, channel);
+	}
+
+	kReal value(kReal x, kIndex channel) const {
+		assert(dim() == 1);
+		return value(&x, channel);
+	}
+
+	kReal value(kReal x, kReal y, kIndex channel) const {
+		assert(dim() == 2);
+		kReal pt[2] = { x, y };
+		return value(pt, channel);
+	}
+
 
 	// 是否连续数据？
 	bool isContinued() const {
