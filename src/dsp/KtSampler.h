@@ -27,10 +27,6 @@ public:
 	}
 
 
-	//kReal value(kReal pt[], kIndex channel) const final {
-	//	return internal_->value(pt, channel);
-	//}
-
 private:
 	const std::shared_ptr<KvContinued> internal_;
 };
