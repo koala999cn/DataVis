@@ -13,17 +13,18 @@ public:
     using super_ = KtInterval<KREAL>;
 
     KtSampling() : super_{}, x0_{}, dx_{} {}
-    KtSampling(const KtSampling&) = default;
-    KtSampling(KtSampling&&) = default;
-
-    KtSampling& operator=(const KtSampling&) = default;
-    KtSampling& operator=(KtSampling&&) = default;
 
     // 构造函数是唯一个能设置x0绝对值的地方，其他reset系函数均采用相对值进行设置
     KtSampling(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0) 
         : KtInterval(xmin, xmax) {
         dx_ = dx, x0_ = x0;
     }
+
+    KtSampling& operator=(const KtSampling& rhs) {
+        dx_ = rhs.dx_, x0_ = rhs.x0_;
+        super_::reset(rhs.low(), rhs.high());
+    }
+
 
     void reset(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0_ref) {
         KtInterval::reset(xmin, xmax);
