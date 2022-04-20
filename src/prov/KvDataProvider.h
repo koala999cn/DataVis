@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "KvPropertiedObject.h"
 #include <memory>
-#include "dsp/KvData.h" // for kReal & kRange
+#include "dsp/KvDiscreted.h"
 
 
 // 数据源的抽象类
@@ -29,7 +29,7 @@ public:
 	// 返回=0表示步进未知，返回inf表示步进非均匀
 	virtual kReal step(kIndex axis) const = 0;
 
-	virtual kIndex length(kIndex axis) const = 0;
+	virtual kIndex size(kIndex axis) const = 0;
 
 	bool start() {
 		emit onStarting();
@@ -49,15 +49,19 @@ public:
 	virtual bool running() const = 0;
 
 	bool isContinued() const {
-		return length(0) == KvData::k_inf_count;
+		return size(0) == KvData::k_inf_count;
+	}
+
+	bool isDiscreted() const {
+		return size(0) != KvData::k_inf_count;
 	}
 
 	bool isScattered() const {
-		return step(0) == KvData::k_nonuniform_step;
+		return isDiscreted() && step(0) == KvDiscreted::k_nonuniform_step;
 	}
 
 	bool isSampled() const {
-		return !isContinued() && !isScattered();
+		return isDiscreted() && step(0) != KvDiscreted::k_nonuniform_step;
 	}
 
 signals:

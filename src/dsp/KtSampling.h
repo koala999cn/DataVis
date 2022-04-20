@@ -10,8 +10,9 @@ template<typename KREAL>
 class KtSampling : public KtInterval<KREAL>
 {
 public:
+    using super_ = KtInterval<KREAL>;
 
-    KtSampling() = default;
+    KtSampling() : super_{}, x0_{}, dx_{} {}
     KtSampling(const KtSampling&) = default;
     KtSampling(KtSampling&&) = default;
 

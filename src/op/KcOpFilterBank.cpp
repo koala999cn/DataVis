@@ -35,13 +35,13 @@ kReal KcOpFilterBank::step(kIndex axis) const
     assert(objp != nullptr);
 
     if (axis == objp->dim() - 1)
-        return range(axis).length() / length(axis); // TODO: nonuniform
+        return range(axis).length() / size(axis); // TODO: nonuniform
 
     return KvDataOperator::step(axis);
 }
 
 
-kIndex KcOpFilterBank::length(kIndex axis) const
+kIndex KcOpFilterBank::size(kIndex axis) const
 {
     auto objp = dynamic_cast<const KvDataProvider*>(parent());
     assert(objp != nullptr);
@@ -49,7 +49,7 @@ kIndex KcOpFilterBank::length(kIndex axis) const
     if (axis == objp->dim() - 1)
         return fbank_->numBins();
 
-    return KvDataOperator::length(axis);
+    return KvDataOperator::size(axis);
 }
 
 

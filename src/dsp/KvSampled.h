@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "KvData.h"
+#include "KvDiscreted.h"
 
 
 // 采样数据的抽象类
 
-class KvSampled : public KvData
+class KvSampled : public KvDiscreted
 {
 public:
 	virtual void resize(kIndex shape[]) = 0;

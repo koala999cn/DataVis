@@ -26,7 +26,7 @@ kReal KcOpSampler::step(kIndex axis) const
 }
 
 
-kIndex KcOpSampler::length(kIndex axis) const
+kIndex KcOpSampler::size(kIndex axis) const
 {
     assert(axis < dim());
     return samps_[axis].count();
@@ -150,26 +150,27 @@ std::shared_ptr<KvData> KcOpSampler::processImpl_(std::shared_ptr<KvData> data)
 {
     assert(data->isContinued() && data->dim() == samps_.size());
 
+    auto cond = std::dynamic_pointer_cast<KvContinued>(data);
     std::shared_ptr<KvSampled> res;
     switch (data->dim())
     {
     case 1:
-        res = std::make_shared<KtSampler<1>>(data);
+        res = std::make_shared<KtSampler<1>>(cond);
         break;
 
     case 2:
-        res = std::make_shared<KtSampler<2>>(data);
+        res = std::make_shared<KtSampler<2>>(cond);
         break;
 
     case 3:
-        res = std::make_shared<KtSampler<3>>(data);
+        res = std::make_shared<KtSampler<3>>(cond);
         break;
 
     default:
         break;
     }
 
-    if (data->dim() <= 3) {
+    if (res) {
         std::vector<kIndex> shape(data->dim());
         for (kIndex i = 0; i < data->dim(); i++) {
             shape[i] = samps_[i].count();

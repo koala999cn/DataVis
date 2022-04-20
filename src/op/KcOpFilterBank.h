@@ -15,7 +15,7 @@ public:
 
 	kReal step(kIndex axis) const override;
 
-	kIndex length(kIndex axis) const override;
+	kIndex size(kIndex axis) const override;
 
 	kPropertySet propertySet() const override;
 

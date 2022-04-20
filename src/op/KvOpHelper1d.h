@@ -16,7 +16,7 @@ protected:
 
 	// @in: 单通道数据
 	// @len: 输入in的尺寸
-	// @out: 输出结果，可能与in重叠，尺寸等于length(dim() - 1)
+	// @out: 输出结果，可能与in重叠，尺寸等于size(dim() - 1)
 	virtual void processNaive_(const kReal* in, unsigned len, kReal* out) = 0;
 };
 

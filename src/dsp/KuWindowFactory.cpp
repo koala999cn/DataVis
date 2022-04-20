@@ -12,14 +12,14 @@
 namespace kPrivate
 {
 	template<typename OP>
-	std::shared_ptr<KvData> make_window(OP op) {
+	std::shared_ptr<KvContinued> make_window(OP op) {
 		auto w = std::make_shared<KtContinued<OP, 1>>(op, 0, 1);
 		return w;
 	}
 }
 
 
-std::shared_ptr<KvData> KuWindowFactory::create(int type, ...)
+std::shared_ptr<KvContinued> KuWindowFactory::create(int type, ...)
 {
 	switch (type)
 	{

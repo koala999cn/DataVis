@@ -40,7 +40,7 @@ public:
 		return samp_[0].empty();
 	}
 
-	kIndex length(kIndex axis) const override {
+	kIndex size(kIndex axis) const override {
 		assert(axis >= 0 && axis < dim());
 		return samp_[axis].count();
 	}
@@ -56,10 +56,10 @@ public:
 	}
 
 	// make compiler happy
-	kReal value(kIndex[], kIndex) const override {
-		assert(false);
-		return 0;
-	}
+	//kReal value(kIndex[], kIndex) const override {
+	//	assert(false);
+	//	return 0;
+	//}
 
 	std::vector<kReal> point(kIndex idx[], kIndex channel) const override {
 		std::vector<kReal> pt(DIM + 1);
@@ -69,16 +69,6 @@ public:
 		return pt;
 	}
 
-	// 不插值，取距离pt最近的离散点值
-	kReal value(kReal pt[], kIndex channel) const override {
-		kIndex idx[DIM];
-		for (kIndex i = 0; i < DIM; i++)
-			idx[i] = samp_[i].xToNearestIndex(pt[i]);
-
-		return value(idx, channel);
-	}
-
-
 	void resize(kIndex shape[]) override {
 		for (kIndex i = 0; i < DIM; i++)
 			samp_[i].resetn(shape[i]);
@@ -87,7 +77,7 @@ public:
 	// 调整第axis轴的采样参数
 	void reset(kIndex axis, value_type low, value_type step, value_type x0_ref = 0) override {
 		assert(axis >= 0 && axis < dim());
-		samp_[axis].resetn(length(axis), step, x0_ref);
+		samp_[axis].resetn(size(axis), step, x0_ref);
 		samp_[axis].shiftLeftTo(low);
 	}
 
@@ -149,7 +139,7 @@ public:
 protected:
 	void nextIndex_(kIndex idx[]) const {
 		for (kIndex i = 0; i < DIM; i++) {
-			if (++idx[i] < length(i))
+			if (++idx[i] < size(i))
 				break;
 
 			idx[i] = 0; // 进位

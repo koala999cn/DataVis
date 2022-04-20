@@ -20,7 +20,7 @@ public:
 
 	kReal step(kIndex axis) const final;
 
-	kIndex length(kIndex axis) const final;
+	kIndex size(kIndex axis) const final;
 
 	bool running() const override;
 

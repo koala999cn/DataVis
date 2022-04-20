@@ -33,8 +33,8 @@ public:
     }
 
 
-    // 重载实现length，基类实现会有累计误差
-    kIndex length(kIndex axis) const override {
+    // 重载实现size，基类实现会有累计误差
+    kIndex size(kIndex axis) const override {
         return array_.length(axis); 
     }
 
@@ -82,7 +82,7 @@ public:
 
     // 设置特定通道的数据
     // @idx: 大小等于DIM-1
-    // @data: 设置的数据，长度等于length(DIM-1)
+    // @data: 设置的数据，长度等于size(DIM-1)
     void setChannel(kIndex idx[], kIndex channel, const kReal* data);
 
 
@@ -122,11 +122,11 @@ void KtSampledArray<DIM>::setChannel(kIndex idx[], kIndex channel, const kReal* 
 
     kReal* dst = &array_(tv);
     if (stride(DIM - 1) == 1) {
-        std::copy(data, data + length(DIM - 1), dst);
+        std::copy(data, data + size(DIM - 1), dst);
     }
     else {
         dst += channel * stride(DIM);
-        for (kIndex i = 0; i < length(DIM - 1); i++) {
+        for (kIndex i = 0; i < size(DIM - 1); i++) {
             *dst = *data++;
             dst += stride(DIM - 1);
         }
@@ -151,14 +151,14 @@ void KtSampledArray<DIM>::cutBefore(kReal x)
     if (x <= samp_[0].low())
         return;
 
-    auto nx = std::min(samp_[0].count(x - samp_[0].low()), length(0));
+    auto nx = std::min(samp_[0].count(x - samp_[0].low()), size(0));
 /*
     if (nx <= 0) {
         assert(empty() || point(&x, 0)[0] >= x);
     }
     else {
         assert(point(nx - 1)[0] < x);
-        if (nx < length(0))
+        if (nx < size(0))
             assert(point(nx)[0] >= x);
     }*/
 

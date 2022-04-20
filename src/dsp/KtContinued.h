@@ -1,11 +1,11 @@
 ﻿#pragma once
-#include "KvData.h"
+#include "KvContinued.h"
 #include "KtuMath.h"
 #include <array>
 
 
 template<typename FUN, unsigned DIM>
-class KtContinued : public KvData
+class KtContinued : public KvContinued
 {
 public:
 	KtContinued(FUN fun, kReal low, kReal high) 
@@ -36,20 +36,16 @@ public:
 		return static_cast<kIndex>(fun_.size());
 	}
 
-	void clear() override {}
+	/*void clear() override {}
 
 	bool empty() const override { 
 		return range_.empty(); 
 	}
 
-	kIndex length(kIndex axis) const override {
+	kIndex size(kIndex axis) const override {
 		return count();
 	}
-
-	kRange range(kIndex axis) const override {
-		return axis < DIM ? range_[axis] : valueRange();
-	}
-
+	
 	kReal step(kIndex axis) const override {
 		return 0;
 	}
@@ -63,6 +59,12 @@ public:
 		assert(false);
 		return { 0 }; // TODO
 	}
+	*/
+
+	kRange range(kIndex axis) const override {
+		return axis < DIM ? range_[axis] : valueRange();
+	}
+
 
 	kReal value(kReal pt[], kIndex channel) const override {
 		if constexpr (DIM == 1)

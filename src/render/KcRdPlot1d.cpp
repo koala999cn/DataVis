@@ -3,6 +3,7 @@
 #include "prov/KcPvData.h"
 #include "KvData.h"
 #include "KtSampling.h"
+#include "KvContinued.h"
 #include <QBrush>
 #include "qcustomplot/qcustomplot.h"
 
@@ -109,8 +110,9 @@ namespace kPrivate
 		if (graph == nullptr)
 			return false;
 
-
 		if (streaming) {
+			assert(data1d->isDiscreted()); // TODO: 处理连续数据
+			auto dis = std::dynamic_pointer_cast<KvDiscreted>(data1d);
 			auto dataRange = data1d->range(0);
 			auto plotRange = plot->keyAxis()->range();
 
@@ -133,7 +135,7 @@ namespace kPrivate
 			auto keyOffset = plotRange.upper - dataRange.high();
 
 			for (kIndex idx = 0; idx < data1d->count(); idx++) {
-				auto val = data1d->point(&idx, 0); // TODO: 多通道处理
+				auto val = dis->point(idx, 0); // TODO: 多通道处理
 				auto key = val[0] + keyOffset;
 				if (key < plotRange.lower)
 					continue;
@@ -146,19 +148,21 @@ namespace kPrivate
 		}
 		else {
 			graph->data()->clear();
-			if (!data1d->isContinued()) {
-				for (kIndex idx = 0; idx < data1d->count(); idx++) {
-					auto val = data1d->point(&idx, 0);
+			if (data1d->isDiscreted()) {
+				auto dis = std::dynamic_pointer_cast<KvDiscreted>(data1d);
+				for (kIndex idx = 0; idx < dis->count(); idx++) {
+					auto val = dis->point(idx, 0);
 					graph->addData(val[0], val[1]);
 				}
 			}
 			else {
+				auto cond = std::dynamic_pointer_cast<KvContinued>(data1d);
 				auto r = plot->keyAxis()->range();
 				KtSampling<kReal> samp;
 				samp.resetn(1000, r.lower, r.upper, 0.5); // TODO:
 				for (kIndex i = 0; i < samp.count(); i++) {
 					kReal x = samp.indexToX(i);
-					auto y = data1d->value(&x, 0);
+					auto y = cond->value(x, 0);
 					graph->addData(x, y);
 				}
 			}
@@ -463,7 +467,7 @@ void KcRdPlot1d::updateBarWidth_()
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	auto bars = dynamic_cast<QCPBars*>(customPlot_->plottable());
 	auto dx = prov->step(0);
-	if (dx == KvData::k_nonuniform_step) {
+	if (dx == 0) {
 		if (bars->dataCount() > 0)
 			dx = prov->range(0).length() / bars->dataCount();
 		else

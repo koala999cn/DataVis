@@ -41,8 +41,8 @@ public:
 		return dynamic_cast<const KvDataProvider*>(parent())->step(axis);
 	}
 
-	kIndex length(kIndex axis) const override {
-		return dynamic_cast<const KvDataProvider*>(parent())->length(axis);
+	kIndex size(kIndex axis) const override {
+		return dynamic_cast<const KvDataProvider*>(parent())->size(axis);
 	}
 
 	bool running() const override {
@@ -52,7 +52,7 @@ public:
 	kIndex count() const {
 		kIndex c(1);
 		for (kIndex i = 0; i < dim(); i++)
-			c *= length(i);
+			c *= size(i);
 		return c;
 	}
 

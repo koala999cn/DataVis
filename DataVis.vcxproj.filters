@@ -170,6 +170,15 @@
     <ClCompile Include="src\op\KcOpSampler.cpp">
       <Filter>op</Filter>
     </ClCompile>
+    <ClCompile Include="src\dsp\KuInterp1d.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KuExtrapolate.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgInterpolate.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\QtAppEventHub.h">
@@ -353,6 +362,21 @@
     </ClInclude>
     <ClInclude Include="src\op\KcOpSampler.h">
       <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuExtrapolate.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuInterp1d.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgInterpolate.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KvDiscreted.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KvContinued.h">
+      <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

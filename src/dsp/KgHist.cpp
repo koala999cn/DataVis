@@ -63,11 +63,14 @@ void KgHist::process(const kReal* in, unsigned len, kReal* out)
 void KgHist::process(const KvData& in, kReal* out)
 {
     assert(numBins() > 0);
+    assert(in.isDiscreted());
+
+    const KvDiscreted& dis = (const KvDiscreted&)in;
 
 
     // 跳过统计区间（左）之外的数据点
     kIndex i = 0;
-    while (i < in.count() && in.point(&i, 0)[0] < bins_[0])
+    while (i < in.count() && dis.point(i, 0)[0] < bins_[0])
         ++i;
 
 
@@ -77,9 +80,9 @@ void KgHist::process(const KvData& in, kReal* out)
     unsigned c(0);
 
     while (i < in.count()) {
-        if (in.point(&i, 0)[0] < barRight) { // accumulate current bar
+        if (dis.point(i, 0)[0] < barRight) { // accumulate current bar
             for(kIndex ch = 0; ch < in.channels(); ch++)
-                out[ch] += in.value(&i, ch);
+                out[ch] += dis.value(i, ch);
             ++i, ++c;
         }
         else { // goto next bar

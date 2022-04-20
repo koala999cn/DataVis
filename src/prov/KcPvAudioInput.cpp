@@ -103,11 +103,11 @@ kRange KcPvAudioInput::range(kIndex axis) const
 
 kReal KcPvAudioInput::step(kIndex axis) const
 {
-	return axis == 0 ? static_cast<kReal>(1) / sampleRate() : KvData::k_nonuniform_step;
+	return axis == 0 ? static_cast<kReal>(1) / sampleRate() : KvDiscreted::k_nonuniform_step;
 }
 
 
-kIndex KcPvAudioInput::length(kIndex) const
+kIndex KcPvAudioInput::size(kIndex) const
 {
 	KtSampling<kReal> samp(kReal(0), kReal(frameTime_), kReal(1) / sampleRate_, 0);
 	return samp.count(); // TODO: 使用open时的bufferFrames参数

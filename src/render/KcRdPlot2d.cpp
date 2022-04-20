@@ -68,6 +68,8 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
 
 bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
 {
+    assert(data->isDiscreted());
+
     if (data == nullptr || data->count() == 0)
         return true;
 
@@ -77,29 +79,23 @@ bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
     auto mapData = colorMap->data();
     auto prov = dynamic_cast<KvDataProvider*>(parent());
 
-    syncParent();
-
     //if (prov->isStream()) {
-
-    assert(data->step(1) == prov->step(1));
-    assert(data->length(1) == prov->length(1));
+    auto dis = std::dynamic_pointer_cast<KvDiscreted>(data);
 
     int mapOffset(0), dataOffset(0);
-    if (mapData->keySize() > data->length(0)) { // 平移map数据
-        mapOffset = mapData->keySize() - data->length(0);
+    if (mapData->keySize() > dis->size(0)) { // 平移map数据
+        mapOffset = mapData->keySize() - dis->size(0);
         for (int x = 0; x < mapOffset; x++)
             for (int y = 0; y < mapData->valueSize(); y++)
                 mapData->setCell(x, y, mapData->cell(mapData->keySize() - mapOffset + x, y));
     }
     else {
-        dataOffset = data->length(0) - mapData->keySize();
+        dataOffset = dis->size(0) - mapData->keySize();
     }
 
-    for (kIndex x = dataOffset; x < data->length(0); x++)
-        for (kIndex y = 0; y < std::min<int>(mapData->valueSize(), data->length(1)); y++) {
-            kIndex idx[2] = { x, y };
-            mapData->setCell(mapOffset + x - dataOffset, y, data->value(idx, 0));
-        }
+    for (kIndex x = dataOffset; x < dis->size(0); x++)
+        for (kIndex y = 0; y < std::min<int>(mapData->valueSize(), dis->size(1)); y++) 
+            mapData->setCell(mapOffset + x - dataOffset, y, dis->value(x, y, 0));
     //}
     //else {
     //    mapData->setSize(data2d->length(0), data2d->length(1));
@@ -276,7 +272,7 @@ void KcRdPlot2d::syncParent()
     if (mapData->keySize() == 0) { // 初始化
         assert(prov->dim() == 2);
         dx_ = prov->step(0);
-        mapData->setKeySize(prov->length(0));
+        mapData->setKeySize(prov->size(0));
         auto xrange = prov->range(0);
         auto qrange = QCPRange(xrange.low(), xrange.high());
         mapData->setKeyRange(qrange);
@@ -298,8 +294,8 @@ void KcRdPlot2d::syncParent()
         mapData->setKeySize(keySize);
     }
 
-    if (mapData->valueSize() != prov->length(1)) {
-        mapData->setValueSize(prov->length(1));
+    if (mapData->valueSize() != prov->size(1)) {
+        mapData->setValueSize(prov->size(1));
         auto r = prov->range(1);
         mapData->setValueRange({ r.low(), r.high() });
         customPlot_->yAxis->setRange({ r.low(), r.high() });

@@ -12,7 +12,7 @@ KcOpFraming::KcOpFraming(KvDataProvider* prov)
 	, channels_(prov->channels())
 {
 	assert(prov->dim() == 1);
-	assert(dx_ != KvData::k_nonuniform_step);
+	assert(prov->isSampled());
 	syncParent();
 }
 
@@ -128,14 +128,14 @@ kReal KcOpFraming::step(kIndex axis) const
 }
 
 
-kIndex KcOpFraming::length(kIndex axis) const
+kIndex KcOpFraming::size(kIndex axis) const
 {
 	if (axis == 1)
 		return framing_->frameSize();
 	else if (axis == 0)
-		return framing_->numFrames(KvDataOperator::length(0));
+		return framing_->numFrames(KvDataOperator::size(0));
 
-	return KvDataOperator::length(axis - 1);
+	return KvDataOperator::size(axis - 1);
 }
 
 
@@ -148,7 +148,7 @@ std::shared_ptr<KvData> KcOpFraming::processImpl_(std::shared_ptr<KvData> data)
 
 	auto res = std::make_shared<KcSampled2d>();
 
-	if (data->empty())
+	if (data->count() == 0)
 		framing_->flush(*res);
 	else
 		framing_->process(*data1d, *res);

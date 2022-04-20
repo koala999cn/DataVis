@@ -29,7 +29,7 @@ public:
 			v.clear();
 	}
 
-	kIndex length(kIndex axis) const override {
+	kIndex size(kIndex axis) const override {
 		return count();
 	}
 

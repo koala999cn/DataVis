@@ -18,11 +18,13 @@ KvPropertiedObject::kPropertySet KcPvData::propertySet() const
 		auto data = dynamic_cast<KvData*>(data_.get());
 
 		KvPropertiedObject::KpProperty count;
-		count.name = u8"Amount";
-		count.desc = u8"count of data points";
-		count.val = QVariant(data->count());
-		count.flag = KvPropertiedObject::k_readonly;
-		ps.push_back(count);
+		if (data->isDiscreted()) {
+			count.name = u8"Amount";
+			count.desc = u8"count of data points";
+			count.val = QVariant(data->count());
+			count.flag = KvPropertiedObject::k_readonly;
+			ps.push_back(count);
+		}
 
 		KvPropertiedObject::KpProperty channels;
 		channels.name = u8"Channels";
@@ -30,16 +32,6 @@ KvPropertiedObject::kPropertySet KcPvData::propertySet() const
 		channels.val = QVariant(data->channels());
 		channels.flag = KvPropertiedObject::k_readonly;
 		ps.push_back(channels);
-
-		if (data->isSampled()) {
-			KvPropertiedObject::KpProperty rate;
-			rate.name = u8"rate";
-			rate.disp = u8"Sampling rate";
-			rate.desc = u8"sampling rate of this data";
-			rate.val = 1 / data->step(0);
-			rate.flag = KvPropertiedObject::k_readonly;
-			ps.push_back(rate);
-		}
 
 		KvPropertiedObject::KpProperty x, y;
 		x.name = u8"min";
@@ -70,6 +62,19 @@ KvPropertiedObject::kPropertySet KcPvData::propertySet() const
 		yrange.children.push_back(x);
 		yrange.children.push_back(y);
 		ps.push_back(yrange);
+
+		if (data->isDiscreted()) {
+			auto dis = (KvDiscreted*)data;
+			if (dis->isSampled()) {
+				KvPropertiedObject::KpProperty rate;
+				rate.name = u8"rate";
+				rate.disp = u8"Sampling rate";
+				rate.desc = u8"sampling rate of this data";
+				rate.val = 1 / dis->step(0);
+				rate.flag = KvPropertiedObject::k_readonly;
+				ps.push_back(rate);
+			}
+		}
 	}
 
 
@@ -97,13 +102,15 @@ kRange KcPvData::range(kIndex axis) const
 
 kReal KcPvData::step(kIndex axis) const
 {
-	return data_->step(axis); 
+	auto dis = std::dynamic_pointer_cast<KvDiscreted>(data_);
+	return dis ? dis->step(axis) : 0;
 }
 
 
-kIndex KcPvData::length(kIndex axis) const
+kIndex KcPvData::size(kIndex axis) const
 {
-	return data_->length(axis);
+	auto dis = std::dynamic_pointer_cast<KvDiscreted>(data_);
+	return dis ? dis->size(axis) : KvData::k_inf_count;
 }
 
 

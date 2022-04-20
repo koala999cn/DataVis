@@ -1,6 +1,7 @@
 ﻿#include "KgWindowing.h"
 #include <cstdarg>
 #include "KcSampled1d.h"
+#include "KvContinued.h"
 
 
 KgWindowing::KgWindowing(int type, kIndex nx, ...)
@@ -17,6 +18,6 @@ KgWindowing::KgWindowing(int type, kIndex nx, ...)
 
 	for (kIndex i = 0; i < nx; i++) {
 		auto x = samp.indexToX(i);
-		*data->row(i) = win->value(&x, 0);
+		*data->row(i) = win->value(x, 0);
 	}
 }

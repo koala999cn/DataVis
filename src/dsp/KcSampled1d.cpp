@@ -6,7 +6,7 @@
 
 void KcSampled1d::pushBack(const kReal* v, kIndex N)
 {
-    auto len = length(0);
+    auto len = size(0);
     resize(len + N);
     std::copy(v, v + N * channels(), row(len));
 }

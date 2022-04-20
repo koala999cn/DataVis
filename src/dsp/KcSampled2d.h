@@ -16,9 +16,10 @@ public:
         resize(nx, ny, channels());
     }
 
+    using super_::value;
     value_type value(kIndex x, kIndex y, kIndex channel) const {
         kIndex idx[2] = { x, y };
-        return super_::value(idx, channel);
+        return value(idx, channel);
     }
 
 /*

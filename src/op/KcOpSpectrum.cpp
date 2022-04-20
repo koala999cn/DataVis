@@ -90,7 +90,7 @@ void KcOpSpectrum::syncParent()
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	assert(prov);
 
-	spec_->reset(prov->step(prov->dim() - 1), prov->length(prov->dim() - 1));
+	spec_->reset(prov->step(prov->dim() - 1), prov->size(prov->dim() - 1));
 }
 
 
@@ -142,14 +142,14 @@ kReal KcOpSpectrum::step(kIndex axis) const
 		return spec_->df();
 	}
 	else if (axis == objp->dim()) {
-		return KvData::k_nonuniform_step;
+		return KvDiscreted::k_nonuniform_step;
 	}
 
 	return objp->step(axis);
 }
 
 
-kIndex KcOpSpectrum::length(kIndex axis) const
+kIndex KcOpSpectrum::size(kIndex axis) const
 {
 	auto objp = dynamic_cast<const KvDataProvider*>(parent());
 	assert(objp != nullptr);
@@ -157,7 +157,7 @@ kIndex KcOpSpectrum::length(kIndex axis) const
 	if (axis == objp->dim() - 1) 
 		return spec_->countInFreq();
 
-	return objp->length(axis);
+	return objp->size(axis);
 }
 
 
@@ -174,7 +174,7 @@ bool KcOpSpectrum::isStream() const
 
 std::shared_ptr<KvData> KcOpSpectrum::processImpl_(std::shared_ptr<KvData> data)
 {
-	if (data->empty())
+	if (data->count() == 0)
 		return data;
 
 	return data->dim() == 1 ? process1d_(data) : process2d_(data); 
@@ -195,30 +195,30 @@ std::shared_ptr<KvData> KcOpSpectrum::process1d_(std::shared_ptr<KvData> data)
 std::shared_ptr<KvData> KcOpSpectrum::process2d_(std::shared_ptr<KvData> data)
 {
 	assert(data->dim() == 2);
+	auto samp = std::dynamic_pointer_cast<KvSampled>(data);
+	assert(samp);
+	assert(KtuMath<kReal>::almostEqualRel(samp->step(1) * range(1).length(), kReal(0.5)));
 
-	assert(data->step(1) != KvData::k_nonuniform_step);
-	assert(KtuMath<kReal>::almostEqualRel(data->step(1) * range(1).length(), kReal(0.5)));
-
-	if (data->length(1) < 2 || data->range(1).empty())
+	if (samp->size(1) < 2 || samp->range(1).empty())
 		return data;
 
-	assert(spec_->countInTime() == data->length(1));
+	assert(spec_->countInTime() == samp->size(1));
 
 	auto df = spec_->df();
 	assert(df > 0);
 
 	auto res = std::make_shared<KcSampled2d>();
 
-	res->resize(data->length(0), spec_->countInFreq(), data->channels());
-	res->reset(0, data->range(0).low(), data->step(0));
+	res->resize(samp->size(0), spec_->countInFreq(), samp->channels());
+	res->reset(0, samp->range(0).low(), samp->step(0));
 	res->reset(1, 0, df);
 
-	std::vector<kReal> rawData(data->length(1));
-	for (kIndex c = 0; c < data->channels(); c++) {
+	std::vector<kReal> rawData(samp->size(1));
+	for (kIndex c = 0; c < samp->channels(); c++) {
 		kIndex idx[2];
-		for (idx[0] = 0; idx[0] < data->length(0); idx[0]++) {
-			for (idx[1] = 0; idx[1] < data->length(1); idx[1]++)
-				rawData[idx[1]] = data->value(idx, c);
+		for (idx[0] = 0; idx[0] < samp->size(0); idx[0]++) {
+			for (idx[1] = 0; idx[1] < samp->size(1); idx[1]++)
+				rawData[idx[1]] = samp->value(idx, c);
 
 			spec_->porcess(rawData.data());
 			res->setChannel(idx, c, rawData.data());
