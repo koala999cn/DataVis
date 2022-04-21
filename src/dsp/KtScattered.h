@@ -1,12 +1,12 @@
 ﻿#pragma once
-#include "KvData.h"
+#include "KvDiscreted.h"
 #include <array>
 #include <vector>
 #include "KtuMath.h"
 
 
 template<int DIM>
-class KtScattered : public KvData
+class KtScattered : public KvDiscreted
 {
 public:
 	using index = std::array<kReal, DIM>;
@@ -54,11 +54,12 @@ public:
 		return pt;
 	}
 
-	kReal value(kReal pt[], kIndex channel) const override {
-		assert(false);
-		return 0; // TODO
+	kReal xToIndex(kReal x) const override {
+		auto pos = std::lower_bound(inds_.begin(), inds_.end(), x, 
+			[](kReal x, const index& idx) {
+				return x < idx[0];
+			});
 	}
-
 
 	kRange valueRange(kIndex channel) const {
 		auto r = KtuMath<kReal>::minmax(vals_.data(), count());

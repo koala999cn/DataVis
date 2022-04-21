@@ -29,6 +29,7 @@ public:
 	// 数据为空？
 	virtual bool empty() const { return count() == 0; }
 
+	virtual kReal xToIndex(kReal x) const = 0;
 
 	// 是否散点数据？
 	bool isScattered() const {
@@ -63,5 +64,17 @@ public:
 		assert(dim() == 2);
 		kIndex idx[2] = { idx0, idx1 };
 		return point(idx, channel);
+	}
+
+	kIndex xToLowIndex(kReal x) const {
+		return static_cast<kIndex>(std::floor(xToIndex(x)));
+	}
+
+	kIndex xToHighIndex(kReal x) const {
+		return static_cast<kIndex>(std::ceil(xToIndex(x)));
+	}
+
+	kIndex xToNearestIndex(kReal x) const {
+		return static_cast<kIndex>(std::round(xToIndex(x)));
 	}
 };

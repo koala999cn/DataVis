@@ -28,38 +28,9 @@ public:
 		return DIM;
 	}
 
-	kIndex count() const override {
-		return k_inf_count;
-	}
-
 	kIndex channels() const override { 
 		return static_cast<kIndex>(fun_.size());
 	}
-
-	/*void clear() override {}
-
-	bool empty() const override { 
-		return range_.empty(); 
-	}
-
-	kIndex size(kIndex axis) const override {
-		return count();
-	}
-	
-	kReal step(kIndex axis) const override {
-		return 0;
-	}
-
-	kReal value(kIndex idx[], kIndex channel) const override {
-		assert(false);
-		return 0; // TODO:
-	}
-
-	std::vector<kReal> point(kIndex idx[], kIndex channel) const override {
-		assert(false);
-		return { 0 }; // TODO
-	}
-	*/
 
 	kRange range(kIndex axis) const override {
 		return axis < DIM ? range_[axis] : valueRange();

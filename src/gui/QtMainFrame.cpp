@@ -26,6 +26,7 @@
 #include "op/KcOpWindowing.h"
 #include "op/KcOpFilterBank.h"
 #include "op/KcOpSampler.h"
+#include "op/KcOpInterpolater.h"
 #include "QtAppEventHub.h"
 
 
@@ -154,6 +155,9 @@ bool QtMainFrame::setupMenu_()
     QAction* sampler = opMenu->addAction(u8"Sampler(&P)");
     connect(sampler, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpSampler>(workDock_, false); });
 
+    QAction* interp = opMenu->addAction(u8"Interpolater(&I)");
+    connect(interp, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpInterpolater>(workDock_, false); });
+
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
@@ -163,6 +167,7 @@ bool QtMainFrame::setupMenu_()
         windowing->setEnabled(obj && obj->isSampled());
         fbank->setEnabled(obj && obj->isSampled());
         sampler->setEnabled(obj && obj->isContinued());
+        interp->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
         });
 
 
@@ -326,6 +331,7 @@ std::shared_ptr<KvData> QtMainFrame::loadData_(const QString& filePath)
         auto data1d = std::make_shared<KcSampled1d>();
         data1d->resize(v.size(), 1);
         data1d->setChannel(nullptr, 0, v.data()); // TODO: 优化
+        data = data1d;
     }
     else {
         assert(false); // TODO:

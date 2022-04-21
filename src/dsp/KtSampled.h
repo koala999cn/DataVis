@@ -55,18 +55,16 @@ public:
 		return samp_[axis].dx();
 	}
 
-	// make compiler happy
-	//kReal value(kIndex[], kIndex) const override {
-	//	assert(false);
-	//	return 0;
-	//}
-
 	std::vector<kReal> point(kIndex idx[], kIndex channel) const override {
 		std::vector<kReal> pt(DIM + 1);
 		for (kIndex i = 0; i < DIM; i++)
 			pt[i] = indexToValue(i, idx[i]);
 		pt[DIM] = value(idx, channel);
 		return pt;
+	}
+
+	kReal xToIndex(kReal x) const override {
+		return samp_[0].xToIndex(x);
 	}
 
 	void resize(kIndex shape[]) override {

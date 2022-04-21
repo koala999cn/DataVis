@@ -176,8 +176,11 @@
     <ClCompile Include="src\dsp\KuExtrapolate.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KgInterpolate.cpp">
+    <ClCompile Include="src\dsp\KcInterpolater.cpp">
       <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\op\KcOpInterpolater.cpp">
+      <Filter>op</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -369,7 +372,7 @@
     <ClInclude Include="src\dsp\KuInterp1d.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KgInterpolate.h">
+    <ClInclude Include="src\dsp\KcInterpolater.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KvDiscreted.h">
@@ -377,6 +380,9 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KvContinued.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpInterpolater.h">
+      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

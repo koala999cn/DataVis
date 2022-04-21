@@ -23,6 +23,7 @@ public:
     KtSampling& operator=(const KtSampling& rhs) {
         dx_ = rhs.dx_, x0_ = rhs.x0_;
         super_::reset(rhs.low(), rhs.high());
+        return *this;
     }
 
 
