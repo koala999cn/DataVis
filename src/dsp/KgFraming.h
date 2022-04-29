@@ -1,52 +1,120 @@
-ï»¿#pragma once
+#pragma once
+#include <vector>
+#include <assert.h>
 #include "kDsp.h"
-#include <memory>
-
-class KcSampled1d;
-class KcSampled2d;
 
 
-// å¯¹ä¸€ç»´ä¿¡å·ä½œåˆ†å¸§å¤„ç†
+// ¶ÔĞÅµÀÊı¾İµÄ·ÖÖ¡´¦ÀíÆ÷
+
 class KgFraming
 {
 public:
-	KgFraming(kReal dt, kIndex channels = 1);
 
-	void reset(kReal dt, kIndex channels = 1);
+	constexpr static bool isInterleaving() { return true; }
 
-	kReal shift() const { return shift_; }
-	void setShift(kReal shift);
+	// ÑÓ³Ùlen¸öÊı¾İµãÊä³ö
+	// @shift: =0Ê±£¬È¡lenÖµ
+	KgFraming(unsigned len, unsigned channels, unsigned shift)
+		: leng_(len), chann_(channels), buf_(), shift_(shift ? shift : len) {}
 
-	kReal length() const { return length_; }
-	void setLength(kReal len);
+	// ³õÊ¼»¯ÄÚ²¿×´Ì¬ÎªinitVal£¬ÎŞÑÓÊ±Êä³ö
+	KgFraming(unsigned len, unsigned channels, unsigned shift, kReal initVal)
+	: leng_(len), chann_(channels), buf_(len, initVal), shift_(shift ? shift : len) {}
+
+	unsigned length() const { return leng_; }
+	unsigned shift() const { return shift_; }
+	unsigned channels() const { return chann_; }
+	unsigned buffered() const { return buf_.size() / channels(); }
+
+	// framing in place
+	template<typename OP>
+	void apply(const kReal* first, const kReal* last, OP op) {
+		auto incount = (last - first) / channels(); // ĞÂÔöÊäÈëµÄÊı¾İÊıÁ¿
+		if (numFrames(incount, true) == 0) { // ÈôÊı¾İÁ¿²»×ã£¬½öÖ´ĞĞ»º´æ²Ù×÷
+			push_(first, last);
+			return;
+		}
+
+		// ·ÖÁ½¶ÎÖ´ĞĞ·ÖÖ¡£º
+		//   Ò»ÊÇ¿½±´²¿·ÖÊäÈëµ½»º´æ£¬ÏÈºÄ¾¡»º´æÊı¾İ£¬
+		//   ¶şÊÇ¶ÔÊ£ÓàµÄÊäÈëÖ´ĞĞÔÚÏß´¦Àí
+		auto copycount = needAppended_();
+		assert(numFrames(copycount, true) * shift_ >= buffered());
+		if (copycount > incount)
+			copycount = incount;
+		auto last_ = first + copycount * channels();
+		push_(first, last_);
+		auto pos = execute_(buf_.data(), buf_.data() + buf_.size(), op); // Ö´ĞĞµÚÒ»½×¶Î·ÖÖ¡
+
+		if (last_ == last) { // ÎŞÊ£ÓàÊı¾İ
+			buf_.erase(buf_.begin(), buf_.begin() + (pos - buf_.data()));
+			assert(numFrames(0, true) == 0);
+		}
+		else { // ´¦ÀíÊ£ÓàÊı¾İ
+			first = last_ - (buf_.data() + buf_.size() - pos);
+			pos = execute_(first, last, op); // Ö´ĞĞµÚ¶ş½×¶Î·ÖÖ¡
+			buf_.clear();
+			push_(pos, last); // ²ĞÁôÊı¾İÑ¹Èë»º´æ
+		}
+	}
+
+	
+	template<typename OP>
+	void flush(OP op) {
+		if (!buf_.empty()) {
+			buf_.resize(length() * channels(), 0);
+			op(buf_.data());
+			buf_.clear();
+		}
+	}
 
 
-	// è¾“å‡ºçš„åˆ†å¸§ç»“æœå¯èƒ½æœ‰å¤šä¸ªï¼Œæ‰€ä»¥ç”¨äºŒç»´ä¿¡å·outè¡¨ç¤º
-	void process(const KcSampled1d& in, KcSampled2d& out);
+	// @addBuffered: ÈôÎªtrue£¬ÔòÔÚsamples»ù´¡ÉÏ¼ÓÈë»º´æÊı¾İ½øĞĞÖ¡Êı¼ÆËã
+	unsigned numFrames(unsigned samples, bool addBuffered) const {
+		if (addBuffered)
+			samples += buffered();
 
-	void flush(KcSampled2d& out);
+		// ¿¼ÂÇshift > lengthµÄÇé¿ö£¬±£Ö¤×îÉÙÄÜÖ´ĞĞÒ»´Îshift²Ù×÷Ê±ÔÙ·ÖÖ¡
+		if (samples < std::max(length(), shift())) 
+			return 0;
 
-	// ç»™å®šé‡‡æ ·ç‚¹æ•°ç›®ï¼Œè®¡ç®—å¯åˆ†å¸§æ•°
-	kIndex numFrames(kIndex samples);
-
-	kIndex frameSize() const { return frameSize_; }
-	kIndex shiftSize() const { return shiftSize_; }
-
-	// roundPower2_ä¸ºfalseæ—¶ï¼Œè¿”å›å€¼ç­‰äºframeSizeï¼Œå¦åˆ™ç­‰äºceilPower2(frameSize)
-	kIndex samplesPerFrame() const { return samplesPerFrame_; }
+		assert(shift() != 0);
+		return (samples - length()) / shift() + 1;
+	}
 
 
 private:
-	kReal shift_; // in second
-	kReal length_; // in second
 
-	kIndex frameSize_; // æ¯å¸§çš„é‡‡æ ·ç‚¹æ•°ç›®
-	kIndex shiftSize_; // æ¯æ¬¡åç§»çš„é‡‡æ ·ç‚¹æ•°ç›®
-	kIndex samplesPerFrame_;
+	// ½«Êı¾İÑ¹Èë»º´æ
+	void push_(const kReal* first, const kReal* last) {
+		buf_.insert(buf_.end(), first, last);
+	}
 
-	// If true, round window size to power of two by zero-padding input to FFT.
-	bool  roundPower2_; 
+	// ¼ÆËãĞèÒªÏò»º´æ¿½±´¶àÉÙÊı¾İ£¬²ÅÄÜ·ÖÖ¡ºÄ¾¡»º´æ
+	unsigned needAppended_() const {
+		if (buf_.empty())
+			return 0;
+		
+		return ((buffered() - 1) / shift_) * shift_ + leng_ - buffered();
+	}
 
-	std::unique_ptr<KcSampled1d> buf_; // å¾…å¤„ç†æ•°æ®ï¼Œé•¿åº¦å°äºlength_
+	// ÔÚÁ¬ĞøÊı¾İÉÏÖ´ĞĞ·ÖÖ¡£¬²»¿¼ÂÇ»º´æÊı¾İ£¬·µ»Ø²ĞÁôÊı¾İµü´úÖ¸Õë
+	template<typename OP>
+	const kReal* execute_(const kReal* first, const kReal* last, OP op) {
+		auto incount = (last - first) / channels();
+		auto frames = numFrames(incount, false);
+		auto shiftRaw = shift_ * channels();
+		for (unsigned i = 0; i < frames; i++, first += shiftRaw)
+			op(first);
+
+		return first;
+	}
+
+
+private:
+	std::vector<kReal> buf_;
+	unsigned chann_; // ĞÅµÀÊı
+	unsigned leng_; // Ö¡³¤
+	unsigned shift_; // Ö¡ÒÆ
 };
 

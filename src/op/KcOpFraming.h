@@ -33,9 +33,13 @@ private:
 
 	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
 
+	kIndex frameSize() const;
+	kIndex shiftSize() const;
+
 private:
 	std::unique_ptr<KgFraming> framing_;
-	kIndex channels_;
 	kReal dx_;
+	kReal frameTime_; // 单帧时长
+	kReal shiftTime_; // 帧移时长
 };
 

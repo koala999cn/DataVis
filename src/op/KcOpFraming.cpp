@@ -9,7 +9,8 @@
 KcOpFraming::KcOpFraming(KvDataProvider* prov) 
 	: KvDataOperator("framing", prov)
 	, dx_(prov->step(0))
-	, channels_(prov->channels())
+	, frameTime_(512 * dx_)
+    , shiftTime_(frameTime_ / 2)
 {
 	assert(prov->dim() == 1);
 	assert(prov->isSampled());
@@ -38,16 +39,16 @@ KcOpFraming::kPropertySet KcOpFraming::propertySet() const
 	prop.name = tr(u8"length");
 	prop.disp = tr(u8"Frame Length");
 	prop.desc = tr(u8"frame duration in second");
-	prop.val = float(framing_->length());
-	prop.minVal = float(prov->step(0));
-	prop.maxVal = std::numeric_limits<float>::max();
+	prop.val = frameTime_;
+	prop.minVal = prov->step(0);
+	prop.maxVal = std::numeric_limits<kReal>::max();
 	ps.push_back(prop);
 
 	prop.id = kPrivate::k_frame_size;
 	prop.name = tr(u8"frame_size");
 	prop.disp = tr(u8"Frame Size");
 	prop.desc = tr(u8"number of samples per frame");
-	prop.val = framing_->frameSize();
+	prop.val = frameSize();
 	prop.flag = k_readonly;
 	ps.push_back(prop);
 
@@ -55,9 +56,9 @@ KcOpFraming::kPropertySet KcOpFraming::propertySet() const
 	prop.name = tr(u8"shift");
 	prop.disp = tr(u8"Frame Shift");
 	prop.desc = tr(u8"frame by frame shift in second");
-	prop.val = float(framing_->shift());
-	prop.minVal = float(prov->step(0));
-	prop.maxVal = std::numeric_limits<float>::max();
+	prop.val = shiftTime_;
+	prop.minVal = prov->step(0);
+	prop.maxVal = std::numeric_limits<kReal>::max();
 	prop.flag = 0;
 	ps.push_back(prop);
 
@@ -65,7 +66,7 @@ KcOpFraming::kPropertySet KcOpFraming::propertySet() const
 	prop.name = tr(u8"shift_size");
 	prop.disp = tr(u8"Shift Size");
 	prop.desc = tr(u8"number of samples once shift");
-	prop.val = framing_->shiftSize();
+	prop.val = shiftSize();
 	prop.flag = k_readonly;
 	ps.push_back(prop);
 
@@ -83,27 +84,45 @@ void KcOpFraming::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id) {
 	case kPrivate::k_length:
-		framing_->setLength(newVal.toFloat());
+		frameTime_ = newVal.toFloat();
 		emit kAppEventHub->objectPropertyChanged(this, 
-			kPrivate::k_frame_size, framing_->frameSize()); // 同步属性页的k_frame_size值
+			kPrivate::k_frame_size, frameSize()); // 同步属性页的k_frame_size值
 		break;
 
 	case kPrivate::k_shift:
-		framing_->setShift(newVal.toFloat());
+		shiftTime_ = newVal.toFloat();
 		emit kAppEventHub->objectPropertyChanged(this,
-			kPrivate::k_shift_size, framing_->shiftSize()); // // 同步属性页的k_shift_size值
+			kPrivate::k_shift_size, shiftSize()); // // 同步属性页的k_shift_size值
 		break;
 	};
+}
+
+
+kIndex KcOpFraming::frameSize() const
+{
+	KtSampling<kReal> samp;
+	samp.reset(0, frameTime_, dx_, 0);
+	return samp.count();
+}
+
+
+kIndex KcOpFraming::shiftSize() const
+{
+	KtSampling<kReal> samp;
+	samp.reset(0, shiftTime_, dx_, 0);
+	return samp.count();
 }
 
 
 void KcOpFraming::syncParent()
 {
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
-	if (!framing_ || dx_ != prov->step(0) || channels_ != prov->channels()) {
+	if (!framing_ || dx_ != prov->step(0) ||
+		framing_->channels() != prov->channels() ||
+		framing_->length() != frameSize() ||
+		framing_->shift() != shiftSize()) {
 		dx_ = prov->step(0);
-		channels_ = prov->channels();
-		framing_ = std::make_unique<KgFraming>(dx_, channels_);
+		framing_ = std::make_unique<KgFraming>(frameSize(), prov->channels(), shiftSize());
 	}
 }
 
@@ -111,7 +130,7 @@ void KcOpFraming::syncParent()
 kRange KcOpFraming::range(kIndex axis) const
 {
 	if (axis == 1)
-		return { 0, framing_->length() };
+		return { 0, frameTime_ };
 	else if(axis == 0)
 	    return KvDataOperator::range(0);
 	
@@ -122,7 +141,7 @@ kRange KcOpFraming::range(kIndex axis) const
 kReal KcOpFraming::step(kIndex axis) const
 {
 	if (axis == 0)
-		return framing_->shift();
+		return shiftTime_;
 
 	return KvDataOperator::step(axis - 1);
 }
@@ -131,9 +150,9 @@ kReal KcOpFraming::step(kIndex axis) const
 kIndex KcOpFraming::size(kIndex axis) const
 {
 	if (axis == 1)
-		return framing_->frameSize();
+		return frameSize();
 	else if (axis == 0)
-		return framing_->numFrames(KvDataOperator::size(0));
+		return framing_->numFrames(KvDataOperator::size(0), false);
 
 	return KvDataOperator::size(axis - 1);
 }
@@ -145,13 +164,28 @@ std::shared_ptr<KvData> KcOpFraming::processImpl_(std::shared_ptr<KvData> data)
 	assert(framing_);
 	
 	auto data1d = std::dynamic_pointer_cast<KcSampled1d>(data);
+	assert(dx_ == data1d->step(0));
 
 	auto res = std::make_shared<KcSampled2d>();
+	auto frameNum = framing_->numFrames(data1d->count(), true);
+	auto frameSize = this->frameSize();
+	kReal x0 = data1d->sampling(0).low();
+	x0 -= framing_->buffered() * dx_;
+	res->resize(frameNum, frameSize, framing_->channels());
+	res->reset(0, x0 + frameTime_ / 2, shiftTime_);
+	res->reset(1, x0, dx_);
 
-	if (data->count() == 0)
-		framing_->flush(*res);
-	else
-		framing_->process(*data1d, *res);
+	auto first = data1d->data();
+	auto last = first + data1d->count();
+	kIndex idx(0);
+	framing_->apply(first, last, [&res, &idx](const kReal* data) {
+		std::copy(data, data + res->size(1), res->row(idx++));
+		});
+
+	//if (data->count() == 0)
+	//	framing_->flush(*res);
+	//else
+	//	framing_->process(*data1d, *res);
 
 	return res;
 }
