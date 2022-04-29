@@ -27,6 +27,7 @@
 #include "op/KcOpFilterBank.h"
 #include "op/KcOpSampler.h"
 #include "op/KcOpInterpolater.h"
+#include "op/KcOpFilterFIR.h"
 #include "QtAppEventHub.h"
 
 
@@ -149,7 +150,7 @@ bool QtMainFrame::setupMenu_()
     QAction* windowing = opMenu->addAction(u8"Windowing(&W)");
     connect(windowing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpWindowing>(workDock_, false); });
 
-    QAction* fbank = opMenu->addAction(u8"FBank(&F)");
+    QAction* fbank = opMenu->addAction(u8"FBank(&B)");
     connect(fbank, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpFilterBank>(workDock_, false); });
 
     QAction* sampler = opMenu->addAction(u8"Sampler(&P)");
@@ -157,6 +158,9 @@ bool QtMainFrame::setupMenu_()
 
     QAction* interp = opMenu->addAction(u8"Interpolater(&I)");
     connect(interp, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpInterpolater>(workDock_, false); });
+
+    QAction* fir = opMenu->addAction(u8"FIR(&F)");
+    connect(fir, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpFilterFIR>(workDock_, false); });
 
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
@@ -168,6 +172,7 @@ bool QtMainFrame::setupMenu_()
         fbank->setEnabled(obj && obj->isSampled());
         sampler->setEnabled(obj && obj->isContinued());
         interp->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
+        fir->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
         });
 
 
@@ -228,20 +233,24 @@ bool QtMainFrame::initLauout_()
     propDock_->show();
 
     // 处理用户编辑而导致的对象属性变化
-    connect(propWidget, &QtnPropertyWidgetX::propertyChanged, this, 
+    connect(propWidget, &QtnPropertyWidgetX::propertyChanged,  
         [workWidget](int id, const QVariant& val) {
             auto obj = workWidget->getObject(workWidget->currentItem());
             if(obj) obj->setProperty(id, val);
             });
 
-    propWidget->connect(kAppEventHub, &QtAppEventHub::objectActivated, 
-          propWidget, &QtnPropertyWidgetX::sync);
-
     // 处理对象自行发起的属性变化信号，通常用于同步属性页的显示
-    this->connect(kAppEventHub, &QtAppEventHub::objectPropertyChanged, this, 
+    connect(kAppEventHub, &QtAppEventHub::objectPropertyChanged,  
         [propWidget](KvPropertiedObject* obj, int propId, const QVariant& newVal) {
             if (propWidget->currentObject() == obj) {
                 propWidget->setValue(propId, newVal);
+            }
+        });
+
+    propWidget->connect(kAppEventHub, &QtAppEventHub::objectActivated,
+        propWidget, [propWidget](KvPropertiedObject* obj) {
+            if (propWidget->currentObject() != obj) {
+                propWidget->sync(obj);
             }
         });
 

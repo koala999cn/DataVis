@@ -3,6 +3,7 @@
 #include "kddockwidgets/MainWindow.h"
 #include "kddockwidgets/DockWidget.h"
 #include "KvPropertiedObject.h"
+#include "gui/QtnPropertyWidgetX.h"
 
 
 namespace kPrivate
@@ -99,4 +100,14 @@ void QtAppEventHub::closeDock(KvPropertiedObject* obj)
 
 		emit dockClosed(obj);
 	}
+}
+
+
+void QtAppEventHub::refreshPropertySheet()
+{
+	auto dock = KDDockWidgets::DockWidget::byName(u8"Property");
+	assert(dock);
+	auto propSheet = dynamic_cast<QtnPropertyWidgetX*>(dock->widget());
+	assert(propSheet);
+	propSheet->sync(propSheet->currentObject());
 }

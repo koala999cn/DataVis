@@ -23,6 +23,9 @@ public slots:
 	// 关闭与对象obj关联的dock
 	void closeDock(KvPropertiedObject* obj);
 
+	// 重新加载属性页面，用于支持属性项的动态调整
+	void refreshPropertySheet();
+
 signals:
 
 	void objectActivated(KvPropertiedObject* obj);

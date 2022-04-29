@@ -27,9 +27,6 @@ QtnPropertyWidgetX::~QtnPropertyWidgetX()
 
 void QtnPropertyWidgetX::sync(KvPropertiedObject* propObj)
 {
-    if (obj_ == propObj)
-        return;
-
     obj_ = propObj;
     propertySet()->clearChildProperties();
 
