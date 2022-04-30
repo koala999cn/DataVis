@@ -2,7 +2,6 @@
 #include <assert.h>
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
-#include "KgFraming.h"
 #include "QtAppEventHub.h"
 
 
@@ -122,7 +121,7 @@ void KcOpFraming::syncParent()
 		framing_->length() != frameSize() ||
 		framing_->shift() != shiftSize()) {
 		dx_ = prov->step(0);
-		framing_ = std::make_unique<KgFraming>(frameSize(), prov->channels(), shiftSize());
+		framing_ = std::make_unique<KtFraming<kReal>>(frameSize(), prov->channels(), shiftSize());
 	}
 }
 
@@ -181,11 +180,6 @@ std::shared_ptr<KvData> KcOpFraming::processImpl_(std::shared_ptr<KvData> data)
 	framing_->apply(first, last, [&res, &idx](const kReal* data) {
 		std::copy(data, data + res->size(1), res->row(idx++));
 		});
-
-	//if (data->count() == 0)
-	//	framing_->flush(*res);
-	//else
-	//	framing_->process(*data1d, *res);
 
 	return res;
 }

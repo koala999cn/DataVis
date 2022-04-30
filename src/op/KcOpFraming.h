@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "KvDataOperator.h"
 #include <memory>
+#include "KtFraming.h"
 
-class KgFraming;
 
 class KcOpFraming : public KvDataOperator
 {
@@ -37,7 +37,7 @@ private:
 	kIndex shiftSize() const;
 
 private:
-	std::unique_ptr<KgFraming> framing_;
+	std::unique_ptr<KtFraming<kReal>> framing_;
 	kReal dx_;
 	kReal frameTime_; // 单帧时长
 	kReal shiftTime_; // 帧移时长
