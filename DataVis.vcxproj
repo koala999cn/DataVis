@@ -136,7 +136,6 @@
     <ClCompile Include="src\base\KuStrUtil.cpp" />
     <ClCompile Include="src\dsp\KcSampled2d.cpp" />
     <ClCompile Include="src\dsp\KgFilterBank.cpp" />
-    <ClCompile Include="src\dsp\KgFraming.cpp" />
     <ClCompile Include="src\dsp\KgHist.cpp" />
     <ClCompile Include="src\dsp\KcInterpolater.cpp" />
     <ClCompile Include="src\dsp\KgMultiply.cpp" />
@@ -154,6 +153,7 @@
     <ClCompile Include="src\gui\QtMainFrame.cpp" />
     <ClCompile Include="src\gui\QtnPropertyWidgetX.cpp" />
     <ClCompile Include="src\gui\QtWorkspaceWidget.cpp" />
+    <ClCompile Include="src\op\KcOpFIR.cpp" />
     <ClCompile Include="src\op\KcOpInterpolater.cpp" />
     <ClCompile Include="src\op\KcOpSampler.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
@@ -190,7 +190,6 @@
     <ClInclude Include="src\base\KuStrUtil.h" />
     <ClInclude Include="src\dsp\KcSampled2d.h" />
     <ClInclude Include="src\dsp\KgFilterBank.h" />
-    <ClInclude Include="src\dsp\KgFraming.h" />
     <ClInclude Include="src\dsp\KgHist.h" />
     <ClInclude Include="src\dsp\KcInterpolater.h" />
     <ClInclude Include="src\dsp\KgMultiply.h" />
@@ -199,6 +198,8 @@
     <ClInclude Include="src\dsp\KgSpectrum.h" />
     <ClInclude Include="src\dsp\KgWindowing.h" />
     <ClInclude Include="src\dsp\KtContinued.h" />
+    <ClInclude Include="src\dsp\KtFIR.h" />
+    <ClInclude Include="src\dsp\KtFraming.h" />
     <ClInclude Include="src\dsp\KtSampled.h" />
     <ClInclude Include="src\dsp\KtSampledArray.h" />
     <ClInclude Include="src\dsp\functions.h" />
@@ -210,7 +211,9 @@
     <ClInclude Include="src\dsp\KuWindowFactory.h" />
     <ClInclude Include="src\dsp\KvContinued.h" />
     <ClInclude Include="src\dsp\KvDiscreted.h" />
+    <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpInterpolater.h" />
     <ClInclude Include="src\op\KcOpSampler.h" />
     <ClInclude Include="src\prov\KcPvAudioInput.h" />

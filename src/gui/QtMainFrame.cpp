@@ -27,7 +27,7 @@
 #include "op/KcOpFilterBank.h"
 #include "op/KcOpSampler.h"
 #include "op/KcOpInterpolater.h"
-#include "op/KcOpFilterFIR.h"
+#include "op/KcOpFIR.h"
 #include "QtAppEventHub.h"
 
 
@@ -160,7 +160,7 @@ bool QtMainFrame::setupMenu_()
     connect(interp, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpInterpolater>(workDock_, false); });
 
     QAction* fir = opMenu->addAction(u8"FIR(&F)");
-    connect(fir, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpFilterFIR>(workDock_, false); });
+    connect(fir, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpFIR>(workDock_, false); });
 
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
