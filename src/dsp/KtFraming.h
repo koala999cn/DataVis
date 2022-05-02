@@ -14,12 +14,12 @@ public:
 
 	// 延迟len个数据点输出
 	// @shift: =0时，取len值
-	KtFraming(unsigned len, unsigned channels, unsigned shift)
-		: length_(len), chann_(channels), buf_(), shift_(shift ? shift : len) {}
+	KtFraming(unsigned len, unsigned chann, unsigned shift)
+		: length_(len), chann_(chann), buf_(), shift_(shift ? shift : len) {}
 
 	// 初始化内部状态为initVal，无延时输出
-	KtFraming(unsigned len, unsigned channels, unsigned shift, T initVal)
-	: length_(len), chann_(channels), buf_(len, initVal), shift_(shift ? shift : len) {}
+	KtFraming(unsigned len, unsigned chann, unsigned shift, T initVal)
+	: length_(len), chann_(chann), buf_((len - 1) * chann, initVal), shift_(shift ? shift : len) {}
 
 	unsigned length() const { return length_; }
 	unsigned shift() const { return shift_; }

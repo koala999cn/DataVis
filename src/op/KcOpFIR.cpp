@@ -161,6 +161,7 @@ std::shared_ptr<KvData> KcOpFIR::processImpl_(std::shared_ptr<KvData> data)
     res->resize(samp1d->count(), samp1d->channels());
     res->reset(0, samp1d->sampling(0));
     auto length = filter_->apply(samp1d->data(), samp1d->count(), res->data());
+    assert(length <= samp1d->count());
     res->resize(length);
     return res;
 }

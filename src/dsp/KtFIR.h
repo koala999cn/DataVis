@@ -12,8 +12,8 @@ class KtFIR
 {
 public:
 	// 单通道，每次平移1个数据
-	KtFIR(std::vector<TC>&& h, unsigned channels = 1) : h_(std::move(h)), buf_(h.size(), channels, 1, 0) {}
-	KtFIR(const std::vector<TC>& h, unsigned channels = 1) : h_(h), buf_(h.size(), channels, 1, 0) {}
+	KtFIR(std::vector<TC>&& h, unsigned chann = 1) : h_(std::move(h)), buf_(h.size(), chann, 1, 0) {}
+	KtFIR(const std::vector<TC>& h, unsigned chann = 1) : h_(h), buf_(h.size(), chann, 1, 0) {}
 
 
 	// 滤波器阶数
@@ -68,7 +68,7 @@ unsigned KtFIR<TD, TC>::apply(const TD* in, unsigned count, TD* out)
 {
 	auto buf = out;
 	KpFilter op(h_, buf, channels());
-	buf_.apply(in, in + count, op);
+	buf_.apply(in, in + count * channels(), op);
 	return (buf - out) / channels();
 }
 
