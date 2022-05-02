@@ -7,6 +7,7 @@
 - [blitz](https://github.com/blitzpp/blitz)
 - [exprtkX](https://gitee.com/koala999/exprtk-x)
 - [KDDockWidgets](https://github.com/KDAB/KDDockWidgets)
+- [kfr](https://www.kfr.dev/)
 - [libsndfile](http://libsndfile.github.io/libsndfile/)
 - [praat](https://www.fon.hum.uva.nl/praat/)
 - [QCustomPlot](https://www.qcustomplot.com/)
