@@ -44,7 +44,7 @@ void KgFilterBank::reset(int type, kIndex numBins, kReal df, kReal lowFreq, kRea
         auto flhz = toHertz_(fl);
         auto frhz = toHertz_(fr);
         auto idx = sampHz.rangeToIndex(flhz, frhz);
-        assert(idx.first >= 0);
+        if(idx.first < 0) idx.first = 0;
         firstIdx_[bin] = idx.first;
         fc_[bin] = toHertz_(fc);
 

@@ -48,7 +48,8 @@ public:
         resetn(nx);
         x0_ = low() + x0_rel_offset * dx_;
 
-        assert(count() == nx && verify());
+        assert(count() == nx);
+        assert(verify());
     }
 
 
@@ -110,13 +111,18 @@ public:
 
     long xToLowIndex(KREAL t) const {
         auto idx = std::floor(xToIndex(t));
-        assert(indexToX(idx + 1) > t); // TODO: 处理0.9999999变为0的情况
-        return idx >= 0 ? idx : 0;
+        assert(indexToX(idx) <= t); 
+        if (indexToX(idx + 1) <= t) // 处理0.9999999变为0的情况
+            idx++;
+
+        return idx;
     }
 
     long xToHighIndex(KREAL t) const {
         auto idx = std::ceil(xToIndex(t));
-        assert(empty() || indexToX(idx - 1) <= t); // TODO: 处理1.0000001变为2的情况
+        assert(empty() || indexToX(idx) >= t); 
+        if (indexToX(idx - 1) >= t) // 处理1.0000001变为2的情况
+            idx--;
         return idx;
     }
 
@@ -138,7 +144,7 @@ public:
     long count(KREAL len) const {
         if (len == 0 || dx_ == 0)
             return 0;
-        auto i = rangeToIndex(low(), low() + len);
+        auto i = rangeToIndex(x0(), x0() + len);
         return i.second > i.first ? i.second - i.first : 0;
     }
 

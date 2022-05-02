@@ -75,8 +75,9 @@ public:
 	// 调整第axis轴的采样参数
 	void reset(kIndex axis, value_type low, value_type step, value_type x0_ref = 0) override {
 		assert(axis >= 0 && axis < dim());
-		samp_[axis].resetn(size(axis), step, x0_ref);
 		samp_[axis].shiftLeftTo(low);
+		samp_[axis].resetn(size(axis), step, x0_ref);
+		assert(size(axis) == samp_[axis].count());
 	}
 
 	void reset(kIndex axis, const KtSampling<value_type>& samp) {
