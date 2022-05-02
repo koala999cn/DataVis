@@ -1,12 +1,12 @@
 #include "KcOpFIR.h"
-#include "KvFilter.h"
+#include "dsp/KcSampled1d.h"
 #include <assert.h>
 #include "QtAppEventHub.h"
 #include "kfr/dsp.hpp"
 
 
 KcOpFIR::KcOpFIR(KvDataProvider* prov)
-    : KvOpHelper1d("fir", prov)
+    : KvDataOperator("fir", prov)
 {
     type_ = 0;
     window_ = 0;
@@ -150,10 +150,19 @@ void KcOpFIR::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcOpFIR::processNaive_(const kReal* in, unsigned len, kReal* out)
+std::shared_ptr<KvData> KcOpFIR::processImpl_(std::shared_ptr<KvData> data)
 {
-    assert(filter_);
-    filter_->apply(in, len, out);
+    assert(data->dim() == 1 && data->isDiscreted());
+    assert(filter_ && filter_->channels() == data->channels());
+    auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(data);
+    assert(samp1d);
+
+    auto res = std::make_shared<KcSampled1d>();
+    res->resize(samp1d->count(), samp1d->channels());
+    res->reset(0, samp1d->sampling(0));
+    auto length = filter_->apply(samp1d->data(), samp1d->count(), res->data());
+    res->resize(length);
+    return res;
 }
 
 
@@ -184,7 +193,7 @@ void KcOpFIR::syncParent()
 
         // Initialize taps
         std::vector<kReal> taps(taps_);
-        auto univ = make_univector(taps.data(), taps_);
+        auto univ = make_univector(taps);
         switch (type_)
         {
         case kPrivate::k_lowpass:
@@ -204,8 +213,9 @@ void KcOpFIR::syncParent()
             break;
         }
         
-
         // Initialize filter and delay line
-        filter_.reset(new KtFIR<kReal>(taps));
+        auto objp = dynamic_cast<const KvDataProvider*>(parent());
+        assert(objp != nullptr);
+        filter_.reset(new KtFIR<kReal>(taps, objp->channels()));
     }
 }

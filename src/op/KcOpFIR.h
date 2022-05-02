@@ -1,11 +1,11 @@
 #pragma once
-#include "KvOpHelper1d.h"
+#include "KvDataOperator.h"
 #include <memory>
 #include "dsp/KtFIR.h"
 
 
 // TODO: ≤ª π”√KvOpHelper1d
-class KcOpFIR : public KvOpHelper1d
+class KcOpFIR : public KvDataOperator
 {
 public:
 	KcOpFIR(KvDataProvider* prov);
@@ -19,7 +19,7 @@ public:
 private:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 
-	void processNaive_(const kReal* in, unsigned len, kReal* out) override;
+	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
 
 	void syncParent() override;
 
