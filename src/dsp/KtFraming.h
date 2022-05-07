@@ -31,16 +31,21 @@ public:
 
 	template<typename OP> void flush(OP op);
 
+	// 将数据压入缓存，延迟执行op操作
+	void push(const T* first, const T* last) {
+		buf_.insert(buf_.end(), first, last);
+	}
+
+	// 情况缓存
+	void reset() {
+		buf_.clear();
+	}
+
 	// @addBuffered: 若为true，则在samples基础上加入缓存数据进行帧数计算
 	unsigned numFrames(unsigned samples, bool addBuffered) const;
 
 
 private:
-
-	// 将数据压入缓存
-	void push_(const T* first, const T* last) {
-		buf_.insert(buf_.end(), first, last);
-	}
 
 	// 计算需要向缓存拷贝多少数据，才能分帧耗尽缓存
 	unsigned needAppended_() const;
@@ -63,7 +68,7 @@ void KtFraming<T>::apply(const T* first, const T* last, OP op)
 {
 	auto incount = (last - first) / channels(); // 新增输入的数据数量
 	if (numFrames(incount, true) == 0) { // 若数据量不足，仅执行缓存操作
-		push_(first, last);
+		push(first, last);
 		return;
 	}
 
@@ -75,7 +80,7 @@ void KtFraming<T>::apply(const T* first, const T* last, OP op)
 	if (copycount > incount)
 		copycount = incount;
 	auto last_ = first + copycount * channels();
-	push_(first, last_);
+	push(first, last_);
 	auto pos = execute_(buf_.data(), buf_.data() + buf_.size(), op); // 执行第一阶段分帧
 
 	if (last_ == last) { // 无剩余数据
@@ -86,7 +91,7 @@ void KtFraming<T>::apply(const T* first, const T* last, OP op)
 		first = last_ - (buf_.data() + buf_.size() - pos);
 		pos = execute_(first, last, op); // 执行第二阶段分帧
 		buf_.clear();
-		push_(pos, last); // 残留数据压入缓存
+		push(pos, last); // 残留数据压入缓存
 	}
 }
 
@@ -95,7 +100,7 @@ template<typename T> template<typename OP>
 void KtFraming<T>::flush(OP op)
 {
 	if (!buf_.empty()) {
-		buf_.resize(length() * channels(), 0);
+		buf_.resize(length() * channels(), 0); // TODO: 处理buf_尺寸大于length_的情况
 		op(buf_.data());
 		buf_.clear();
 	}

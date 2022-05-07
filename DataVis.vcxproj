@@ -200,6 +200,7 @@
     <ClInclude Include="src\dsp\KtContinued.h" />
     <ClInclude Include="src\dsp\KtFIR.h" />
     <ClInclude Include="src\dsp\KtFraming.h" />
+    <ClInclude Include="src\dsp\KtResampling.h" />
     <ClInclude Include="src\dsp\KtSampled.h" />
     <ClInclude Include="src\dsp\KtSampledArray.h" />
     <ClInclude Include="src\dsp\functions.h" />

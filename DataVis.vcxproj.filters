@@ -393,6 +393,9 @@
     <ClInclude Include="src\dsp\KtFraming.h">
       <Filter>dsp</Filter>
     </ClInclude>
+    <ClInclude Include="src\dsp\KtResampling.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\audio_capture_dlg.ui">
