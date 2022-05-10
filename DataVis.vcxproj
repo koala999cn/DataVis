@@ -140,6 +140,7 @@
     <ClCompile Include="src\dsp\KcInterpolater.cpp" />
     <ClCompile Include="src\dsp\KgMultiply.cpp" />
     <ClCompile Include="src\dsp\KgRdft.cpp" />
+    <ClCompile Include="src\dsp\KgResampler.cpp" />
     <ClCompile Include="src\dsp\KgSpectrogram.cpp" />
     <ClCompile Include="src\dsp\KgSpectrum.cpp" />
     <ClCompile Include="src\dsp\KgWindowing.cpp" />
@@ -155,6 +156,7 @@
     <ClCompile Include="src\gui\QtWorkspaceWidget.cpp" />
     <ClCompile Include="src\op\KcOpFIR.cpp" />
     <ClCompile Include="src\op\KcOpInterpolater.cpp" />
+    <ClCompile Include="src\op\KcOpResampler.cpp" />
     <ClCompile Include="src\op\KcOpSampler.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
     <ClCompile Include="src\op\KcOpFraming.cpp" />
@@ -194,6 +196,7 @@
     <ClInclude Include="src\dsp\KcInterpolater.h" />
     <ClInclude Include="src\dsp\KgMultiply.h" />
     <ClInclude Include="src\dsp\KgRdft.h" />
+    <ClInclude Include="src\dsp\KgResampler.h" />
     <ClInclude Include="src\dsp\KgSpectrogram.h" />
     <ClInclude Include="src\dsp\KgSpectrum.h" />
     <ClInclude Include="src\dsp\KgWindowing.h" />
@@ -216,6 +219,7 @@
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpInterpolater.h" />
+    <ClInclude Include="src\op\KcOpResampler.h" />
     <ClInclude Include="src\op\KcOpSampler.h" />
     <ClInclude Include="src\prov\KcPvAudioInput.h" />
     <ClInclude Include="src\prov\KcPvData.h" />

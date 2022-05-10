@@ -75,24 +75,26 @@ public:
     // depth=1时，退化为2点线性插值
     // depth=2时，退化为4点3次多项式插值
     // depth>2时，左右各取depth个点sinc插值
-    // xidx为索引值，位于[0, nx-1]区间，对应于[ X[0], X[nx-1] ]
-    static kReal sinc(const kReal Y[], unsigned nx, kReal xidx, int depth);
+    // xidx为索引值，位于[0, nx)区间，对应于[ X[0], X[nx] )
+    static kReal sinc(const kReal Y[], kIndex nx, kReal xidx, int depth);
 
 
     // Lagrange多项式插值
     // X[i]必须单调递增, 下同
     // x为坐标值，位于[X[0], X[nx-1]]区间，下同
-    static kReal poly(const kReal X[], const kReal Y[], unsigned n, kReal x);
+    static kReal poly(const kReal X[], const kReal Y[], kIndex n, kReal x);
 
+    // 均匀采样多项式插值
+    static kReal poly(const kReal Y[], kIndex n, kReal xidx, kIndex stride = 1);
 
     // Neville多项式插值
     // 给定数组X[n]和Y[n]及数值x，返回x对应的y值及估计误差dy
-    static kReal neville(const kReal X[], const kReal Y[], unsigned n, kReal x, kReal* dy = nullptr);
+    static kReal neville(const kReal X[], const kReal Y[], kIndex n, kReal x, kReal* dy = nullptr);
 
 
     // 对角有理函数插值
     // TODO: 该内插方法不平滑，得出的曲线毛刺较多
-    static kReal rational(const kReal X[], const kReal Y[], unsigned n, kReal x, kReal* dy = nullptr);
+    static kReal rational(const kReal X[], const kReal Y[], kIndex n, kReal x, kReal* dy = nullptr);
 
 
 private:

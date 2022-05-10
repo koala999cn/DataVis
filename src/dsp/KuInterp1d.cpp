@@ -54,13 +54,13 @@ kReal KuInterp1d::cubic(kReal y0, kReal y1, kReal y2, kReal y3, kReal xphase)
 }
 
 
-kReal KuInterp1d::poly(const kReal X[], const kReal Y[], unsigned n, kReal x)
+kReal KuInterp1d::poly(const kReal X[], const kReal Y[], kIndex n, kReal x)
 {
     kReal y = 0;
 
-    for (unsigned i = 0; i < n; i++) {
+    for (kIndex i = 0; i < n; i++) {
         kReal g = 1;  // accumulator
-        for (unsigned j = 0; j < n; j++) {
+        for (kIndex j = 0; j < n; j++) {
             if (j != i)
                 g *= (x - X[j]) / (X[i] - X[j]);
         }
@@ -71,7 +71,25 @@ kReal KuInterp1d::poly(const kReal X[], const kReal Y[], unsigned n, kReal x)
 }
 
 
-kReal KuInterp1d::sinc(const kReal Y[], unsigned nx, kReal xidx, int depth)
+kReal KuInterp1d::poly(const kReal Y[], kIndex n, kReal xidx, kIndex stride)
+{
+    kReal y = 0;
+
+    for (kIndex i = 0; i < n; i++) {
+        kReal g = 1;  // accumulator
+        for (kIndex j = 0; j < n; j++) {
+            if (j != i)
+                g *= (xidx - j) / (i - j);
+        }
+        y += *Y * g;
+        Y += stride;
+    }
+
+    return y;
+}
+
+
+kReal KuInterp1d::sinc(const kReal Y[], kIndex nx, kReal xidx, int depth)
 {
     kIndex midleft = std::floor(xidx), midright = midleft + 1;
 
@@ -120,12 +138,12 @@ kReal KuInterp1d::sinc(const kReal Y[], unsigned nx, kReal xidx, int depth)
 }
 
 
-kReal KuInterp1d::neville(const kReal X[], const kReal Y[], unsigned n, kReal x, kReal* pdy)
+kReal KuInterp1d::neville(const kReal X[], const kReal Y[], kIndex n, kReal x, kReal* pdy)
 {
     std::vector<kReal> c(n), d(n);
-    unsigned ns = 0;
+    kIndex ns = 0;
     auto dif = std::abs(x - X[0]);
-    for (unsigned i = 0; i < n; i++) {
+    for (kIndex i = 0; i < n; i++) {
         auto dift = std::abs(x - X[i]);
         if (dift < dif) { // 这里用ns作为表中最近入口的指针
             ns = i;
@@ -136,8 +154,8 @@ kReal KuInterp1d::neville(const kReal X[], const kReal Y[], unsigned n, kReal x,
     }
     auto y = Y[ns--]; // y的初始逼近
     kReal dy = 0;
-    for (unsigned m = 1; m < n; m++) { // 对表中的每一列
-        for (unsigned i = 0; i < n - m; i++) {
+    for (kIndex m = 1; m < n; m++) { // 对表中的每一列
+        for (kIndex i = 0; i < n - m; i++) {
             auto ho = X[i] - x;
             auto hp = X[i + m] - x;
             auto w = c[i + 1] - d[i];
@@ -163,13 +181,13 @@ kReal KuInterp1d::neville(const kReal X[], const kReal Y[], unsigned n, kReal x,
 }
 
 
-kReal KuInterp1d::rational(const kReal X[], const kReal Y[], unsigned n, kReal x, kReal* pdy)
+kReal KuInterp1d::rational(const kReal X[], const kReal Y[], kIndex n, kReal x, kReal* pdy)
 {
-    unsigned ns = 0;
+    kIndex ns = 0;
     std::vector<kReal> c(n), d(n);
     auto hh = std::abs(x - X[0]);
     kReal y(0), dy(0);
-    for (unsigned i = 0; i < n; i++) {
+    for (kIndex i = 0; i < n; i++) {
         auto h = std::abs(x - X[i]);
         if (h == 0) {
             y = Y[i];
@@ -185,8 +203,8 @@ kReal KuInterp1d::rational(const kReal X[], const kReal Y[], unsigned n, kReal x
         d[i] = Y[i] + kMath::eps; // 防止0除0的情况
     }
     y = Y[ns--];
-    for (unsigned m = 1; m < n; m++) {
-        for (unsigned i = 0; i < n - m; i++) {
+    for (kIndex m = 1; m < n; m++) {
+        for (kIndex i = 0; i < n - m; i++) {
             auto w = c[i + 1] - d[i];
             auto h = X[i + m] - x;
             auto t = (X[i] - x) * d[i] / h;

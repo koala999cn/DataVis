@@ -28,6 +28,7 @@
 #include "op/KcOpSampler.h"
 #include "op/KcOpInterpolater.h"
 #include "op/KcOpFIR.h"
+#include "op/KcOpResampler.h"
 #include "QtAppEventHub.h"
 
 
@@ -162,6 +163,10 @@ bool QtMainFrame::setupMenu_()
     QAction* fir = opMenu->addAction(u8"FIR(&F)");
     connect(fir, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpFIR>(workDock_, false); });
 
+    QAction* resampler = opMenu->addAction(u8"Resampler(&R)");
+    connect(resampler, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpResampler>(workDock_, false); });
+
+    
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
@@ -173,6 +178,7 @@ bool QtMainFrame::setupMenu_()
         sampler->setEnabled(obj && obj->isContinued());
         interp->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
         fir->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
+        resampler->setEnabled(obj&& obj->dim() == 1 && obj->isSampled());
         });
 
 

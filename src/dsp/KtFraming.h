@@ -36,9 +36,15 @@ public:
 		buf_.insert(buf_.end(), first, last);
 	}
 
-	// 情况缓存
+	// 清空缓存
 	void reset() {
 		buf_.clear();
+	}
+
+	// 重置
+	void reset(unsigned len, unsigned chann, unsigned shift) {
+		length_ = len, chann_ = chann, shift_ = shift;
+	    buf_.clear();
 	}
 
 	// @addBuffered: 若为true，则在samples基础上加入缓存数据进行帧数计算
