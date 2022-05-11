@@ -1,13 +1,13 @@
-#pragma once
+ï»¿#pragma once
 #include "KtResampling.h"
 #include "kDsp.h"
 #include <vector>
 #include <functional>
 
 
-// »ùÓÚKtResamplingÊµÏÖµÄÖØ²ÉÑù
-// ¶ÔÓÚ½µ²ÉÑù£¬ÔÚKtResamplingÖ®ºó¼ÓÁËÒ»¸öµÍÍ¨ÂË²¨Æ÷
-// ÊµÏÖlinear¡¢lagrange¡¢sincÈıÖÖ²åÖµ·½·¨
+// åŸºäºKtResamplingå®ç°çš„é‡é‡‡æ ·
+// å¯¹äºé™é‡‡æ ·ï¼Œåœ¨KtResamplingä¹‹ååŠ äº†ä¸€ä¸ªä½é€šæ»¤æ³¢å™¨
+// å®ç°linearã€lagrangeã€sincä¸‰ç§æ’å€¼æ–¹æ³•
 class KgResampler
 {
 public:
@@ -25,14 +25,14 @@ public:
 
 	auto length() const { return resamp_.length(); }
 	auto channels() const { return resamp_.channels(); }
-	auto buffered() const { return resamp_.buffered(); }
+	auto buffered() const { return resamp_.ibuffered(); }
 	auto factor() const { return resamp_.factor(); }
 
 	auto olength(kIndex ilen) const { return resamp_.olength(ilen); }
 	auto flength() const { return resamp_.flength(); }
 
 
-	// ¶ÔinÖ´ĞĞÖØ²ÉÑù²Ù×÷£¬Êä³ö½á¹ûµ½out
+	// å¯¹inæ‰§è¡Œé‡é‡‡æ ·æ“ä½œï¼Œè¾“å‡ºç»“æœåˆ°out
 	unsigned apply(const kReal* in, kIndex ilen, kReal* out, kIndex olen);
 	void apply(const kReal* in, kIndex ilen, std::vector<kReal>& out);
 	std::vector<kReal> apply(const kReal* in, kIndex ilen);

@@ -1,4 +1,4 @@
-#include "KgResampler.h"
+ï»¿#include "KgResampler.h"
 #include "KuInterp1d.h"
 #include <assert.h>
 
@@ -22,7 +22,7 @@ KgResampler::interp_t KgResampler::getInterp() const
 unsigned KgResampler::apply(const kReal* in, kIndex ilen, kReal* out, kIndex olen)
 {
 	return resamp_.apply(in, ilen, out, olen, getInterp());
-	// TODO: µÍÍ¨ÂË²¨
+	// TODO: ä½Žé€šæ»¤æ³¢
 }
 
 
@@ -31,7 +31,9 @@ void KgResampler::apply(const kReal* in, kIndex ilen, std::vector<kReal>& out)
 	auto len = resamp_.olength(ilen);
 	out.resize(len * channels());
 	auto olen = apply(in, ilen, out.data(), len);
-	assert(olen == len);
+	assert(olen <= len);
+	if (olen < len)
+		out.resize(olen * channels());
 }
 
 
@@ -54,7 +56,9 @@ void KgResampler::flush(std::vector<kReal>& out)
 	auto len = resamp_.flength();
 	out.resize(len * channels());
 	auto olen = flush(out.data(), len);
-	assert(olen == len);
+	assert(olen <= len);
+	if (olen < len)
+		out.resize(olen * channels());
 }
 
 

@@ -1,17 +1,17 @@
-#pragma once
+ï»¿#pragma once
 #include "KtFraming.h"
 #include <cmath>
 
 
-// »ùÓÚ²åÖµËã·¨µÄÖØ²ÉÑùÊµÏÖ¿ò¼Ü£¬Ö÷ÒªÀûÓÃKtFramingÌá¹©Á÷Êı¾İ²åÖµ»·¾³
-// Ã¿´Îµ÷ÓÃ²åÖµËã×ÓÊ±£¬È·±£²åÖµµãÎ»ÓÚ²åÖµ´°¿ÚµÄÖĞ¼ä£¬¾ßÌåÎ»ÓÚÇø¼ä(N/2, N/2+1]£¬
-// ÆäÖĞNÎª²åÖµ´°³¤£¬¼´²ÎÓë²åÖµµÄÊı¾İµãÊıÁ¿
-//   - µ±NÎªÅ¼ÊıÊ±£¬²åÖµµãµÄ×ó±ßºÍÓÒ±ß¸÷ÓĞn¸öµã
-//   - µ±NÎªÆæÊıÊ±£¬²åÖµµãµÄ×ó±ßÓĞn¸öµã£¬ÓÒ±ßÓĞn+1¸öµã
+// åŸºäºæ’å€¼ç®—æ³•çš„é‡é‡‡æ ·å®ç°æ¡†æ¶ï¼Œä¸»è¦åˆ©ç”¨KtFramingæä¾›æµæ•°æ®æ’å€¼ç¯å¢ƒ
+// æ¯æ¬¡è°ƒç”¨æ’å€¼ç®—å­æ—¶ï¼Œç¡®ä¿æ’å€¼ç‚¹ä½äºæ’å€¼çª—å£çš„ä¸­é—´ï¼Œå…·ä½“ä½äºåŒºé—´(N/2 - 1, N/2]ï¼Œ
+// å…¶ä¸­Nä¸ºæ’å€¼çª—é•¿ï¼Œå³å‚ä¸æ’å€¼çš„æ•°æ®ç‚¹æ•°é‡
+//   - å½“Nä¸ºå¶æ•°æ—¶ï¼Œæ’å€¼ç‚¹çš„å·¦è¾¹å’Œå³è¾¹å„æœ‰nä¸ªç‚¹
+//   - å½“Nä¸ºå¥‡æ•°æ—¶ï¼Œæ’å€¼ç‚¹çš„å·¦è¾¹æœ‰nä¸ªç‚¹ï¼Œå³è¾¹æœ‰n+1ä¸ªç‚¹
 // 
 // NOTE: length vs size
-// length±íÊ¾Ö¡³¤£¬1Ö¡°üÀ¨channels¸öÊı¾İ
-// size±íÊ¾Êı¾İ³ß´ç£¬= length * channels
+// lengthè¡¨ç¤ºå¸§é•¿ï¼Œ1å¸§åŒ…æ‹¬channelsä¸ªæ•°æ®
+// sizeè¡¨ç¤ºæ•°æ®å°ºå¯¸ï¼Œ= length * channels
 
 template<typename T>
 class KtResampling
@@ -26,30 +26,37 @@ public:
 	unsigned length() const { return framing_.length(); }
 	unsigned channels() const { return framing_.channels(); }
 
-	// Î´´¦ÀíµÄÊäÈëÖ¡Êı
-	unsigned buffered() const { 
+	// æœªå¤„ç†çš„è¾“å…¥å¸§æ•°
+	unsigned ibuffered() const { 
 		assert(framing_.buffered() >= mid_());
 		return framing_.buffered() - mid_(); 
 	}
 
+	unsigned obuffered() const {
+		return obuf_.size() / channels();
+	}
+
 	auto factor() const { return factor_; }
 
+	auto itotal() const { return ipos_; }
+	auto ototal() const { return opos_ - 1; }
 
-	// »º´æÊäÈë£¬Ôİ²»Ö´ĞĞresample²Ù×÷
+
+	// ç¼“å­˜è¾“å…¥ï¼Œæš‚ä¸æ‰§è¡Œresampleæ“ä½œ
 	void push(const T* first, const T* last) { 
 		framing_.push(first, last); 
 	}
 
-	// »Ö¸´³õÊ¼×´Ì¬
+	// æ¢å¤åˆå§‹çŠ¶æ€
 	void reset() { 
 		framing_.reset(); 
 		std::vector<T> buf(mid_() * channels(), 0);
-		framing_.push(buf.data(), buf.data() + buf.size()); // Ñ¹Èë°ë´°Êı¾İ
+		framing_.push(buf.data(), buf.data() + buf.size()); // å‹å…¥åŠçª—æ•°æ®
 		obuf_.clear();
-		ipos_ = 0, opos_ = 0;
+		ipos_ = 0, opos_ = 1;
 	}
 
-	// ÖØÖÃ
+	// é‡ç½®
 	void reset(unsigned winlen, unsigned chann, double factor) {
 		framing_.reset(winlen, chann, 1);
 		factor_ = factor;
@@ -63,20 +70,24 @@ public:
 	template<typename INTERP> 
 	unsigned flush(T* out, unsigned olen, INTERP interp);
 
-	// ÈôÊäÈëilenÖ¡Êı¾İ£¬½«Êä³ö¶àÉÙÖ¡Êı¾İ
+	// è‹¥è¾“å…¥ilenå¸§æ•°æ®ï¼Œå°†è¾“å‡ºå¤šå°‘å¸§æ•°æ®
 	unsigned olength(unsigned ilen) const;
 
-	// ÈôÉú³ÉolenÖ¡Êı¾İ£¬ĞèÒª¶àÉÙÖ¡ÊäÈë£¿
+	// è‹¥ç”Ÿæˆolenå¸§æ•°æ®ï¼Œéœ€è¦å¤šå°‘å¸§è¾“å…¥ï¼Ÿ
 	unsigned ilength(unsigned olen) const;
 
-	// flush½«Êä³ö¶àÉÙÖ¡Êı¾İ
+	// flushå°†è¾“å‡ºå¤šå°‘å¸§æ•°æ®
 	unsigned flength() const;
 
 private:
 
 	unsigned mid_() const { return length() / 2; }
 
-	// ½«obuf_ÖĞµÄÊı¾İÊä³öµ½out£¬·µ»ØĞ´ÈëµÄÖ¡Êı
+	unsigned unbuffered_() const {
+		return framing_.length() - framing_.buffered();
+	}
+
+	// å°†obuf_ä¸­çš„æ•°æ®è¾“å‡ºåˆ°outï¼Œè¿”å›å†™å…¥çš„å¸§æ•°
 	unsigned flushObuf_(T* out, unsigned olen);
 
 private:
@@ -84,32 +95,31 @@ private:
 	template<typename INTERP>
 	struct KpInterpWrap_
 	{
-		KpInterpWrap_(KtResampling& rs, INTERP it, T* ob, T* oe)
-			: resamp(rs), interp(it), obuf(ob), oend(oe) {}
+		KpInterpWrap_(KtResampling& rs, INTERP it, T* ostart, T* oend)
+			: resamp(rs), interp(it), outp(ostart), oute(oend) {}
 
 		INTERP interp;
 		KtResampling& resamp;
-		T* obuf;
-		T* oend; // for debug
+		T* outp;
+		T* oute; // for debug
 
 		void operator()(const T* ibuf) {
-			auto len = resamp.length();
-			auto chann = resamp.channels();
-			auto mid = resamp.mid_();
-			auto& opos = resamp.opos_;
-			auto& ipos = resamp.ipos_;
+			const auto chann = resamp.channels();
+			const auto mid = resamp.mid_();
 			const auto factor = resamp.factor_;
-			for (auto pos = opos * factor; pos <= ipos; pos += factor, opos++) {
+			auto& opos = resamp.opos_;
+			auto& ipos = ++resamp.ipos_;
+			
+			for (auto pos = opos * factor; pos <= ipos; pos = ++opos * factor) {
 				assert(ipos - pos < 1);
-				assert(obuf + chann < oend);
-				auto phase = mid + 1 - (ipos - pos);
+				assert(outp + chann <= oute);
+				auto phase = mid - (ipos - pos);
+				assert(phase > resamp.length() / 2 - 1 && phase <= resamp.length() / 2);
 
-				// ÖğÍ¨µÀ²åÖµ
+				// é€é€šé“æ’å€¼
 				for (unsigned c = 0; c < chann; c++) 
-					*obuf++ = interp(ibuf + c, phase);
+					*outp++ = interp(ibuf + c, phase);	
 			}
-
-			++ipos;
 		}
 	};
 
@@ -117,50 +127,50 @@ private:
 
 private:
 	KtFraming<T> framing_;
-	double factor_; // ÖØ²ÉÑùÏµÊı£¬= irate/orate£¬´óÓÚ1±íÊ¾½µ²ÉÑù£¬Ğ¡ÓÚ1±íÊ¾Éı²ÉÑù
-	unsigned ipos_; // ÀÛ¼ÆÊäÈëÖ¡Êı
-	unsigned opos_; // ÀÛ¼ÆÊä³öÖ¡Êı
-	std::vector<T> obuf_;  // Êä³ö»º´æ¡£µ±ÓÃ»§Ìá¹©µÄÊä³öÈİÁ¿²»×ãÊ±£¬¶àÓàµÄÊä³ö½«Ôİ´æ´Ë´¦¡£
+	double factor_; // é‡é‡‡æ ·ç³»æ•°ï¼Œ= irate/orateï¼Œå¤§äº1è¡¨ç¤ºé™é‡‡æ ·ï¼Œå°äº1è¡¨ç¤ºå‡é‡‡æ ·
+	unsigned ipos_; // ç´¯è®¡è¾“å…¥å¸§æ•°
+	unsigned opos_; // ç´¯è®¡è¾“å‡ºå¸§æ•°
+	std::vector<T> obuf_;  // è¾“å‡ºç¼“å­˜ã€‚å½“ç”¨æˆ·æä¾›çš„è¾“å‡ºå®¹é‡ä¸è¶³æ—¶ï¼Œå¤šä½™çš„è¾“å‡ºå°†æš‚å­˜æ­¤å¤„ã€‚
 };
 
 
 template<typename T> template<typename INTERP>
 unsigned KtResampling<T>::apply(const T* in, unsigned ilen, T* out, unsigned olen, INTERP interp)
 {
-	auto chann = channels();
-	auto opos = opos_;
+	const auto chann = channels();
+	
+	// æ‹·è´è¾“å‡ºç¼“å­˜obuf_æ•°æ®åˆ°out
+	auto oled = flushObuf_(out, olen); // oledè¡¨ç¤ºå·²è¾“å‡ºçš„å¸§æ•°
 
-	// ¿½±´Êä³ö»º´æobuf_Êı¾İµ½out
-	auto oled = flushObuf_(out, olen); // ol±íÊ¾ÒÑÊä³öµÄÖ¡Êı
-
-	// Ğ´ÂúÊ£ÏÂµÄout
-	auto ilen0 = ilength(olen - oled); // ¼ÆËãĞèÒª¶àÉÙÖ¡ÊäÈë²ÅÄÜĞ´Âúout
+	// å†™æ»¡å‰©ä¸‹çš„out
+	auto ilen0 = ilength(olen - oled); // è®¡ç®—éœ€è¦å¤šå°‘å¸§è¾“å…¥æ‰èƒ½å†™æ»¡out
 	if (ilen0 > ilen) ilen0 = ilen;
-	auto interpWrap = KpInterpWrap_(*this, interp, out + oled, out + olen);
+	auto interpWrap = KpInterpWrap_(*this, interp, out + oled * chann, out + olen * chann);
+	const auto opos = opos_;
 	framing_.apply(in, in + ilen0 * chann, interpWrap);
-	oled += opos_ - opos; // Í³¼ÆĞ´ÈëoutµÄÖ¡Êı
+	oled += opos_ - opos; // ç»Ÿè®¡å†™å…¥outçš„å¸§æ•°
 
-	// Èô»¹ÓĞÊäÈë£¬Êä³öµ½obuf_
+	// è‹¥è¿˜æœ‰è¾“å…¥ï¼Œè¾“å‡ºåˆ°obuf_
 	auto ilen1 = ilen - ilen0;
 	if (ilen1 > 0) {
 		auto olen0 = olength(ilen1);
 		obuf_.resize(olen0 * chann);
-		itpr.obuf = obuf_.data();
-		itpr.oend = obuf_.data() + obuf_.size();
-		framing_.apply(in + ilen0 * chann, in + ilen * chann, itpr);
+		interpWrap.outp = obuf_.data();
+		interpWrap.oute = obuf_.data() + obuf_.size();
+		framing_.apply(in + ilen0 * chann, in + ilen * chann, interpWrap);
 	}
 
-	return oled; // ·µ»ØĞ´ÈëoutµÄÖ¡Êı
+	return oled; // è¿”å›å†™å…¥outçš„å¸§æ•°
 }
 
 
 template<typename T> template<typename INTERP>
 unsigned KtResampling<T>::flush(T* out, unsigned olen, INTERP interp)
 {
-	// ¿½±´Êä³ö»º´æobuf_Êı¾İµ½out
-	auto oled = flushObuf_(out, olen); // ol±íÊ¾ÒÑÊä³öµÄÖ¡Êı
+	// æ‹·è´è¾“å‡ºç¼“å­˜obuf_æ•°æ®åˆ°out
+	auto oled = flushObuf_(out, olen); // olè¡¨ç¤ºå·²è¾“å‡ºçš„å¸§æ•°
 
-	if (buffered() > 0) {
+	if (ibuffered() > 0) {
 		auto paddings = (length() - mid_()); 
 		std::vector<T> zeros(paddings * channels(), 0);
 		oled += apply(zeros.data(), paddings, out + oled * channels(), olen - oled, interp);
@@ -173,30 +183,33 @@ unsigned KtResampling<T>::flush(T* out, unsigned olen, INTERP interp)
 template<typename T>
 unsigned KtResampling<T>::olength(unsigned ilen) const
 {
-	assert(opos_ <= ipos_ / factor_);
+	assert(ototal() <= itotal() / factor());
+	if (ilen < unbuffered_())
+		return 0;
+	ilen -= unbuffered_() - 1;
 
-	auto opos = static_cast<unsigned>((ipos_ + ilen) / factor_); // È¡floor
-	return opos - opos_ + obuf_.size() / channels();
+	auto opos = static_cast<unsigned>((itotal() + ilen) / factor_); // å–floor
+	return opos - ototal() + obuffered();
 }
 
 
 template<typename T>
 unsigned KtResampling<T>::ilength(unsigned olen) const
 {
-	auto blen = obuf_.size() / channels();
-	if (olen < blen)
+	auto blen = obuffered();
+	if (olen <= blen)
 		return 0;
 
-	assert(ipos_ >= opos_ * factor_);
-	auto ipos = std::ceil((opos_ + olen - blen) * factor_);
-	return static_cast<unsigned>(ipos) - ipos_;
+	assert(itotal() >= ototal() * factor());
+	auto ipos = std::ceil((ototal() + olen - blen) * factor_);
+	return static_cast<unsigned>(ipos) - itotal() + unbuffered_() - 1;
 }
 
 
 template<typename T>
 unsigned KtResampling<T>::flength() const
 {
-	return olength(buffered() > 0 ? length() - mid_() : 0);
+	return olength(ibuffered() > 0 ? length() - mid_() : 0);
 }
 
 

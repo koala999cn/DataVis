@@ -1,9 +1,9 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include <assert.h>
 
 
-// ¶ÔĞÅµÀÊı¾İµÄ·ÖÖ¡´¦ÀíÆ÷
+// å¯¹ä¿¡é“æ•°æ®çš„åˆ†å¸§å¤„ç†å™¨
 
 template<typename T>
 class KtFraming
@@ -12,12 +12,12 @@ public:
 
 	constexpr static bool isInterleaving() { return true; }
 
-	// ÑÓ³Ùlen¸öÊı¾İµãÊä³ö
-	// @shift: =0Ê±£¬È¡lenÖµ
+	// å»¶è¿Ÿlenä¸ªæ•°æ®ç‚¹è¾“å‡º
+	// @shift: =0æ—¶ï¼Œå–lenå€¼
 	KtFraming(unsigned len, unsigned chann, unsigned shift)
 		: length_(len), chann_(chann), buf_(), shift_(shift ? shift : len) {}
 
-	// ³õÊ¼»¯ÄÚ²¿×´Ì¬ÎªinitVal£¬ÎŞÑÓÊ±Êä³ö
+	// åˆå§‹åŒ–å†…éƒ¨çŠ¶æ€ä¸ºinitValï¼Œæ— å»¶æ—¶è¾“å‡º
 	KtFraming(unsigned len, unsigned chann, unsigned shift, T initVal)
 	: length_(len), chann_(chann), buf_((len - 1) * chann, initVal), shift_(shift ? shift : len) {}
 
@@ -31,73 +31,73 @@ public:
 
 	template<typename OP> void flush(OP op);
 
-	// ½«Êı¾İÑ¹Èë»º´æ£¬ÑÓ³ÙÖ´ĞĞop²Ù×÷
+	// å°†æ•°æ®å‹å…¥ç¼“å­˜ï¼Œå»¶è¿Ÿæ‰§è¡Œopæ“ä½œ
 	void push(const T* first, const T* last) {
 		buf_.insert(buf_.end(), first, last);
 	}
 
-	// Çå¿Õ»º´æ
+	// æ¸…ç©ºç¼“å­˜
 	void reset() {
 		buf_.clear();
 	}
 
-	// ÖØÖÃ
+	// é‡ç½®
 	void reset(unsigned len, unsigned chann, unsigned shift) {
 		length_ = len, chann_ = chann, shift_ = shift;
 	    buf_.clear();
 	}
 
-	// @addBuffered: ÈôÎªtrue£¬ÔòÔÚsamples»ù´¡ÉÏ¼ÓÈë»º´æÊı¾İ½øĞĞÖ¡Êı¼ÆËã
+	// @addBuffered: è‹¥ä¸ºtrueï¼Œåˆ™åœ¨samplesåŸºç¡€ä¸ŠåŠ å…¥ç¼“å­˜æ•°æ®è¿›è¡Œå¸§æ•°è®¡ç®—
 	unsigned numFrames(unsigned samples, bool addBuffered) const;
 
 
 private:
 
-	// ¼ÆËãĞèÒªÏò»º´æ¿½±´¶àÉÙÊı¾İ£¬²ÅÄÜ·ÖÖ¡ºÄ¾¡»º´æ
+	// è®¡ç®—éœ€è¦å‘ç¼“å­˜æ‹·è´å¤šå°‘æ•°æ®ï¼Œæ‰èƒ½åˆ†å¸§è€—å°½ç¼“å­˜
 	unsigned needAppended_() const;
 
-	// ÔÚÁ¬ĞøÊı¾İÉÏÖ´ĞĞ·ÖÖ¡£¬²»¿¼ÂÇ»º´æÊı¾İ£¬·µ»Ø²ĞÁôÊı¾İµü´úÖ¸Õë
+	// åœ¨è¿ç»­æ•°æ®ä¸Šæ‰§è¡Œåˆ†å¸§ï¼Œä¸è€ƒè™‘ç¼“å­˜æ•°æ®ï¼Œè¿”å›æ®‹ç•™æ•°æ®è¿­ä»£æŒ‡é’ˆ
 	template<typename OP>
-	const T* execute_(const T* first, const T* last, OP op);
+	const T* execute_(const T* first, const T* last, OP& op);
 
 
 private:
 	std::vector<T> buf_;
-	unsigned chann_; // ĞÅµÀÊı
-	unsigned length_; // Ö¡³¤
-	unsigned shift_; // Ö¡ÒÆ
+	unsigned chann_; // ä¿¡é“æ•°
+	unsigned length_; // å¸§é•¿
+	unsigned shift_; // å¸§ç§»
 };
 
 
 template<typename T> template<typename OP>
 void KtFraming<T>::apply(const T* first, const T* last, OP op)
 {
-	auto incount = (last - first) / channels(); // ĞÂÔöÊäÈëµÄÊı¾İÊıÁ¿
-	if (numFrames(incount, true) == 0) { // ÈôÊı¾İÁ¿²»×ã£¬½öÖ´ĞĞ»º´æ²Ù×÷
+	auto incount = (last - first) / channels(); // æ–°å¢è¾“å…¥çš„æ•°æ®æ•°é‡
+	if (numFrames(incount, true) == 0) { // è‹¥æ•°æ®é‡ä¸è¶³ï¼Œä»…æ‰§è¡Œç¼“å­˜æ“ä½œ
 		push(first, last);
 		return;
 	}
 
-	// ·ÖÁ½¶ÎÖ´ĞĞ·ÖÖ¡£º
-	//   Ò»ÊÇ¿½±´²¿·ÖÊäÈëµ½»º´æ£¬ÏÈºÄ¾¡»º´æÊı¾İ£¬
-	//   ¶şÊÇ¶ÔÊ£ÓàµÄÊäÈëÖ´ĞĞÔÚÏß´¦Àí
+	// åˆ†ä¸¤æ®µæ‰§è¡Œåˆ†å¸§ï¼š
+	//   ä¸€æ˜¯æ‹·è´éƒ¨åˆ†è¾“å…¥åˆ°ç¼“å­˜ï¼Œå…ˆè€—å°½ç¼“å­˜æ•°æ®ï¼Œ
+	//   äºŒæ˜¯å¯¹å‰©ä½™çš„è¾“å…¥æ‰§è¡Œåœ¨çº¿å¤„ç†
 	auto copycount = needAppended_();
 	assert(numFrames(copycount, true) * shift_ >= buffered());
 	if (copycount > incount)
 		copycount = incount;
 	auto last_ = first + copycount * channels();
 	push(first, last_);
-	auto pos = execute_(buf_.data(), buf_.data() + buf_.size(), op); // Ö´ĞĞµÚÒ»½×¶Î·ÖÖ¡
+	auto pos = execute_(buf_.data(), buf_.data() + buf_.size(), op); // æ‰§è¡Œç¬¬ä¸€é˜¶æ®µåˆ†å¸§
 
-	if (last_ == last) { // ÎŞÊ£ÓàÊı¾İ
+	if (last_ == last) { // æ— å‰©ä½™æ•°æ®
 		buf_.erase(buf_.begin(), buf_.begin() + (pos - buf_.data()));
 		assert(numFrames(0, true) == 0);
 	}
-	else { // ´¦ÀíÊ£ÓàÊı¾İ
+	else { // å¤„ç†å‰©ä½™æ•°æ®
 		first = last_ - (buf_.data() + buf_.size() - pos);
-		pos = execute_(first, last, op); // Ö´ĞĞµÚ¶ş½×¶Î·ÖÖ¡
+		pos = execute_(first, last, op); // æ‰§è¡Œç¬¬äºŒé˜¶æ®µåˆ†å¸§
 		buf_.clear();
-		push(pos, last); // ²ĞÁôÊı¾İÑ¹Èë»º´æ
+		push(pos, last); // æ®‹ç•™æ•°æ®å‹å…¥ç¼“å­˜
 	}
 }
 
@@ -106,7 +106,7 @@ template<typename T> template<typename OP>
 void KtFraming<T>::flush(OP op)
 {
 	if (!buf_.empty()) {
-		buf_.resize(length() * channels(), 0); // TODO: ´¦Àíbuf_³ß´ç´óÓÚlength_µÄÇé¿ö
+		buf_.resize(length() * channels(), 0); // TODO: å¤„ç†buf_å°ºå¯¸å¤§äºlength_çš„æƒ…å†µ
 		op(buf_.data());
 		buf_.clear();
 	}
@@ -119,7 +119,7 @@ unsigned KtFraming<T>::numFrames(unsigned samples, bool addBuffered) const
 	if (addBuffered)
 		samples += buffered();
 
-	// ¿¼ÂÇshift > lengthµÄÇé¿ö£¬±£Ö¤×îÉÙÄÜÖ´ĞĞÒ»´Îshift²Ù×÷Ê±ÔÙ·ÖÖ¡
+	// è€ƒè™‘shift > lengthçš„æƒ…å†µï¼Œä¿è¯æœ€å°‘èƒ½æ‰§è¡Œä¸€æ¬¡shiftæ“ä½œæ—¶å†åˆ†å¸§
 	if (samples < std::max(length(), shift()))
 		return 0;
 
@@ -129,7 +129,7 @@ unsigned KtFraming<T>::numFrames(unsigned samples, bool addBuffered) const
 
 
 template<typename T> template<typename OP>
-const T* KtFraming<T>::execute_(const T* first, const T* last, OP op) 
+const T* KtFraming<T>::execute_(const T* first, const T* last, OP& op) 
 {
 	auto incount = (last - first) / channels();
 	auto frames = numFrames(incount, false);
