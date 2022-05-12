@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "kDsp.h"
 
 
@@ -76,8 +76,10 @@ public:
     // depth=2时，退化为4点3次多项式插值
     // depth>2时，左右各取depth个点sinc插值
     // xidx为索引值，位于[0, nx)区间，对应于[ X[0], X[nx] )
-    static kReal sinc(const kReal Y[], kIndex nx, kReal xidx, int depth);
+    static kReal sinc(const kReal Y[], kIndex nx, kReal xidx, int depth, kIndex stride);
 
+    // 求sum(Y[i] * sinc(xidx - i))
+    static kReal sinc(const kReal Y[], kIndex nx, kReal xidx, kIndex stride);
 
     // Lagrange多项式插值
     // X[i]必须单调递增, 下同

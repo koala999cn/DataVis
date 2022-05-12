@@ -57,6 +57,7 @@ private:
 	unsigned needAppended_() const;
 
 	// 在连续数据上执行分帧，不考虑缓存数据，返回残留数据迭代指针
+	// NOTE: 此处op使用引用类型，以便apply多次调用时共享op的内部状态
 	template<typename OP>
 	const T* execute_(const T* first, const T* last, OP& op);
 

@@ -1,4 +1,4 @@
-#include "KcOpResampler.h"
+ï»¿#include "KcOpResampler.h"
 #include "dsp/KgResampler.h"
 #include "KcSampled1d.h"
 
@@ -56,6 +56,9 @@ KcOpResampler::kPropertySet KcOpResampler::propertySet() const
     prop.id = k_factor;
     prop.name = tr("Factor");
     prop.val = factor_;
+    prop.minVal = 0.001;
+    prop.maxVal = 1024;
+    prop.step = 0.1;
     ps.push_back(prop);
 
     static const std::pair<QString, int> method[] = {
@@ -80,6 +83,7 @@ KcOpResampler::kPropertySet KcOpResampler::propertySet() const
     prop.minVal = 2;
     prop.maxVal = 1024 * 16; // 16k
     prop.step = 2;
+    prop.children.clear();
     ps.push_back(prop);
 
     return ps;
@@ -126,14 +130,13 @@ std::shared_ptr<KvData> KcOpResampler::processImpl_(std::shared_ptr<KvData> data
     assert(samp1d);
 
     auto res = std::make_shared<KcSampled1d>();
-    res->reset(0, samp1d->range(0).low(), step(0), samp1d->sampling(0).x0ref() * factor_); // TODO: ´¦ÀíÑÓÊ±
+    res->reset(0, samp1d->range(0).low(), step(0), samp1d->sampling(0).x0ref() * factor_); // TODO: å¤„ç†å»¶æ—¶
     res->resize(resamp_->olength(samp1d->count()), samp1d->channels());
 
     auto N = resamp_->apply(samp1d->data(), samp1d->count(), res->data(), res->count());
     assert(N <= res->count());
     if(N != res->count())
         res->resize(N);
-
     return res;
 }
 

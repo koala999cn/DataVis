@@ -14,7 +14,18 @@ KgResampler::KgResampler(int method, kIndex winlen, kIndex chann, double factor)
 KgResampler::interp_t KgResampler::getInterp() const
 {
 	return [this](const kReal* in, double phase) -> kReal {
-		return KuInterp1d::poly(in, length(), phase, channels());
+		switch (interpMethod_) {
+		case k_linear:
+			return KuInterp1d::linear(in[0], in[channels()], phase);
+
+		case k_lagrange:
+			return KuInterp1d::poly(in, length(), phase, channels());
+
+		default:
+			break;
+		}
+		
+		return KuInterp1d::sinc(in, length(), phase, channels());
 	};
 }
 

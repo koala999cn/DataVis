@@ -1,4 +1,4 @@
-#include "KuInterp1d.h"
+﻿#include "KuInterp1d.h"
 #include <assert.h>
 #include <vector>
 #include "KtuMath.h"
@@ -89,7 +89,7 @@ kReal KuInterp1d::poly(const kReal Y[], kIndex n, kReal xidx, kIndex stride)
 }
 
 
-kReal KuInterp1d::sinc(const kReal Y[], kIndex nx, kReal xidx, int depth)
+kReal KuInterp1d::sinc(const kReal Y[], kIndex nx, kReal xidx, int depth, kIndex stride)
 {
     kIndex midleft = std::floor(xidx), midright = midleft + 1;
 
@@ -110,7 +110,9 @@ kReal KuInterp1d::sinc(const kReal Y[], kIndex nx, kReal xidx, int depth)
 
     // do the actual sinc interpolate
     kIndex left = midright - depth, right = midleft + depth;
-    kReal y = 0; // sinc插值结果
+    return sinc(Y + left, right - left + 1, xidx - left, stride);
+
+    /*kReal y = 0; // sinc插值结果
     kReal a = kMath::pi * (xidx - midleft);
     kReal halfsina = 0.5 * std::sin(a);
     kReal aa = a / (xidx - left + 1);
@@ -132,6 +134,43 @@ kReal KuInterp1d::sinc(const kReal Y[], kIndex nx, kReal xidx, int depth)
         a += kMath::pi;
         aa += daa;
         halfsina = - halfsina;
+    }
+
+    return y;*/
+}
+
+
+kReal KuInterp1d::sinc(const kReal Y[], kIndex nx, kReal xidx, kIndex stride)
+{
+    assert(xidx >= 0 && xidx < nx);
+
+    double midleft;
+    auto frac = std::modf(xidx, &midleft);
+    if (frac == 0)
+        return Y[int(xidx)];
+
+    kReal y = 0; // sinc插值结果
+    kReal a = kMath::pi * frac;
+    kReal halfsina = 0.5 * std::sin(a);
+    kReal aa = a / (xidx + 1);
+    kReal daa = kMath::pi / (xidx + 1);
+    for (int ix = int(midleft); ix >= 0; ix--) {
+        kReal d = halfsina / a * (1 + std::cos(aa));
+        y += Y[ix * stride] * d;
+        a += kMath::pi;
+        aa += daa;
+        halfsina = -halfsina;
+    }
+    a = kMath::pi * (1 - frac);
+    halfsina = 0.5 * std::sin(a);
+    aa = a / (nx - xidx);
+    daa = kMath::pi / (nx - xidx);
+    for (kIndex ix = kIndex(midleft) + 1; ix < nx; ix++) {
+        auto d = halfsina / a * (1.0 + std::cos(aa));
+        y += Y[ix * stride] * d;
+        a += kMath::pi;
+        aa += daa;
+        halfsina = -halfsina;
     }
 
     return y;
