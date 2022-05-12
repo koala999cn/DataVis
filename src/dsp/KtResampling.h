@@ -17,9 +17,11 @@ template<typename T>
 class KtResampling
 {
 public:
+	// @factor: 重采样系数 = out-sample-rate / in-sample-rate
+	//          大于1表示升采样，小于1表示降采样
 	KtResampling(unsigned winlen, unsigned chann, double factor)
 		: framing_(winlen, chann, 1)
-		, factor_(factor) {
+		, factorR_(1.0 / factor) {
 		reset();
 	}
 
@@ -36,7 +38,7 @@ public:
 		return obuf_.size() / channels();
 	}
 
-	auto factor() const { return factor_; }
+	auto factor() const { return 1.0 / factorR_; }
 
 	auto itotal() const { return ipos_; }
 	auto ototal() const { return opos_ - 1; }
@@ -59,7 +61,7 @@ public:
 	// 重置
 	void reset(unsigned winlen, unsigned chann, double factor) {
 		framing_.reset(winlen, chann, 1);
-		factor_ = factor;
+		factorR_ = 1.0 / factor;
 		reset();
 	}
 
@@ -106,15 +108,16 @@ private:
 		void operator()(const T* ibuf) {
 			const auto chann = resamp.channels();
 			const auto mid = resamp.mid_();
-			const auto factor = resamp.factor_;
+			const auto factorR = resamp.factorR_;
 			auto& opos = resamp.opos_;
 			auto& ipos = ++resamp.ipos_;
 			
-			for (auto pos = opos * factor; pos <= ipos; pos = ++opos * factor) {
+			for (auto pos = opos * factorR; pos <= ipos; pos = ++opos * factorR) {
 				assert(ipos - pos < 1);
 				assert(outp + chann <= oute);
 				auto phase = mid - (ipos - pos);
-				assert(phase > resamp.length() / 2 - 1 && phase <= resamp.length() / 2);
+				// 断言phase位于插值窗的中间
+				assert(phase > resamp.length() / 2 - 1 && phase <= resamp.length() / 2); 
 
 				// 逐通道插值
 				for (unsigned c = 0; c < chann; c++) 
@@ -127,7 +130,7 @@ private:
 
 private:
 	KtFraming<T> framing_;
-	double factor_; // 重采样系数，= irate/orate，大于1表示降采样，小于1表示升采样
+	double factorR_; // 为方便计算，取重采样系数的倒数
 	unsigned ipos_; // 累计输入帧数
 	unsigned opos_; // 累计输出帧数
 	std::vector<T> obuf_;  // 输出缓存。当用户提供的输出容量不足时，多余的输出将暂存此处。
@@ -183,12 +186,12 @@ unsigned KtResampling<T>::flush(T* out, unsigned olen, INTERP interp)
 template<typename T>
 unsigned KtResampling<T>::olength(unsigned ilen) const
 {
-	assert(ototal() <= itotal() / factor());
+	assert(ototal() <= itotal() * factor());
 	if (ilen < unbuffered_())
 		return 0;
 	ilen -= unbuffered_() - 1;
 
-	auto opos = static_cast<unsigned>((itotal() + ilen) / factor_); // 取floor
+	auto opos = static_cast<unsigned>((itotal() + ilen) / factorR_); // 取floor
 	return opos - ototal() + obuffered();
 }
 
@@ -200,8 +203,8 @@ unsigned KtResampling<T>::ilength(unsigned olen) const
 	if (olen <= blen)
 		return 0;
 
-	assert(itotal() >= ototal() * factor());
-	auto ipos = std::ceil((ototal() + olen - blen) * factor_);
+	assert(itotal() >= ototal() / factor());
+	auto ipos = std::ceil((ototal() + olen - blen) * factorR_);
 	return static_cast<unsigned>(ipos) - itotal() + unbuffered_() - 1;
 }
 

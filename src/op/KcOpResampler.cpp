@@ -19,7 +19,7 @@ kReal KcOpResampler::step(kIndex axis) const
     assert(axis < dim());
     auto st = KvDataOperator::step(axis);
     if (axis == dim() - 1)
-        st *= factor_;
+        st /= factor_;
     return st;
 }
 
@@ -29,7 +29,7 @@ kIndex KcOpResampler::size(kIndex axis) const
     assert(axis < dim());
     auto sz = KvDataOperator::size(axis);
     if (axis == dim() - 1)
-        sz /= factor_;
+        sz *= factor_;
     return sz;
 }
 
@@ -130,7 +130,7 @@ std::shared_ptr<KvData> KcOpResampler::processImpl_(std::shared_ptr<KvData> data
     assert(samp1d);
 
     auto res = std::make_shared<KcSampled1d>();
-    res->reset(0, samp1d->range(0).low(), step(0), samp1d->sampling(0).x0ref() * factor_); // TODO: 处理延时
+    res->reset(0, samp1d->range(0).low(), step(0), samp1d->sampling(0).x0ref() / factor_); // TODO: 处理延时
     res->resize(resamp_->olength(samp1d->count()), samp1d->channels());
 
     auto N = resamp_->apply(samp1d->data(), samp1d->count(), res->data(), res->count());

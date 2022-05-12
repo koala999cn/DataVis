@@ -18,6 +18,7 @@ public:
 		k_sinc
 	};
 
+	// @factor: 重采样系数 = out-sample-rate / in-sample-rate
 	KgResampler(int method, kIndex winlen, kIndex chann, double factor);
 
 	int method() const { return interpMethod_; }
