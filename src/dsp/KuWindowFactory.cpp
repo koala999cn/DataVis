@@ -2,8 +2,6 @@
 #include <vector>
 #include <cstdarg>
 #include "KuWindowFactory.h"
-#include "KtuMath.h"
-#include "KtuBitwise.h"
 #include "KtContinued.h"
 #include "functions.h"
 #include "kDsp.h"
