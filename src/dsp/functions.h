@@ -39,12 +39,18 @@ struct blackman
 {
     // [0, 1]
     KREAL operator()(KREAL x) const {
+        KREAL alpha = 0.16;
+        KREAL a0 = 0.5 * (1- alpha);
+        KREAL a1 = 0.5;
+        KREAL a2 = 0.5 * alpha;
+
         KREAL t = KtuMath<KREAL>::pi * 2 * x;
-        return 0.42 - 0.5 * cos(t) + 0.08 * cos(2 * t);
+        return a0 - a1 * cos(t) + a2 * cos(2 * t);
     }
 };
 
-// Blackman-harris window [harris:1978]
+// Blackman-harris window
+// see "On the Use of Windows for Harmonic Analysis with the Discrete Fourier Transform." harris, fredric j. 1978.
 template<typename KREAL>
 struct blackmanharris
 {
@@ -54,6 +60,24 @@ struct blackmanharris
         KREAL a1 = 0.48829f;
         KREAL a2 = 0.14128f;
         KREAL a3 = 0.01168f;
+        KREAL t = KtuMath<KREAL>::pi * 2 * x;
+
+        return a0 - a1 * cos(t) + a2 * cos(2 * t) - a3 * cos(3 * t);
+    }
+};
+
+
+// 一个不同系数版本的blackmanharris，具有稍低的旁瓣
+// see "Some Windows with Very Good Sidelobe Behavior." Nuttall, Albert H. 1981.
+template<typename KREAL>
+struct nuttall
+{
+    // [0, 1]
+    KREAL operator()(KREAL x) const {
+        KREAL a0 = 0.3635819;
+        KREAL a1 = 0.4891775;
+        KREAL a2 = 0.1365995;
+        KREAL a3 = 0.0106411;
         KREAL t = KtuMath<KREAL>::pi * 2 * x;
 
         return a0 - a1 * cos(t) + a2 * cos(2 * t) - a3 * cos(3 * t);
@@ -87,11 +111,6 @@ struct flattop
 {
     // [0, 1]
     KREAL operator()(KREAL x) const {
-/*		KREAL a0 = 1.000f;
-        KREAL a1 = 1.930f;
-        KREAL a2 = 1.290f;
-        KREAL a3 = 0.388f;
-        KREAL a4 = 0.028f;*/
         const KREAL a0 = 0.21557895;
         const KREAL a1 = 0.41663158;
         const KREAL a2 = 0.277263158;
@@ -105,6 +124,50 @@ struct flattop
     }
 };
 
+
+// Bohman window
+// f(x) = (1−|x|)*cos(pi*|x|) + sin(pi*|x|)/pi, , −1 <= x <= 1
+template<typename KREAL>
+struct bohman
+{
+    // [-1, 1]
+    KREAL operator()(KREAL x) const {
+        x = abs(x);
+        auto pix = KtuMath<KREAL>::pi * x;
+        return (1 - x) * cos(pix) + sin(pix) / KtuMath<KREAL>::pi;
+    }
+};
+
+
+// Gaussian window
+template<typename KREAL>
+struct gaussian
+{
+    // @aplha: 1 / covar
+    gaussian(KREAL alpha = 2.5) : alpha_(alpha) {}
+
+    // [-1, 1]
+    KREAL operator()(KREAL x) const {
+        return exp(-0.5 * (alpha_ * x) * (alpha_ * x));
+    }
+
+private:
+    KREAL alpha_;
+};
+
+
+// Parzen window
+template<typename KREAL>
+struct parzen
+{
+    // [-1, 1]
+    KREAL operator()(KREAL x) const {
+        x = abs(x);
+        return x <= 0.5 ? 1 - 6 * x * (x - x * x) : 2 * (1 - x) * (1 - x) * (1 - x);
+    }
+};
+
+
 // Triangular window
 template<typename KREAL>
 struct triangular
@@ -114,6 +177,7 @@ struct triangular
         return 1 - abs(2 * x - 1);
     }
 };
+
 
 // raised-cosine tapering window
 template<typename KREAL>
@@ -238,4 +302,16 @@ struct kaiser
 
 private:
     KREAL beta_; // window taper parameter
+};
+
+
+// bartlett_hann window
+template<typename KREAL>
+struct bartletthann
+{
+    // [0, 1]
+    KREAL operator()(KREAL x) const {
+        x = x - 0.5;
+        return 0.62 - 0.48 * abs(x) + 0.38 * cos(2 * KtuMath<KREAL>::pi * x);
+    }
 };
