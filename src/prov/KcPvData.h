@@ -24,7 +24,9 @@ public:
 
 	bool running() const override;
 
+	// 对于连续数据，改写range属性为可编辑
 	kPropertySet propertySet() const override;
+
 
 	auto data() { return data_; }
 
@@ -32,7 +34,7 @@ private:
 	bool startImpl_() final;
 	bool stopImpl_() final;
 	
-	void setPropertyImpl_(int id, const QVariant& newVal) override {}
+	void setPropertyImpl_(int id, const QVariant& newVal) override;
 
 private:
 	std::shared_ptr<KvData> data_;

@@ -31,6 +31,16 @@ public:
 
 	virtual kIndex size(kIndex axis) const = 0;
 
+	// 实现dim, channels, range, step等基本属性
+	kPropertySet propertySet() const override;
+
+	kIndex count() const {
+		kIndex c(1);
+		for (kIndex i = 0; i < dim(); i++)
+			c *= size(i);
+		return c;
+	}
+
 	bool start() {
 		emit onStarting();
 		bool r = startImpl_();

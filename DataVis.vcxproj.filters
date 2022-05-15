@@ -188,6 +188,9 @@
     <ClCompile Include="src\op\KcOpResampler.cpp">
       <Filter>op</Filter>
     </ClCompile>
+    <ClCompile Include="src\prov\KvDataProvider.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\QtAppEventHub.h">
@@ -244,9 +247,6 @@
       <Filter>op</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KvData.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtuMath.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtSampling.h">
@@ -407,6 +407,9 @@
     </ClInclude>
     <ClInclude Include="src\op\KcOpResampler.h">
       <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtuMath.h">
+      <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

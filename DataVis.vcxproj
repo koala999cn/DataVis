@@ -166,6 +166,7 @@
     <ClCompile Include="src\op\KvOpHelper1d.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
+    <ClCompile Include="src\prov\KvDataProvider.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
     <ClCompile Include="src\gui\QtAuidoUtils.cpp" />
