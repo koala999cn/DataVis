@@ -191,6 +191,12 @@
     <ClCompile Include="src\prov\KvDataProvider.cpp">
       <Filter>prov</Filter>
     </ClCompile>
+    <ClCompile Include="src\dsp\KvContinued.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KvDiscreted.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\QtAppEventHub.h">

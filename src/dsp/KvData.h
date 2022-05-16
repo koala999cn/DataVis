@@ -27,6 +27,23 @@ public:
 	// 返回axis维度的数据范围
 	virtual kRange range(kIndex axis) const = 0;
 
+	// 第channel通道的最大最小值（使用二分算法粗略计算）
+	virtual kRange valueRange(kIndex channel) const = 0;
+
+	// 所有通道的最大最小值
+	virtual kRange valueRange() const {
+		auto r = valueRange(0);
+		for (kIndex c = 1; c < channels(); c++) {
+			auto rc = valueRange(c);
+			if (rc.low() < r.low())
+				r.resetLow(rc.low());
+			if (rc.high() > r.high())
+				r.resetHigh(rc.high());
+		}
+
+		return r;
+	}
+
 
 	// 是否连续数据？
 	bool isContinued() const {

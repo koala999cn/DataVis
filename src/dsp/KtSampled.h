@@ -98,54 +98,6 @@ public:
 		return samp_[axis].indexToX(idx);
 	}
 
-	// 第channel通道的最大最小值
-	virtual kRange valueRange(kIndex channel) const {
-		if (count() == 0) return { 0, 0 };
-
-		value_type vmin = std::numeric_limits<value_type>::max();
-		value_type vmax = std::numeric_limits<value_type>::lowest();
-
-		kIndex idx[DIM] = { 0 };
-		for(kIndex i = 0; i < count(); i++) {
-			auto val = value(idx, channel);
-			if (std::isnan<value_type>(val))
-				continue;
-
-			vmin = std::min(vmin, val);
-			vmax = std::max(vmax, val);
-
-			nextIndex_(idx);
-		}
-
-		return { vmin, vmax };
-	}
-
-
-	// 所有通道的最大最小值
-	virtual kRange valueRange() const {
-		auto r = valueRange(0);
-		for (kIndex c = 1; c < channels(); c++) {
-			auto rc = valueRange(c);
-			if (rc.low() < r.low())
-				r.resetLow(rc.low());
-			if (rc.high() > r.high())
-				r.resetHigh(rc.high());
-		}
-
-		return r;
-	}
-
-protected:
-	void nextIndex_(kIndex idx[]) const {
-		for (kIndex i = 0; i < DIM; i++) {
-			if (++idx[i] < size(i))
-				break;
-
-			idx[i] = 0; // 进位
-		}
-	}
-
-
 protected:
 	std::array<KtSampling<value_type>, DIM> samp_; // 各维度的采样参数
 };

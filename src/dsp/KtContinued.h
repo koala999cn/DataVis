@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "KvContinued.h"
-#include "KtuMath.h"
 #include <array>
 
 
@@ -51,62 +50,6 @@ public:
 
 	void setRange(kIndex axis, kReal low, kReal high) {
 		range_[axis] = { low, high };
-	}
-
-	// 第channel通道的最大最小值（使用二分算法粗略计算）
-	virtual kRange valueRange(kIndex channel) const {
-		if (count() == 0) return { 0, 0 };
-
-		assert(DIM == 1); // TODO: 暂时实现一维算法
-
-		kReal omin = std::numeric_limits<kReal>::max();
-		kReal omax = std::numeric_limits<kReal>::lowest();
-
-		kReal low = range(0).low();
-		if (std::isinf(low)) low = -1e8;
-		kReal high = range(0).high();
-		if (std::isinf(high)) high = 1e8;
-		kReal dx((high - low)/2);
-		kReal tol(0.001); // 百分之一的误差
-		int minIter(10), maxIter(16), numIter(0);
-
-		while (true) {
-			kReal nmin = std::numeric_limits<kReal>::max();
-			kReal nmax = std::numeric_limits<kReal>::lowest();
-			for (kReal x = low; x < high; x += dx) {
-				auto val = value(&x, channel);
-				if (val > nmax)
-					nmax = val;
-				if (val < nmin)
-					nmin = val;
-			}
-
-			if ((KtuMath<kReal>::almostEqualRel(omin, nmin, tol) &&
-				KtuMath<kReal>::almostEqualRel(omax, nmax, tol) &&
-				numIter > minIter) || numIter > maxIter) 
-				return { nmin, nmax };
-
-
-			omin = nmin, omax = nmax, dx *= 0.5;
-			++numIter;
-		}
-
-		return { omin, omax };
-	}
-
-
-	// 所有通道的最大最小值
-	virtual kRange valueRange() const {
-		auto r = valueRange(0);
-		for (kIndex c = 1; c < channels(); c++) {
-			auto rc = valueRange(c);
-			if (rc.low() < r.low())
-				r.resetLow(rc.low());
-			if (rc.high() > r.high())
-				r.resetHigh(rc.high());
-		}
-
-		return r;
 	}
 
 private:

@@ -7,6 +7,11 @@ class KvDiscreted : public KvData
 {
 public:
 
+	using KvData::valueRange;
+
+	kRange valueRange(kIndex channel) const override;
+
+
 	// 返回axis维度的数据数量
 	virtual kIndex size(kIndex axis) const = 0;
 
@@ -76,5 +81,14 @@ public:
 
 	kIndex xToNearestIndex(kReal x) const {
 		return static_cast<kIndex>(std::round(xToIndex(x)));
+	}
+
+	void nextIndex(kIndex idx[]) const {
+		for (kIndex i = 0; i < dim(); i++) {
+			if (++idx[i] < size(i))
+				break;
+
+			idx[i] = 0; // 进位
+		}
 	}
 };

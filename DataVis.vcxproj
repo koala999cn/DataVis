@@ -149,6 +149,8 @@
     <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
     <ClCompile Include="src\dsp\KuInterp1d.cpp" />
     <ClCompile Include="src\dsp\KuWindowFactory.cpp" />
+    <ClCompile Include="src\dsp\KvContinued.cpp" />
+    <ClCompile Include="src\dsp\KvDiscreted.cpp" />
     <ClCompile Include="src\gui\QtAudioCaptureDlg.cpp" />
     <ClCompile Include="src\gui\QtFormulaDlg.cpp" />
     <ClCompile Include="src\gui\QtMainFrame.cpp" />

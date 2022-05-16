@@ -10,6 +10,11 @@ public:
 		return k_inf_count;
 	}
 
+	using KvData::valueRange;
+
+	kRange valueRange(kIndex channel) const override;
+
+
 	// 通过坐标值获取数据值
 	// @pt: 大小为dim，各元素分表表示对应坐标轴的坐标值
 	virtual kReal value(kReal pt[], kIndex channel) const = 0;
