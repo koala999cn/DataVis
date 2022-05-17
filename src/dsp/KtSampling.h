@@ -153,6 +153,16 @@ public:
         return count(length());
     }
 
+    // 截取子区间[newLow, newHigh)，并重新定位x0
+    void slice(KREAL newLow, KREAL newHigh) {
+        assert(newHigh >= newLow);
+        auto idx = xToLowIndex(newLow);
+        auto x0 = x0_ + idx * dx_;
+        if (x0 < newLow)
+            x0 = x0_ + (idx + 1) * dx_;
+        x0_ = x0;
+        KtInterval::reset(newLow, newHigh);
+    }
 
     // 重新实现KtInterval的shift和scale系列操作，同步调整x0值 
     void shift(KREAL offset) {
