@@ -4,15 +4,15 @@
 用于流数据的实时分析与显示。
 
 #### 依赖库
-- [blitz](https://github.com/blitzpp/blitz/) inline，无须单独编译
+- [blitz](https://github.com/blitzpp/blitz/) - inline，无须单独编译
 - [exprtkX](https://gitee.com/koala999/exprtk-x/)
 - [KDDockWidgets](https://github.com/KDAB/KDDockWidgets/)
-- [kfr](https://www.kfr.dev/) inline，无须单独编译
+- [kfr](https://www.kfr.dev/) - inline，无须单独编译
 - [libsndfile](http://libsndfile.github.io/libsndfile/)
-- [praat](https://www.fon.hum.uva.nl/praat/) inline，无须单独编译
+- [praat](https://www.fon.hum.uva.nl/praat/) - inline，无须单独编译
 - [QCustomPlot](https://www.qcustomplot.com/)
 - [QtnProperty](https://github.com/koala999cn/QtnProperty/)
-- [readerwriterqueue](https://github.com/cameron314/readerwriterqueue/) inline，无须单独编译
+- [readerwriterqueue](https://github.com/cameron314/readerwriterqueue/) - inline，无须单独编译
 - [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/)
 - [smarc](http://audio-smarc.sourceforge.net/)
 
