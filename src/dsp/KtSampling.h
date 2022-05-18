@@ -86,7 +86,7 @@ public:
     KREAL dx() const { return dx_; } // 采样时间间隔
     KREAL xmin() const { return low(); }
     KREAL xmax() const { return high(); }
-    KREAL rate() const { return 1  /dx_; } // 采样率
+    KREAL rate() const { return 1 / dx_; } // 采样率
     bool empty() const { return !cover(x0_); }
 
     // 增长nx个采样点
