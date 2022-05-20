@@ -1,6 +1,8 @@
 ﻿#include "KcAudioDevice.h"
 #include "rtaudio/RtAudio.h"
 #include <thread>
+#include <algorithm>
+#include <assert.h>
 
 
 #if defined(_MSC_VER)
@@ -333,4 +335,44 @@ long KcAudioDevice::latency()
 {
     return RTAudio_->getStreamLatency();
 }
+
+
+unsigned KcAudioDevice::bestMatch(unsigned deviceId, unsigned sampleRate, int prefer)
+{
+    if (deviceId > count())
+        return 0;
+
+    auto di = info(deviceId);
+    auto& rates = di.sampleRates;
+    std::sort(rates.begin(), rates.end());
+    assert(std::unique(rates.begin(), rates.end()) == rates.end());
+    auto pos = std::lower_bound(rates.begin(), rates.end(), sampleRate);
+    if (pos == rates.end())
+        return rates.front();
+
+    if (*pos == sampleRate || prefer < 0)
+        return *pos; // lower_bound
+
+    auto pos1 = std::next(pos);
+    if (pos1 == rates.end())
+        return *pos;
+
+    if (prefer > 0)
+        return *pos1; // upper_bound
+
+    return *pos1 - sampleRate > sampleRate - *pos ? *pos : *pos1; // nearest
+}
+
+
+unsigned KcAudioDevice::matchInput(unsigned& sampleRate, unsigned& channles)
+{
+
+}
+
+
+unsigned KcAudioDevice::matchOutput(unsigned& sampleRate, unsigned& channles)
+{
+
+}
+
 

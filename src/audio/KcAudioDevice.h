@@ -184,6 +184,11 @@ public:
 
     const char* errorText() const { return error_.c_str(); }
 
+    // 获取设备deviceId与sampleRate的最佳匹配采样频率
+    // @prefer: =0取nearest值, <0取lower_bound, >0取upper_bound
+    // 返回0表示设备deviceId无效
+    unsigned bestMatch(unsigned deviceId, unsigned sampleRate, int prefer = 0);
+
 
 private:
     void* device_;
