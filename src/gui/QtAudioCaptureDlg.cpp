@@ -295,7 +295,7 @@ void QtAudioCaptureDlg::on_btPlay_clicked()
         }
     }
     else { // 回放
-        if(render_->playback(audio_)) {
+        if(render_->play(audio_)) {
             syncUiState_(kState::play);
             assert(timerId_ == -1);
             timerId_ = startTimer(100); // 100ms定时器
