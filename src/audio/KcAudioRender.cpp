@@ -1,11 +1,14 @@
 ﻿#include "KcAudioRender.h"
-#include "KcAudio.h"
+#include "KcSampled1d.h"
 #include "KgAudioFile.h"
+#include "readerwriterqueue/readerwriterqueue.h"
 #include <string.h>
 
 
 namespace kPrivate
 {
+    using data_queue = moodycamel::ReaderWriterQueue<std::shared_ptr<KcSampled1d>>;
+
     // 主要实现3个observer:
     //   一是KcNotifyObserver，用来向KcAudioRender的观察者转发update
     //   二是KcAudioRenderObserver，用来回放KcAudio音频数据
@@ -29,26 +32,43 @@ namespace kPrivate
     class KcAudioRenderObserver : public KcAudioRender::observer_type
     {
     public:
-        KcAudioRenderObserver(std::shared_ptr<KcAudio> audio) : audio_(audio) {}
+        KcAudioRenderObserver(data_queue* q, unsigned channels)
+            : q_(q), channels_(channels), pos_(0), data_() {}
 
         bool update(void* outputBuffer, unsigned frames, double streamTime) override {
 
             auto buf = (kReal*)outputBuffer;
-            auto pos = audio_->sampling(0).xToHighIndex(streamTime);
-            if (pos > audio_->count())
-                pos = audio_->count();
 
-            kIndex total = std::min<kIndex>(frames, audio_->count() - pos);
-            audio_->extract(pos, buf, total);
-            ::memset(buf + audio_->channels() * total, 0, audio_->bytesOfSamples(frames - total));
+            if (data_ == nullptr) {
+                if (!q_->try_dequeue(data_)) {
+                    KtuMath<kReal>::zeros(buf, frames * channels_);
+                    return false;
+                }
 
-            pos += total;
+                pos_ = 0;
+            }
 
-            return pos < audio_->count();
+            assert(data_ && data_->channels() == channels_); // TODO: 频率也是一致的
+
+            auto toCopy = data_->count() - pos_;
+            if (toCopy > frames) toCopy = frames;
+            data_->extract(pos_, buf, toCopy);
+            pos_ += toCopy;
+            auto dx = data_->step(0);
+            if (pos_ == data_->count())
+                data_.reset(); // data_已耗尽
+
+            if (toCopy < frames)
+                return update(buf + toCopy, frames - toCopy, streamTime + dx * toCopy);
+
+            return true;
         }
 
     private:
-        std::shared_ptr<KcAudio> audio_;
+        unsigned channels_;
+        data_queue* q_;
+        std::shared_ptr<KcSampled1d> data_;
+        unsigned pos_;
     };
 
 
@@ -73,6 +93,7 @@ namespace kPrivate
 
     private:
         std::shared_ptr<KgAudioFile> file_;
+        data_queue* q_;
     };
 }
 
@@ -82,36 +103,95 @@ KcAudioRender::KcAudioRender()
     device_ = std::make_unique<KcAudioDevice>();
     device_->pushBack(std::make_shared<kPrivate::KcNotifyObserver>(*this));
     openedDevice_ = -1;
+
+    queue_ = new typename kPrivate::data_queue;
 }
 
 
-bool KcAudioRender::playback(const std::shared_ptr<KcAudio>& audio, unsigned deviceId, double frameTime)
+KcAudioRender::~KcAudioRender()
 {
-    assert(audio);
-  
-    if (!open_(deviceId, audio->sampleRate(), audio->channels(), frameTime))
+    delete static_cast<kPrivate::data_queue*>(queue_);
+}
+
+
+bool KcAudioRender::play(const std::shared_ptr<KcSampled1d>& data, unsigned deviceId, double frameTime)
+{
+    assert(data);
+
+    if (!stop(true))
         return false;
 
-    assert(get<kPrivate::KcAudioRenderObserver>() == nullptr);
-    assert(get<kPrivate::KcFileRenderObserver>() == nullptr);
-    pushFront(std::make_shared<kPrivate::KcAudioRenderObserver>(audio)); // 放在最前面，这样写入的数据才能被其他观察者看到
-
-    device_->setStreamTime(audio->range(0).low());
-    return device_->start();
+    reset();
+    enqueue(data);
+    return play(deviceId, frameTime);
 }
 
-
-bool KcAudioRender::playback(const std::shared_ptr<KgAudioFile>& file, unsigned deviceId, double frameTime)
+/*
+bool KcAudioRender::play(const std::shared_ptr<KgAudioFile>& file, unsigned deviceId, double frameTime)
 {
     assert(file);
 
-    if (!open_(deviceId, file->sampleRate(), file->channels(), frameTime))
+    if (!open(deviceId, file->sampleRate(), file->channels(), frameTime))
         return false;
 
     assert(get<kPrivate::KcAudioRenderObserver>() == nullptr);
     assert(get<kPrivate::KcFileRenderObserver>() == nullptr);
     pushFront(std::make_shared<kPrivate::KcFileRenderObserver>(file)); // 放在最前面，这样写入的数据才能被其他观察者看到
 
+    return device_->start();
+}*/
+
+
+void KcAudioRender::enqueue(const std::shared_ptr<KcSampled1d>& data)
+{
+    ((kPrivate::data_queue*)queue_)->enqueue(data);
+}
+
+
+void KcAudioRender::reset()
+{
+    while(((kPrivate::data_queue*)queue_)->pop());
+}
+
+
+bool KcAudioRender::play(unsigned deviceId, double frameTime)
+{
+    auto data = ((kPrivate::data_queue*)queue_)->peek();
+    if (data == nullptr)
+        return false;
+
+    auto samp = data->get();
+    unsigned rate = static_cast<unsigned>(samp->sampleRate());
+    unsigned chan = samp->channels();
+    if (!openBestMatch_(deviceId, rate, chan, frameTime))
+        return false;
+
+    assert(get<kPrivate::KcAudioRenderObserver>() == nullptr);
+    assert(get<kPrivate::KcFileRenderObserver>() == nullptr);
+    pushFront(std::make_shared<kPrivate::KcAudioRenderObserver>(
+        (kPrivate::data_queue*)queue_, chan)); // 放在最前面，这样写入的数据才能被其他观察者看到
+
+    device_->setStreamTime(samp->range(0).low());
+    return device_->start();
+}
+
+
+bool KcAudioRender::play(unsigned deviceId, unsigned sampleRate, unsigned channels, double frameTime)
+{
+    auto data = ((kPrivate::data_queue*)queue_)->peek();
+    if (data == nullptr)
+        return false;
+
+    if (!openDevice_(deviceId, sampleRate, channels, frameTime))
+        return false;
+
+    assert(get<kPrivate::KcAudioRenderObserver>() == nullptr);
+    assert(get<kPrivate::KcFileRenderObserver>() == nullptr);
+    pushFront(std::make_shared<kPrivate::KcAudioRenderObserver>(
+        (kPrivate::data_queue*)queue_, channels));
+
+    auto samp = data->get();
+    device_->setStreamTime(samp->range(0).low());
     return device_->start();
 }
 
@@ -135,10 +215,19 @@ bool KcAudioRender::pause(bool wait)
 }
 
 
-bool KcAudioRender::goon(bool wait)
+bool KcAudioRender::goon()
 {
-    assert(pausing());
+    assert(paused());
     return device_->start();
+}
+
+
+bool KcAudioRender::closeDevice_()
+{
+    if (!device_->close())
+        return false;
+    openedDevice_ = -1;
+    return true;
 }
 
 
@@ -148,13 +237,21 @@ bool KcAudioRender::running() const
 }
 
 
-bool KcAudioRender::pausing() const
+bool KcAudioRender::paused() const
 {
-    return !running() && openedDevice_ != -1;
+    return !running() &&
+        const_cast<KcAudioRender*>(this)->get<kPrivate::KcAudioRenderObserver>();
 }
 
 
-bool KcAudioRender::open_(unsigned deviceId, unsigned sampleRate, unsigned channels, double frameTime)
+bool KcAudioRender::stopped() const
+{
+    return !running() && 
+        const_cast<KcAudioRender*>(this)->get<kPrivate::KcAudioRenderObserver>() == nullptr;
+}
+
+
+bool KcAudioRender::openDevice_(unsigned deviceId, unsigned sampleRate, unsigned channels, double frameTime)
 {
     assert(device_);
 
@@ -191,4 +288,24 @@ bool KcAudioRender::open_(unsigned deviceId, unsigned sampleRate, unsigned chann
     }
 
     return true;
+}
+
+
+bool KcAudioRender::openBestMatch_(unsigned deviceId, unsigned& sampleRate, unsigned& channels, double frameTime)
+{
+    if (deviceId == static_cast<unsigned>(-1))
+        deviceId = device_->defaultOutput();
+
+    auto di = device_->info(deviceId);
+    if (channels > di.outputChannels)
+        channels = di.outputChannels;
+    sampleRate = device_->bestMatch(deviceId, sampleRate, 1); // 优选升采样
+
+    return openDevice_(deviceId, sampleRate, channels, frameTime);
+}
+
+
+const char* KcAudioRender::errorText() const
+{ 
+    return device_->errorText(); 
 }
