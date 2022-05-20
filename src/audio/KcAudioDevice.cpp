@@ -364,15 +364,3 @@ unsigned KcAudioDevice::bestMatch(unsigned deviceId, unsigned sampleRate, int pr
 }
 
 
-unsigned KcAudioDevice::matchInput(unsigned& sampleRate, unsigned& channles)
-{
-
-}
-
-
-unsigned KcAudioDevice::matchOutput(unsigned& sampleRate, unsigned& channles)
-{
-
-}
-
-
