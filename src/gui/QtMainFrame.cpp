@@ -20,6 +20,7 @@
 #include "prov/KcPvAudioInput.h"
 #include "render/KcRdPlot1d.h"
 #include "render/KcRdPlot2d.h"
+#include "render/KcRdAudioPlayer.h"
 #include "op/KcOpSpectrum.h"
 #include "op/KcOpHist.h"
 #include "op/KcOpFraming.h"
@@ -166,6 +167,9 @@ bool QtMainFrame::setupMenu_()
     QAction* resampler = opMenu->addAction(u8"Resampler(&R)");
     connect(resampler, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpResampler>(workDock_, false); });
 
+    QAction* player = opMenu->addAction(u8"AudioPlayer(&P)");
+    connect(player, &QAction::triggered, [this] { kPrivate::insertObjectP<KcRdAudioPlayer>(workDock_, false); });
+
     
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
@@ -179,6 +183,7 @@ bool QtMainFrame::setupMenu_()
         interp->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
         fir->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
         resampler->setEnabled(obj&& obj->dim() == 1 && obj->isSampled());
+        player->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
         });
 
 

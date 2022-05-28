@@ -237,6 +237,12 @@ bool KcAudioRender::running() const
 }
 
 
+bool KcAudioRender::opened() const
+{
+    return device_->opened();
+}
+
+
 bool KcAudioRender::paused() const
 {
     return !running() &&
@@ -308,4 +314,16 @@ bool KcAudioRender::openBestMatch_(unsigned deviceId, unsigned& sampleRate, unsi
 const char* KcAudioRender::errorText() const
 { 
     return device_->errorText(); 
+}
+
+
+unsigned KcAudioRender::defaultDevice() const
+{
+    return device_->defaultOutput();
+}
+
+
+unsigned KcAudioRender::preferredSampleRate(unsigned deviceId) const
+{
+    return device_->preferredSampleRate(deviceId);
 }

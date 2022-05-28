@@ -175,6 +175,7 @@
     <ClCompile Include="src\gui\QtVolumnBar.cpp" />
     <ClCompile Include="src\gui\QtWaveBar.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\render\KcRdAudioPlayer.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
     <ClCompile Include="src\render\KcRdPlot2d.cpp" />
     <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
@@ -226,6 +227,7 @@
     <ClInclude Include="src\op\KcOpSampler.h" />
     <ClInclude Include="src\prov\KcPvAudioInput.h" />
     <ClInclude Include="src\prov\KcPvData.h" />
+    <ClInclude Include="src\render\KcRdAudioPlayer.h" />
     <ClInclude Include="src\render\KcRdPlot1d.h" />
     <ClInclude Include="src\render\KcRdPlot2d.h" />
     <ClInclude Include="src\render\KvDataRender.h" />

@@ -47,12 +47,20 @@ public:
      // 是否正在播放
     bool running() const;
 
+    bool opened() const;
+
+
     // 是否暂停播放
     bool paused() const;
 
     bool stopped() const;
 
+
     const char* errorText() const;
+
+    unsigned defaultDevice() const;
+
+    unsigned preferredSampleRate(unsigned deviceId) const;
 
 private:
 

@@ -197,6 +197,9 @@
     <ClCompile Include="src\dsp\KvDiscreted.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\KcRdAudioPlayer.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\QtAppEventHub.h">
@@ -416,6 +419,9 @@
     </ClInclude>
     <ClInclude Include="src\base\KtuMath.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdAudioPlayer.h">
+      <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
