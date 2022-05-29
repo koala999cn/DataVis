@@ -10,8 +10,6 @@ KcRdAudioPlayer::KcRdAudioPlayer(KvDataProvider* is)
 	render_ = std::make_unique<KcAudioRender>();
 
 	deviceId_ = render_->defaultDevice();
-	channels_ = is->channels();
-	sampleRate_ = 1 / is->step(0);
 	frameTime_ = 0.1;
 }
 
@@ -49,40 +47,30 @@ KcRdAudioPlayer::kPropertySet KcRdAudioPlayer::propertySet() const
 		}
 	}
 	ps.push_back(prop);
-
-	auto info = dev.info(deviceId_);
-	assert(channels_ <= info.outputChannels);
-
 	prop.children.clear();
+
+	auto pobj = dynamic_cast<KvDataProvider*>(parent());
+
 	prop.id = kPrivate::k_channels;
 	prop.name = tr("Channles");
+	prop.disp.clear();
 	prop.desc = tr("channels of audio input device");
-	prop.val = channels_; // int类型代表enum类型
-	prop.minVal = 1;
-	prop.maxVal = info.outputChannels;
-	prop.step = 1;
+	prop.flag = k_readonly;
+	prop.val = pobj->channels();
 	ps.push_back(prop);
 
-	prop.children.clear();
 	prop.id = kPrivate::k_sample_rate;
-	prop.name = u8"SampleRate";
-	prop.disp = u8"Sampling rate";
-	prop.desc = u8"sampling rate of audio output device in Hz";
-	prop.val = QVariant::fromValue<int>(sampleRate_);
-	for (auto rate : info.sampleRates) {
-		KvPropertiedObject::KpProperty sub;
-		sub.name = QString::number(rate);
-		sub.disp.clear();
-		sub.val = static_cast<int>(rate);
-		prop.children.push_back(sub);
-	}
+	prop.name = tr("SampleRate");
+	prop.disp = tr("Sampling rate");
+	prop.desc = tr("sampling rate of audio output device in Hz");
+	prop.val = 1.0 / pobj->step(0);
 	ps.push_back(prop);
 
-	prop.children.clear();
 	prop.id = kPrivate::k_frame_time;
-	prop.name = u8"FrameTime";
-	prop.disp = u8"Frame time";
-	prop.desc = u8"time in second per frame of audio output";
+	prop.name = tr("FrameTime");
+	prop.disp = tr("Frame time");
+	prop.desc = tr("time in second per frame of audio output");
+	prop.flag = 0;
 	prop.val = frameTime_;
 	prop.minVal = 0.005; // 最小5ms
 	prop.maxVal = 1.0; // 最大1s
@@ -131,14 +119,6 @@ void KcRdAudioPlayer::setPropertyImpl_(int id, const QVariant& newVal)
 		deviceId_ = newVal.toInt();
 		break;
 
-	case kPrivate::k_channels:
-		channels_ = newVal.toInt();
-		break;
-
-	case kPrivate::k_sample_rate:
-		sampleRate_ = newVal.toInt();
-		break;
-
 	case kPrivate::k_frame_time:
 		frameTime_ = newVal.toDouble();
 		break;
@@ -151,8 +131,8 @@ void KcRdAudioPlayer::setPropertyImpl_(int id, const QVariant& newVal)
 
 void KcRdAudioPlayer::syncParent()
 {
-	if (!render_->opened())
-		render_->play(deviceId_, sampleRate_, channels_, frameTime_);
+	//if (!render_->opened())
+	//	render_->play(deviceId_, sampleRate_, channels_, frameTime_);
 }
 
 	
@@ -162,6 +142,9 @@ bool KcRdAudioPlayer::renderImpl_(std::shared_ptr<KvData> data)
 	assert(render_ && samp1d);
 	
 	render_->enqueue(samp1d);
+
+	if (render_->stopped())
+		render_->play(deviceId_, samp1d->sampleRate(), samp1d->channels(), frameTime_);
 
 	return true;
 }

@@ -34,7 +34,5 @@ private:
 private:
 	std::unique_ptr<KcAudioRender> render_;
 	unsigned deviceId_;
-	kIndex channels_;
-	unsigned sampleRate_;
 	double frameTime_;
 };
