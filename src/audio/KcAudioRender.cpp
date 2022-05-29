@@ -93,7 +93,6 @@ namespace kPrivate
 
     private:
         std::shared_ptr<KgAudioFile> file_;
-        data_queue* q_;
     };
 }
 
@@ -178,10 +177,6 @@ bool KcAudioRender::play(unsigned deviceId, double frameTime)
 
 bool KcAudioRender::play(unsigned deviceId, unsigned sampleRate, unsigned channels, double frameTime)
 {
-    auto data = ((kPrivate::data_queue*)queue_)->peek();
-    if (data == nullptr)
-        return false;
-
     if (!openDevice_(deviceId, sampleRate, channels, frameTime))
         return false;
 
@@ -190,8 +185,6 @@ bool KcAudioRender::play(unsigned deviceId, unsigned sampleRate, unsigned channe
     pushFront(std::make_shared<kPrivate::KcAudioRenderObserver>(
         (kPrivate::data_queue*)queue_, channels));
 
-    auto samp = data->get();
-    device_->setStreamTime(samp->range(0).low());
     return device_->start();
 }
 
