@@ -1,26 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Form Files">
-      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
-      <Extensions>ui</Extensions>
-    </Filter>
-    <Filter Include="Translation Files">
-      <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
-      <Extensions>ts</Extensions>
-    </Filter>
     <Filter Include="op">
       <UniqueIdentifier>{f63bf038-a8aa-4b31-8e78-f8865db88f22}</UniqueIdentifier>
     </Filter>
@@ -42,14 +22,16 @@
     <Filter Include="audio">
       <UniqueIdentifier>{935b133f-f696-4b69-98fb-9386c7a1946a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="form">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\QtAppEventHub.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\op\KvOpHelper1d.cpp">
       <Filter>op</Filter>
     </ClCompile>
@@ -200,14 +182,12 @@
     <ClCompile Include="src\render\KcRdAudioPlayer.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="src\QtAppEventHub.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="src\QtAppEventHub.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="src\KvPropertiedObject.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="src\op\KvDataOperator.h">
       <Filter>op</Filter>
     </QtMoc>
@@ -235,6 +215,10 @@
     <QtMoc Include="src\prov\KvDataProvider.h">
       <Filter>prov</Filter>
     </QtMoc>
+    <QtMoc Include="src\QtAppEventHub.h">
+      <Filter>gui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\KvPropertiedObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\op\KvOpHelper1d.h">
@@ -426,15 +410,15 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\audio_capture_dlg.ui">
-      <Filter>Form Files</Filter>
+      <Filter>form</Filter>
     </QtUic>
     <QtUic Include="src\formula_dlg.ui">
-      <Filter>Form Files</Filter>
+      <Filter>form</Filter>
     </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="resource\DataVis.qrc">
-      <Filter>Resource Files</Filter>
+      <Filter>resource</Filter>
     </QtRcc>
   </ItemGroup>
 </Project>
