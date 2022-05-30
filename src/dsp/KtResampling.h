@@ -8,10 +8,6 @@
 // 其中N为插值窗长，即参与插值的数据点数量
 //   - 当N为偶数时，插值点的左边和右边各有n个点
 //   - 当N为奇数时，插值点的左边有n个点，右边有n+1个点
-// 
-// NOTE: length vs size
-// length表示帧长，1帧包括channels个数据
-// size表示数据尺寸，= length * channels
 
 template<typename T>
 class KtResampling
@@ -19,13 +15,13 @@ class KtResampling
 public:
 	// @factor: 重采样系数 = out-sample-rate / in-sample-rate
 	//          大于1表示升采样，小于1表示降采样
-	KtResampling(unsigned winlen, unsigned chann, double factor)
-		: framing_(winlen, chann, 1)
+	KtResampling(unsigned wsize, unsigned chann, double factor)
+		: framing_(wsize, chann, 1)
 		, factorR_(1.0 / factor) {
 		reset();
 	}
 
-	unsigned length() const { return framing_.length(); }
+	unsigned size() const { return framing_.size(); }
 	unsigned channels() const { return framing_.channels(); }
 
 	// 未处理的输入帧数
@@ -38,9 +34,13 @@ public:
 		return obuf_.size() / channels();
 	}
 
+	// 重采样系数
 	auto factor() const { return 1.0 / factorR_; }
 
+	// 共处理多少帧输入？
 	auto itotal() const { return ipos_; }
+
+	// 共输出多少帧数据？包括输出到obuf_的数据
 	auto ototal() const { return opos_ - 1; }
 
 
@@ -59,38 +59,40 @@ public:
 	}
 
 	// 重置
-	void reset(unsigned winlen, unsigned chann, double factor) {
-		framing_.reset(winlen, chann, 1);
+	// @wsize: 窗长
+	void reset(unsigned wsize, unsigned chann, double factor) {
+		framing_.reset(wsize, chann, 1);
 		factorR_ = 1.0 / factor;
 		reset();
 	}
 
 
 	template<typename INTERP> 
-	unsigned apply(const T* in, unsigned ilen, T* out, unsigned olen, INTERP interp);
+	unsigned apply(const T* in, unsigned isize, T* out, unsigned osize, INTERP interp);
 
 	template<typename INTERP> 
-	unsigned flush(T* out, unsigned olen, INTERP interp);
+	unsigned flush(T* out, unsigned osize, INTERP interp);
 
-	// 若输入ilen帧数据，将输出多少帧数据
-	unsigned olength(unsigned ilen) const;
+	// 若输入isize帧数据，将输出多少帧数据
+	unsigned osize(unsigned isize) const;
 
-	// 若生成olen帧数据，需要多少帧输入？
-	unsigned ilength(unsigned olen) const;
+	// 若生成osize帧数据，需要多少帧输入？
+	unsigned isize(unsigned osize) const;
 
 	// flush将输出多少帧数据
-	unsigned flength() const;
+	unsigned fsize() const;
 
 private:
 
-	unsigned mid_() const { return length() / 2; }
+	unsigned mid_() const { return size() / 2; }
 
 	unsigned unbuffered_() const {
-		return framing_.length() - framing_.buffered();
+		return framing_.size() - framing_.buffered();
 	}
 
 	// 将obuf_中的数据输出到out，返回写入的帧数
-	unsigned flushObuf_(T* out, unsigned olen);
+	// @osize: size fo out
+	unsigned flushObuf_(T* out, unsigned osize);
 
 private:
 
@@ -117,7 +119,7 @@ private:
 				assert(outp + chann <= oute);
 				auto phase = mid - (ipos - pos);
 				// 断言phase位于插值窗的中间
-				assert(phase > resamp.length() / 2 - 1 && phase <= resamp.length() / 2); 
+				assert(phase > resamp.mid_() - 1 && phase <= resamp.mid_()); 
 
 				// 逐通道插值
 				for (unsigned c = 0; c < chann; c++) 
@@ -138,29 +140,28 @@ private:
 
 
 template<typename T> template<typename INTERP>
-unsigned KtResampling<T>::apply(const T* in, unsigned ilen, T* out, unsigned olen, INTERP interp)
+unsigned KtResampling<T>::apply(const T* in, unsigned iframes, T* out, unsigned oframes, INTERP interp)
 {
 	const auto chann = channels();
 	
 	// 拷贝输出缓存obuf_数据到out
-	auto oled = flushObuf_(out, olen); // oled表示已输出的帧数
+	auto oled = flushObuf_(out, oframes); // oled表示已输出的帧数
 
 	// 写满剩下的out
-	auto ilen0 = ilength(olen - oled); // 计算需要多少帧输入才能写满out
-	if (ilen0 > ilen) ilen0 = ilen;
-	auto interpWrap = KpInterpWrap_(*this, interp, out + oled * chann, out + olen * chann);
+	auto iframes0 = isize(oframes - oled); // 计算需要多少帧输入才能写满out
+	if (iframes0 > iframes) iframes0 = iframes;
+	auto interpWrap = KpInterpWrap_(*this, interp, out + oled * chann, out + oframes * chann);
 	const auto opos = opos_;
-	framing_.apply(in, in + ilen0 * chann, interpWrap);
+	framing_.apply(in, in + iframes0 * chann, interpWrap);
 	oled += opos_ - opos; // 统计写入out的帧数
 
 	// 若还有输入，输出到obuf_
-	auto ilen1 = ilen - ilen0;
-	if (ilen1 > 0) {
-		auto olen0 = olength(ilen1);
-		obuf_.resize(olen0 * chann);
+	auto iframes1 = iframes - iframes0;
+	if (iframes1 > 0) {
+		obuf_.resize(osize(iframes1) * chann);
 		interpWrap.outp = obuf_.data();
 		interpWrap.oute = obuf_.data() + obuf_.size();
-		framing_.apply(in + ilen0 * chann, in + ilen * chann, interpWrap);
+		framing_.apply(in + iframes0 * chann, in + iframes * chann, interpWrap);
 	}
 
 	return oled; // 返回写入out的帧数
@@ -168,15 +169,15 @@ unsigned KtResampling<T>::apply(const T* in, unsigned ilen, T* out, unsigned ole
 
 
 template<typename T> template<typename INTERP>
-unsigned KtResampling<T>::flush(T* out, unsigned olen, INTERP interp)
+unsigned KtResampling<T>::flush(T* out, unsigned osize, INTERP interp)
 {
 	// 拷贝输出缓存obuf_数据到out
-	auto oled = flushObuf_(out, olen); // ol表示已输出的帧数
+	auto oled = flushObuf_(out, osize); // ol表示已输出的帧数
 
 	if (ibuffered() > 0) {
-		auto paddings = (length() - mid_()); 
+		auto paddings = (size() - mid_()); 
 		std::vector<T> zeros(paddings * channels(), 0);
-		oled += apply(zeros.data(), paddings, out + oled * channels(), olen - oled, interp);
+		oled += apply(zeros.data(), paddings, out + oled * channels(), osize - oled, interp);
 	}
 
 	return oled;
@@ -184,50 +185,50 @@ unsigned KtResampling<T>::flush(T* out, unsigned olen, INTERP interp)
 
 
 template<typename T>
-unsigned KtResampling<T>::olength(unsigned ilen) const
+unsigned KtResampling<T>::osize(unsigned isize) const
 {
 	assert(ototal() <= itotal() * factor());
-	if (ilen < unbuffered_())
+	if (isize < unbuffered_())
 		return 0;
-	ilen -= unbuffered_() - 1;
+	isize -= unbuffered_() - 1;
 
-	auto opos = static_cast<unsigned>((itotal() + ilen) / factorR_); // 取floor
+	auto opos = static_cast<unsigned>((itotal() + isize) / factorR_); // 取floor
 	return opos - ototal() + obuffered();
 }
 
 
 template<typename T>
-unsigned KtResampling<T>::ilength(unsigned olen) const
+unsigned KtResampling<T>::isize(unsigned osize) const
 {
-	auto blen = obuffered();
-	if (olen <= blen)
+	auto bsize = obuffered();
+	if (osize <= bsize)
 		return 0;
 
 	assert(itotal() >= ototal() / factor());
-	auto ipos = std::ceil((ototal() + olen - blen) * factorR_);
+	auto ipos = std::ceil((ototal() + osize - bsize) * factorR_);
 	return static_cast<unsigned>(ipos) - itotal() + unbuffered_() - 1;
 }
 
 
 template<typename T>
-unsigned KtResampling<T>::flength() const
+unsigned KtResampling<T>::fsize() const
 {
-	return olength(ibuffered() > 0 ? length() - mid_() : 0);
+	return osize(ibuffered() > 0 ? size() - mid_() : 0);
 }
 
 
 template<typename T>
-unsigned KtResampling<T>::flushObuf_(T* out, unsigned olen)
+unsigned KtResampling<T>::flushObuf_(T* out, unsigned oframes)
 {
-	auto bsize = obuf_.size();
+	auto bcount = obuf_.size();
 
-	if (bsize > 0) {
-		auto osize = olen * channels();
-		if (bsize > osize) bsize = osize;
+	if (bcount > 0) {
+		auto ocount = oframes * channels();
+		if (bcount > ocount) bcount = ocount;
 
-		std::copy(obuf_.cbegin(), obuf_.cbegin() + bsize, out);
-		obuf_.erase(obuf_.begin(), obuf_.begin() + bsize);
+		std::copy(obuf_.cbegin(), obuf_.cbegin() + bcount, out);
+		obuf_.erase(obuf_.begin(), obuf_.begin() + bcount);
 	}
 
-	return bsize / channels();
+	return bcount / channels();
 }

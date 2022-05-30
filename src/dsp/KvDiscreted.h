@@ -11,6 +11,12 @@ public:
 
 	kRange valueRange(kIndex channel) const override;
 
+	kIndex size() const override {
+		kIndex sz = size(0);
+		for (kIndex d = 1; d < dim(); d++)
+			sz *= size(d);
+		return sz;
+	}
 
 	// 返回axis维度的数据数量
 	virtual kIndex size(kIndex axis) const = 0;
@@ -32,7 +38,7 @@ public:
 	virtual void clear() = 0;
 
 	// 数据为空？
-	virtual bool empty() const { return count() == 0; }
+	virtual bool empty() const { return size() == 0; }
 
 	virtual kReal xToIndex(kReal x) const = 0;
 

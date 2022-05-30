@@ -19,33 +19,33 @@ public:
 	};
 
 	// @factor: 重采样系数 = out-sample-rate / in-sample-rate
-	KgResampler(int method, kIndex winlen, kIndex chann, double factor);
+	KgResampler(int method, kIndex wsize, kIndex chann, double factor);
 
 	int method() const { return interpMethod_; }
 	void setMethod(int md) { interpMethod_ = md; }
 
-	auto length() const { return resamp_.length(); }
+	auto size() const { return resamp_.size(); }
 	auto channels() const { return resamp_.channels(); }
 	auto buffered() const { return resamp_.ibuffered(); }
 	auto factor() const { return resamp_.factor(); }
 
-	auto olength(kIndex ilen) const { return resamp_.olength(ilen); }
-	auto flength() const { return resamp_.flength(); }
+	auto osize(kIndex isize) const { return resamp_.osize(isize); }
+	auto fsize() const { return resamp_.fsize(); }
 
 
 	// 对in执行重采样操作，输出结果到out
-	unsigned apply(const kReal* in, kIndex ilen, kReal* out, kIndex olen);
-	void apply(const kReal* in, kIndex ilen, std::vector<kReal>& out);
-	std::vector<kReal> apply(const kReal* in, kIndex ilen);
+	unsigned apply(const kReal* in, kIndex isize, kReal* out, kIndex osize);
+	void apply(const kReal* in, kIndex isize, std::vector<kReal>& out);
+	std::vector<kReal> apply(const kReal* in, kIndex isize);
 
-	unsigned flush(kReal* out, kIndex olen);
+	unsigned flush(kReal* out, kIndex osize);
 	void flush(std::vector<kReal>& out);
 	std::vector<kReal> flush();
 
 	void reset() { resamp_.reset(); }
-	void reset(int method, kIndex winlen, kIndex chann, double factor) {
+	void reset(int method, kIndex wsize, kIndex chann, double factor) {
 		interpMethod_ = method;
-		resamp_.reset(winlen, chann, factor);
+		resamp_.reset(wsize, chann, factor);
 	}
 
 private:

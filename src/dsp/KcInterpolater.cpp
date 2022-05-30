@@ -38,9 +38,9 @@ kReal KcInterpolater::value(kReal pt[], kIndex channel) const
 {
 	assert(channel < internal_->channels());
 
-	if (internal_->count() == 0)
+	if (internal_->size() == 0)
 		return extraMethod_ == k_nan ? KtuMath<kReal>::nan : 0;
-	else if (internal_->count() == 1) {
+	else if (internal_->size() == 1) {
 		return extraMethod_ == k_nan ? KtuMath<kReal>::nan : 
 			extraMethod_ == k_zero ? 0 : internal_->value(kIndex(0), channel);
 	}
@@ -48,7 +48,7 @@ kReal KcInterpolater::value(kReal pt[], kIndex channel) const
 	kIndex idx = 0;
 	auto pt0 = internal_->point(idx, channel);
 	kReal xmin = pt0[0];
-	idx = internal_->count() - 1;
+	idx = internal_->size() - 1;
 	auto pt1 = internal_->point(idx, channel);
 	kReal xmax = pt1[0];
 
@@ -80,11 +80,11 @@ kReal KcInterpolater::value(kReal pt[], kIndex channel) const
 	}
 
 	kIndex numPts = interMethod_ == k_linear ? 2 : 3; // 插值需要的点数目
-	numPts = std::min(numPts, internal_->count());
+	numPts = std::min(numPts, internal_->size());
 
 	auto low = internal_->xToLowIndex(x);
-	assert(low >= 0 && low < internal_->count());
-	while (internal_->count() - low < numPts)
+	assert(low >= 0 && low < internal_->size());
+	while (internal_->size() - low < numPts)
 		--low;
 
 	std::vector<std::vector<kReal>> pts(numPts);

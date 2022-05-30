@@ -72,13 +72,13 @@ KcOpSpectrum::kPropertySet KcOpSpectrum::propertySet() const
 	prop.id = kPrivate::k_time_size;
 	prop.name = tr(u8"sizeT");
 	prop.desc = tr("number of samples in time domain");
-	prop.val = spec_->countInTime();
+	prop.val = spec_->sizeInTime();
 	ps.push_back(prop);
 
 	prop.id = kPrivate::k_freq_size;
 	prop.name = tr(u8"sizeF");
 	prop.desc = tr("number of samples in frequency domain");
-	prop.val = spec_->countInFreq();
+	prop.val = spec_->sizeInFreq();
 	ps.push_back(prop);
 
 	return ps;
@@ -155,7 +155,7 @@ kIndex KcOpSpectrum::size(kIndex axis) const
 	assert(objp != nullptr);
 
 	if (axis == objp->dim() - 1) 
-		return spec_->countInFreq();
+		return spec_->sizeInFreq();
 
 	return objp->size(axis);
 }
@@ -174,7 +174,7 @@ bool KcOpSpectrum::isStream() const
 
 std::shared_ptr<KvData> KcOpSpectrum::processImpl_(std::shared_ptr<KvData> data)
 {
-	if (data->count() == 0)
+	if (data->size() == 0)
 		return data;
 
 	return data->dim() == 1 ? process1d_(data) : process2d_(data); 
@@ -202,14 +202,14 @@ std::shared_ptr<KvData> KcOpSpectrum::process2d_(std::shared_ptr<KvData> data)
 	if (samp->size(1) < 2 || samp->range(1).empty())
 		return data;
 
-	assert(spec_->countInTime() == samp->size(1));
+	assert(spec_->sizeInTime() == samp->size(1));
 
 	auto df = spec_->df();
 	assert(df > 0);
 
 	auto res = std::make_shared<KcSampled2d>();
 
-	res->resize(samp->size(0), spec_->countInFreq(), samp->channels());
+	res->resize(samp->size(0), spec_->sizeInFreq(), samp->channels());
 	res->reset(0, samp->range(0).low(), samp->step(0));
 	res->reset(1, 0, df);
 

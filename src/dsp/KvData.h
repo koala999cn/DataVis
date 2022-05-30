@@ -18,11 +18,19 @@ public:
 	virtual kIndex dim() const = 0; 
 
 	// 包含的数据总数，返回inf对应连续数据
-	virtual kIndex count() const = 0;
-	constexpr static kIndex k_inf_count = -1;
+	virtual kIndex size() const = 0;
+	constexpr static kIndex k_inf_size = -1;
 
 	// 支持多通道数据，返回通道数目
 	virtual kIndex channels() const = 0;
+
+	virtual kIndex count() const {
+		return size() * channels();
+	}
+
+	virtual kReal length(kIndex axis) const {
+		return range(axis).length();
+	}
 
 	// 返回axis维度的数据范围
 	virtual kRange range(kIndex axis) const = 0;
@@ -46,12 +54,8 @@ public:
 
 
 	// 是否连续数据？
-	bool isContinued() const {
-		return count() == k_inf_count;
-	}
+	bool isContinued() const { return size() == k_inf_size; }
 
 	// 是否离散数据？
-	bool isDiscreted() const {
-		return count() != k_inf_count;
-	}
+	bool isDiscreted() const { return !isContinued(); }
 };

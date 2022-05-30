@@ -48,7 +48,7 @@ public:
         resetn(nx);
         x0_ = low() + x0_rel_offset * dx_;
 
-        assert(count() == nx);
+        assert(size() == nx);
         assert(verify());
     }
 
@@ -141,7 +141,7 @@ public:
 
 
     // 计算长度len的区间所包含的采样点数量
-    long count(KREAL len) const {
+    long size(KREAL len) const {
         if (len == 0 || dx_ == 0)
             return 0;
         auto i = rangeToIndex(x0(), x0() + len);
@@ -149,8 +149,8 @@ public:
     }
 
     // 计算全区间的采样点数量
-    long count() const {
-        return count(length());
+    long size() const {
+        return size(length());
     }
 
     // 截取子区间[newLow, newHigh)，并重新定位x0
@@ -212,10 +212,10 @@ public:
         if (empty())
             return true;
 
-        return indexToX(count()) >= high() 
-            && xToIndex(high()) > (count() - 1) 
-            && x0_ + (count() - 1) * dx_ < high()
-            && x0_ + count() * dx_ >= high()
+        return indexToX(size()) >= high()
+            && xToIndex(high()) > (size() - 1)
+            && x0_ + (size() - 1) * dx_ < high()
+            && x0_ + size() * dx_ >= high()
             && (empty() || cover(x0_));
     }
 

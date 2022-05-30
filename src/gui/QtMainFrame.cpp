@@ -175,7 +175,7 @@ bool QtMainFrame::setupMenu_()
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
         fft->setEnabled(obj && obj->isSampled());
-        hist->setEnabled(obj && obj->isDiscreted());
+        hist->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
         framing->setEnabled(obj && obj->isSampled());
         windowing->setEnabled(obj && obj->isSampled());
         fbank->setEnabled(obj && obj->isSampled());

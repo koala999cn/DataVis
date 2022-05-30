@@ -58,7 +58,7 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
                 colorMap->data()->setKeyRange(newRange);
 
                 KtSampling<kReal> xsamp(0, dx_, dx_, 0);
-                auto keySize = xsamp.count(newRange.size());
+                auto keySize = xsamp.size(newRange.size());
                 colorMap->data()->setKeySize(keySize);
                 emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
             }
@@ -70,7 +70,7 @@ bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
 {
     assert(data->isDiscreted());
 
-    if (data == nullptr || data->count() == 0)
+    if (data == nullptr || data->size() == 0)
         return true;
 
     auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
@@ -282,7 +282,7 @@ void KcRdPlot2d::syncParent()
     if (dx_ != prov->step(0)) { // framing的shift值可能动态改变
         dx_ = prov->step(0);
         KtSampling<kReal> xsamp(0, dx_, dx_, 0);
-        auto keySize = xsamp.count(mapData->keyRange().size());
+        auto keySize = xsamp.size(mapData->keyRange().size());
 
         if (keySize == 0) { // 用户调大了输入数据的dx，导致dx > keyRange
             // 调整绘图参数，确保keySize等于1

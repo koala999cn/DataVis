@@ -22,13 +22,13 @@ std::string KcAudio::load(const std::string& path)
 
 std::string KcAudio::save(const std::string& path, int quality)
 {
-	KgAudioFile sf(channels(), static_cast<unsigned>(sampleRate()), count());
+	KgAudioFile sf(channels(), static_cast<unsigned>(sampleRate()), size());
 
 	if (!sf.open(path, KgAudioFile::KeOpenMode(quality + 1)))
         return sf.errorText();
 
     assert(sf.channels() == channels());
-    if (sf.write(data(), count()) != count())
+    if (sf.write(data(), size()) != size())
         return sf.errorText();
 
 	return "";

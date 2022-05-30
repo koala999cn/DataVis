@@ -1,36 +1,36 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include "KtFraming.h"
 
 
-// FIRÂË²¨Æ÷µÄÄ£°åÀà
-// @TD: ÊäÈëÊä³öÊı¾İµÄÀàĞÍ
-// @TC: ÂË²¨Æ÷ÏµÊıµÄÀàĞÍ
+// FIRæ»¤æ³¢å™¨çš„æ¨¡æ¿ç±»
+// @TD: è¾“å…¥è¾“å‡ºæ•°æ®çš„ç±»å‹
+// @TC: æ»¤æ³¢å™¨ç³»æ•°çš„ç±»å‹
 
 template<typename TD, typename TC = TD>
 class KtFIR
 {
 public:
-	// µ¥Í¨µÀ£¬Ã¿´ÎÆ½ÒÆ1¸öÊı¾İ
+	// å•é€šé“ï¼Œæ¯æ¬¡å¹³ç§»1ä¸ªæ•°æ®
 	KtFIR(std::vector<TC>&& h, unsigned chann = 1) : h_(std::move(h)), buf_(h.size(), chann, 1, 0) {}
 	KtFIR(const std::vector<TC>& h, unsigned chann = 1) : h_(h), buf_(h.size(), chann, 1, 0) {}
 
 
-	// ÂË²¨Æ÷½×Êı
+	// æ»¤æ³¢å™¨é˜¶æ•°
 	auto order() const { return h_.size() - 1; }
 
-	// ÂË²¨Æ÷³éÍ·Êı
+	// æ»¤æ³¢å™¨æŠ½å¤´æ•°
 	auto taps() const { return h_.size(); }
 
 	unsigned channels() const { return buf_.channels(); }
 
 
-	// ¶ÔÊäÈëinÖ´ĞĞÂË²¨²Ù×÷£¬½á¹û´æ´¢µ½out£¬·µ»ØĞ´ÈëµÄÊı¾İÁ¿
-	// outµÄ³ß´ç²»Ğ¡ÓÚcount * channels
-	unsigned apply(const TD* in, unsigned count, TD* out);
+	// å¯¹è¾“å…¥inæ‰§è¡Œæ»¤æ³¢æ“ä½œï¼Œç»“æœå­˜å‚¨åˆ°outï¼Œè¿”å›å†™å…¥çš„æ•°æ®é‡
+	// outçš„å°ºå¯¸ä¸å°äºframes * channels
+	unsigned apply(const TD* in, unsigned frames, TD* out);
 
-	// ¶Ô»º´æÊı¾İÖ´ĞĞÂË²¨²Ù×÷£¬½á¹û´æ´¢µ½out£¬·µ»ØĞ´ÈëµÄÊı¾İÁ¿
-	// outµÄ³ß´ç²»Ğ¡ÓÚcount * channels
+	// å¯¹ç¼“å­˜æ•°æ®æ‰§è¡Œæ»¤æ³¢æ“ä½œï¼Œç»“æœå­˜å‚¨åˆ°outï¼Œè¿”å›å†™å…¥çš„æ•°æ®é‡
+	// outçš„å°ºå¯¸ä¸å°äºorder * channels
 	unsigned flush(TD* out);
 
 
@@ -45,7 +45,7 @@ private:
 				const TD* dp = data + c;
 				const TC* hp = h.data();
 				for (unsigned i = 0; i < h.size(); i++) {
-					v += *dp * *hp++; // µã»ı
+					v += *dp * *hp++; // ç‚¹ç§¯
 					dp += ch;
 				}
 				*out++ = v;
@@ -58,17 +58,17 @@ private:
 	};
 
 private:
-	std::vector<TC> h_; // ÂË²¨ÏµÊı
+	std::vector<TC> h_; // æ»¤æ³¢ç³»æ•°
 	KtFraming<TD> buf_;
 };
 
 
 template<typename TD, typename TC>
-unsigned KtFIR<TD, TC>::apply(const TD* in, unsigned count, TD* out)
+unsigned KtFIR<TD, TC>::apply(const TD* in, unsigned frames, TD* out)
 {
 	auto buf = out;
 	KpFilter op(h_, buf, channels());
-	buf_.apply(in, in + count * channels(), op);
+	buf_.apply(in, in + frames * channels(), op);
 	return (buf - out) / channels();
 }
 

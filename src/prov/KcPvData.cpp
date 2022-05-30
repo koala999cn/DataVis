@@ -38,7 +38,7 @@ kReal KcPvData::step(kIndex axis) const
 kIndex KcPvData::size(kIndex axis) const
 {
 	auto dis = std::dynamic_pointer_cast<KvDiscreted>(data_);
-	return dis ? dis->size(axis) : KvData::k_inf_count;
+	return dis ? dis->size(axis) : KvData::k_inf_size;
 }
 
 

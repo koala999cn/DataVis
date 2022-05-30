@@ -101,7 +101,7 @@ kIndex KcOpFraming::frameSize() const
 {
 	KtSampling<kReal> samp;
 	samp.reset(0, frameTime_, dx_, 0);
-	return samp.count();
+	return samp.size();
 }
 
 
@@ -109,7 +109,7 @@ kIndex KcOpFraming::shiftSize() const
 {
 	KtSampling<kReal> samp;
 	samp.reset(0, shiftTime_, dx_, 0);
-	return samp.count();
+	return samp.size();
 }
 
 
@@ -118,7 +118,7 @@ void KcOpFraming::syncParent()
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	if (!framing_ || dx_ != prov->step(0) ||
 		framing_->channels() != prov->channels() ||
-		framing_->length() != frameSize() ||
+		framing_->size() != frameSize() ||
 		framing_->shift() != shiftSize()) {
 		dx_ = prov->step(0);
 		framing_ = std::make_unique<KtFraming<kReal>>(frameSize(), prov->channels(), shiftSize());
@@ -166,7 +166,7 @@ std::shared_ptr<KvData> KcOpFraming::processImpl_(std::shared_ptr<KvData> data)
 	assert(dx_ == data1d->step(0));
 
 	auto res = std::make_shared<KcSampled2d>();
-	auto frameNum = framing_->numFrames(data1d->count(), true);
+	auto frameNum = framing_->numFrames(data1d->size(), true);
 	auto frameSize = this->frameSize();
 	kReal x0 = data1d->sampling(0).low();
 	x0 -= framing_->buffered() * dx_;
@@ -175,7 +175,7 @@ std::shared_ptr<KvData> KcOpFraming::processImpl_(std::shared_ptr<KvData> data)
 	res->reset(1, x0, dx_);
 
 	auto first = data1d->data();
-	auto last = first + data1d->count();
+	auto last = first + data1d->size();
 	kIndex idx(0);
 	framing_->apply(first, last, [&res, &idx](const kReal* data) {
 		std::copy(data, data + res->size(1), res->row(idx++));

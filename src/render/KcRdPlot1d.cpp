@@ -121,8 +121,8 @@ namespace kPrivate
 			gdata->removeBefore(duration + plotRange.lower); // 前推已有数据
 
 			QVector<double> keys, values;
-			keys.reserve(data1d->count());
-			values.reserve(data1d->count());
+			keys.reserve(data1d->size());
+			values.reserve(data1d->size());
 
 			// 修正残留数据的key值
 			for (unsigned i = 0; i < gdata->size(); i++) {
@@ -134,7 +134,7 @@ namespace kPrivate
 			// 新数据key值的偏移 
 			auto keyOffset = plotRange.upper - dataRange.high();
 
-			for (kIndex idx = 0; idx < data1d->count(); idx++) {
+			for (kIndex idx = 0; idx < data1d->size(); idx++) {
 				auto val = dis->point(idx, 0); // TODO: 多通道处理
 				auto key = val[0] + keyOffset;
 				if (key < plotRange.lower)
@@ -150,7 +150,7 @@ namespace kPrivate
 			graph->data()->clear();
 			if (data1d->isDiscreted()) {
 				auto dis = std::dynamic_pointer_cast<KvDiscreted>(data1d);
-				for (kIndex idx = 0; idx < dis->count(); idx++) {
+				for (kIndex idx = 0; idx < dis->size(); idx++) {
 					auto val = dis->point(idx, 0);
 					graph->addData(val[0], val[1]);
 				}
@@ -160,7 +160,7 @@ namespace kPrivate
 				auto r = plot->keyAxis()->range();
 				KtSampling<kReal> samp;
 				samp.resetn(1000, r.lower, r.upper, 0.5); // TODO:
-				for (kIndex i = 0; i < samp.count(); i++) {
+				for (kIndex i = 0; i < samp.size(); i++) {
 					kReal x = samp.indexToX(i);
 					auto y = cond->value(x, 0);
 					graph->addData(x, y);

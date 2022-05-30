@@ -5,7 +5,7 @@
 
 kRange KvContinued::valueRange(kIndex channel) const 
 {
-	if (count() == 0) return { 0, 0 };
+	if (size() == 0) return { 0, 0 };
 
 	assert(dim() == 1); // TODO: 暂时实现一维算法
 

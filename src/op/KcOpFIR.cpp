@@ -1,4 +1,4 @@
-#include "KcOpFIR.h"
+ï»¿#include "KcOpFIR.h"
 #include "dsp/KcSampled1d.h"
 #include <assert.h>
 #include "QtAppEventHub.h"
@@ -123,7 +123,7 @@ void KcOpFIR::setPropertyImpl_(int id, const QVariant& newVal)
     switch(id) {
     case kPrivate::k_type:
         type_ = newVal.toInt();
-        kAppEventHub->refreshPropertySheet(); // TODO: ¿ÉÓÅ»¯
+        kAppEventHub->refreshPropertySheet(); // TODO: å¯ä¼˜åŒ–
         break;
 
     case kPrivate::k_window:
@@ -158,11 +158,11 @@ std::shared_ptr<KvData> KcOpFIR::processImpl_(std::shared_ptr<KvData> data)
     assert(samp1d);
 
     auto res = std::make_shared<KcSampled1d>();
-    res->resize(samp1d->count(), samp1d->channels());
+    res->resize(samp1d->size(), samp1d->channels());
     res->reset(0, samp1d->sampling(0));
-    auto length = filter_->apply(samp1d->data(), samp1d->count(), res->data());
-    assert(length <= samp1d->count());
-    res->resize(length);
+    auto sz = filter_->apply(samp1d->data(), samp1d->size(), res->data());
+    assert(sz <= samp1d->size());
+    res->resize(sz);
     return res;
 }
 

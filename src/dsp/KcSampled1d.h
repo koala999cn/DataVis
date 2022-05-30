@@ -24,17 +24,17 @@ public:
         return static_cast<kReal>(1) / step(0); 
     }
 
-    // 增加N组采样点，data的长度等于N * channels()
-    void pushBack(const kReal* data, kIndex N);
+    // 增加frames帧数据，data的长度等于frames * channels()
+    void pushBack(const kReal* data, kIndex frames);
 
-    // 从d的pos位置开始，附加count个数据到this
+    // 从d的pos位置开始，附加frames帧数据到this
     // assert(d.step(0) == this->step(0) && d.channles() == this->channles())
-    // @nx: 0表示从pos往后的所有数据
-    void pushBack(const KcSampled1d& d, kIndex pos = 0, kIndex nx = 0);
+    // @frames: 0表示从pos往后的所有帧
+    void pushBack(const KcSampled1d& d, kIndex pos = 0, kIndex frames = 0);
 
 
-    // 从第idx个采样点开始，提取N组采样点的数据到buf
-    void extract(kIndex idx, kReal* buf, kIndex N) const;
+    // 从第idx个采样点开始，提取frames帧的数据到buf
+    void extract(kIndex idx, kReal* buf, kIndex frames) const;
 
 /*
 public:
@@ -54,7 +54,7 @@ public:
 
     /// KvData接口实现
 
-    kIndex count() const override;
+    kIndex size() const override;
 
     kIndex channels() const override;
 
@@ -99,15 +99,15 @@ public:
     // 从第idx个采样点开始，拷贝N组采样点的数据到v
     void getSamples(kIndex idx, kReal* v, kIndex N) const;
 
-    // 从d的pos位置开始，拷贝count个数据到this
-    void copy(const KvData1d& d, kIndex pos = 0, kIndex nx = 0);
+    // 从d的pos位置开始，拷贝frames帧到this
+    void copy(const KvData1d& d, kIndex pos = 0, kIndex frames = 0);
 
 
     // 按参数重置数据存储和采样参数
     void reset(kReal dx, kIndex channels, kIndex nx = 0);
 
 
-    // 设置第channel通道的数据，确保data的大小等于this->count()
+    // 设置第channel通道的数据，确保data的大小等于this->size()
     // 如果channel=-1，则data包含所有通道数据
     void setChannel(const kReal* data, kIndex channel);
 
@@ -124,12 +124,12 @@ public:
 
     // 移除头部x轴长len的数据
     void cutFront(kReal len) {
-        popFront(samp_.count(len));
+        popFront(samp_.size(len));
     }
 
     // 移除尾部x轴长len的数据
     void cutBack(kReal len) {
-        popBack(samp_.count(len));
+        popBack(samp_.size(len));
     }
 
 

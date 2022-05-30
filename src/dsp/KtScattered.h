@@ -15,7 +15,7 @@ public:
 		return DIM;
 	}
 
-	kIndex count() const override {
+	kIndex size() const override {
 		return static_cast<kIndex>(inds_.size());
 	}
 
@@ -30,7 +30,7 @@ public:
 	}
 
 	kIndex size(kIndex axis) const override {
-		return count();
+		return size();
 	}
 
 	kRange range(kIndex axis) const override {
@@ -62,21 +62,8 @@ public:
 	}
 
 	kRange valueRange(kIndex channel) const {
-		auto r = KtuMath<kReal>::minmax(vals_.data(), count());
+		auto r = KtuMath<kReal>::minmax(vals_.data(), size());
 		return { r.first, r.second };
-	}
-
-	kRange valueRange() const {
-		auto r = valueRange(0);
-		for (kIndex c = 1; c < channels(); c++) {
-			auto rc = valueRange(c);
-			if (rc.low() < r.low())
-				r.resetLow(rc.low());
-			if (rc.high() > r.high())
-				r.resetHigh(rc.high());
-		}
-
-		return r;
 	}
 
 private:

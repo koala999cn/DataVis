@@ -3,7 +3,7 @@
 #include <assert.h>
 
 
-// 对信道数据的分帧处理器
+// 对信道数据的分帧处理器，支持多通道处理
 
 template<typename T>
 class KtFraming
@@ -12,16 +12,18 @@ public:
 
 	constexpr static bool isInterleaving() { return true; }
 
-	// 延迟len个数据点输出
-	// @shift: =0时，取len值
-	KtFraming(unsigned len, unsigned chann, unsigned shift)
-		: length_(len), chann_(chann), buf_(), shift_(shift ? shift : len) {}
+	// @size: 每帧的长度
+	// @chann: 数据通道数
+	// @shift: =0时，取size值
+	// 每个通道延迟size个数据输出
+	KtFraming(unsigned size, unsigned chann, unsigned shift)
+		: size_(size), chann_(chann), buf_(), shift_(shift ? shift : size) {}
 
 	// 初始化内部状态为initVal，无延时输出
-	KtFraming(unsigned len, unsigned chann, unsigned shift, T initVal)
-	: length_(len), chann_(chann), buf_((len - 1) * chann, initVal), shift_(shift ? shift : len) {}
+	KtFraming(unsigned size, unsigned chann, unsigned shift, T initVal)
+	: size_(size), chann_(chann), buf_((size - 1) * chann, initVal), shift_(shift ? shift : size) {}
 
-	unsigned length() const { return length_; }
+	unsigned size() const { return size_; }
 	unsigned shift() const { return shift_; }
 	unsigned channels() const { return chann_; }
 	unsigned buffered() const { return buf_.size() / channels(); }
@@ -42,11 +44,12 @@ public:
 	}
 
 	// 重置
-	void reset(unsigned len, unsigned chann, unsigned shift) {
-		length_ = len, chann_ = chann, shift_ = shift;
+	void reset(unsigned size, unsigned chann, unsigned shift) {
+		size_ = size, chann_ = chann, shift_ = shift;
 	    buf_.clear();
 	}
 
+	// 计算samples组数据可分为多少帧
 	// @addBuffered: 若为true，则在samples基础上加入缓存数据进行帧数计算
 	unsigned numFrames(unsigned samples, bool addBuffered) const;
 
@@ -65,7 +68,7 @@ private:
 private:
 	std::vector<T> buf_;
 	unsigned chann_; // 信道数
-	unsigned length_; // 帧长
+	unsigned size_; // 帧长
 	unsigned shift_; // 帧移
 };
 
@@ -73,8 +76,8 @@ private:
 template<typename T> template<typename OP>
 void KtFraming<T>::apply(const T* first, const T* last, OP op)
 {
-	auto incount = (last - first) / channels(); // 新增输入的数据数量
-	if (numFrames(incount, true) == 0) { // 若数据量不足，仅执行缓存操作
+	auto isize = (last - first) / channels(); // 新增输入的数据数量
+	if (numFrames(isize, true) == 0) { // 若数据量不足，仅执行缓存操作
 		push(first, last);
 		return;
 	}
@@ -82,11 +85,11 @@ void KtFraming<T>::apply(const T* first, const T* last, OP op)
 	// 分两段执行分帧：
 	//   一是拷贝部分输入到缓存，先耗尽缓存数据，
 	//   二是对剩余的输入执行在线处理
-	auto copycount = needAppended_();
-	assert(numFrames(copycount, true) * shift_ >= buffered());
-	if (copycount > incount)
-		copycount = incount;
-	auto last_ = first + copycount * channels();
+	auto copysize = needAppended_();
+	assert(numFrames(copysize, true) * shift_ >= buffered());
+	if (copysize > isize)
+		copysize = isize;
+	auto last_ = first + copysize * channels();
 	push(first, last_);
 	auto pos = execute_(buf_.data(), buf_.data() + buf_.size(), op); // 执行第一阶段分帧
 
@@ -107,7 +110,7 @@ template<typename T> template<typename OP>
 void KtFraming<T>::flush(OP op)
 {
 	if (!buf_.empty()) {
-		buf_.resize(length() * channels(), 0); // TODO: 处理buf_尺寸大于length_的情况
+		buf_.resize(size() * channels(), 0); // TODO: 处理buf_尺寸大于length_的情况
 		op(buf_.data());
 		buf_.clear();
 	}
@@ -120,20 +123,20 @@ unsigned KtFraming<T>::numFrames(unsigned samples, bool addBuffered) const
 	if (addBuffered)
 		samples += buffered();
 
-	// 考虑shift > length的情况，保证最少能执行一次shift操作时再分帧
-	if (samples < std::max(length(), shift()))
+	// 考虑shift > size的情况，保证最少能执行一次shift操作时再分帧
+	if (samples < std::max(size(), shift()))
 		return 0;
 
 	assert(shift() != 0);
-	return (samples - length()) / shift() + 1;
+	return (samples - size()) / shift() + 1;
 }
 
 
 template<typename T> template<typename OP>
 const T* KtFraming<T>::execute_(const T* first, const T* last, OP& op) 
 {
-	auto incount = (last - first) / channels();
-	auto frames = numFrames(incount, false);
+	auto isize = (last - first) / channels();
+	auto frames = numFrames(isize, false);
 	auto shiftRaw = shift_ * channels();
 	for (unsigned i = 0; i < frames; i++, first += shiftRaw)
 		op(first);
@@ -148,6 +151,6 @@ unsigned KtFraming<T>::needAppended_() const
 	if (buf_.empty())
 		return 0;
 
-	return ((buffered() - 1) / shift_) * shift_ + length_ - buffered();
+	return ((buffered() - 1) / shift()) * shift() + size() - buffered();
 }
 

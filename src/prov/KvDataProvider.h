@@ -34,7 +34,7 @@ public:
 	// 实现dim, channels, range, step等基本属性
 	kPropertySet propertySet() const override;
 
-	kIndex count() const {
+	kIndex size() const {
 		kIndex c(1);
 		for (kIndex i = 0; i < dim(); i++)
 			c *= size(i);
@@ -59,11 +59,11 @@ public:
 	virtual bool running() const = 0;
 
 	bool isContinued() const {
-		return size(0) == KvData::k_inf_count;
+		return size(0) == KvData::k_inf_size;
 	}
 
 	bool isDiscreted() const {
-		return size(0) != KvData::k_inf_count;
+		return size(0) != KvData::k_inf_size;
 	}
 
 	bool isScattered() const {

@@ -20,7 +20,7 @@ void KgMultiply::process(const KcSampled1d& in, KcSampled1d& out) const
 
 void KgMultiply::process(KcSampled1d& inout) const
 {
-	assert(inout.count() == sig_->count());
+	assert(inout.size() == sig_->size());
 	process(inout.data(), inout.channels());
 }
 
@@ -28,13 +28,12 @@ void KgMultiply::process(KcSampled1d& inout) const
 void KgMultiply::process(kReal* buf, kIndex channels) const
 {
 	if (channels == sig_->channels()) {
-		KtuMath<kReal>::mul(sig_->data(), buf, buf,
-			sig_->count() * sig_->channels());
+		KtuMath<kReal>::mul(sig_->data(), buf, buf, sig_->count());
 	}
 	else {
 		assert(sig_->channels() == 1);
 		auto sig = sig_->data();
-		for (kIndex i = 0; i < sig_->count(); i++, buf += sig_->channels())
+		for (kIndex i = 0; i < sig_->size(); i++, buf += sig_->channels())
 			for (kIndex c = 0; c < sig_->channels(); c++)
 				buf[c] *= sig[i];
 	}

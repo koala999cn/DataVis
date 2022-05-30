@@ -39,7 +39,7 @@ void KgHist::process(const KcSampled1d& in, kReal* out)
         auto range = in.sampling(0).rangeToIndex(bins_[i], bins_[i + 1]);
         if (range.first > range.second) std::swap(range.first, range.second);
         if (range.first < 0) range.first = 0;
-        if (range.second > in.count()) range.second = in.count();
+        if (range.second > in.size()) range.second = in.size();
 
         for (kIndex c = 0; c < in.channels(); c++) {
             kReal val(0);
@@ -70,7 +70,7 @@ void KgHist::process(const KvData& in, kReal* out)
 
     // 跳过统计区间（左）之外的数据点
     kIndex i = 0;
-    while (i < in.count() && dis.point(i, 0)[0] < bins_[0])
+    while (i < in.size() && dis.point(i, 0)[0] < bins_[0])
         ++i;
 
 
@@ -79,7 +79,7 @@ void KgHist::process(const KvData& in, kReal* out)
     std::fill(out, out + numBins() * in.channels(), 0);
     unsigned c(0);
 
-    while (i < in.count()) {
+    while (i < in.size()) {
         if (dis.point(i, 0)[0] < barRight) { // accumulate current bar
             for(kIndex ch = 0; ch < in.channels(); ch++)
                 out[ch] += dis.value(i, ch);

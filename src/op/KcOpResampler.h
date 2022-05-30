@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "KvDataOperator.h"
 #include <vector>
 
@@ -28,8 +28,8 @@ private:
 
 private:
 	std::unique_ptr<KgResampler> resamp_;
-	kReal factor_; // ÖØ²ÉÑùÏµÊı
-	int winlen_;
+	kReal factor_; // é‡é‡‡æ ·ç³»æ•°
+	int wsize_;
 	int method_;
 };
 

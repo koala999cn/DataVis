@@ -188,9 +188,9 @@ void QtAudioCaptureDlg::syncUiState_(kState state)
     ui->rbMono->setEnabled(state == kState::ready);
     ui->rbStereo->setEnabled(state == kState::ready);
 
-    ui->btOk->setEnabled(state == kState::ready && audio_ && audio_->count() > 0);
+    ui->btOk->setEnabled(state == kState::ready && audio_ && audio_->size() > 0);
     ui->btCancel->setEnabled(state == kState::ready);
-    ui->btPlay->setEnabled(state != kState::capture && audio_ && audio_->count() > 0); // 允许暂停录音时回放
+    ui->btPlay->setEnabled(state != kState::capture && audio_ && audio_->size() > 0); // 允许暂停录音时回放
     ui->btStart->setEnabled(state == kState::ready);
     ui->btStop->setEnabled(state == kState::capture || state == kState::pause);
     ui->btPause->setEnabled(state == kState::capture || state == kState::pause);

@@ -14,7 +14,7 @@ std::shared_ptr<KvData> KvOpHelper1d::processImpl_(std::shared_ptr<KvData> data)
         res->reset(0, range(0).low(), step(0), 0.5); // TODO: nonuniform
             
         if (data->channels() == 1 && data1d) {
-            processNaive_(data1d->data(), data1d->count(), (kReal*)res->data());
+            processNaive_(data1d->data(), data1d->size(), (kReal*)res->data());
         }
         else {
             std::vector<kReal> rawData(data1d->size(0));

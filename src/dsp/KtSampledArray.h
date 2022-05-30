@@ -18,24 +18,21 @@ public:
     /// 重载基类接口
 
     // 每个通道的数据总数
-    kIndex count() const override {
+    kIndex size() const override {
         return channels() == 0 ? 0 : array_.size() / channels(); 
     }
 
+    // 重载实现size，基类实现会有累计误差
+    kIndex size(kIndex axis) const override {
+        return array_.length(axis); 
+    }
 
     kIndex channels() const override {
         return array_.length(DIM);
     }
 
     void clear() override {
-        array_.resize(0);
-        super_::clear();
-    }
-
-
-    // 重载实现size，基类实现会有累计误差
-    kIndex size(kIndex axis) const override {
-        return array_.length(axis); 
+        array_.resize(0); super_::clear();
     }
 
     value_type value(kIndex idx[], kIndex channel) const override {
@@ -151,7 +148,7 @@ void KtSampledArray<DIM>::cutBefore(kReal x)
     if (x <= samp_[0].low())
         return;
 
-    auto nx = std::min(samp_[0].count(x - samp_[0].low()), size(0));
+    auto nx = std::min(samp_[0].size(x - samp_[0].low()), size(0));
 /*
     if (nx <= 0) {
         assert(empty() || point(&x, 0)[0] >= x);

@@ -6,8 +6,8 @@ class KvContinued : public KvData
 {
 public:
 
-	kIndex count() const final {
-		return k_inf_count;
+	kIndex size() const final {
+		return k_inf_size;
 	}
 
 	using KvData::valueRange;

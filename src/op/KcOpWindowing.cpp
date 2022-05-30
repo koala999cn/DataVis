@@ -63,7 +63,7 @@ void KcOpWindowing::syncParent()
     if (type_ >= 0) {
         KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());
         assert(objp);
-        if (win_ == nullptr || objp->size(objp->dim() - 1) != (*win_)->count())
+        if (win_ == nullptr || objp->size(objp->dim() - 1) != (*win_)->size())
             win_.reset(new KgWindowing(type_, objp->size(objp->dim() - 1), arg_));
     }
 }
@@ -77,12 +77,12 @@ std::shared_ptr<KvData> KcOpWindowing::processImpl_(std::shared_ptr<KvData> data
 
     if (data->dim() == 1) {
         auto samp = std::dynamic_pointer_cast<KcSampled1d>(data);
-        assert(samp && samp->size(0) == (*win_)->count());
+        assert(samp && samp->size(0) == (*win_)->size());
         win_->process(*samp);
     }
     else if (data->dim() == 2) {
         auto samp = std::dynamic_pointer_cast<KcSampled2d>(data);
-        assert(samp && samp->size(1) == (*win_)->count());
+        assert(samp && samp->size(1) == (*win_)->size());
         for(kIndex i = 0; i < samp->size(0); i++)
             win_->process(samp->row(i), samp->channels());
     }

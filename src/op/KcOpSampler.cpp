@@ -29,7 +29,7 @@ kReal KcOpSampler::step(kIndex axis) const
 kIndex KcOpSampler::size(kIndex axis) const
 {
     assert(axis < dim());
-    return samps_[axis].count();
+    return samps_[axis].size();
 }
 
 
@@ -42,7 +42,7 @@ namespace kPrivate
         k_sampler_channels,
         k_sampler_count,
 
-        k_dim_length,
+        k_dim_size,
         k_dim_range,
         k_dim_step
     };
@@ -52,11 +52,11 @@ namespace kPrivate
         KvPropertiedObject::kPropertySet psAxis;
         KvPropertiedObject::KpProperty prop;
 
-        int idBase = k_dim_length + dim * 3;
-        prop.id = idBase + k_dim_length;
-        prop.name = QStringLiteral("Length");
+        int idBase = k_dim_size + dim * 3;
+        prop.id = idBase + k_dim_size;
+        prop.name = QStringLiteral("Size");
         prop.flag = KvPropertiedObject::k_readonly;
-        prop.val = samp.count();
+        prop.val = samp.size();
         psAxis.push_back(prop);
 
         prop.id = idBase + k_dim_step;
@@ -102,9 +102,9 @@ KcOpSampler::kPropertySet KcOpSampler::propertySet() const
     ps.push_back(prop);
 
     prop.id = k_sampler_count;
-    prop.name = tr("Count");
+    prop.name = tr("Size");
     prop.flag = k_readonly;
-    prop.val = count();
+    prop.val = KvDataProvider::size();
     ps.push_back(prop);
 
     for (kIndex i = 0; i < dim(); i++) {
@@ -173,7 +173,7 @@ std::shared_ptr<KvData> KcOpSampler::processImpl_(std::shared_ptr<KvData> data)
     if (res) {
         std::vector<kIndex> shape(data->dim());
         for (kIndex i = 0; i < data->dim(); i++) {
-            shape[i] = samps_[i].count();
+            shape[i] = samps_[i].size();
             res->reset(i, samps_[i].low(), samps_[i].dx(), 0.5);
         }
 

@@ -71,7 +71,7 @@ bool KcPvAudioInput::startImpl_()
     iParam.channels = channels_;
 
 	KtSampling<kReal> samp(kReal(0), kReal(frameTime_), kReal(1) / sampleRate_, 0);
-	unsigned bufferFrames = samp.count(); // unsigned(sampleRate_ * frameTime_ + 0.5);
+	unsigned bufferFrames = samp.size(); // unsigned(sampleRate_ * frameTime_ + 0.5);
 
     if (!device->open(nullptr, &iParam,
         std::is_same<kReal, double>::value ? KcAudioDevice::k_float64 : KcAudioDevice::k_float32,
@@ -110,7 +110,7 @@ kReal KcPvAudioInput::step(kIndex axis) const
 kIndex KcPvAudioInput::size(kIndex) const
 {
 	KtSampling<kReal> samp(kReal(0), kReal(frameTime_), kReal(1) / sampleRate_, 0);
-	return samp.count(); // TODO: 使用open时的bufferFrames参数
+	return samp.size(); // TODO: 使用open时的bufferFrames参数
 }
 
 

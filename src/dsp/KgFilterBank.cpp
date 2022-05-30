@@ -65,9 +65,9 @@ void KgFilterBank::reset(int type, kIndex numBins, kReal df, kReal lowFreq, kRea
 
 void KgFilterBank::process(const KcSampled1d& in, kReal* out)
 {
-    //assert(in.count() == firstIdx_.back() + weights_.back().size());
+    //assert(in.size() == firstIdx_.back() + weights_.back().size());
 
-    process(in.data(), in.count(), out); // TODO: 多通道。设计一种通用范式来处理
+    process(in.data(), in.size(), out); // TODO: 多通道。设计一种通用范式来处理
 }
 
 

@@ -20,7 +20,7 @@ kReal KcOpInterpolater::step(kIndex axis) const
 kIndex KcOpInterpolater::size(kIndex axis) const
 {
     assert(axis < dim());
-    return KvData::k_inf_count;
+    return KvData::k_inf_size;
 }
 
 

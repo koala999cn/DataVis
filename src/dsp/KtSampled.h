@@ -13,7 +13,7 @@ template<int DIM>
 class KtSampled : public KvSampled
 {
 public:
-	using super_ = KvData;
+	using super_ = KvSampled;
 	using value_type = kReal;
 
 	KtSampled() : samp_() {}
@@ -22,13 +22,6 @@ public:
 	// 实现基类接口
 	kIndex dim() const override {
 		return DIM;
-	}
-
-	kIndex count() const override {
-		kIndex c(1);
-		for (kIndex i = 0; i < dim(); i++)
-			c *= samp_[i].count();
-		return c;
 	}
 
 	void clear() override {
@@ -42,7 +35,7 @@ public:
 
 	kIndex size(kIndex axis) const override {
 		assert(axis >= 0 && axis < dim());
-		return samp_[axis].count();
+		return samp_[axis].size();
 	}
 
 	kRange range(kIndex axis) const override {
@@ -77,12 +70,12 @@ public:
 		assert(axis >= 0 && axis < dim());
 		samp_[axis].shiftLeftTo(low);
 		samp_[axis].resetn(size(axis), step, x0_ref);
-		assert(size(axis) == samp_[axis].count());
+		assert(size(axis) == samp_[axis].size());
 	}
 
 	void reset(kIndex axis, const KtSampling<value_type>& samp) {
 		assert(axis >= 0 && axis < dim());
-		assert(samp.count() == count());
+		assert(samp.size() == super_::size());
 		samp_[axis] = samp;
 	}
 

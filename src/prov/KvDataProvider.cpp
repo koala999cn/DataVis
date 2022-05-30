@@ -29,9 +29,9 @@ KvDataProvider::kPropertySet KvDataProvider::propertySet() const
 
 	// 数据数量
 	if (isDiscreted()) {
-		prop.name = tr("Count");
-		prop.desc = tr("count of data points");
-		prop.val = count();
+		prop.name = tr("Size");
+		prop.desc = tr("number of data points per-channel");
+		prop.val = size();
 		ps.push_back(prop);
 		prop.desc.clear();
 	}

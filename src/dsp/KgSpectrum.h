@@ -22,6 +22,7 @@ public:
 	KgSpectrum();
 	~KgSpectrum();
 
+	// 重置为采样频率为1/dt、数量为count的时域数据执行fft操作
 	void reset(kReal dt, kIndex count);
 
 	void porcess(const KvData& samp, KcSampled1d& spec) const;
@@ -39,8 +40,8 @@ public:
 
 	kReal df() const { return df_; }
 	kReal nyqiustFreq() const { return nyquistFreq_; }
-	unsigned countInTime() const;
-	unsigned countInFreq() const;
+	unsigned sizeInTime() const;
+	unsigned sizeInFreq() const;
 
 private:
 	void* rdft_;

@@ -8,9 +8,9 @@ KcOpResampler::KcOpResampler(KvDataProvider* prov)
 {
     factor_ = 0.5;
     method_ = KgResampler::k_linear;
-    winlen_ = 2;
+    wsize_ = 2;
 
-    resamp_ = std::make_unique<KgResampler>(method_, winlen_, prov->channels(), factor_);
+    resamp_ = std::make_unique<KgResampler>(method_, wsize_, prov->channels(), factor_);
 }
 
 
@@ -79,7 +79,7 @@ KcOpResampler::kPropertySet KcOpResampler::propertySet() const
 
     prop.id = k_window_length;
     prop.name = tr("WindowLength");
-    prop.val = winlen_;
+    prop.val = wsize_;
     prop.minVal = 2;
     prop.maxVal = 1024 * 16; // 16k
     prop.step = 2;
@@ -103,7 +103,7 @@ void KcOpResampler::setPropertyImpl_(int id, const QVariant& newVal)
         break;
 
     case kPrivate::k_window_length:
-        winlen_ = newVal.toInt();
+        wsize_ = newVal.toInt();
         break;
     }
 }
@@ -114,11 +114,11 @@ void KcOpResampler::syncParent()
     assert(resamp_);
 
     if (resamp_->factor() != factor_ ||
-        resamp_->length() != winlen_ || 
+        resamp_->size() != wsize_ || 
         resamp_->method() != method_) {
         auto objp = dynamic_cast<KvDataProvider*>(parent());
         assert(objp);
-        resamp_->reset(method_, winlen_, objp->channels(), factor_);
+        resamp_->reset(method_, wsize_, objp->channels(), factor_);
     }
 }
 
@@ -131,11 +131,11 @@ std::shared_ptr<KvData> KcOpResampler::processImpl_(std::shared_ptr<KvData> data
 
     auto res = std::make_shared<KcSampled1d>();
     res->reset(0, samp1d->range(0).low(), step(0), samp1d->sampling(0).x0ref()); // TODO: 处理延时
-    res->resize(resamp_->olength(samp1d->count()), samp1d->channels());
+    res->resize(resamp_->osize(samp1d->size()), samp1d->channels());
 
-    auto N = resamp_->apply(samp1d->data(), samp1d->count(), res->data(), res->count());
-    assert(N <= res->count());
-    if(N != res->count())
+    auto N = resamp_->apply(samp1d->data(), samp1d->size(), res->data(), res->size());
+    assert(N <= res->size());
+    if(N != res->size())
         res->resize(N);
     return res;
 }
