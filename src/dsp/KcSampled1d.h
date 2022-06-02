@@ -20,8 +20,11 @@ public:
     }
 
     auto sampleRate() const { 
-        assert(step(0) != 0);
-        return static_cast<kReal>(1) / step(0); 
+        return super_::sampleRate(0);
+    }
+
+    auto nyquistRate() const { 
+        super_::nyquistRate(0); 
     }
 
     // 增加frames帧数据，data的长度等于frames * channels()
