@@ -196,8 +196,7 @@ int KgRand::poisson(double lambda)
 {
 	double a(exp(-lambda)), b(1.0), u;
 	int i(0);
-	do
-	{
+	do {
 		u = uniform();
 		b *= u;
 		i++;

@@ -169,6 +169,7 @@
     <ClCompile Include="src\op\KvOpHelper1d.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
+    <ClCompile Include="src\prov\KcPvExcitationSource.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="src\base\KuFileUtil.h" />
     <ClInclude Include="src\base\KuPathUtil.h" />
     <ClInclude Include="src\base\KuStrUtil.h" />
+    <ClInclude Include="src\dsp\excitors.h" />
     <ClInclude Include="src\dsp\KcSampled2d.h" />
     <ClInclude Include="src\dsp\KgFilterBank.h" />
     <ClInclude Include="src\dsp\KgHist.h" />
@@ -221,6 +223,7 @@
     <ClInclude Include="src\dsp\KuWindowFactory.h" />
     <ClInclude Include="src\dsp\KvContinued.h" />
     <ClInclude Include="src\dsp\KvDiscreted.h" />
+    <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
@@ -229,6 +232,7 @@
     <ClInclude Include="src\op\KcOpSampler.h" />
     <ClInclude Include="src\prov\KcPvAudioInput.h" />
     <ClInclude Include="src\prov\KcPvData.h" />
+    <ClInclude Include="src\prov\KcPvExcitationSource.h" />
     <ClInclude Include="src\render\KcRdAudioPlayer.h" />
     <ClInclude Include="src\render\KcRdPlot1d.h" />
     <ClInclude Include="src\render\KcRdPlot2d.h" />

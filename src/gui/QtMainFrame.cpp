@@ -18,6 +18,7 @@
 #include "kddockwidgets/Config.h"
 #include "prov/KcPvData.h"
 #include "prov/KcPvAudioInput.h"
+#include "prov/KcPvExcitationSource.h"
 #include "render/KcRdPlot1d.h"
 #include "render/KcRdPlot2d.h"
 #include "render/KcRdAudioPlayer.h"
@@ -94,6 +95,11 @@ bool QtMainFrame::setupMenu_()
 
     QAction* formula = fileMenu->addAction(u8"Math Expression(&E)...");
     connect(formula, &QAction::triggered, this, &QtMainFrame::openFormula);
+
+    fileMenu->addSeparator();
+
+    QAction* excitor = fileMenu->addAction(u8"Exctation Source(&S)");
+    connect(excitor, &QAction::triggered, this, &QtMainFrame::openExcitor);
 
     fileMenu->addSeparator();
 
@@ -317,6 +323,12 @@ void QtMainFrame::openFormula()
     QtFormulaDlg dlg;
     if (dlg.exec() == QDialog::Accepted) 
         kPrivate::insertObject<KcPvData>(workDock_, true, dlg.exprText(), dlg.data);
+}
+
+
+void QtMainFrame::openExcitor()
+{
+    kPrivate::insertObject<KcPvExcitationSource>(workDock_, true);
 }
 
 

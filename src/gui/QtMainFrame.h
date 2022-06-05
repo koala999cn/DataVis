@@ -22,6 +22,7 @@ private slots:
     void openDataFile();
     void openAudioFile();
     void openFormula();
+    void openExcitor();
     void openAudioCapture();
     void openAudioInput();
 

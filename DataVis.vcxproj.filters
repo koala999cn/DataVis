@@ -194,6 +194,9 @@
     <ClCompile Include="src\dsp\KgRand.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\prov\KcPvExcitationSource.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -416,6 +419,15 @@
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgRand.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KcPvExcitationSource.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KvExcitor.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\excitors.h">
       <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
