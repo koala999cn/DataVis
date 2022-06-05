@@ -6,10 +6,7 @@
 class KgRand
 {
 public:
-	enum
-	{ 
-		k_rand_max = 0x7fffu
-	};
+	enum { k_rand_max = 0x7fffu	};
 
 	// 种子初始化为固定值，便于调试
 	KgRand();
