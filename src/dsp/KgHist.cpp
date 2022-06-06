@@ -4,20 +4,6 @@
 #include "KtuMath.h"
 
 
-void KgHist::reset(kIndex numBins, kReal low, kReal high)
-{
-	assert(numBins > 0);
-	bins_.resize(numBins + 1);
-	bins_[0] = low; bins_.back() = high;
-
-	if (numBins > 0) {
-		kReal bw = (high - low) / numBins;
-		for (kIndex i = 1; i < numBins; i++)
-			bins_[i] = low + i * bw;
-	}
-}
-
-
 void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
 {
     assert(numBins() > 0);
@@ -36,7 +22,7 @@ void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
 void KgHist::process(const KcSampled1d& in, kReal* out)
 {
     for (kIndex i = 0; i < numBins(); i++) {
-        auto range = in.sampling(0).rangeToIndex(bins_[i], bins_[i + 1]);
+        auto range = in.sampling(0).rangeToIndex(binLeft(i), binRight(i));
         if (range.first > range.second) std::swap(range.first, range.second);
         if (range.first < 0) range.first = 0;
         if (range.second > in.size()) range.second = in.size();
@@ -56,7 +42,7 @@ void KgHist::process(const KcSampled1d& in, kReal* out)
 void KgHist::process(const kReal* in, unsigned len, kReal* out)
 {
     KtSampling<kReal> samp;
-    samp.resetn(len, bins_[0], bins_.back(), 0.5);
+    samp.resetn(len, range().first, range().second, 0.5);
 }
 
 
@@ -70,7 +56,7 @@ void KgHist::process(const KvData& in, kReal* out)
 
     // 跳过统计区间（左）之外的数据点
     kIndex i = 0;
-    while (i < in.size() && dis.point(i, 0)[0] < bins_[0])
+    while (i < in.size() && dis.point(i, 0)[0] < binLeft(0))
         ++i;
 
 
@@ -90,7 +76,7 @@ void KgHist::process(const KvData& in, kReal* out)
             if (c > 0) 
                 KtuMath<kReal>::scale(out, in.channels(), kReal(1) / c);
 
-            if (barRight >= bins_.back())
+            if (barRight >= range().second)
                 break;
 
             barRight = binRight(++binIdx);
