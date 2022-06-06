@@ -39,6 +39,9 @@ public:
     // 从第idx个采样点开始，提取frames帧的数据到buf
     void extract(kIndex idx, kReal* buf, kIndex frames) const;
 
+
+    void shiftLeftTo(kReal xlow);
+
 /*
 public:
     KcSampled1d() : channels_(1) {}

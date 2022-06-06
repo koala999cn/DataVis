@@ -30,6 +30,13 @@ void KcSampled1d::extract(kIndex idx, kReal* buf, kIndex N) const
     ::memcpy_s(buf, bytesOfSamples(N), data, bytesOfSamples(N));
 }
 
+
+void KcSampled1d::shiftLeftTo(kReal xlow)
+{
+    samp_[0].shiftLeftTo(xlow);
+}
+
+
 /*
 KcSampled1d::KcSampled1d(const std::vector<kReal>& data, kIndex channels)
     : samp_(data.size())

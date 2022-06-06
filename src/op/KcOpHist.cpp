@@ -13,7 +13,7 @@ KcOpHist::KcOpHist(KvDataProvider* prov)
     auto xrange = prov->range(0);
 
     hist_ = std::make_unique<KgHist>();
-    hist_->reset(9, xrange.low(), xrange.high()); // 缺省9个bin
+    hist_->resetLinear(9, xrange.low(), xrange.high()); // 缺省9个bin
 }
 
 
@@ -61,11 +61,11 @@ void KcOpHist::setPropertyImpl_(int id, const QVariant& newVal)
 {
     switch (id) {
     case kPrivate::k_range:
-        hist_->reset(hist_->numBins(), newVal.toPointF().x(), newVal.toPointF().y());
+        hist_->resetLinear(hist_->numBins(), newVal.toPointF().x(), newVal.toPointF().y());
         break;
 
     case kPrivate::k_bands:
-        hist_->reset(newVal.toInt(), hist_->range().first, hist_->range().second);
+        hist_->resetLinear(newVal.toInt(), hist_->range().first, hist_->range().second);
         break;
     };
 }
@@ -99,6 +99,11 @@ void KcOpHist::syncParent()
 std::shared_ptr<KvData> KcOpHist::processImpl_(std::shared_ptr<KvData> data)
 {
     auto res = std::make_shared<KcSampled1d>();
-    hist_->process(*std::dynamic_pointer_cast<KcSampled1d>(data), *res);
+    auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(data);
+    auto objp = dynamic_cast<KvDataProvider*>(parent());
+    if (objp->isStream())
+        samp1d->shiftLeftTo(0);
+        
+    hist_->process(*samp1d, *res);
     return res;
 }
