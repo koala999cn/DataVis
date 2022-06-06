@@ -107,7 +107,8 @@ double KgRand::gaussFast(double mean, double sigma)
 	for (int i = 0; i < 12; i++)
 		x += uniform();
 
-	x -= 6.0;
+	x -= 6.0; 
+	x /= 6.0; // 归一化
 	x *= sigma;
 	x += mean;
 
