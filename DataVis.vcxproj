@@ -138,6 +138,7 @@
     <ClCompile Include="src\dsp\KgFilterBank.cpp" />
     <ClCompile Include="src\dsp\KgHist.cpp" />
     <ClCompile Include="src\dsp\KcInterpolater.cpp" />
+    <ClCompile Include="src\dsp\KgHistC.cpp" />
     <ClCompile Include="src\dsp\KgMultiply.cpp" />
     <ClCompile Include="src\dsp\KgRand.cpp" />
     <ClCompile Include="src\dsp\KgRdft.cpp" />
@@ -145,6 +146,7 @@
     <ClCompile Include="src\dsp\KgSpectrogram.cpp" />
     <ClCompile Include="src\dsp\KgSpectrum.cpp" />
     <ClCompile Include="src\dsp\KgWindowing.cpp" />
+    <ClCompile Include="src\dsp\KmBins.cpp" />
     <ClCompile Include="src\dsp\KpExprtkHelper_.cpp" />
     <ClCompile Include="src\dsp\KuExtrapolate.cpp" />
     <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
@@ -158,6 +160,7 @@
     <ClCompile Include="src\gui\QtnPropertyWidgetX.cpp" />
     <ClCompile Include="src\gui\QtWorkspaceWidget.cpp" />
     <ClCompile Include="src\op\KcOpFIR.cpp" />
+    <ClCompile Include="src\op\KcOpHistC.cpp" />
     <ClCompile Include="src\op\KcOpInterpolater.cpp" />
     <ClCompile Include="src\op\KcOpResampler.cpp" />
     <ClCompile Include="src\op\KcOpSampler.cpp" />
@@ -201,6 +204,7 @@
     <ClInclude Include="src\dsp\KgFilterBank.h" />
     <ClInclude Include="src\dsp\KgHist.h" />
     <ClInclude Include="src\dsp\KcInterpolater.h" />
+    <ClInclude Include="src\dsp\KgHistC.h" />
     <ClInclude Include="src\dsp\KgMultiply.h" />
     <ClInclude Include="src\dsp\KgRand.h" />
     <ClInclude Include="src\dsp\KgRdft.h" />
@@ -208,6 +212,7 @@
     <ClInclude Include="src\dsp\KgSpectrogram.h" />
     <ClInclude Include="src\dsp\KgSpectrum.h" />
     <ClInclude Include="src\dsp\KgWindowing.h" />
+    <ClInclude Include="src\dsp\KmBins.h" />
     <ClInclude Include="src\dsp\KtContinued.h" />
     <ClInclude Include="src\dsp\KtFIR.h" />
     <ClInclude Include="src\dsp\KtFraming.h" />
@@ -227,6 +232,7 @@
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
+    <ClInclude Include="src\op\KcOpHistC.h" />
     <ClInclude Include="src\op\KcOpInterpolater.h" />
     <ClInclude Include="src\op\KcOpResampler.h" />
     <ClInclude Include="src\op\KcOpSampler.h" />

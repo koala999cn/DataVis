@@ -24,6 +24,7 @@
 #include "render/KcRdAudioPlayer.h"
 #include "op/KcOpSpectrum.h"
 #include "op/KcOpHist.h"
+#include "op/KcOpHistC.h"
 #include "op/KcOpFraming.h"
 #include "op/KcOpWindowing.h"
 #include "op/KcOpFilterBank.h"
@@ -152,6 +153,9 @@ bool QtMainFrame::setupMenu_()
     QAction* hist = opMenu->addAction(u8"Histogram(&H)");
     connect(hist, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpHist>(workDock_, false); });
 
+    QAction* histc = opMenu->addAction(u8"Hist Counter(&C)");
+    connect(histc, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpHistC>(workDock_, false); });
+
     QAction* framing = opMenu->addAction(u8"Framing(&M)");
     connect(framing, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpFraming>(workDock_, false); });
 
@@ -182,6 +186,7 @@ bool QtMainFrame::setupMenu_()
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
         fft->setEnabled(obj && obj->isSampled());
         hist->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
+        histc->setEnabled(obj&& obj->dim() == 1 && obj->isDiscreted());
         framing->setEnabled(obj && obj->isSampled());
         windowing->setEnabled(obj && obj->isSampled());
         fbank->setEnabled(obj && obj->isSampled());

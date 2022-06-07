@@ -31,3 +31,18 @@ void KmBins::resetLog(kIndex numBins, kReal low, kReal high)
 			bins_[i] = std::exp(lowLog + i * bw);
 	}
 }
+
+
+kIndex KmBins::binIndex(kReal x)
+{
+	if (x < range().first || x > range().second)
+		return -1;
+
+	auto pos = std::lower_bound(bins_.cbegin(), bins_.cend(), x);
+	auto idx = pos - bins_.cbegin();
+
+	if (idx == numBins()) // x == range().second
+		--idx;
+
+	return idx;
+}

@@ -37,6 +37,9 @@ public:
 		return binRight(idx) - binLeft(idx);
 	}
 
+	// 计算x落在第几个bin之内，返回-1表示x超差
+	kIndex binIndex(kReal x);
+
 private:
 	std::vector<kReal> bins_; // 按顺序排列的bin边界
 };

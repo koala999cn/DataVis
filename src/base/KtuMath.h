@@ -3,6 +3,7 @@
 #include <limits>
 #include <vector>
 #include <algorithm>
+#include <assert.h>
 
 
 template<typename KREAL>
@@ -63,14 +64,25 @@ public:
     }
 
 
+    static KREAL mid(KREAL left, KREAL right) { return (left + right) / 2; }
+
+    // 返回left和right在log域的中值
+    static KREAL logMid(KREAL left, KREAL right) { 
+        assert(left > 0 && right > 0);
+        return std::exp(mid(std::log(left), std::log(right))); 
+    }
+
+
     // 基于base的对数值 --> 自然对数值
-    // ll为基于base的对数值，base == 0表示ll为非对数值
+    // @ll: 待转换的基于base的对数值
+    // @base: =0表示ll为线性域数值
     static KREAL logFromBase(KREAL ll, KREAL base) {
         return base == 0 ? std::log(ll) : ll * std::log(base);
     }
 
     // 自然对数值 --> 基于base的对数值
-    // ll为自然对数值，base == 0表示将ll转换为非对数值
+    // @ll: 待转换的自然对数值
+    // @base: =0表示将ll转换为线性域数值
     static KREAL logToBase(KREAL ll, KREAL base) {
         return base == 0 ? std::exp(ll) : ll / std::log(base);
     }
@@ -208,6 +220,9 @@ public:
 
     // exponentiates and normalizes a vector
     static KREAL expAndNorm(KREAL x[], unsigned n);
+
+    // 对x进行缩放，确保absMax(x) = val
+    static void scaleTo(KREAL x[], unsigned n, KREAL val);
 
     ////////////////////////////////////////////////////////////////////////
 
@@ -804,6 +819,14 @@ template<class KREAL>
 void KtuMath<KREAL>::assign(KREAL x[], unsigned n, KREAL val)
 {
     std::fill(x, x + n, val);
+}
+
+template<class KREAL>
+void KtuMath<KREAL>::scaleTo(KREAL x[], unsigned n, KREAL val)
+{
+    auto mm = minmax(x, n);
+    auto factor = val / absMax(mm.first, mm.second);
+    scale(x, n, factor);
 }
 
 template<class KREAL>
