@@ -75,6 +75,27 @@ double KgRand::uniformNonZero()
 }
 
 
+double KgRand::gauss(double mu, double sigma)
+{
+	double x(-6.0);
+	for (int i = 0; i < 12; i++)
+		x += uniform();
+
+	return mu + x * sigma;
+}
+
+
+std::complex<double> KgRand::gaussComplex()
+{
+	// generate two uniform random numbers
+	double u1 = uniformNonZero();
+	double u2 = uniform();
+
+	return sqrt(-2 * log(u1)) * std::exp(std::complex<double>(0, 1) * 2.0 * KtuMath<double>::pi * u2);
+}
+
+
+#if 0
 // HTK实现
 double KgRand::gaussDeviate(double mu, double sigma)
 {
@@ -100,22 +121,6 @@ double KgRand::gaussDeviate(double mu, double sigma)
 	return x * sigma + mu;
 }
 
-
-double KgRand::gaussFast(double mean, double sigma)
-{
-	double x(0);
-	for (int i = 0; i < 12; i++)
-		x += uniform();
-
-	x -= 6.0; 
-	x /= 6.0; // 归一化
-	x *= sigma;
-	x += mean;
-
-	return x;
-}
-
-
 double KgRand::gauss()
 {
 	// generate two uniform random numbers
@@ -124,16 +129,6 @@ double KgRand::gauss()
 
 	return sqrt(-2 * log(u1)) * sin(2 * KtuMath<double>::pi * u2);
 	//return sqrt(-2 * log(u1)) * cos(2*KtuMath<double>::pi*u2);
-}
-
-
-std::complex<double> KgRand::gaussComplex()
-{
-	// generate two uniform random numbers
-	double u1 = uniformNonZero();
-	double u2 = uniform();
-
-	return sqrt(-2 * log(u1)) * std::exp(std::complex<double>(0, 1) * 2.0 * KtuMath<double>::pi * u2);
 }
 
 
@@ -154,23 +149,27 @@ void KgRand::gauss2(double& a, double& b)
 	a = u1 * cos(u2);
 	b = u1 * sin(u2);
 }
-
+#endif
 
 double KgRand::exponent(double beta) 
 {
-	double x = uniform();
-	x = -beta * log(x);
-	return x;
+	return -beta * log(uniformNonZero());
 }
 
 
 double KgRand::laplace(double beta)
 {
-	double x, u = uniform();
-	if (u <= 0.5)
-		x = -beta * log(1.0 - u);
+	double x;
+	double u1 = uniform();
+
+	if (u1 <= 0.5) {
+		auto u2 = uniform();
+		while(u2 == 1.0)
+			u2 = uniform();
+		x = -beta * log(1.0 - u2);
+	}
 	else
-		x = beta * log(u);
+		x = beta * log(uniformNonZero());
 
 	return x;
 }
@@ -178,17 +177,60 @@ double KgRand::laplace(double beta)
 
 double KgRand::rayleigh(double sigma) 
 {
-	double x, u = uniform();
-	x = -2.0 * log(u);
+	double x = -2.0 * log(uniformNonZero());
 	x = sigma * sqrt(x);
 	return x;
 }
 
 
+double KgRand::lognorm(double mu, double sigma)
+{
+	return exp(gauss(mu, sigma));
+}
+
+
 double KgRand::cauchy(double alpha, double beta) 
 {
-	double x, u = uniform();
-	x = alpha - beta / tan(KtuMath<double>::pi * u);
+	assert(beta > 0);
+	return alpha - beta / tan(KtuMath<double>::pi * uniform());
+}
+
+
+double KgRand::weibull(double alpha, double beta)
+{
+	assert(alpha > 0 && beta > 0);
+
+	return beta * pow(-log(uniformNonZero()), 1.0 / alpha);
+}
+
+
+double KgRand::erlang(int m, double beta)
+{
+	double u(1.0);
+	for (int i = 0; i < m; i++)
+		u *= uniform();
+	return -beta * log(u);
+}
+
+
+int KgRand::bernoulli(double p)
+{
+	return uniform() <= p ? 1 : 0;
+}
+
+
+double KgRand::bngauss(double p, double mu, double sigma)
+{
+	return bernoulli(p) ? gauss(mu, sigma) : 0;
+}
+
+
+int KgRand::binomial(int n, double p)
+{
+	int x(0);
+	for (int i = 0; i < n; i++)
+		x += bernoulli(p);
+
 	return x;
 }
 
@@ -201,27 +243,18 @@ int KgRand::poisson(double lambda)
 		u = uniform();
 		b *= u;
 		i++;
-	} while (b > a);
+	} while (b >= a);
 
 	return i - 1;
 }
 
 
-double KgRand::weibull(double _alpha, double _beta, double _gamma)
-{
-	// validate input
-	assert(_alpha > 0 && _beta > 0);
-
-	double u = uniformNonZero();
-	return _gamma + _beta * pow(-log(u), 1.0 / _alpha);
-}
-
-// Rice-K
-double KgRand::riceK(double _K, double _omega)
+// TODO: test
+double KgRand::rice(double K, double omega)
 {
 	std::complex<double> x, y;
-	double s = sqrt((_omega * _K) / (_K + 1));
-	double sig = sqrt(0.5 * _omega / (_K + 1));
+	double s = sqrt((omega * K) / (K + 1));
+	double sig = sqrt(0.5 * omega / (K + 1));
 	x = gaussComplex();
 	y = std::complex<double>(0, 1) * (x.real() * sig + s) + x.imag() * sig;
 	return std::abs(y);
