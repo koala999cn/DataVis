@@ -8,6 +8,11 @@
 class KvExcitor
 {
 public:
+
+	// 产生一个激励数据
 	virtual kReal pulse() = 0;
+
+	// 激励数据的数值范围
+	virtual std::pair<kReal, kReal> range() const = 0;
 };
 

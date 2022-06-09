@@ -22,7 +22,7 @@ private slots:
     void openDataFile();
     void openAudioFile();
     void openFormula();
-    void openExcitor();
+    void openStochastic();
     void openAudioCapture();
     void openAudioInput();
 

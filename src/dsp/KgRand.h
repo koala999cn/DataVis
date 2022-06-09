@@ -94,8 +94,9 @@ public:
 	double cauchy(double alpha, double beta);
 
 	// 韦伯分布
-	//   pdf(x) = (alpha/beta^a) * x^(alpha-1) * exp(-(x/beta)^alpha), x >= 0, alpha > 0, beta > 0
+	//   pdf(x) = (alpha/beta^alpha) * x^(alpha-1) * exp(-(x/beta)^alpha), x >= 0, alpha > 0, beta > 0
 	//          = 0, x < 0
+	// 当alpha=1时退化为指数分布，alpha=2时退化为瑞利分布
 	double weibull(double alpha, double beta);
 
 	// 埃尔朗分布

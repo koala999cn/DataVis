@@ -8,17 +8,19 @@
 KcPvExcitationSource::KcPvExcitationSource()
 	: KvDataProvider("excitor")
 {
-	duration_ = 1024;
-	step_ = 1;
-	repeat_ = false;
+	type_ = 0;
+	duration_ = 0.1;
+	step_ = 0.001;
+	repeat_ = true;
 	timerId_ = 0;
-	excitor_ = std::make_shared<KcGaussExcitor>();
+
+	createExcitor_();
 }
 
 
 kRange KcPvExcitationSource::range(kIndex axis) const
 {
-	return axis == 0 ? kRange(0, duration_) : kRange(-1, 1);
+	return axis == 0 ? kRange(0, duration_) : excitor_->range();
 }
 
 
@@ -49,8 +51,21 @@ bool KcPvExcitationSource::running() const
 
 namespace kPrivate
 {
+	enum KeExcitationType
+	{
+		k_gauss,
+		k_exponent,
+		k_laplace,
+		k_rayleigh,
+		k_lognorm,
+		k_cauchy,
+		k_weibull
+	};
+
+
 	enum KeExcitationSourceProperty
 	{
+		k_type,
 		k_duration,
 		k_step,
 		k_repeat,
@@ -63,12 +78,33 @@ KcPvExcitationSource::kPropertySet KcPvExcitationSource::propertySet() const
 	kPropertySet ps;
 	KpProperty prop;
 
+	static const std::pair<QString, int> type[] = {
+		{ "Gauss", kPrivate::k_gauss },
+		{ "Exponent", kPrivate::k_exponent },
+		{ "Laplace", kPrivate::k_laplace },
+		{ "Rayleigh", kPrivate::k_rayleigh },
+		{ "Lognorm", kPrivate::k_lognorm },
+		{ "Cauchy", kPrivate::k_cauchy },
+		{ "Weibull", kPrivate::k_weibull }
+	};
+	prop.id = kPrivate::k_type;
+	prop.name = tr("Distribution");
+	prop.val = type_;
+	for (unsigned i = 0; i < sizeof(type) / sizeof(std::pair<QString, int>); i++) {
+		KvPropertiedObject::KpProperty sub;
+		sub.name = type[i].first;
+		sub.val = type[i].second;
+		prop.children.push_back(sub);
+	}
+	ps.push_back(prop);
+
 	prop.id = kPrivate::k_duration;
 	prop.name = tr("Duration");
 	prop.val = duration_;
 	prop.minVal = kReal(0);
-	prop.maxVal = std::numeric_limits<kReal>::max();
-	prop.step = kReal(1);
+	prop.maxVal = kReal(1e5);
+	prop.step = kReal(0.1);
+	prop.children.clear();
 	ps.push_back(prop);
 
 	prop.id = kPrivate::k_step;
@@ -87,6 +123,8 @@ KcPvExcitationSource::kPropertySet KcPvExcitationSource::propertySet() const
 
 bool KcPvExcitationSource::startImpl_()
 {
+	createExcitor_();
+
 	emitData_();
 
 	if (repeat_) {
@@ -112,6 +150,10 @@ void KcPvExcitationSource::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id)
 	{
+	case kPrivate::k_type:
+		type_ = newVal.toInt();
+		break;
+
 	case kPrivate::k_duration:
 		duration_ = newVal.value<kReal>();
 		break;
@@ -127,6 +169,43 @@ void KcPvExcitationSource::setPropertyImpl_(int id, const QVariant& newVal)
 	default:
 		break;
 	}
+}
+
+
+void KcPvExcitationSource::createExcitor_()
+{
+	switch (type_)
+	{
+	case kPrivate::k_exponent:
+		excitor_ = std::make_shared<KcExponentExcitor>();
+		break;
+
+	case kPrivate::k_laplace:
+		excitor_ = std::make_shared<KcLaplaceExcitor>();
+		break;
+
+	case kPrivate::k_rayleigh:
+		excitor_ = std::make_shared<KcRayleighExcitor>();
+		break;
+
+	case kPrivate::k_lognorm:
+		excitor_ = std::make_shared<KcLognormExcitor>();
+		break;
+
+	case kPrivate::k_cauchy:
+		excitor_ = std::make_shared<KcCauchyExcitor>();
+		break;
+
+	case kPrivate::k_weibull:
+		excitor_ = std::make_shared<KcWeibullExcitor>();
+		break;
+
+	case kPrivate::k_gauss:
+	default:
+		break;
+	}
+
+	excitor_ = std::make_shared<KcLaplaceExcitor>();
 }
 
 

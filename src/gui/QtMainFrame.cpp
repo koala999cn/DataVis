@@ -99,8 +99,9 @@ bool QtMainFrame::setupMenu_()
 
     fileMenu->addSeparator();
 
-    QAction* excitor = fileMenu->addAction(u8"Exctation Source(&S)");
-    connect(excitor, &QAction::triggered, this, &QtMainFrame::openExcitor);
+    auto excitor = fileMenu->addMenu(tr("Exctation Source(&S)"));
+    auto stochastic = excitor->addAction(tr("Stochastic(S)")); // 随机过程
+    connect(stochastic, &QAction::triggered, this, &QtMainFrame::openStochastic);
 
     fileMenu->addSeparator();
 
@@ -331,7 +332,7 @@ void QtMainFrame::openFormula()
 }
 
 
-void QtMainFrame::openExcitor()
+void QtMainFrame::openStochastic()
 {
     kPrivate::insertObject<KcPvExcitationSource>(workDock_, true);
 }
