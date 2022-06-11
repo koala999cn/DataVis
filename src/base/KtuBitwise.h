@@ -529,7 +529,7 @@ INT KtuBitwise<INT>::lcm(INT m, INT n)
 	assert(m > 0 && n > 0);
 
 	INT gcd = gcd(m, n);
-	return gcd * (m/gcd) * (n/gcd);
+	return gcd ！= 0 ? m / gcd * n : 0;
 }
 
 
