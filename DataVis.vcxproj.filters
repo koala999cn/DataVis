@@ -201,6 +201,9 @@
     <ClCompile Include="src\op\KcOpHistC.cpp">
       <Filter>op</Filter>
     </ClCompile>
+    <ClCompile Include="src\gui\QtDataView.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -234,6 +237,9 @@
       <Filter>gui</Filter>
     </QtMoc>
     <QtMoc Include="src\KvPropertiedObject.h" />
+    <QtMoc Include="src\gui\QtDataView.h">
+      <Filter>gui</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\op\KvOpHelper1d.h">

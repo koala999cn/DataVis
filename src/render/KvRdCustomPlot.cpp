@@ -9,6 +9,8 @@
 KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
 	: KvDataRender(name, is)
 {
+	options_ = k_visible;
+
 	customPlot_ = new QCustomPlot(nullptr);
 	rescaleAxes(); // 设置缺省的坐标轴范围
 	autoScale_ = !is->isStream();
@@ -31,27 +33,21 @@ KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
 
 KvRdCustomPlot::~KvRdCustomPlot()
 {
-	show(false);
+	enableOption(k_visible, false);
 	delete customPlot_;
 }
 
 
-
-bool KvRdCustomPlot::canShown() const
-{
-	return true;
-}
-
-
-bool KvRdCustomPlot::isVisible() const
+bool KvRdCustomPlot::isOptionEnabled(KeObjectOption opt) const
 {
 	return customPlot_->isVisible();
 }
 
 
-void KvRdCustomPlot::show(bool bShow)
+void KvRdCustomPlot::enableOption(int option, bool on)
 {
-	if (bShow)
+	assert(option == k_visible);
+	if (on)
 		kAppEventHub->showDock(this, customPlot_);
 	else
 		kAppEventHub->closeDock(this);

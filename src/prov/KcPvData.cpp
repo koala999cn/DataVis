@@ -1,12 +1,15 @@
 ﻿#include "KcPvData.h"
 #include <QPointF>
 #include "KvContinued.h"
+#include "QtAppEventHub.h"
+#include "gui/QtDataView.h"
 
 
 KcPvData::KcPvData(const QString& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-
+	if (data->isDiscreted())
+		options_ |= k_visible;
 }
 
 
@@ -107,4 +110,27 @@ void KcPvData::setPropertyImpl_(int id, const QVariant& newVal)
 		auto cnt = std::dynamic_pointer_cast<KvContinued>(data_);
 		// TODO:
 	}
+}
+
+
+bool KcPvData::isOptionEnabled(KeObjectOption opt) const
+{
+	assert(option == k_visible);
+
+	return kAppEventHub->hasDocked(this);
+}
+
+
+void KcPvData::enableOption(int option, bool on)
+{
+	assert(option == k_visible);
+
+	if (on) {
+		auto dv = new QtDataView;
+		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data_);
+		dv->fill(*disc);
+		kAppEventHub->showDock(this, dv);
+	}
+	else
+		kAppEventHub->closeDock(this);
 }

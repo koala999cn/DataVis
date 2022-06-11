@@ -18,12 +18,6 @@ public:
 		return ""; // 空字符串表示无错误
 	}
 
-	// 该render是否可被显示
-	virtual bool canShown() const = 0;
-
-	// 该render是否可见
-	virtual bool isVisible() const = 0;
-
 
 	// 请求父节点重新发送数据
 	void requestData() const {
@@ -38,19 +32,14 @@ public slots:
 
 	// 渲染数据
 	bool render(std::shared_ptr<KvData> data) {
-		if (canShown() && !isVisible())
-			return true; // skip render when widget hidden
-
+		// TODO: if (canShown() && !isVisible())
+		//	return true; // skip render when widget hidden
 		syncParent();
 		return renderImpl_(data);
 	}
 
 	// 重置
 	virtual void reset() = 0;
-
-	// 显示/隐藏用于render的窗口或其他信息
-	virtual void show(bool bShow) = 0;
-
 
 private:
 	virtual void syncParent() = 0;

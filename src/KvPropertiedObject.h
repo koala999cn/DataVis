@@ -3,6 +3,7 @@
 #include <QString>
 #include <QVariant>
 #include <vector>
+#include <assert.h>
 
 
 // 具属性对象的抽象接口，用来桥接业务与Qt属性组件
@@ -15,6 +16,7 @@ public:
 	KvPropertiedObject(const QString& name, KvPropertiedObject* parent = nullptr) 
 	    : QObject(parent) { 
 		setName(name); 
+		options_ = 0;
 	}
 
 	virtual ~KvPropertiedObject() {}
@@ -32,6 +34,26 @@ public:
 		return dynamic_cast<KvPropertiedObject*>(p);
 	}
 
+
+	enum KeObjectOption
+	{
+		k_visible = 0x01, // 是否可显示
+	};
+
+
+	bool hasOption(KeObjectOption opt) const { return options_ & opt; }
+
+	virtual void enableOption(int option, bool on) {
+		assert(!hasOption(option));
+	}
+
+	virtual bool isOptionEnabled(KeObjectOption opt) const {
+		assert(!hasOption(opt));
+		return false;
+	}
+
+protected:
+	int options_; // 对象特性，由继承类设置
 
 public slots:
 

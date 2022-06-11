@@ -22,14 +22,10 @@ public:
 
 	kPropertySet propertySet() const override;
 
-	bool canShown() const override;
+	void enableOption(int option, bool on) override;
 
-	bool isVisible() const override;
+	bool isOptionEnabled(KeObjectOption opt) const override;
 
-	void show(bool bShow) override;
-
-
-	// 导出
 	QString exportAs();
 
 	virtual void rescaleAxes();

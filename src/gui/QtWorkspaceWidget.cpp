@@ -138,9 +138,9 @@ void QtWorkspaceWidget::connectSignals_()
 
 	// 用户双击tree-item触发：弹出显示窗口
 	connect(this, &QTreeWidget::itemDoubleClicked, [this](QTreeWidgetItem* item, int) {
-	    auto obj = dynamic_cast<KvDataRender*>(getObject(item));
-	    if ( obj && obj->canShown())
-			obj->show(true);
+	    auto obj = getObject(item);
+	    if ( obj && obj->hasOption(KvPropertiedObject::k_visible))
+			obj->enableOption(KvPropertiedObject::k_visible, true);
 	    });
 }
 
@@ -169,6 +169,17 @@ void QtWorkspaceWidget::contextMenuEvent(QContextMenuEvent*)
 	QAction showItem(tr("show"), this); // 仅render
 
 	auto obj = getObject(curItem);
+
+	// 对象options菜单项
+	if (obj && obj->hasOption(KvPropertiedObject::k_visible)) {
+		showItem.setCheckable(true);
+		showItem.setChecked(obj->isOptionEnabled(KvPropertiedObject::k_visible));
+		connect(&showItem, &QAction::triggered, obj, [obj](bool enable) {
+			obj->enableOption(KvPropertiedObject::k_visible, enable);
+			});
+		menu.addAction(&showItem);
+	}
+
 	auto provider = dynamic_cast<KvDataProvider*>(obj);
 	if (provider) {
 		if (provider->isStream() && provider->running()) {
@@ -178,15 +189,6 @@ void QtWorkspaceWidget::contextMenuEvent(QContextMenuEvent*)
 		else {
 			connect(&renderItem, &QAction::triggered, provider, &KvDataProvider::start);
 			menu.addAction(&renderItem);
-		}
-	}
-	else {
-		auto render = dynamic_cast<KvDataRender*>(obj);
-		if (render && render->canShown()) {
-			showItem.setCheckable(true);
-			showItem.setChecked(render->isVisible());
-			connect(&showItem, &QAction::triggered, render, &KvDataRender::show);
-			menu.addAction(&showItem);
 		}
 	}
 

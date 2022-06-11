@@ -155,6 +155,7 @@
     <ClCompile Include="src\dsp\KvContinued.cpp" />
     <ClCompile Include="src\dsp\KvDiscreted.cpp" />
     <ClCompile Include="src\gui\QtAudioCaptureDlg.cpp" />
+    <ClCompile Include="src\gui\QtDataView.cpp" />
     <ClCompile Include="src\gui\QtFormulaDlg.cpp" />
     <ClCompile Include="src\gui\QtMainFrame.cpp" />
     <ClCompile Include="src\gui\QtnPropertyWidgetX.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <QtMoc Include="src\gui\QtDataView.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpHistC.h" />
     <ClInclude Include="src\op\KcOpInterpolater.h" />

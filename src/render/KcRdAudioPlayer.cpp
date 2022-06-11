@@ -88,27 +88,9 @@ std::string KcRdAudioPlayer::errorText() const
 }
 
 
-bool KcRdAudioPlayer::canShown() const
-{
-	return false; // TODO: 显示播放进度
-}
-
-
-bool KcRdAudioPlayer::isVisible() const
-{
-	return false;
-}
-
-
 void KcRdAudioPlayer::reset()
 {
     render_->reset();
-}
-
-
-void KcRdAudioPlayer::show(bool bShow)
-{
-	assert(false);
 }
 
 

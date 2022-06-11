@@ -13,15 +13,9 @@ public:
 
 	std::string errorText() const override;
 
-	bool canShown() const override;
-
-	bool isVisible() const override;
-
 
 public slots:
 	void reset() override;
-
-	void show(bool bShow) override;
 
 
 private:
@@ -30,6 +24,7 @@ private:
 	void syncParent() override;
 
 	bool renderImpl_(std::shared_ptr<KvData> data) override;
+
 
 private:
 	std::unique_ptr<KcAudioRender> render_;
