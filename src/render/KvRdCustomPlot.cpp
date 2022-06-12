@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include "QtAppEventHub.h"
 #include "qcustomplot/qcustomplot.h"
+#include "gui/QtDataView.h"
 
 
 KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
@@ -22,10 +23,10 @@ KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
 	// 设置上下文菜单
 	customPlot_->setContextMenuPolicy(Qt::CustomContextMenu);
 	customPlot_->connect(customPlot_, &QWidget::customContextMenuRequested, [this](const QPoint& pos) {
-		QAction exportAction(QWidget::tr("export..."), customPlot_);
-		customPlot_->connect(&exportAction, &QAction::triggered, [this] { exportAs(); });
 		QMenu menu(customPlot_);
-		menu.addAction(&exportAction);
+		menu.addAction(tr("export..."), [this] { exportAs(); });
+		menu.addSeparator();
+		menu.addAction(tr("detail"), [this] { showData(); });
 		menu.exec(customPlot_->mapToGlobal(pos));
 		});
 }
@@ -72,6 +73,21 @@ QString KvRdCustomPlot::exportAs()
 	}
 
 	return path;
+}
+
+
+void KvRdCustomPlot::showData()
+{
+	auto view = new QtDataView;
+	auto plot = customPlot_->plottable(); // TODO: 使用tab支持多plot数据显示
+	if (dynamic_cast<QCPGraph*>(plot)) 
+		view->fill(*dynamic_cast<QCPGraph*>(plot)->data());
+	else if (dynamic_cast<QCPBars*>(plot))
+		view->fill(*dynamic_cast<QCPBars*>(plot)->data());
+	else if (dynamic_cast<QCPColorMap*>(plot))
+		view->fill(*dynamic_cast<QCPColorMap*>(plot)->data());
+
+	kAppEventHub->showDock(this, view);
 }
 
 

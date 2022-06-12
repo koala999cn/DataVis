@@ -117,7 +117,7 @@ bool KcPvData::isOptionEnabled(KeObjectOption opt) const
 {
 	assert(option == k_visible);
 
-	return kAppEventHub->hasDocked(this);
+	return kAppEventHub->isDocked(this);
 }
 
 

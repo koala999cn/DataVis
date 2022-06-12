@@ -28,6 +28,8 @@ public:
 
 	QString exportAs();
 
+	void showData();
+
 	virtual void rescaleAxes();
 
 

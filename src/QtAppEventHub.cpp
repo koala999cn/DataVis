@@ -85,7 +85,7 @@ void QtAppEventHub::showDock(KvPropertiedObject* obj, QWidget* widget)
 }
 
 
-bool QtAppEventHub::hasDocked(const KvPropertiedObject* obj)
+bool QtAppEventHub::isDocked(const KvPropertiedObject* obj)
 {
 	return kPrivate::getDock(const_cast<KvPropertiedObject*>(obj), false);
 }
