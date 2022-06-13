@@ -22,9 +22,9 @@ public:
 
 	kPropertySet propertySet() const override;
 
-	void enableOption(KeObjectOption opt, bool on) override;
+	void setOption(KeObjectOption opt, bool on) override;
 
-	bool isOptionEnabled(KeObjectOption opt) const override;
+	bool getOption(KeObjectOption opt) const override;
 
 	QString exportAs();
 

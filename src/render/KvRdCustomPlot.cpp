@@ -34,18 +34,18 @@ KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
 
 KvRdCustomPlot::~KvRdCustomPlot()
 {
-	enableOption(k_visible, false);
+	setOption(k_visible, false);
 	delete customPlot_;
 }
 
 
-bool KvRdCustomPlot::isOptionEnabled(KeObjectOption opt) const
+bool KvRdCustomPlot::getOption(KeObjectOption opt) const
 {
 	return customPlot_->isVisible();
 }
 
 
-void KvRdCustomPlot::enableOption(KeObjectOption opt, bool on)
+void KvRdCustomPlot::setOption(KeObjectOption opt, bool on)
 {
 	assert(opt == k_visible);
 	if (on)
@@ -87,6 +87,8 @@ void KvRdCustomPlot::showData()
 	else if (dynamic_cast<QCPColorMap*>(plot))
 		view->fill(*dynamic_cast<QCPColorMap*>(plot)->data());
 
+	// NOTO: 此处无法再用dock，因为this对象已关联到plot-dock
+	// TODO: 可考虑一个obj关联多个dock的设计
 	view->setWindowFlag(Qt::Window);
 	view->setAttribute(Qt::WA_DeleteOnClose);
 	view->show();

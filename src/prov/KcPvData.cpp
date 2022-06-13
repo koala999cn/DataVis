@@ -113,7 +113,7 @@ void KcPvData::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-bool KcPvData::isOptionEnabled(KeObjectOption opt) const
+bool KcPvData::getOption(KeObjectOption opt) const
 {
 	assert(opt == k_visible);
 
@@ -121,7 +121,7 @@ bool KcPvData::isOptionEnabled(KeObjectOption opt) const
 }
 
 
-void KcPvData::enableOption(KeObjectOption opt, bool on)
+void KcPvData::setOption(KeObjectOption opt, bool on)
 {
 	assert(opt == k_visible);
 

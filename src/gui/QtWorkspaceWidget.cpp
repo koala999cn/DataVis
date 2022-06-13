@@ -140,7 +140,7 @@ void QtWorkspaceWidget::connectSignals_()
 	connect(this, &QTreeWidget::itemDoubleClicked, [this](QTreeWidgetItem* item, int) {
 	    auto obj = getObject(item);
 	    if ( obj && obj->hasOption(KvPropertiedObject::k_visible))
-			obj->enableOption(KvPropertiedObject::k_visible, true);
+			obj->setOption(KvPropertiedObject::k_visible, true);
 	    });
 }
 
@@ -173,9 +173,9 @@ void QtWorkspaceWidget::contextMenuEvent(QContextMenuEvent*)
 	// 对象options菜单项
 	if (obj && obj->hasOption(KvPropertiedObject::k_visible)) {
 		showItem.setCheckable(true);
-		showItem.setChecked(obj->isOptionEnabled(KvPropertiedObject::k_visible));
+		showItem.setChecked(obj->getOption(KvPropertiedObject::k_visible));
 		connect(&showItem, &QAction::triggered, obj, [obj](bool enable) {
-			obj->enableOption(KvPropertiedObject::k_visible, enable);
+			obj->setOption(KvPropertiedObject::k_visible, enable);
 			});
 		menu.addAction(&showItem);
 	}
