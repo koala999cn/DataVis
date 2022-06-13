@@ -22,7 +22,7 @@ public:
 
 	kPropertySet propertySet() const override;
 
-	void enableOption(int option, bool on) override;
+	void enableOption(KeObjectOption opt, bool on) override;
 
 	bool isOptionEnabled(KeObjectOption opt) const override;
 

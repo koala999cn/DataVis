@@ -27,7 +27,7 @@ public:
 	// 对于连续数据，改写range属性为可编辑
 	kPropertySet propertySet() const override;
 
-	void enableOption(int option, bool on) override;
+	void enableOption(KeObjectOption opt, bool on) override;
 
 	bool isOptionEnabled(KeObjectOption opt) const override;
 

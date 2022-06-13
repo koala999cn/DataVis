@@ -115,15 +115,15 @@ void KcPvData::setPropertyImpl_(int id, const QVariant& newVal)
 
 bool KcPvData::isOptionEnabled(KeObjectOption opt) const
 {
-	assert(option == k_visible);
+	assert(opt == k_visible);
 
 	return kAppEventHub->isDocked(this);
 }
 
 
-void KcPvData::enableOption(int option, bool on)
+void KcPvData::enableOption(KeObjectOption opt, bool on)
 {
-	assert(option == k_visible);
+	assert(opt == k_visible);
 
 	if (on) {
 		auto dv = new QtDataView;

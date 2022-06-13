@@ -45,9 +45,9 @@ bool KvRdCustomPlot::isOptionEnabled(KeObjectOption opt) const
 }
 
 
-void KvRdCustomPlot::enableOption(int option, bool on)
+void KvRdCustomPlot::enableOption(KeObjectOption opt, bool on)
 {
-	assert(option == k_visible);
+	assert(opt == k_visible);
 	if (on)
 		kAppEventHub->showDock(this, customPlot_);
 	else
@@ -78,7 +78,7 @@ QString KvRdCustomPlot::exportAs()
 
 void KvRdCustomPlot::showData()
 {
-	auto view = new QtDataView;
+	auto view = new QtDataView();
 	auto plot = customPlot_->plottable(); // TODO: 使用tab支持多plot数据显示
 	if (dynamic_cast<QCPGraph*>(plot)) 
 		view->fill(*dynamic_cast<QCPGraph*>(plot)->data());
@@ -87,7 +87,9 @@ void KvRdCustomPlot::showData()
 	else if (dynamic_cast<QCPColorMap*>(plot))
 		view->fill(*dynamic_cast<QCPColorMap*>(plot)->data());
 
-	kAppEventHub->showDock(this, view);
+	view->setWindowFlag(Qt::Window);
+	view->setAttribute(Qt::WA_DeleteOnClose);
+	view->show();
 }
 
 

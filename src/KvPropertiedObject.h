@@ -43,8 +43,8 @@ public:
 
 	bool hasOption(KeObjectOption opt) const { return options_ & opt; }
 
-	virtual void enableOption(int option, bool on) {
-		assert(!hasOption(option));
+	virtual void enableOption(KeObjectOption opt, bool on) {
+		assert(!hasOption(opt));
 	}
 
 	virtual bool isOptionEnabled(KeObjectOption opt) const {
