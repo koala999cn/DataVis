@@ -42,7 +42,7 @@ KcRdBar3d::~KcRdBar3d()
 
 KcRdBar3d::kPropertySet KcRdBar3d::propertySet() const
 {
-	kPropertySet ps;
+	kPropertySet ps = KvRdQtDataVis::propertySet();
 
 	return ps;
 }
@@ -59,7 +59,7 @@ void KcRdBar3d::reset()
 
 void KcRdBar3d::setPropertyImpl_(int id, const QVariant& newVal)
 {
-
+	KvRdQtDataVis::setPropertyImpl_(id, newVal);
 }
 
 
