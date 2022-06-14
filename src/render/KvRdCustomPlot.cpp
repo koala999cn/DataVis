@@ -41,6 +41,7 @@ KvRdCustomPlot::~KvRdCustomPlot()
 
 bool KvRdCustomPlot::getOption(KeObjectOption opt) const
 {
+	assert(opt == k_visible);
 	return customPlot_->isVisible();
 }
 

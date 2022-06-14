@@ -34,14 +34,14 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>Qt6.2.2_msvc2019_x64</QtInstall>
-    <QtModules>core;gui;widgets;opengl;</QtModules>
+    <QtModules>core;gui;widgets;datavisualization;</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
     <QtHeaderSearchPath>
     </QtHeaderSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>Qt6.2.2_msvc2019_x64</QtInstall>
-    <QtModules>core;gui;widgets;opengl;</QtModules>
+    <QtModules>core;gui;widgets;datavisualization;</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
     <QtDeploy>false</QtDeploy>
   </PropertyGroup>
@@ -182,9 +182,11 @@
     <ClCompile Include="src\gui\QtWaveBar.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\render\KcRdAudioPlayer.cpp" />
+    <ClCompile Include="src\render\KcRdBar3d.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
     <ClCompile Include="src\render\KcRdPlot2d.cpp" />
     <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
+    <ClCompile Include="src\render\KvRdQtDataVis.cpp" />
     <QtUic Include="src\audio_capture_dlg.ui" />
     <QtUic Include="src\formula_dlg.ui" />
   </ItemGroup>
@@ -232,6 +234,7 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\render\KvRdQtDataVis.h" />
     <QtMoc Include="src\gui\QtDataView.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpHistC.h" />
@@ -242,6 +245,7 @@
     <ClInclude Include="src\prov\KcPvData.h" />
     <ClInclude Include="src\prov\KcPvExcitationSource.h" />
     <ClInclude Include="src\render\KcRdAudioPlayer.h" />
+    <ClInclude Include="src\render\KcRdBar3d.h" />
     <ClInclude Include="src\render\KcRdPlot1d.h" />
     <ClInclude Include="src\render\KcRdPlot2d.h" />
     <ClInclude Include="src\render\KvDataRender.h" />

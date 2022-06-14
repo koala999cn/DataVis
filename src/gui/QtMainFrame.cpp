@@ -21,6 +21,7 @@
 #include "prov/KcPvExcitationSource.h"
 #include "render/KcRdPlot1d.h"
 #include "render/KcRdPlot2d.h"
+#include "render/KcRdBar3d.h"
 #include "render/KcRdAudioPlayer.h"
 #include "op/KcOpSpectrum.h"
 #include "op/KcOpHist.h"
@@ -223,6 +224,11 @@ bool QtMainFrame::setupMenu_()
         kPrivate::insertObjectP<KcRdPlot2d>(workDock_, false);
         });
 
+    QAction* bars3d = renderMenu->addAction(u8"Bars3d(&D)");
+    connect(bars3d, &QAction::triggered, [this] {
+        kPrivate::insertObjectP<KcRdBar3d>(workDock_, false);
+        });
+
     connect(renderMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
@@ -230,6 +236,7 @@ bool QtMainFrame::setupMenu_()
         line->setEnabled(obj && obj->dim() == 1);
         bar->setEnabled(obj && obj->dim() == 1);
         color_map->setEnabled(obj && obj->dim() == 2);
+        bars3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
         });
 
     return true;
