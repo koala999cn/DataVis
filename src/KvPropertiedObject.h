@@ -95,6 +95,17 @@ public:
 			attr.penFlags = 0;
 			children.clear();
 		}
+
+		template<int N>
+		void makeEnum(const std::pair<QString, int> enumList[N]) {
+			children.clear();
+			for (int i = 0; i < N; i++) {
+				KpProperty sub;
+				sub.name = enumList[i].first;
+				sub.val = enumList[i].second;
+				children.push_back(sub);
+			}
+		}
 	};
 
 	using kPropertySet = std::vector<KpProperty>;

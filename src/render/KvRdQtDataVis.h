@@ -21,9 +21,9 @@ public:
 
 
 protected:
-	void setPropertyImpl_(int id, const QVariant& newVal) override;
-
+	void setPropertyImpl_(int id, const QVariant& newVal) override;;
 
 protected:
 	QAbstract3DGraph* graph3d_;
+	int theme_;
 };

@@ -8,6 +8,7 @@ KvRdQtDataVis::KvRdQtDataVis(KvDataProvider* is, const QString& name)
 {
 	options_ = k_visible;
 	graph3d_ = nullptr;
+	theme_ = Q3DTheme::ThemeQt; // TODO:
 }
 
 
@@ -41,19 +42,23 @@ namespace kPrivate
 {
 	enum KeQtDataVisProperty
 	{
+		k_theme,
 		k_camera_preset,
 	};
-}
 
+	static const std::pair<QString, int> themeList[] = {
+		{ "Qt", Q3DTheme::ThemeQt },
+		{ "PrimaryColors", Q3DTheme::ThemePrimaryColors },
+		{ "Digia", Q3DTheme::ThemeDigia },
+		{ "StoneMoss", Q3DTheme::ThemeStoneMoss },
+		{ "ArmyBlue", Q3DTheme::ThemeArmyBlue },
+		{ "Retro", Q3DTheme::ThemeRetro },
+		{ "Ebony", Q3DTheme::ThemeEbony },
+		{ "Isabelle", Q3DTheme::ThemeIsabelle },
+		{ "UserDefined", Q3DTheme::ThemeUserDefined }
+	};
 
-KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
-{
-	using namespace kPrivate;
-
-	kPropertySet ps;
-	KpProperty prop;
-
-	static const std::pair<QString, int> preset[] = {
+	static const std::pair<QString, int> presetList[] = {
 		{ "FrontLow", Q3DCamera::CameraPresetFrontLow },
 		{ "Front", Q3DCamera::CameraPresetFront },
 		{ "FrontHigh", Q3DCamera::CameraPresetFrontHigh },
@@ -74,21 +79,31 @@ KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
 		{ "DirectlyAboveCW45", Q3DCamera::CameraPresetDirectlyAboveCW45 },
 		{ "DirectlyAboveCCW45", Q3DCamera::CameraPresetDirectlyAboveCCW45 },
 		{ "FrontBelow", Q3DCamera::CameraPresetFrontBelow },
-	    { "LeftBelow", Q3DCamera::CameraPresetLeftBelow },
-	    { "LeftBelow", Q3DCamera::CameraPresetLeftBelow },
-	    { "BehindBelow", Q3DCamera::CameraPresetBehindBelow },
-	    { "DirectlyBelow", Q3DCamera::CameraPresetDirectlyBelow }
+		{ "LeftBelow", Q3DCamera::CameraPresetLeftBelow },
+		{ "LeftBelow", Q3DCamera::CameraPresetLeftBelow },
+		{ "BehindBelow", Q3DCamera::CameraPresetBehindBelow },
+		{ "DirectlyBelow", Q3DCamera::CameraPresetDirectlyBelow }
 	};
+}
+
+
+KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
+{
+	using namespace kPrivate;
+
+	kPropertySet ps;
+	KpProperty prop;
+
+	prop.id = k_theme;
+	prop.name = tr("Theme");
+	prop.val = theme_;
+	prop.makeEnum<sizeof(themeList) / sizeof(std::pair<QString, int>)>(themeList);
+	ps.push_back(prop);
 
 	prop.id = k_camera_preset;
 	prop.name = tr("CameraPreset");
-	prop.val = QVariant::fromValue<int>(graph3d_->scene()->activeCamera()->cameraPreset());
-	for (unsigned i = 0; i < sizeof(preset) / sizeof(std::pair<QString, int>); i++) {
-		KvPropertiedObject::KpProperty sub;
-		sub.name = preset[i].first;
-		sub.val = preset[i].second;
-		prop.children.push_back(sub);
-	}
+	prop.val = int(graph3d_->scene()->activeCamera()->cameraPreset());
+	prop.makeEnum<sizeof(presetList) / sizeof(std::pair<QString, int>)>(presetList);
 	ps.push_back(prop);
 
 	return ps;
@@ -99,6 +114,11 @@ void KvRdQtDataVis::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id)
 	{
+	case kPrivate::k_theme:
+		theme_ = newVal.toInt();
+		graph3d_->setActiveTheme(new Q3DTheme(Q3DTheme::Theme(theme_))); // TODO: 不需要每次都new theme
+		break;
+
 	case kPrivate::k_camera_preset:
 		graph3d_->scene()->activeCamera()->setCameraPreset(Q3DCamera::CameraPreset(newVal.toInt()));
 		break;
@@ -107,4 +127,3 @@ void KvRdQtDataVis::setPropertyImpl_(int id, const QVariant& newVal)
 		break;
 	}
 }
-
