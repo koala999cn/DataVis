@@ -108,19 +108,19 @@ KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
 	prop.id = k_theme;
 	prop.name = tr("Theme");
 	prop.val = theme_;
-	prop.makeEnum<sizeof(themeList) / sizeof(std::pair<QString, int>)>(themeList);
+	prop.makeEnum(themeList);
 	ps.push_back(prop);
 
 	prop.id = k_camera_preset;
 	prop.name = tr("CameraPreset");
 	prop.val = int(graph3d_->scene()->activeCamera()->cameraPreset());
-	prop.makeEnum<sizeof(presetList) / sizeof(std::pair<QString, int>)>(presetList);
+	prop.makeEnum(presetList);
 	ps.push_back(prop);
 
 	prop.id = k_shadow_quality;
 	prop.name = tr("ShadowQuality");
 	prop.val = int(graph3d_->shadowQuality());
-	prop.makeEnum<sizeof(shadowQualityList) / sizeof(std::pair<QString, int>)>(shadowQualityList);
+	prop.makeEnum(shadowQualityList);
 	ps.push_back(prop);
 
 	return ps;

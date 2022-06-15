@@ -90,14 +90,14 @@ public:
 
 		void reset() {
 			id = -1, flag = 0;
-			name.clear(), desc.clear();
-			val.clear(), minVal.clear(), maxVal.clear();
+			name.clear(), disp.clear(), desc.clear();
+			val.clear(), minVal.clear(), maxVal.clear(), step.clear();
 			attr.penFlags = 0;
 			children.clear();
 		}
 
 		template<int N>
-		void makeEnum(const std::pair<QString, int> enumList[N]) {
+		void makeEnum(const std::pair<QString, int> (&enumList)[N]) {
 			children.clear();
 			for (int i = 0; i < N; i++) {
 				KpProperty sub;
