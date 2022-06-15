@@ -44,6 +44,7 @@ namespace kPrivate
 	{
 		k_theme,
 		k_camera_preset,
+		k_shadow_quality,
 	};
 
 	static const std::pair<QString, int> themeList[] = {
@@ -84,6 +85,16 @@ namespace kPrivate
 		{ "BehindBelow", Q3DCamera::CameraPresetBehindBelow },
 		{ "DirectlyBelow", Q3DCamera::CameraPresetDirectlyBelow }
 	};
+
+	static const std::pair<QString, int> shadowQualityList[] = {
+		{ "None", QAbstract3DGraph::ShadowQualityNone },
+		{ "Low", QAbstract3DGraph::ShadowQualityLow },
+		{ "Medium", QAbstract3DGraph::ShadowQualityMedium },
+		{ "High", QAbstract3DGraph::ShadowQualityHigh },
+		{ "SoftLow", QAbstract3DGraph::ShadowQualitySoftLow },
+		{ "SoftMedium", QAbstract3DGraph::ShadowQualitySoftMedium },
+		{ "SoftHigh", QAbstract3DGraph::ShadowQualitySoftHigh }
+	};
 }
 
 
@@ -106,6 +117,12 @@ KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
 	prop.makeEnum<sizeof(presetList) / sizeof(std::pair<QString, int>)>(presetList);
 	ps.push_back(prop);
 
+	prop.id = k_shadow_quality;
+	prop.name = tr("ShadowQuality");
+	prop.val = int(graph3d_->shadowQuality());
+	prop.makeEnum<sizeof(shadowQualityList) / sizeof(std::pair<QString, int>)>(shadowQualityList);
+	ps.push_back(prop);
+
 	return ps;
 }
 
@@ -121,6 +138,10 @@ void KvRdQtDataVis::setPropertyImpl_(int id, const QVariant& newVal)
 
 	case kPrivate::k_camera_preset:
 		graph3d_->scene()->activeCamera()->setCameraPreset(Q3DCamera::CameraPreset(newVal.toInt()));
+		break;
+
+	case kPrivate::k_shadow_quality:
+		graph3d_->setShadowQuality(QAbstract3DGraph::ShadowQuality(newVal.toInt()));
 		break;
 
 	default:

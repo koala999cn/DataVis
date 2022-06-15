@@ -13,12 +13,12 @@ KcRdBar3d::KcRdBar3d(KvDataProvider* is)
 
 	auto r0 = is->range(0);
 	//bars->columnAxis()->setRange(r0.low(), r0.high());
-	bars->columnAxis()->setRange(0, is->size(0));
+	bars->columnAxis()->setRange(0, is->size(0) - 1);
 
 	if (is->dim() > 1) {
 		auto r1 = is->range(1);
 		//bars->rowAxis()->setRange(r1.low(), r1.high());
-		bars->rowAxis()->setRange(0, is->size(1));
+		bars->rowAxis()->setRange(0, is->size(1) - 1);
 	}
 	else {
 		bars->rowAxis()->setRange(0, 0);
