@@ -9,7 +9,9 @@ KcRdBar3d::KcRdBar3d(KvDataProvider* is)
 	series_ = new QBar3DSeries;
 	bars->addSeries(series_);
 	graph3d_ = bars;
-
+	xAxis_ = bars->columnAxis();
+	yAxis_ = bars->rowAxis();
+	zAxis_ = bars->valueAxis();
 
 	auto r0 = is->range(0);
 	//bars->columnAxis()->setRange(r0.low(), r0.high());

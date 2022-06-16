@@ -1,5 +1,6 @@
 #include "KvRdQtDataVis.h"
 #include <QtDataVisualization/QAbstract3DGraph.h>
+#include <QAbstract3DAxis>
 #include "QtAppEventHub.h"
 
 
@@ -8,6 +9,7 @@ KvRdQtDataVis::KvRdQtDataVis(KvDataProvider* is, const QString& name)
 {
 	options_ = k_visible;
 	graph3d_ = nullptr;
+	xAxis_ = yAxis_ = zAxis_ = nullptr;
 	theme_ = Q3DTheme::ThemeQt; // TODO:
 }
 
@@ -45,7 +47,50 @@ namespace kPrivate
 		k_theme,
 		k_camera_preset,
 		k_shadow_quality,
+
+		k_axis_x,
+		k_axis_x_range = k_axis_x,
+		k_axis_y,
+		k_axis_y_range = k_axis_y,
+		k_axis_z,
+		k_axis_z_range = k_axis_z,
+
+		k_axis_range = k_axis_x_range - k_axis_x,
+		k_axis_max = k_axis_range
 	};
+
+	// @idBase: 用来计算真实id的基数
+	static KvPropertiedObject::kPropertySet getAxisProperties(QAbstract3DAxis* axis, int idBase)
+	{
+		KvPropertiedObject::kPropertySet psAxis;
+		KvPropertiedObject::KpProperty prop;
+
+		prop.id = idBase + k_axis_range;
+		prop.name = QStringLiteral("Range");
+		prop.flag = KvPropertiedObject::k_restrict;
+		prop.val = QPointF(axis->min(), axis->max());
+		KvPropertiedObject::KpProperty subProp;
+		subProp.name = QStringLiteral("low");
+		prop.children.push_back(subProp);
+		subProp.name = QStringLiteral("high");
+		prop.children.push_back(subProp);
+		psAxis.push_back(prop);
+
+		return psAxis;
+	}
+
+	static void onAxisPropertyChanged(QAbstract3DAxis* axis, int idDiff, const QVariant& newVal)
+	{
+		switch (idDiff) {
+		case k_axis_range:
+			axis->setRange(newVal.toPointF().x(), newVal.toPointF().y());
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
+	}
 
 	static const std::pair<QString, int> themeList[] = {
 		{ "Qt", Q3DTheme::ThemeQt },
@@ -105,6 +150,8 @@ KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
 	kPropertySet ps;
 	KpProperty prop;
 
+	assert(graph3d_ && xAxis_ && yAxis_ && zAxis_);
+
 	prop.id = k_theme;
 	prop.name = tr("Theme");
 	prop.val = theme_;
@@ -123,28 +170,56 @@ KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
 	prop.makeEnum(shadowQualityList);
 	ps.push_back(prop);
 
+	prop.id = KvPropertiedObject::kInvalidId;
+	prop.name = QStringLiteral("Axis");
+	prop.val.clear();
+	prop.flag = KvPropertiedObject::k_collapsed;
+	prop.children.clear();
+	KpProperty subProp;
+	subProp.id = KvPropertiedObject::kInvalidId;
+	subProp.flag = KvPropertiedObject::k_collapsed;
+	subProp.name = QStringLiteral("X");
+	subProp.children = getAxisProperties(xAxis_, k_axis_x);
+	prop.children.push_back(subProp);
+	subProp.name = QStringLiteral("Y");
+	subProp.children = getAxisProperties(yAxis_, k_axis_y);
+	prop.children.push_back(subProp);
+	subProp.name = QStringLiteral("Z");
+	subProp.children = getAxisProperties(zAxis_, k_axis_z);
+	prop.children.push_back(subProp);
+	ps.push_back(prop);
+
 	return ps;
 }
 
 
 void KvRdQtDataVis::setPropertyImpl_(int id, const QVariant& newVal)
 {
+	using namespace kPrivate;
+
 	switch (id)
 	{
-	case kPrivate::k_theme:
+	case k_theme:
 		theme_ = newVal.toInt();
 		graph3d_->setActiveTheme(new Q3DTheme(Q3DTheme::Theme(theme_))); // TODO: 不需要每次都new theme
 		break;
 
-	case kPrivate::k_camera_preset:
+	case k_camera_preset:
 		graph3d_->scene()->activeCamera()->setCameraPreset(Q3DCamera::CameraPreset(newVal.toInt()));
 		break;
 
-	case kPrivate::k_shadow_quality:
+	case k_shadow_quality:
 		graph3d_->setShadowQuality(QAbstract3DGraph::ShadowQuality(newVal.toInt()));
 		break;
 
 	default:
 		break;
 	}
+
+	if (id >= k_axis_x && id - k_axis_x <= k_axis_max)
+		onAxisPropertyChanged(xAxis_, id - k_axis_x, newVal);
+	else if (id >= k_axis_y && id - k_axis_y <= k_axis_max) 
+	    onAxisPropertyChanged(yAxis_, id - k_axis_y, newVal);
+	else if (id >= k_axis_z && id - k_axis_z <= k_axis_max) 
+	    onAxisPropertyChanged(zAxis_, id - k_axis_z, newVal);
 }

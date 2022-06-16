@@ -5,6 +5,7 @@
 // 提供通用的属性控制
 
 class QAbstract3DGraph;
+class QAbstract3DAxis;
 
 class KvRdQtDataVis : public KvDataRender
 {
@@ -24,6 +25,9 @@ protected:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;;
 
 protected:
-	QAbstract3DGraph* graph3d_;
 	int theme_;
+
+	// 子类须在构造函数中初始化以下成员
+	QAbstract3DGraph* graph3d_;
+	QAbstract3DAxis *xAxis_, *yAxis_, *zAxis_;
 };
