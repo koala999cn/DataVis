@@ -185,6 +185,7 @@
     <ClCompile Include="src\render\KcRdBar3d.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
     <ClCompile Include="src\render\KcRdPlot2d.cpp" />
+    <ClCompile Include="src\render\KcRdScatter3d.cpp" />
     <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
     <ClCompile Include="src\render\KvRdQtDataVis.cpp" />
     <QtUic Include="src\audio_capture_dlg.ui" />
@@ -234,6 +235,7 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\render\KcRdScatter3d.h" />
     <ClInclude Include="src\render\KvRdQtDataVis.h" />
     <QtMoc Include="src\gui\QtDataView.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />

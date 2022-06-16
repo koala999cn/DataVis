@@ -24,6 +24,9 @@ public:
 protected:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;;
 
+	// 按照父节点的range属性设置各轴range
+	void syncAxes_();
+
 protected:
 	int theme_;
 

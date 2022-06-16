@@ -1,6 +1,6 @@
 #include "KvRdQtDataVis.h"
 #include <QtDataVisualization/QAbstract3DGraph.h>
-#include <QAbstract3DAxis>
+#include <QtDataVisualization/QAbstract3DAxis.h>
 #include "QtAppEventHub.h"
 
 
@@ -222,4 +222,24 @@ void KvRdQtDataVis::setPropertyImpl_(int id, const QVariant& newVal)
 	    onAxisPropertyChanged(yAxis_, id - k_axis_y, newVal);
 	else if (id >= k_axis_z && id - k_axis_z <= k_axis_max) 
 	    onAxisPropertyChanged(zAxis_, id - k_axis_z, newVal);
+}
+
+
+void KvRdQtDataVis::syncAxes_()
+{
+	auto objp = dynamic_cast<KvDataProvider*>(parent());
+	assert(objp);
+
+	auto r0 = objp->range(0);
+	auto rt = objp->range(objp->dim());
+	xAxis_->setRange(r0.low(), r0.high());
+	zAxis_->setRange(rt.low(), rt.high());
+
+	if (objp->dim() == 1) { // 在x-z平面上显示一维数据
+		yAxis_->setRange(0, 0); 
+	}
+	else { // 正常设置y/z轴
+		auto r1 = objp->range(1);
+		yAxis_->setRange(r1.low(), r1.high());
+	}
 }
