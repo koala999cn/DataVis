@@ -2,7 +2,8 @@
 #include "KvData.h"
 #include "prov/KvDataProvider.h"
 #include "qcustomplot/qcustomplot.h"
-#include "../dsp/KtSampling.h"
+#include "KtSampling.h"
+#include "KvSampled.h"
 #include <assert.h>
 #include "KtuMath.h"
 #include "QtAppEventHub.h"
@@ -80,7 +81,8 @@ bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
     auto prov = dynamic_cast<KvDataProvider*>(parent());
 
     //if (prov->isStream()) {
-    auto dis = std::dynamic_pointer_cast<KvDiscreted>(data);
+    //auto dis = std::dynamic_pointer_cast<KvDiscreted>(data);
+    auto dis = std::dynamic_pointer_cast<KvSampled>(data);
 
     int mapOffset(0), dataOffset(0);
     if (mapData->keySize() > dis->size(0)) { // 平移map数据

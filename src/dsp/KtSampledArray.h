@@ -47,13 +47,14 @@ public:
 
     /// 有关写操作的成员方法
 
-    void resize(kIndex shape[], kIndex channel) {
+    void resize(kIndex shape[], kIndex chs = 0) override {
         super_::resize(shape);
-        array_.resizeAndPreserve(makeTinyVector_(shape, channel));
-    }
-
-    void resize(kIndex shape[]) {
-        resize(shape, channels());
+        if (chs == 0) 
+            chs = channels();
+        if (shape)
+            array_.resizeAndPreserve(makeTinyVector_(shape, chs));
+        else
+            resizeChannel(chs);
     }
 
     // 重置通道数

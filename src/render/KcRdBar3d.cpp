@@ -74,7 +74,7 @@ bool KcRdBar3d::renderImpl_(std::shared_ptr<KvData> data)
 		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data);
 		auto row = new QBarDataRow;
 		for (kIndex i = 0; i < disc->size(); i++) 
-			*row << disc->value(i, 0); // TODO: 处理多通道
+			*row << disc->valueAt(i, 0); // TODO: 处理多通道
 			
 		series_->dataProxy()->addRow(row);
 	}

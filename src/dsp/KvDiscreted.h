@@ -11,12 +11,11 @@ public:
 
 	kRange valueRange(kIndex channel) const override;
 
-	kIndex size() const override {
-		kIndex sz = size(0);
-		for (kIndex d = 1; d < dim(); d++)
-			sz *= size(d);
-		return sz;
-	}
+	// @shape: 新设定的各维度尺寸, =nullptr表示不作调整
+	// @channels: 新设定的通道数，=0表示不作调整
+	virtual void resize(kIndex shape[], kIndex channels = 0) = 0;
+
+	using KvData::size;
 
 	// 返回axis维度的数据数量
 	virtual kIndex size(kIndex axis) const = 0;
@@ -26,56 +25,24 @@ public:
 	virtual kReal step(kIndex axis) const = 0;
 	constexpr static kReal k_nonuniform_step = 0;
 
-
-	// 通过索引获取数据值
-	// @idx: 大小为dim，各元素分表表示对应坐标轴的数据点索引
-	virtual kReal value(kIndex idx[], kIndex channel) const = 0;
-
-	// 参数同上，不同的是返回数据数组，含有各坐标轴的数据值
-	virtual std::vector<kReal> point(kIndex idx[], kIndex channel) const = 0;
-
 	// 清空数据
 	virtual void clear() = 0;
 
-	// 数据为空？
-	virtual bool empty() const { return size() == 0; }
+	// 获取第n个数据的值
+	// 0 <= n < size
+	virtual kReal valueAt(kIndex n, kIndex channel) const = 0;
 
+	// 获取第n个数据坐标点
+	// 0 <= n < size
+	virtual std::vector<kReal> pointAt(kIndex n, kIndex channel) const = 0;
+
+	// 插值时须调用该函数
 	virtual kReal xToIndex(kReal x) const = 0;
-
-	// 是否散点数据？
-	bool isScattered() const {
-		return step(0) == k_nonuniform_step;
-	}
-
-	// 是否采样数据
-	bool isSampled() const {
-		return step(0) != k_nonuniform_step;
-	}
-
 
 	/// 几个helper函数
 
-	kReal value(kIndex idx, kIndex channel) const {
-		assert(dim() == 1);
-		return value(&idx, channel);
-	}
-
-	kReal value(kIndex idx0, kIndex idx1, kIndex channel) const {
-		assert(dim() == 2);
-		kIndex idx[2] = { idx0, idx1 };
-		return value(idx, channel);
-	}
-
-	std::vector<kReal> point(kIndex idx, kIndex channel) const {
-		assert(dim() == 1);
-		return point(&idx, channel);
-	}
-
-	std::vector<kReal> point(kIndex idx0, kIndex idx1, kIndex channel) const {
-		assert(dim() == 2);
-		kIndex idx[2] = { idx0, idx1 };
-		return point(idx, channel);
-	}
+	// 数据为空？
+	bool empty() const { return size() == 0; }
 
 	kIndex xToLowIndex(kReal x) const {
 		return static_cast<kIndex>(std::floor(xToIndex(x)));
@@ -89,12 +56,14 @@ public:
 		return static_cast<kIndex>(std::round(xToIndex(x)));
 	}
 
-	void nextIndex(kIndex idx[]) const {
-		for (kIndex i = 0; i < dim(); i++) {
-			if (++idx[i] < size(i))
-				break;
-
-			idx[i] = 0; // 进位
-		}
+	// 是否散点数据？
+	bool isScattered() const {
+		return step(0) == k_nonuniform_step;
 	}
+
+	// 是否采样数据
+	bool isSampled() const {
+		return step(0) != k_nonuniform_step;
+	}
+
 };

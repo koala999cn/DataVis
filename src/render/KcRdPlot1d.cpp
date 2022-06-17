@@ -135,7 +135,7 @@ namespace kPrivate
 			auto keyOffset = plotRange.upper - dataRange.high();
 
 			for (kIndex idx = 0; idx < data1d->size(); idx++) {
-				auto val = dis->point(idx, 0); // TODO: 多通道处理
+				auto val = dis->pointAt(idx, 0); // TODO: 多通道处理
 				auto key = val[0] + keyOffset;
 				if (key < plotRange.lower)
 					continue;
@@ -151,7 +151,7 @@ namespace kPrivate
 			if (data1d->isDiscreted()) {
 				auto dis = std::dynamic_pointer_cast<KvDiscreted>(data1d);
 				for (kIndex idx = 0; idx < dis->size(); idx++) {
-					auto val = dis->point(idx, 0);
+					auto val = dis->pointAt(idx, 0);
 					graph->addData(val[0], val[1]);
 				}
 			}

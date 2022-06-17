@@ -9,28 +9,30 @@ template<int DIM>
 class KtScattered : public KvDiscreted
 {
 public:
-	using index = std::array<kReal, DIM>;
+	using element_type = std::array<kReal, DIM + 1>;
+
+	KtScattered() {
+		channles_ = 1;
+	}
 
 	constexpr kIndex dim() const override {
 		return DIM;
 	}
 
 	kIndex size() const override {
-		return static_cast<kIndex>(inds_.size());
+		return static_cast<kIndex>(data_.size() / channles_);
 	}
 
 	kIndex channels() const override {
-		return static_cast<kIndex>(vals_.size());
+		return channles_; 
 	}
 
 	void clear() override {
-		inds_.clear();
-		for (auto& v : vals_)
-			v.clear();
+		data_.clear();
 	}
 
 	kIndex size(kIndex axis) const override {
-		return size();
+		return size(); // TODO:
 	}
 
 	kRange range(kIndex axis) const override {
@@ -61,13 +63,13 @@ public:
 			});
 	}
 
-	kRange valueRange(kIndex channel) const {
+	kRange valueRange(kIndex channel) const override {
 		auto r = KtuMath<kReal>::minmax(vals_.data(), size());
 		return { r.first, r.second };
 	}
 
 private:
-	std::vector<index> inds_;
-	std::vector<std::vector<kReal>> vals_;
+	std::vector<element_type> data_;
+	kIndex channles_;
 };
 

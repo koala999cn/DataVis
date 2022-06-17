@@ -29,9 +29,6 @@ public:
 			samp_[i].clear();
 	}
 
-	bool empty() const override {
-		return samp_[0].empty();
-	}
 
 	kIndex size(kIndex axis) const override {
 		assert(axis >= 0 && axis < dim());
@@ -60,9 +57,10 @@ public:
 		return samp_[0].xToIndex(x);
 	}
 
-	void resize(kIndex shape[]) override {
-		for (kIndex i = 0; i < DIM; i++)
-			samp_[i].resetn(shape[i]);
+	void resize(kIndex shape[], kIndex channels = 0) override {
+		if(shape)
+		    for (kIndex i = 0; i < DIM; i++)
+			    samp_[i].resetn(shape[i]);
 	}
 
 	// 调整第axis轴的采样参数

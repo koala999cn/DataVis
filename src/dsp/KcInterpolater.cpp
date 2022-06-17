@@ -42,14 +42,14 @@ kReal KcInterpolater::value(kReal pt[], kIndex channel) const
 		return extraMethod_ == k_nan ? KtuMath<kReal>::nan : 0;
 	else if (internal_->size() == 1) {
 		return extraMethod_ == k_nan ? KtuMath<kReal>::nan : 
-			extraMethod_ == k_zero ? 0 : internal_->value(kIndex(0), channel);
+			extraMethod_ == k_zero ? 0 : internal_->valueAt(kIndex(0), channel);
 	}
 
 	kIndex idx = 0;
-	auto pt0 = internal_->point(idx, channel);
+	auto pt0 = internal_->pointAt(idx, channel);
 	kReal xmin = pt0[0];
 	idx = internal_->size() - 1;
-	auto pt1 = internal_->point(idx, channel);
+	auto pt1 = internal_->pointAt(idx, channel);
 	kReal xmax = pt1[0];
 
 	auto x = pt[0];
@@ -89,7 +89,7 @@ kReal KcInterpolater::value(kReal pt[], kIndex channel) const
 
 	std::vector<std::vector<kReal>> pts(numPts);
 	for (kIndex i = 0; i < numPts; i++)
-		pts[i] = internal_->point(low++, channel);
+		pts[i] = internal_->pointAt(low++, channel);
 
 	if (numPts == 3)
 		return KuInterp1d::quad(pts[0][0], pts[0][1], pts[1][0], pts[1][1], pts[2][0], pts[2][1], x);
@@ -97,3 +97,4 @@ kReal KcInterpolater::value(kReal pt[], kIndex channel) const
 	// 线性插值兜底
 	return KuInterp1d::linear(pts[0][0], pts[0][1], pts[1][0], pts[1][1], x);
 }
+

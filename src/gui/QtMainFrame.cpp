@@ -370,12 +370,12 @@ std::shared_ptr<KvData> QtMainFrame::loadData_(const QString& filePath)
     std::getline(ifs, line);
     auto tokens = KuStrUtil::split(line, "\t ,");
     auto cols = tokens.size();
-    if (cols == 0 || cols > 2) {
+    if (cols == 0) {
         QMessageBox::information(this, u8"错误", u8"不支持的数据文件格式！");
         return nullptr;
     }
 
-    if (cols == 1) {
+    if (cols == 1) { // 一维采样数据: dx = 1
         std::vector<kReal> v;
         do {
             v.push_back(std::stod(tokens[0]));
@@ -386,7 +386,13 @@ std::shared_ptr<KvData> QtMainFrame::loadData_(const QString& filePath)
         data1d->setChannel(nullptr, 0, v.data()); // TODO: 优化
         data = data1d;
     }
-    else {
+    else if (cols == 2) { // 一维散点数据
+        assert(false); // TODO:
+    }
+    else if (cols == 3) { // 二维散点数据
+
+    }
+    else { // 二维采样数据：dx = dy = 1
         assert(false); // TODO:
     }
 

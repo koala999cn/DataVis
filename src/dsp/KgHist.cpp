@@ -56,7 +56,7 @@ void KgHist::process(const KvData& in, kReal* out)
 
     // 跳过统计区间（左）之外的数据点
     kIndex i = 0;
-    while (i < in.size() && dis.point(i, 0)[0] < binLeft(0))
+    while (i < in.size() && dis.pointAt(i, 0)[0] < binLeft(0))
         ++i;
 
 
@@ -66,9 +66,9 @@ void KgHist::process(const KvData& in, kReal* out)
     unsigned c(0);
 
     while (i < in.size()) {
-        if (dis.point(i, 0)[0] < barRight) { // accumulate current bar
+        if (dis.pointAt(i, 0)[0] < barRight) { // accumulate current bar
             for(kIndex ch = 0; ch < in.channels(); ch++)
-                out[ch] += dis.value(i, ch);
+                out[ch] += dis.valueAt(i, ch);
             ++i, ++c;
         }
         else { // goto next bar
