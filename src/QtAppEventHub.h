@@ -20,8 +20,6 @@ public slots:
 	// 将obj的widget显示到dock
 	void showDock(KvPropertiedObject* obj, QWidget* widget);
 
-	void showDock(KvPropertiedObject* obj, QWindow* window);
-	
 	// 关闭与对象obj关联的dock
 	void closeDock(KvPropertiedObject* obj);
 

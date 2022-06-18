@@ -1,6 +1,7 @@
 #include "KvRdQtDataVis.h"
 #include <QtDataVisualization/QAbstract3DGraph.h>
 #include <QtDataVisualization/QAbstract3DAxis.h>
+#include <QWidget>
 #include "QtAppEventHub.h"
 
 
@@ -9,6 +10,7 @@ KvRdQtDataVis::KvRdQtDataVis(KvDataProvider* is, const QString& name)
 {
 	options_ = k_visible;
 	graph3d_ = nullptr;
+	widget_ = nullptr;
 	xAxis_ = yAxis_ = zAxis_ = nullptr;
 	theme_ = Q3DTheme::ThemeQt; // TODO:
 }
@@ -17,6 +19,7 @@ KvRdQtDataVis::KvRdQtDataVis(KvDataProvider* is, const QString& name)
 KvRdQtDataVis::~KvRdQtDataVis()
 {
 	setOption(k_visible, false);
+	delete widget_;
 	delete graph3d_;
 }
 
@@ -24,8 +27,17 @@ KvRdQtDataVis::~KvRdQtDataVis()
 void KvRdQtDataVis::setOption(KeObjectOption opt, bool on)
 {
 	assert(opt == k_visible);
-	if (on)
-		kAppEventHub->showDock(this, graph3d_);
+	if (on) {
+		if (widget_ == nullptr) {
+			widget_ = QWidget::createWindowContainer(graph3d_);
+
+			// 单独处理QWindow::activeChanged信号，QWindow貌似不会向父窗口转发
+			connect(graph3d_, &QWindow::activeChanged, kAppEventHub, [=]() {
+				if (graph3d_->isActive()) emit kAppEventHub->objectActivated(this);
+				});
+		}
+		kAppEventHub->showDock(this, widget_);
+	}
 	else
 		kAppEventHub->closeDock(this);
 }

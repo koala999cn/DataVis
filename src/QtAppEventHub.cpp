@@ -85,17 +85,6 @@ void QtAppEventHub::showDock(KvPropertiedObject* obj, QWidget* widget)
 }
 
 
-void QtAppEventHub::showDock(KvPropertiedObject* obj, QWindow* window)
-{
-	showDock(obj, QWidget::createWindowContainer(window));
-
-	// 单独处理QWindow::activeChanged信号，QWindow貌似不会向父窗口转发
-	connect(window, &QWindow::activeChanged, [=]() {
-		if (window->isActive()) emit objectActivated(obj);
-		});
-}
-
-
 bool QtAppEventHub::isDocked(const KvPropertiedObject* obj)
 {
 	return kPrivate::getDock(const_cast<KvPropertiedObject*>(obj), false);
