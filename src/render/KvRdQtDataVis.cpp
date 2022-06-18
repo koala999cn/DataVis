@@ -231,15 +231,15 @@ void KvRdQtDataVis::syncAxes_()
 	assert(objp);
 
 	auto r0 = objp->range(0);
-	auto rt = objp->range(objp->dim());
+	auto r1 = objp->range(1);
 	xAxis_->setRange(r0.low(), r0.high());
-	zAxis_->setRange(rt.low(), rt.high());
+	yAxis_->setRange(r1.low(), r1.high());
 
-	if (objp->dim() == 1) { // 在x-z平面上显示一维数据
-		yAxis_->setRange(0, 0); 
+	if (objp->dim() == 1) { // 在x-y平面上显示一维数据
+		zAxis_->setRange(0, 0); 
 	}
-	else { // 正常设置y/z轴
-		auto r1 = objp->range(1);
-		yAxis_->setRange(r1.low(), r1.high());
+	else { 
+		auto r2 = objp->range(2);
+		zAxis_->setRange(r2.low(), r2.high());
 	}
 }

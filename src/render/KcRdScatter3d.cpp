@@ -67,20 +67,18 @@ bool KcRdScatter3d::renderImpl_(std::shared_ptr<KvData> data)
 		QScatterDataItem* ptrToDataArray = &dataArray->first();
 
 		if (data->dim() == 1) {
-			for (kIndex i = 0; i < disc->count(); i++) {
-				auto pt = disc->point(i, c);
-				ptrToDataArray->setPosition(QVector3D(pt[0], 0, pt[1]));
+			for (kIndex i = 0; i < disc->size(); i++) {
+				auto pt = disc->pointAt(i, c);
+				ptrToDataArray->setPosition(QVector3D(pt[0], pt[1], 0));
 				ptrToDataArray++;
 			}
 		}
 		else {
 			assert(data->dim() == 2);
-			kIndex idx[2] = { 0 };
-			for (kIndex i = 0; i < disc->count(); i++) {
-				auto pt = disc->point(idx, c);
+			for (kIndex i = 0; i < disc->size(); i++) {
+				auto pt = disc->pointAt(i, c);
 				ptrToDataArray->setPosition(QVector3D(pt[0], pt[1], pt[2]));
 				ptrToDataArray++;
-				disc->nextIndex(idx);
 			}
 		}
 
