@@ -15,16 +15,13 @@ void QtDataView::fill(const KvDiscreted& disc)
 
     setRowCount(disc.size());
 
-    std::vector<kIndex> idx(disc.dim(), 0);
     for (kIndex r = 0; r < disc.size(); r++) {
-        auto pt = disc.point(idx.data(), 0);
+        auto pt = disc.pointAt(r, 0);
         for (kIndex col = 0; col <= disc.dim(); col++)
             setItem(r, col, new QTableWidgetItem(QString("%1").arg(pt[col])));
         for (kIndex ch = 1; ch < disc.channels(); ch++) 
             setItem(r, disc.dim() + ch, 
-                new QTableWidgetItem(QString("%1").arg(disc.value(idx.data(), ch))));
-
-        disc.nextIndex(idx.data());
+                new QTableWidgetItem(QString("%1").arg(disc.valueAt(r, ch))));
     }
 }
 

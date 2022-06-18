@@ -9,7 +9,8 @@
 #include "QtFormulaDlg.h"
 #include "QtAudioCaptureDlg.h"
 #include "base/KuStrUtil.h"
-#include "dsp/KcSampled1d.h"
+#include "KcSampled1d.h"
+#include "KtScattered.h"
 #include "audio/KcAudio.h"
 #include "audio/KcAudioRender.h"
 #include "QtAudioUtils.h"
@@ -387,10 +388,20 @@ std::shared_ptr<KvData> QtMainFrame::loadData_(const QString& filePath)
         data = data1d;
     }
     else if (cols == 2) { // 一维散点数据
-        assert(false); // TODO:
+        typename KtScattered<1>::element_type e;
+        auto scat1d = std::make_shared<KtScattered<1>>();
+        do {
+            scat1d->pushBack({ std::stod(tokens[0]), std::stod(tokens[1]) });
+        } while (std::getline(ifs, line) && (tokens = KuStrUtil::split(line, "\t ,")).size() == 2);
+        data = scat1d;
     }
     else if (cols == 3) { // 二维散点数据
-
+        typename KtScattered<2>::element_type e;
+        auto scat2d = std::make_shared<KtScattered<2>>();
+        do {
+            scat2d->pushBack({ std::stod(tokens[0]), std::stod(tokens[1]), std::stod(tokens[2]) });
+        } while (std::getline(ifs, line) && (tokens = KuStrUtil::split(line, "\t ,")).size() == 3);
+        data = scat2d;
     }
     else { // 二维采样数据：dx = dy = 1
         assert(false); // TODO:
