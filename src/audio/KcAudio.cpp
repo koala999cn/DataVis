@@ -9,7 +9,7 @@ std::string KcAudio::load(const std::string& path)
     if(!sf.open(path, KgAudioFile::k_read)) return sf.errorText();
 
     auto dx = static_cast<kReal>(1) / sf.sampleRate();
-    reset(0, 0, dx, 0.5);
+    reset(0, 0.0, dx, 0.5);
     auto frames = sf.frames();
     resize(frames, sf.channels());
 

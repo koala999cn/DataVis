@@ -17,7 +17,7 @@ public:
     }
 
     using super_::value;
-    value_type value(kIndex x, kIndex y, kIndex channel) const {
+    kReal value(kIndex x, kIndex y, kIndex channel) const {
         kIndex idx[2] = { x, y };
         return value(idx, channel);
     }

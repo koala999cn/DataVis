@@ -13,7 +13,7 @@ void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
     assert(KtuMath<kReal>::almostEqual(samp.dx(), binWidth(0))); // 假定线性尺度
 
     out.resize(numBins(), in.channels());
-    out.reset(0, samp);
+    out.reset(0, samp.low(), samp.dx(), samp.x0ref());
     
     process(in, (kReal*)out.data());
 }

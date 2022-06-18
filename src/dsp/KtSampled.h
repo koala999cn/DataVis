@@ -14,7 +14,6 @@ class KtSampled : public KvSampled
 {
 public:
 	using super_ = KvSampled;
-	using value_type = kReal;
 
 	KtSampled() : samp_() {}
 
@@ -40,7 +39,7 @@ public:
 		return axis < dim() ? samp_[axis] : valueRange();
 	}
 
-	value_type step(kIndex axis) const override {
+	kReal step(kIndex axis) const override {
 		assert(axis >= 0 && axis < dim());
 		return samp_[axis].dx();
 	}
@@ -64,23 +63,24 @@ public:
 	}
 
 	// 调整第axis轴的采样参数
-	void reset(kIndex axis, value_type low, value_type step, value_type x0_ref = 0) override {
+	void reset(kIndex axis, kReal low, kReal step, kReal x0_ref = 0) override {
 		assert(axis >= 0 && axis < dim());
 		samp_[axis].shiftLeftTo(low);
 		samp_[axis].resetn(size(axis), step, x0_ref);
 		assert(size(axis) == samp_[axis].size());
 	}
 
-	void reset(kIndex axis, const KtSampling<value_type>& samp) {
+	/*
+	void reset(kIndex axis, const KtSampling<kReal>& samp) {
 		assert(axis >= 0 && axis < dim());
 		assert(samp.size() == super_::size());
 		samp_[axis] = samp;
-	}
+	}*/
 
 
 	// 帮助函数
 
-	const KtSampling<value_type>& sampling(kIndex axis) const {
+	const KtSampling<kReal>& sampling(kIndex axis) const {
 		return samp_[axis];
 	}
 
@@ -90,5 +90,5 @@ public:
 	}
 
 protected:
-	std::array<KtSampling<value_type>, DIM> samp_; // 各维度的采样参数
+	std::array<KtSampling<kReal>, DIM> samp_; // 各维度的采样参数
 };

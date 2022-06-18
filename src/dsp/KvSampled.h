@@ -98,4 +98,10 @@ public:
     auto nyquistRate(kIndex axis) const {
         return sampleRate(axis) / 2;
     }
+
+	// bps
+	auto bytesPerSample() const { return sizeof(kReal) * channels(); }
+
+	// N个采样点占据的内存大小(字节数)
+	auto bytesOfSamples(kIndex N) const { return bytesPerSample() * N; }
 };

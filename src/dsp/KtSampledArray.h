@@ -35,27 +35,29 @@ public:
         array_.resize(0); super_::clear();
     }
 
-    value_type value(kIndex idx[], kIndex channel) const override {
-        return array_(makeTinyVector_(idx, channel));
-    }
-
-    // 更快速的实现
-    kRange valueRange() const override {
-        return KtuMath<value_type>::minmax(array_.dataFirst(), array_.size());
-    }
-
-
-    /// 有关写操作的成员方法
-
     void resize(kIndex shape[], kIndex chs = 0) override {
         super_::resize(shape);
-        if (chs == 0) 
+        if (chs == 0)
             chs = channels();
         if (shape)
             array_.resizeAndPreserve(makeTinyVector_(shape, chs));
         else
             resizeChannel(chs);
     }
+
+    using super_::value; // make helper-members visible
+
+    kReal value(kIndex idx[], kIndex channel) const override {
+        return array_(makeTinyVector_(idx, channel));
+    }
+
+    // 更快速的实现
+    kRange valueRange() const override {
+        return KtuMath<kReal>::minmax(array_.dataFirst(), array_.size());
+    }
+
+
+    /// 有关写操作的成员方法
 
     // 重置通道数
     void resizeChannel(kIndex c) {
@@ -84,12 +86,6 @@ public:
     void setChannel(kIndex idx[], kIndex channel, const kReal* data);
 
 
-    // bps
-    auto bytesPerSample() const { return sizeof(kReal) * channels(); }
-
-    // N个采样点占据的内存大小(字节数)
-    auto bytesOfSamples(kIndex N) const { return bytesPerSample() * N; }
-
     // 删除前rows行
     void popFront(kIndex rows);
 
@@ -105,7 +101,7 @@ private:
     }
 
 private:
-	blitz::Array<value_type, DIM+1> array_; // 增加1维度，以提供多通道支持
+    blitz::Array <kReal, DIM + 1 > array_; // 增加1维度，以提供多通道支持
 };
 
 

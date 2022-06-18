@@ -12,11 +12,7 @@ public:
     }
 
     void resize(kIndex nx) {
-        super_::resize(&nx);
-    }
-
-    value_type value(kIndex idx, kIndex channel) const {
-        return super_::value(&idx, channel);
+        super_::resize(&nx, 0);
     }
 
     auto sampleRate() const { 

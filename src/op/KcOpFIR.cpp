@@ -159,7 +159,7 @@ std::shared_ptr<KvData> KcOpFIR::processImpl_(std::shared_ptr<KvData> data)
 
     auto res = std::make_shared<KcSampled1d>();
     res->resize(samp1d->size(), samp1d->channels());
-    res->reset(0, samp1d->sampling(0));
+    res->reset(0, samp1d->range(0).low(), step(0));
     auto sz = filter_->apply(samp1d->data(), samp1d->size(), res->data());
     assert(sz <= samp1d->size());
     res->resize(sz);
