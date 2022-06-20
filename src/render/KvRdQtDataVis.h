@@ -28,8 +28,6 @@ protected:
 	void syncAxes_();
 
 protected:
-	int theme_;
-
 	// 子类须在构造函数中初始化以下成员
 	QAbstract3DGraph* graph3d_;
 	QAbstract3DAxis *xAxis_, *yAxis_, *zAxis_;

@@ -12,7 +12,6 @@ KvRdQtDataVis::KvRdQtDataVis(KvDataProvider* is, const QString& name)
 	graph3d_ = nullptr;
 	widget_ = nullptr;
 	xAxis_ = yAxis_ = zAxis_ = nullptr;
-	theme_ = Q3DTheme::ThemeQt; // TODO:
 }
 
 
@@ -166,7 +165,7 @@ KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
 
 	prop.id = k_theme;
 	prop.name = tr("Theme");
-	prop.val = theme_;
+	prop.val = int(graph3d_->activeTheme()->type());
 	prop.makeEnum(themeList);
 	ps.push_back(prop);
 
@@ -212,8 +211,7 @@ void KvRdQtDataVis::setPropertyImpl_(int id, const QVariant& newVal)
 	switch (id)
 	{
 	case k_theme:
-		theme_ = newVal.toInt();
-		graph3d_->setActiveTheme(new Q3DTheme(Q3DTheme::Theme(theme_))); // TODO: 不需要每次都new theme
+		graph3d_->activeTheme()->setType(Q3DTheme::Theme(newVal.toInt()));
 		break;
 
 	case k_camera_preset:
