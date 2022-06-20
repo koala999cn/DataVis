@@ -24,6 +24,7 @@
 #include "render/KcRdPlot2d.h"
 #include "render/KcRdBar3d.h"
 #include "render/KcRdScatter3d.h"
+#include "render/KcRdSurface3d.h"
 #include "render/KcRdAudioPlayer.h"
 #include "op/KcOpSpectrum.h"
 #include "op/KcOpHist.h"
@@ -236,7 +237,11 @@ bool QtMainFrame::setupMenu_()
         kPrivate::insertObjectP<KcRdScatter3d>(workDock_, false);
         });
 
-    
+    QAction* surface3d = renderMenu->addAction(u8"Surface3d(&S)");
+    connect(surface3d, &QAction::triggered, [this] {
+        kPrivate::insertObjectP<KcRdSurface3d>(workDock_, false);
+        });
+
     connect(renderMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
@@ -246,6 +251,7 @@ bool QtMainFrame::setupMenu_()
         color_map->setEnabled(obj && obj->dim() == 2);
         bars3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
         scatter3d->setEnabled(obj&& obj->isDiscreted() && obj->dim() <= 2);
+        surface3d->setEnabled(obj&& obj->isDiscreted() && obj->dim() == 2);
         });
 
     return true;

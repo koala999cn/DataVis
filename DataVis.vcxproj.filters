@@ -213,6 +213,9 @@
     <ClCompile Include="src\render\KcRdScatter3d.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\KcRdSurface3d.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -465,6 +468,9 @@
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="src\render\KcRdScatter3d.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdSurface3d.h">
       <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
