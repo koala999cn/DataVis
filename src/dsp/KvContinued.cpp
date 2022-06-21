@@ -1,14 +1,45 @@
 ﻿#include "KvContinued.h"
 #include "KtuMath.h"
 #include <assert.h>
-
+#include "KtSampler.h"
 
 kRange KvContinued::valueRange(kIndex channel) const 
 {
-	if (size() == 0) return { 0, 0 };
+	if (size() == 0 || dim() > 3) return { 0, 0 };
 
-	assert(dim() == 1); // TODO: 暂时实现一维算法
+	KvSampled* samp = nullptr;
+	std::shared_ptr<KvContinued> cond;
+	cond.reset(const_cast<KvContinued*>(this));
+	if (dim() == 1)
+		samp = new KtSampler<1>(cond);
+	else if(dim() == 2)
+		samp = new KtSampler<2>(cond);
+	else 
+		samp = new KtSampler<3>(cond);
 
+	kReal omin = std::numeric_limits<kReal>::max();
+	kReal omax = std::numeric_limits<kReal>::lowest();
+	kReal tol(0.001); // 百分之一的误差
+	int maxIter(16), numIter(0);
+
+	while (true) {
+		auto r = samp->valueRange(channel);
+
+		if ((KtuMath<kReal>::almostEqualRel(omin, r.low(), tol) &&
+			KtuMath<kReal>::almostEqualRel(omax, r.high(), tol)) ||
+			numIter > maxIter)
+			return r;
+
+
+		omin = r.low(), omax = r.high();
+		for (kIndex i = 0; i < samp->dim(); i++)
+			samp->reset(i, samp->range(i).low(), samp->step(i), 0.5);
+		++numIter;
+	}
+
+	return { omin, omax }; // make compiler happy
+
+/*
 	kReal omin = std::numeric_limits<kReal>::max();
 	kReal omax = std::numeric_limits<kReal>::lowest();
 
@@ -41,5 +72,5 @@ kRange KvContinued::valueRange(kIndex channel) const
 		++numIter;
 	}
 
-	return { omin, omax };
+	return { omin, omax };*/
 }

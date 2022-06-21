@@ -251,7 +251,7 @@ bool QtMainFrame::setupMenu_()
         color_map->setEnabled(obj && obj->dim() == 2);
         bars3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
         scatter3d->setEnabled(obj&& obj->isDiscreted() && obj->dim() <= 2);
-        surface3d->setEnabled(obj&& obj->isDiscreted() && obj->dim() == 2);
+        surface3d->setEnabled(obj  && obj->dim() == 2); // 允许绘制连续曲面
         });
 
     return true;

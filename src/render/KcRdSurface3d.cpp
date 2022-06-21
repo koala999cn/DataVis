@@ -3,13 +3,17 @@
 #include <QtDataVisualization/QSurface3DSeries.h>
 #include <QtDataVisualization/QSurfaceDataProxy.h>
 #include "KvSampled.h"
+#include "KtSampler.h"
 
 
 KcRdSurface3d::KcRdSurface3d(KvDataProvider* is)
 	: KvRdQtDataVis(is, "surface3d")
 {
 	auto surface = new Q3DSurface;
-	surface->addSeries(new QSurface3DSeries);
+	auto series = new QSurface3DSeries;
+	series->setDrawMode(QSurface3DSeries::DrawSurfaceAndWireframe);
+	series->setFlatShadingEnabled(true);
+	surface->addSeries(series);
 
 	graph3d_ = surface;
 	xAxis_ = surface->axisX();
@@ -57,8 +61,16 @@ void KcRdSurface3d::setPropertyImpl_(int id, const QVariant& newVal)
 
 bool KcRdSurface3d::renderImpl_(std::shared_ptr<KvData> data)
 {
-	assert(data->isDiscreted());
-	auto samp = std::dynamic_pointer_cast<KvSampled>(data);
+	std::shared_ptr<KvSampled> samp;
+
+	if (data->isContinued()) {
+		samp = std::make_shared<KtSampler<2>>(std::dynamic_pointer_cast<KvContinued>(data));
+		samp->reset(0, xAxis_->min(), (xAxis_->max() - xAxis_->min()) / 100, 0.5);
+		samp->reset(1, yAxis_->min(), (yAxis_->max() - yAxis_->min()) / 100, 0.5);
+	}
+	else {
+		samp = std::dynamic_pointer_cast<KvSampled>(data);
+	}
 
 	auto surface = dynamic_cast<Q3DSurface*>(graph3d_);
 	auto series = surface->seriesList().front();

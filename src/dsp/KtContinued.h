@@ -1,27 +1,22 @@
 ﻿#pragma once
 #include "KvContinued.h"
 #include <array>
+#include <assert.h>
 
 
 template<typename FUN, unsigned DIM>
 class KtContinued : public KvContinued
 {
 public:
-	KtContinued(FUN fun, kReal low, kReal high) 
-		: fun_{ fun }, range_({ kRange{ low, high } }) {} // 单通道
+	KtContinued(FUN fun, kReal low, kReal high) // 单通道
+		: fun_{ fun } {
+		range_.fill(kRange{ low, high });
+		range_[DIM] = kRange{ std::numeric_limits<kReal>::quiet_NaN(), 
+			std::numeric_limits<kReal>::quiet_NaN() };
+	} 
 
 	KtContinued(FUN fun) 
 		: KtContinued(fun, 0, 1) {}
-
-	KtContinued(FUN fun1, kReal low1, kReal high1, FUN fun2, kReal low2, kReal high2)
-		: fun_{ fun1, fun2 }, range_({ kRange{ low1, high1 }, kRange{ low2, high2 } }) {} // 双通道
-
-	KtContinued(FUN fun1, FUN fun2)
-		: KtContinued(fun1, 0, 1, fun2, 0, 1) {}
-
-	KtContinued(FUN funs[], unsigned channels, const std::array<kRange, DIM>& ranges)
-		: fun_(funs, funs + channels), range_(ranges) {} // 多通道
-
 
 	constexpr kIndex dim() const override {
 		return DIM;
@@ -32,7 +27,12 @@ public:
 	}
 
 	kRange range(kIndex axis) const override {
-		return axis < DIM ? range_[axis] : valueRange();
+		assert(axis <= DIM);
+
+		if (axis < DIM)
+			return range_[axis];
+		
+		return std::isnan(range_[axis].low()) ? valueRange() : range_[axis];
 	}
 
 
@@ -54,5 +54,5 @@ public:
 
 private:
 	std::vector<FUN> fun_; // size等于通道数
-	std::array<kRange, DIM> range_; // size等于dim数
+	std::array<kRange, DIM + 1> range_; // range_[DIM]表示valueRange. NAN表示未设置
 };

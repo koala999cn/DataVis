@@ -11,7 +11,10 @@ class KtSampler : public KtSampled<DIM>
 {
 public:
 	KtSampler(std::shared_ptr<KvContinued>& cont)
-		: internal_(cont) {}
+		: internal_(cont) {
+		for (kIndex i = 0; i < cont->dim(); i++)
+			samp_[i].resetn(100, cont->range(i).low(), cont->range(i).high(), 0.5); // TODO: 100
+	}
 
 
 	kIndex channels() const final {

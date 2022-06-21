@@ -138,6 +138,14 @@ public:
         return true;
     }
 
+    void makeFinite(T absMax) {
+        assert(absMax > 0);
+        if (std::isinf(low_))
+            low_ = -absMax;
+        if (std::isinf(high_))
+            high_ = absMax;
+    }
+
 private:
     T low_, high_; // 数据所在区间
 };
