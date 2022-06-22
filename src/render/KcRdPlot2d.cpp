@@ -4,6 +4,8 @@
 #include "qcustomplot/qcustomplot.h"
 #include "KtSampling.h"
 #include "KvSampled.h"
+#include "KtSampler.h"
+#include "KvContinued.h"
 #include <assert.h>
 #include "KtuMath.h"
 #include "QtAppEventHub.h"
@@ -31,7 +33,10 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
     auto data = colorMap->data();
 
     assert(is->dim() == 2);
-    data->setKeySize(0); // 清零，以保证syncParentImpl_正确初始化
+
+    if (is->isDiscreted())
+        data->setKeySize(0); // 清零，以保证syncParent正确初始化
+        
     syncParent();
 
     // 添加colorScale
@@ -52,25 +57,31 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
     colorMap->setGradient(QCPColorGradient::gpSpectrum);
 
 
-    // 当用户修改x轴范围时，需要响应调整keySize
+    // 当用户修改x轴范围时，同步调整keySize
     connect(customPlot_->xAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
         [this, colorMap](const QCPRange& newRange) {
             if (colorMap->data()->keyRange() != newRange) {
                 colorMap->data()->setKeyRange(newRange);
 
-                KtSampling<kReal> xsamp(0, dx_, dx_, 0);
-                auto keySize = xsamp.size(newRange.size());
-                colorMap->data()->setKeySize(keySize);
-                emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
+                auto prov = dynamic_cast<KvDataProvider*>(parent());
+                if (prov->isSampled()) {
+                    KtSampling<kReal> xsamp(0, dx_, dx_, 0);
+                    auto keySize = xsamp.size(newRange.size());
+                    colorMap->data()->setKeySize(keySize);
+                    emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
+                }   
             }
+        });
+
+    connect(customPlot_->yAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
+        [colorMap](const QCPRange& newRange) {
+            colorMap->data()->setValueRange(newRange);
         });
 }
 
 
 bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
 {
-    assert(data->isDiscreted());
-
     if (data == nullptr || data->size() == 0)
         return true;
 
@@ -80,38 +91,46 @@ bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
     auto mapData = colorMap->data();
     auto prov = dynamic_cast<KvDataProvider*>(parent());
 
-    //if (prov->isStream()) {
-    //auto dis = std::dynamic_pointer_cast<KvDiscreted>(data);
-    auto dis = std::dynamic_pointer_cast<KvSampled>(data);
+    std::shared_ptr<KvSampled> samp;
 
-    int mapOffset(0), dataOffset(0);
-    if (mapData->keySize() > dis->size(0)) { // 平移map数据
-        mapOffset = mapData->keySize() - dis->size(0);
-        for (int x = 0; x < mapOffset; x++)
-            for (int y = 0; y < mapData->valueSize(); y++)
-                mapData->setCell(x, y, mapData->cell(mapData->keySize() - mapOffset + x, y));
+    if (data->isContinued()) {
+        samp = std::make_shared<KtSampler<2>>(std::dynamic_pointer_cast<KvContinued>(data));
+        auto rkey = mapData->keyRange();
+        auto rval = mapData->valueRange();
+        samp->reset(0, rkey.lower, rkey.size() / samp->size(0), 0.5);
+        samp->reset(1, rval.lower, rval.size() / samp->size(1), 0.5);
+
+        mapData->setSize(samp->size(0), samp->size(1));
+
+        for (int x = 0; x < samp->size(0); ++x)
+            for (int y = 0; y < samp->size(1); ++y)
+               mapData->setCell(x, y, samp->value(x, y, 0));
+
+        //if (autoScale_) {
+        //     customPlot_->rescaleAxes();
+        //     colorMap->rescaleDataRange();
+        // }
+
     }
     else {
-        dataOffset = dis->size(0) - mapData->keySize();
+        samp = std::dynamic_pointer_cast<KvSampled>(data);
+
+        int mapOffset(0), dataOffset(0);
+        if (mapData->keySize() > samp->size(0)) { // 平移map数据
+            mapOffset = mapData->keySize() - samp->size(0);
+            for (int x = 0; x < mapOffset; x++)
+                for (int y = 0; y < mapData->valueSize(); y++)
+                    mapData->setCell(x, y, mapData->cell(mapData->keySize() - mapOffset + x, y));
+        }
+        else {
+            dataOffset = samp->size(0) - mapData->keySize();
+        }
+
+        for (kIndex x = dataOffset; x < samp->size(0); x++)
+            for (kIndex y = 0; y < std::min<int>(mapData->valueSize(), samp->size(1)); y++)
+                mapData->setCell(mapOffset + x - dataOffset, y, samp->value(x, y, 0));
     }
-
-    for (kIndex x = dataOffset; x < dis->size(0); x++)
-        for (kIndex y = 0; y < std::min<int>(mapData->valueSize(), dis->size(1)); y++) 
-            mapData->setCell(mapOffset + x - dataOffset, y, dis->value(x, y, 0));
-    //}
-    //else {
-    //    mapData->setSize(data2d->length(0), data2d->length(1));
-
-    //    for (int x = 0; x < data2d->length(0); ++x)
-    //        for (int y = 0; y < data2d->length(1); ++y)
-    //            mapData->setCell(x, y, data2d->value(x, y).z);
-      
-        //if (autoScale_) {
-       //     customPlot_->rescaleAxes();
-       //     colorMap->rescaleDataRange();
-       // }
-   // }
-    
+   
     customPlot_->replot(prov->isStream()
         ? QCustomPlot::rpQueuedRefresh : QCustomPlot::rpRefreshHint);
 
@@ -267,13 +286,15 @@ void KcRdPlot2d::setPropertyImpl_(int id, const QVariant& newVal)
 
 void KcRdPlot2d::syncParent()
 {
+    auto prov = dynamic_cast<KvDataProvider*>(parent());
+    if (prov->isContinued()) // TODO:
+        return;
+
     auto colorMap = dynamic_cast<QCPColorMap*>(customPlot_->plottable());
     auto mapData = colorMap->data();
-    auto prov = dynamic_cast<KvDataProvider*>(parent());
 
     if (mapData->keySize() == 0) { // 初始化
         assert(prov->dim() == 2);
-        dx_ = prov->step(0);
         mapData->setKeySize(prov->size(0));
         auto xrange = prov->range(0);
         auto qrange = QCPRange(xrange.low(), xrange.high());
@@ -281,19 +302,14 @@ void KcRdPlot2d::syncParent()
         customPlot_->yAxis->setRange(qrange);
     }
 
-    if (dx_ != prov->step(0)) { // framing的shift值可能动态改变
-        dx_ = prov->step(0);
-        KtSampling<kReal> xsamp(0, dx_, dx_, 0);
-        auto keySize = xsamp.size(mapData->keyRange().size());
-
-        if (keySize == 0) { // 用户调大了输入数据的dx，导致dx > keyRange
+    if (mapData->keySize() != prov->size(0)) { // framing的shift值可能动态改变
+        mapData->setKeySize(prov->size(0));
+        if (prov->size(0) == 0) { // 用户调大了输入数据的dx，导致dx > keyRange
             // 调整绘图参数，确保keySize等于1
-            keySize = 1;
-            mapData->setKeyRange({ 0, dx_ });
-            customPlot_->xAxis->setRange({ 0, dx_ });
+            mapData->setKeySize(1);
+            mapData->setKeyRange({ 0, prov->step(0) });
+            customPlot_->xAxis->setRange({ 0, prov->step(0) });
         }
-
-        mapData->setKeySize(keySize);
     }
 
     if (mapData->valueSize() != prov->size(1)) {

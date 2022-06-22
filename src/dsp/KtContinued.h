@@ -8,11 +8,12 @@ template<typename FUN, unsigned DIM>
 class KtContinued : public KvContinued
 {
 public:
+	static inline const auto k_unknown_range = kRange{ 0, 0 };
+
 	KtContinued(FUN fun, kReal low, kReal high) // 单通道
 		: fun_{ fun } {
 		range_.fill(kRange{ low, high });
-		range_[DIM] = kRange{ std::numeric_limits<kReal>::quiet_NaN(), 
-			std::numeric_limits<kReal>::quiet_NaN() };
+		range_[DIM] = k_unknown_range;
 	} 
 
 	KtContinued(FUN fun) 
@@ -32,7 +33,7 @@ public:
 		if (axis < DIM)
 			return range_[axis];
 		
-		return std::isnan(range_[axis].low()) ? valueRange() : range_[axis];
+		return range_[axis] == k_unknown_range ? valueRange() : range_[axis];
 	}
 
 
