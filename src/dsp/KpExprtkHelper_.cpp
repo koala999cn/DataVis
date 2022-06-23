@@ -5,11 +5,15 @@
 
 namespace kPrivate
 {
-    kReal KpExprtkHelper_::operator()(kReal x, ...) const {
-        va_list args;
-        va_start(args, x);
-        kReal r = expr_->value(x, args);
-        va_end(args);
-        return r;
+    kReal KpExprtkHelper_::operator()(kReal x) const {
+        return expr_->value(x);
+    }
+
+    kReal KpExprtkHelper_::operator()(kReal x, kReal y) const {
+        return expr_->value(x, y);
+    }
+ 
+    kReal KpExprtkHelper_::operator()(kReal x, kReal y, kReal z) const {
+        return expr_->value(x, y, z);
     }
 };

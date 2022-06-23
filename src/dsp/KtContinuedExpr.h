@@ -14,7 +14,9 @@ namespace kPrivate
         KpExprtkHelper_(std::shared_ptr<KvExprtk> expr)
             : expr_(expr) {}
 
-        kReal operator()(kReal x, ...) const;
+        kReal operator()(kReal x) const;
+        kReal operator()(kReal x, kReal y) const;
+        kReal operator()(kReal x, kReal y, kReal z) const;
 
     private:
         std::shared_ptr<KvExprtk> expr_;
