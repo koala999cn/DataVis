@@ -70,12 +70,19 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
                     colorMap->data()->setKeySize(keySize);
                     emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
                 }   
+                else if (prov->isContinued()) {
+                    requestData(); // 重绘
+                }
             }
         });
 
     connect(customPlot_->yAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
-        [colorMap](const QCPRange& newRange) {
+        [this, colorMap](const QCPRange& newRange) {
             colorMap->data()->setValueRange(newRange);
+            auto prov = dynamic_cast<KvDataProvider*>(parent());
+            if (prov->isContinued()) {
+                requestData(); // 重绘
+            }
         });
 }
 
