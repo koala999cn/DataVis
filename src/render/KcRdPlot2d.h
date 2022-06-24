@@ -21,7 +21,6 @@ private:
 	void syncParent() override;
 
 private:
-	kReal dx_;
 	QCPColorScale* colorScale_;
 };
 

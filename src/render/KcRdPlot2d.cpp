@@ -60,19 +60,17 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
     // 当用户修改x轴范围时，同步调整keySize
     connect(customPlot_->xAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
         [this, colorMap](const QCPRange& newRange) {
-            if (colorMap->data()->keyRange() != newRange) {
-                colorMap->data()->setKeyRange(newRange);
+            colorMap->data()->setKeyRange(newRange);
 
-                auto prov = dynamic_cast<KvDataProvider*>(parent());
-                if (prov->isSampled()) {
-                    KtSampling<kReal> xsamp(0, dx_, dx_, 0);
-                    auto keySize = xsamp.size(newRange.size());
-                    colorMap->data()->setKeySize(keySize);
-                    emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
-                }   
-                else if (prov->isContinued()) {
-                    requestData(); // 重绘
-                }
+            auto prov = dynamic_cast<KvDataProvider*>(parent());
+            if (prov->isSampled()) {
+                KtSampling<kReal> xsamp(0, 0, prov->step(0), 0);
+                auto keySize = xsamp.size(newRange.size());
+                colorMap->data()->setKeySize(keySize);
+                emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
+            }   
+            else if (prov->isContinued()) {
+                requestData(); // 重绘
             }
         });
 
