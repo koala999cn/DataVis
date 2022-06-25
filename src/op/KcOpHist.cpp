@@ -90,6 +90,14 @@ kReal KcOpHist::step(kIndex axis) const
 }
 
 
+kIndex KcOpHist::size(kIndex axis) const
+{
+    if (axis == 0) 
+        return hist_->numBins();
+
+    return KvDataOperator::step(axis);
+}
+
 void KcOpHist::syncParent()
 {
 
