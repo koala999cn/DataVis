@@ -4,7 +4,7 @@
 
 
 KcRdScatter3d::KcRdScatter3d(KvDataProvider* is)
-	: KvRdQtDataVis(is, "scatter3d")
+	: KvRdPlot3d(is, "scatter3d")
 {
 	auto scatter = new Q3DScatter;
 
@@ -31,7 +31,7 @@ KcRdScatter3d::~KcRdScatter3d()
 
 KcRdScatter3d::kPropertySet KcRdScatter3d::propertySet() const
 {
-	kPropertySet ps = KvRdQtDataVis::propertySet();
+	kPropertySet ps = KvRdPlot3d::propertySet();
 
 	return ps;
 }
@@ -48,7 +48,7 @@ void KcRdScatter3d::reset()
 
 void KcRdScatter3d::setPropertyImpl_(int id, const QVariant& newVal)
 {
-	KvRdQtDataVis::setPropertyImpl_(id, newVal);
+	KvRdPlot3d::setPropertyImpl_(id, newVal);
 }
 
 

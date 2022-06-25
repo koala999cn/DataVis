@@ -9,8 +9,6 @@ class KcOpFilterBank : public KvOpHelper1d
 public:
 	KcOpFilterBank(KvDataProvider* prov);
 
-	bool isStream() const override { return false; }
-
 	kRange range(kIndex axis) const override;
 
 	kReal step(kIndex axis) const override;

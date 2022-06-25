@@ -7,7 +7,7 @@
 
 
 KcRdSurface3d::KcRdSurface3d(KvDataProvider* is)
-	: KvRdQtDataVis(is, "surface3d")
+	: KvRdPlot3d(is, "surface3d")
 {
 	auto surface = new Q3DSurface;
 	auto series = new QSurface3DSeries;
@@ -38,7 +38,7 @@ KcRdSurface3d::~KcRdSurface3d()
 
 KcRdSurface3d::kPropertySet KcRdSurface3d::propertySet() const
 {
-	kPropertySet ps = KvRdQtDataVis::propertySet();
+	kPropertySet ps = KvRdPlot3d::propertySet();
 
 	return ps;
 }
@@ -55,7 +55,7 @@ void KcRdSurface3d::reset()
 
 void KcRdSurface3d::setPropertyImpl_(int id, const QVariant& newVal)
 {
-	KvRdQtDataVis::setPropertyImpl_(id, newVal);
+	KvRdPlot3d::setPropertyImpl_(id, newVal);
 }
 
 

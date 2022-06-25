@@ -1,8 +1,8 @@
 #pragma once
-#include "KvRdQtDataVis.h"
+#include "KvRdPlot3d.h"
 
 
-class KcRdScatter3d : public KvRdQtDataVis
+class KcRdScatter3d : public KvRdPlot3d
 {
 public:
 	KcRdScatter3d(KvDataProvider* is);

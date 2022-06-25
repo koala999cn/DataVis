@@ -188,7 +188,7 @@
     <ClCompile Include="src\render\KcRdScatter3d.cpp" />
     <ClCompile Include="src\render\KcRdSurface3d.cpp" />
     <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
-    <ClCompile Include="src\render\KvRdQtDataVis.cpp" />
+    <ClCompile Include="src\render\KvRdPlot3d.cpp" />
     <QtUic Include="src\audio_capture_dlg.ui" />
     <QtUic Include="src\formula_dlg.ui" />
   </ItemGroup>
@@ -238,7 +238,7 @@
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\render\KcRdScatter3d.h" />
     <ClInclude Include="src\render\KcRdSurface3d.h" />
-    <ClInclude Include="src\render\KvRdQtDataVis.h" />
+    <ClInclude Include="src\render\KvRdPlot3d.h" />
     <QtMoc Include="src\gui\QtDataView.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpHistC.h" />

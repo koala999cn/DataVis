@@ -2,10 +2,10 @@
 
 
 #pragma once
-#include "KvRdQtDataVis.h"
+#include "KvRdPlot3d.h"
 
 
-class KcRdSurface3d : public KvRdQtDataVis
+class KcRdSurface3d : public KvRdPlot3d
 {
 public:
 	KcRdSurface3d(KvDataProvider* is);

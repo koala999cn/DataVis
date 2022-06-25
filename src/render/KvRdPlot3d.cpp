@@ -1,29 +1,33 @@
-#include "KvRdQtDataVis.h"
+#include "KvRdPlot3d.h"
 #include <QtDataVisualization/QAbstract3DGraph.h>
 #include <QtDataVisualization/QAbstract3DAxis.h>
 #include <QWidget>
 #include "QtAppEventHub.h"
 
 
-KvRdQtDataVis::KvRdQtDataVis(KvDataProvider* is, const QString& name)
+KvRdPlot3d::KvRdPlot3d(KvDataProvider* is, const QString& name)
     : KvDataRender(name, is)
 {
 	options_ = k_visible;
 	graph3d_ = nullptr;
 	widget_ = nullptr;
 	xAxis_ = yAxis_ = zAxis_ = nullptr;
+	size0_ = size1_ = 0;
 }
 
 
-KvRdQtDataVis::~KvRdQtDataVis()
+KvRdPlot3d::~KvRdPlot3d()
 {
 	setOption(k_visible, false);
-	delete widget_;
-	delete graph3d_;
+
+	if(widget_)
+	    delete widget_; // 销毁widget_时会自动销毁子对象graph3d_
+	else
+	    delete graph3d_;
 }
 
 
-void KvRdQtDataVis::setOption(KeObjectOption opt, bool on)
+void KvRdPlot3d::setOption(KeObjectOption opt, bool on)
 {
 	assert(opt == k_visible);
 	if (on) {
@@ -42,7 +46,7 @@ void KvRdQtDataVis::setOption(KeObjectOption opt, bool on)
 }
 
 
-bool KvRdQtDataVis::getOption(KeObjectOption opt) const
+bool KvRdPlot3d::getOption(KeObjectOption opt) const
 {
 	assert(opt == k_visible);
 	assert(graph3d_);
@@ -58,6 +62,8 @@ namespace kPrivate
 		k_theme,
 		k_camera_preset,
 		k_shadow_quality,
+		k_size_0,
+		k_size_1,
 
 		k_axis_x,
 		k_axis_x_range = k_axis_x,
@@ -154,7 +160,7 @@ namespace kPrivate
 }
 
 
-KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
+KvRdPlot3d::kPropertySet KvRdPlot3d::propertySet() const
 {
 	using namespace kPrivate;
 
@@ -181,6 +187,20 @@ KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
 	prop.makeEnum(shadowQualityList);
 	ps.push_back(prop);
 
+	auto objp = dynamic_cast<KvDataProvider*>(parent());
+
+	prop.id = k_size_0;
+	prop.name = tr("Size0");
+	prop.flag = objp->isContinued() ? 0 : k_readonly; // 渲染连续数据时允许编辑
+	prop.val = size0_;
+	prop.children.clear();
+	ps.push_back(prop);
+
+	prop.id = k_size_1;
+	prop.name = tr("Size1");
+	prop.val = size1_;
+	ps.push_back(prop);
+
 	prop.id = KvPropertiedObject::kInvalidId;
 	prop.name = QStringLiteral("Axis");
 	prop.val.clear();
@@ -204,7 +224,7 @@ KvRdQtDataVis::kPropertySet KvRdQtDataVis::propertySet() const
 }
 
 
-void KvRdQtDataVis::setPropertyImpl_(int id, const QVariant& newVal)
+void KvRdPlot3d::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	using namespace kPrivate;
 
@@ -222,6 +242,16 @@ void KvRdQtDataVis::setPropertyImpl_(int id, const QVariant& newVal)
 		graph3d_->setShadowQuality(QAbstract3DGraph::ShadowQuality(newVal.toInt()));
 		break;
 
+	case k_size_0:
+		size0_ = newVal.toInt();
+		emit sizeChanged(0, size0_);
+		break;
+
+	case k_size_1:
+		size1_ = newVal.toInt();
+		emit sizeChanged(1, size1_);
+		break;
+
 	default:
 		break;
 	}
@@ -235,21 +265,38 @@ void KvRdQtDataVis::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KvRdQtDataVis::syncAxes_()
+void KvRdPlot3d::syncAxes_()
 {
 	auto objp = dynamic_cast<KvDataProvider*>(parent());
 	assert(objp);
 
-	auto r0 = objp->range(0);
-	auto r1 = objp->range(1);
-	xAxis_->setRange(r0.low(), r0.high());
-	yAxis_->setRange(r1.low(), r1.high());
+	auto rx = objp->range(0);
+	auto rz = objp->range(objp->dim());
+	xAxis_->setRange(rx.low(), rx.high());
+	zAxis_->setRange(rz.low(), rz.high());
 
-	if (objp->dim() == 1) { // 在x-y平面上显示一维数据
-		zAxis_->setRange(0, 0); 
+	if (objp->dim() == 1) { // 在x-z平面上显示一维数据
+		yAxis_->setRange(0, 0); 
 	}
 	else { 
-		auto r2 = objp->range(2);
-		zAxis_->setRange(r2.low(), r2.high());
+		auto ry = objp->range(1);
+		yAxis_->setRange(ry.low(), ry.high());
 	}
+}
+
+
+void KvRdPlot3d::setSize(int axis, int newSize)
+{
+	assert(axis < 2);
+
+	if (axis == 0) {
+		size0_ = newSize;
+		emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_size_0, newSize);
+	}
+	else {
+		size1_ = newSize;
+		emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_size_1, newSize);
+	}
+
+	emit sizeChanged(axis, newSize);
 }
