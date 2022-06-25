@@ -252,6 +252,12 @@
     <QtMoc Include="src\gui\QtDataView.h">
       <Filter>gui</Filter>
     </QtMoc>
+    <QtMoc Include="src\render\KvDataRender.h">
+      <Filter>render</Filter>
+    </QtMoc>
+    <QtMoc Include="src\render\KvRdPlot3d.h">
+      <Filter>render</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\op\KvOpHelper1d.h">
@@ -348,9 +354,6 @@
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="src\render\KcRdPlot2d.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\KvDataRender.h">
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="src\render\KvRdCustomPlot.h">
@@ -462,9 +465,6 @@
       <Filter>op</Filter>
     </ClInclude>
     <ClInclude Include="src\render\KcRdBar3d.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\KvRdPlot3d.h">
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="src\render\KcRdScatter3d.h">

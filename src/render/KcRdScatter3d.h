@@ -16,4 +16,6 @@ private:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 	bool renderImpl_(std::shared_ptr<KvData> data) override;
 	void syncParent() override;
+
+	void syncAxes_();
 };

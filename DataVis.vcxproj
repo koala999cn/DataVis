@@ -238,7 +238,7 @@
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\render\KcRdScatter3d.h" />
     <ClInclude Include="src\render\KcRdSurface3d.h" />
-    <ClInclude Include="src\render\KvRdPlot3d.h" />
+    <QtMoc Include="src\render\KvRdPlot3d.h" />
     <QtMoc Include="src\gui\QtDataView.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpHistC.h" />
@@ -252,7 +252,7 @@
     <ClInclude Include="src\render\KcRdBar3d.h" />
     <ClInclude Include="src\render\KcRdPlot1d.h" />
     <ClInclude Include="src\render\KcRdPlot2d.h" />
-    <ClInclude Include="src\render\KvDataRender.h" />
+    <QtMoc Include="src\render\KvDataRender.h" />
     <ClInclude Include="src\render\KvRdCustomPlot.h" />
     <QtMoc Include="src\prov\KvDataProvider.h" />
     <QtMoc Include="src\gui\QtAudioCaptureDlg.h" />

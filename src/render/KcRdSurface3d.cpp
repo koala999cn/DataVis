@@ -17,10 +17,22 @@ KcRdSurface3d::KcRdSurface3d(KvDataProvider* is)
 
 	graph3d_ = surface;
 	xAxis_ = surface->axisX();
-	yAxis_ = surface->axisY(); 
-	zAxis_ = surface->axisZ();
+	yAxis_ = surface->axisZ(); 
+	zAxis_ = surface->axisY();
+	
+	if (is->isContinued())
+		size0_ = size1_ = 100;
+	else if (is->isSampled())
+		size0_ = is->size(0), size1_ = is->size(1);
+	else
+		size0_ = size1_ = is->size();
+
 
 	syncAxes_();
+
+	connect(this, &KvRdPlot3d::sizeChanged, [=](int axis, int newSize) {
+		requestData();
+		});
 }
 
 
@@ -64,9 +76,10 @@ bool KcRdSurface3d::renderImpl_(std::shared_ptr<KvData> data)
 	std::shared_ptr<KvSampled> samp;
 
 	if (data->isContinued()) {
-		samp = std::make_shared<KtSampler<2>>(std::dynamic_pointer_cast<KvContinued>(data));
-		samp->reset(0, xAxis_->min(), (xAxis_->max() - xAxis_->min()) / 100, 0.5);
-		samp->reset(1, yAxis_->min(), (yAxis_->max() - yAxis_->min()) / 100, 0.5);
+		auto samper = std::make_shared<KtSampler<2>>(std::dynamic_pointer_cast<KvContinued>(data));
+		samper->reset(0, size0_, xAxis_->min(), xAxis_->max(), 0.5);
+		samper->reset(1, size1_, yAxis_->min(), yAxis_->max(), 0.5);
+		samp = samper;
 	}
 	else {
 		samp = std::dynamic_pointer_cast<KvSampled>(data);
@@ -81,7 +94,7 @@ bool KcRdSurface3d::renderImpl_(std::shared_ptr<KvData> data)
 		auto newRow = new QSurfaceDataRow(samp->size(1));
 		for (kIndex j = 0; j < samp->size(1); j++) {
 			auto pt = samp->point(i, j, 0);
-			(*newRow)[j++].setPosition(QVector3D(pt[0], pt[1], pt[2]));
+			(*newRow)[j++].setPosition(QVector3D(pt[0], pt[2], pt[1]));
 		}
 		*dataArray << newRow;
 	}

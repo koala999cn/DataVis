@@ -8,6 +8,8 @@ class KvData;
 // 数据渲染的抽象类
 class KvDataRender : public KvPropertiedObject
 {
+	Q_OBJECT
+
 public:
 
 	// 导入基类构造函数

@@ -9,6 +9,8 @@ class QAbstract3DAxis;
 
 class KvRdPlot3d : public KvDataRender
 {
+	Q_OBJECT
+
 public:
 	KvRdPlot3d(KvDataProvider* is, const QString& name);
 
@@ -26,7 +28,7 @@ public slots:
 
 
 signals:
-	void sizeChanged(int axis, int newSize) {} // 只有渲染连续数据时，才发送此信号
+	void sizeChanged(int axis, int newSize); // 只有渲染连续数据时，才发送此信号
 
 
 protected:

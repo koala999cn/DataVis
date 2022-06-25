@@ -13,7 +13,7 @@ public:
 	KtSampler(std::shared_ptr<KvContinued>& cont)
 		: internal_(cont) {
 		for (kIndex i = 0; i < cont->dim(); i++)
-			samp_[i].resetn(100, cont->range(i).low(), cont->range(i).high(), 0.5); // TODO: 100
+			samp_[i].resetn(100, cont->range(i).low(), cont->range(i).high(), 0.5); 
 	}
 
 
@@ -29,6 +29,9 @@ public:
 		return internal_->value(pt, channel);
 	}
 
+	void reset(kIndex axis, kIndex nx, kReal xmin, kReal xmax, kReal x0_rel_offset = 0) {
+		samp_[axis].resetn(nx, xmin, xmax, x0_rel_offset); 
+	}
 
 private:
 	const std::shared_ptr<KvContinued> internal_;

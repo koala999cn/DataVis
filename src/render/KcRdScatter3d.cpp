@@ -111,3 +111,22 @@ void KcRdScatter3d::syncParent()
 	}
 }
 
+
+void KcRdScatter3d::syncAxes_()
+{
+	auto objp = dynamic_cast<KvDataProvider*>(parent());
+	assert(objp);
+
+	auto rx = objp->range(0);
+	auto ry = objp->range(1);
+	xAxis_->setRange(rx.low(), rx.high());
+	yAxis_->setRange(ry.low(), ry.high());
+
+	if (objp->dim() == 1) { 
+		zAxis_->setRange(0, 0);
+	}
+	else {
+		auto rz = objp->range(2);
+		zAxis_->setRange(rz.low(), rz.high());
+	}
+}

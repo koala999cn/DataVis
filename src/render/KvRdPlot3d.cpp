@@ -13,6 +13,16 @@ KvRdPlot3d::KvRdPlot3d(KvDataProvider* is, const QString& name)
 	widget_ = nullptr;
 	xAxis_ = yAxis_ = zAxis_ = nullptr;
 	size0_ = size1_ = 0;
+
+	if (is->isContinued()) {
+		connect(xAxis_, &QAbstract3DAxis::rangeChanged, [this](float min, float max) {
+			requestData();
+			});
+
+		connect(yAxis_, &QAbstract3DAxis::rangeChanged, [this](float min, float max) {
+			requestData();
+			});
+	}
 }
 
 
