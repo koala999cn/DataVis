@@ -94,7 +94,7 @@ bool KcRdSurface3d::renderImpl_(std::shared_ptr<KvData> data)
 		auto newRow = new QSurfaceDataRow(samp->size(1));
 		for (kIndex j = 0; j < samp->size(1); j++) {
 			auto pt = samp->point(i, j, 0);
-			(*newRow)[j++].setPosition(QVector3D(pt[0], pt[2], pt[1]));
+			(*newRow)[j].setPosition(QVector3D(pt[0], pt[2], pt[1]));
 		}
 		*dataArray << newRow;
 	}
