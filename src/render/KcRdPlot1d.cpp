@@ -429,7 +429,7 @@ void KcRdPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-bool KcRdPlot1d::renderImpl_(std::shared_ptr<KvData> data)
+bool KcRdPlot1d::doRender_(std::shared_ptr<KvData> data)
 {
 	auto plot = customPlot_->plottable();
 
@@ -478,7 +478,7 @@ void KcRdPlot1d::updateBarWidth_()
 }
 
 
-void KcRdPlot1d::syncParent()
+void KcRdPlot1d::preRender_()
 {
 
 }

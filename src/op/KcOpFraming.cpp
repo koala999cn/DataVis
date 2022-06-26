@@ -13,7 +13,7 @@ KcOpFraming::KcOpFraming(KvDataProvider* prov)
 {
 	assert(prov->dim() == 1);
 	assert(prov->isSampled());
-	syncParent();
+	preRender_();
 }
 
 
@@ -113,7 +113,7 @@ kIndex KcOpFraming::shiftSize() const
 }
 
 
-void KcOpFraming::syncParent()
+void KcOpFraming::preRender_()
 {
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	if (!framing_ || dx_ != prov->step(0) ||

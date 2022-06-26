@@ -9,7 +9,7 @@ KcOpSpectrum::KcOpSpectrum(KvDataProvider* prov)
 	: KvDataOperator("spectrum", prov) 
 {
 	spec_ = std::make_unique<KgSpectrum>();
-	syncParent();
+	preRender_();
 }
 
 
@@ -85,7 +85,7 @@ KcOpSpectrum::kPropertySet KcOpSpectrum::propertySet() const
 }
 
 
-void KcOpSpectrum::syncParent()
+void KcOpSpectrum::preRender_()
 {
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
 	assert(prov);

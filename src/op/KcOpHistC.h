@@ -26,7 +26,7 @@ public:
 private:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
-	void syncParent() override;
+	void preRender_() override;
 
 private:
 	std::unique_ptr<KgHistC> histc_;

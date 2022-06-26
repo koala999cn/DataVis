@@ -182,7 +182,7 @@ void QtWorkspaceWidget::contextMenuEvent(QContextMenuEvent*)
 
 	auto provider = dynamic_cast<KvDataProvider*>(obj);
 	if (provider) {
-		if (provider->isStream() && provider->running()) {
+		if (provider->isRunning()) {
 			connect(&stopItem, &QAction::triggered, provider, &KvDataProvider::stop);
 			menu.addAction(&stopItem);
 		}

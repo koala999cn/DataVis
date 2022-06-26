@@ -22,7 +22,7 @@ public:
 
 	kIndex channels() const override { return channels_; }
 
-	bool running() const final;
+	bool isRunning() const final;
 
 	auto sampleRate() const { return sampleRate_; }
 

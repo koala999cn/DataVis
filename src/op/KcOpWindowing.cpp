@@ -9,7 +9,7 @@ KcOpWindowing::KcOpWindowing(KvDataProvider* prov)
     , type_(KuWindowFactory::k_hamming)
     , arg_(0)
 {
-    syncParent();
+    preRender_();
 }
 
 
@@ -58,7 +58,7 @@ void KcOpWindowing::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcOpWindowing::syncParent()
+void KcOpWindowing::preRender_()
 {
     if (type_ >= 0) {
         KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());

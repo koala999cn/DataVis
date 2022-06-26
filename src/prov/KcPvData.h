@@ -22,7 +22,7 @@ public:
 
 	kIndex size(kIndex axis) const final;
 
-	bool running() const override;
+	bool isRunning() const override;
 
 	// 对于连续数据，改写range属性为可编辑
 	kPropertySet propertySet() const override;

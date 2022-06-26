@@ -26,7 +26,7 @@ private:
 
 	void processNaive_(const kReal* in, unsigned len, kReal* out) override;
 
-	void syncParent() override;
+	void preRender_() override;
 
 private:
 	std::unique_ptr<KgFilterBank> fbank_;

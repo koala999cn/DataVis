@@ -21,9 +21,9 @@ public slots:
 private:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 
-	void syncParent() override;
+	void preRender_() override;
 
-	bool renderImpl_(std::shared_ptr<KvData> data) override;
+	bool doRender_(std::shared_ptr<KvData> data) override;
 
 
 private:

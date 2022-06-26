@@ -21,7 +21,7 @@ private:
 
 	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
 
-	void syncParent() override;
+	void preRender_() override;
 
 private:
 	std::unique_ptr<KtFIR<kReal>> filter_;

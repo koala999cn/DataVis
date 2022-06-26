@@ -167,7 +167,7 @@ std::shared_ptr<KvData> KcOpFIR::processImpl_(std::shared_ptr<KvData> data)
 }
 
 
-void KcOpFIR::syncParent()
+void KcOpFIR::preRender_()
 {
     using namespace kfr;
 

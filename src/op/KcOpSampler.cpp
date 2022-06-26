@@ -6,7 +6,7 @@
 KcOpSampler::KcOpSampler(KvDataProvider* prov)
     : KvDataOperator("sampler", prov)
 {
-    syncParent();
+    preRender_();
 }
 
 
@@ -127,7 +127,7 @@ void KcOpSampler::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcOpSampler::syncParent()
+void KcOpSampler::preRender_()
 {
     auto objp = dynamic_cast<KvDataProvider*>(parent());
     assert(objp);

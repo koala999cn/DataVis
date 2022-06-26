@@ -58,7 +58,7 @@ bool KcPvData::stopImpl_()
 }
 
 
-bool KcPvData::running() const
+bool KcPvData::isRunning() const
 {
 	return false;
 }

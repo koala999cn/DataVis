@@ -6,7 +6,7 @@
 KcOpInterpolater::KcOpInterpolater(KvDataProvider* prov)
     : KvDataOperator("interpolate", prov)
 {
-    syncParent();
+    preRender_();
 }
 
 
@@ -131,7 +131,7 @@ void KcOpInterpolater::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcOpInterpolater::syncParent()
+void KcOpInterpolater::preRender_()
 {
     auto objp = dynamic_cast<KvDataProvider*>(parent());
     assert(objp);

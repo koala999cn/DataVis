@@ -52,7 +52,7 @@ void KcRdScatter3d::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-bool KcRdScatter3d::renderImpl_(std::shared_ptr<KvData> data)
+bool KcRdScatter3d::doRender_(std::shared_ptr<KvData> data)
 {
 	assert(data->isDiscreted());
 	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data);
@@ -89,7 +89,7 @@ bool KcRdScatter3d::renderImpl_(std::shared_ptr<KvData> data)
 }
 
 
-void KcRdScatter3d::syncParent()
+void KcRdScatter3d::preRender_()
 {
 	// 保持图形的数据序列数目与父节点的数据通道数目一致
 

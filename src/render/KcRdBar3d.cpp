@@ -69,14 +69,14 @@ void KcRdBar3d::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-bool KcRdBar3d::renderImpl_(std::shared_ptr<KvData> data)
+bool KcRdBar3d::doRender_(std::shared_ptr<KvData> data)
 {
 	auto objp = dynamic_cast<KvDataProvider*>(parent());
 	return objp->isStream() ? renderStream_(data) : renderSnap_(data);
 }
 
 
-void KcRdBar3d::syncParent()
+void KcRdBar3d::preRender_()
 {
 
 }

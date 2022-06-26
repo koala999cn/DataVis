@@ -98,7 +98,7 @@ kIndex KcOpHist::size(kIndex axis) const
     return KvDataOperator::step(axis);
 }
 
-void KcOpHist::syncParent()
+void KcOpHist::preRender_()
 {
 
 }

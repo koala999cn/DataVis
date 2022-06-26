@@ -139,7 +139,7 @@ void KcOpFilterBank::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcOpFilterBank::syncParent()
+void KcOpFilterBank::preRender_()
 {
     KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());
     if (objp->step(objp->dim() - 1) != df_) {

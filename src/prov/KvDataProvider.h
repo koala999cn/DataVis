@@ -56,7 +56,7 @@ public:
 	}
 
 	// 数据流是否在流动
-	virtual bool running() const = 0;
+	virtual bool isRunning() const = 0;
 
 	bool isContinued() const {
 		return size(0) == KvData::k_inf_size;

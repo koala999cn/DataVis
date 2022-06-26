@@ -89,7 +89,7 @@ bool KcPvAudioInput::stopImpl_()
 }
 
 
-bool KcPvAudioInput::running() const
+bool KcPvAudioInput::isRunning() const
 {
 	return ((KcAudioDevice*)dptr_)->running();
 }

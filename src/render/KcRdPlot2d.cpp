@@ -35,9 +35,9 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
     assert(is->dim() == 2);
 
     if (is->isDiscreted())
-        data->setKeySize(0); // 清零，以保证syncParent正确初始化
+        data->setKeySize(0); // 清零，以保证preRender_正确初始化
         
-    syncParent();
+    preRender_();
 
     // 添加colorScale
     colorScale_ = new QCPColorScale(customPlot_);
@@ -85,7 +85,7 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
 }
 
 
-bool KcRdPlot2d::renderImpl_(std::shared_ptr<KvData> data)
+bool KcRdPlot2d::doRender_(std::shared_ptr<KvData> data)
 {
     if (data == nullptr || data->size() == 0)
         return true;
@@ -289,7 +289,7 @@ void KcRdPlot2d::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcRdPlot2d::syncParent()
+void KcRdPlot2d::preRender_()
 {
     auto prov = dynamic_cast<KvDataProvider*>(parent());
     if (prov->isContinued()) // TODO:

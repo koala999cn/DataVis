@@ -91,7 +91,7 @@ kReal KcOpHistC::step(kIndex axis) const
 }
 
 
-void KcOpHistC::syncParent()
+void KcOpHistC::preRender_()
 {
 
 }

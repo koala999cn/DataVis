@@ -109,7 +109,7 @@ void KcOpResampler::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcOpResampler::syncParent()
+void KcOpResampler::preRender_()
 {
     assert(resamp_);
 

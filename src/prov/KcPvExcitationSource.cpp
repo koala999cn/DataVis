@@ -43,7 +43,7 @@ kIndex KcPvExcitationSource::size(kIndex axis) const
 }
 
 
-bool KcPvExcitationSource::running() const
+bool KcPvExcitationSource::isRunning() const
 {
 	return timerId_ != 0;
 }

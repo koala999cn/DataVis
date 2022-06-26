@@ -45,8 +45,8 @@ public:
 		return dynamic_cast<const KvDataProvider*>(parent())->size(axis);
 	}
 
-	bool running() const override {
-		return dynamic_cast<const KvDataProvider*>(parent())->running();
+	bool isRunning() const override {
+		return dynamic_cast<const KvDataProvider*>(parent())->isRunning();
 	}
 
 private:
@@ -66,7 +66,7 @@ public:
 
 	/// 执行operator操作
 	void process(std::shared_ptr<KvData> data) {
-		syncParent(); // 支持用户实时调整参数，每次都同步父亲对象
+		preRender_(); // 支持用户实时调整参数，每次都同步父亲对象
 		auto res = processImpl_(data);
 		if(res) emit onData(res);
 	}
@@ -80,7 +80,7 @@ signals:
 protected:
 
 	// parent的属性变更，同步this属性
-	virtual void syncParent() = 0;
+	virtual void preRender_() = 0;
 
 
 	// @data: 待处理数据，为null表示本轮此处理结束，相当于flush提示

@@ -24,7 +24,7 @@ public:
 private:
 	void setPropertyImpl_(int id, const QVariant & newVal) override;
 
-	void syncParent() override;
+	void preRender_() override;
 
 	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
 

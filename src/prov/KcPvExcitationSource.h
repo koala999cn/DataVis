@@ -22,7 +22,7 @@ public:
 
 	kIndex size(kIndex axis) const final;
 
-	bool running() const override;
+	bool isRunning() const override;
 
 	kPropertySet propertySet() const override;
 

@@ -71,7 +71,7 @@ void KcRdSurface3d::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-bool KcRdSurface3d::renderImpl_(std::shared_ptr<KvData> data)
+bool KcRdSurface3d::doRender_(std::shared_ptr<KvData> data)
 {
 	std::shared_ptr<KvSampled> samp;
 
@@ -105,7 +105,7 @@ bool KcRdSurface3d::renderImpl_(std::shared_ptr<KvData> data)
 }
 
 
-void KcRdSurface3d::syncParent()
+void KcRdSurface3d::preRender_()
 {
 
 }

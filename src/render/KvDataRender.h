@@ -25,7 +25,7 @@ public:
 	void requestData() const {
 		auto p = rootParent();
 		auto prov = dynamic_cast<KvDataProvider*>(p);
-		if (prov)
+		if (prov && !prov->isStream())
 			prov->start();
 	}
 
@@ -36,15 +36,15 @@ public slots:
 	bool render(std::shared_ptr<KvData> data) {
 		// TODO: if (canShown() && !isVisible())
 		//	return true; // skip render when widget hidden
-		syncParent();
-		return renderImpl_(data);
+		preRender_();
+		return doRender_(data);
 	}
 
 	// 重置
 	virtual void reset() = 0;
 
 private:
-	virtual void syncParent() = 0;
-	virtual bool renderImpl_(std::shared_ptr<KvData> data) = 0;
+	virtual void preRender_() {}
+	virtual bool doRender_(std::shared_ptr<KvData> data) = 0;
 };
 

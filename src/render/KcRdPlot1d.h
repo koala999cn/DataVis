@@ -21,8 +21,8 @@ public:
 
 private:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
-	bool renderImpl_(std::shared_ptr<KvData> data) override;
-	void syncParent() override;
+	bool doRender_(std::shared_ptr<KvData> data) override;
+	void preRender_() override;
 
 	KpProperty scatterProperty_(bool hasNone) const;
 	KpProperty lineProperty_(bool hasNone) const;

@@ -111,14 +111,14 @@ void KcRdAudioPlayer::setPropertyImpl_(int id, const QVariant& newVal)
 }
 
 
-void KcRdAudioPlayer::syncParent()
+void KcRdAudioPlayer::preRender_()
 {
 	//if (!render_->opened())
 	//	render_->play(deviceId_, sampleRate_, channels_, frameTime_);
 }
 
 	
-bool KcRdAudioPlayer::renderImpl_(std::shared_ptr<KvData> data)
+bool KcRdAudioPlayer::doRender_(std::shared_ptr<KvData> data)
 {
 	auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(data);
 	assert(render_ && samp1d);
