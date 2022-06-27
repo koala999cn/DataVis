@@ -37,7 +37,7 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
     if (is->isDiscreted())
         data->setKeySize(0); // 清零，以保证preRender_正确初始化
         
-    preRender_();
+    //preRender_();
 
     // 添加colorScale
     colorScale_ = new QCPColorScale(customPlot_);
@@ -49,8 +49,13 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
     colorScale_->setMarginGroup(QCP::msTop | QCP::msBottom, group);
     customPlot_->axisRect()->setMarginGroup(QCP::msTop | QCP::msBottom, group);
 
-    // data range需要手动初始化
+    // 设置map range
+    auto xrange = is->range(0);
+    auto yrange = is->range(1);
     auto zrange = is->range(2);
+    colorMap->data()->setSize(is->size(0), is->size(1));
+    colorMap->data()->setKeyRange(QCPRange(xrange.low(), xrange.high()));
+    colorMap->data()->setValueRange(QCPRange(yrange.low(), yrange.high()));
     colorMap->setDataRange(QCPRange(zrange.low(), zrange.high()));
 
     // 设置默认的渐变器
@@ -64,7 +69,7 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
 
             auto prov = dynamic_cast<KvDataProvider*>(parent());
             if (prov->isSampled()) {
-                KtSampling<kReal> xsamp(0, 0, prov->step(0), 0);
+                KtSampling<kReal> xsamp(0, 1, prov->step(0), 0);
                 auto keySize = xsamp.size(newRange.size());
                 colorMap->data()->setKeySize(keySize);
                 emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
@@ -292,7 +297,7 @@ void KcRdPlot2d::setPropertyImpl_(int id, const QVariant& newVal)
 
 void KcRdPlot2d::preRender_()
 {
-    auto prov = dynamic_cast<KvDataProvider*>(parent());
+ /*   auto prov = dynamic_cast<KvDataProvider*>(parent());
     if (prov->isContinued()) // TODO:
         return;
 
@@ -323,5 +328,5 @@ void KcRdPlot2d::preRender_()
         auto r = prov->range(1);
         mapData->setValueRange({ r.low(), r.high() });
         customPlot_->yAxis->setRange({ r.low(), r.high() });
-    }
+    }*/
 }
