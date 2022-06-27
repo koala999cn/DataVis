@@ -182,10 +182,7 @@ bool QtMainFrame::setupMenu_()
     QAction* resampler = opMenu->addAction(u8"Resampler(&R)");
     connect(resampler, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpResampler>(workDock_, false); });
 
-    QAction* player = opMenu->addAction(u8"AudioPlayer(&P)");
-    connect(player, &QAction::triggered, [this] { kPrivate::insertObjectP<KcRdAudioPlayer>(workDock_, false); });
-
-    
+   
     connect(opMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
@@ -199,7 +196,6 @@ bool QtMainFrame::setupMenu_()
         interp->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
         fir->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
         resampler->setEnabled(obj&& obj->dim() == 1 && obj->isSampled());
-        player->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
         });
 
 
@@ -242,6 +238,11 @@ bool QtMainFrame::setupMenu_()
         kPrivate::insertObjectP<KcRdSurface3d>(workDock_, false);
         });
 
+    QAction* player = renderMenu->addAction(u8"AudioPlayer(&P)");
+    connect(player, &QAction::triggered, [this] { 
+        kPrivate::insertObjectP<KcRdAudioPlayer>(workDock_, false); 
+        });
+
     connect(renderMenu, &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
@@ -252,6 +253,7 @@ bool QtMainFrame::setupMenu_()
         bars3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
         scatter3d->setEnabled(obj&& obj->isDiscreted() && obj->dim() <= 2);
         surface3d->setEnabled(obj  && obj->dim() == 2); // 允许绘制连续曲面
+        player->setEnabled(obj&& obj->dim() == 1 && obj->isSampled());
         });
 
     return true;
