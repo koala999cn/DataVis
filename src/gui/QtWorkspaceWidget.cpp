@@ -53,10 +53,10 @@ void QtWorkspaceWidget::insertItem_(QTreeWidgetItem* parent, KvPropertiedObject*
 		assert(objpp);
 
 		if (dynamic_cast<KvDataRender*>(obj))
-			obj->connect(dynamic_cast<KvDataProvider*>(objp), &KvDataProvider::onData, 
+			obj->connect(dynamic_cast<KvDataProvider*>(objp), &KvDataProvider::pushData, 
 				dynamic_cast<KvDataRender*>(obj), &KvDataRender::render);
 		else if (dynamic_cast<KvDataOperator*>(obj))
-			obj->connect(dynamic_cast<KvDataProvider*>(objp), &KvDataProvider::onData, 
+			obj->connect(dynamic_cast<KvDataProvider*>(objp), &KvDataProvider::pushData, 
 				dynamic_cast<KvDataOperator*>(obj), &KvDataOperator::process);
 	}
 
@@ -139,8 +139,8 @@ void QtWorkspaceWidget::connectSignals_()
 	// 用户双击tree-item触发：弹出显示窗口
 	connect(this, &QTreeWidget::itemDoubleClicked, [this](QTreeWidgetItem* item, int) {
 	    auto obj = getObject(item);
-	    if ( obj && obj->hasOption(KvPropertiedObject::k_visible))
-			obj->setOption(KvPropertiedObject::k_visible, true);
+	    if ( obj && obj->hasOption(KvPropertiedObject::k_show))
+			obj->setOption(KvPropertiedObject::k_show, true);
 	    });
 }
 
@@ -171,23 +171,25 @@ void QtWorkspaceWidget::contextMenuEvent(QContextMenuEvent*)
 	auto obj = getObject(curItem);
 
 	// 对象options菜单项
-	if (obj && obj->hasOption(KvPropertiedObject::k_visible)) {
+	if (obj && obj->hasOption(KvPropertiedObject::k_show)) {
 		showItem.setCheckable(true);
-		showItem.setChecked(obj->getOption(KvPropertiedObject::k_visible));
+		showItem.setChecked(obj->getOption(KvPropertiedObject::k_show));
 		connect(&showItem, &QAction::triggered, obj, [obj](bool enable) {
-			obj->setOption(KvPropertiedObject::k_visible, enable);
+			obj->setOption(KvPropertiedObject::k_show, enable);
 			});
 		menu.addAction(&showItem);
 	}
 
-	auto provider = dynamic_cast<KvDataProvider*>(obj);
-	if (provider) {
-		if (provider->isRunning()) {
-			connect(&stopItem, &QAction::triggered, provider, &KvDataProvider::stop);
+	auto prov = dynamic_cast<KvDataProvider*>(obj);
+	if (prov) {
+		if (prov->isRunning()) {
+			connect(&stopItem, &QAction::triggered, prov, [prov]() {
+				kAppEventHub->stopPipeline(prov->rootParent()); });
 			menu.addAction(&stopItem);
 		}
 		else {
-			connect(&renderItem, &QAction::triggered, provider, &KvDataProvider::start);
+			connect(&renderItem, &QAction::triggered, prov, [prov]() {
+				kAppEventHub->startPipeline(prov->rootParent()); });
 			menu.addAction(&renderItem);
 		}
 	}

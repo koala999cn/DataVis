@@ -27,7 +27,7 @@ public:
 	KvPropertiedObject* rootParent() const {
 		auto p = parent();
 		if (p == nullptr)
-			return nullptr;
+			return const_cast<KvPropertiedObject*>(this);
 		while (p->parent())
 			p = p->parent();
 
@@ -37,7 +37,7 @@ public:
 
 	enum KeObjectOption
 	{
-		k_visible = 0x01, // 是否可显示
+		k_show = 0x01, // 是否可显示
 	};
 
 
@@ -52,8 +52,12 @@ public:
 		return false;
 	}
 
+	virtual bool doStart() { return true; }
+	virtual void doStop() {}
+
 protected:
 	int options_; // 对象特性，由继承类设置
+
 
 public slots:
 

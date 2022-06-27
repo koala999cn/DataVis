@@ -32,10 +32,6 @@ public:
 	bool getOption(KeObjectOption opt) const override;
 
 	auto data() { return data_; }
-
-private:
-	bool startImpl_() final;
-	bool stopImpl_() final;
 	
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 

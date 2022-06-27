@@ -121,7 +121,7 @@ KcPvExcitationSource::kPropertySet KcPvExcitationSource::propertySet() const
 }
 
 
-bool KcPvExcitationSource::startImpl_()
+bool KcPvExcitationSource::doStart()
 {
 	createExcitor_();
 
@@ -137,12 +137,10 @@ bool KcPvExcitationSource::startImpl_()
 }
 
 
-bool KcPvExcitationSource::stopImpl_() 
+void KcPvExcitationSource::doStop() 
 {
 	killTimer(timerId_);
 	timerId_ = 0;
-
-	return true;
 }
 
 
@@ -218,7 +216,7 @@ void KcPvExcitationSource::emitData_()
 	for(kIndex i = 0; i < data->size(); i++)
 	    *buf++ = excitor_->pulse();
 
-	emit onData(data);
+	emit pushData(data);
 }
 
 

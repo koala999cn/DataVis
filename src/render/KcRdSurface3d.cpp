@@ -30,8 +30,9 @@ KcRdSurface3d::KcRdSurface3d(KvDataProvider* is)
 
 	syncAxes_();
 
-	connect(this, &KvRdPlot3d::sizeChanged, [=](int axis, int newSize) {
-		requestData();
+	connect(this, &KvRdPlot3d::sizeChanged, [this](int axis, int newSize) {
+		if (contData_)
+			doRender_(contData_);
 		});
 }
 
@@ -76,6 +77,7 @@ bool KcRdSurface3d::doRender_(std::shared_ptr<KvData> data)
 	std::shared_ptr<KvSampled> samp;
 
 	if (data->isContinued()) {
+		contData_ = data;
 		auto samper = std::make_shared<KtSampler<2>>(std::dynamic_pointer_cast<KvContinued>(data));
 		samper->reset(0, size0_, xAxis_->min(), xAxis_->max(), 0.5);
 		samper->reset(1, size1_, yAxis_->min(), yAxis_->max(), 0.5);

@@ -28,8 +28,8 @@ public:
 
 
 private:
-	bool startImpl_() final;
-	bool stopImpl_() final;
+	bool doStart() final;
+	void doStop() final;
 
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 

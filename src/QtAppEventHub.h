@@ -29,15 +29,28 @@ public slots:
 	// 重新加载属性页面，用于支持属性项的动态调整
 	void refreshPropertySheet();
 
+	bool startPipeline(KvPropertiedObject* root);
+
+	void stopPipeline(KvPropertiedObject* root);
+
 signals:
 
 	void objectActivated(KvPropertiedObject* obj);
 
 	void objectNameChanged(KvPropertiedObject* obj);
 
+	// 通知属性页面更新刷新值
 	void objectPropertyChanged(KvPropertiedObject* obj, int propId, const QVariant& newVal);
 
 	void dockClosed(KvPropertiedObject* obj);
+
+	void pipelineStarting(KvPropertiedObject* root);
+	
+	void pipelineStarted(KvPropertiedObject* root, bool ok);
+
+	void pipelineStopping(KvPropertiedObject* root);
+
+	void pipelineStopped(KvPropertiedObject* root);
 
 
 private:

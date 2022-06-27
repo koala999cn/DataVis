@@ -55,12 +55,14 @@ KcRdPlot1d::KcRdPlot1d(KvDataProvider* is, KeType type)
 
 		connect(customPlot_->xAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
 			[this](const QCPRange& newRange) {
-				requestData();
+				if (contData_)
+					doRender_(contData_);
 			});
 
 		connect(customPlot_->yAxis, qOverload<const QCPRange&>(&QCPAxis::rangeChanged),
 			[this](const QCPRange& newRange) {
-				requestData();
+				if (contData_)
+					doRender_(contData_);
 			});
 	}
 }

@@ -49,10 +49,6 @@ public:
 		return dynamic_cast<const KvDataProvider*>(parent())->isRunning();
 	}
 
-private:
-	bool startImpl_() override { return true; }
-	bool stopImpl_() override { return true; }
-
 public:
 
 	/// 声明自己的virtual方法接口
@@ -68,7 +64,7 @@ public:
 	void process(std::shared_ptr<KvData> data) {
 		preRender_(); // 支持用户实时调整参数，每次都同步父亲对象
 		auto res = processImpl_(data);
-		if(res) emit onData(res);
+		if(res) emit pushData(res);
 	}
 
 signals:

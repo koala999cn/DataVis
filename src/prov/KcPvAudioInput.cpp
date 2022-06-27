@@ -21,7 +21,7 @@ namespace kPrivate
 			data->resizeChannel(channles_);
 			data->reset(0, streamTime, dx_);
             data->pushBack(static_cast<kReal*>(inputBuffer), frames);
-            emit stream_->onData(data);
+            emit stream_->pushData(data);
             return true;
         }
 
@@ -58,7 +58,7 @@ KcPvAudioInput::~KcPvAudioInput()
 }
 
 
-bool KcPvAudioInput::startImpl_()
+bool KcPvAudioInput::doStart()
 {
     auto device = (KcAudioDevice*)dptr_;
     if (device->opened()) 
@@ -83,9 +83,9 @@ bool KcPvAudioInput::startImpl_()
 }
 
 
-bool KcPvAudioInput::stopImpl_()
+void KcPvAudioInput::doStop()
 {
-    return ((KcAudioDevice*)dptr_)->stop(true);
+    ((KcAudioDevice*)dptr_)->stop(true);
 }
 
 

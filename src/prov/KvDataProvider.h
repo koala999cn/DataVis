@@ -41,20 +41,6 @@ public:
 		return c;
 	}
 
-	bool start() {
-		emit onStarting();
-		bool r = startImpl_();
-		onStarted(r);
-		return r;
-	}
-
-	bool stop() {
-		emit onStoping();
-		bool r = stopImpl_();
-		onStopped(r);
-		return r;
-	}
-
 	// 数据流是否在流动
 	virtual bool isRunning() const = 0;
 
@@ -75,20 +61,6 @@ public:
 	}
 
 signals:
-	void onStarting();
-	void onStarted(bool ok);
-	void onStoping();
-	void onStopped(bool ok);
-
-	void onData(std::shared_ptr<KvData> data);
-
-private:
-
-	// 开始推送数据
-	// 监听数据流通过连接KvDataProvider::onData信号实现
-	virtual bool startImpl_() = 0;
-
-	// 停止数据流动
-	virtual bool stopImpl_() = 0;
+	void pushData(std::shared_ptr<KvData> data);
 };
 

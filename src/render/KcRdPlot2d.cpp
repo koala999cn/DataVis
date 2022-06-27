@@ -69,8 +69,8 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
                 colorMap->data()->setKeySize(keySize);
                 emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
             }   
-            else if (prov->isContinued()) {
-                requestData(); // 重绘
+            else if (prov->isContinued() && contData_) {
+                doRender_(contData_); 
             }
         });
 
@@ -78,8 +78,8 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
         [this, colorMap](const QCPRange& newRange) {
             colorMap->data()->setValueRange(newRange);
             auto prov = dynamic_cast<KvDataProvider*>(parent());
-            if (prov->isContinued()) {
-                requestData(); // 重绘
+            if (prov->isContinued() && contData_) {
+                doRender_(contData_); 
             }
         });
 }
@@ -99,6 +99,7 @@ bool KcRdPlot2d::doRender_(std::shared_ptr<KvData> data)
     std::shared_ptr<KvSampled> samp;
 
     if (data->isContinued()) {
+        contData_ = data;
         samp = std::make_shared<KtSampler<2>>(std::dynamic_pointer_cast<KvContinued>(data));
         auto rkey = mapData->keyRange();
         auto rval = mapData->valueRange();

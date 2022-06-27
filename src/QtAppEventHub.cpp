@@ -117,3 +117,59 @@ void QtAppEventHub::refreshPropertySheet()
 	assert(propSheet);
 	propSheet->sync(propSheet->currentObject());
 }
+
+
+namespace kPrivate
+{
+	static bool doStart_(KvPropertiedObject* root)
+	{
+		if (!root->doStart())
+			return false;
+
+		for (auto c : root->children()) {
+			auto obj = dynamic_cast<KvPropertiedObject*>(c);
+			if (obj) {
+				if (!doStart_(obj))
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	static void doStop_(KvPropertiedObject* root)
+	{
+		root->doStop();
+
+		for (auto c : root->children()) {
+			auto obj = dynamic_cast<KvPropertiedObject*>(c);
+			if (obj) doStop_(obj);
+		}
+	}
+}
+
+
+bool QtAppEventHub::startPipeline(KvPropertiedObject* root)
+{
+	assert(root);
+
+	emit pipelineStarting(root);
+
+	bool ok = kPrivate::doStart_(root);
+
+	emit pipelineStarted(root, ok);
+
+	return ok;
+}
+
+
+void QtAppEventHub::stopPipeline(KvPropertiedObject* root)
+{
+	assert(root);
+
+	emit pipelineStopping(root);
+
+	kPrivate::doStop_(root);
+
+	emit pipelineStopped(root);
+}

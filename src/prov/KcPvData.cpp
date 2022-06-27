@@ -9,7 +9,13 @@ KcPvData::KcPvData(const QString& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
 	if (data->isDiscreted())
-		options_ |= k_visible;
+		options_ |= k_show;
+
+	connect(kAppEventHub, &QtAppEventHub::pipelineStarted, 
+		this, [=](KvPropertiedObject* root, bool ok) {
+			if (ok && root == (KvPropertiedObject*)this)
+				pushData(data_);
+		});
 }
 
 
@@ -42,19 +48,6 @@ kIndex KcPvData::size(kIndex axis) const
 {
 	auto dis = std::dynamic_pointer_cast<KvDiscreted>(data_);
 	return dis ? dis->size(axis) : KvData::k_inf_size;
-}
-
-
-bool KcPvData::startImpl_()
-{
-	emit onData(data_);
-	return true;
-}
-
-
-bool KcPvData::stopImpl_()
-{
-	return true; // TODO
 }
 
 
@@ -115,7 +108,7 @@ void KcPvData::setPropertyImpl_(int id, const QVariant& newVal)
 
 bool KcPvData::getOption(KeObjectOption opt) const
 {
-	assert(opt == k_visible);
+	assert(opt == k_show);
 
 	return kAppEventHub->isDocked(this);
 }
@@ -123,7 +116,7 @@ bool KcPvData::getOption(KeObjectOption opt) const
 
 void KcPvData::setOption(KeObjectOption opt, bool on)
 {
-	assert(opt == k_visible);
+	assert(opt == k_show);
 
 	if (on) {
 		auto dv = new QtDataView;

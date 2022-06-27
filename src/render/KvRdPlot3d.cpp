@@ -8,7 +8,7 @@
 KvRdPlot3d::KvRdPlot3d(KvDataProvider* is, const QString& name)
     : KvDataRender(name, is)
 {
-	options_ = k_visible;
+	options_ = k_show;
 	graph3d_ = nullptr;
 	widget_ = nullptr;
 	xAxis_ = yAxis_ = zAxis_ = nullptr;
@@ -16,11 +16,13 @@ KvRdPlot3d::KvRdPlot3d(KvDataProvider* is, const QString& name)
 
 	if (is->isContinued()) {
 		connect(xAxis_, &QAbstract3DAxis::rangeChanged, [this](float min, float max) {
-			requestData();
+			if (contData_)
+				doRender_(contData_);
 			});
 
 		connect(yAxis_, &QAbstract3DAxis::rangeChanged, [this](float min, float max) {
-			requestData();
+			if (contData_)
+				doRender_(contData_);
 			});
 	}
 }
@@ -28,7 +30,7 @@ KvRdPlot3d::KvRdPlot3d(KvDataProvider* is, const QString& name)
 
 KvRdPlot3d::~KvRdPlot3d()
 {
-	setOption(k_visible, false);
+	setOption(k_show, false);
 
 	if(widget_)
 	    delete widget_; // 销毁widget_时会自动销毁子对象graph3d_
@@ -39,7 +41,7 @@ KvRdPlot3d::~KvRdPlot3d()
 
 void KvRdPlot3d::setOption(KeObjectOption opt, bool on)
 {
-	assert(opt == k_visible);
+	assert(opt == k_show);
 	if (on) {
 		if (widget_ == nullptr) {
 			widget_ = QWidget::createWindowContainer(graph3d_);
@@ -58,7 +60,7 @@ void KvRdPlot3d::setOption(KeObjectOption opt, bool on)
 
 bool KvRdPlot3d::getOption(KeObjectOption opt) const
 {
-	assert(opt == k_visible);
+	assert(opt == k_show);
 	assert(graph3d_);
 
 	return graph3d_->isVisible();

@@ -6,6 +6,7 @@
 
 class QAbstract3DGraph;
 class QAbstract3DAxis;
+class KvData;
 
 class KvRdPlot3d : public KvDataRender
 {
@@ -38,6 +39,7 @@ protected:
 	void syncAxes_();
 
 protected:
+	std::shared_ptr<KvData> contData_; // 最近接收的连续数据，由派生类维护使用
 	QWidget* widget_; // 临时创建的QWindow容器
 
 	// 子类须在构造函数中初始化以下成员

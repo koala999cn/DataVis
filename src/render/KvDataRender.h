@@ -21,15 +21,6 @@ public:
 	}
 
 
-	// 请求父节点重新发送数据
-	void requestData() const {
-		auto p = rootParent();
-		auto prov = dynamic_cast<KvDataProvider*>(p);
-		if (prov && !prov->isStream())
-			prov->start();
-	}
-
-
 public slots:
 
 	// 渲染数据
@@ -43,7 +34,7 @@ public slots:
 	// 重置
 	virtual void reset() = 0;
 
-private:
+protected:
 	virtual void preRender_() {}
 	virtual bool doRender_(std::shared_ptr<KvData> data) = 0;
 };

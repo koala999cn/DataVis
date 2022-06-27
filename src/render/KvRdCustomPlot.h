@@ -12,6 +12,7 @@
 
 class QCustomPlot;
 class KvDataProvider;
+class KvData;
 
 
 class KvRdCustomPlot : public KvDataRender
@@ -38,6 +39,8 @@ protected:
 
 
 protected:
+	std::shared_ptr<KvData> contData_; // 最近接收的连续数据，由派生类维护使用
+
 	QCustomPlot* customPlot_;
 
 	// QCustomPlot有关属性
