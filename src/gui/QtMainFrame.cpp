@@ -12,31 +12,14 @@
 #include "KcSampled1d.h"
 #include "KtScattered.h"
 #include "audio/KcAudio.h"
-#include "audio/KcAudioRender.h"
 #include "QtAudioUtils.h"
 #include "QtWorkspaceWidget.h"
 #include "QtnPropertyWidgetX.h"
 #include "kddockwidgets/Config.h"
-#include "prov/KcPvData.h"
-#include "prov/KcPvAudioInput.h"
-#include "prov/KcPvExcitationSource.h"
-#include "render/KcRdPlot1d.h"
-#include "render/KcRdPlot2d.h"
-#include "render/KcRdBar3d.h"
-#include "render/KcRdScatter3d.h"
-#include "render/KcRdSurface3d.h"
-#include "render/KcRdAudioPlayer.h"
-#include "op/KcOpSpectrum.h"
-#include "op/KcOpHist.h"
-#include "op/KcOpHistC.h"
-#include "op/KcOpFraming.h"
-#include "op/KcOpWindowing.h"
-#include "op/KcOpFilterBank.h"
-#include "op/KcOpSampler.h"
-#include "op/KcOpInterpolater.h"
-#include "op/KcOpFIR.h"
-#include "op/KcOpResampler.h"
 #include "QtAppEventHub.h"
+#include "provider.h"
+#include "operator.h"
+#include "render.h"
 
 
 using namespace KDDockWidgets;
@@ -86,8 +69,24 @@ bool QtMainFrame::setupMenu_()
     auto menubar = menuBar();
 
     /// prepare <Source> menu
-    auto fileMenu = new QMenu(u8"Source(&S)", this);
-    menubar->addMenu(fileMenu);
+    menubar->addMenu(setupPvMenu_());
+
+    /// prepare <View> menu
+    menubar->addMenu(setupVwMenu_());
+
+    /// prepare <Operator> menu
+    menubar->addMenu(setupOpMenu_());
+
+    /// prepare <Render> menu
+    menubar->addMenu(setupRdMenu_());
+
+    return true;
+}
+
+
+QMenu* QtMainFrame::setupPvMenu_()
+{
+    auto fileMenu = std::make_unique<QMenu>(u8"Source(&S)", this);
 
     QAction* dataFile = fileMenu->addAction(u8"Data File(&D)...");
     connect(dataFile, &QAction::triggered, this, &QtMainFrame::openDataFile);
@@ -122,10 +121,13 @@ bool QtMainFrame::setupMenu_()
     QAction* quit = fileMenu->addAction(u8"Exit(&X)");
     connect(quit, &QAction::triggered, qApp, &QApplication::quit);
 
+    return fileMenu.release();
+}
 
-    /// prepare <View> menu
-    auto viewMenu = new QMenu(u8"View(&V)", this);
-    menubar->addMenu(viewMenu);
+
+QMenu* QtMainFrame::setupVwMenu_()
+{
+    auto viewMenu = std::make_unique<QMenu>(u8"View(&V)", this);
     viewMenu->addAction(workDock_->toggleAction());
     viewMenu->addAction(propDock_->toggleAction());
 
@@ -147,10 +149,13 @@ bool QtMainFrame::setupMenu_()
     auto closeAll = viewMenu->addAction(u8"Close All(&A)"); // TODO: stop rendering
     connect(closeAll, &QAction::triggered, [this] { closeDockWidgets(true); });
 
+    return viewMenu.release();
+}
 
-    /// prepare <Operator> menu
-    auto opMenu = new QMenu(u8"Operator(&O)", this);
-    menubar->addMenu(opMenu);
+
+QMenu* QtMainFrame::setupOpMenu_()
+{
+    auto opMenu = std::make_unique<QMenu>(u8"Operator(&O)", this);
 
     QAction* fft = opMenu->addAction(u8"Spectrum(&S)");
     connect(fft, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpSpectrum>(workDock_, false); });
@@ -182,26 +187,29 @@ bool QtMainFrame::setupMenu_()
     QAction* resampler = opMenu->addAction(u8"Resampler(&R)");
     connect(resampler, &QAction::triggered, [this] { kPrivate::insertObjectP<KcOpResampler>(workDock_, false); });
 
-   
-    connect(opMenu, &QMenu::aboutToShow, [=] {
+
+    connect(opMenu.get(), &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
         fft->setEnabled(obj && obj->isSampled());
         hist->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
-        histc->setEnabled(obj&& obj->dim() == 1 && obj->isDiscreted());
+        histc->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
         framing->setEnabled(obj && obj->isSampled());
         windowing->setEnabled(obj && obj->isSampled());
         fbank->setEnabled(obj && obj->isSampled());
         sampler->setEnabled(obj && obj->isContinued());
         interp->setEnabled(obj && obj->dim() == 1 && obj->isDiscreted());
         fir->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
-        resampler->setEnabled(obj&& obj->dim() == 1 && obj->isSampled());
+        resampler->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
         });
 
+    return opMenu.release();
+}
 
-    /// prepare <Render> menu
-    auto renderMenu = new QMenu(u8"Render(&R)", this);
-    menubar->addMenu(renderMenu);
+
+QMenu* QtMainFrame::setupRdMenu_()
+{
+    auto renderMenu = std::make_unique<QMenu>(u8"Render(&R)", this);
 
     QAction* scatter = renderMenu->addAction(u8"Scatter Plot(&P)");
     connect(scatter, &QAction::triggered, [this] {
@@ -214,7 +222,7 @@ bool QtMainFrame::setupMenu_()
         });
 
     QAction* bar = renderMenu->addAction(u8"Bars Plot(&B)");
-    connect(bar, &QAction::triggered, [this] { 
+    connect(bar, &QAction::triggered, [this] {
         kPrivate::insertObjectP<KcRdPlot1d>(workDock_, false, KcRdPlot1d::KeType::k_bars);
         });
 
@@ -239,11 +247,11 @@ bool QtMainFrame::setupMenu_()
         });
 
     QAction* player = renderMenu->addAction(u8"AudioPlayer(&P)");
-    connect(player, &QAction::triggered, [this] { 
-        kPrivate::insertObjectP<KcRdAudioPlayer>(workDock_, false); 
+    connect(player, &QAction::triggered, [this] {
+        kPrivate::insertObjectP<KcRdAudioPlayer>(workDock_, false);
         });
 
-    connect(renderMenu, &QMenu::aboutToShow, [=] {
+    connect(renderMenu.get(), &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
         scatter->setEnabled(obj && obj->dim() == 1);
@@ -251,12 +259,12 @@ bool QtMainFrame::setupMenu_()
         bar->setEnabled(obj && obj->dim() == 1);
         color_map->setEnabled(obj && obj->dim() == 2);
         bars3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
-        scatter3d->setEnabled(obj&& obj->isDiscreted() && obj->dim() <= 2);
-        surface3d->setEnabled(obj  && obj->dim() == 2); // 允许绘制连续曲面
-        player->setEnabled(obj&& obj->dim() == 1 && obj->isSampled());
+        scatter3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
+        surface3d->setEnabled(obj && obj->dim() == 2); // 允许绘制连续曲面
+        player->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
         });
 
-    return true;
+    return renderMenu.release();
 }
 
 

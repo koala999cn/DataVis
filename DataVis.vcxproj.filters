@@ -473,6 +473,9 @@
     <ClInclude Include="src\render\KcRdSurface3d.h">
       <Filter>render</Filter>
     </ClInclude>
+    <ClInclude Include="src\render.h" />
+    <ClInclude Include="src\provider.h" />
+    <ClInclude Include="src\operator.h" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\audio_capture_dlg.ui">

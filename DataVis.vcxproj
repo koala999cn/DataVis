@@ -236,6 +236,9 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\operator.h" />
+    <ClInclude Include="src\provider.h" />
+    <ClInclude Include="src\render.h" />
     <ClInclude Include="src\render\KcRdScatter3d.h" />
     <ClInclude Include="src\render\KcRdSurface3d.h" />
     <QtMoc Include="src\render\KvRdPlot3d.h" />
