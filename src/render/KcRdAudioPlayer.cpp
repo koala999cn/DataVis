@@ -94,6 +94,21 @@ void KcRdAudioPlayer::reset()
 }
 
 
+bool KcRdAudioPlayer::doStart()
+{
+	doStop();
+	render_->reset();
+	return true;
+}
+
+
+void KcRdAudioPlayer::doStop()
+{
+	if(render_->running())
+	    render_->stop(true);
+}
+
+
 void KcRdAudioPlayer::setPropertyImpl_(int id, const QVariant& newVal)
 {
 	switch (id) {

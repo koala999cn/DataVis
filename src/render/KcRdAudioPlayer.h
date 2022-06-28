@@ -13,6 +13,10 @@ public:
 
 	std::string errorText() const override;
 
+	bool doStart() override;
+
+	void doStop() override;
+
 
 public slots:
 	void reset() override;
