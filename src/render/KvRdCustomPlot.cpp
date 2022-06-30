@@ -140,6 +140,7 @@ namespace kPrivate
 		k_axis_right_subtick_length,
 
 		k_background,
+		k_margins,
 
 		k_axis_visible = k_axis_bottom_visible - k_axis_bottom,
 		k_axis_range = k_axis_bottom_range - k_axis_bottom,
@@ -244,6 +245,14 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 	prop.val = back_;
 	ps.push_back(prop);
 
+	auto grid = customPlot_->plotLayout();
+	auto ele = grid->elementAt(0);
+	auto m = ele->minimumMargins();
+	prop.id = k_margins;
+	prop.name = QStringLiteral("Margins");
+	prop.val = QRect(m.left(), m.top(), m.right(), m.bottom());
+	ps.push_back(prop);
+
 	prop.id = KvPropertiedObject::kInvalidId;
 	prop.name = QStringLiteral("Axis");
 	prop.val.clear();
@@ -283,6 +292,12 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 	if (id == k_background) {
 		back_ = newVal.value<QColor>();
 		customPlot_->setBackground(QBrush(back_));
+	}
+	else if (id == k_margins) {
+		auto r = newVal.value<QRect>();
+		auto grid = customPlot_->plotLayout();
+		auto ele = grid->elementAt(0);
+		ele->setMinimumMargins(QMargins(r.left(), r.top(), r.right(), r.bottom()));
 	}
 	else if (id >= k_axis_bottom && id - k_axis_bottom <= k_axis_max) {
 		onAxisPropertyChanged(customPlot_->xAxis, id - k_axis_bottom, newVal);
