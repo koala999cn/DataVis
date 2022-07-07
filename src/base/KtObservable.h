@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include <atomic>
+#include <thread>
 
 
 // 自带同步的观察者模式
