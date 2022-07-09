@@ -1,0 +1,108 @@
+{
+"name": "default",
+
+"plot":
+{ 
+  "background":
+  {
+    "fill": "white"
+  },
+
+  "margins":
+  {
+    "top": 15,
+    "left": 15,
+    "right": 15,
+    "bottom": 15
+  },
+
+  "axes": {
+    "top": true,
+    "left": true,
+    "right": true,
+    "bottom": true,
+
+    "lowend": null,
+    "highend": null,
+
+    "line": {
+      "color": "yellow"
+    },
+
+    "tick": {
+      "color": "red",
+      "size": 0.5,
+      "inside": 5,
+      "outside": 0
+    },
+    "subtick": {
+
+    },
+    "label": {
+
+    }
+  },
+
+  "grid":
+  {
+    "color": "grey42",
+    "major":
+    {
+      "size": 0.5,
+      "x": {
+
+      },
+      "y": {
+
+      }
+    },
+    "minor": {
+      "size": 0.25
+    },
+    "zeroline": {
+
+    }
+  },
+
+  "text":
+  {
+    "family": null,
+    "face": "plain",
+    "color": "black",
+    "size": 12,
+    "lineheight": 0.9,
+    "hjust": 0.5,
+    "vjust": 0.5,
+    "angle": 0,
+    "margins": null
+  },
+
+  "data":
+  {
+    "color": "black",
+    "fill": "white",
+    "size": 2,
+    "linetype": 1,
+    "lineend": "butt"
+  },
+
+  "legend":
+  {
+      "background": null,
+      "spacing": null,
+      "margins": null,
+      "key": "element_rect",
+      "text": null,
+      "position": "right",
+      "direction": null,
+      "justification": "center",
+      "box": null
+  },  
+
+  "spacing":
+  {
+    "row": 0,
+    "column": 0
+  }
+}
+}

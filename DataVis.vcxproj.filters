@@ -30,6 +30,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="theme">
+      <UniqueIdentifier>{eae69fc4-1091-4517-ac16-1b12905729cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\op\KvOpHelper1d.cpp">
@@ -215,6 +218,12 @@
     </ClCompile>
     <ClCompile Include="src\render\KcRdSurface3d.cpp">
       <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\theme\KuThemeUtil.cpp">
+      <Filter>theme</Filter>
+    </ClCompile>
+    <ClCompile Include="src\theme\KgPlotTheme.cpp">
+      <Filter>theme</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -476,6 +485,12 @@
     <ClInclude Include="src\render.h" />
     <ClInclude Include="src\provider.h" />
     <ClInclude Include="src\operator.h" />
+    <ClInclude Include="src\theme\KuThemeUtil.h">
+      <Filter>theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\theme\KgPlotTheme.h">
+      <Filter>theme</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\audio_capture_dlg.ui">

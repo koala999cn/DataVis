@@ -1,0 +1,49 @@
+{
+
+  "name": "dracula",
+
+  "plot": {
+
+    "palette": [
+      "#FF5555",
+      "#FFB86C",
+      "#F1FA8C",
+      "#50FA7B",
+      "#BD93F9",
+      "#8BE9FD",
+      "#FF79C6"
+    ],
+
+    "background": {
+      "fill": "#282a36",
+      "color": "#44475A"
+    },
+
+    "text": {
+      "color": "#f8f8f2"
+    },
+
+    "axis": {
+
+      "title": {
+        "color": "#6272A4",
+        "face": "bold"
+      },
+
+      "tick": {
+        "color": "#282a36",
+        "label": {
+          "color": "#f8f8f2"
+        }
+      },
+
+      "line": null,
+
+      "subtick": null
+    },
+
+    "grid": {
+      "color": "#44475a"
+    }
+  }
+}

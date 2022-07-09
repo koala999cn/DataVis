@@ -5,6 +5,7 @@
 #include "QtAppEventHub.h"
 #include "qcustomplot/qcustomplot.h"
 #include "gui/QtDataView.h"
+#include "theme/KgPlotTheme.h"
 
 
 KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
@@ -29,6 +30,11 @@ KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
 		menu.addAction(tr("detail"), [this] { showData(); });
 		menu.exec(customPlot_->mapToGlobal(pos));
 		});
+
+	// 加载theme
+	KgPlotTheme theme;
+	theme.load("themes/*.json");
+	theme.apply("dracula", customPlot_);
 }
 
 
