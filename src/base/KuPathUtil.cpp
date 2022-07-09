@@ -92,13 +92,13 @@ std::string KuPathUtil::norm(const std::string& path, char normSep)
 	// 第二步：处理relpath中的"../"和"./"，但保留前缀"../"，它们要和当前路径相结合才能解析
 
 	// 先删除"./"
-	std::string dotpath = "." + normSep;
+	std::string dotpath("."); dotpath += normSep;
 	KuStrUtil::replaceSubstr(relpath, normSep + dotpath, std::string(1, normSep));
 	while (KuStrUtil::beginWith(relpath, dotpath)) relpath.erase(0, dotpath.length());
 
 	// 再解析"../"
 	std::string prefix; // 用来保存前缀"../"
-	std::string ddotpath = ".." + normSep;
+	std::string ddotpath(".."); ddotpath += normSep;
 	auto i = relpath.find(ddotpath);
 	while (i != std::string::npos) {
 		if (i == 0) { // 前缀"../"，保存它
@@ -124,10 +124,12 @@ std::string KuPathUtil::norm(const std::string& path, char normSep)
 	// 2. 如果路径的结尾不是分隔符，则删除所有尾随句点和空格(U + 0020)。 
 	//    如果最后的段只是单个或两个句点，则按上述relpath规则处理。
 
-	if (KuStrUtil::endWith(relpath, normSep + "."))
+	std::string sepDot{ normSep, '.' }; // sepDot = /.
+	if (KuStrUtil::endWith(relpath, sepDot))
 		relpath.pop_back(); // 将结尾的"/."替换为"/"
 
-	if (KuStrUtil::endWith(relpath, normSep + "..")) {
+	sepDot += '.'; // sepDot = /..
+	if (KuStrUtil::endWith(relpath, sepDot)) {
 		relpath.pop_back(); relpath.pop_back(); relpath.pop_back();
 		if (relpath.empty())
 			prefix += ddotpath;
@@ -372,11 +374,11 @@ std::string KuPathUtil::parentPath(const std::string& path)
 	trimEndingSeperator(relpath);
 
 	// path是根路径或者相对路径"../"跨越根路径，返回空
-	if (relpath.empty() || KuStrUtil::beginWith(relpath, ".." + nativeSep))
+	if (relpath.empty() || KuStrUtil::beginWith(relpath, std::string({'.', '.', nativeSep })))
 		return "";
 		
 	auto pos = relpath.find_last_of(nativeSep);
-    return pos == std::string::npos ? root : relpath.substr(0, pos + 1);
+    return pos == std::string::npos ? root : root + relpath.substr(0, pos + 1);
 }
 
 
