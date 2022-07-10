@@ -16,33 +16,19 @@
 
     "background": {
       "fill": "#282a36",
-      "color": "#44475A"
+      "color": "#44475a"
     },
 
-    "text": {
+    "label": {
       "color": "#f8f8f2"
     },
 
-    "axis": {
-
-      "title": {
-        "color": "#6272A4",
-        "face": "bold"
-      },
-
-      "tick": {
-        "color": "#282a36",
-        "label": {
-          "color": "#f8f8f2"
-        }
-      },
-
-      "line": null,
-
-      "subtick": null
+    "title": {
+      "color": "#6272A4",
+      "face": "bold"
     },
 
-    "grid": {
+    "line": {
       "color": "#44475a"
     }
   }
