@@ -23,23 +23,38 @@ bool KgPlotTheme::load(const char* path)
 		auto jdoc = QJsonDocument::fromJson(f.readAll());
 		auto obj = jdoc.object();
 
-		if (obj.contains("plot") && obj["plot"].isObject()) {
-			QString name;
-			if (obj.contains("name") && obj["name"].isString())
-				name = obj["name"].toString();
-			else 
-				name = QString("_unnamed%1_").arg(unnamed++); 
-			
-			while (themes_.count(name) > 0)
-				name += '_';
+		tryPlot_(obj, unnamed);
 
-			themes_.emplace(std::move(name), obj["plot"].toObject());
+		if (obj.contains("themes") && obj["themes"].isArray()) {
+			auto aobj = obj["themes"].toArray();
+			for (auto iter = aobj.cbegin(); iter != aobj.cend(); ++iter) {
+				auto obj = *iter;
+				if (obj.isObject())
+					tryPlot_(obj.toObject(), unnamed);
+			}
 		}
 	}
 
 	removeInvalidThemes_();
 
 	return !themes_.empty();
+}
+
+
+void KgPlotTheme::tryPlot_(const QJsonObject& obj, int& unnamed)
+{
+	if (obj.contains("plot") && obj["plot"].isObject()) {
+		QString name;
+		if (obj.contains("name") && obj["name"].isString())
+			name = obj["name"].toString();
+		else
+			name = QString("_unnamed%1_").arg(unnamed++);
+
+		while (themes_.count(name) > 0)
+			name += '_';
+
+		themes_.emplace(std::move(name), obj["plot"].toObject());
+	}
 }
 
 

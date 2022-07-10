@@ -37,8 +37,19 @@ void KuThemeUtil::apply(const QJsonObject& jobj, QPen& pen)
 		pen.setWidthF(width);
 
 	// style
-
-
+	QString style;
+	if (tryString(jobj, "style", style)) {
+		if (style == "solid")
+			pen.setStyle(Qt::SolidLine);
+		else if (style == "dash")
+			pen.setStyle(Qt::DashLine);
+		else if (style == "dot")
+			pen.setStyle(Qt::DotLine);
+		else if (style == "dashdot")
+			pen.setStyle(Qt::DashDotLine);
+		else if (style == "dashdotdot")
+			pen.setStyle(Qt::DashDotDotLine);
+	}
 }
 
 

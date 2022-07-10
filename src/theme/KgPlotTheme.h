@@ -19,6 +19,7 @@ public:
 
 protected:
 
+	void tryPlot_(const QJsonObject& jobj, int& unnamed);
 	void tryBase_(const QJsonObject& jobj, QCustomPlot* plot) const;
 
 	// 解析全局属性，目前包括line，text，title，label
