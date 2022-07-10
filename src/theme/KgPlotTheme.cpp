@@ -268,9 +268,8 @@ void KgPlotTheme::applyAxesBaseline_(const QJsonValue& jval, QCustomPlot* plot, 
 {
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			QPen pen(Qt::NoPen);
-			axis->setBasePen(pen);
-			});
+			axis->setBasePen(QPen(Qt::NoPen)); });
+		return;
 	}
 	else if (jval.isObject()) {
 		auto jobj = jval.toObject();
@@ -288,11 +287,16 @@ void KgPlotTheme::applyAxesTick_(const QJsonValue& jval, QCustomPlot* plot, int 
 {
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->setTicks(false);
-			});
+			axis->setTicks(false); });
+		return;
 	}
 	else if (!jval.isObject())
 		return;
+
+	// 先设置为可见
+	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
+		axis->setTicks(true);
+		});
 
 	auto jobj = jval.toObject();
 
@@ -318,11 +322,16 @@ void KgPlotTheme::applyAxesSubtick_(const QJsonValue& jval, QCustomPlot* plot, i
 {
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->setSubTicks(false);
-			});
+			axis->setSubTicks(false); });
+		return;
 	}
 	else if (!jval.isObject())
 		return;
+
+	// 先设置为可见
+	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
+		axis->setSubTicks(true);
+		});
 
 	auto jobj = jval.toObject();
 
@@ -350,6 +359,7 @@ void KgPlotTheme::applyAxesTitle_(const QJsonValue& jval, QCustomPlot* plot, int
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
 			axis->setLabel(""); });
+		return;
 	}
 	else if (!jval.isObject())
 		return;
@@ -377,9 +387,15 @@ void KgPlotTheme::applyAxesLabel_(const QJsonValue& jval, QCustomPlot* plot, int
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
 			axis->setTickLabels(false); });
+		return;
 	}
 	else if (!jval.isObject())
 		return;
+
+	// 先设置为可见
+	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
+		axis->setTickLabels(true);
+		});
 
 	auto jobj = jval.toObject();
 
@@ -426,10 +442,16 @@ void KgPlotTheme::applyGrid_(const QJsonValue& jval, QCustomPlot* plot, int leve
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
 			axis->grid()->setVisible(false); });
+		return;
 	}
 
 	if (!jval.isObject())
 		return;
+
+	// 先设置为可见
+	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
+		axis->grid()->setVisible(true);
+		});
 
 	auto jobj = jval.toObject();
 
@@ -489,9 +511,13 @@ void KgPlotTheme::applyGridMajor_(const QJsonValue& jval, QCustomPlot* plot, int
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
 			axis->grid()->setVisible(false); });
+		return;
 	}
 	else if (!jval.isObject())
 		return;
+
+	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
+		axis->grid()->setVisible(true); });
 
 	auto jobj = jval.toObject();
 
@@ -510,9 +536,13 @@ void KgPlotTheme::applyGridMinor_(const QJsonValue& jval, QCustomPlot* plot, int
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
 			axis->grid()->setSubGridVisible(false); });
+		return;
 	}
 	else if (!jval.isObject())
 		return;
+
+	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
+		axis->grid()->setSubGridVisible(true); });
 
 	auto jobj = jval.toObject();
 
@@ -531,9 +561,19 @@ void KgPlotTheme::applyGridZeroline_(const QJsonValue& jval, QCustomPlot* plot, 
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
 			axis->grid()->setZeroLinePen(QPen(Qt::NoPen)); });
+		return;
 	}
 	else if (!jval.isObject())
 		return;
+
+	// 设置为可见
+	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
+		auto pen = axis->grid()->zeroLinePen();
+		if (pen == QPen(Qt::NoPen)) {
+			pen = axis->grid()->pen();
+			pen.setStyle(Qt::SolidLine);
+			axis->grid()->setZeroLinePen(pen);
+		}});
 
 	auto jobj = jval.toObject();
 
