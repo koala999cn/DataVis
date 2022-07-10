@@ -2,8 +2,11 @@
 
   "name": "void",
 
+  "disc": "A layout theme with no-axes & no-grid",
+
   "plot": {
-    "axis": null
+    "axis": null,
+    "grid": null
   }
 
 }

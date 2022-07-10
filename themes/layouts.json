@@ -1,0 +1,87 @@
+{
+  "disc": "layout themes. reference https://github.com/Mikata-Project/ggthemr/blob/master/R/layouts.R",
+
+  "themes": [
+
+    {
+      "name": "clean",
+
+      "plot": {
+        "title": {
+          "face": "bold",
+          "hjust": 1
+        },
+        "axis": {
+          "title": { "face": "bold" },
+          "tick": { "inside": 0, "outside": 0 },
+          "subtick": null
+        },
+        "grid": null
+      }
+    },
+
+    {
+      "name": "scientific",
+
+      "plot": {
+        "base": "clean",
+        "title": {
+          "face": "bold",
+          "hjust": 0
+        },
+        "grid": {
+          "major": { "style": "dash" },
+          "minor": { "style": "dot" }
+        }
+      }
+    },
+
+    {
+      "name": "plain",
+
+      "plot": {
+        "base": "scientific",
+        "grid": {
+          "major": { "style": "solid" },
+          "minor": null
+        }
+      }
+    },
+
+    {
+      "name": "clear",
+
+      "plot": {
+        "base": "plain",
+        "grid": { "major": { "style": "dash" } }
+      }
+    },
+
+    {
+      "name": "minimal",
+
+      "plot": {
+        "base": "clean",
+        "axis": {
+          "title": { "face": "palin" },
+          "baseline": null
+        }
+      }
+    },
+
+    {
+      "name": "pastel",
+
+      "plot": {
+        "base": "clean",
+        "axis": {
+          "baseline": { "width": 3 }
+        },
+        "grid": {
+          "major": { "style": "dash" },
+          "minor": null
+        }
+      }
+    }
+  ]
+}
