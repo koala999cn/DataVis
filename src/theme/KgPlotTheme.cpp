@@ -67,6 +67,7 @@ void KgPlotTheme::apply(const QString& theme, QCustomPlot* plot) const
 	auto& jobj = themes_.at(theme);
 
 	tryBase_(jobj, plot);
+	tryGlobal_(jobj, plot);
 	tryBkgnd_(jobj, plot);
 	tryAxes_(jobj, plot);
 	tryGrid_(jobj, plot);
@@ -144,6 +145,40 @@ namespace kPrivate
 }
 
 
+void KgPlotTheme::tryGlobal_(const QJsonObject& jobj, QCustomPlot* plot)
+{
+	if (jobj.contains("line")) {
+		auto line = jobj["line"];
+		applyAxesLine_(line, plot, kPrivate::k_axis_all);
+		applyGridLine_(line, plot, kPrivate::k_axis_all);
+
+		// TODO: legend & data-line ?
+	}
+
+	if (jobj.contains("title")) {
+		auto title = jobj["title"];
+		applyAxesTitle_(title, plot, kPrivate::k_axis_all);
+
+		// TODO: plot title & legend title
+	}
+
+	if (jobj.contains("label")) {
+		auto label = jobj["label"];
+		applyAxesLabel_(label, plot, kPrivate::k_axis_all);
+
+		// TODO: legend label
+	}
+
+	if (jobj.contains("text")) {
+		auto text = jobj["text"];
+		applyAxesTitle_(text, plot, kPrivate::k_axis_all);
+		applyAxesLabel_(text, plot, kPrivate::k_axis_all);
+
+		// TODO: 
+	}
+}
+
+
 void KgPlotTheme::tryAxes_(const QJsonObject& jobj, QCustomPlot* plot)
 {
 	if (!jobj.contains("axis")) return;
@@ -183,13 +218,19 @@ void KgPlotTheme::applyAxes_(const QJsonValue& jval, QCustomPlot* plot, int leve
 	/// 首先处理公用属性
 
 	if (jobj.contains("line"))
-		applyAxesLine_(jobj["line"], plot, level);
+		applyAxesBaseline_(jobj["line"], plot, level);
+
+	if (jobj.contains("baseline"))
+		applyAxesBaseline_(jobj["baseline"], plot, level);
 
 	if (jobj.contains("tick"))
 		applyAxesTick_(jobj["tick"], plot, level);
 
 	if (jobj.contains("subtick"))
 		applyAxesSubtick_(jobj["subtick"], plot, level);
+
+	if (jobj.contains("title"))
+		applyAxesTitle_(jobj["title"], plot, level);
 
 	if (jobj.contains("label"))
 		applyAxesLabel_(jobj["label"], plot, level);
@@ -201,6 +242,14 @@ void KgPlotTheme::applyAxes_(const QJsonValue& jval, QCustomPlot* plot, int leve
 
 
 void KgPlotTheme::applyAxesLine_(const QJsonValue& jval, QCustomPlot* plot, int level)
+{
+	applyAxesBaseline_(jval, plot, level);
+	applyAxesTick_(jval, plot, level);
+	applyAxesSubtick_(jval, plot, level);
+}
+
+
+void KgPlotTheme::applyAxesBaseline_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
@@ -216,7 +265,7 @@ void KgPlotTheme::applyAxesLine_(const QJsonValue& jval, QCustomPlot* plot, int 
 			axis->setBasePen(pen); 
 			});
 
-		kPrivate::handle_special_axes(jobj, plot, level, applyAxesLine_);
+		kPrivate::handle_special_axes(jobj, plot, level, applyAxesBaseline_);
 	}
 }
 
@@ -241,25 +290,11 @@ void KgPlotTheme::applyAxesTick_(const QJsonValue& jval, QCustomPlot* plot, int 
 	int ilenght, olength;
 	if (KuThemeUtil::tryInt(jobj, "inside", ilenght))
 		kPrivate::for_axis(plot, level, [ilenght](QCPAxis* axis) {
-		axis->setTickLengthIn(ilenght); });
+		    axis->setTickLengthIn(ilenght); });
 	if (KuThemeUtil::tryInt(jobj, "outside", olength))
 		kPrivate::for_axis(plot, level, [olength](QCPAxis* axis) {
-		axis->setTickLengthOut(olength); });
-
-	if (jobj.contains("label") && jobj["label"].isObject()) {
-		auto label = jobj["label"].toObject();
-		QColor color;
-		if (KuThemeUtil::tryColor(label, "color", color))
-			kPrivate::for_axis(plot, level, [color](QCPAxis* axis) {
-			    axis->setTickLabelColor(color); });
-
-		kPrivate::for_axis(plot, level, [&label](QCPAxis* axis) {
-			auto font = axis->labelFont();
-			KuThemeUtil::apply(label, font);
-			axis->setTickLabelFont(font); 
-			});
-	}
-
+		    axis->setTickLengthOut(olength); });
+	
 	kPrivate::handle_special_axes(jobj, plot, level, applyAxesTick_);
 }
 
@@ -286,16 +321,16 @@ void KgPlotTheme::applyAxesSubtick_(const QJsonValue& jval, QCustomPlot* plot, i
 	int ilenght, olength;
 	if (KuThemeUtil::tryInt(jobj, "inside", ilenght))
 		kPrivate::for_axis(plot, level, [ilenght](QCPAxis* axis) {
-		axis->setSubTickLengthIn(ilenght); });
+		    axis->setSubTickLengthIn(ilenght); });
 	if (KuThemeUtil::tryInt(jobj, "outside", olength))
 		kPrivate::for_axis(plot, level, [olength](QCPAxis* axis) {
-		axis->setSubTickLengthOut(olength); });
+		    axis->setSubTickLengthOut(olength); });
 
 	kPrivate::handle_special_axes(jobj, plot, level, applyAxesSubtick_);
 }
 
 
-void KgPlotTheme::applyAxesLabel_(const QJsonValue& jval, QCustomPlot* plot, int level)
+void KgPlotTheme::applyAxesTitle_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
@@ -309,16 +344,57 @@ void KgPlotTheme::applyAxesLabel_(const QJsonValue& jval, QCustomPlot* plot, int
 	QColor color;
 	if (KuThemeUtil::tryColor(jobj, "color", color))
 		kPrivate::for_axis(plot, level, [color](QCPAxis* axis) {
-		axis->setLabelColor(color); });
+		    axis->setLabelColor(color); });
 
 	
 	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
 		QFont font = axis->labelFont();
 		KuThemeUtil::apply(jobj, font);
-		axis->setLabelFont(font); 
+		    axis->setLabelFont(font); 
+		});
+
+	kPrivate::handle_special_axes(jobj, plot, level, applyAxesTitle_);
+}
+
+
+void KgPlotTheme::applyAxesLabel_(const QJsonValue& jval, QCustomPlot* plot, int level)
+{
+	if (jval.isNull()) {
+		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
+			axis->setTickLabels(false); });
+	}
+	else if (!jval.isObject())
+		return;
+
+	auto jobj = jval.toObject();
+
+	QColor color;
+	if (KuThemeUtil::tryColor(jobj, "color", color))
+		kPrivate::for_axis(plot, level, [color](QCPAxis* axis) {
+		axis->setTickLabelColor(color); });
+
+
+	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
+		QFont font = axis->labelFont();
+		KuThemeUtil::apply(jobj, font);
+		axis->setTickLabelFont(font);
 		});
 
 	kPrivate::handle_special_axes(jobj, plot, level, applyAxesLabel_);
+
+	if (jobj.contains("label") && jobj["label"].isObject()) {
+		auto label = jobj["label"].toObject();
+		QColor color;
+		if (KuThemeUtil::tryColor(label, "color", color))
+			kPrivate::for_axis(plot, level, [color](QCPAxis* axis) {
+			axis->setTickLabelColor(color); });
+
+		kPrivate::for_axis(plot, level, [&label](QCPAxis* axis) {
+			auto font = axis->labelFont();
+			KuThemeUtil::apply(label, font);
+			axis->setTickLabelFont(font);
+			});
+	}
 }
 
 
@@ -344,19 +420,10 @@ void KgPlotTheme::applyGrid_(const QJsonValue& jval, QCustomPlot* plot, int leve
 
 	/// 首先处理公用属性
 
-	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
-		auto pen = axis->grid()->pen();
-		KuThemeUtil::apply(jobj, pen);
-		axis->grid()->setPen(pen);
-
-		pen = axis->grid()->subGridPen();
-		KuThemeUtil::apply(jobj, pen);
-		axis->grid()->setSubGridPen(pen);
-
-		pen = axis->grid()->zeroLinePen();
-		KuThemeUtil::apply(jobj, pen);
-		axis->grid()->setZeroLinePen(pen);
-		});
+	// 全局画笔属性，允许两种设置方式：一是直接设置，二是通过line对象设置
+	applyGridLine_(jval, plot, level); 
+	if (jobj.contains("line"))
+		applyGridLine_(jobj["line"], plot, level);
 
 	if (jobj.contains("major"))
 		applyGridMajor_(jobj["major"], plot, level);
@@ -370,6 +437,35 @@ void KgPlotTheme::applyGrid_(const QJsonValue& jval, QCustomPlot* plot, int leve
 
 	/// 然后处理特化属性
 	kPrivate::handle_special_axes(jobj, plot, level, applyGrid_);
+}
+
+
+void KgPlotTheme::applyGridLine_(const QJsonValue& jval, QCustomPlot* plot, int level)
+{
+	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
+		if (jval.isNull()) {
+			QPen pen(Qt::NoPen);
+			axis->grid()->setPen(pen);
+			axis->grid()->setSubGridPen(pen);
+			axis->grid()->setZeroLinePen(pen);
+		}
+		else if (jval.isObject()) {
+
+			auto jobj = jval.toObject();
+
+			auto pen = axis->grid()->pen();
+			KuThemeUtil::apply(jobj, pen);
+			axis->grid()->setPen(pen);
+
+			pen = axis->grid()->subGridPen();
+			KuThemeUtil::apply(jobj, pen);
+			axis->grid()->setSubGridPen(pen);
+
+			pen = axis->grid()->zeroLinePen();
+			KuThemeUtil::apply(jobj, pen);
+			axis->grid()->setZeroLinePen(pen);
+		}
+		});
 }
 
 
