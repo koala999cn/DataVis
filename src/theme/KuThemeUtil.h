@@ -1,5 +1,7 @@
 #pragma once
 #include "base/KmNonCopyable.h"
+#include <set>
+
 
 class QString;
 class QJsonObject;
@@ -30,6 +32,8 @@ public:
 	static bool tryDouble(const QJsonObject& jobj, const QString& name, double& val);
 
 	static bool tryString(const QJsonObject& jobj, const QString& name, QString& val);
+
+	static bool tryStringEnum(const QJsonObject& jobj, const QString& name, std::set<QString>& val);
 
 	static bool tryBool(const QJsonObject& jobj, const QString& name, bool& val);
 

@@ -78,15 +78,12 @@ void KuThemeUtil::apply(const QJsonObject& jobj, QFont& font)
 	if (tryString(jobj, "family", family))
 		font.setFamily(family);
 
-	// bold
-	bool bold;
-	if (tryBool(jobj, "bold", bold))
-		font.setBold(bold);
-
-	// italic
-	bool italic;
-	if (tryBool(jobj, "italic", italic))
-		font.setItalic(italic);
+	// face
+	std::set<QString> face;
+	if (tryStringEnum(jobj, "face", face)) { 
+		font.setBold(face.count("bold"));
+		font.setItalic(face.count("italic"));
+	}
 
 	// size
 	double size;
@@ -134,6 +131,22 @@ bool KuThemeUtil::tryString(const QJsonObject& jobj, const QString& name, QStrin
 	}
 
 	return false;
+}
+
+
+bool KuThemeUtil::tryStringEnum(const QJsonObject& jobj, const QString& name, std::set<QString>& val)
+{
+	if (jobj.contains(name)) {
+		if (jobj[name].isString())
+			val.insert(jobj[name].toString());
+		else if (jobj[name].isArray()) {
+			auto ar = jobj[name].toArray();
+			for (auto iter = ar.begin(); iter != ar.end(); ++iter) {
+				if (iter->isString())
+					val.insert(iter->toString());
+			}
+		}
+	}
 }
 
 
