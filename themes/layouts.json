@@ -6,6 +6,8 @@
     {
       "name": "clean",
 
+      "disc": "no ticks & no grids",
+
       "plot": {
         "title": {
           "face": "bold",
@@ -13,6 +15,8 @@
         },
         "axis": {
           "title": { "face": "bold" },
+          "left": {}, "bottom": {}, "right": null, "top":  null,
+          "baseline": { "width": 1 },
           "tick": { "inside": 0, "outside": 0 },
           "subtick": null
         },
@@ -22,6 +26,8 @@
 
     {
       "name": "scientific",
+
+      "disc": "no ticks & with dashed gridline & with dotted sub-gridline",
 
       "plot": {
         "base": "clean",
@@ -39,8 +45,11 @@
     {
       "name": "plain",
 
+      "disc": "no ticks & no sub-gridline & with solid gridline",
+
       "plot": {
         "base": "scientific",
+
         "grid": {
           "major": { "style": "solid" },
           "minor": null
@@ -51,17 +60,23 @@
     {
       "name": "clear",
 
+      "disc": "no ticks & no sub-gridline & with dashed gridline",
+
       "plot": {
-        "base": "plain",
-        "grid": { "major": { "style": "dash" } }
+        "base": "scientific",
+
+        "grid": { "minor": null }
       }
     },
 
     {
       "name": "minimal",
 
+      "disc": "no ticks & no girds & no axis-lines",
+
       "plot": {
         "base": "clean",
+
         "axis": {
           "title": { "face": "palin" },
           "baseline": null
@@ -72,11 +87,15 @@
     {
       "name": "pastel",
 
+      "disc": "no ticks & no sub-gridline & with dashed gridline & with thicker axis-lines",
+
       "plot": {
         "base": "clean",
+
         "axis": {
           "baseline": { "width": 3 }
         },
+
         "grid": {
           "major": { "style": "dash" },
           "minor": null
