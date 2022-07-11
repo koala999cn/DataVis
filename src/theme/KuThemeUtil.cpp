@@ -137,16 +137,21 @@ bool KuThemeUtil::tryString(const QJsonObject& jobj, const QString& name, QStrin
 bool KuThemeUtil::tryStringEnum(const QJsonObject& jobj, const QString& name, std::set<QString>& val)
 {
 	if (jobj.contains(name)) {
-		if (jobj[name].isString())
+		if (jobj[name].isString()) {
 			val.insert(jobj[name].toString());
+			return true;
+		}
 		else if (jobj[name].isArray()) {
 			auto ar = jobj[name].toArray();
 			for (auto iter = ar.begin(); iter != ar.end(); ++iter) {
 				if (iter->isString())
 					val.insert(iter->toString());
 			}
+			return true;
 		}
 	}
+
+	return false;
 }
 
 

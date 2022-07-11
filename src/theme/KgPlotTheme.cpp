@@ -210,6 +210,10 @@ void KgPlotTheme::tryAxes_(const QJsonObject& jobj, QCustomPlot* plot)
 				for (auto rect : plot->axisRects())
 					rect->setBackground(brush);
 		}
+
+		// 默认打开left & bottom坐标轴
+		kPrivate::for_axis(plot, QCPAxis::atLeft | QCPAxis::atBottom, [](QCPAxis* axis) {
+			axis->setVisible(true); });
 	}
 
 	// 解析每个坐标轴的属性
@@ -268,13 +272,17 @@ void KgPlotTheme::applyAxesBaseline_(const QJsonValue& jval, QCustomPlot* plot, 
 {
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->setBasePen(QPen(Qt::NoPen)); });
+			QPen pen = axis->basePen();
+			pen.setStyle(Qt::NoPen);
+			axis->setBasePen(pen); });
 		return;
 	}
 	else if (jval.isObject()) {
 		auto jobj = jval.toObject();
 		kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
 			auto pen = axis->basePen();
+			if (pen.style() == Qt::NoPen)
+				pen.setStyle(Qt::SolidLine); // TODO:
 			KuThemeUtil::apply(jobj, pen);
 			axis->setBasePen(pen); 
 			});
@@ -481,9 +489,16 @@ void KgPlotTheme::applyGridLine_(const QJsonValue& jval, QCustomPlot* plot, int 
 {
 	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
 		if (jval.isNull()) {
-			QPen pen(Qt::NoPen);
+			auto pen = axis->grid()->pen();
+			pen.setStyle(Qt::NoPen);
 			axis->grid()->setPen(pen);
+
+			pen = axis->grid()->subGridPen();
+			pen.setStyle(Qt::NoPen);
 			axis->grid()->setSubGridPen(pen);
+
+			pen = axis->grid()->zeroLinePen();
+			pen.setStyle(Qt::NoPen);
 			axis->grid()->setZeroLinePen(pen);
 		}
 		else if (jval.isObject()) {
@@ -491,14 +506,20 @@ void KgPlotTheme::applyGridLine_(const QJsonValue& jval, QCustomPlot* plot, int 
 			auto jobj = jval.toObject();
 
 			auto pen = axis->grid()->pen();
+			if (pen.style() == Qt::NoPen)
+				pen.setStyle(Qt::DashLine);
 			KuThemeUtil::apply(jobj, pen);
 			axis->grid()->setPen(pen);
 
 			pen = axis->grid()->subGridPen();
+			if (pen.style() == Qt::NoPen)
+				pen.setStyle(Qt::DashLine);
 			KuThemeUtil::apply(jobj, pen);
 			axis->grid()->setSubGridPen(pen);
 
 			pen = axis->grid()->zeroLinePen();
+			if (pen.style() == Qt::NoPen)
+				pen.setStyle(Qt::DashLine);
 			KuThemeUtil::apply(jobj, pen);
 			axis->grid()->setZeroLinePen(pen);
 		}
@@ -560,25 +581,20 @@ void KgPlotTheme::applyGridZeroline_(const QJsonValue& jval, QCustomPlot* plot, 
 {
 	if (jval.isNull()) {
 		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->grid()->setZeroLinePen(QPen(Qt::NoPen)); });
+			auto pen = axis->grid()->zeroLinePen();
+			pen.setStyle(Qt::NoPen);
+			axis->grid()->setZeroLinePen(pen); });
 		return;
 	}
 	else if (!jval.isObject())
 		return;
 
-	// 设置为可见
-	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-		auto pen = axis->grid()->zeroLinePen();
-		if (pen == QPen(Qt::NoPen)) {
-			pen = axis->grid()->pen();
-			pen.setStyle(Qt::SolidLine);
-			axis->grid()->setZeroLinePen(pen);
-		}});
-
 	auto jobj = jval.toObject();
 
 	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
 		QPen pen = axis->grid()->zeroLinePen();
+		if (pen.style() == Qt::NoPen)
+			pen.setStyle(Qt::SolidLine);
 		KuThemeUtil::apply(jobj, pen);
 		axis->grid()->setZeroLinePen(pen);
 		});
