@@ -11,6 +11,7 @@
 //
 
 class QCustomPlot;
+class KgPlotTheme;
 class KvDataProvider;
 class KvData;
 
@@ -42,6 +43,8 @@ protected:
 	std::shared_ptr<KvData> contData_; // 最近接收的连续数据，由派生类维护使用
 
 	QCustomPlot* customPlot_;
+	std::unique_ptr<KgPlotTheme> theme_;
+	QString themeName_;
 
 	// QCustomPlot有关属性
 	bool autoScale_; // 是否自动缩放axis适应输入数据 

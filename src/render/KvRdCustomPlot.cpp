@@ -31,10 +31,7 @@ KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
 		menu.exec(customPlot_->mapToGlobal(pos));
 		});
 
-	// 加载theme
-	KgPlotTheme theme;
-	theme.load("themes/*.json");
-	theme.apply("dracula", customPlot_);
+	theme_ = std::make_unique<KgPlotTheme>();
 }
 
 
@@ -145,6 +142,7 @@ namespace kPrivate
 		k_axis_right_tick_length,
 		k_axis_right_subtick_length,
 
+		k_theme,
 		k_background,
 		k_margins,
 
@@ -245,6 +243,26 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 
 	KpProperty prop;
 
+	// 加载theme
+	
+	theme_->load("themes/*.json"); // TODO: 为调试方便，暂时先放此处
+	auto list = theme_->list();
+	auto pos = std::find(list.cbegin(), list.cend(), themeName_);
+	if (pos != list.cend())
+		theme_->apply(themeName_, customPlot_);
+	prop.id = k_theme;
+	prop.name = QStringLiteral("Theme");
+	prop.flag = 0;
+	prop.val = int(pos == list.cend() ? -1 : std::distance(list.cbegin(), pos));
+	int enumId(0);
+	for (auto i = list.cbegin(); i != list.cend(); i++) {
+		KpProperty sub;
+		sub.name = *i;
+		sub.val = enumId++;
+		prop.children.push_back(sub);
+	}
+	ps.push_back(prop);
+
 	prop.id = k_background;
 	prop.name = QStringLiteral("Background");
 	prop.flag = 0;
@@ -295,7 +313,14 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 
 	using namespace kPrivate;
 
-	if (id == k_background) {
+	if (id == k_theme) {
+		int themeIdx = newVal.toInt();
+		auto list = theme_->list();
+		auto pos = list.begin();
+		std::advance(pos, themeIdx);
+		theme_->apply(*pos, customPlot_);
+	}
+	else if (id == k_background) {
 		back_ = newVal.value<QColor>();
 		customPlot_->setBackground(QBrush(back_));
 	}
