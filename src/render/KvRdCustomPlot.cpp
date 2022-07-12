@@ -143,6 +143,9 @@ namespace kPrivate
 		k_axis_right_subtick_length,
 
 		k_theme,
+		k_canvas,
+		k_palette,
+		k_layout,
 		k_background,
 		k_margins,
 
@@ -246,22 +249,54 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 	// 加载theme
 	
 	theme_->load("themes/*.json"); // TODO: 为调试方便，暂时先放此处
-	auto list = theme_->list();
-	auto pos = std::find(list.cbegin(), list.cend(), themeName_);
-	if (pos != list.cend())
-		theme_->apply(themeName_, customPlot_);
-	prop.id = k_theme;
-	prop.name = QStringLiteral("Theme");
-	prop.flag = 0;
-	prop.val = int(pos == list.cend() ? -1 : std::distance(list.cbegin(), pos));
-	int enumId(0);
-	for (auto i = list.cbegin(); i != list.cend(); i++) {
-		KpProperty sub;
-		sub.name = *i;
-		sub.val = enumId++;
-		prop.children.push_back(sub);
+	auto list = theme_->listThemes();
+	if (!list.empty()) {
+		int idx = list.indexOf(themeName_);
+		if (idx == -1) {
+			idx = 0;
+			theme_->applyTheme(list.front(), customPlot_);
+		}
+		prop.id = k_theme;
+		prop.name = QStringLiteral("Theme");
+		prop.flag = 0;
+		prop.val = idx;
+		prop.makeEnum(list);
+		ps.push_back(prop);
 	}
-	ps.push_back(prop);
+
+	list = theme_->listCanvas();
+	if (!list.empty()) {
+		int idx = list.indexOf(canvasName_);
+		prop.id = k_canvas;
+		prop.name = QStringLiteral("Canvas");
+		prop.flag = 0;
+		prop.val = idx;
+		prop.makeEnum(list);
+		ps.push_back(prop);
+	}
+
+	list = theme_->listPalettes();
+	if (!list.empty()) {
+		int idx = list.indexOf(layoutName_);
+		prop.id = k_palette;
+		prop.name = QStringLiteral("Palette");
+		prop.flag = 0;
+		prop.val = idx;
+		prop.makeEnum(list);
+		ps.push_back(prop);
+	}
+
+	list = theme_->listLayouts();
+	if (!list.empty()) {
+		int idx = list.indexOf(layoutName_);
+		prop.id = k_layout;
+		prop.name = QStringLiteral("Layout");
+		prop.flag = 0;
+		prop.val = idx;
+		prop.makeEnum(list);
+		ps.push_back(prop);
+	}
+
 
 	prop.id = k_background;
 	prop.name = QStringLiteral("Background");
@@ -313,34 +348,55 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 
 	using namespace kPrivate;
 
-	if (id == k_theme) {
-		int themeIdx = newVal.toInt();
-		auto list = theme_->list();
-		auto pos = list.begin();
-		std::advance(pos, themeIdx);
-		theme_->apply(*pos, customPlot_);
-	}
-	else if (id == k_background) {
+	switch (id) {
+	case k_theme:
+		themeName_ = theme_->listThemes()[newVal.toInt()];
+		theme_->applyTheme(themeName_, customPlot_);
+		break;
+
+	case k_canvas: 
+		canvasName_ = theme_->listCanvas()[newVal.toInt()];
+		theme_->applyCanvas(canvasName_, customPlot_);
+		break;
+
+	case k_palette: 
+		paletteName_ = theme_->listPalettes()[newVal.toInt()];
+		theme_->applyPalette(paletteName_, customPlot_);
+		break;
+
+	case k_layout: 
+		layoutName_ = theme_->listLayouts()[newVal.toInt()];
+		theme_->applyLayout(layoutName_, customPlot_);
+		break;
+
+	case k_background:
 		back_ = newVal.value<QColor>();
 		customPlot_->setBackground(QBrush(back_));
-	}
-	else if (id == k_margins) {
+		break;
+
+	case k_margins: {
 		auto r = newVal.value<QRect>();
 		auto grid = customPlot_->plotLayout();
-		auto ele = grid->elementAt(0);
-		ele->setMinimumMargins(QMargins(r.left(), r.top(), r.right(), r.bottom()));
+		for (int i = 0; i < grid->elementCount(); i++) 
+			grid->elementAt(i)->setMinimumMargins(
+				QMargins(r.left(), r.top(), r.right(), r.bottom()));
+		break;
 	}
-	else if (id >= k_axis_bottom && id - k_axis_bottom <= k_axis_max) {
-		onAxisPropertyChanged(customPlot_->xAxis, id - k_axis_bottom, newVal);
-	}
-	else if (id >= k_axis_left && id - k_axis_left <= k_axis_max) {
-		onAxisPropertyChanged(customPlot_->yAxis, id - k_axis_left, newVal);
-	}
-	else if (id >= k_axis_top && id - k_axis_top <= k_axis_max) {
-		onAxisPropertyChanged(customPlot_->xAxis2, id - k_axis_top, newVal);
-	}
-	else if (id >= k_axis_right && id - k_axis_right <= k_axis_max) {
-		onAxisPropertyChanged(customPlot_->yAxis2, id - k_axis_right, newVal);
+
+	default:
+		if (id >= k_axis_bottom && id - k_axis_bottom <= k_axis_max) {
+			onAxisPropertyChanged(customPlot_->xAxis, id - k_axis_bottom, newVal);
+		}
+		else if (id >= k_axis_left && id - k_axis_left <= k_axis_max) {
+			onAxisPropertyChanged(customPlot_->yAxis, id - k_axis_left, newVal);
+		}
+		else if (id >= k_axis_top && id - k_axis_top <= k_axis_max) {
+			onAxisPropertyChanged(customPlot_->xAxis2, id - k_axis_top, newVal);
+		}
+		else if (id >= k_axis_right && id - k_axis_right <= k_axis_max) {
+			onAxisPropertyChanged(customPlot_->yAxis2, id - k_axis_right, newVal);
+		}
+		break;
 	}
 }
 

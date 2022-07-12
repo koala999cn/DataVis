@@ -110,6 +110,17 @@ public:
 				children.push_back(sub);
 			}
 		}
+
+		void makeEnum(const QStringList& sl) {
+			children.clear();
+			int id(0);
+			for (auto i = sl.cbegin(); i != sl.cend(); i++) {
+				KpProperty sub;
+				sub.name = *i;
+				sub.val = id++;
+				children.push_back(sub);
+			}
+		}
 	};
 
 	using kPropertySet = std::vector<KpProperty>;

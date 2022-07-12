@@ -13,14 +13,34 @@ public:
 	bool load(const char* path);
 
 	// 返回已加载的theme（name）列表
-	QStringList list() const;
+	QStringList listThemes() const;
+	QStringList listCanvas() const;
+	QStringList listPalettes() const;
+	QStringList listLayouts() const;
 
-	void apply(const QString& theme, QCustomPlot* plot) const;
+	void applyTheme(const QString& name, QCustomPlot* plot) const;
+	void applyLayout(const QString& name, QCustomPlot* plot) const;
+	void applyCanvas(const QString& name, QCustomPlot* plot) const;
+	void applyPalette(const QString& name, QCustomPlot* plot) const;
 
 protected:
 
-	void tryPlot_(const QJsonObject& jobj, int& unnamed);
-	void tryBase_(const QJsonObject& jobj, QCustomPlot* plot) const;
+	void tryLoad_(const QJsonObject& jobj);
+	void tryObjectOrArray_(const QJsonValue& jval, std::function<void(const QJsonObject&)> fn);
+	void tryList_(const QJsonObject& jobj, std::function<void(const QString& key, const QJsonValue&)> fn);
+
+	void tryCanvas_(const QJsonObject& jobj, QCustomPlot* plot) const;
+	void tryPalette_(const QJsonObject& jobj, QCustomPlot* plot) const;
+	void tryLayout_(const QJsonObject& jobj, QCustomPlot* plot) const;
+
+	void applyLayout_(const QJsonObject& jobj, QCustomPlot* plot, bool inTheme) const;
+	void applyCanvas_(const QJsonValue& jval, QCustomPlot* plot) const;
+	    static void applyCanvasBkgnd_(const QJsonValue& jval, QCustomPlot* plot);
+	    static void applyCanvasAxisRect_(const QJsonValue& jval, QCustomPlot* plot);
+	    static void applyCanvasText_(const QJsonValue& jval, QCustomPlot* plot);
+	    static void applyCanvasLine_(const QJsonValue& jval, QCustomPlot* plot);
+	    static void applyCanvasGridline_(const QJsonValue& jval, QCustomPlot* plot);
+	void applyPalette_(const QJsonValue& jval, QCustomPlot* plot) const;
 
 	// 解析全局属性，目前包括line，text，title，label
 	static void tryGlobal_(const QJsonObject& jobj, QCustomPlot* plot);
@@ -55,4 +75,7 @@ private:
 
 private:
 	std::map<QString, QJsonObject> themes_;
+	std::map<QString, QJsonValue> canvas_;
+	std::map<QString, QJsonValue> palettes_;
+	std::map<QString, QJsonObject> layouts_;
 };

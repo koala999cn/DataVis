@@ -12,7 +12,9 @@
 bool KgPlotTheme::load(const char* path)
 {
 	themes_.clear();
-	int unnamed(0);
+	canvas_.clear();
+	palettes_.clear();
+	layouts_.clear();
 
 	auto files = KuPathUtil::getFiles(path, false, true);
 	for (auto fileName : files) {
@@ -21,17 +23,13 @@ bool KgPlotTheme::load(const char* path)
 			continue;
 
 		auto jdoc = QJsonDocument::fromJson(f.readAll());
-		auto obj = jdoc.object();
-
-		tryPlot_(obj, unnamed);
-
-		if (obj.contains("themes") && obj["themes"].isArray()) {
-			auto aobj = obj["themes"].toArray();
-			for (auto iter = aobj.cbegin(); iter != aobj.cend(); ++iter) {
-				auto obj = *iter;
-				if (obj.isObject())
-					tryPlot_(obj.toObject(), unnamed);
-			}
+		if (jdoc.isObject())
+			tryLoad_(jdoc.object());
+		else if (jdoc.isArray()) {
+			auto ar = jdoc.array();
+			for (auto i = ar.begin(); i != ar.end(); ++i)
+				if (i->isObject()) // 不考虑递归数组的结构
+					tryLoad_(i->toObject());
 		}
 	}
 
@@ -41,20 +39,73 @@ bool KgPlotTheme::load(const char* path)
 }
 
 
-void KgPlotTheme::tryPlot_(const QJsonObject& obj, int& unnamed)
+void KgPlotTheme::tryLoad_(const QJsonObject& jobj)
 {
-	if (obj.contains("plot") && obj["plot"].isObject()) {
-		QString name;
-		if (obj.contains("name") && obj["name"].isString())
-			name = obj["name"].toString();
-		else
-			name = QString("_unnamed%1_").arg(unnamed++);
+	if (jobj.contains("theme"))
+		tryObjectOrArray_(jobj["theme"], [this](const QJsonObject& jobj) {
+			if (jobj.contains("name") && jobj["name"].isString()) // 忽略未命名的主题
+				themes_.emplace(std::move(jobj["name"].toString()), jobj);
+			});
 
-		while (themes_.count(name) > 0)
-			name += '_';
+	if (jobj.contains("theme-list") && jobj["theme-list"].isObject())
+		tryList_(jobj["theme-list"].toObject(), [this](const QString& key, const QJsonValue& jval) {
+		    if(jval.isObject())
+		        themes_.emplace(key, jval.toObject());
+			});
 
-		themes_.emplace(std::move(name), obj["plot"].toObject());
+	if (jobj.contains("canvas"))
+		tryObjectOrArray_(jobj["canvas"], [this](const QJsonObject& jobj) {
+			if (jobj.contains("name") && jobj["name"].isString()) 
+				canvas_.emplace(jobj["name"].toString(), jobj);
+			});
+
+	if (jobj.contains("canvas-list") && jobj["canvas-list"].isObject())
+		tryList_(jobj["canvas-list"].toObject(), [this](const QString& key, const QJsonValue& jval) {
+		    canvas_.emplace(key, jval);
+			});
+
+	if (jobj.contains("palette"))
+		tryObjectOrArray_(jobj["palette"], [this](const QJsonObject& jobj) {
+		    if (jobj.contains("name") && jobj["name"].isString())
+			    palettes_.emplace(jobj["name"].toString(), jobj);
+			});
+
+	if (jobj.contains("palette-list") && jobj["palette-list"].isObject())
+		tryList_(jobj["palette-list"].toObject(), [this](const QString& key, const QJsonValue& jval) {
+		    palettes_.emplace(key, jval);
+			});
+
+	if (jobj.contains("layout"))
+		tryObjectOrArray_(jobj["layout"], [this](const QJsonObject& jobj) {
+		    if (jobj.contains("name") && jobj["name"].isString())
+			    layouts_.emplace(jobj["name"].toString(), jobj);
+			});
+
+	if (jobj.contains("layout-list") && jobj["layout-list"].isObject())
+		tryList_(jobj["layout-list"].toObject(), [this](const QString& key, const QJsonValue& jval) {
+		    if(jval.isObject())
+		        layouts_.emplace(key, jval.toObject());
+			});
+}
+
+
+void KgPlotTheme::tryObjectOrArray_(const QJsonValue& jval, std::function<void(const QJsonObject&)> fn)
+{
+	if (jval.isObject())
+		fn(jval.toObject());
+	else if (jval.isArray()) {
+		auto ar = jval.toArray();
+		for (auto i = ar.begin(); i != ar.end(); ++i)
+			if (i->isObject())
+				fn(i->toObject());
 	}
+}
+
+
+void KgPlotTheme::tryList_(const QJsonObject& jobj, std::function<void(const QString& key, const QJsonValue&)> fn)
+{
+	for (auto i = jobj.begin(); i != jobj.end(); ++i)
+	    fn(i.key(), *i);
 }
 
 
@@ -64,7 +115,7 @@ void KgPlotTheme::removeInvalidThemes_()
 }
 
 
-QStringList KgPlotTheme::list() const
+QStringList KgPlotTheme::listThemes() const
 {
 	QStringList list;
 	for (auto i : themes_)
@@ -74,14 +125,123 @@ QStringList KgPlotTheme::list() const
 }
 
 
-void KgPlotTheme::apply(const QString& theme, QCustomPlot* plot) const
+QStringList KgPlotTheme::listCanvas() const
 {
-	if (!themes_.count(theme))
+	QStringList list;
+	for (auto i : canvas_)
+		list << i.first;
+
+	return list;
+}
+
+
+QStringList KgPlotTheme::listPalettes() const
+{
+	QStringList list;
+	for (auto i : palettes_)
+		list << i.first;
+
+	return list;
+}
+
+
+QStringList KgPlotTheme::listLayouts() const
+{
+	QStringList list;
+	for (auto i : layouts_)
+		list << i.first;
+
+	return list;
+}
+
+
+void KgPlotTheme::applyTheme(const QString& name, QCustomPlot* plot) const
+{
+	if (!themes_.count(name))
 		return;
 
-	auto& jobj = themes_.at(theme);
+	auto& jobj = themes_.at(name);
 
-	tryBase_(jobj, plot);
+	if (jobj.contains("base") && jobj["base"].isString())
+		applyTheme(jobj["base"].toString(), plot);
+
+	tryCanvas_(jobj, plot);
+	tryPalette_(jobj, plot);
+	tryLayout_(jobj, plot);
+	applyLayout_(jobj, plot, true); // enable applyLayout_ to ignore "base" item
+}
+
+
+void KgPlotTheme::applyLayout(const QString& name, QCustomPlot* plot) const
+{
+	if (!layouts_.count(name))
+		return;
+
+	applyLayout_(layouts_.at(name), plot, false);
+}
+
+
+void KgPlotTheme::applyCanvas(const QString& name, QCustomPlot* plot) const
+{
+	if (!canvas_.count(name))
+		return;
+
+	applyCanvas_(canvas_.at(name), plot);
+}
+
+
+void KgPlotTheme::applyPalette(const QString& name, QCustomPlot* plot) const
+{
+	if (!palettes_.count(name))
+		return;
+
+	applyPalette_(palettes_.at(name), plot);
+}
+
+
+void KgPlotTheme::tryCanvas_(const QJsonObject& jobj, QCustomPlot* plot) const
+{
+	if (jobj.contains("canvas")) {
+		auto canvas = jobj["canvas"];
+		if (canvas.isString())
+			applyCanvas(canvas.toString(), plot);
+		else 
+			applyCanvas_(canvas, plot);
+	}
+}
+
+
+void KgPlotTheme::tryPalette_(const QJsonObject& jobj, QCustomPlot* plot) const
+{
+	if (jobj.contains("palette")) {
+		auto palette = jobj["palette"];
+		if (palette.isString())
+			applyPalette(palette.toString(), plot);
+		else 
+			applyPalette_(palette, plot);
+	}
+}
+
+
+void KgPlotTheme::tryLayout_(const QJsonObject& jobj, QCustomPlot* plot) const
+{
+	if (jobj.contains("layout")) {
+		auto layout = jobj["layout"];
+		if (layout.isString())
+			applyLayout(layout.toString(), plot);
+		else if (layout.isObject())
+			applyLayout_(layout.toObject(), plot, false);
+	}
+}
+
+
+void KgPlotTheme::applyLayout_(const QJsonObject& jobj, QCustomPlot* plot, bool inTheme) const
+{
+	if (!inTheme) { // try base
+		if (jobj.contains("base") && jobj["base"].isString())
+			applyLayout(jobj["base"].toString(), plot);
+	}
+
 	tryGlobal_(jobj, plot);
 	tryBkgnd_(jobj, plot);
 	tryAxes_(jobj, plot);
@@ -94,20 +254,53 @@ void KgPlotTheme::apply(const QString& theme, QCustomPlot* plot) const
 }
 
 
-void KgPlotTheme::tryBase_(const QJsonObject& jobj, QCustomPlot* plot) const
+void KgPlotTheme::applyCanvas_(const QJsonValue& jval, QCustomPlot* plot) const
 {
-	if (jobj.contains("base") && jobj["base"].isString()) 
-		apply(jobj["base"].toString(), plot);
+	if (jval.isObject()) {
+		auto jobj = jval.toObject();
+
+		if (jobj.contains("background"))
+			applyCanvasBkgnd_(jobj["background"], plot);
+
+		if (jobj.contains("axis-rect"))
+			applyCanvasAxisRect_(jobj["axis-rect"], plot);
+
+		if (jobj.contains("text"))
+			applyCanvasText_(jobj["text"], plot);
+
+		if (jobj.contains("line"))
+			applyCanvasLine_(jobj["line"], plot);
+
+		if (jobj.contains("gridline"))
+			applyCanvasGridline_(jobj["gridline"], plot);
+	}
+	else if (jval.isArray()) {
+		auto ar = jval.toArray();
+		auto sz = ar.size();
+
+		if (sz > 0)
+			applyCanvasBkgnd_(ar.at(0), plot);
+
+		if (sz > 1)
+			applyCanvasAxisRect_(ar.at(1), plot);
+
+		if (sz > 2)
+			applyCanvasText_(ar.at(2), plot);
+
+		if (sz > 3)
+			applyCanvasLine_(ar.at(3), plot);
+
+		if (sz > 4)
+			applyCanvasGridline_(ar.at(4), plot);
+	}
 }
 
 
-void KgPlotTheme::tryBkgnd_(const QJsonObject& jobj, QCustomPlot* plot)
+void KgPlotTheme::applyCanvasBkgnd_(const QJsonValue& jval, QCustomPlot* plot)
 {
-	if (jobj.contains("background") && jobj["background"].isObject()) {
-		QBrush brush;
-		KuThemeUtil::apply(jobj["background"].toObject(), brush);
-		if(brush != QBrush())
-		    plot->setBackground(brush);
+	if (jval.isString()) {
+		QColor color(jval.toString());
+		plot->setBackground(QBrush(color));
 	}
 }
 
@@ -127,10 +320,10 @@ namespace kPrivate
 		for (auto rect : plot->axisRects())
 			for (auto axis : rect->axes())
 				if (axis->axisType() & filter)
-				    op(axis);
+					op(axis);
 	}
 
-	void handle_special_axes(const QJsonObject& jobj, QCustomPlot* plot, int level, 
+	void handle_special_axes(const QJsonObject& jobj, QCustomPlot* plot, int level,
 		std::function<void(const QJsonValue&, QCustomPlot*, int)> op)
 	{
 		if (level == kPrivate::k_axis_all) { // 允许x, y特化
@@ -156,6 +349,134 @@ namespace kPrivate
 			if (jobj.contains("right"))
 				op(jobj["right"], plot, QCPAxis::atRight);
 		}
+	}
+
+
+	void for_text(QCustomPlot* plot, std::function<QFont(const QFont&)> op)
+	{
+		plot->setFont(op(plot->font()));
+
+		for (auto rect : plot->axisRects())
+			for (auto axis : rect->axes()) {
+				axis->setLabelFont(op(axis->labelFont()));
+				axis->setTickLabelFont(op(axis->tickLabelFont()));
+			}
+	}
+
+
+	void for_gridline(QCustomPlot* plot, std::function<QPen(const QPen&)> op)
+	{
+		for (auto rect : plot->axisRects())
+			for (auto axis : rect->axes()) {
+				auto grid = axis->grid();
+				grid->setPen(op(grid->pen()));
+				grid->setSubGridPen(op(grid->subGridPen()));
+				grid->setZeroLinePen(op(grid->zeroLinePen()));
+			}
+	}
+
+
+	void for_line(QCustomPlot* plot, std::function<QPen(const QPen&)> op)
+	{
+		for (auto rect : plot->axisRects())
+			for (auto axis : rect->axes()) {
+				axis->setBasePen(op(axis->basePen()));
+				axis->setTickPen(op(axis->tickPen()));
+				axis->setSubTickPen(op(axis->subTickPen()));
+				
+				auto grid = axis->grid();
+				grid->setPen(op(grid->pen()));
+				grid->setSubGridPen(op(grid->subGridPen()));
+			}
+	}
+}
+
+void KgPlotTheme::applyCanvasAxisRect_(const QJsonValue& jval, QCustomPlot* plot)
+{
+	if (jval.isString()) {
+		QColor color(jval.toString());
+		QBrush brush(color);
+		kPrivate::for_axis(plot, kPrivate::k_axis_all, [&brush](QCPAxis* axis) {
+			axis->axisRect()->setBackground(brush);
+			});
+	}
+}
+
+
+void KgPlotTheme::applyCanvasText_(const QJsonValue& jval, QCustomPlot* plot)
+{
+	if (jval.isString()) {
+		QColor color(jval.toString());
+		kPrivate::for_axis(plot, kPrivate::k_axis_all, [&color](QCPAxis* axis) {
+			axis->setLabelColor(color);
+			axis->setTickLabelColor(color);
+			});
+
+		// TODO: legend
+	}
+}
+
+
+void KgPlotTheme::applyCanvasLine_(const QJsonValue& jval, QCustomPlot* plot)
+{
+	if (jval.isString()) {
+		QColor color(jval.toString());
+		kPrivate::for_line(plot, [&color](const QPen& pen) {
+			QPen newPen(pen);
+			newPen.setColor(color);
+			return newPen;
+			});
+	}
+}
+
+
+void KgPlotTheme::applyCanvasGridline_(const QJsonValue& jval, QCustomPlot* plot)
+{
+	if (jval.isString()) {
+		QColor color(jval.toString());
+		kPrivate::for_gridline(plot, [&color](const QPen& pen) {
+			QPen newPen(pen);
+			newPen.setColor(color);
+			return newPen;
+			});
+	}
+}
+
+
+void KgPlotTheme::applyPalette_(const QJsonValue& jval, QCustomPlot* plot) const
+{
+	if (jval.isArray()) {
+		auto ar = jval.toArray();
+		std::vector<QColor> colors;
+		colors.reserve(ar.size());
+		for (auto i = ar.begin(); i != ar.end(); ++i)
+			if (i->isString())
+				colors.push_back(QColor(i->toString()));
+
+		for (int i = 0; i < plot->plottableCount(); i++) {
+			auto p = plot->plottable(i);
+			auto pen = p->pen();
+			pen.setColor(colors[i % colors.size()]);
+			p->setPen(pen);
+
+			auto brush = p->brush();
+			brush.setColor(colors[i % colors.size()]);
+			p->setBrush(brush);
+		}
+	}
+	else if (jval.isObject()) {
+		// TODO:
+	}
+}
+
+
+void KgPlotTheme::tryBkgnd_(const QJsonObject& jobj, QCustomPlot* plot)
+{
+	if (jobj.contains("background") && jobj["background"].isObject()) {
+		QBrush brush;
+		KuThemeUtil::apply(jobj["background"].toObject(), brush);
+		if(brush != QBrush())
+		    plot->setBackground(brush);
 	}
 }
 
