@@ -1,12 +1,14 @@
 {
+  "layout": {
 
-  "name": "void",
+    "name": "void",
 
-  "disc": "A layout theme with no-axes & no-grid",
+    "disc": "A layout theme with no-axes & no-grid & no-margins",
 
-  "plot": {
     "axis": null,
-    "grid": null
-  }
 
+    "grid": null,
+
+    "margins": [ 0, 0, 0, 0 ]
+  }
 }

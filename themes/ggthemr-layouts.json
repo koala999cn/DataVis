@@ -1,0 +1,105 @@
+{
+  "group": "ggthemr",
+
+  "disc": "layout themes from ggthemr. see https://github.com/Mikata-Project/ggthemr",
+
+  "layout": [
+
+    {
+      "name": "clean",
+
+      "disc": "no ticks & no grids",
+
+      "title": {
+        "face": "bold",
+        "hjust": 1
+      },
+
+      "axis": {
+        "title": { "face": "bold" },
+        "left": {},
+        "bottom": {},
+        "right": null,
+        "top": null,
+        "baseline": { "width": 1 },
+        "tick": { "length": 0 },
+        "subtick": null
+      },
+
+      "grid": null,
+
+      "margins": [ 15, 15, 15, 15 ]
+    },
+
+    {
+      "name": "scientific",
+
+      "disc": "no ticks & with dashed gridline & with dotted sub-gridline",
+
+      "base": "clean",
+
+      "title": {
+        "face": "bold",
+        "hjust": 0
+      },
+
+      "grid": {
+        "major": { "style": "dash" },
+        "minor": { "style": "dot" }
+      }
+    },
+
+    {
+      "name": "plain",
+
+      "disc": "no ticks & no sub-gridline & with solid gridline",
+
+      "base": "scientific",
+
+      "grid": {
+        "major": { "style": "solid" },
+        "minor": null
+      }
+    },
+
+    {
+      "name": "clear",
+
+      "disc": "no ticks & no sub-gridline & with dashed gridline",
+
+      "base": "scientific",
+
+      "grid": { "minor": null }
+    },
+
+    {
+      "name": "minimal",
+
+      "disc": "no ticks & no girds & no axis-lines",
+
+      "base": "clean",
+
+      "axis": {
+        "title": { "face": "palin" },
+        "baseline": null
+      }
+    },
+
+    {
+      "name": "pastel",
+
+      "disc": "no ticks & no sub-gridline & with dashed gridline & with thicker axis-lines",
+
+      "base": "clean",
+
+      "axis": {
+        "baseline": { "width": 3 }
+      },
+
+      "grid": {
+        "major": { "style": "dash" },
+        "minor": null
+      }
+    }
+  ]
+}

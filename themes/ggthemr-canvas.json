@@ -1,0 +1,185 @@
+{
+  "group": "ggthemr",
+
+  "disc": "canvas themes from ggthemr. see https://github.com/Mikata-Project/ggthemr",
+
+  "canvas-list": {
+
+    "greyscale": {
+      "background": "white",
+      "axis-rect": "transparent",
+      "text": "#444444",
+      "line": "#909090",
+      "gridline": "#D0D0D0"
+    },
+
+    "flat": {
+      "background": "white",
+      "axis-rect": "#ecf0f1",
+      "text": "#34495e",
+      "line": "#2c3e50",
+      "gridline": "#bdc3c7"
+    },
+
+    "flat-dark": {
+      "background": "white",
+      "axis-rect": "#34495e",
+      "text": "#34495e",
+      "line": "#2c3e50",
+      "gridline": "#46627f"
+    },
+
+    "dust": {
+      "background": "white",
+      "axis-rect": "#FAF7F2",
+      "text": "#5b4f41",
+      "line": "#8d7a64",
+      "gridline": "#E3DDCC"
+    },
+
+    "light": {
+      "background": "white",
+      "axis-rect": "#f6f1eb",
+      "text": "#706f6f",
+      "line": "#dadada",
+      "gridline": "#dadada"
+    },
+
+    "earth": {
+      "background": "white",
+      "axis-rect": "#36312C",
+      "text": "#555555",
+      "line": "#ffffff",
+      "gridline": "#504940"
+    },
+
+    "fresh": {
+      "background": "white",
+      "axis-rect": "#ffffff",
+      "text": "#555555",
+      "line": "#826A50",
+      "gridline": "#eee4da"
+    },
+
+    "citrus": {
+      "background": "white",
+      "axis-rect": "#F1983C",
+      "text": "#222222",
+      "line": "#ffffff",
+      "gridline": "#D78836"
+    },
+
+    "chalk": {
+      "background": "white",
+      "axis-rect": "#3c3c3c",
+      "text": "#3c3c3c",
+      "line": "#ffffff",
+      "gridline": "#777777"
+    },
+
+    "lilac": {
+      "background": "white",
+      "axis-rect": "#FFFDD0",
+      "text": "#5f5e3a",
+      "line": "#B2B080",
+      "gridline": "#E5E4BB"
+    },
+
+    "carrot": {
+      "background": "white",
+      "axis-rect": "#EC7C47",
+      "text": "#6C3921",
+      "line": "#AC5B34",
+      "gridline": "#D26F3F"
+    },
+
+    "pale": {
+      "background": "white",
+      "axis-rect": "#ffffff",
+      "text": "#444444",
+      "line": "#d1d1d1",
+      "gridline": "#eaeaea"
+    },
+
+    "copper": {
+      "background": "white",
+      "axis-rect": "#e1965d",
+      "text": "#614128",
+      "line": "#614128",
+      "gridline": "#e9b288"
+    },
+
+    "grape": {
+      "background": "white",
+      "axis-rect": "#e8ece5",
+      "text": "#6b3241",
+      "line": "#bbb8ab",
+      "gridline": "#bbb8ab"
+    },
+
+    "pink": {
+      "background": "white",
+      "axis-rect": "#ECE5CE",
+      "text": "#774F38",
+      "line": "#774F38",
+      "gridline": "#d0ae9a"
+    },
+
+    "sky": {
+      "background": "white",
+      "axis-rect": "#bfeaf8",
+      "text": "#59595c",
+      "line": "#739EAB",
+      "gridline": "#ffffff"
+    },
+
+    "solarized": {
+      "background": "white",
+      "axis-rect": "#fdf6e3",
+      "text": "#586e75",
+      "line": "#073642",
+      "gridline": "#eee8d5"
+    },
+
+    "solarized-dark": {
+      "background": "white",
+      "axis-rect": "#073642",
+      "text": "#586e75",
+      "line": "#073642",
+      "gridline": "#586e75"
+    },
+
+    "grass": {
+      "background": "white",
+      "axis-rect": "#64a756",
+      "text": "#2F4D28",
+      "line": "transparent",
+      "gridline": "#a4d98b"
+    },
+
+    "deadpool": {
+      "background": "white",
+      "axis-rect": "#070300",
+      "text": "#070300",
+      "line": "#d6b196",
+      "gridline": "#98623b"
+    },
+
+    "sea": {
+      "background": "white",
+      "axis-rect": "#27a4f8",
+      "text": "#27a4f8",
+      "line": "transparent",
+      "gridline": "#b9c8c3"
+    },
+
+    "camouflage": {
+      "background": "white",
+      "axis-rect": "#686848",
+      "text": "#4f4f4e",
+      "line": "#1f201f",
+      "gridline": "#4E4E36"
+    }
+
+  }
+}
