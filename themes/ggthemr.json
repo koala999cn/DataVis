@@ -1,0 +1,119 @@
+{
+  "group": "ggthemr",
+
+  "disc": "major themes from ggthemr. see https://github.com/Mikata-Project/ggthemr",
+
+  "theme-list": {
+
+    "greyscale": {
+      "canvas": "greyscale",
+      "palette": "greyscale"
+    },
+
+    "flat": {
+      "canvas": "flat",
+      "palette": "flat"
+    },
+
+    "flat-dark": {
+      "canvas": "flat-dark",
+      "palette": "flat-dark"
+    },
+
+    "dust": {
+      "canvas": "dust",
+      "palette": "dust"
+    },
+
+    "light": {
+      "canvas": "light",
+      "palette": "light"
+    },
+
+    "earth": {
+      "canvas": "earth",
+      "palette": "earth"
+    },
+
+    "fresh": {
+      "canvas": "fresh",
+      "palette": "fresh"
+    },
+
+    "citrus": {
+      "canvas": "citrus",
+      "palette": "citrus"
+    },
+
+    "chalk": {
+      "canvas": "chalk",
+      "palette": "chalk"
+    },
+
+    "lilac": {
+      "canvas": "lilac",
+      "palette": "lilac"
+    },
+
+    "carrot": {
+      "canvas": "carrot",
+      "palette": "carrot"
+    },
+
+    "pale": {
+      "canvas": "pale",
+      "palette": "pale"
+    },
+
+    "copper": {
+      "canvas": "copper",
+      "palette": "copper"
+    },
+
+    "grape": {
+      "canvas": "grape",
+      "palette": "grape"
+    },
+
+    "pink": {
+      "canvas": "pink",
+      "palette": "pink"
+    },
+
+    "sky": {
+      "canvas": "sky",
+      "palette": "sky"
+    },
+
+    "solarized": {
+      "canvas": "solarized",
+      "palette": "solarized"
+    },
+
+    "solarized-dark": {
+      "canvas": "solarized-dark",
+      "palette": "solarized-dark"
+    },
+
+    "grass": {
+      "canvas": "grass",
+      "palette": "grass"
+    },
+
+    "deadpool": {
+      "canvas": "deadpool",
+      "palette": "deadpool"
+    },
+
+    "sea": {
+      "canvas": "sea",
+      "palette": "sea"
+    },
+
+    "camouflage": {
+      "canvas": "camouflage",
+      "palette": "camouflage"
+    }
+
+  }
+}
