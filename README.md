@@ -7,7 +7,7 @@
 Qt6 + MSVC2019
 
 ### 主题
-目前，已实现ggthemr所有plotting主题，界面可参考https://github.com/Mikata-Project/ggthemr
+目前，已实现ggthemr所有plotting主题，界面可参考(http://https://github.com/Mikata-Project/ggthemr)
 
 ### ScreenShots
 
