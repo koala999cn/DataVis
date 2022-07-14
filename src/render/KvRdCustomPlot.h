@@ -38,6 +38,7 @@ public:
 protected:
 	void setPropertyImpl_(int id, const QVariant& newVal) override;
 
+	void applyTheme_(const QString& name);
 
 protected:
 	std::shared_ptr<KvData> contData_; // 最近接收的连续数据，由派生类维护使用

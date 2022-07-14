@@ -296,7 +296,7 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 		prop.makeEnum(list);
 		ps.push_back(prop);
 	}
-
+	prop.children.clear();
 
 	prop.id = k_background;
 	prop.name = QStringLiteral("Background");
@@ -351,7 +351,7 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 	switch (id) {
 	case k_theme:
 		themeName_ = theme_->listThemes()[newVal.toInt()];
-		theme_->applyTheme(themeName_, customPlot_);
+		applyTheme_(themeName_);
 		break;
 
 	case k_canvas: 
@@ -400,3 +400,12 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 	}
 }
 
+
+void KvRdCustomPlot::applyTheme_(const QString& name)
+{
+	themeName_ = name;
+	canvasName_ = theme_->canvasName(name);
+	layoutName_ = theme_->layoutName(name);
+	paletteName_ = theme_->paletteName(name);
+	theme_->applyTheme(name, customPlot_);
+}

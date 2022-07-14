@@ -23,6 +23,15 @@ public:
 	void applyCanvas(const QString& name, QCustomPlot* plot) const;
 	void applyPalette(const QString& name, QCustomPlot* plot) const;
 
+	// 返回主题theme引用的canvas名字，空字符串表示无引用
+	QString canvasName(const QString& theme);
+
+	// 返回主题theme引用的layout名字，空字符串表示无引用
+	QString layoutName(const QString& theme);
+
+	// 返回主题theme引用的palette名字，空字符串表示无引用
+	QString paletteName(const QString& theme);
+
 protected:
 
 	void tryLoad_(const QJsonObject& jobj);
@@ -63,8 +72,6 @@ protected:
 	    static void applyGridMinor_(const QJsonValue& jval, QCustomPlot* plot, int level);
 	    static void applyGridZeroline_(const QJsonValue& jval, QCustomPlot* plot, int level);
 
-	static void tryData_(const QJsonObject& jobj, QCustomPlot* plot);
-	static void tryText_(const QJsonObject& jobj, QCustomPlot* plot);
 	static void tryMargins_(const QJsonObject& jobj, QCustomPlot* plot);
 	static void tryLegend_(const QJsonObject& jobj, QCustomPlot* plot);
 	static void trySpacing_(const QJsonObject& jobj, QCustomPlot* plot);

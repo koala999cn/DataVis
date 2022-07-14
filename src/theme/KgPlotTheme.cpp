@@ -155,6 +155,42 @@ QStringList KgPlotTheme::listLayouts() const
 }
 
 
+QString KgPlotTheme::canvasName(const QString& theme)
+{
+	if (themes_.count(theme) > 0) {
+		auto jobj = themes_[theme];
+		if (jobj.contains("canvas") && jobj["canvas"].isString())
+			jobj["canvas"].toString();
+	}
+
+	return "";
+}
+
+
+QString KgPlotTheme::layoutName(const QString& theme)
+{
+	if (themes_.count(theme) > 0) {
+		auto jobj = themes_[theme];
+		if (jobj.contains("layout") && jobj["layout"].isString())
+			jobj["layout"].toString();
+	}
+
+	return "";
+}
+
+
+QString KgPlotTheme::paletteName(const QString& theme)
+{
+	if (themes_.count(theme) > 0) {
+		auto jobj = themes_[theme];
+		if (jobj.contains("palette") && jobj["palette"].isString())
+			jobj["palette"].toString();
+	}
+
+	return "";
+}
+
+
 void KgPlotTheme::applyTheme(const QString& name, QCustomPlot* plot) const
 {
 	if (!themes_.count(name))
@@ -246,8 +282,6 @@ void KgPlotTheme::applyLayout_(const QJsonObject& jobj, QCustomPlot* plot, bool 
 	tryBkgnd_(jobj, plot);
 	tryAxes_(jobj, plot);
 	tryGrid_(jobj, plot);
-	tryData_(jobj, plot);
-	tryText_(jobj, plot);
 	tryMargins_(jobj, plot);
 	tryLegend_(jobj, plot);
 	trySpacing_(jobj, plot);
@@ -352,17 +386,80 @@ namespace kPrivate
 	}
 
 
+	void for_layout_element(QCustomPlot* plot, std::function<void(QCPLayoutElement*)> op)
+	{
+		auto grid = plot->plotLayout();
+		auto elems = grid->elements(true);
+		for (auto e : elems)
+			op(e);
+	}
+
+
 	void for_text(QCustomPlot* plot, std::function<QFont(const QFont&)> op)
 	{
 		plot->setFont(op(plot->font()));
 
-		for (auto rect : plot->axisRects())
-			for (auto axis : rect->axes()) {
-				axis->setLabelFont(op(axis->labelFont()));
-				axis->setTickLabelFont(op(axis->tickLabelFont()));
+		for_layout_element(plot, [op](QCPLayoutElement* ele) {
+			if (dynamic_cast<QCPLegend*>(ele)) {
+				auto legend = dynamic_cast<QCPLegend*>(ele);
+				legend->setFont(op(legend->font()));
 			}
+			else if (dynamic_cast<QCPPlottableLegendItem*>(ele)) {
+				auto item = dynamic_cast<QCPPlottableLegendItem*>(ele);
+				item->setFont(op(item->font()));
+			}
+			else if (dynamic_cast<QCPTextElement*>(ele)) {
+				auto text = dynamic_cast<QCPTextElement*>(ele);
+				text->setFont(op(text->font()));
+			}
+			else if (dynamic_cast<QCPAxisRect*>(ele)) {
+				auto rect = dynamic_cast<QCPAxisRect*>(ele);
+				for (auto axis : rect->axes()) {
+					axis->setLabelFont(op(axis->labelFont()));
+					axis->setTickLabelFont(op(axis->tickLabelFont()));
+				}
+			}
+			else if (dynamic_cast<QCPColorScale*>(ele)) {
+				auto scale = dynamic_cast<QCPColorScale*>(ele);
+				auto axis = scale->axis();
+				if (axis) {
+					axis->setLabelFont(op(axis->labelFont()));
+				}
+			}
+			});
 	}
 
+	void for_text_color(QCustomPlot* plot, std::function<QColor(const QColor&)> op)
+	{
+		for_layout_element(plot, [op](QCPLayoutElement* ele) {
+			if (dynamic_cast<QCPLegend*>(ele)) {
+				auto legend = dynamic_cast<QCPLegend*>(ele);
+				legend->setTextColor(op(legend->textColor()));
+			}
+			else if (dynamic_cast<QCPPlottableLegendItem*>(ele)) {
+				auto item = dynamic_cast<QCPPlottableLegendItem*>(ele);
+				item->setTextColor(op(item->textColor()));
+			}
+			else if (dynamic_cast<QCPTextElement*>(ele)) {
+				auto text = dynamic_cast<QCPTextElement*>(ele);
+				text->setTextColor(op(text->textColor()));
+			}
+			else if (dynamic_cast<QCPAxisRect*>(ele)) {
+				auto rect = dynamic_cast<QCPAxisRect*>(ele);
+				for (auto axis : rect->axes()) {
+					axis->setLabelColor(op(axis->labelColor()));
+					axis->setTickLabelColor(op(axis->tickLabelColor()));
+				}
+			}
+			else if (dynamic_cast<QCPColorScale*>(ele)) {
+				auto scale = dynamic_cast<QCPColorScale*>(ele);
+				auto axis = scale->axis();
+				if (axis) {
+					axis->setLabelColor(op(axis->labelColor()));
+				}
+			}
+			});
+	}
 
 	void for_gridline(QCustomPlot* plot, std::function<QPen(const QPen&)> op)
 	{
@@ -407,12 +504,9 @@ void KgPlotTheme::applyCanvasText_(const QJsonValue& jval, QCustomPlot* plot)
 {
 	if (jval.isString()) {
 		QColor color(jval.toString());
-		kPrivate::for_axis(plot, kPrivate::k_axis_all, [&color](QCPAxis* axis) {
-			axis->setLabelColor(color);
-			axis->setTickLabelColor(color);
+		kPrivate::for_text_color(plot, [&color](const QColor&) {
+			return color;
 			});
-
-		// TODO: legend
 	}
 }
 
@@ -507,6 +601,7 @@ void KgPlotTheme::tryGlobal_(const QJsonObject& jobj, QCustomPlot* plot)
 
 	if (jobj.contains("text")) {
 		auto text = jobj["text"];
+		
 		applyAxesTitle_(text, plot, kPrivate::k_axis_all);
 		applyAxesLabel_(text, plot, kPrivate::k_axis_all);
 
@@ -558,7 +653,7 @@ void KgPlotTheme::applyAxes_(const QJsonValue& jval, QCustomPlot* plot, int leve
 	/// 首先处理公用属性
 
 	if (jobj.contains("line"))
-		applyAxesBaseline_(jobj["line"], plot, level);
+		applyAxesLine_(jobj["line"], plot, level);
 
 	if (jobj.contains("baseline"))
 		applyAxesBaseline_(jobj["baseline"], plot, level);
@@ -614,18 +709,13 @@ void KgPlotTheme::applyAxesBaseline_(const QJsonValue& jval, QCustomPlot* plot, 
 
 void KgPlotTheme::applyAxesTick_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
-	if (jval.isNull()) {
-		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->setTicks(false); });
-		return;
-	}
-	else if (!jval.isObject())
-		return;
-
-	// 先设置为可见
-	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-		axis->setTicks(true);
+	// 可见性设置
+	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
+		axis->setTicks(!jval.isNull());
 		});
+
+	if (!jval.isObject())
+		return;
 
 	auto jobj = jval.toObject();
 
@@ -635,13 +725,30 @@ void KgPlotTheme::applyAxesTick_(const QJsonValue& jval, QCustomPlot* plot, int 
 		axis->setTickPen(pen); 
 		});
 
-	int ilenght, olength;
-	if (KuThemeUtil::tryInt(jobj, "inside", ilenght))
-		kPrivate::for_axis(plot, level, [ilenght](QCPAxis* axis) {
-		    axis->setTickLengthIn(ilenght); });
-	if (KuThemeUtil::tryInt(jobj, "outside", olength))
-		kPrivate::for_axis(plot, level, [olength](QCPAxis* axis) {
-		    axis->setTickLengthOut(olength); });
+	QString side("in");
+	KuThemeUtil::tryString(jobj, "side", side);
+
+	int len(-1);
+	KuThemeUtil::tryInt(jobj, "length", len);
+
+	kPrivate::for_axis(plot, level, [len, side](QCPAxis* axis) {
+		auto length = len;
+		if (length == -1)
+			length = std::max(axis->tickLengthIn(), axis->tickLengthOut());
+
+		if (side == "in") {
+			axis->setTickLengthIn(length);
+			axis->setTickLengthOut(0);
+		}
+		else if (side == "out") {
+			axis->setTickLengthIn(0);
+			axis->setTickLengthOut(length);
+		}
+		else {
+			axis->setTickLengthIn(length);
+			axis->setTickLengthOut(length);
+		}
+		});
 	
 	kPrivate::handle_special_axes(jobj, plot, level, applyAxesTick_);
 }
@@ -649,18 +756,13 @@ void KgPlotTheme::applyAxesTick_(const QJsonValue& jval, QCustomPlot* plot, int 
 
 void KgPlotTheme::applyAxesSubtick_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
-	if (jval.isNull()) {
-		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->setSubTicks(false); });
-		return;
-	}
-	else if (!jval.isObject())
-		return;
-
-	// 先设置为可见
-	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-		axis->setSubTicks(true);
+	// 可见性设置
+	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
+		axis->setSubTicks(!jval.isNull());
 		});
+
+	if (!jval.isObject())
+		return;
 
 	auto jobj = jval.toObject();
 
@@ -671,13 +773,30 @@ void KgPlotTheme::applyAxesSubtick_(const QJsonValue& jval, QCustomPlot* plot, i
 		});
 
 
-	int ilenght, olength;
-	if (KuThemeUtil::tryInt(jobj, "inside", ilenght))
-		kPrivate::for_axis(plot, level, [ilenght](QCPAxis* axis) {
-		    axis->setSubTickLengthIn(ilenght); });
-	if (KuThemeUtil::tryInt(jobj, "outside", olength))
-		kPrivate::for_axis(plot, level, [olength](QCPAxis* axis) {
-		    axis->setSubTickLengthOut(olength); });
+	QString side("in");
+	KuThemeUtil::tryString(jobj, "side", side);
+
+	int len(-1);
+	KuThemeUtil::tryInt(jobj, "length", len);
+
+	kPrivate::for_axis(plot, level, [len, side](QCPAxis* axis) {
+		auto length = len;
+		if (length == -1)
+			length = std::max(axis->subTickLengthIn(), axis->subTickLengthOut());
+
+		if (side == "in") {
+			axis->setSubTickLengthIn(length);
+			axis->setSubTickLengthOut(0);
+		}
+		else if (side == "out") {
+			axis->setSubTickLengthIn(0);
+			axis->setSubTickLengthOut(length);
+		}
+		else {
+			axis->setSubTickLengthIn(length);
+			axis->setSubTickLengthOut(length);
+		}
+		});
 
 	kPrivate::handle_special_axes(jobj, plot, level, applyAxesSubtick_);
 }
@@ -685,11 +804,12 @@ void KgPlotTheme::applyAxesSubtick_(const QJsonValue& jval, QCustomPlot* plot, i
 
 void KgPlotTheme::applyAxesTitle_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
-	if (jval.isNull()) {
-		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->setLabel(""); });
-		return;
-	}
+	// 可见性设置
+	if(jval.isNull())
+	    kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
+		    // TODO: QCP没有setLabelVisible函数，只能通过设置透明色代替
+		    axis->setLabelColor(QColor(Qt::transparent));
+		    });
 	else if (!jval.isObject())
 		return;
 
@@ -713,18 +833,13 @@ void KgPlotTheme::applyAxesTitle_(const QJsonValue& jval, QCustomPlot* plot, int
 
 void KgPlotTheme::applyAxesLabel_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
-	if (jval.isNull()) {
-		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->setTickLabels(false); });
-		return;
-	}
-	else if (!jval.isObject())
-		return;
-
-	// 先设置为可见
-	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-		axis->setTickLabels(true);
+	// 可见性设置
+	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
+		axis->setTickLabels(!jval.isNull());
 		});
+
+     if (!jval.isObject())
+		return;
 
 	auto jobj = jval.toObject();
 
@@ -767,20 +882,13 @@ void KgPlotTheme::tryGrid_(const QJsonObject& jobj, QCustomPlot* plot)
 
 void KgPlotTheme::applyGrid_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
-	// 处理null
-	if (jval.isNull()) {
-		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->grid()->setVisible(false); });
-		return;
-	}
+	// 可见性设置
+	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
+		axis->grid()->setVisible(!jval.isNull());
+		});
 
 	if (!jval.isObject())
 		return;
-
-	// 先设置为可见
-	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-		axis->grid()->setVisible(true);
-		});
 
 	auto jobj = jval.toObject();
 
@@ -809,38 +917,27 @@ void KgPlotTheme::applyGrid_(const QJsonValue& jval, QCustomPlot* plot, int leve
 void KgPlotTheme::applyGridLine_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
 	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
-		if (jval.isNull()) {
-			auto pen = axis->grid()->pen();
-			pen.setStyle(Qt::NoPen);
-			axis->grid()->setPen(pen);
 
-			pen = axis->grid()->subGridPen();
-			pen.setStyle(Qt::NoPen);
-			axis->grid()->setSubGridPen(pen);
+		axis->grid()->setVisible(!jval.isNull());
+		axis->grid()->setSubGridVisible(!jval.isNull());
 
-			pen = axis->grid()->zeroLinePen();
-			pen.setStyle(Qt::NoPen);
-			axis->grid()->setZeroLinePen(pen);
-		}
-		else if (jval.isObject()) {
+		if (jval.isObject()) {
 
 			auto jobj = jval.toObject();
 
 			auto pen = axis->grid()->pen();
-			if (pen.style() == Qt::NoPen)
-				pen.setStyle(Qt::DashLine);
+			assert(pen.style() != Qt::NoPen);
 			KuThemeUtil::apply(jobj, pen);
 			axis->grid()->setPen(pen);
 
 			pen = axis->grid()->subGridPen();
-			if (pen.style() == Qt::NoPen)
-				pen.setStyle(Qt::DashLine);
+			assert(pen.style() != Qt::NoPen);
 			KuThemeUtil::apply(jobj, pen);
 			axis->grid()->setSubGridPen(pen);
 
 			pen = axis->grid()->zeroLinePen();
 			if (pen.style() == Qt::NoPen)
-				pen.setStyle(Qt::DashLine);
+				pen.setStyle(Qt::SolidLine);
 			KuThemeUtil::apply(jobj, pen);
 			axis->grid()->setZeroLinePen(pen);
 		}
@@ -850,16 +947,11 @@ void KgPlotTheme::applyGridLine_(const QJsonValue& jval, QCustomPlot* plot, int 
 
 void KgPlotTheme::applyGridMajor_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
-	if (jval.isNull()) {
-		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->grid()->setVisible(false); });
-		return;
-	}
-	else if (!jval.isObject())
-		return;
+	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
+		axis->grid()->setVisible(!jval.isNull()); });
 
-	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-		axis->grid()->setVisible(true); });
+	 if (!jval.isObject())
+		return;
 
 	auto jobj = jval.toObject();
 
@@ -875,21 +967,19 @@ void KgPlotTheme::applyGridMajor_(const QJsonValue& jval, QCustomPlot* plot, int
 
 void KgPlotTheme::applyGridMinor_(const QJsonValue& jval, QCustomPlot* plot, int level)
 {
-	if (jval.isNull()) {
-		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			axis->grid()->setSubGridVisible(false); });
-		return;
-	}
-	else if (!jval.isObject())
-		return;
+	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
+		axis->grid()->setSubGridVisible(!jval.isNull()); });
 
-	kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-		axis->grid()->setSubGridVisible(true); });
+	 if (!jval.isObject())
+		return;
 
 	auto jobj = jval.toObject();
 
 	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
 		QPen pen = axis->grid()->subGridPen();
+		assert(pen.style() != Qt::NoPen());
+		if(axis->grid()->visible())
+		    assert(axis->grid()->subGridVisible());
 		KuThemeUtil::apply(jobj, pen);
 		axis->grid()->setSubGridPen(pen);
 		});
@@ -924,26 +1014,37 @@ void KgPlotTheme::applyGridZeroline_(const QJsonValue& jval, QCustomPlot* plot, 
 }
 
 
-void KgPlotTheme::tryData_(const QJsonObject& jobj, QCustomPlot* plot)
-{
-
-}
-
-
-void KgPlotTheme::tryText_(const QJsonObject& jobj, QCustomPlot* plot)
-{
-
-}
-
-
 void KgPlotTheme::tryMargins_(const QJsonObject& jobj, QCustomPlot* plot)
 {
-	if (jobj.contains("margins") && jobj["margins"].isObject()) {
-		QMargins margins;
-		KuThemeUtil::apply(jobj["margins"].toObject(), margins);
+	if (jobj.contains("margins")) {
+
 		auto layout = plot->plotLayout();
-		for (int i = 0; i < layout->elementCount(); i++)
-			layout->elementAt(i)->setMinimumMargins(margins);
+
+		if (jobj["margins"].isObject()) {
+			auto mobj = jobj["margins"].toObject();
+			for (int i = 0; i < layout->elementCount(); i++) {
+				auto margins = layout->elementAt(i)->minimumMargins();
+				KuThemeUtil::apply(mobj, margins);
+				layout->elementAt(i)->setMinimumMargins(margins);
+			}
+		}
+		else if (jobj["margins"].isArray()) {
+			auto ar = jobj["margins"].toArray();
+			for (int i = 0; i < layout->elementCount(); i++) {
+				auto margins = layout->elementAt(i)->minimumMargins();
+
+				if (ar.size() > 0 && ar.at(0).isDouble())
+					margins.setLeft(ar.at(0).toInt());
+				if (ar.size() > 1 && ar.at(1).isDouble())
+				    margins.setTop(ar.at(1).toInt());
+				if (ar.size() > 2 && ar.at(2).isDouble())
+					margins.setRight(ar.at(1).toInt());
+				if (ar.size() > 3 && ar.at(3).isDouble())
+					margins.setBottom(ar.at(1).toInt());
+
+				layout->elementAt(i)->setMinimumMargins(margins);
+			}
+		}
 	}
 }
 
