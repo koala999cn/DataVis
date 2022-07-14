@@ -22,7 +22,12 @@
         "right": null,
         "top": null,
         "baseline": { "width": 1 },
-        "tick": { "length": 0 },
+        "tick": {
+          "length": 0,
+          "side": "in",
+          "NOTE": "tick cannot be null, otherwise tick-label will invisible"
+        },
+
         "subtick": null
       },
 
@@ -46,7 +51,21 @@
       "grid": {
         "major": { "style": "dash" },
         "minor": { "style": "dot" }
+      },
+
+      "axis": {
+        "tick": {
+          "length": 0,
+          "side": "in",
+          "NOTE": "tick cannot be null, otherwise gridline will invisible"
+        },
+
+        "subtick": {
+          "length": 0,
+          "side": "in"
+        }
       }
+
     },
 
     {
@@ -73,16 +92,17 @@
     },
 
     {
-      "name": "minimal",
+      "name": "void",
 
       "disc": "no ticks & no girds & no axis-lines",
 
       "base": "clean",
 
-      "axis": {
-        "title": { "face": "palin" },
-        "baseline": null
-      }
+      "axis": null,
+
+      "grid": null,
+
+      "margins": [ 0, 0, 0, 0 ]
     },
 
     {

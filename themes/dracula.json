@@ -20,6 +20,12 @@
       "color": "#44475a"
     },
 
+    "axis": {
+      "background": {
+        "fill": "transparent"
+      }
+    },
+
     "label": {
       "color": "#f8f8f2"
     },
