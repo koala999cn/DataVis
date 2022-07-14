@@ -1,15 +1,15 @@
 # DataVis
 
-#### 介绍
+### 介绍
 用于流数据的实时分析与显示。主要专注于两方面：一是数据可视化，通过内置主题提供专业化的绘图功能；二是流分析，通过pipeline组合各种功能模块，对各类动态数据提供在线分析和结果演示。
 
-#### 编译
+### 编译
 Qt6 + MSVC2019
 
-#### 主题
-目前，已实现[ggthemr](https://github.com/Mikata-Project/ggthemr)所有plotting主题，后续将提供更丰富的内置主题。
+### 主题
+目前，已实现ggthemr所有plotting主题，界面可参考https://github.com/Mikata-Project/ggthemr。后续将提供更丰富的主题选项。
 
-#### ScreenShots
+### ScreenShots
 
 线形图演示：
 
@@ -23,7 +23,7 @@ Qt6 + MSVC2019
 
 ![颜色映射图](screenshots/color_map.gif)
 
-#### 依赖库
+### 依赖库
 - [blitz](https://github.com/blitzpp/blitz/) - inline，无须单独编译
 - [exprtkX](https://gitee.com/koala999/exprtk-x/)
 - [KDDockWidgets](https://github.com/KDAB/KDDockWidgets/)
