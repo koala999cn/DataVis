@@ -277,7 +277,7 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 
 	list = theme_->listPalettes();
 	if (!list.empty()) {
-		int idx = list.indexOf(layoutName_);
+		int idx = list.indexOf(paletteName_);
 		prop.id = k_palette;
 		prop.name = QStringLiteral("Palette");
 		prop.flag = 0;
@@ -408,4 +408,6 @@ void KvRdCustomPlot::applyTheme_(const QString& name)
 	layoutName_ = theme_->layoutName(name);
 	paletteName_ = theme_->paletteName(name);
 	theme_->applyTheme(name, customPlot_);
+
+	kAppEventHub->refreshPropertySheet();
 }

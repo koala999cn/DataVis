@@ -160,7 +160,7 @@ QString KgPlotTheme::canvasName(const QString& theme)
 	if (themes_.count(theme) > 0) {
 		auto jobj = themes_[theme];
 		if (jobj.contains("canvas") && jobj["canvas"].isString())
-			jobj["canvas"].toString();
+			return jobj["canvas"].toString();
 	}
 
 	return "";
@@ -172,7 +172,7 @@ QString KgPlotTheme::layoutName(const QString& theme)
 	if (themes_.count(theme) > 0) {
 		auto jobj = themes_[theme];
 		if (jobj.contains("layout") && jobj["layout"].isString())
-			jobj["layout"].toString();
+			return jobj["layout"].toString();
 	}
 
 	return "";
@@ -184,7 +184,7 @@ QString KgPlotTheme::paletteName(const QString& theme)
 	if (themes_.count(theme) > 0) {
 		auto jobj = themes_[theme];
 		if (jobj.contains("palette") && jobj["palette"].isString())
-			jobj["palette"].toString();
+			return jobj["palette"].toString();
 	}
 
 	return "";
