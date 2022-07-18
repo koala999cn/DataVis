@@ -3,6 +3,8 @@
 
   "disc": "palette themes from ggthemr. see https://github.com/Mikata-Project/ggthemr",
 
+  "detail": "first color is minor, for outlining; others is major-list, for filling",
+
   "palette-list": {
 
     "greyscale": [
@@ -206,16 +208,12 @@
 
     "solarized-dark": [
       "#fdf6e3",
-      "#",
       "#268bd2",
       "#dc322f",
-      "#",
       "#859900",
       "#d33682",
-      "#",
       "#cb4b16",
       "#2aa198",
-      "#",
       "#859900",
       "#6c71c4"
     ],
@@ -233,10 +231,8 @@
     "deadpool": [
       "#da1f0c",
       "#7e6c6c",
-      "#",
       "#b66c17",
       "#E7019E",
-      "#",
       "#1A59A7",
       "#008D41"
     ],

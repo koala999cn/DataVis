@@ -32,22 +32,24 @@ KcRdPlot1d::KcRdPlot1d(KvDataProvider* is, KeType type)
 	: KvRdCustomPlot(is, kPrivate::typeToStr(type))
 	, type_(type)
 {
-	if (type == KeType::k_scatter) {
-		auto graph = customPlot_->addGraph();
-		graph->setLineStyle(QCPGraph::lsNone);
-		graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross));
-		graph->setAntialiasedScatters(true);
-	}
-	else if (type == KeType::k_bars) {
-		auto bars = new QCPBars(customPlot_->xAxis, customPlot_->yAxis);
-		bars->setWidthType(QCPBars::wtPlotCoords);
-		barWidthRatio_ = 0.5f;
-		updateBarWidth_();
-	}
-	else {
-		assert(type == KeType::k_line);
-		auto graph = customPlot_->addGraph();
-		graph->setAdaptiveSampling(true);
+	for (kIndex ch = 0; ch < is->channels(); ch++) {
+		if (type == KeType::k_scatter) {
+			auto graph = customPlot_->addGraph();
+			graph->setLineStyle(QCPGraph::lsNone);
+			graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross));
+			graph->setAntialiasedScatters(true);
+		}
+		else if (type == KeType::k_bars) {
+			auto bars = new QCPBars(customPlot_->xAxis, customPlot_->yAxis);
+			bars->setWidthType(QCPBars::wtPlotCoords);
+			barWidthRatio_ = 0.5f;
+			updateBarWidth_();
+		}
+		else {
+			assert(type == KeType::k_line);
+			auto graph = customPlot_->addGraph();
+			graph->setAdaptiveSampling(true);
+		}
 	}
 
 
@@ -104,7 +106,7 @@ namespace kPrivate
 
 
 	template<typename PLOT_TYPE>
-	bool doPlot(QCPAbstractPlottable* plot, std::shared_ptr<KvData> data1d, bool streaming)
+	bool doPlot(QCPAbstractPlottable* plot, std::shared_ptr<KvData> data1d, kIndex ch, bool streaming)
 	{
 		assert(data1d->dim() == 1);
 
@@ -137,7 +139,7 @@ namespace kPrivate
 			auto keyOffset = plotRange.upper - dataRange.high();
 
 			for (kIndex idx = 0; idx < data1d->size(); idx++) {
-				auto val = dis->pointAt(idx, 0); // TODO: 多通道处理
+				auto val = dis->pointAt(idx, ch);
 				auto key = val[0] + keyOffset;
 				if (key < plotRange.lower)
 					continue;
@@ -153,7 +155,7 @@ namespace kPrivate
 			if (data1d->isDiscreted()) {
 				auto dis = std::dynamic_pointer_cast<KvDiscreted>(data1d);
 				for (kIndex idx = 0; idx < dis->size(); idx++) {
-					auto val = dis->pointAt(idx, 0);
+					auto val = dis->pointAt(idx, ch);
 					graph->addData(val[0], val[1]);
 				}
 			}
@@ -164,7 +166,7 @@ namespace kPrivate
 				samp.resetn(1000, r.lower, r.upper, 0.5); // TODO:
 				for (kIndex i = 0; i < samp.size(); i++) {
 					kReal x = samp.indexToX(i);
-					auto y = cond->value(x, 0);
+					auto y = cond->value(x, ch);
 					graph->addData(x, y);
 				}
 			}
@@ -433,21 +435,23 @@ void KcRdPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
 
 bool KcRdPlot1d::doRender_(std::shared_ptr<KvData> data)
 {
-	auto plot = customPlot_->plottable();
-
 	assert(data->dim() == 1);
+	assert(data->channels() == customPlot_->plottableCount());
+	auto streaming = dynamic_cast<KvDataProvider*>(parent())->isStream();
 
-	auto prov = dynamic_cast<KvDataProvider*>(parent());
-
-	if (type_ == KeType::k_bars) {
-		kPrivate::doPlot<QCPBars>(plot, data, prov->isStream());
-		updateBarWidth_();
+	for (kIndex ch = 0; ch < data->channels(); ch++) {
+		auto plot = customPlot_->plottable(ch);
+		
+		if (type_ == KeType::k_bars) {
+			kPrivate::doPlot<QCPBars>(plot, data, ch, streaming);
+			updateBarWidth_();
+		}
+		else {
+			kPrivate::doPlot<QCPGraph>(plot, data, ch, streaming);
+		}
 	}
-	else {
-		kPrivate::doPlot<QCPGraph>(plot, data, prov->isStream());
-	}
 
-	customPlot_->replot(prov->isStream() 
+	customPlot_->replot(streaming
 		? QCustomPlot::rpQueuedRefresh : QCustomPlot::rpRefreshHint);
 
 	return true;

@@ -4,6 +4,7 @@
 #include <QJsonObject>
 
 class QCustomPlot;
+class QCPAbstractPlottable;
 
 class KgPlotTheme
 {
@@ -79,6 +80,9 @@ protected:
 private:
 
 	void removeInvalidThemes_();
+
+	// helper function for QCP
+	static void applyPalette_(QCPAbstractPlottable* plot, const QColor& major, const QColor& minor);
 
 private:
 	std::map<QString, QJsonObject> themes_;

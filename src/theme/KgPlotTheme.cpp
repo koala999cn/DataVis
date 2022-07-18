@@ -485,6 +485,8 @@ namespace kPrivate
 				grid->setPen(op(grid->pen()));
 				grid->setSubGridPen(op(grid->subGridPen()));
 			}
+
+		// TODO: data-line的theme谁控制？
 	}
 }
 
@@ -548,14 +550,8 @@ void KgPlotTheme::applyPalette_(const QJsonValue& jval, QCustomPlot* plot) const
 				colors.push_back(QColor(i->toString()));
 
 		for (int i = 0; i < plot->plottableCount(); i++) {
-			auto p = plot->plottable(i);
-			auto pen = p->pen();
-			pen.setColor(colors[i % colors.size()]);
-			p->setPen(pen);
-
-			auto brush = p->brush();
-			brush.setColor(colors[i % colors.size()]);
-			p->setBrush(brush);
+			// 第一个颜色为辅助色（目前仅支持单色），用于outlining
+			applyPalette_(plot->plottable(i), colors[i + 1], colors[0]); // TODO: 越界检测
 		}
 	}
 	else if (jval.isObject()) {
@@ -977,7 +973,7 @@ void KgPlotTheme::applyGridMinor_(const QJsonValue& jval, QCustomPlot* plot, int
 
 	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
 		QPen pen = axis->grid()->subGridPen();
-		assert(pen.style() != Qt::NoPen());
+		assert(pen.style() != Qt::NoPen);
 		if(axis->grid()->visible())
 		    assert(axis->grid()->subGridVisible());
 		KuThemeUtil::apply(jobj, pen);
@@ -1058,4 +1054,67 @@ void KgPlotTheme::tryLegend_(const QJsonObject& jobj, QCustomPlot* plot)
 void KgPlotTheme::trySpacing_(const QJsonObject& jobj, QCustomPlot* plot)
 {
 
+}
+
+
+void KgPlotTheme::applyPalette_(QCPAbstractPlottable* plot, const QColor& major, const QColor& minor)
+{
+	if (dynamic_cast<QCPGraph*>(plot)) {
+		auto brush = plot->brush();
+		auto pen = plot->pen();
+		if (brush.style() == Qt::NoBrush) {
+			pen.setColor(major);
+			brush.setColor(minor);
+		}
+		else {
+			pen.setColor(minor);
+			brush.setColor(major);
+		}
+
+		plot->setPen(pen);
+		plot->setBrush(brush);
+
+		auto scatter = dynamic_cast<QCPGraph*>(plot)->scatterStyle();
+		auto shape = scatter.shape();
+		switch (shape) {
+		case QCPScatterStyle::ssNone:
+			return;
+
+		case QCPScatterStyle::ssDot:
+		case QCPScatterStyle::ssCross:
+		case QCPScatterStyle::ssPlus:
+		case QCPScatterStyle::ssDisc:
+		case QCPScatterStyle::ssStar:
+			// pen为主色
+			if (scatter.isPenDefined()) {
+				auto pen = scatter.pen();
+				pen.setColor(major);
+				scatter.setPen(pen);
+			}
+			break;
+
+		default: {
+			// brush为主色
+			auto pen = scatter.pen();
+			pen.setColor(minor);
+			scatter.setPen(pen);
+
+			auto brush = scatter.brush();
+			//brush.setColor(major);
+			brush = major;
+			scatter.setBrush(brush);
+		    }
+		}
+
+		dynamic_cast<QCPGraph*>(plot)->setScatterStyle(scatter);
+	}
+	else if (dynamic_cast<QCPBars*>(plot)) {
+		auto pen = plot->pen();
+		pen.setColor(minor);
+		plot->setPen(pen);
+
+		auto brush = plot->brush();
+		brush.setColor(major);
+		plot->setBrush(brush);
+	}
 }
