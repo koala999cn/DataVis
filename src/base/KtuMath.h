@@ -673,22 +673,50 @@ KREAL KtuMath<KREAL>::nonZeroMean(const KREAL x[], unsigned n)
 template<class KREAL>
  KREAL KtuMath<KREAL>::min(const KREAL x[], unsigned n)
 {
-    auto iter = std::min_element(x, x + n);
-    return *iter;
+     auto res = std::numeric_limits<KREAL>::max();
+     for (unsigned i = 0; i < n; i++)
+         if (!isnan(x[i]) && x[i] < res)
+             res = x[i];
+
+     return res;
+    
+    //auto iter = std::min_element(x, x + n); 
+    //return *iter;
 }
 
 template<class KREAL>
 KREAL KtuMath<KREAL>::max(const KREAL x[], unsigned n)
 {
-    auto iter = std::max_element(x, x + n);
-    return *iter;
+    auto res = std::numeric_limits<KREAL>::lowest();
+    for (unsigned i = 0; i < n; i++)
+        if (!isnan(x[i]) && x[i] > res) 
+            res = x[i]; 
+
+    return res;
+
+    //auto iter = std::max_element(x, x + n); 
+    //return *iter;
 }
 
 template<class KREAL>
 std::pair<KREAL, KREAL> KtuMath<KREAL>::minmax(const KREAL x[], unsigned n)
 {
-    auto iter = std::minmax_element(x, x + n);
-    return { *iter.first, *iter.second };
+    std::pair<KREAL, KREAL> res({ std::numeric_limits<KREAL>::max(),
+        std::numeric_limits<KREAL>::lowest() });
+
+    for (unsigned i = 0; i < n; i++) {
+        if (!isnan(x[i])) {
+            if (x[i] < res.first)
+                res.first = x[i];
+            else if (x[i] > res.second)
+                res.second = x[i];
+        } 
+    }
+
+    return res;
+
+    //auto iter = std::minmax_element(x, x + n);
+    //return { *iter.first, *iter.second };
 }
 
 template<class KREAL>

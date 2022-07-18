@@ -225,6 +225,12 @@
     <ClCompile Include="src\theme\KgPlotTheme.cpp">
       <Filter>theme</Filter>
     </ClCompile>
+    <ClCompile Include="src\prov\KgTxtDataLoader.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\QtTxtDataLoadDlg.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -266,6 +272,9 @@
     </QtMoc>
     <QtMoc Include="src\render\KvRdPlot3d.h">
       <Filter>render</Filter>
+    </QtMoc>
+    <QtMoc Include="src\gui\QtTxtDataLoadDlg.h">
+      <Filter>gui</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -491,18 +500,24 @@
     <ClInclude Include="src\theme\KgPlotTheme.h">
       <Filter>theme</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <QtUic Include="src\audio_capture_dlg.ui">
-      <Filter>form</Filter>
-    </QtUic>
-    <QtUic Include="src\formula_dlg.ui">
-      <Filter>form</Filter>
-    </QtUic>
+    <ClInclude Include="src\prov\KgTxtDataLoader.h">
+      <Filter>prov</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="resource\DataVis.qrc">
       <Filter>resource</Filter>
     </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="src\form\audio_capture_dlg.ui">
+      <Filter>form</Filter>
+    </QtUic>
+    <QtUic Include="src\form\formula_dlg.ui">
+      <Filter>form</Filter>
+    </QtUic>
+    <QtUic Include="src\form\txt_data_load_dlg.ui">
+      <Filter>form</Filter>
+    </QtUic>
   </ItemGroup>
 </Project>

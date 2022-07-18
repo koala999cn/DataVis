@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 
 class KuStrUtil
@@ -105,8 +106,9 @@ public:
 	// std::string版本的空白字符裁剪
 	static void trim(std::string& str, const char* spaces = k_spaceChars);
 
+    static std::vector<std::string> split(const std::string& full, const std::string& delims, bool skipEempty = true);
 
-    static std::vector<std::string> split(const std::string& full, const std::string& delims, bool skip_empty_token = true);
+	static std::vector<std::string> splitRegex(const std::string& full, const std::string& regex, bool skipEempty = true);
 
 	static std::string join(const std::vector<std::string>& input, char c);
 
@@ -150,13 +152,20 @@ public:
 	}
 
 
-	// 字符串转化为数值
+	// 字符串转化为类型T，成功返回true
+	template<typename T, typename CHAR = char>
+	static bool toValue(const CHAR* str, T& val) {
+		std::basic_istringstream<CHAR> stream(str);
+		stream >> val;
+		return !!stream;
+	}
+
+	// 不带错误检测的版本
 	template<typename T, typename CHAR = char>
 	static T toValue(const CHAR* str) {
 		std::basic_istringstream<CHAR> stream(str);
 		T val;
 		stream >> val;
-
 		return val;
 	}
 
@@ -172,7 +181,7 @@ public:
 
 	// 对矢量和矩阵的格式化，可用于调试输出
 	template<typename T>
-	static std::string formatVector(const T* v, size_t dim, int max_elements_to_show = 10) {
+	static std::string dump(const T* v, size_t dim, char delim = '\t', int max_elements_to_show = -1) {
 		if (max_elements_to_show <= 0)
 			max_elements_to_show = dim;
 		else if (max_elements_to_show > static_cast<int>(dim))
@@ -181,31 +190,31 @@ public:
 		std::string str;
 		for (int i = 0; i < max_elements_to_show; i++) {
 			str += toString(v[i]);
-			str += '\t';
+			str += delim;
 		}
 
 		if (max_elements_to_show != dim)
 			str += "...";
 		else
-			str.pop_back(); // remove ending '\t'
+			str.pop_back(); // remove ending delim
 
 		return str;
 	}
 
 	template<typename T>
-	static std::string formatVector(const std::vector<T>& v, int max_elements_to_show = 10) {
-		return formatVector(v.data(), v.size(), max_elements_to_show);
+	static std::string dump(const std::vector<T>& v, char delim = '\t', int max_elements_to_show = -1) {
+		return dump(v.data(), v.size(), delim, max_elements_to_show);
 	}
 
 	template<typename T>
-	static std::string formatMatrix(const T** m, int rows, int cols, int max_row_to_show = 5, int max_col_to_show = 10, const char* prefix = "") {
+	static std::string dump(const T* m, int rows, int cols, char delim = '\t', int max_row_to_show = -1, int max_col_to_show = -1, const char* prefix = "") {
 		if (max_row_to_show <= 0 || max_row_to_show > rows)
 			max_row_to_show = rows;
 
 		std::string str;
 		for (int i = 0; i < max_row_to_show; i++) {
 			str += prefix;
-			str += formatVector(m[i], cols, max_col_to_show);
+			str += dump(m[i * cols], cols, delim, max_col_to_show);
 			str += '\n';
 		}
 
@@ -220,7 +229,7 @@ public:
 	}
 
 	template<typename T>
-	static std::string formatMatrix(const std::vector<std::vector<T>>& m, int max_row_to_show = 5, int max_col_to_show = 10, const char* prefix = "") {
+	static std::string dump(const std::vector<std::vector<T>>& m, char delim = '\t', int max_row_to_show = -1, int max_col_to_show = -1, const char* prefix = "") {
 		if (max_row_to_show <= 0)
 			max_row_to_show = m.size();
 		else if (max_row_to_show > static_cast<int>(m.size()))
@@ -229,38 +238,11 @@ public:
 		std::string str;
 		for (int i = 0; i < max_row_to_show; i++) {
 			str += prefix;
-			str += formatVector(m[i], max_col_to_show);
+			str += dump(m[i], max_col_to_show);
 			str += '\n';
 		}
 
 		if (max_row_to_show != m.size()) {
-			str += prefix;
-			str += "...";
-		}
-		else
-			str.pop_back(); // remove ending '\n'
-
-		return str;
-	}
-	
-	template<typename T>
-	static std::string formatVectorAsMatrix(const std::vector<T>& v, size_t cols, int max_row_to_show = 5, int max_col_to_show = 10, const char* prefix = "") {
-		int rows = v.size() / cols;
-
-		if (max_row_to_show <= 0)
-			max_row_to_show = rows;
-		else if (max_row_to_show > rows)
-			max_row_to_show = rows;
-
-		std::string str;
-		const double* buf = v.data();
-		for (int i = 0; i < max_row_to_show; i++, buf += cols) {
-			str += prefix;
-			str += FormatVector(buf, cols, max_col_to_show);
-			str += '\n';
-		}
-
-		if (max_row_to_show != rows) {
 			str += prefix;
 			str += "...";
 		}

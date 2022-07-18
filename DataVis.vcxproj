@@ -159,6 +159,7 @@
     <ClCompile Include="src\gui\QtFormulaDlg.cpp" />
     <ClCompile Include="src\gui\QtMainFrame.cpp" />
     <ClCompile Include="src\gui\QtnPropertyWidgetX.cpp" />
+    <ClCompile Include="src\gui\QtTxtDataLoadDlg.cpp" />
     <ClCompile Include="src\gui\QtWorkspaceWidget.cpp" />
     <ClCompile Include="src\op\KcOpFIR.cpp" />
     <ClCompile Include="src\op\KcOpHistC.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
     <ClCompile Include="src\prov\KcPvExcitationSource.cpp" />
+    <ClCompile Include="src\prov\KgTxtDataLoader.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
     <ClCompile Include="src\QtAppEventHub.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
@@ -191,8 +193,6 @@
     <ClCompile Include="src\render\KvRdPlot3d.cpp" />
     <ClCompile Include="src\theme\KgPlotTheme.cpp" />
     <ClCompile Include="src\theme\KuThemeUtil.cpp" />
-    <QtUic Include="src\audio_capture_dlg.ui" />
-    <QtUic Include="src\formula_dlg.ui" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\audio\KcAudio.h" />
@@ -238,8 +238,10 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <QtMoc Include="src\gui\QtTxtDataLoadDlg.h" />
     <ClInclude Include="src\operator.h" />
     <ClInclude Include="src\provider.h" />
+    <ClInclude Include="src\prov\KgTxtDataLoader.h" />
     <ClInclude Include="src\render.h" />
     <ClInclude Include="src\render\KcRdScatter3d.h" />
     <ClInclude Include="src\render\KcRdSurface3d.h" />
@@ -288,6 +290,11 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="resource\DataVis.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="src\form\audio_capture_dlg.ui" />
+    <QtUic Include="src\form\formula_dlg.ui" />
+    <QtUic Include="src\form\txt_data_load_dlg.ui" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

@@ -129,9 +129,14 @@ public:
 		data_.reserve(frames * channels());
 	}
 
+	void pushBack(const element_type e[]) {
+		for (kIndex c = 0; c < channels(); c++)
+		    data_.push_back(e[c]);
+	}
+
+	// 单通道的快捷方法
 	void pushBack(const element_type& e) {
-		//data_.resize(count() + channels());
-		assert(channels() == 1); // 暂时支持单通道
+		assert(channels() == 1);
 		data_.push_back(e);
 	}
 

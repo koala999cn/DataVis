@@ -269,19 +269,45 @@ void KuStrUtil::trim(std::string& str, const char* spaces)
 }
 
 
-std::vector<std::string> KuStrUtil::split(const std::string& full, const std::string& delims, bool skip_empty_strings)
+std::vector<std::string> KuStrUtil::split(const std::string& full, const std::string& delims, bool skipEempty)
 {
     std::vector<std::string> tokens;
 	size_t start = 0, found = 0, end = full.size();
 	while (found != std::string::npos) {
 		found = full.find_first_of(delims, start);
 		// start != end condition is for when the delimiter is at the end
-        if (!skip_empty_strings || (found != start && start != end))
+        if (!skipEempty || (found != start && start != end))
 			tokens.push_back(full.substr(start, found - start));
 		start = found + 1;
 	}
 
     return tokens;
+}
+
+
+
+std::vector<std::string> KuStrUtil::splitRegex(const std::string& full, const std::string& regex, bool skipEempty)
+{
+	std::vector<std::string> tokens;
+	const std::regex re(regex);
+	using sti_ = std::sregex_token_iterator;
+	tokens.assign(sti_(full.cbegin(), full.cend(), re, -1), sti_());
+	return tokens;
+
+/*
+	std::smatch sm;
+	auto begin = full.cbegin();
+	auto end = full.cend();
+
+	while (std::regex_search(begin, end, sm, re)) {
+		if(!skipEempty || begin != sm[0].first)
+		    tokens.push_back({ begin, sm[0].first });
+		begin = sm.suffix().first;
+	}
+
+	if(!skipEempty || begin != end)
+	    tokens.push_back({ begin, end });
+*/
 }
 
 

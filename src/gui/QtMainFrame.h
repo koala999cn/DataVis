@@ -19,7 +19,7 @@ public:
     ~QtMainFrame();
 
 private slots:
-    void openDataFile();
+    void openTxtData();
     void openAudioFile();
     void openFormula();
     void openStochastic();
@@ -34,8 +34,6 @@ private:
     QMenu* setupVwMenu_();
     QMenu* setupOpMenu_();
     QMenu* setupRdMenu_();
-
-    std::shared_ptr<KvData> loadData_(const QString& filePath);
 
     // 连接app全局信号槽
     void connectAppEvents_();

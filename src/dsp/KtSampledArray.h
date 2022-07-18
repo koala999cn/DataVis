@@ -80,6 +80,11 @@ public:
 
     auto stride(kIndex axis) const { return array_.stride(axis); }
 
+    // 直接从data拷贝数据填充底层数组
+    void fill(const kReal* data) {
+        std::copy(data, data + array_.size(); array_.dataFirst());
+    }
+
     // 设置特定通道的数据
     // @idx: 大小等于DIM-1
     // @data: 设置的数据，长度等于size(DIM-1)
@@ -119,7 +124,6 @@ void KtSampledArray<DIM>::setChannel(kIndex idx[], kIndex channel, const kReal* 
         std::copy(data, data + size(DIM - 1), dst);
     }
     else {
-        dst += channel * stride(DIM);
         for (kIndex i = 0; i < size(DIM - 1); i++) {
             *dst = *data++;
             dst += stride(DIM - 1);

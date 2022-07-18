@@ -15,6 +15,7 @@
 #include "QtAudioUtils.h"
 #include "QtWorkspaceWidget.h"
 #include "QtnPropertyWidgetX.h"
+#include "QtTxtDataLoadDlg.h"
 #include "kddockwidgets/Config.h"
 #include "QtAppEventHub.h"
 #include "provider.h"
@@ -88,8 +89,8 @@ QMenu* QtMainFrame::setupPvMenu_()
 {
     auto fileMenu = std::make_unique<QMenu>(u8"Source(&S)", this);
 
-    QAction* dataFile = fileMenu->addAction(u8"Data File(&D)...");
-    connect(dataFile, &QAction::triggered, this, &QtMainFrame::openDataFile);
+    QAction* txtData = fileMenu->addAction(u8"Text Data(&T)...");
+    connect(txtData, &QAction::triggered, this, &QtMainFrame::openTxtData);
 
     QAction* audioFile = fileMenu->addAction(u8"Audio File(&A)...");
     connect(audioFile, &QAction::triggered, this, &QtMainFrame::openAudioFile);
@@ -313,21 +314,21 @@ bool QtMainFrame::initLauout_()
 }
 
 
-void QtMainFrame::openDataFile()
+void QtMainFrame::openTxtData()
 {
     auto path = QFileDialog::getOpenFileName(this);
 
     if (!path.isEmpty()) {
-        auto data = loadData_(path);
-        if (data) 
-            kPrivate::insertObject<KcPvData>(workDock_, true, QFileInfo(path).fileName(), data);
+        QtTxtDataLoadDlg dlg(path, this);
+        if (dlg.exec() == QDialog::Accepted)
+            kPrivate::insertObject<KcPvData>(workDock_, true, QFileInfo(path).fileName(), dlg.data);
     }
 }
 
 
 void QtMainFrame::openAudioFile()
 {
-    auto path = QtAudioUtils::getOpenPath();
+    auto path = QtAudioUtils::getOpenPath(this);
     if (path.isEmpty()) return;
 
     auto audio = std::make_shared<KcAudio>();
@@ -367,64 +368,6 @@ void QtMainFrame::openFormula()
 void QtMainFrame::openStochastic()
 {
     kPrivate::insertObject<KcPvExcitationSource>(workDock_, true);
-}
-
-
-std::shared_ptr<KvData> QtMainFrame::loadData_(const QString& filePath)
-{
-    std::shared_ptr<KvData> data; // the result to returned
-
-    std::ifstream ifs(filePath.toStdString().c_str());
-    if (!ifs.is_open()) {
-        QMessageBox::information(this, u8"错误", u8"无法打开数据文件！");
-        return nullptr;
-    }
-
-    // load data from ifs
-    std::string line;
-
-    // parse the first line
-    std::getline(ifs, line);
-    auto tokens = KuStrUtil::split(line, "\t ,");
-    auto cols = tokens.size();
-    if (cols == 0) {
-        QMessageBox::information(this, u8"错误", u8"不支持的数据文件格式！");
-        return nullptr;
-    }
-
-    if (cols == 1) { // 一维采样数据: dx = 1
-        std::vector<kReal> v;
-        do {
-            v.push_back(std::stod(tokens[0]));
-        } while (std::getline(ifs, line) && (tokens = KuStrUtil::split(line, "\t ,")).size() == 1);
-
-        auto data1d = std::make_shared<KcSampled1d>();
-        data1d->resize(v.size(), 1);
-        data1d->setChannel(nullptr, 0, v.data()); // TODO: 优化
-        data = data1d;
-    }
-    else if (cols == 2) { // 一维散点数据
-        typename KtScattered<1>::element_type e;
-        auto scat1d = std::make_shared<KtScattered<1>>();
-        do {
-            scat1d->pushBack({ std::stod(tokens[0]), std::stod(tokens[1]) });
-        } while (std::getline(ifs, line) && (tokens = KuStrUtil::split(line, "\t ,")).size() == 2);
-        data = scat1d;
-    }
-    else if (cols == 3) { // 二维散点数据
-        typename KtScattered<2>::element_type e;
-        auto scat2d = std::make_shared<KtScattered<2>>();
-        do {
-            scat2d->pushBack({ std::stod(tokens[0]), std::stod(tokens[1]), std::stod(tokens[2]) });
-        } while (std::getline(ifs, line) && (tokens = KuStrUtil::split(line, "\t ,")).size() == 3);
-        data = scat2d;
-    }
-    else { // 二维采样数据：dx = dy = 1
-        assert(false); // TODO:
-    }
-
-
-    return data;
 }
 
 
