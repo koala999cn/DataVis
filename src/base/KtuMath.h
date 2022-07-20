@@ -18,7 +18,7 @@ public:
     static constexpr KREAL nan = std::numeric_limits<KREAL>::quiet_NaN();
     static constexpr KREAL inf = std::numeric_limits<KREAL>::infinity();
     static constexpr KREAL neginf = -inf;
-    static constexpr KREAL eps = static_cast<KREAL>(1e-6);
+    static constexpr KREAL eps = std::numeric_limits<KREAL>::epsilon();
 
 
     /*************** SCALAR ALGORITHM *****************/
@@ -46,8 +46,16 @@ public:
     static void killDenormal(KREAL& x); 
 
     // 近似等于比较，一个绝对值版本，一个相对值版本
-    static bool almostEqual(KREAL x1, KREAL x2, KREAL tol = 1e-5);
+    static bool almostEqual(KREAL x1, KREAL x2, KREAL tol = eps * 100);
     static bool almostEqualRel(KREAL x1, KREAL x2, KREAL rel_tol = 0.001);
+
+    static KREAL clampFloor(KREAL x, KREAL low) {
+        return std::max(x, low);
+    }
+
+    static KREAL clampCeil(KREAL x, KREAL high) {
+        return std::min(x, high);
+    }
 
     // 确保x在[low, high]之间
     static KREAL clamp(KREAL x, KREAL low, KREAL high) { 
@@ -274,6 +282,14 @@ public:
     template<typename BINARY_OP>
     static void forEach(const KREAL x[], const KREAL y[], KREAL r[], unsigned n, BINARY_OP op);
 
+    /*************** others *****************/
+
+    // 将区间<left, right>等间隔分为olen个点，结果存放到out
+    // @x0ref: 第一个分割点相对(dx)起始位置，x0 = x0ref * dx
+    // @RIGHT_CLOSED: 若true, 则最后一个分割点<=right, 否则<right
+    // @olen: 等分点的数量
+    template<bool RIGHT_CLOSED = true>
+    static void linspace(KREAL left, KREAL right, KREAL x0ref, KREAL* out, unsigned olen);
 
 private:
     KtuMath() { }
@@ -301,10 +317,11 @@ bool KtuMath<KREAL>::almostEqualRel(KREAL x1, KREAL x2, KREAL rel_tol)
 {
     // a==b handles infinities.
     if(x1 == x2) return true;
+    if (x1 == 0 || x2 == 0) return almostEqual(x1, x2, rel_tol); // TODO: 
     double diff = std::abs(x1 - x2);
     if(isUndefined(diff))
         return false;
-    return diff <= rel_tol*(std::abs(x1) +std::abs(x2));
+    return diff <= rel_tol*(std::abs(x1) + std::abs(x2));
 }
 
 template<class KREAL>
@@ -673,50 +690,22 @@ KREAL KtuMath<KREAL>::nonZeroMean(const KREAL x[], unsigned n)
 template<class KREAL>
  KREAL KtuMath<KREAL>::min(const KREAL x[], unsigned n)
 {
-     auto res = std::numeric_limits<KREAL>::max();
-     for (unsigned i = 0; i < n; i++)
-         if (!isnan(x[i]) && x[i] < res)
-             res = x[i];
-
-     return res;
-    
-    //auto iter = std::min_element(x, x + n); 
-    //return *iter;
+    auto iter = std::min_element(x, x + n);
+    return *iter;
 }
 
 template<class KREAL>
 KREAL KtuMath<KREAL>::max(const KREAL x[], unsigned n)
 {
-    auto res = std::numeric_limits<KREAL>::lowest();
-    for (unsigned i = 0; i < n; i++)
-        if (!isnan(x[i]) && x[i] > res) 
-            res = x[i]; 
-
-    return res;
-
-    //auto iter = std::max_element(x, x + n); 
-    //return *iter;
+    auto iter = std::max_element(x, x + n);
+    return *iter;
 }
 
 template<class KREAL>
 std::pair<KREAL, KREAL> KtuMath<KREAL>::minmax(const KREAL x[], unsigned n)
 {
-    std::pair<KREAL, KREAL> res({ std::numeric_limits<KREAL>::max(),
-        std::numeric_limits<KREAL>::lowest() });
-
-    for (unsigned i = 0; i < n; i++) {
-        if (!isnan(x[i])) {
-            if (x[i] < res.first)
-                res.first = x[i];
-            else if (x[i] > res.second)
-                res.second = x[i];
-        } 
-    }
-
-    return res;
-
-    //auto iter = std::minmax_element(x, x + n);
-    //return { *iter.first, *iter.second };
+    auto iter = std::minmax_element(x, x + n);
+    return { *iter.first, *iter.second };
 }
 
 template<class KREAL>
@@ -913,4 +902,29 @@ void KtuMath<KREAL>::forEach(const KREAL x[], const KREAL y[], KREAL r[], unsign
     }
     for (; i < n; i++)
         r[i] = op(x[i], y[i]);
+}
+
+
+template<typename KREAL>
+template<bool RIGHT_CLOSED>
+void KtuMath<KREAL>::linspace(KREAL left, KREAL right, KREAL x0ref, KREAL* out, unsigned olen)
+{
+    assert(x0ref >= 0 && x0ref < 1);
+
+    if (olen == 0)
+        return;
+    else if (olen == 1) {
+        *out = left + (right - left) * x0ref;
+        return;
+    }
+
+    auto dx = right - left;
+    if constexpr (RIGHT_CLOSED) {
+        dx /= x0ref == 0 ? olen - 1 : olen;
+    }
+    else
+        dx /= olen;
+
+    for (unsigned i = 0; i < olen; i++)
+        out[i] = left + (x0ref + i) * dx;
 }

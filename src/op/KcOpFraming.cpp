@@ -151,7 +151,7 @@ kIndex KcOpFraming::size(kIndex axis) const
 	if (axis == 1)
 		return frameSize();
 	else if (axis == 0)
-		return framing_->numFrames(KvDataOperator::size(0), false);
+		return framing_->outFrames(KvDataOperator::size(0), false);
 
 	return KvDataOperator::size(axis - 1);
 }
@@ -166,7 +166,7 @@ std::shared_ptr<KvData> KcOpFraming::processImpl_(std::shared_ptr<KvData> data)
 	assert(dx_ == data1d->step(0));
 
 	auto res = std::make_shared<KcSampled2d>();
-	auto frameNum = framing_->numFrames(data1d->size(), true);
+	auto frameNum = framing_->outFrames(data1d->size(), true);
 	auto frameSize = this->frameSize();
 	kReal x0 = data1d->sampling(0).low();
 	x0 -= framing_->buffered() * dx_;

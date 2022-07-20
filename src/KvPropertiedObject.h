@@ -88,6 +88,9 @@ public:
 			bool showAllBrushStyle; // 默认为false
 		} attr;
 
+		using kEnumList = std::vector<std::pair<QString, int>>;
+
+		kEnumList enumList;
 		std::vector<KpProperty> children;
 
 		KpProperty() : id(-1), flag(0), attr{0} {}
@@ -101,25 +104,15 @@ public:
 		}
 
 		template<int N>
-		void makeEnum(const std::pair<QString, int> (&enumList)[N]) {
-			children.clear();
-			for (int i = 0; i < N; i++) {
-				KpProperty sub;
-				sub.name = enumList[i].first;
-				sub.val = enumList[i].second;
-				children.push_back(sub);
-			}
+		void makeEnum(const std::pair<QString, int> (&enumList_)[N]) {
+			enumList.assign(std::begin(enumList_), std::end(enumList_));
 		}
 
 		void makeEnum(const QStringList& sl) {
-			children.clear();
+			enumList.resize(sl.size());
 			int id(0);
-			for (auto i = sl.cbegin(); i != sl.cend(); i++) {
-				KpProperty sub;
-				sub.name = *i;
-				sub.val = id++;
-				children.push_back(sub);
-			}
+			for (auto i = sl.cbegin(); i != sl.cend(); i++, id++)
+				enumList[id] = { *i, id };
 		}
 	};
 

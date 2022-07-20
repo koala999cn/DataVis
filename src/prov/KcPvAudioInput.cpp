@@ -124,17 +124,14 @@ KcPvAudioInput::kPropertySet KcPvAudioInput::propertySet() const
 	prop.name = u8"Device";
 	prop.desc = u8"device used to capture audio";
 	prop.val = QVariant::fromValue<int>(deviceId_); // int类型代表enum类型
+	prop.enumList.clear();
 	for (unsigned i = 0; i < device->count(); i++) {
 		auto info = device->info(i);
-		if (info.inputChannels > 0) {
-			KvPropertiedObject::KpProperty sub;
-			sub.name = QString::number(i);
-			sub.disp = QString::fromLocal8Bit(info.name);
-			sub.val = static_cast<int>(i);
-			prop.children.push_back(sub);
-		}
+		if (info.inputChannels > 0) 
+			prop.enumList.push_back({ QString::fromLocal8Bit(info.name), i });
 	}
 	ps.push_back(prop);
+	prop.enumList.clear();
 
 	auto info = device->info(deviceId_);
 	assert(channels_ <= info.inputChannels);
@@ -155,16 +152,11 @@ KcPvAudioInput::kPropertySet KcPvAudioInput::propertySet() const
 	prop.disp = u8"Sampling rate";
 	prop.desc = u8"sampling rate of audio input device in Hz";
 	prop.val = QVariant::fromValue<int>(sampleRate_);
-	for (auto rate : info.sampleRates) {
-		KvPropertiedObject::KpProperty sub;
-		sub.name = QString::number(rate);
-		sub.disp.clear();
-		sub.val = static_cast<int>(rate);
-		prop.children.push_back(sub);
-	}
+	for (auto rate : info.sampleRates) 
+		prop.enumList.push_back({ QString::number(rate), rate });
 	ps.push_back(prop);
+	prop.enumList.clear();
 
-	prop.children.clear();
 	prop.id = kPrivate::k_frame_time;
 	prop.name = u8"FrameTime";
 	prop.disp = u8"Frame time";

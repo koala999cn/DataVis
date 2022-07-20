@@ -21,7 +21,7 @@ public:
 
 	// 初始化内部状态为initVal，无延时输出
 	KtFraming(unsigned size, unsigned chann, unsigned shift, T initVal)
-	: size_(size), chann_(chann), buf_((size - 1) * chann, initVal), shift_(shift ? shift : size) {}
+	    : size_(size), chann_(chann), buf_((size - 1) * chann, initVal), shift_(shift ? shift : size) {}
 
 	unsigned size() const { return size_; }
 	unsigned shift() const { return shift_; }
@@ -51,8 +51,10 @@ public:
 
 	// 计算samples组数据可分为多少帧
 	// @addBuffered: 若为true，则在samples基础上加入缓存数据进行帧数计算
-	unsigned numFrames(unsigned samples, bool addBuffered) const;
+	unsigned outFrames(unsigned samples, bool addBuffered) const;
 
+	// 执行flush操作，将产生多少帧输出
+	unsigned flushFrames() const;
 
 private:
 
@@ -77,7 +79,7 @@ template<typename T> template<typename OP>
 void KtFraming<T>::apply(const T* first, const T* last, OP op)
 {
 	auto isize = (last - first) / channels(); // 新增输入的数据数量
-	if (numFrames(isize, true) == 0) { // 若数据量不足，仅执行缓存操作
+	if (outFrames(isize, true) == 0) { // 若数据量不足，仅执行缓存操作
 		push(first, last);
 		return;
 	}
@@ -86,7 +88,7 @@ void KtFraming<T>::apply(const T* first, const T* last, OP op)
 	//   一是拷贝部分输入到缓存，先耗尽缓存数据，
 	//   二是对剩余的输入执行在线处理
 	auto copysize = needAppended_();
-	assert(numFrames(copysize, true) * shift_ >= buffered());
+	assert(outFrames(copysize, true) * shift_ >= buffered());
 	if (copysize > isize)
 		copysize = isize;
 	auto last_ = first + copysize * channels();
@@ -95,7 +97,7 @@ void KtFraming<T>::apply(const T* first, const T* last, OP op)
 
 	if (last_ == last) { // 无剩余数据
 		buf_.erase(buf_.begin(), buf_.begin() + (pos - buf_.data()));
-		assert(numFrames(0, true) == 0);
+		assert(outFrames(0, true) == 0);
 	}
 	else { // 处理剩余数据
 		first = last_ - (buf_.data() + buf_.size() - pos);
@@ -109,16 +111,18 @@ void KtFraming<T>::apply(const T* first, const T* last, OP op)
 template<typename T> template<typename OP>
 void KtFraming<T>::flush(OP op)
 {
-	if (!buf_.empty()) {
-		buf_.resize(size() * channels(), 0); // TODO: 处理buf_尺寸大于length_的情况
-		op(buf_.data());
-		buf_.clear();
+	auto frames = flushFrames();
+	if (frames > 0) {
+		buf_.resize((frames - 1) * shift() + size() * channels(), 0);
+		auto p = buf_.data();
+		for (unsigned i = 0; i < frames; i++, p += shift())
+			op(p);
 	}
 }
 
 
 template<typename T>
-unsigned KtFraming<T>::numFrames(unsigned samples, bool addBuffered) const
+unsigned KtFraming<T>::outFrames(unsigned samples, bool addBuffered) const
 {
 	if (addBuffered)
 		samples += buffered();
@@ -132,11 +136,18 @@ unsigned KtFraming<T>::numFrames(unsigned samples, bool addBuffered) const
 }
 
 
+template<typename T>
+unsigned KtFraming<T>::flushFrames() const
+{
+	return unsigned(std::floor(double(buf_.size()) / double(shift())));
+}
+
+
 template<typename T> template<typename OP>
 const T* KtFraming<T>::execute_(const T* first, const T* last, OP& op) 
 {
 	auto isize = (last - first) / channels();
-	auto frames = numFrames(isize, false);
+	auto frames = outFrames(isize, false);
 	auto shiftRaw = shift_ * channels();
 	for (unsigned i = 0; i < frames; i++, first += shiftRaw)
 		op(first);

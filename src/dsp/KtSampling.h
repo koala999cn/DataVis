@@ -10,25 +10,25 @@ template<typename KREAL>
 class KtSampling : public KtInterval<KREAL>
 {
 public:
-    using super_ = KtInterval<KREAL>;
+    using interval = KtInterval<KREAL>;
 
-    KtSampling() : super_{}, x0_{}, dx_{} {}
+    KtSampling() : interval{}, x0_{}, dx_{} {}
 
     // 构造函数是唯一个能设置x0绝对值的地方，其他reset系函数均采用相对值进行设置
     KtSampling(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0) 
-        : KtInterval(xmin, xmax) {
+        : interval(xmin, xmax) {
         dx_ = dx, x0_ = x0;
     }
 
     KtSampling& operator=(const KtSampling& rhs) {
         dx_ = rhs.dx_, x0_ = rhs.x0_;
-        super_::reset(rhs.low(), rhs.high());
+        interval::reset(rhs.xmin(), rhs.xmax());
         return *this;
     }
 
 
     void reset(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0_ref) {
-        KtInterval::reset(xmin, xmax);
+        interval::reset(xmin, xmax);
         x0_ = xmin + x0_ref * dx;
         dx_ = dx;
 
@@ -37,7 +37,7 @@ public:
 
     void resetn(long nx) {
         if (dx_ == 0) dx_ = 1;
-        KtInterval::resetHigh(low() + nx * dx_);
+        interval::resetHigh(xmin() + nx * dx_);
     }
 
     // 根据采样点数目nx重置本对象
@@ -46,7 +46,7 @@ public:
         assert(x0_rel_offset >= 0 && x0_rel_offset < 1);
 
         resetn(nx);
-        x0_ = low() + x0_rel_offset * dx_;
+        x0_ = xmin() + x0_rel_offset * dx_;
 
         assert(size() == nx);
         assert(verify());
@@ -67,7 +67,7 @@ public:
         assert(x0_rel_offset >= 0 && x0_rel_offset < 1);
 
         dx_ = (xmax - xmin) / nx;
-        resetLow(xmin);
+        interval::reset(xmin, xmax);
         resetn(nx, x0_rel_offset);
     }
 
@@ -77,17 +77,17 @@ public:
     }
 
     void clear() {
-        resetHigh(low()); // making high_ == low_
+        resetHigh(xmin()); // making high_ == low_
     }
 
 
     KREAL x0() const { return x0_; } // 首个采样点的采样时间
     KREAL x0ref() const { return (x0_ - xmin()) / dx_; }
     KREAL dx() const { return dx_; } // 采样时间间隔
-    KREAL xmin() const { return low(); }
-    KREAL xmax() const { return high(); }
+    KREAL xmin() const { return interval::low(); }
+    KREAL xmax() const { return interval::high(); }
     KREAL rate() const { return 1 / dx_; } // 采样率
-    bool empty() const { return !cover(x0_); }
+    bool empty() const { return !interval::cover(x0_); }
 
     // 增长nx个采样点
     void growTail(unsigned nx = 1) { extendRight(nx * dx_); }
@@ -110,7 +110,7 @@ public:
     }
 
     long xToLowIndex(KREAL t) const {
-        auto idx = std::floor(xToIndex(t));
+        auto idx = static_cast<long>(std::floor(xToIndex(t)));
         assert(indexToX(idx) <= t); 
         if (indexToX(idx + 1) <= t) // 处理0.9999999变为0的情况
             idx++;
@@ -119,7 +119,7 @@ public:
     }
 
     long xToHighIndex(KREAL t) const {
-        auto idx = std::ceil(xToIndex(t));
+        auto idx = static_cast<long>(std::ceil(xToIndex(t)));
         assert(empty() || indexToX(idx) >= t); 
         if (indexToX(idx - 1) >= t) // 处理1.0000001变为2的情况
             idx--;
@@ -150,7 +150,7 @@ public:
 
     // 计算全区间的采样点数量
     long size() const {
-        return size(length());
+        return size(interval::length());
     }
 
     // 截取子区间[newLow, newHigh)，并重新定位x0
@@ -161,50 +161,50 @@ public:
         if (x0 < newLow)
             x0 = x0_ + (idx + 1) * dx_;
         x0_ = x0;
-        KtInterval::reset(newLow, newHigh);
+        interval::reset(newLow, newHigh);
     }
 
-    // 重新实现KtInterval的shift和scale系列操作，同步调整x0值 
+    // 重新实现interval的shift和scale系列操作，同步调整x0值 
     void shift(KREAL offset) {
         x0_ += offset;
-        KtInterval::shift(offset);
+        interval::shift(offset);
     }
 
     void shiftLeftTo(KREAL newLow) {
-        x0_ += newLow - low();
-        KtInterval::shiftLeftTo(newLow);
+        x0_ += newLow - xmin();
+        interval::shiftLeftTo(newLow);
     }
 
     void shiftRightTo(KREAL newHigh) {
-        x0_ += newHigh - high();
-        KtInterval::shiftRightTo(newHigh);
+        x0_ += newHigh - xmax();
+        interval::shiftRightTo(newHigh);
     }
 
     void extendLeft(KREAL offset) {
         x0_ += offset;
-        KtInterval::extendLeft(offset);
+        interval::extendLeft(offset);
     }
 
     void scale(KREAL factor) {
         dx_ *= factor;
-        auto offset = x0_ - low();
-        KtInterval::scale(factor);
-        x0_ = low() + offset * factor;
+        auto offset = x0_ - xmin();
+        interval::scale(factor);
+        x0_ = xmin() + offset * factor;
     }
 
     void scaleTo(KREAL newLength) {
         assert(!empty());
-        scale(newLength / length());
+        scale(newLength / interval::length());
     }
 
     void scaleToUnit() {
         scaleTo(1);
     }
 
-    void transform(const KtInterval& from, const KtInterval& to) {
+    void transform(const interval& from, const interval& to) {
         shiftLeftTo(0);
         scale(to.length() / from.length());
-        shift(to.low());
+        shift(to.xmin());
     }
 
 
@@ -212,11 +212,11 @@ public:
         if (empty())
             return true;
 
-        return indexToX(size()) >= high()
-            && xToIndex(high()) > (size() - 1)
-            && x0_ + (size() - 1) * dx_ < high()
-            && x0_ + size() * dx_ >= high()
-            && (empty() || cover(x0_));
+        return indexToX(size()) >= xmax()
+            && xToIndex(xmax()) > (size() - 1)
+            && x0_ + (size() - 1) * dx_ < xmax()
+            && x0_ + size() * dx_ >= xmax()
+            && (empty() || interval::cover(x0_));
     }
 
 

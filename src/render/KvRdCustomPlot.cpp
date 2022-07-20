@@ -244,7 +244,7 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 
 	kPropertySet ps;
 
-	KpProperty prop;
+	KpProperty prop, subProp;
 
 	// 加载theme
 	
@@ -261,47 +261,50 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 		prop.flag = 0;
 		prop.val = idx;
 		prop.makeEnum(list);
-		ps.push_back(prop);
-	}
+		prop.children.clear();
 
-	list = theme_->listCanvas();
-	if (!list.empty()) {
-		int idx = list.indexOf(canvasName_);
-		prop.id = k_canvas;
-		prop.name = QStringLiteral("Canvas");
-		prop.flag = 0;
-		prop.val = idx;
-		prop.makeEnum(list);
-		ps.push_back(prop);
-	}
+		list = theme_->listCanvas();
+		if (!list.empty()) {
+			int idx = list.indexOf(canvasName_);
+			subProp.id = k_canvas;
+			subProp.name = QStringLiteral("Canvas");
+			subProp.flag = 0;
+			subProp.val = idx;
+			subProp.makeEnum(list);
+			prop.children.push_back(subProp);
+		}
 
-	list = theme_->listPalettes();
-	if (!list.empty()) {
-		int idx = list.indexOf(paletteName_);
-		prop.id = k_palette;
-		prop.name = QStringLiteral("Palette");
-		prop.flag = 0;
-		prop.val = idx;
-		prop.makeEnum(list);
-		ps.push_back(prop);
-	}
+		list = theme_->listPalettes();
+		if (!list.empty()) {
+			int idx = list.indexOf(paletteName_);
+			subProp.id = k_palette;
+			subProp.name = QStringLiteral("Palette");
+			subProp.flag = 0;
+			subProp.val = idx;
+			subProp.makeEnum(list);
+			prop.children.push_back(subProp);
+		}
 
-	list = theme_->listLayouts();
-	if (!list.empty()) {
-		int idx = list.indexOf(layoutName_);
-		prop.id = k_layout;
-		prop.name = QStringLiteral("Layout");
-		prop.flag = 0;
-		prop.val = idx;
-		prop.makeEnum(list);
+		list = theme_->listLayouts();
+		if (!list.empty()) {
+			int idx = list.indexOf(layoutName_);
+			subProp.id = k_layout;
+			subProp.name = QStringLiteral("Layout");
+			subProp.flag = 0;
+			subProp.val = idx;
+			subProp.makeEnum(list);
+			prop.children.push_back(subProp);
+		}
+
 		ps.push_back(prop);
 	}
-	prop.children.clear();
 
 	prop.id = k_background;
 	prop.name = QStringLiteral("Background");
 	prop.flag = 0;
+	prop.enumList.clear();
 	prop.val = back_;
+	prop.children.clear();
 	ps.push_back(prop);
 
 	auto grid = customPlot_->plotLayout();
@@ -317,10 +320,8 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 	prop.val.clear();
 	prop.flag = KvPropertiedObject::k_collapsed;
 
-	KpProperty subProp;
 	subProp.id = KvPropertiedObject::kInvalidId;
 	subProp.flag = KvPropertiedObject::k_collapsed;
-
 	subProp.name = QStringLiteral("Bottom");
 	subProp.children = kPrivate::getAxisProperties(customPlot_->xAxis, kPrivate::k_axis_bottom);
 	prop.children.push_back(subProp);
@@ -409,5 +410,5 @@ void KvRdCustomPlot::applyTheme_(const QString& name)
 	paletteName_ = theme_->paletteName(name);
 	theme_->applyTheme(name, customPlot_);
 
-	kAppEventHub->refreshPropertySheet();
+	kAppEventHub->refreshPropertySheet(); // TODO: 可能crack. 比如有delegate没有及时销毁，再访问的时候可能出错
 }

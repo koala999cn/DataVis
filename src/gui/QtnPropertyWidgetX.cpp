@@ -4,6 +4,7 @@
 #include "QtnProperty/PropertyGUI.h"
 #include "QtnProperty/PropertyQVariant.h"
 #include "QtnProperty/PropertyDelegateAttrs.h"
+#include "QtnProperty/TypedPropertySet.h"
 
 
 QtnPropertyWidgetX::QtnPropertyWidgetX(QWidget* parent)
@@ -66,36 +67,40 @@ QtnPropertyBase* QtnPropertyWidgetX::createProperty_(const KvPropertiedObject::K
 {
     QtnPropertyBase* qtn(nullptr);
 
-    switch (prop.val.type()) {
-    case QMetaType::Bool:        qtn = new QtnPropertyBool(nullptr);        break;
-    case QMetaType::UInt:        qtn = new QtnPropertyUInt(nullptr);        break;
-    case QMetaType::Float:       qtn = new QtnPropertyFloat(nullptr);       break;
-    case QMetaType::Double:      qtn = new QtnPropertyDouble(nullptr);      break;
-    case QMetaType::QString:     qtn = new QtnPropertyQString(nullptr);     break;
-    case QMetaType::QPoint:      qtn = new QtnPropertyQPoint(nullptr);      break;
-    case QMetaType::QPointF:     qtn = new QtnPropertyQPointF(nullptr);     break;
-    case QMetaType::QSize:       qtn = new QtnPropertyQSize(nullptr);       break;
-    case QMetaType::QSizeF:      qtn = new QtnPropertyQSizeF(nullptr);      break;
-    case QMetaType::QRect:       qtn = new QtnPropertyQRect(nullptr);       break;
-    case QMetaType::QRectF:      qtn = new QtnPropertyQRectF(nullptr);      break;
-    case QMetaType::QColor:      qtn = new QtnPropertyQColor(nullptr);      break;
-    case QMetaType::QPen:        qtn = new QtnPropertyQPen(nullptr);        break;
-    case QMetaType::QBrush:      qtn = new QtnPropertyQBrushStyle(nullptr); break;
-    case QMetaType::QFont:       qtn = new QtnPropertyQFont(nullptr);       break;
-    case QMetaType::QVector3D:   qtn = new QtnPropertyQVector3D(nullptr);   break;
-    case QMetaType::UnknownType: qtn = new QtnPropertySet();                break;
-    case QMetaType::Int:         
-        if (prop.children.empty())
-            qtn = new QtnPropertyInt(nullptr);
-        else 
-            qtn = new QtnPropertyEnum(nullptr);
-        break;
-    default:                     qtn = new QtnPropertyQVariant(nullptr);    break;
+    if(!prop.enumList.empty())
+        qtn = new QtnPropertyEnum(nullptr);
+    else {
+        switch (prop.val.type()) {
+        case QMetaType::Bool:        qtn = new QtnPropertyBool(nullptr);        break;
+        case QMetaType::UInt:        qtn = new QtnPropertyUInt(nullptr);        break;
+        case QMetaType::Float:       qtn = new QtnPropertyFloat(nullptr);       break;
+        case QMetaType::Double:      qtn = new QtnPropertyDouble(nullptr);      break;
+        case QMetaType::QString:     qtn = new QtnPropertyQString(nullptr);     break;
+        case QMetaType::QPoint:      qtn = new QtnPropertyQPoint(nullptr);      break;
+        case QMetaType::QPointF:     qtn = new QtnPropertyQPointF(nullptr);     break;
+        case QMetaType::QSize:       qtn = new QtnPropertyQSize(nullptr);       break;
+        case QMetaType::QSizeF:      qtn = new QtnPropertyQSizeF(nullptr);      break;
+        case QMetaType::QRect:       qtn = new QtnPropertyQRect(nullptr);       break;
+        case QMetaType::QRectF:      qtn = new QtnPropertyQRectF(nullptr);      break;
+        case QMetaType::QColor:      qtn = new QtnPropertyQColor(nullptr);      break;
+        case QMetaType::QPen:        qtn = new QtnPropertyQPen(nullptr);        break;
+        case QMetaType::QBrush:      qtn = new QtnPropertyQBrushStyle(nullptr); break;
+        case QMetaType::QFont:       qtn = new QtnPropertyQFont(nullptr);       break;
+        case QMetaType::QVector3D:   qtn = new QtnPropertyQVector3D(nullptr);   break;
+        case QMetaType::UnknownType: qtn = new QtnPropertySet();                break;
+        case QMetaType::Int:         qtn = new QtnPropertyInt(nullptr);         break;
+        default:                     qtn = new QtnPropertyQVariant(nullptr);    break;
+        }
     }
-
 
     setDelegateAttributes_(qtn, prop);
     connect(qtn, &QtnPropertyBase::propertyDidChange, this, &QtnPropertyWidgetX::onPropertyDidChange);
+
+    if (!prop.children.empty() && QMetaType::UnknownType != prop.val.type()) {
+        auto id = qtn->id();
+        qtn = new QtnTypedPropertySet(qtn->asProperty());
+        qtn->setId(id);
+    }
 
     return qtn;
 }
@@ -107,10 +112,8 @@ void QtnPropertyWidgetX::addProperties_(QtnPropertySet* parent, const KvProperti
         auto qtn = createProperty_(p);
         parent->addChildProperty(qtn);
 
-        if (p.val.type() == QMetaType::UnknownType) {
-            assert(qtn->asPropertySet());
+        if (!p.children.empty() && qtn->asPropertySet()) 
             addProperties_(qtn->asPropertySet(), p.children);
-        }
     }
 }
 
@@ -170,13 +173,13 @@ void QtnPropertyWidgetX::setDelegateAttributes_(QtnPropertyBase* qtn, const KvPr
 
     // 一些特殊的属性
 
-    if (prop.val.type() == QMetaType::Int && !prop.children.empty()) { // config enum value infos
+    if (!prop.enumList.empty()) { // config enum value infos
         auto qtnEnum = dynamic_cast<QtnPropertyEnum*>(qtn);
         void* buf = malloc(sizeof(QtnEnumInfo));
         bufs_.push_back(buf);
         QtnEnumInfo* enumInfo = new(buf) QtnEnumInfo;
-        for (auto& c : prop.children)
-            enumInfo->getVector().push_back(QtnEnumValueInfo(c.val.toInt(), c.name, c.disp));
+        for (auto& c : prop.enumList)
+            enumInfo->getVector().push_back(QtnEnumValueInfo(c.second, c.first));
         qtnEnum->setEnumInfo(enumInfo);
         qtnEnum->setValue(prop.val.value<int>()); // 添加enumInfo之后，需要重新设置value
     }
@@ -254,6 +257,9 @@ QVariantMap QtnPropertyWidgetX::collectDelegateAttributes_(const KvPropertiedObj
 
     if (!prop.maxVal.isNull())
         vm[qtnMaxAttr()] = prop.maxVal;
+
+    if (!prop.step.isNull())
+        vm[qtnStepAttr()] = prop.step;
 
     return vm;
 }
