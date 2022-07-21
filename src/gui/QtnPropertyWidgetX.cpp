@@ -4,7 +4,7 @@
 #include "QtnProperty/PropertyGUI.h"
 #include "QtnProperty/PropertyQVariant.h"
 #include "QtnProperty/PropertyDelegateAttrs.h"
-#include "QtnProperty/TypedPropertySet.h"
+#include "QtnProperty/PropertySetTyped.h"
 
 
 QtnPropertyWidgetX::QtnPropertyWidgetX(QWidget* parent)
@@ -98,7 +98,7 @@ QtnPropertyBase* QtnPropertyWidgetX::createProperty_(const KvPropertiedObject::K
 
     if (!prop.children.empty() && QMetaType::UnknownType != prop.val.type()) {
         auto id = qtn->id();
-        qtn = new QtnTypedPropertySet(qtn->asProperty());
+        qtn = new QtnPropertySetTyped(qtn->asProperty());
         qtn->setId(id);
     }
 

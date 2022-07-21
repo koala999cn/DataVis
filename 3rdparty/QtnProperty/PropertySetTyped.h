@@ -2,18 +2,23 @@
 #include "PropertySet.h"
 
 
-class QTN_IMPORT_EXPORT QtnTypedPropertySet : public QtnPropertySet
+class QTN_IMPORT_EXPORT QtnPropertySetTyped : public QtnPropertySet
 {
 	Q_OBJECT
 
 public:
 
-	QtnTypedPropertySet(QtnProperty *typedProperty, QObject *parent = nullptr)
+	QtnPropertySetTyped(QtnProperty *typedProperty, QObject *parent = nullptr)
 		: QtnPropertySet(parent) {
 		m_typedProperty = typedProperty;
+		connect(m_typedProperty, &QtnProperty::propertyDidChange,
+			[this](QtnPropertyChangeReason reason) {
+				if (reason & QtnPropertyChangeReasonStateLocal)
+					setState(m_typedProperty->state());
+			});
 	}
 
-	virtual ~QtnTypedPropertySet() override
+	virtual ~QtnPropertySetTyped() override
 	{
 		delete m_typedProperty;
 	}
@@ -30,17 +35,18 @@ protected:
 
 	virtual void doReset(QtnPropertyChangeReason reason) override {
 		m_typedProperty->reset(reason);
+		QtnPropertySet::reset(reason);
 	}
 
 	virtual bool event(QEvent* e) override {
-		return ((QObject*)m_typedProperty)->event(e);
+		return ((QObject *) m_typedProperty)->event(e) && QtnPropertySet::event(e);
 	}
 
 	virtual bool loadImpl(QDataStream &stream) override {
-		return m_typedProperty->load(stream);
+		return m_typedProperty->load(stream) && QtnPropertySet::loadImpl(stream);
 	}
 	virtual bool saveImpl(QDataStream &stream) const override {
-		return m_typedProperty->save(stream);
+		return m_typedProperty->save(stream) && QtnPropertySet::saveImpl(stream);
 	}
 
 	virtual bool fromStrImpl(const QString &str, QtnPropertyChangeReason reason) override {
@@ -57,31 +63,6 @@ protected:
 	virtual bool toVariantImpl(QVariant &var) const override {
 		return m_typedProperty->toVariant(var);
 	}
-
-#if 0
-	virtual void updateStateInherited(bool force) override {
-		return m_typedProperty->updateStateInherited(force);
-	}
-	void setStateInherited(QtnPropertyState stateToSet, bool force = false) override {
-		return m_typedProperty->setStateInherited(stateToSet, force);
-	}
-
-	void setStateInternal(QtnPropertyState stateToSet, bool force = false,
-		QtnPropertyChangeReason reason = QtnPropertyChangeReason()) override {
-		return m_typedProperty->setStateInternal(stateToSet, force, reason);
-	}
-
-	virtual void masterPropertyWillChange(QtnPropertyChangeReason reason) override {
-		return m_typedProperty->masterPropertyWillChange(reason);
-	}
-	virtual void masterPropertyDidChange(QtnPropertyChangeReason reason) override {
-		return m_typedProperty->masterPropertyDidChange(reason);
-	}
-
-	virtual void updatePropertyState() override {
-		return m_typedProperty->updatePropertyState();
-	}
-#endif
 
 private:
 	QtnProperty *m_typedProperty; 
@@ -110,10 +91,10 @@ QtnProperty* QtnCreateProperty()
 
 
 template<typename T>
-class QtnTypedPropertySet : public QtnTypedPropertySetBase
+class QtnPropertySetTyped : public QtnTypedPropertySetBase
 {
 public:
-	QtnTypedPropertySet(QObject *parent = nullptr)
+	QtnPropertySetTyped(QObject *parent = nullptr)
 		: QtnTypedPropertySetBase(parent) {}
 
 };
