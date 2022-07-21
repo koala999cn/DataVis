@@ -192,15 +192,8 @@ KvPropertiedObject::kPropertySet KcRdPlot2d::propertySet() const
         { "Jet", QCPColorGradient::gpJet },
         { "Hues", QCPColorGradient::gpHues }
     };
-
-    for (unsigned i = 0; i < sizeof(gradients) / sizeof(std::pair<QString, int>); i++) {
-        KvPropertiedObject::KpProperty sub;
-        sub.name = gradients[i].first;
-        sub.val = gradients[i].second;
-        subProp.children.push_back(sub);
-    }
+    subProp.makeEnum(gradients);
     prop.children.push_back(subProp);
-    subProp.children.clear();
 
 
     subProp.id = kPrivate::k_interpolate;

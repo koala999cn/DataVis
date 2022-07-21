@@ -40,6 +40,8 @@ protected:
 
 	void applyTheme_(const QString& name);
 
+	KpProperty themeProperty_() const;
+
 protected:
 	std::shared_ptr<KvData> contData_; // 最近接收的连续数据，由派生类维护使用
 

@@ -81,12 +81,7 @@ KcOpInterpolater::kPropertySet KcOpInterpolater::propertySet() const
     prop.val = interpMethod_;
     prop.flag = 0;
     prop.children.clear();
-    for (unsigned i = 0; i < sizeof(interp) / sizeof(std::pair<QString, int>); i++) {
-        KvPropertiedObject::KpProperty sub;
-        sub.name = interp[i].first;
-        sub.val = interp[i].second;
-        prop.children.push_back(sub);
-    }
+    prop.makeEnum(interp);
     ps.push_back(prop);
 
 
@@ -102,13 +97,7 @@ KcOpInterpolater::kPropertySet KcOpInterpolater::propertySet() const
     prop.id = kPrivate::k_extrap;
     prop.name = u8"ExtrapolateMethod";
     prop.val = extrapMethod_;
-    prop.children.clear();
-    for (unsigned i = 0; i < sizeof(extrap) / sizeof(std::pair<QString, int>); i++) {
-        KvPropertiedObject::KpProperty sub;
-        sub.name = extrap[i].first;
-        sub.val = extrap[i].second;
-        prop.children.push_back(sub);
-    }
+    prop.makeEnum(extrap);
     ps.push_back(prop);
 
 

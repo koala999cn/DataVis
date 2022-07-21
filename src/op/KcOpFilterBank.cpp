@@ -82,11 +82,7 @@ KcOpFilterBank::kPropertySet KcOpFilterBank::propertySet() const
     prop.id = kPrivate::k_type;
     prop.name = tr("Type");
     prop.val = fbank_->type();
-    for (unsigned i = 0; i < sizeof(type) / sizeof(std::pair<QString, int>); i++) {
-        subProp.name = type[i].first;
-        subProp.val = type[i].second;
-        prop.children.push_back(subProp);
-    }
+    prop.makeEnum(type);
     ps.push_back(prop);
     prop.children.clear();
 

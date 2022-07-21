@@ -90,12 +90,7 @@ KcPvExcitationSource::kPropertySet KcPvExcitationSource::propertySet() const
 	prop.id = kPrivate::k_type;
 	prop.name = tr("Distribution");
 	prop.val = type_;
-	for (unsigned i = 0; i < sizeof(type) / sizeof(std::pair<QString, int>); i++) {
-		KvPropertiedObject::KpProperty sub;
-		sub.name = type[i].first;
-		sub.val = type[i].second;
-		prop.children.push_back(sub);
-	}
+	prop.makeEnum(type);
 	ps.push_back(prop);
 
 	prop.id = kPrivate::k_duration;

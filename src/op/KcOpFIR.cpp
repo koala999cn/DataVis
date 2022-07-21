@@ -60,12 +60,7 @@ KcOpFIR::kPropertySet KcOpFIR::propertySet() const
     prop.id = kPrivate::k_type;
     prop.name = tr("Type");
     prop.val = type_;
-    for (unsigned i = 0; i < sizeof(type) / sizeof(std::pair<QString, int>); i++) {
-        KpProperty subProp;
-        subProp.name = type[i].first;
-        subProp.val = type[i].second;
-        prop.children.push_back(subProp);
-    }
+    prop.makeEnum(type);
     ps.push_back(prop);
     prop.children.clear();
 
@@ -77,12 +72,7 @@ KcOpFIR::kPropertySet KcOpFIR::propertySet() const
     prop.id = kPrivate::k_window;
     prop.name = tr("Window");
     prop.val = window_;
-    for (unsigned i = 0; i < sizeof(win) / sizeof(std::pair<QString, int>); i++) {
-        KpProperty subProp;
-        subProp.name = win[i].first;
-        subProp.val = win[i].second;
-        prop.children.push_back(subProp);
-    }
+    prop.makeEnum(win);
     ps.push_back(prop);
     prop.children.clear();
 

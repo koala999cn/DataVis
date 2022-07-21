@@ -69,12 +69,7 @@ KcOpResampler::kPropertySet KcOpResampler::propertySet() const
     prop.id = k_interp_method;
     prop.name = u8"Method";
     prop.val = method_;
-    for (unsigned i = 0; i < sizeof(method) / sizeof(std::pair<QString, int>); i++) {
-        KvPropertiedObject::KpProperty sub;
-        sub.name = method[i].first;
-        sub.val = method[i].second;
-        prop.children.push_back(sub);
-    }
+    prop.makeEnum(method);
     ps.push_back(prop);
 
     prop.id = k_window_length;

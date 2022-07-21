@@ -34,11 +34,7 @@ KcOpWindowing::kPropertySet KcOpWindowing::propertySet() const
     prop.id = 0;
     prop.name = tr("type");
     prop.val = type_;
-    for (unsigned i = 0; i < sizeof(type) / sizeof(std::pair<QString, int>); i++) {
-        subProp.name = type[i].first;
-        subProp.val = type[i].second;
-        prop.children.push_back(subProp);
-    }
+    prop.makeEnum(type);
     ps.push_back(prop);
 
     return ps;

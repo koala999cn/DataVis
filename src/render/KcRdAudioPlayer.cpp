@@ -35,19 +35,16 @@ KcRdAudioPlayer::kPropertySet KcRdAudioPlayer::propertySet() const
 	prop.id = kPrivate::k_device_id;
 	prop.name = tr("Device");
 	prop.desc = tr("device used to render audio");
-	prop.val = QVariant::fromValue<int>(deviceId_); // int类型代表enum类型
+	prop.val = int(deviceId_); // int类型代表enum类型
 	for (unsigned i = 0; i < dev.count(); i++) {
 		auto info = dev.info(i);
 		if (info.outputChannels > 0) {
-			KpProperty sub;
-			sub.name = QString::number(i);
-			sub.disp = QString::fromLocal8Bit(info.name);
-			sub.val = static_cast<int>(i);
-			prop.children.push_back(sub);
+			auto name = QString::fromLocal8Bit(info.name.c_str(), info.name.size());
+			prop.enumList.emplace_back(name, i);
 		}
 	}
 	ps.push_back(prop);
-	prop.children.clear();
+	prop.enumList.clear();
 
 	auto pobj = dynamic_cast<KvDataProvider*>(parent());
 

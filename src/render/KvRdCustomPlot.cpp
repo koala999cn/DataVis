@@ -148,6 +148,10 @@ namespace kPrivate
 		k_layout,
 		k_background,
 		k_margins,
+		k_xrange,
+		k_yrange,
+		k_x_subtitle,
+		k_y_subtitle,
 
 		k_axis_visible = k_axis_bottom_visible - k_axis_bottom,
 		k_axis_range = k_axis_bottom_range - k_axis_bottom,
@@ -247,75 +251,59 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 	KpProperty prop, subProp;
 
 	// 加载theme
-	
 	theme_->load("themes/*.json"); // TODO: 为调试方便，暂时先放此处
-	auto list = theme_->listThemes();
-	if (!list.empty()) {
-		int idx = list.indexOf(themeName_);
-		if (idx == -1) {
-			idx = 0;
-			theme_->applyTheme(list.front(), customPlot_);
-		}
-		prop.id = k_theme;
-		prop.name = QStringLiteral("Theme");
-		prop.flag = 0;
-		prop.val = idx;
-		prop.makeEnum(list);
-		prop.children.clear();
+	if(!theme_->listThemes().empty())
+	    ps.push_back(themeProperty_());
 
-		list = theme_->listCanvas();
-		if (!list.empty()) {
-			int idx = list.indexOf(canvasName_);
-			subProp.id = k_canvas;
-			subProp.name = QStringLiteral("Canvas");
-			subProp.flag = 0;
-			subProp.val = idx;
-			subProp.makeEnum(list);
-			prop.children.push_back(subProp);
-		}
-
-		list = theme_->listPalettes();
-		if (!list.empty()) {
-			int idx = list.indexOf(paletteName_);
-			subProp.id = k_palette;
-			subProp.name = QStringLiteral("Palette");
-			subProp.flag = 0;
-			subProp.val = idx;
-			subProp.makeEnum(list);
-			prop.children.push_back(subProp);
-		}
-
-		list = theme_->listLayouts();
-		if (!list.empty()) {
-			int idx = list.indexOf(layoutName_);
-			subProp.id = k_layout;
-			subProp.name = QStringLiteral("Layout");
-			subProp.flag = 0;
-			subProp.val = idx;
-			subProp.makeEnum(list);
-			prop.children.push_back(subProp);
-		}
-
-		ps.push_back(prop);
-	}
-
+	/*
 	prop.id = k_background;
 	prop.name = QStringLiteral("Background");
 	prop.flag = 0;
 	prop.enumList.clear();
-	prop.val = back_;
+	prop.val = back_; // TODO: QCP目前没有获取背景brush的方法
 	prop.children.clear();
+	ps.push_back(prop);*/
+
+	auto xaixs = customPlot_->xAxis;
+	prop.id = k_xrange;
+	prop.flag = KvPropertiedObject::k_restrict;
+	prop.name = "xrange";
+	prop.disp = tr("Key Range");
+	prop.val = QPointF(xaixs->range().lower, xaixs->range().upper);
+	subProp.name = tr("low");
+	prop.children.push_back(subProp);
+	subProp.name = tr("high");
+	prop.children.push_back(subProp);
 	ps.push_back(prop);
 
-	auto grid = customPlot_->plotLayout();
-	auto ele = grid->elementAt(0);
-	auto m = ele->minimumMargins();
-	prop.id = k_margins;
-	prop.name = QStringLiteral("Margins");
-	prop.val = QRect(m.left(), m.top(), m.right(), m.bottom());
+	auto yaixs = customPlot_->yAxis;
+	prop.id = k_yrange;
+	prop.name = "yrange";
+	prop.disp = tr("Value Range");
+	prop.val = QPointF(yaixs->range().lower, yaixs->range().upper);
 	ps.push_back(prop);
+
 
 	prop.id = KvPropertiedObject::kInvalidId;
+	prop.name = "subtitle";
+	prop.disp = tr("Axis title");
+	prop.val.clear();
+	prop.children.clear();
+
+	subProp.id = k_x_subtitle;
+	subProp.name = "x";
+	subProp.val = xaixs->label();
+	prop.children.push_back(subProp);
+
+	subProp.id = k_y_subtitle;
+	subProp.name = "y";
+	subProp.val = yaixs->label();
+	prop.children.push_back(subProp);
+
+	ps.push_back(prop);
+
+
+/*	prop.id = KvPropertiedObject::kInvalidId;
 	prop.name = QStringLiteral("Axis");
 	prop.val.clear();
 	prop.flag = KvPropertiedObject::k_collapsed;
@@ -337,7 +325,16 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 	subProp.name = QStringLiteral("Right");
 	subProp.children = kPrivate::getAxisProperties(customPlot_->yAxis2, kPrivate::k_axis_right);
 	prop.children.push_back(subProp);
-	ps.push_back(prop);
+	ps.push_back(prop);*/
+
+	/*
+	auto grid = customPlot_->plotLayout();
+	auto ele = grid->elementAt(0);
+	auto m = ele->minimumMargins();
+	prop.id = k_margins;
+	prop.name = QStringLiteral("Margins");
+	prop.val = QRect(m.left(), m.top(), m.right(), m.bottom());
+	ps.push_back(prop);*/
 
 	return ps;
 }
@@ -373,6 +370,22 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 	case k_background:
 		back_ = newVal.value<QColor>();
 		customPlot_->setBackground(QBrush(back_));
+		break;
+
+	case k_xrange:
+		customPlot_->xAxis->setRange(newVal.toPointF().x(), newVal.toPointF().y());
+		break;
+
+	case k_yrange:
+		customPlot_->yAxis->setRange(newVal.toPointF().x(), newVal.toPointF().y());
+		break;
+
+	case k_x_subtitle:
+		customPlot_->xAxis->setLabel(newVal.toString());
+		break;
+
+	case k_y_subtitle:
+		customPlot_->yAxis->setLabel(newVal.toString());
 		break;
 
 	case k_margins: {
@@ -411,4 +424,61 @@ void KvRdCustomPlot::applyTheme_(const QString& name)
 	theme_->applyTheme(name, customPlot_);
 
 	kAppEventHub->refreshPropertySheet(); // TODO: 可能crack. 比如有delegate没有及时销毁，再访问的时候可能出错
+}
+
+
+KvRdCustomPlot::KpProperty KvRdCustomPlot::themeProperty_() const
+{
+	KpProperty prop;
+
+	auto list = theme_->listThemes();
+	if (!list.empty()) {
+		int idx = list.indexOf(themeName_);
+		if (idx == -1) {
+			idx = 0;
+			theme_->applyTheme(list.front(), customPlot_);
+		}
+		prop.id = kPrivate::k_theme;
+		prop.name = tr("Theme");
+		prop.flag = 0;
+		prop.val = idx;
+		prop.makeEnum(list);
+		prop.children.clear();
+
+		KpProperty subProp;
+		list = theme_->listCanvas();
+		if (!list.empty()) {
+			int idx = list.indexOf(canvasName_);
+			subProp.id = kPrivate::k_canvas;
+			subProp.name = tr("Canvas");
+			subProp.flag = 0;
+			subProp.val = idx;
+			subProp.makeEnum(list);
+			prop.children.push_back(subProp);
+		}
+
+		list = theme_->listPalettes();
+		if (!list.empty()) {
+			int idx = list.indexOf(paletteName_);
+			subProp.id = kPrivate::k_palette;
+			subProp.name = tr("Palette");
+			subProp.flag = 0;
+			subProp.val = idx;
+			subProp.makeEnum(list);
+			prop.children.push_back(subProp);
+		}
+
+		list = theme_->listLayouts();
+		if (!list.empty()) {
+			int idx = list.indexOf(layoutName_);
+			subProp.id = kPrivate::k_layout;
+			subProp.name = tr("Layout");
+			subProp.flag = 0;
+			subProp.val = idx;
+			subProp.makeEnum(list);
+			prop.children.push_back(subProp);
+		}
+	}
+
+	return prop;
 }

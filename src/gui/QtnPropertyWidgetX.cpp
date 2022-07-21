@@ -96,7 +96,14 @@ QtnPropertyBase* QtnPropertyWidgetX::createProperty_(const KvPropertiedObject::K
     setDelegateAttributes_(qtn, prop);
     connect(qtn, &QtnPropertyBase::propertyDidChange, this, &QtnPropertyWidgetX::onPropertyDidChange);
 
-    if (!prop.children.empty() && QMetaType::UnknownType != prop.val.type()) {
+    if (!prop.children.empty() 
+        && prop.val.type() != QMetaType::UnknownType
+        && prop.val.type() != QMetaType::QPoint 
+        && prop.val.type() != QMetaType::QPointF
+        && prop.val.type() != QMetaType::QSize
+        && prop.val.type() != QMetaType::QSizeF
+        && prop.val.type() != QMetaType::QRect
+        && prop.val.type() != QMetaType::QRectF) {
         auto id = qtn->id();
         qtn = new QtnPropertySetTyped(qtn->asProperty());
         qtn->setId(id);

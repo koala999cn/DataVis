@@ -187,7 +187,7 @@ KvPropertiedObject::kPropertySet KcRdPlot1d::propertySet() const
 	KpProperty prop;
 	KpProperty subProp;
 
-	if(type_ == KeType::k_line)
+/*	if (type_ == KeType::k_line)
 		ps.push_back(lineProperty_(false));
 	else if(type_ == KeType::k_bars)
 		ps.push_back(barProperty_());
@@ -195,6 +195,7 @@ KvPropertiedObject::kPropertySet KcRdPlot1d::propertySet() const
 
 	if (type_ != KeType::k_bars)
 		ps.push_back(scatterProperty_(type_ == KeType::k_line));
+*/
 
 	return ps;
 }
@@ -234,12 +235,7 @@ KvPropertiedObject::KpProperty KcRdPlot1d::scatterProperty_(bool hasNone) const
 	subProp.name = u8"Shape";
 	subProp.desc.clear();
 	subProp.val = QVariant::fromValue<int>(style.shape()); // int类型代表enum类型
-	for (unsigned i = hasNone ? 0 : 1; i < sizeof(shapes) / sizeof(std::pair<QString, int>); i++) {
-		KvPropertiedObject::KpProperty sub;
-		sub.name = shapes[i].first;
-		sub.val = shapes[i].second;
-		subProp.children.push_back(sub);
-	}
+	subProp.makeEnum(shapes);
 	prop.children.push_back(subProp);
 	
 	subProp.id = kPrivate::k_scatter_size;
@@ -295,13 +291,9 @@ KvPropertiedObject::KpProperty KcRdPlot1d::lineProperty_(bool hasNone) const
 		{ "StepCenter", QCPGraph::lsStepCenter },
 		{ "Impulse", QCPGraph::lsImpulse }
 	};
-
-	for (unsigned i = hasNone ? 0 : 1; i < sizeof(styles) / sizeof(std::pair<QString, int>); i++) {
-		KvPropertiedObject::KpProperty sub;
-		sub.name = styles[i].first;
-		sub.val = styles[i].second;
-		subProp.children.push_back(sub);
-	}
+	subProp.enumList.clear();
+	for (unsigned i = hasNone ? 0 : 1; i < sizeof(styles) / sizeof(std::pair<QString, int>); i++) 
+		subProp.enumList.emplace_back(styles[i].first, styles[i].second);
 	prop.children.push_back(subProp);
 
 	subProp.id = kPrivate::k_line_pen;

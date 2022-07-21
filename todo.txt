@@ -1,0 +1,8 @@
+1. 解决播放器不能重复播放的问题 --> ok
+2. 解决两次双击render项(3dScatter)出错的问题 --> ok
+3. 支持hdf5, xlsx数据源
+4. 气泡图
+5. 更多theme，SCI等
+6. plot标题等设置
+7. binary data loader
+8. 基于json的对象属性sheet
