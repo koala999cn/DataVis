@@ -1,7 +1,7 @@
 {
   "group": "ggthemr",
 
-  "disc": "palette themes from ggthemr. see https://github.com/Mikata-Project/ggthemr",
+  "desc": "palette themes from ggthemr. see https://github.com/Mikata-Project/ggthemr",
 
   "detail": "first color is minor, for outlining; others is major-list, for filling",
 

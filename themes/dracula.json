@@ -3,7 +3,7 @@
 
     "name": "dracula",
 
-    "disc": "A dark palette theme. see https://github.com/dracula/ggplot2",
+    "desc": "A dark palette theme. see https://github.com/dracula/ggplot2",
 
     "palette": [
       "#FF5555",
