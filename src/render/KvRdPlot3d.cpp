@@ -198,6 +198,7 @@ KvRdPlot3d::kPropertySet KvRdPlot3d::propertySet() const
 	prop.val = int(graph3d_->shadowQuality());
 	prop.makeEnum(shadowQualityList);
 	ps.push_back(prop);
+	prop.enumList.clear();
 
 	auto objp = dynamic_cast<KvDataProvider*>(parent());
 

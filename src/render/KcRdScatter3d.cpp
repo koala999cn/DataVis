@@ -13,6 +13,9 @@ KcRdScatter3d::KcRdScatter3d(KvDataProvider* is)
 	yAxis_ = scatter->axisY();
 	zAxis_ = scatter->axisZ();
 
+	size0_ = is->size(0);
+	size1_ = is->dim() > 1 ? is->size(1) : 1;
+
 	syncAxes_();
 }
 
