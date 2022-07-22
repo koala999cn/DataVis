@@ -1,0 +1,817 @@
+{
+  "group": "ggsci",
+
+  "desc": "palette themes from ggsci-db. see https://github.com/nanxstats/ggsci",
+
+  "palette-list": {
+
+    "npg-nrc": {
+      "desc": "Color palette inspired by plots in Nature Reviews Cancer",
+      "major": [
+        "#E64B35",
+        "#4DBBD5",
+        "#00A087",
+        "#3C5488",
+        "#F39B7F",
+        "#8491B4",
+        "#91D1C2",
+        "#DC0000",
+        "#7E6148",
+        "#B09C85"
+      ]
+    },
+
+    "aaas": {
+      "desc": "Color palette inspired by plots in Science from AAAS",
+      "major": [
+        "#3B4992",
+        "#EE0000",
+        "#008B45",
+        "#631879",
+        "#008280",
+        "#BB0021",
+        "#5F559B",
+        "#A20056",
+        "#808180",
+        "#1B1919"
+      ]
+    },
+
+    "nejm": {
+      "desc": "Color palette inspired by plots in The New England Journal of Medicine",
+      "major": [
+        "#BC3C29",
+        "#0072B5",
+        "#E18727",
+        "#20854E",
+        "#7876B1",
+        "#6F99AD",
+        "#FFDC91",
+        "#EE4C97"
+      ]
+    },
+
+    "lancet": {
+      "desc": "Color palette inspired by plots in Lancet Oncology",
+      "major": [
+        "#00468B",
+        "#ED0000",
+        "#42B540",
+        "#0099B4",
+        "#925E9F",
+        "#FDAF91",
+        "#AD002A",
+        "#ADB6B6",
+        "#1B1919"
+      ]
+    },
+
+    "jama": {
+      "desc": "Color palette inspired by plots in The Journal of the American Medical Association",
+      "major": [
+        "#374E55",
+        "#DF8F44",
+        "#00A1D5",
+        "#B24745",
+        "#79AF97",
+        "#6A6599",
+        "#80796B"
+      ]
+    },
+
+    "jco": {
+      "desc": "Color palette inspired by plots in Journal of Clinical Oncology",
+      "major": [
+        "#0073C2",
+        "#EFC000",
+        "#868686",
+        "#CD534C",
+        "#7AA6DC",
+        "#003C67",
+        "#8F7700",
+        "#3B3B3B",
+        "#A73030",
+        "#4A6990"
+      ]
+    },
+
+    "ucscgb": {
+      "desc": "Color palette inspired by UCSC Genome Browser Chromosome Colors",
+      "major": [
+        "#FF0000",
+        "#FF9900",
+        "#FFCC00",
+        "#00FF00",
+        "#6699FF",
+        "#CC33FF",
+        "#99991E",
+        "#999999",
+        "#FF00CC",
+        "#CC0000",
+        "#FFCCCC",
+        "#FFFF00",
+        "#CCFF00",
+        "#358000",
+        "#0000CC",
+        "#99CCFF",
+        "#00FFFF",
+        "#CCFFFF",
+        "#9900CC",
+        "#CC99FF",
+        "#996600",
+        "#666600",
+        "#666666",
+        "#CCCCCC",
+        "#79CC3D",
+        "#CCCC99"
+      ]
+    },
+
+    "d3-category10": {
+      "desc": "Color palette inspired by D3.js",
+      "major": [
+        "#1F77B4",
+        "#FF7F0E",
+        "#2CA02C",
+        "#D62728",
+        "#9467BD",
+        "#8C564B",
+        "#E377C2",
+        "#7F7F7F",
+        "#BCBD22",
+        "#17BECF"
+      ]
+    },
+
+    "d3-category20": {
+      "desc": "Color palette inspired by D3.js",
+      "major": [
+        "#1F77B4",
+        "#FF7F0E",
+        "#2CA02C",
+        "#D62728",
+        "#9467BD",
+        "#8C564B",
+        "#E377C2",
+        "#7F7F7F",
+        "#BCBD22",
+        "#17BECF",
+        "#AEC7E8",
+        "#FFBB78",
+        "#98DF8A",
+        "#FF9896",
+        "#C5B0D5",
+        "#C49C94",
+        "#F7B6D2",
+        "#C7C7C7",
+        "#DBDB8D",
+        "#9EDAE5"
+      ]
+    },
+
+    "d3-category20b": {
+      "desc": "Color palette inspired by D3.js",
+      "major": [
+        "#393B79",
+        "#637939",
+        "#8C6D31",
+        "#843C39",
+        "#7B4173",
+        "#5254A3",
+        "#8CA252",
+        "#BD9E39",
+        "#AD494A",
+        "#A55194",
+        "#6B6ECF",
+        "#B5CF6B",
+        "#E7BA52",
+        "#D6616B",
+        "#CE6DBD",
+        "#9C9EDE",
+        "#CEDB9C",
+        "#E7CB94",
+        "#E7969C",
+        "#DE9ED6"
+      ]
+    },
+
+    "d3-category20c": {
+      "desc": "Color palette inspired by D3.js",
+      "major": [
+        "#3182BD",
+        "#E6550D",
+        "#31A354",
+        "#756BB1",
+        "#636363",
+        "#6BAED6",
+        "#FD8D3C",
+        "#74C476",
+        "#9E9AC8",
+        "#969696",
+        "#9ECAE1",
+        "#FDAE6B",
+        "#A1D99B",
+        "#BCBDDC",
+        "#BDBDBD",
+        "#C6DBEF",
+        "#FDD0A2",
+        "#C7E9C0",
+        "#DADAEB",
+        "#D9D9D9"
+      ]
+    },
+
+    "igv-48": {
+      "desc": "Color palette inspired by IGV",
+      "major": [
+        "#5050FF",
+        "#CE3D32",
+        "#749B58",
+        "#F0E685",
+        "#466983",
+        "#BA6338",
+        "#5DB1DD",
+        "#802268",
+        "#6BD76B",
+        "#D595A7",
+        "#924822",
+        "#837B8D",
+        "#C75127",
+        "#D58F5C",
+        "#7A65A5",
+        "#E4AF69",
+        "#3B1B53",
+        "#CDDEB7",
+        "#612A79",
+        "#AE1F63",
+        "#E7C76F",
+        "#5A655E",
+        "#CC9900",
+        "#99CC00",
+        "#A9A9A9",
+        "#CC9900",
+        "#99CC00",
+        "#33CC00",
+        "#00CC33",
+        "#00CC99",
+        "#0099CC",
+        "#0A47FF",
+        "#4775FF",
+        "#FFC20A",
+        "#FFD147",
+        "#990033",
+        "#991A00",
+        "#996600",
+        "#809900",
+        "#339900",
+        "#00991A",
+        "#009966",
+        "#008099",
+        "#003399",
+        "#1A0099",
+        "#660099",
+        "#990080",
+        "#D60047",
+        "#FF1463",
+        "#00D68F",
+        "#14FFB1"
+      ]
+    },
+
+    "igv-alternating": {
+      "desc": "Color palette inspired by IGV",
+      "major": [
+        "#5773CC",
+        "#FFB900"
+      ]
+    },
+
+    "locuszoom": {
+      "desc": "Color palette inspired by LocusZoom",
+      "major": [
+        "#D43F3A",
+        "#EEA236",
+        "#5CB85C",
+        "#46B8DA",
+        "#357EBD",
+        "#9632B8",
+        "#B8B8B8"
+      ]
+    },
+
+    "uchicago": {
+      "desc": "Color palette inspired by University of Chicago Color Palette",
+      "major": [
+        "#800000",
+        "#767676",
+        "#FFA319",
+        "#8A9045",
+        "#155F83",
+        "#C16622",
+        "#8F3931",
+        "#58593F",
+        "#350E20"
+      ]
+    },
+
+    "uchicago-light": {
+      "desc": "Color palette inspired by University of Chicago Color Palette (light version)",
+      "major": [
+        "#800000",
+        "#D6D6CE",
+        "#FFB547",
+        "#ADB17D",
+        "#5B8FA8",
+        "#D49464",
+        "#B1746F",
+        "#8A8B79",
+        "#725663"
+      ]
+    },
+
+    "uchicago-dark": {
+      "desc": "Color palette inspired by University of Chicago Color Palette (dark version)",
+      "major": [
+        "#800000",
+        "#767676",
+        "#CC8214",
+        "#616530",
+        "#0F425C",
+        "#9A5324",
+        "#642822",
+        "#3E3E23",
+        "#350E20"
+      ]
+    },
+
+    "cosmic-hallmarks-dark": {
+      "desc": "Color palette inspired by COSMIC Hallmarks of Cancer",
+      "major": [
+        "#171717",
+        "#7D0226",
+        "#300049",
+        "#165459",
+        "#3F2327",
+        "#0B1948",
+        "#E71012",
+        "#555555",
+        "#193006",
+        "#A8450C"
+      ]
+    },
+
+    "cosmic-hallmarks-light": {
+      "desc": "Color palette inspired by Hanahan, Weinberg Hallmarks of Cancer",
+      "major": [
+        "#2E2A2B",
+        "#CF4E9C",
+        "#8C57A2",
+        "#358DB9",
+        "#82581F",
+        "#2F509E",
+        "#E5614C",
+        "#97A1A7",
+        "#3DA873",
+        "#DC9445"
+      ]
+    },
+
+    "cosmic-signature-substitutions": {
+      "desc": "Color palette inspired by COSMIC Hallmarks of Cancer",
+      "major": [
+        "#5ABCEB",
+        "#050708",
+        "#D33C32",
+        "#CBCACB",
+        "#ABCD72",
+        "#E7C9C6"
+      ]
+    },
+
+    "simpsons-springfield": {
+      "desc": "Color palette inspired by The Simpsons",
+      "major": [
+        "#FED439",
+        "#709AE1",
+        "#8A9197",
+        "#D2AF81",
+        "#FD7446",
+        "#D5E4A2",
+        "#197EC0",
+        "#F05C3B",
+        "#46732E",
+        "#71D0F5",
+        "#370335",
+        "#075149",
+        "#C80813",
+        "#91331F",
+        "#1A9993",
+        "#FD8CC1"
+      ]
+    },
+
+    "futurama-planetexpress": {
+      "desc": "Color palette inspired by Futurama",
+      "major": [
+        "#FF6F00",
+        "#C71000",
+        "#008EA0",
+        "#8A4198",
+        "#5A9599",
+        "#FF6348",
+        "#84D7E1",
+        "#FF95A8",
+        "#3D3B25",
+        "#ADE2D0",
+        "#1A5354",
+        "#3F4041"
+      ]
+    },
+
+    "rickandmorty-schwifty": {
+      "desc": "Color palette inspired by Rick and Morty",
+      "major": [
+        "#FAFD7C",
+        "#82491E",
+        "#24325F",
+        "#B7E4F9",
+        "#FB6467",
+        "#526E2D",
+        "#E762D7",
+        "#E89242",
+        "#FAE48B",
+        "#A6EEE6",
+        "#917C5D",
+        "#69C8EC"
+      ]
+    },
+
+    "startrek-uniform": {
+      "desc": "Color palette inspired by Star Trek",
+      "major": [
+        "#CC0C00",
+        "#5C88DA",
+        "#84BD00",
+        "#FFCD00",
+        "#7C878E",
+        "#00B5E2",
+        "#00AF66"
+      ]
+    },
+
+    "tron-legacy": {
+      "desc": "Color palette inspired by Tron Legacy",
+      "major": [
+        "#FF410D",
+        "#6EE2FF",
+        "#F7C530",
+        "#95CC5E",
+        "#D0DFE6",
+        "#F79D1E",
+        "#748AA6"
+      ]
+    },
+
+    "gsea": {
+      "desc": "Color palette inspired by heatmaps generated by GSEA GenePattern",
+      "type": "continuous",
+      "major": [
+        "#4500AD",
+        "#2700D1",
+        "#6B58EF",
+        "#8888FF",
+        "#C7C1FF",
+        "#D5D5FF",
+        "#FFC0E5",
+        "#FF8989",
+        "#FF7080",
+        "#FF5A5A",
+        "#EF4040",
+        "#D60C00"
+      ]
+    },
+
+    "material-red": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#FFEBEE",
+        "#FFCDD2",
+        "#EF9A9A",
+        "#E57373",
+        "#EF5350",
+        "#F44336",
+        "#E53935",
+        "#D32F2F",
+        "#C62828",
+        "#B71C1C"
+      ]
+    },
+
+    "material-pink": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#FCE4EC",
+        "#F8BBD0",
+        "#F48FB1",
+        "#F06292",
+        "#EC407A",
+        "#E91E63",
+        "#D81B60",
+        "#C2185B",
+        "#AD1457",
+        "#880E4F"
+      ]
+    },
+
+    "material-purple": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#F3E5F5",
+        "#E1BEE7",
+        "#CE93D8",
+        "#BA68C8",
+        "#AB47BC",
+        "#9C27B0",
+        "#8E24AA",
+        "#7B1FA2",
+        "#6A1B9A",
+        "#4A148C"
+      ]
+    },
+
+    "material-deep-purple": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#EDE7F6",
+        "#D1C4E9",
+        "#B39DDB",
+        "#9575CD",
+        "#7E57C2",
+        "#673AB7",
+        "#5E35B1",
+        "#512DA8",
+        "#4527A0",
+        "#311B92"
+      ]
+    },
+
+    "material-indigo": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#E8EAF6",
+        "#C5CAE9",
+        "#9FA8DA",
+        "#7986CB",
+        "#5C6BC0",
+        "#3F51B5",
+        "#3949AB",
+        "#303F9F",
+        "#283593",
+        "#1A237E"
+      ]
+    },
+
+    "material-blue": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#E3F2FD",
+        "#BBDEFB",
+        "#90CAF9",
+        "#64B5F6",
+        "#42A5F5",
+        "#2196F3",
+        "#1E88E5",
+        "#1976D2",
+        "#1565C0",
+        "#0D47A1"
+      ]
+    },
+
+    "material-light-blue": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#E1F5FE",
+        "#B3E5FC",
+        "#81D4FA",
+        "#4FC3F7",
+        "#29B6F6",
+        "#03A9F4",
+        "#039BE5",
+        "#0288D1",
+        "#0277BD",
+        "#01579B"
+      ]
+    },
+
+    "material-cyan": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#E0F7FA",
+        "#B2EBF2",
+        "#80DEEA",
+        "#4DD0E1",
+        "#26C6DA",
+        "#00BCD4",
+        "#00ACC1",
+        "#0097A7",
+        "#00838F",
+        "#006064"
+      ]
+    },
+
+    "material-teal": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#E0F2F1",
+        "#B2DFDB",
+        "#80CBC4",
+        "#4DB6AC",
+        "#26A69A",
+        "#009688",
+        "#00897B",
+        "#00796B",
+        "#00695C",
+        "#004D40"
+      ]
+    },
+
+    "material-green": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#E8F5E9",
+        "#C8E6C9",
+        "#A5D6A7",
+        "#81C784",
+        "#66BB6A",
+        "#4CAF50",
+        "#43A047",
+        "#388E3C",
+        "#2E7D32",
+        "#1B5E20"
+      ]
+    },
+
+    "material-light-green": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#F1F8E9",
+        "#DCEDC8",
+        "#C5E1A5",
+        "#AED581",
+        "#9CCC65",
+        "#8BC34A",
+        "#7CB342",
+        "#689F38",
+        "#558B2F",
+        "#33691E"
+      ]
+    },
+
+    "material-lime": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#F9FBE7",
+        "#F0F4C3",
+        "#E6EE9C",
+        "#DCE775",
+        "#D4E157",
+        "#CDDC39",
+        "#C0CA33",
+        "#AFB42B",
+        "#9E9D24",
+        "#827717"
+      ]
+    },
+
+    "material-yellow": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#FFFDE7",
+        "#FFF9C4",
+        "#FFF59D",
+        "#FFF176",
+        "#FFEE58",
+        "#FFEB3B",
+        "#FDD835",
+        "#FBC02D",
+        "#F9A825",
+        "#F57F17"
+      ]
+    },
+
+    "material-amber": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#FFF8E1",
+        "#FFECB3",
+        "#FFE082",
+        "#FFD54F",
+        "#FFCA28",
+        "#FFC107",
+        "#FFB300",
+        "#FFA000",
+        "#FF8F00",
+        "#FF6F00"
+      ]
+    },
+
+    "material-orange": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#FFF3E0",
+        "#FFE0B2",
+        "#FFCC80",
+        "#FFB74D",
+        "#FFA726",
+        "#FF9800",
+        "#FB8C00",
+        "#F57C00",
+        "#EF6C00",
+        "#E65100"
+      ]
+    },
+
+    "material-deep-orange": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#FBE9E7",
+        "#FFCCBC",
+        "#FFAB91",
+        "#FF8A65",
+        "#FF7043",
+        "#FF5722",
+        "#F4511E",
+        "#E64A19",
+        "#D84315",
+        "#BF360C"
+      ]
+    },
+
+    "material-brown": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#EFEBE9",
+        "#D7CCC8",
+        "#BCAAA4",
+        "#A1887F",
+        "#8D6E63",
+        "#795548",
+        "#6D4C41",
+        "#5D4037",
+        "#4E342E",
+        "#3E2723"
+      ]
+    },
+
+    "material-grey": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#FAFAFA",
+        "#F5F5F5",
+        "#EEEEEE",
+        "#E0E0E0",
+        "#BDBDBD",
+        "#9E9E9E",
+        "#757575",
+        "#616161",
+        "#424242",
+        "#212121"
+      ]
+    },
+
+    "material-blue-grey": {
+      "desc": "Material Design color palettes",
+      "type": "continuous",
+      "major": [
+        "#ECEFF1",
+        "#CFD8DC",
+        "#B0BEC5",
+        "#90A4AE",
+        "#78909C",
+        "#607D8B",
+        "#546E7A",
+        "#455A64",
+        "#37474F",
+        "#263238"
+      ]
+    }
+  }
+}
