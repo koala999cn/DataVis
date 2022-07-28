@@ -5,7 +5,8 @@
 #include "QtAppEventHub.h"
 #include "qcustomplot/qcustomplot.h"
 #include "gui/QtDataView.h"
-#include "theme/KgPlotTheme.h"
+#include "theme/KsThemeManager.h"
+#include "theme/KcThemedQCP.h"
 
 
 KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
@@ -31,14 +32,14 @@ KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
 		menu.exec(customPlot_->mapToGlobal(pos));
 		});
 
-	theme_ = std::make_unique<KgPlotTheme>();
+	themedPlot_ = std::make_unique<KcThemedQCP>(std::shared_ptr<QCustomPlot>(customPlot_));
 }
 
 
 KvRdCustomPlot::~KvRdCustomPlot()
 {
 	setOption(k_show, false);
-	delete customPlot_;
+	// delete customPlot_; 由themedPlot_管理
 }
 
 
@@ -251,8 +252,8 @@ KvRdCustomPlot::kPropertySet KvRdCustomPlot::propertySet() const
 	KpProperty prop, subProp;
 
 	// 加载theme
-	theme_->load("themes/*.json"); // TODO: 为调试方便，暂时先放此处
-	if(!theme_->listThemes().empty())
+	kThemeManager->load("themes/*.json"); // TODO: 移动KsThemeManager构造函数中去
+	if(!kThemeManager->listThemes().empty())
 	    ps.push_back(themeProperty_());
 
 	/*
@@ -348,23 +349,23 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 
 	switch (id) {
 	case k_theme:
-		themeName_ = theme_->listThemes()[newVal.toInt()];
+		themeName_ = kThemeManager->listThemes()[newVal.toInt()];
 		applyTheme_(themeName_);
 		break;
 
 	case k_canvas: 
-		canvasName_ = theme_->listCanvas()[newVal.toInt()];
-		theme_->applyCanvas(canvasName_, customPlot_);
+		canvasName_ = kThemeManager->listCanvas()[newVal.toInt()];
+		kThemeManager->applyCanvas(canvasName_, themedPlot_.get());
 		break;
 
 	case k_palette: 
-		paletteName_ = theme_->listPalettes()[newVal.toInt()];
-		theme_->applyPalette(paletteName_, customPlot_);
+		paletteName_ = kThemeManager->listPalettes()[newVal.toInt()];
+		kThemeManager->applyPalette(paletteName_, themedPlot_.get());
 		break;
 
 	case k_layout: 
-		layoutName_ = theme_->listLayouts()[newVal.toInt()];
-		theme_->applyLayout(layoutName_, customPlot_);
+		layoutName_ = kThemeManager->listLayouts()[newVal.toInt()];
+		kThemeManager->applyLayout(layoutName_, themedPlot_.get());
 		break;
 
 	case k_background:
@@ -418,10 +419,10 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 void KvRdCustomPlot::applyTheme_(const QString& name)
 {
 	themeName_ = name;
-	canvasName_ = theme_->canvasName(name);
-	layoutName_ = theme_->layoutName(name);
-	paletteName_ = theme_->paletteName(name);
-	theme_->applyTheme(name, customPlot_);
+	canvasName_ = kThemeManager->canvasName(name);
+	layoutName_ = kThemeManager->layoutName(name);
+	paletteName_ = kThemeManager->paletteName(name);
+	kThemeManager->applyTheme(name, themedPlot_.get());
 
 	kAppEventHub->refreshPropertySheet(); // TODO: 可能crack. 比如有delegate没有及时销毁，再访问的时候可能出错
 }
@@ -431,12 +432,12 @@ KvRdCustomPlot::KpProperty KvRdCustomPlot::themeProperty_() const
 {
 	KpProperty prop;
 
-	auto list = theme_->listThemes();
+	auto list = kThemeManager->listThemes();
 	if (!list.empty()) {
 		int idx = list.indexOf(themeName_);
 		if (idx == -1) {
 			idx = 0;
-			theme_->applyTheme(list.front(), customPlot_);
+			kThemeManager->applyTheme(list.front(), themedPlot_.get());
 		}
 		prop.id = kPrivate::k_theme;
 		prop.name = tr("Theme");
@@ -446,7 +447,7 @@ KvRdCustomPlot::KpProperty KvRdCustomPlot::themeProperty_() const
 		prop.children.clear();
 
 		KpProperty subProp;
-		list = theme_->listCanvas();
+		list = kThemeManager->listCanvas();
 		if (!list.empty()) {
 			int idx = list.indexOf(canvasName_);
 			subProp.id = kPrivate::k_canvas;
@@ -457,7 +458,7 @@ KvRdCustomPlot::KpProperty KvRdCustomPlot::themeProperty_() const
 			prop.children.push_back(subProp);
 		}
 
-		list = theme_->listPalettes();
+		list = kThemeManager->listPalettes();
 		if (!list.empty()) {
 			int idx = list.indexOf(paletteName_);
 			subProp.id = kPrivate::k_palette;
@@ -468,7 +469,7 @@ KvRdCustomPlot::KpProperty KvRdCustomPlot::themeProperty_() const
 			prop.children.push_back(subProp);
 		}
 
-		list = theme_->listLayouts();
+		list = kThemeManager->listLayouts();
 		if (!list.empty()) {
 			int idx = list.indexOf(layoutName_);
 			subProp.id = kPrivate::k_layout;

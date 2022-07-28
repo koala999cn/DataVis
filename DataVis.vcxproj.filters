@@ -219,10 +219,10 @@
     <ClCompile Include="src\render\KcRdSurface3d.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="src\theme\KuThemeUtil.cpp">
+    <ClCompile Include="src\theme\KuThemeParser.cpp">
       <Filter>theme</Filter>
     </ClCompile>
-    <ClCompile Include="src\theme\KgPlotTheme.cpp">
+    <ClCompile Include="src\theme\KsThemeManager.cpp">
       <Filter>theme</Filter>
     </ClCompile>
     <ClCompile Include="src\prov\KgTxtDataLoader.cpp">
@@ -230,6 +230,9 @@
     </ClCompile>
     <ClCompile Include="src\gui\QtTxtDataLoadDlg.cpp">
       <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\theme\KcThemedQCP.cpp">
+      <Filter>theme</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -494,14 +497,20 @@
     <ClInclude Include="src\render.h" />
     <ClInclude Include="src\provider.h" />
     <ClInclude Include="src\operator.h" />
-    <ClInclude Include="src\theme\KuThemeUtil.h">
+    <ClInclude Include="src\theme\KuThemeParser.h">
       <Filter>theme</Filter>
     </ClInclude>
-    <ClInclude Include="src\theme\KgPlotTheme.h">
+    <ClInclude Include="src\theme\KsThemeManager.h">
       <Filter>theme</Filter>
     </ClInclude>
     <ClInclude Include="src\prov\KgTxtDataLoader.h">
       <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\theme\KvThemedPlot.h">
+      <Filter>theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\theme\KcThemedQCP.h">
+      <Filter>theme</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

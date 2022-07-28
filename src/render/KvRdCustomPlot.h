@@ -11,7 +11,7 @@
 //
 
 class QCustomPlot;
-class KgPlotTheme;
+class KvThemedPlot;
 class KvDataProvider;
 class KvData;
 
@@ -44,9 +44,8 @@ protected:
 
 protected:
 	std::shared_ptr<KvData> contData_; // 最近接收的连续数据，由派生类维护使用
-
+	std::unique_ptr<KvThemedPlot> themedPlot_; 
 	QCustomPlot* customPlot_;
-	std::unique_ptr<KgPlotTheme> theme_;
 	QString themeName_, canvasName_, layoutName_, paletteName_;
 
 	// QCustomPlot有关属性

@@ -6,6 +6,20 @@
   "layout": [
 
     {
+      "name": "void",
+
+      "disc": "no axis & no girds & no legned & no margins",
+
+      "axis": null,
+
+      "grid": null,
+
+      "legend": null,
+
+      "margins": null
+    },
+
+    {
       "name": "clean",
 
       "disc": "no ticks & no grids",
@@ -17,21 +31,14 @@
 
       "axis": {
         "title": { "face": "bold" },
-        "left": {},
-        "bottom": {},
-        "right": null,
-        "top": null,
-        "baseline": { "width": 1 },
-        "tick": {
-          "length": 0,
-          "side": "in",
-          "NOTE": "tick cannot be null, otherwise tick-label will invisible"
-        },
-
-        "subtick": null
+        "left": "solid",
+        "bottom": "solid",
+        "right": "NA",
+        "top": "NA",
+        "tick": "NA"
       },
 
-      "grid": null,
+      "grid": "NA",
 
       "margins": [ 15, 15, 15, 15 ]
     },
@@ -39,7 +46,7 @@
     {
       "name": "scientific",
 
-      "disc": "no ticks & with dashed gridline & with dotted sub-gridline",
+      "disc": "dashed gridline & dotted sub-gridline & no ticks",
 
       "base": "clean",
 
@@ -49,42 +56,15 @@
       },
 
       "grid": {
-        "major": { "style": "dash" },
-        "minor": { "style": "dot" }
-      },
-
-      "axis": {
-        "tick": {
-          "length": 0,
-          "side": "in",
-          "NOTE": "tick cannot be null, otherwise gridline will invisible"
-        },
-
-        "subtick": {
-          "length": 0,
-          "side": "in"
-        }
-      }
-
-    },
-
-    {
-      "name": "plain",
-
-      "disc": "no ticks & no sub-gridline & with solid gridline",
-
-      "base": "scientific",
-
-      "grid": {
-        "major": { "style": "solid" },
-        "minor": null
+        "major": "dash",
+        "minor": "dot"
       }
     },
 
     {
       "name": "clear",
 
-      "disc": "no ticks & no sub-gridline & with dashed gridline",
+      "disc": "dashed gridline & no ticks & no sub-gridline",
 
       "base": "scientific",
 
@@ -92,33 +72,14 @@
     },
 
     {
-      "name": "void",
+      "name": "plain",
 
-      "disc": "no ticks & no girds & no axis-lines",
+      "disc": "solid gridline & no ticks & no sub-gridline",
 
-      "base": "clean",
-
-      "axis": null,
-
-      "grid": null,
-
-      "margins": [ 0, 0, 0, 0 ]
-    },
-
-    {
-      "name": "pastel",
-
-      "disc": "no ticks & no sub-gridline & with dashed gridline & with thicker axis-lines",
-
-      "base": "clean",
-
-      "axis": {
-        "baseline": { "width": 3 }
-      },
+      "base": "clear",
 
       "grid": {
-        "major": { "style": "dash" },
-        "minor": null
+        "major": "solid"
       }
     }
   ]
