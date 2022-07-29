@@ -32,17 +32,28 @@ void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush)
 	else if (jval.isString()) {
 		QColor color;
 		if (color_value(jval.toString(), color)) {
-			if (brush.style() == Qt::NoBrush)
-				brush.setStyle(Qt::SolidPattern);
-
 			brush.setColor(color);
+
+			if (brush.style() == Qt::NoBrush && color != QColor("transparent"))
+				brush.setStyle(Qt::SolidPattern);
 		}
 	}
 	else if (jval.isObject()) {
-		// TODO: 
-		// 
-	    // color
 
+		auto jobj = jval.toObject();
+
+	    // color
+		if (jobj.contains("color")) {
+			QColor color;
+			color_value(jval, color);
+			if (color.isValid()) {
+				brush.setColor(color);
+				if (brush.style() == Qt::NoBrush && color != QColor("transparent"))
+					brush.setStyle(Qt::SolidPattern);
+			}
+		}
+			
+		// TODO: 
 		// texture
 
 		// gradient

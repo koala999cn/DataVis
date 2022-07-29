@@ -26,11 +26,7 @@ public:
 	unsigned numPlots() const override;
 	void applyPalette(unsigned plotIdx, const QColor& major, const QColor& minor) override;
 
-	void setLineVisible(int level, bool b) override;
-	bool lineVisible(int level) const override;
-
-	void setTextVisible(int level, bool b) override;
-	bool textVisible(int level) const override;
+	void setVisible(int level, bool b) override;
 
 	QMargins margins() const override;
 	void setMargins(const QMargins&) override;

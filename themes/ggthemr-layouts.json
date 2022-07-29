@@ -31,6 +31,7 @@
 
       "axis": {
         "title": { "face": "bold" },
+        "label": {},
         "left": "solid",
         "bottom": "solid",
         "right": "NA",

@@ -14,58 +14,90 @@ class KvThemedPlot
 {
 public:
 
+	// level有两个方面：一是方位，二是属性
 	enum KeLevel
 	{
-		k_all				= 0xffffffff,
+		/// 方位
 
-		k_plot_line			= 0x10000000,
-		k_plot_title		= 0x20000000,
-		k_plot_label		= 0x40000000,
-		k_plot_text			= k_plot_title | k_plot_label,
+		k_plot	= 0x1,
+		k_axis	= 0x2,
+		k_grid	= 0x4,
+		k_legend	= 0x8,
 
-		k_axis				= 0x0000ffff,
+		k_left = 0x10,
+		k_right = 0x20,
+		k_top = 0x40,
+		k_bottom = 0x80,
+		k_x = k_top | k_bottom,
+		k_y = k_left | k_right,
+		k_xy	= k_x | k_y,
 
-		k_axis_left			= 0x00000ff1,
-		k_axis_right		= 0x00000ff2,
-		k_axis_top			= 0x00000ff4,
-		k_axis_bottom		= 0x00000ff8,
-		k_axis_x			= k_axis_top | k_axis_bottom,
-		k_axis_y			= k_axis_left | k_axis_right,
+		k_axis_xy	= k_axis | k_xy,
+		k_grid_xy	= k_grid | k_xy,
 
-		k_axis_baseline		= 0x0000001f,
-		k_axis_tick_major	= 0x0000002f,
-		k_axis_tick_minor	= 0x0000004f,
-		k_axis_tick			= k_axis_tick_major | k_axis_tick_minor,
-		k_axis_line			= k_axis_baseline | k_axis_tick,
 
-		k_axis_title		= 0x0000010f,
-		k_axis_label		= 0x0000020f,
-		k_axis_text			= k_axis_title | k_axis_label,
+		/// 属性
 
+		k_title	= 0x100,
+		k_label	= 0x200,
+		k_text = k_title | k_label,
 		
-		k_grid				= 0x00ff0000,
+		k_axis_baseline	= 0x400,
+		k_axis_tick_major	= 0x800,
+		k_axis_tick_minor	= 0x1000,
+		k_axis_tick		= k_axis_tick_major | k_axis_tick_minor,
+		k_axis_line	= k_axis_baseline | k_axis_tick,
+		
+		k_grid_major	= 0x2000,
+		k_grid_minor	= 0x4000,
+		k_grid_zeroline	= 0x8000,
+		k_grid_line	= k_grid_major | k_grid_minor | k_grid_zeroline,
 
-		k_grid_left			= 0x00f10000,
-		k_grid_right		= 0x00f20000,
-		k_grid_top			= 0x00f40000,
-		k_grid_bottom		= 0x00f80000,
-		k_grid_x			= k_grid_top | k_grid_bottom,
-		k_grid_y			= k_grid_left | k_grid_right,
-		k_grid_line			= k_grid_x | k_grid_y,
+		k_line	= k_axis_line | k_grid_line,
 
-		k_grid_major		= 0x001f0000,
-		k_grid_minor		= 0x002f0000,
-		k_grid_zeroline		= 0x004f0000,
+		/// 组合
 
-		k_legend			= 0x0f000000,
-		k_legend_title		= 0x01000000,
-		k_legend_label		= 0x02000000,
-		k_legend_text		= k_legend_title | k_legend_label,
+		k_plot_title		= k_plot | k_title,
+		k_plot_label		= k_plot | k_label,
+		k_plot_text			= k_plot | k_text,
+		k_plot_all			= k_plot_text,
 
-		k_all_line			= k_axis_line | k_grid_line | k_plot_line,
-		k_all_title			= k_axis_title | k_legend_title | k_plot_title,
-		k_all_label			= k_axis_label | k_legend_label | k_plot_label,
-		k_all_text			= k_plot_title | k_plot_label | k_plot_text
+
+		k_axis_title = k_axis | k_title,
+		k_axis_label = k_axis | k_label,
+		k_axis_text = k_axis | k_text,
+
+		k_axis_title_all = k_xy | k_axis_title,
+		k_axis_label_all = k_xy | k_axis_label,
+		k_axis_text_all = k_xy | k_axis_text,
+
+		k_axis_baseline_all = k_axis_xy | k_axis_baseline,
+		k_axis_tick_major_all = k_axis_xy | k_axis_tick_major,
+		k_axis_tick_minor_all = k_axis_xy | k_axis_tick_minor,
+		k_axis_tick_all = k_axis_tick_major_all | k_axis_tick_minor_all,
+		k_axis_line_all	= k_axis_baseline_all | k_axis_tick_all,
+
+		k_axis_all			= k_axis_text | k_axis_line_all,
+
+
+		k_grid_major_all = k_axis_xy | k_grid_major,
+		k_grid_minor_all = k_axis_xy | k_grid_minor,
+		k_grid_zeroline_all = k_axis_xy | k_grid_zeroline,
+		k_grid_line_all			= k_axis_xy | k_grid_line,
+		k_grid_all				= k_grid_line_all,
+
+		k_legend_title		= k_legend | k_title,
+		k_legend_label		= k_legend | k_label,
+		k_legend_text		= k_legend | k_text,
+		k_legend_all			= k_legend_text,
+
+
+		k_line_all			= k_axis_line_all | k_grid_line_all,
+		k_title_all			= k_axis_title_all | k_legend_title | k_plot_title,
+		k_label_all			= k_axis_label_all | k_legend_label | k_plot_label,
+		k_text_all			= k_axis_text_all | k_legend_text | k_plot_text,
+
+		k_all				= k_line_all | k_text_all
 	};
 	
 	enum KeTickSide
@@ -94,11 +126,7 @@ public:
 	virtual unsigned numPlots() const = 0;
 	virtual void applyPalette(unsigned plotIdx, const QColor& major, const QColor& minor) = 0;
 
-	virtual void setLineVisible(int level, bool b) = 0; // level其一可见，则返回true
-	virtual bool lineVisible(int level) const = 0;
-
-	virtual void setTextVisible(int level, bool b) = 0;
-	virtual bool textVisible(int level) const = 0;
+	virtual void setVisible(int level, bool b) = 0; // level其一可见，则返回true
 
 	virtual QMargins margins() const = 0;
 	virtual void setMargins(const QMargins&) = 0;

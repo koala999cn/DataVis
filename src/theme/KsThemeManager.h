@@ -88,8 +88,8 @@ protected:
 	static void trySpecial_(const QJsonObject& jobj, KvThemedPlot* plot, int level,
 		std::function<void(const QJsonValue&, KvThemedPlot*, int)> op);
 
-	static void applyLine_(int level, const QJsonValue& jval, KvThemedPlot* plot);
-	static void applyText_(int level, const QJsonValue& jval, KvThemedPlot* plot);
+	static void applyLine_(int level, const QJsonValue& jval, KvThemedPlot* plot, bool doShow = false);
+	static void applyText_(int level, const QJsonValue& jval, KvThemedPlot* plot, bool doShow = false);
 	static void applyTextColor_(int level, const QJsonValue& jval, KvThemedPlot* plot);
 
 private:

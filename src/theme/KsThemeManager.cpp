@@ -332,38 +332,6 @@ void KsThemeManager::applyCanvas_(const QJsonValue& jval, KvThemedPlot* plot) co
 	}
 }
 
-#if 0
-namespace kPrivate
-{
-	void for_gridline(KvThemedPlot* plot, std::function<QPen(const QPen&)> op)
-	{
-		for (auto rect : plot->axisRects())
-			for (auto axis : rect->axes()) {
-				auto grid = axis->grid();
-				grid->setPen(op(grid->pen()));
-				grid->setSubGridPen(op(grid->subGridPen()));
-				grid->setZeroLinePen(op(grid->zeroLinePen()));
-			}
-	}
-
-
-	void for_line(KvThemedPlot* plot, std::function<QPen(const QPen&)> op)
-	{
-		for (auto rect : plot->axisRects())
-			for (auto axis : rect->axes()) {
-				axis->setBasePen(op(axis->basePen()));
-				axis->setTickPen(op(axis->tickPen()));
-				axis->setSubTickPen(op(axis->subTickPen()));
-				
-				auto grid = axis->grid();
-				grid->setPen(op(grid->pen()));
-				grid->setSubGridPen(op(grid->subGridPen()));
-			}
-
-		// TODO: data-line的theme谁控制？
-	}
-}
-#endif
 
 void KsThemeManager::applyCanvasBkgnd_(const QJsonValue& jval, KvThemedPlot* plot)
 {
@@ -383,7 +351,7 @@ void KsThemeManager::applyCanvasAxisRect_(const QJsonValue& jval, KvThemedPlot* 
 
 void KsThemeManager::applyCanvasText_(const QJsonValue& jval, KvThemedPlot* plot)
 {
-	plot->applyTextColor(KvThemedPlot::k_all_text, [&jval](const QColor& color) { // TODO: level
+	plot->applyTextColor(KvThemedPlot::k_text_all, [&jval](const QColor& color) {
 		QColor newColor(color);
 		KuThemeParser::color_value(jval, newColor);
 		return newColor;
@@ -393,7 +361,7 @@ void KsThemeManager::applyCanvasText_(const QJsonValue& jval, KvThemedPlot* plot
 
 void KsThemeManager::applyCanvasLine_(const QJsonValue& jval, KvThemedPlot* plot)
 {
-	plot->applyLine(KvThemedPlot::k_all_line, [&jval](const QPen& pen) {
+	plot->applyLine(KvThemedPlot::k_line_all, [&jval](const QPen& pen) {
 		QPen newPen(pen);
 		KuThemeParser::line_value(jval, newPen);
 		return newPen;
@@ -403,7 +371,7 @@ void KsThemeManager::applyCanvasLine_(const QJsonValue& jval, KvThemedPlot* plot
 
 void KsThemeManager::applyCanvasGridline_(const QJsonValue& jval, KvThemedPlot* plot)
 {
-	plot->applyLine(KvThemedPlot::k_grid_line, [&jval](const QPen& pen) {
+	plot->applyLine(KvThemedPlot::k_grid_line_all, [&jval](const QPen& pen) {
 		QPen newPen(pen);
 		KuThemeParser::line_value(jval, newPen);
 		return newPen;
@@ -460,22 +428,22 @@ void KsThemeManager::tryBkgnd_(const QJsonObject& jobj, KvThemedPlot* plot)
 void KsThemeManager::tryLevel_(const QJsonObject& jobj, KvThemedPlot* plot, int level)
 {
 	if (jobj.contains("line")) 
-		applyLine_(level & KvThemedPlot::k_all_line, jobj["line"], plot);
+		applyLine_(level & KvThemedPlot::k_line_all, jobj["line"], plot);
 
 
 	if (jobj.contains("title")) {
-		applyText_(level & KvThemedPlot::k_all_title, jobj["title"], plot);
-		applyTextColor_(level & KvThemedPlot::k_all_title, jobj["title"], plot);
+		applyText_(level & KvThemedPlot::k_title_all, jobj["title"], plot);
+		applyTextColor_(level & KvThemedPlot::k_title_all, jobj["title"], plot);
 	}
 
 	if (jobj.contains("label")) {
-		applyText_(level & KvThemedPlot::k_all_label, jobj["label"], plot);
-		applyTextColor_(level & KvThemedPlot::k_all_label, jobj["label"], plot);
+		applyText_(level & KvThemedPlot::k_label_all, jobj["label"], plot, true); // TODO: doShow不应该始终为true
+		applyTextColor_(level & KvThemedPlot::k_label_all, jobj["label"], plot);
 	}
 
 	if (jobj.contains("text")) {
-		applyText_(level & KvThemedPlot::k_all_text, jobj["text"], plot);
-		applyTextColor_(level & KvThemedPlot::k_all_text, jobj["text"], plot);
+		applyText_(level & KvThemedPlot::k_text_all, jobj["text"], plot);
+		applyTextColor_(level & KvThemedPlot::k_text_all, jobj["text"], plot);
 	}
 }
 
@@ -497,11 +465,7 @@ void KsThemeManager::tryAxis_(const QJsonObject& jobj, KvThemedPlot* plot)
 	}
 
 	// 解析每个坐标轴的属性
-	applyAxis_(axis, plot, KvThemedPlot::k_axis);
-
-	// 若整个axis不可见，打开left & bottom坐标轴
-	if (!plot->lineVisible(KvThemedPlot::k_axis)) 
-		plot->setLineVisible(KvThemedPlot::k_axis_left | KvThemedPlot::k_axis_bottom, true);
+	applyAxis_(axis, plot, KvThemedPlot::k_axis_all);
 }
 
 
@@ -518,13 +482,10 @@ void KsThemeManager::applyAxis_(const QJsonValue& jval, KvThemedPlot* plot, int 
 	tryLevel_(jobj, plot, level);
 
 	if (jobj.contains("baseline"))
-		applyLine_(level & KvThemedPlot::k_axis_baseline, jobj["baseline"], plot);
+		applyLine_(level & KvThemedPlot::k_axis_baseline_all, jobj["baseline"], plot);
 
-	if (jobj.contains("tick")) {
-		applyTick_(jobj["tick"], plot, level & KvThemedPlot::k_axis_tick);
-		//if (!plot->lineVisible(level))
-		//	plot->setLineVisible(level & KvThemedPlot::k_axis_tick_major, true); // 默认主刻度可见
-	}
+	if (jobj.contains("tick")) 
+		applyTick_(jobj["tick"], plot, level & KvThemedPlot::k_axis_tick_all);
 
 	/// 然后处理特化属性
 	trySpecial_(jobj, plot, level, applyAxis_);
@@ -557,112 +518,16 @@ void KsThemeManager::applyTick_(const QJsonValue& jval, KvThemedPlot* plot, int 
 
 
 	if (jobj.contains("major"))
-		applyTick_(jobj["major"], plot, level & KvThemedPlot::k_axis_tick_major);
+		applyTick_(jobj["major"], plot, level & KvThemedPlot::k_axis_tick_major_all);
 
 
 	if (jobj.contains("minor"))
-		applyTick_(jobj["minor"], plot, level & KvThemedPlot::k_axis_tick_minor);
+		applyTick_(jobj["minor"], plot, level & KvThemedPlot::k_axis_tick_minor_all);
 
 
 	/// 处理特化属性
 	trySpecial_(jobj, plot, level, applyTick_);
 }
-
-/*
-void KsThemeManager::applyAxesBaseline_(const QJsonValue& jval, KvThemedPlot* plot, int level)
-{
-	if (jval.isNull()) {
-		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			QPen pen = axis->basePen();
-			pen.setStyle(Qt::NoPen);
-			axis->setBasePen(pen); });
-		return;
-	}
-	else if (jval.isObject()) {
-		auto jobj = jval.toObject();
-		kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
-			auto pen = axis->basePen();
-			if (pen.style() == Qt::NoPen)
-				pen.setStyle(Qt::SolidLine); // TODO:
-			KuThemeParser::apply(jobj, pen);
-			axis->setBasePen(pen); 
-			});
-
-		kPrivate::handle_special_axes(jobj, plot, level, applyAxesBaseline_);
-	}
-}
-*/
-
-/*
-void KsThemeManager::applyAxesTitle_(const QJsonValue& jval, KvThemedPlot* plot, int level)
-{
-	// 可见性设置
-	if(jval.isNull())
-	    kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
-		    // TODO: QCP没有setLabelVisible函数，只能通过设置透明色代替
-		    axis->setLabelColor(QColor(Qt::transparent));
-		    });
-	else if (!jval.isObject())
-		return;
-
-	auto jobj = jval.toObject();
-
-	QColor color;
-	if (KuThemeParser::tryColor(jobj, "color", color))
-		kPrivate::for_axis(plot, level, [color](QCPAxis* axis) {
-		    axis->setLabelColor(color); });
-
-	
-	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
-		QFont font = axis->labelFont();
-		KuThemeParser::apply(jobj, font);
-		    axis->setLabelFont(font); 
-		});
-
-	kPrivate::handle_special_axes(jobj, plot, level, applyAxesTitle_);
-}
-
-
-void KsThemeManager::applyAxesLabel_(const QJsonValue& jval, KvThemedPlot* plot, int level)
-{
-	// 可见性设置
-	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
-		axis->setTickLabels(!jval.isNull());
-		});
-
-     if (!jval.isObject())
-		return;
-
-	auto jobj = jval.toObject();
-
-	QColor color;
-	if (KuThemeParser::tryColor(jobj, "color", color))
-		kPrivate::for_axis(plot, level, [color](QCPAxis* axis) {
-		axis->setTickLabelColor(color); });
-
-
-	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
-		QFont font = axis->labelFont();
-		KuThemeParser::apply(jobj, font);
-		axis->setTickLabelFont(font);
-		});
-
-	kPrivate::handle_special_axes(jobj, plot, level, applyAxesLabel_);
-
-	if (jobj.contains("label") && jobj["label"].isObject()) {
-		auto label = jobj["label"].toObject();
-		QColor color;
-		if (KuThemeParser::tryColor(label, "color", color))
-			kPrivate::for_axis(plot, level, [color](QCPAxis* axis) {
-			axis->setTickLabelColor(color); });
-
-		kPrivate::for_axis(plot, level, [&label](QCPAxis* axis) {
-			auto font = axis->labelFont();
-			KuThemeParser::apply(label, font);
-			axis->setTickLabelFont(font);
-			});
-	}
-}*/
 
 
 void KsThemeManager::tryGrid_(const QJsonObject& jobj, KvThemedPlot* plot)
@@ -671,11 +536,7 @@ void KsThemeManager::tryGrid_(const QJsonObject& jobj, KvThemedPlot* plot)
 
 	auto grid = jobj["grid"];
 
-	applyGrid_(grid, plot, KvThemedPlot::k_grid);
-
-	// 若整个grid不可见，打开major栅格
-	if (!plot->lineVisible(KvThemedPlot::k_grid))
-		plot->setLineVisible(KvThemedPlot::k_grid_major & KvThemedPlot::k_grid, true);
+	applyGrid_(grid, plot, KvThemedPlot::k_grid_all);
 }
 
 
@@ -691,120 +552,22 @@ void KsThemeManager::applyGrid_(const QJsonValue& jval, KvThemedPlot* plot, int 
 	/// 首先处理公用属性
 	tryLevel_(jobj, plot, level);
 
-	if (jobj.contains("major"))
-		applyLine_(level & KvThemedPlot::k_grid_major, jobj["major"], plot);
+	if (jobj.contains("major")) {
+		applyLine_(level & KvThemedPlot::k_grid_major_all, jobj["major"], plot, true);
+	}
 
 	if (jobj.contains("minor")) 
-		applyLine_(level & KvThemedPlot::k_grid_minor, jobj["minor"], plot);
+		applyLine_(level & KvThemedPlot::k_grid_minor_all, jobj["minor"], plot, true);
 
-	if (jobj.contains("zeroline"))
-		applyLine_(level & KvThemedPlot::k_grid_zeroline, jobj["zeroline"], plot);
+	if (jobj.contains("zeroline")) {
+		applyLine_(level & KvThemedPlot::k_grid_zeroline_all, jobj["zeroline"], plot, true);
+	}
 
 
 	/// 然后处理特化属性
 	trySpecial_(jobj, plot, level, applyGrid_);
 }
 
-/*
-void KsThemeManager::applyGridLine_(const QJsonValue& jval, KvThemedPlot* plot, int level)
-{
-	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
-
-		axis->grid()->setVisible(!jval.isNull());
-		axis->grid()->setSubGridVisible(!jval.isNull());
-
-		if (jval.isObject()) {
-
-			auto jobj = jval.toObject();
-
-			auto pen = axis->grid()->pen();
-			assert(pen.style() != Qt::NoPen);
-			KuThemeParser::apply(jobj, pen);
-			axis->grid()->setPen(pen);
-
-			pen = axis->grid()->subGridPen();
-			assert(pen.style() != Qt::NoPen);
-			KuThemeParser::apply(jobj, pen);
-			axis->grid()->setSubGridPen(pen);
-
-			pen = axis->grid()->zeroLinePen();
-			if (pen.style() == Qt::NoPen)
-				pen.setStyle(Qt::SolidLine);
-			KuThemeParser::apply(jobj, pen);
-			axis->grid()->setZeroLinePen(pen);
-		}
-		});
-}
-
-
-void KsThemeManager::applyGridMajor_(const QJsonValue& jval, KvThemedPlot* plot, int level)
-{
-	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
-		axis->grid()->setVisible(!jval.isNull()); });
-
-	 if (!jval.isObject())
-		return;
-
-	auto jobj = jval.toObject();
-
-	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
-		QPen pen = axis->grid()->pen();
-		KuThemeParser::apply(jobj, pen);
-		axis->grid()->setPen(pen); 
-		});
-
-	kPrivate::handle_special_axes(jobj, plot, level, applyGridMajor_);
-}
-
-
-void KsThemeManager::applyGridMinor_(const QJsonValue& jval, KvThemedPlot* plot, int level)
-{
-	kPrivate::for_axis(plot, level, [&jval](QCPAxis* axis) {
-		axis->grid()->setSubGridVisible(!jval.isNull()); });
-
-	 if (!jval.isObject())
-		return;
-
-	auto jobj = jval.toObject();
-
-	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
-		QPen pen = axis->grid()->subGridPen();
-		assert(pen.style() != Qt::NoPen);
-		if(axis->grid()->visible())
-		    assert(axis->grid()->subGridVisible());
-		KuThemeParser::apply(jobj, pen);
-		axis->grid()->setSubGridPen(pen);
-		});
-
-	kPrivate::handle_special_axes(jobj, plot, level, applyGridMinor_);
-}
-
-
-void KsThemeManager::applyGridZeroline_(const QJsonValue& jval, KvThemedPlot* plot, int level)
-{
-	if (jval.isNull()) {
-		kPrivate::for_axis(plot, level, [](QCPAxis* axis) {
-			auto pen = axis->grid()->zeroLinePen();
-			pen.setStyle(Qt::NoPen);
-			axis->grid()->setZeroLinePen(pen); });
-		return;
-	}
-	else if (!jval.isObject())
-		return;
-
-	auto jobj = jval.toObject();
-
-	kPrivate::for_axis(plot, level, [&jobj](QCPAxis* axis) {
-		QPen pen = axis->grid()->zeroLinePen();
-		if (pen.style() == Qt::NoPen)
-			pen.setStyle(Qt::SolidLine);
-		KuThemeParser::apply(jobj, pen);
-		axis->grid()->setZeroLinePen(pen);
-		});
-
-	kPrivate::handle_special_axes(jobj, plot, level, applyGridZeroline_);
-}
-*/
 
 void KsThemeManager::tryMargins_(const QJsonObject& jobj, KvThemedPlot* plot)
 {
@@ -830,43 +593,57 @@ void KsThemeManager::trySpacing_(const QJsonObject& jobj, KvThemedPlot* plot)
 void KsThemeManager::trySpecial_(const QJsonObject& jobj, KvThemedPlot* plot, int level,
 	std::function<void(const QJsonValue&, KvThemedPlot*, int)> op)
 {
-	if (jobj.contains("x") && (level & KvThemedPlot::k_axis_x))
-		op(jobj["x"], plot, level & KvThemedPlot::k_axis_x);
+	if (jobj.contains("x") && (level & KvThemedPlot::k_x)) // TODO: 这个判断算法有问题
+		op(jobj["x"], plot, level & KvThemedPlot::k_x);
 
-	if (jobj.contains("y") && (level & KvThemedPlot::k_axis_y))
-		op(jobj["y"], plot, level & KvThemedPlot::k_axis_y);
+	if (jobj.contains("y") && (level & KvThemedPlot::k_y))
+		op(jobj["y"], plot, level & KvThemedPlot::k_y);
 
-	if (jobj.contains("top") && (level & KvThemedPlot::k_axis_top))
-		op(jobj["top"], plot, level & KvThemedPlot::k_axis_top);
+	if (jobj.contains("top") && (level & KvThemedPlot::k_top))
+		op(jobj["top"], plot, level & KvThemedPlot::k_top);
 
-	if (jobj.contains("bottom") && (level & KvThemedPlot::k_axis_bottom))
-		op(jobj["bottom"], plot, level & KvThemedPlot::k_axis_bottom);
+	if (jobj.contains("bottom") && (level & KvThemedPlot::k_bottom))
+		op(jobj["bottom"], plot, level & KvThemedPlot::k_bottom);
 
-	if (jobj.contains("left") && (level & KvThemedPlot::k_axis_left))
-		op(jobj["left"], plot, level & KvThemedPlot::k_axis_left);
+	if (jobj.contains("left") && (level & KvThemedPlot::k_left))
+		op(jobj["left"], plot, level & KvThemedPlot::k_left);
 
-	if (jobj.contains("right") && (level & KvThemedPlot::k_axis_right))
-		op(jobj["right"], plot, level & KvThemedPlot::k_axis_right);
+	if (jobj.contains("right") && (level & KvThemedPlot::k_right))
+		op(jobj["right"], plot, level & KvThemedPlot::k_right);
 }
 
 
-void KsThemeManager::applyLine_(int level, const QJsonValue& jval, KvThemedPlot* plot)
+void KsThemeManager::applyLine_(int level, const QJsonValue& jval, KvThemedPlot* plot, bool doShow)
 {
-	plot->applyLine(level, [&jval](const QPen& pen) {
-		QPen newPen(pen);
-		KuThemeParser::line_value(jval, newPen);
-		return newPen;
-		});
+	if (KuThemeParser::isNull(jval)) {
+		plot->setVisible(level, false);
+	}
+	else {
+		if (doShow) plot->setVisible(level, true);
+
+		plot->applyLine(level, [&jval](const QPen& pen) {
+			QPen newPen(pen);
+			KuThemeParser::line_value(jval, newPen);
+			return newPen;
+			});
+	}
 }
 
 
-void KsThemeManager::applyText_(int level, const QJsonValue& jval, KvThemedPlot* plot)
+void KsThemeManager::applyText_(int level, const QJsonValue& jval, KvThemedPlot* plot, bool doShow)
 {
-	plot->applyText(level, [&jval](const QFont& font) {
-		QFont newFont(font);
-		KuThemeParser::text_value(jval, newFont);
-		return newFont;
-		});
+	if (KuThemeParser::isNull(jval)) {
+		plot->setVisible(level, false);
+	}
+	else {
+		if (doShow) plot->setVisible(level, true);
+
+		plot->applyText(level, [&jval](const QFont& font) {
+			QFont newFont(font);
+			KuThemeParser::text_value(jval, newFont);
+			return newFont;
+			});
+	}
 }
 
 

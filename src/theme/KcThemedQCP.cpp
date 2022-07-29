@@ -10,13 +10,13 @@ namespace kPrivate
 	void for_axis(QCustomPlot* plot, int level, std::function<void(QCPAxis*)> op)
 	{
 		int filter(0);
-		if (level & KvThemedPlot::k_axis_left)
+		if (level & KvThemedPlot::k_left)
 			filter |= QCPAxis::atLeft;
-		if (level & KvThemedPlot::k_axis_right)
+		if (level & KvThemedPlot::k_right)
 			filter |= QCPAxis::atRight;
-		if (level & KvThemedPlot::k_axis_top)
+		if (level & KvThemedPlot::k_top)
 			filter |= QCPAxis::atTop;
-		if (level & KvThemedPlot::k_axis_bottom)
+		if (level & KvThemedPlot::k_bottom)
 			filter |= QCPAxis::atBottom;
 
 		for (auto rect : plot->axisRects())
@@ -48,13 +48,11 @@ namespace kPrivate
 			if (dynamic_cast<QCPColorScale*>(ele) && !(level & KvThemedPlot::k_legend_label))
 				return;
 
-			if (dynamic_cast<QCPAxisRect*>(ele)) // 单独枚举
+			if (dynamic_cast<QCPAxisRect*>(ele) && !(level & KvThemedPlot::k_axis_text))
 				return;
 
 			op(ele);
 			});
-
-		for_axis(plot, level, [op](QCPAxis* axis) { op((QCPLayoutElement*)axis); });
 	}
 }
 
@@ -101,23 +99,23 @@ void KcThemedQCP::setAxisBackground(const QBrush& brush)
 
 void KcThemedQCP::applyLine(int level, std::function<QPen(const QPen&)> op)
 {
-	for (auto rect : qcp_->axisRects())
-		for (auto axis : rect->axes()) {
-			if(level & k_axis_baseline)
-			    axis->setBasePen(op(axis->basePen()));
-			if (level & k_axis_tick_major)
-			    axis->setTickPen(op(axis->tickPen()));
-			if (level & k_axis_tick_minor)
-			    axis->setSubTickPen(op(axis->subTickPen()));
+	kPrivate::for_axis(qcp_.get(), level, [level, op](QCPAxis* axis) {
 
-			auto grid = axis->grid();
-			if (level & k_grid_major)
-			    grid->setPen(op(grid->pen()));
-			if (level & k_grid_minor)
-			    grid->setSubGridPen(op(grid->subGridPen()));
-			if (level & k_grid_zeroline)
-			    grid->setZeroLinePen(op(grid->zeroLinePen()));
-		}
+		if (level & k_axis_baseline)
+			axis->setBasePen(op(axis->basePen()));
+		if (level & k_axis_tick_major)
+			axis->setTickPen(op(axis->tickPen()));
+		if (level & k_axis_tick_minor)
+			axis->setSubTickPen(op(axis->subTickPen()));
+
+		auto grid = axis->grid();
+		if (level & k_grid_major)
+			grid->setPen(op(grid->pen()));
+		if (level & k_grid_minor)
+			grid->setSubGridPen(op(grid->subGridPen()));
+		if (level & k_grid_zeroline)
+			grid->setZeroLinePen(op(grid->zeroLinePen()));
+		});
 }
 
 
@@ -138,21 +136,22 @@ void KcThemedQCP::applyText(int level, std::function<QFont(const QFont&)> op)
 			auto text = dynamic_cast<QCPTextElement*>(ele);
 			text->setFont(op(text->font()));
 		}
-		else if (dynamic_cast<QCPAxisRect*>(ele)) {
-			auto rect = dynamic_cast<QCPAxisRect*>(ele);
-			for (auto axis : rect->axes()) {
-				if (level & k_axis_title)
-				    axis->setLabelFont(op(axis->labelFont()));
-				if (level & k_axis_label)
-				    axis->setTickLabelFont(op(axis->tickLabelFont()));
-			}
-		}
 		else if (dynamic_cast<QCPColorScale*>(ele)) {
 			auto scale = dynamic_cast<QCPColorScale*>(ele);
 			auto axis = scale->axis();
 			if (axis) axis->setLabelFont(op(axis->labelFont()));
 		}
-		});
+		else if (dynamic_cast<QCPAxisRect*>(ele)) {
+			// 后面单独处理
+		}
+	});
+
+	kPrivate::for_axis(qcp_.get(), level, [level, op](QCPAxis* axis) {
+		if (level & k_axis_title)
+			axis->setLabelFont(op(axis->labelFont()));
+		if (level & k_axis_label)
+			axis->setTickLabelFont(op(axis->tickLabelFont()));
+	});
 }
 
 
@@ -171,21 +170,22 @@ void KcThemedQCP::applyTextColor(int level, std::function<QColor(const QColor&)>
 			auto text = dynamic_cast<QCPTextElement*>(ele);
 			text->setTextColor(op(text->textColor()));
 		}
-		else if (dynamic_cast<QCPAxisRect*>(ele)) {
-			auto rect = dynamic_cast<QCPAxisRect*>(ele);
-			for (auto axis : rect->axes()) {
-				if(level & k_axis_title)
-				    axis->setLabelColor(op(axis->labelColor()));
-				if (level & k_axis_label)
-				    axis->setTickLabelColor(op(axis->tickLabelColor()));
-			}
-		}
 		else if (dynamic_cast<QCPColorScale*>(ele)) {
 			auto scale = dynamic_cast<QCPColorScale*>(ele);
 			auto axis = scale->axis();
 			if (axis) axis->setLabelColor(op(axis->labelColor()));
 		}
-		});
+		else if (dynamic_cast<QCPAxisRect*>(ele)) {
+			// 后面单独处理
+		}
+	});
+
+	kPrivate::for_axis(qcp_.get(), level, [level, op](QCPAxis* axis) {
+		if (level & k_axis_title)
+			axis->setLabelColor(op(axis->labelColor()));
+		if (level & k_axis_label)
+			axis->setTickLabelColor(op(axis->tickLabelColor()));
+	});
 }
 
 
@@ -330,27 +330,54 @@ void KcThemedQCP::applyPalette(unsigned plotIdx, const QColor& major, const QCol
 }
 
 
-void KcThemedQCP::setLineVisible(int level, bool b)
+void KcThemedQCP::setVisible(int level, bool b)
 {
-	
-}
+	kPrivate::for_axis(qcp_.get(), level, [level, b](QCPAxis* axis) {
+		
+		std::function<QPen(const QPen&)> show = [](const QPen& pen) {
+			QPen newPen(pen);
+			if (newPen.style() == Qt::NoPen)
+				newPen.setStyle(Qt::SolidLine);
+			return newPen;
+		};
+		
+		std::function<QPen(const QPen&)> hide = [](const QPen& pen) {
+			QPen newPen(pen);
+			newPen.setStyle(Qt::NoPen);
+			return newPen;
+		};
 
+		auto op = b ? show : hide;
 
-bool KcThemedQCP::lineVisible(int level) const
-{
-	return true;
-}
+		if (level & k_axis_baseline)
+			axis->setBasePen(op(axis->basePen()));
+		if (level & k_axis_tick_major)
+			axis->setTickPen(op(axis->tickPen()));
+		if (level & k_axis_tick_minor)
+			axis->setSubTickPen(op(axis->subTickPen()));
 
+		auto grid = axis->grid();
+		if (level & k_grid_major)
+			grid->setPen(op(grid->pen()));
+		if (level & k_grid_minor) {
+			grid->setSubGridVisible(b);
+			if (b) {
+				QPen pen = grid->subGridPen();
+				if (pen.style() == Qt::NoPen) {
+					pen.setStyle(Qt::DashDotLine);
+					grid->setSubGridPen(pen);
+				}
+			}
+		}
+		if (level & k_grid_zeroline)
+			grid->setZeroLinePen(op(grid->zeroLinePen()));
 
-void KcThemedQCP::setTextVisible(int level, bool b)
-{
+		if ((level & k_axis_label) == k_axis_label) // TODO: 统一
+			axis->setTickLabels(b);
 
-}
+		// TODO: axis->setLabel
 
-
-bool KcThemedQCP::textVisible(int level) const
-{
-	return true;
+	});
 }
 
 
@@ -364,8 +391,6 @@ QMargins KcThemedQCP::margins() const
 void KcThemedQCP::setMargins(const QMargins& margins)
 {
 	auto layout = qcp_->plotLayout();
-	for (int i = 0; i < layout->elementCount(); i++) {
-		auto margins = layout->elementAt(i)->minimumMargins();
+	for (int i = 0; i < layout->elementCount(); i++) 
 		layout->elementAt(i)->setMinimumMargins(margins);
-	}
 }

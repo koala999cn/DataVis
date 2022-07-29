@@ -16,27 +16,21 @@
     ],
 
     "background": {
-      "fill": "#282a36",
-      "color": "#44475a"
+      "color": "#282a36",
+      "border": "#44475a"
     },
 
     "axis": {
-      "background": {
-        "fill": "transparent"
-      }
+      "background": "NA"
     },
 
-    "label": {
-      "color": "#f8f8f2"
-    },
+    "label": "#f8f8f2",
 
     "title": {
       "color": "#6272A4",
       "face": "bold"
     },
 
-    "line": {
-      "color": "#44475a"
-    }
+    "line": "#44475a"
   }
 }
