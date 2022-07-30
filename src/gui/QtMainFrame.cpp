@@ -212,19 +212,9 @@ QMenu* QtMainFrame::setupRdMenu_()
 {
     auto renderMenu = std::make_unique<QMenu>(u8"Render(&R)", this);
 
-    QAction* scatter = renderMenu->addAction(u8"Scatter Plot(&P)");
-    connect(scatter, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcRdPlot1d>(workDock_, false, KcRdPlot1d::KeType::k_scatter);
-        });
-
-    QAction* line = renderMenu->addAction(u8"Line Plot(&L)");
-    connect(line, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcRdPlot1d>(workDock_, false, KcRdPlot1d::KeType::k_line);
-        });
-
-    QAction* bar = renderMenu->addAction(u8"Bars Plot(&B)");
-    connect(bar, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcRdPlot1d>(workDock_, false, KcRdPlot1d::KeType::k_bars);
+    QAction* plot1d = renderMenu->addAction(u8"Plot1d(&L)");
+    connect(plot1d, &QAction::triggered, [this] {
+        kPrivate::insertObjectP<KcRdPlot1d>(workDock_, false);
         });
 
     QAction* color_map = renderMenu->addAction(u8"Color Map(&M)");
@@ -255,9 +245,7 @@ QMenu* QtMainFrame::setupRdMenu_()
     connect(renderMenu.get(), &QMenu::aboutToShow, [=] {
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
-        scatter->setEnabled(obj && obj->isDiscreted() && obj->dim() == 1);
-        line->setEnabled(obj && obj->dim() == 1);
-        bar->setEnabled(obj && obj->dim() == 1);
+        plot1d->setEnabled(obj && obj->dim() == 1);
         color_map->setEnabled(obj && obj->dim() == 2);
         bars3d->setEnabled(obj && obj->isSampled() && obj->dim() <= 2);
         scatter3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);

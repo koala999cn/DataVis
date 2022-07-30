@@ -12,46 +12,25 @@ namespace kPrivate
 {
 	static QString typeToStr(KcRdPlot1d::KeType type)
 	{
-		switch (type)
-		{
-		case KcRdPlot1d::KeType::k_scatter:
-			return QObject::tr(u8"scatter_plot");
+		static const char* typeText[] = {
+			"scatter",
+			"line",
+			"line-scatter",
+			"line-fill",
+			"stacked-bars",
+			"grouped-bars"
+		};
 
-		case KcRdPlot1d::KeType::k_bars:
-			return QObject::tr(u8"bars_plot");
-
-		case KcRdPlot1d::KeType::k_line:
-		default:
-			return QObject::tr(u8"line_plot");
-		}
+		return typeText[type];
 	}
 }
 
 
 KcRdPlot1d::KcRdPlot1d(KvDataProvider* is, KeType type)
-	: KvRdCustomPlot(is, kPrivate::typeToStr(type))
+	: KvRdCustomPlot(is, "plot1d")
 	, type_(type)
 {
-	for (kIndex ch = 0; ch < is->channels(); ch++) {
-		if (type == KeType::k_scatter) {
-			auto graph = customPlot_->addGraph();
-			graph->setLineStyle(QCPGraph::lsNone);
-			graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross));
-			graph->setAntialiasedScatters(true);
-		}
-		else if (type == KeType::k_bars) {
-			auto bars = new QCPBars(customPlot_->xAxis, customPlot_->yAxis);
-			bars->setWidthType(QCPBars::wtPlotCoords);
-			barWidthRatio_ = 0.5f;
-			updateBarWidth_();
-		}
-		else {
-			assert(type == KeType::k_line);
-			auto graph = customPlot_->addGraph();
-			graph->setAdaptiveSampling(true);
-		}
-	}
-
+	createTypedPlot_();
 
 	if (is->isContinued()) {
 
@@ -75,6 +54,8 @@ namespace kPrivate
 	enum KePlot1dProperty
 	{
 		k_plot1d_prop_id = 200, // 此前的id预留给KvRdCustomPlot
+
+		k_type,
 
 		k_line_pen,
 		k_line_style,
@@ -186,6 +167,16 @@ KvPropertiedObject::kPropertySet KcRdPlot1d::propertySet() const
 
 	KpProperty prop;
 	KpProperty subProp;
+
+	prop.id = k_type;
+	prop.name = "Type";
+	QStringList sl;
+	for (int i = 0; i < k_type_count; i++)
+		sl << typeToStr(KeType(i));
+	prop.makeEnum(sl);
+	prop.val = type_;
+	ps.push_back(prop);
+
 
 /*	if (type_ == KeType::k_line)
 		ps.push_back(lineProperty_(false));
@@ -417,6 +408,12 @@ void KcRdPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
 			updateBarWidth_();
 			break;
 		    }
+
+		case k_type:
+			type_ = KeType(newVal.toInt());
+			createTypedPlot_();
+			
+			break;
 		}
 	}
 
@@ -434,11 +431,11 @@ bool KcRdPlot1d::doRender_(std::shared_ptr<KvData> data)
 	for (kIndex ch = 0; ch < data->channels(); ch++) {
 		auto plot = customPlot_->plottable(ch);
 		
-		if (type_ == KeType::k_bars) {
+		if (dynamic_cast<QCPBars*>(plot)) {
 			kPrivate::doPlot<QCPBars>(plot, data, ch, streaming);
 			updateBarWidth_();
 		}
-		else {
+		else if (dynamic_cast<QCPGraph*>(plot)) {
 			kPrivate::doPlot<QCPGraph>(plot, data, ch, streaming);
 		}
 	}
@@ -452,31 +449,92 @@ bool KcRdPlot1d::doRender_(std::shared_ptr<KvData> data)
 
 void KcRdPlot1d::reset()
 {
-	auto plot = customPlot_->plottable();
-	if (type_ == KeType::k_bars)
-		kPrivate::clearData<QCPBars>(plot);
-	else 
-		kPrivate::clearData<QCPGraph>(plot);
+	for (int i = 0; i < customPlot_->plottableCount(); i++) {
+		auto plot = customPlot_->plottable(i);
+		if (dynamic_cast<QCPBars*>(plot))
+			kPrivate::clearData<QCPBars>(plot);
+		else if(dynamic_cast<QCPGraph*>(plot))
+			kPrivate::clearData<QCPGraph>(plot);
+		else
+			assert(false);
+	}
 }
 
 
 void KcRdPlot1d::updateBarWidth_()
 {
 	auto prov = dynamic_cast<KvDataProvider*>(parent());
-	auto bars = dynamic_cast<QCPBars*>(customPlot_->plottable());
-	auto dx = prov->step(0);
-	if (dx == 0) {
-		if (bars->dataCount() > 0)
-			dx = prov->range(0).length() / bars->dataCount();
-		else
-			dx = 1; // 随意默认值
-	}
+	for (int i = 0; i < customPlot_->plottableCount(); i++) {
 
-	bars->setWidth(dx * barWidthRatio_);
+		auto bars = dynamic_cast<QCPBars*>(customPlot_->plottable(i));
+		auto dx = prov->step(0);
+		if (dx == 0) {
+			if (bars->dataCount() > 0)
+				dx = prov->range(0).length() / bars->dataCount();
+			else
+				dx = 1; // 随意默认值
+		}
+
+		bars->setWidth(dx * barWidthRatio_ / customPlot_->plottableCount());
+	}
 }
 
 
 void KcRdPlot1d::preRender_()
 {
 
+}
+
+
+void KcRdPlot1d::createTypedPlot_()
+{
+	customPlot_->clearPlottables(); 
+	
+	auto objp = static_cast<KvDataProvider*>(parent());
+	QCPBarsGroup* group = nullptr;
+
+	switch (type_)
+	{
+	case KcRdPlot1d::k_scatter:
+	case KcRdPlot1d::k_line:
+	case KcRdPlot1d::k_line_scatter:
+	case KcRdPlot1d::k_line_fill:
+		for (kIndex ch = 0; ch < objp->channels(); ch++) {
+			auto graph = customPlot_->addGraph();
+			graph->setAntialiasedScatters(true);
+			graph->setAdaptiveSampling(true);
+
+			if (type_ == k_scatter) {
+				graph->setLineStyle(QCPGraph::lsNone);
+				graph->setScatterStyle(QCPScatterStyle::ssCircle);
+			}
+			else if (type_ == k_line_fill) {
+				auto brush = graph->brush();
+				brush.setStyle(Qt::SolidPattern);
+				graph->setBrush(brush);
+			}
+			else if (type_ == k_line_scatter) {
+				graph->setScatterStyle(QCPScatterStyle::ssCircle);
+			}
+		}
+		break;
+
+	
+	case KcRdPlot1d::k_bars_grouped:
+		group = new QCPBarsGroup(customPlot_);
+		// pass through
+
+	case KcRdPlot1d::k_bars_stacked:
+		for (kIndex ch = 0; ch < objp->channels(); ch++) {
+			auto bars = new QCPBars(customPlot_->xAxis, customPlot_->yAxis);
+			bars->setBarsGroup(group);
+			bars->setWidthType(QCPBars::wtPlotCoords);
+			barWidthRatio_ = 0.5f;
+			updateBarWidth_();
+		}
+		break;
+
+	default:
+		break;
+	}
 }

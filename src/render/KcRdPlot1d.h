@@ -5,14 +5,21 @@
 class KcRdPlot1d : public KvRdCustomPlot
 {
 public:
-	enum class KeType
+
+	// 支持的6种一维图类型. TODO: 混合类型的支持
+	enum KeType
 	{
 		k_scatter,  // 散点图
 		k_line,   // 连线图
-		k_bars,   // 柱状图
+		k_line_scatter, // 点线图
+		k_line_fill, // 填充图
+		k_bars_stacked,   // 层叠柱状图
+		k_bars_grouped, // 分组柱状图
+		k_type_count
 	};
 
-	KcRdPlot1d(KvDataProvider* is, KeType type);
+	// @type: 初始类型
+	KcRdPlot1d(KvDataProvider* is, KeType type = k_line);
 
 	kPropertySet propertySet() const override;
 
@@ -28,7 +35,9 @@ private:
 	KpProperty lineProperty_(bool hasNone) const;
 	KpProperty barProperty_() const;
 	void updateBarWidth_();
-
+	
+	// 根据type_，构建指定类型的图元素
+	void createTypedPlot_();
 
 protected:
 	KeType type_;
