@@ -58,7 +58,8 @@
 
       "grid": {
         "major": "dash",
-        "minor": "dot"
+        "minor": "dot",
+        "zeroline": "NA"
       }
     },
 

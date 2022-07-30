@@ -24,7 +24,7 @@ bool KuThemeParser::isNull(const QJsonValue& jval)
 }
 
 
-void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush)
+void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush, bool forceShow)
 {
 	if (isNull(jval)) {
 		brush.setStyle(Qt::NoBrush);
@@ -34,7 +34,7 @@ void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush)
 		if (color_value(jval.toString(), color)) {
 			brush.setColor(color);
 
-			if (brush.style() == Qt::NoBrush && color != QColor("transparent"))
+			if (brush.style() == Qt::NoBrush && forceShow)
 				brush.setStyle(Qt::SolidPattern);
 		}
 	}
@@ -48,7 +48,7 @@ void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush)
 			color_value(jval, color);
 			if (color.isValid()) {
 				brush.setColor(color);
-				if (brush.style() == Qt::NoBrush && color != QColor("transparent"))
+				if (brush.style() == Qt::NoBrush && forceShow)
 					brush.setStyle(Qt::SolidPattern);
 			}
 		}
@@ -63,7 +63,7 @@ void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush)
 }
 
 
-void KuThemeParser::line_value(const QJsonValue& jval, QPen& pen)
+void KuThemeParser::line_value(const QJsonValue& jval, QPen& pen, bool forceShow)
 {
 	if (isNull(jval)) {
 		pen.setStyle(Qt::NoPen); 
@@ -99,7 +99,7 @@ void KuThemeParser::line_value(const QJsonValue& jval, QPen& pen)
 			line_style(style, pen);
 	}
 
-	if (pen.style() == Qt::NoPen)
+	if (forceShow && pen.style() == Qt::NoPen)
 		pen.setStyle(Qt::SolidLine); // 置为可见. 由于无法得知隐藏前的线型，此处统一使用solid-line
 }
 
@@ -342,11 +342,7 @@ bool KuThemeParser::line_color(const QString& str, QPen& pen)
 	if (!color_value(str, color))
 		return false;
 
-	if (pen.style() == Qt::NoPen)
-		pen.setStyle(Qt::SolidLine);
-
 	pen.setColor(color);
 	return true;
-
 }
 

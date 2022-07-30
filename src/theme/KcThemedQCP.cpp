@@ -61,6 +61,7 @@ KcThemedQCP::KcThemedQCP(std::shared_ptr<QCustomPlot> qcp)
 {
 	qcp_ = qcp;
 	bkgnd_ = QColor("white");
+	qcp->setBackground(bkgnd_); // Í¬²½±³¾°É«
 }
 
 

@@ -336,7 +336,7 @@ void KsThemeManager::applyCanvas_(const QJsonValue& jval, KvThemedPlot* plot) co
 void KsThemeManager::applyCanvasBkgnd_(const QJsonValue& jval, KvThemedPlot* plot)
 {
 	auto bkgnd = plot->background();
-	KuThemeParser::fill_value(jval, bkgnd);
+	KuThemeParser::fill_value(jval, bkgnd, true);
 	plot->setBackground(bkgnd);
 }
 
@@ -344,7 +344,7 @@ void KsThemeManager::applyCanvasBkgnd_(const QJsonValue& jval, KvThemedPlot* plo
 void KsThemeManager::applyCanvasAxisRect_(const QJsonValue& jval, KvThemedPlot* plot)
 {
 	auto bkgnd = plot->axisBackground();
-	KuThemeParser::fill_value(jval, bkgnd);
+	KuThemeParser::fill_value(jval, bkgnd, true);
 	plot->setAxisBackground(bkgnd);
 }
 
@@ -363,7 +363,7 @@ void KsThemeManager::applyCanvasLine_(const QJsonValue& jval, KvThemedPlot* plot
 {
 	plot->applyLine(KvThemedPlot::k_line_all, [&jval](const QPen& pen) {
 		QPen newPen(pen);
-		KuThemeParser::line_value(jval, newPen);
+		KuThemeParser::line_value(jval, newPen, false);
 		return newPen;
 		});
 }
@@ -373,7 +373,7 @@ void KsThemeManager::applyCanvasGridline_(const QJsonValue& jval, KvThemedPlot* 
 {
 	plot->applyLine(KvThemedPlot::k_grid_line_all, [&jval](const QPen& pen) {
 		QPen newPen(pen);
-		KuThemeParser::line_value(jval, newPen);
+		KuThemeParser::line_value(jval, newPen, false);
 		return newPen;
 		});
 }
@@ -419,7 +419,7 @@ void KsThemeManager::tryBkgnd_(const QJsonObject& jobj, KvThemedPlot* plot)
 {
 	if (jobj.contains("background")) {
 		QBrush brush = plot->background();
-		KuThemeParser::fill_value(jobj["background"], brush);
+		KuThemeParser::fill_value(jobj["background"], brush, true);
 		plot->setBackground(brush);
 	}
 }
@@ -459,7 +459,7 @@ void KsThemeManager::tryAxis_(const QJsonObject& jobj, KvThemedPlot* plot)
 		auto jobj = axis.toObject();
 		if (jobj.contains("background")) {
 			QBrush brush = plot->axisBackground();
-			KuThemeParser::fill_value(jobj["background"], brush);
+			KuThemeParser::fill_value(jobj["background"], brush, true);
 			plot->setAxisBackground(brush);
 		}
 	}
@@ -620,10 +620,9 @@ void KsThemeManager::applyLine_(int level, const QJsonValue& jval, KvThemedPlot*
 	}
 	else {
 		if (doShow) plot->setVisible(level, true);
-
-		plot->applyLine(level, [&jval](const QPen& pen) {
+		plot->applyLine(level, [&jval, level](const QPen& pen) {
 			QPen newPen(pen);
-			KuThemeParser::line_value(jval, newPen);
+			KuThemeParser::line_value(jval, newPen, !(level & KvThemedPlot::k_plot));
 			return newPen;
 			});
 	}

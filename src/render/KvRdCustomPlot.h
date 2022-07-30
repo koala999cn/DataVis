@@ -50,6 +50,5 @@ protected:
 
 	// QCustomPlot有关属性
 	bool autoScale_; // 是否自动缩放axis适应输入数据 
-	QColor back_;
 };
 

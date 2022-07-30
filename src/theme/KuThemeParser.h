@@ -58,9 +58,10 @@ public:
 
 	static bool line_color(const QString& str, QPen& pen);
 
-	static void line_value(const QJsonValue& jval, QPen& pen);
+	// @forceShow: 若true，则在pen为Qt::NoPen的情况下，视情重置pen的style为solid，以确保可见性
+	static void line_value(const QJsonValue& jval, QPen& pen, bool forceShow);
 
-	static void fill_value(const QJsonValue& jval, QBrush& brush);
+	static void fill_value(const QJsonValue& jval, QBrush& brush, bool forceShow);
 
 	static void text_value(const QJsonValue& jval, QFont& font);
 

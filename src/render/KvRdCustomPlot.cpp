@@ -18,10 +18,6 @@ KvRdCustomPlot::KvRdCustomPlot(KvDataProvider* is, const QString& name)
 	rescaleAxes(); // 设置缺省的坐标轴范围
 	autoScale_ = !is->isStream();
 
-	// TODO: 根据style设置背景色
-	back_ = QColor(255, 255, 255); // dockFrame->style()->standardPalette().color(QPalette::Base);
-	customPlot_->setBackground(QBrush(back_));
-
 	// 设置上下文菜单
 	customPlot_->setContextMenuPolicy(Qt::CustomContextMenu);
 	customPlot_->connect(customPlot_, &QWidget::customContextMenuRequested, [this](const QPoint& pos) {
@@ -369,8 +365,7 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 		break;
 
 	case k_background:
-		back_ = newVal.value<QColor>();
-		customPlot_->setBackground(QBrush(back_));
+		themedPlot_->setBackground(newVal.value<QBrush>());
 		break;
 
 	case k_xrange:
@@ -390,11 +385,8 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 		break;
 
 	case k_margins: {
-		auto r = newVal.value<QRect>();
-		auto grid = customPlot_->plotLayout();
-		for (int i = 0; i < grid->elementCount(); i++) 
-			grid->elementAt(i)->setMinimumMargins(
-				QMargins(r.left(), r.top(), r.right(), r.bottom()));
+		auto r = newVal.value<QRect>(); 
+		themedPlot_->setMargins({ r.left(), r.top(), r.right(), r.bottom() });
 		break;
 	}
 
@@ -419,12 +411,31 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 void KvRdCustomPlot::applyTheme_(const QString& name)
 {
 	themeName_ = name;
-	canvasName_ = kThemeManager->canvasName(name);
-	layoutName_ = kThemeManager->layoutName(name);
-	paletteName_ = kThemeManager->paletteName(name);
+
+	auto canvas = kThemeManager->canvasName(name);
+	auto idx = kThemeManager->listCanvas().indexOf(canvas);
+	if (idx != -1) {
+		canvasName_ = canvas;
+		kAppEventHub->objectPropertyChanged(this, kPrivate::k_canvas, idx);
+	}
+
+	auto layout = kThemeManager->layoutName(name);
+	idx = kThemeManager->listLayouts().indexOf(layout);
+	if (idx != -1) {
+		layoutName_ = layout;
+		kAppEventHub->objectPropertyChanged(this, kPrivate::k_layout, idx);
+	}
+
+	auto palette = kThemeManager->paletteName(name);
+	idx = kThemeManager->listPalettes().indexOf(palette);
+	if (idx != -1) {
+		paletteName_ = palette;
+		kAppEventHub->objectPropertyChanged(this, kPrivate::k_palette, idx);
+	}
+
 	kThemeManager->applyTheme(name, themedPlot_.get());
 
-	kAppEventHub->refreshPropertySheet(); // TODO: 可能crack. 比如有delegate没有及时销毁，再访问的时候可能出错
+	//kAppEventHub->refreshPropertySheet(); // TODO: 可能crack. 比如有delegate没有及时销毁，再访问的时候可能出错
 }
 
 
