@@ -4,6 +4,7 @@
 #include "KvData.h"
 #include "KtSampling.h"
 #include "KvContinued.h"
+#include "QtAppEventHub.h"
 #include <QBrush>
 #include "qcustomplot/qcustomplot.h"
 
@@ -29,6 +30,7 @@ namespace kPrivate
 KcRdPlot1d::KcRdPlot1d(KvDataProvider* is, KeType type)
 	: KvRdCustomPlot(is, "plot1d")
 	, type_(type)
+	, delayedCreate_(false)
 {
 	createTypedPlot_();
 
@@ -411,7 +413,14 @@ void KcRdPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
 
 		case k_type:
 			type_ = KeType(newVal.toInt());
-			createTypedPlot_();
+			delayedCreate_ = ((KvDataProvider*)rootParent())->isStream();
+			if (!delayedCreate_) {
+				auto plot = customPlot_->plottable();
+				bool refreshData = plot && plot->interface1D()->dataCount() > 0;
+				createTypedPlot_();
+				if (refreshData)
+					kAppEventHub->startPipeline(rootParent());
+			}
 			
 			break;
 		}
@@ -482,7 +491,10 @@ void KcRdPlot1d::updateBarWidth_()
 
 void KcRdPlot1d::preRender_()
 {
-
+	if (delayedCreate_) {
+		delayedCreate_ = false;
+		createTypedPlot_();
+	}
 }
 
 

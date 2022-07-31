@@ -41,6 +41,7 @@ private:
 
 protected:
 	KeType type_;
+	bool delayedCreate_; // 是否延迟调用createTypedPlot_，以确保同步doRender_
 	float barWidthRatio_; // 取值[0, 1]，为bin宽度的占比
 };
 
