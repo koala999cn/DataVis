@@ -267,9 +267,13 @@ unsigned KcThemedQCP::numPlots() const
 void KcThemedQCP::applyPalette(unsigned plotIdx, const QColor& major, const QColor& minor)
 {
 	// TOOD: Ô½½ç¼ì²â
-
 	auto plot = qcp_->axisRect()->plottables().at(plotIdx);
+	applyPalette(plot, major, minor);
+}
 
+
+void KcThemedQCP::applyPalette(QCPAbstractPlottable* plot, const QColor& major, const QColor& minor)
+{
 	if (dynamic_cast<QCPGraph*>(plot)) {
 		auto brush = plot->brush();
 		auto pen = plot->pen();

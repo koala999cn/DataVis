@@ -2,6 +2,9 @@
 #include "KvRdCustomPlot.h"
 
 
+class QCPBarsGroup;
+class QCPAbstractPlottable;
+
 class KcRdPlot1d : public KvRdCustomPlot
 {
 public:
@@ -37,11 +40,20 @@ private:
 	void updateBarWidth_();
 	
 	// 根据type_，构建指定类型的图元素
-	void createTypedPlot_();
+	void changePlotType_();
+
+	// 转换plot类型到type，返回转换后的对象
+	QCPAbstractPlottable* clonePlottable_(QCPAbstractPlottable* plot, KeType type);
+
+	QCPAbstractPlottable* create_(KeType type);
+
+	void cloneData_(QCPAbstractPlottable* from, QCPAbstractPlottable* to);
+	void cloneTheme_(QCPAbstractPlottable* from, QCPAbstractPlottable* to);
 
 protected:
 	KeType type_;
-	bool delayedCreate_; // 是否延迟调用createTypedPlot_，以确保同步doRender_
+	bool delayedChangeType_; // 是否延迟调用createTypedPlot_，以确保同步doRender_
 	float barWidthRatio_; // 取值[0, 1]，为bin宽度的占比
+	QCPBarsGroup* barsGroup_;
 };
 

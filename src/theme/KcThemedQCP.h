@@ -4,6 +4,8 @@
 
 
 class QCustomPlot;
+class QCPAbstractPlottable;
+
 
 class KcThemedQCP : public KvThemedPlot
 {
@@ -30,6 +32,8 @@ public:
 
 	QMargins margins() const override;
 	void setMargins(const QMargins&) override;
+
+	static void applyPalette(QCPAbstractPlottable* plot, const QColor& major, const QColor& minor);
 
 private:
 	std::shared_ptr<QCustomPlot> qcp_;
