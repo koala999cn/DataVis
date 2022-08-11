@@ -238,7 +238,7 @@ public:
 		std::string str;
 		for (int i = 0; i < max_row_to_show; i++) {
 			str += prefix;
-			str += dump(m[i], max_col_to_show);
+			str += dump(m[i], delim, max_col_to_show);
 			str += '\n';
 		}
 
