@@ -272,8 +272,11 @@ void KcThemedQCP::applyPalette(unsigned plotIdx, const QColor& major, const QCol
 }
 
 
-void KcThemedQCP::applyPalette(QCPAbstractPlottable* plot, const QColor& major, const QColor& minor)
+void KcThemedQCP::applyPalette(QCPAbstractPlottable* plot, const QColor& major_, const QColor& minor)
 {
+	auto major = major_;
+	major.setAlphaF(1.0); // TODO: 为显示line-fill图的临时举措
+
 	if (dynamic_cast<QCPGraph*>(plot)) {
 		auto brush = plot->brush();
 		auto pen = plot->pen();
@@ -283,6 +286,7 @@ void KcThemedQCP::applyPalette(QCPAbstractPlottable* plot, const QColor& major, 
 		}
 		else {
 			pen.setColor(minor);
+			major.setAlphaF(0.25); // TODO: 为显示line-fill图的临时举措
 			brush.setColor(major);
 		}
 
