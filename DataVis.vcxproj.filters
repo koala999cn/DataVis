@@ -234,6 +234,9 @@
     <ClCompile Include="src\theme\KcThemedQCP.cpp">
       <Filter>theme</Filter>
     </ClCompile>
+    <ClCompile Include="src\base\KuFileUtil.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">

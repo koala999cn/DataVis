@@ -132,6 +132,7 @@
     <ClCompile Include="src\audio\KcAudioDevice.cpp" />
     <ClCompile Include="src\audio\KcAudioRender.cpp" />
     <ClCompile Include="src\audio\KgAudioFile.cpp" />
+    <ClCompile Include="src\base\KuFileUtil.cpp" />
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
     <ClCompile Include="src\dsp\KcSampled2d.cpp" />

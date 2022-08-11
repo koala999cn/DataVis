@@ -1,14 +1,13 @@
 #include "KuFileUtil.h"
-#include "base/KuFilePath.h"
-#include "KcFileReader.h"
-#include "KtComPtr.h"
 #include <sys/stat.h>
+#include <fstream>
+#include "KuStrUtil.h"
 
 
-bool KuFileUtil::getTime(const TCHAR* file, time_t& tCreate, time_t& tModify, time_t& tLastAccess)
+bool KuFileUtil::time(const std::string& path, time_t& tCreate, time_t& tModify, time_t& tLastAccess)
 {
 	struct _stat64i32 buf;
-	if (0 != ::_tstat(file, &buf))
+	if (0 != ::_stat(path.c_str(), &buf))
 		return false;
 
 	tCreate = buf.st_ctime;
@@ -18,25 +17,25 @@ bool KuFileUtil::getTime(const TCHAR* file, time_t& tCreate, time_t& tModify, ti
 	return true;
 }
 
-__int64 KuFileUtil::getSize(const TCHAR* file)
+
+__int64 KuFileUtil::size(const std::string& path)
 {
 	struct _stat64i32 buf;
-	if (0 != ::_tstat(file, &buf))
+	if (0 != ::_stat(path.c_str(), &buf))
 		return -1;
 
 	return buf.st_size;
 }
 
-int KuFileUtil::getLineCount(const TCHAR* file, bool include_empty_line)
-{
-	if (!KuFilePath::IsExist(file))
-		return -1;
 
-	KtComPtr<KiReader> r = new KcFileReader(file);
+int KuFileUtil::lines(const std::string& path, bool include_empty_line)
+{
+	std::ifstream ifs(path);
+	if (!ifs) return -1;
+
 	int line_num(0);
-	std::vector<char> line;
-	while (r->getLine(line))
-	{
+	std::string line;
+	while (std::getline(ifs, line)) {
 		if (line.empty() && !include_empty_line)
 			continue;
 
@@ -46,48 +45,44 @@ int KuFileUtil::getLineCount(const TCHAR* file, bool include_empty_line)
 	return line_num;
 }
 
-bool KuFileUtil::readAllLines(const TCHAR* file, std::vector<std::string>& lines, bool trim, bool omit_blank)
+
+std::vector<std::string> KuFileUtil::readAllLines(const std::string& path, bool trim, bool omit_blank)
 {
-	KtComPtr<KiReader> r = new KcFileReader(file);
-
-	if (!r->canRead())
-		return false;
-
-	std::vector<char> line;
-	while (r->getLine(line))
-	{
+	std::vector<std::string> res;
+	std::ifstream ifs(path);
+	std::string line;
+	while (std::getline(ifs, line)) {
 		char* p = line.data();
 		if (trim)
-			p = KuStrUtil::TrimInPlace(p);
+			p = KuStrUtil::trimInPlace(p);
 
 		if (*p == '\0' && omit_blank)
 			continue;
 
-		lines.push_back(p);
+		res.push_back(p);
 	}
 
-	return true;
+	return res;
 }
 
-bool KuFileUtil::readAsString(const TCHAR* filePath, std::string& text)
+
+std::string KuFileUtil::readAsString(const std::string& path)
 {
-	KtComPtr<KiReader> r = new KcFileReader(filePath);
-
-	if (!r->canRead())
-		return false;
-
-	r->readString(text);
-
-	return true;
+	std::string text;
+	auto len = size(path);
+	std::ifstream ifs(path);
+	if (len > 0 && ifs) {
+		text.resize(len);
+		ifs.read(text.data(), len);
+	}
+	
+	return text;
 }
 
-bool KuFileUtil::writeString(const TCHAR* filePath, std::string& text, bool bAppend)
+
+bool KuFileUtil::writeString(const std::string& path, const std::string& text, bool bAppend)
 {
-	KtComPtr<KiWriter> w = new KcFileWriter(filePath, bAppend);
-	if (!w->canWrite())
-		return false;
-
-	w->writeString(text);
-
-	return true;
+	std::ofstream ofs(path, bAppend ? std::ios::app : std::ios::trunc);
+	if (!ofs) return false;
+	return ofs.write(text.data(), text.size()).good();
 }
