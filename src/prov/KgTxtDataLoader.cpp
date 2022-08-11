@@ -22,10 +22,9 @@ bool KgTxtDataLoader::load(const char* path, matrixd& mat) const
     mat.clear();
 
     std::ifstream ifs(path);
-    while (ifs) {
-        std::string line;
-        std::getline(ifs, line);
-
+    std::string line;
+    while (std::getline(ifs, line)) {
+       
         // œ»ºÏ≤‚comment
         if (!rexpComment_.empty()) {
             const std::regex re(rexpComment_);

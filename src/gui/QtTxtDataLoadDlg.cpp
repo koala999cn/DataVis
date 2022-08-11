@@ -43,6 +43,9 @@ QtTxtDataLoadDlg::QtTxtDataLoadDlg(QString path, QWidget *parent) :
     ui->leStartCol->setValidator(new QIntValidator);
 
     connect(ui->btReload, &QPushButton::click, this, &QtTxtDataLoadDlg::reload);
+    connect(ui->rbRowMajor, &QRadioButton::toggled, [this](bool) {
+        updateImportAs_();
+        });
     reload();
 }
 
@@ -168,7 +171,8 @@ void QtTxtDataLoadDlg::updateImportAs_()
     int rows = mat_.size();
     int cols = ((QIntValidator*)ui->leStartCol->validator())->top();
 
-    if (ui->rbRowMajor->isChecked())
+    auto rowMajor = ui->rbRowMajor->isChecked();
+    if (rowMajor)
         std::swap(rows, cols);
 
     // column major
@@ -185,10 +189,12 @@ void QtTxtDataLoadDlg::updateImportAs_()
             else if (cols == 3)
                 ui->cbImportAs->addItem("scattered-2d", kPrivate::k_scattered_2d);
      
-            if(KgTxtDataLoader::isEvenlySpaced(KgTxtDataLoader::column(mat_, 0)))
+            if(!rowMajor && KgTxtDataLoader::isEvenlySpaced(KgTxtDataLoader::column(mat_, 0)) ||
+                rowMajor && KgTxtDataLoader::isEvenlySpaced(mat_[0]))
                 ui->cbImportAs->addItem("sampled-1d", kPrivate::k_sampled_1d);
 
-            if (rows > 1 && KgTxtDataLoader::isEvenlySpaced(mat_[0]))
+            if (rows > 1 && KgTxtDataLoader::isEvenlySpaced(mat_[0]) 
+                && KgTxtDataLoader::isEvenlySpaced(KgTxtDataLoader::column(mat_, 0)))
                 ui->cbImportAs->addItem("sampled-2d", kPrivate::k_sampled_2d);
         }
     }
