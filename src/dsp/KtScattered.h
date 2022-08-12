@@ -15,7 +15,7 @@ public:
 		channles_ = 1;
 	}
 
-	constexpr kIndex dim() const override {
+	kIndex dim() const override {
 		return DIM;
 	}
 
@@ -32,6 +32,7 @@ public:
 			chs = channels();
 		kIndex sz = shape == nullptr ? size() : shape[0];
 	    data_.resize(sz * chs); // TODO: 转移数据
+		channles_ = chs;
 	}
 
 	void clear() override {
@@ -65,12 +66,13 @@ public:
 	}
 
 	kReal valueAt(kIndex n, kIndex channel) const override {
-		return data_[channel * size() + n].back();
+		return data_[n * channels() + channel].back();
 	}
 
 	std::vector<kReal> pointAt(kIndex n, kIndex channel) const override {
 		std::vector<kReal> pt(dim() + 1);
-		std::copy(data_[channel * size() + n].cbegin(), data_[channel * size() + n].cend(), pt.begin());
+		auto offset = n * channels() + channel;
+		std::copy(data_[offset].cbegin(), data_[offset].cend(), pt.begin());
 		return pt;
 	}
 

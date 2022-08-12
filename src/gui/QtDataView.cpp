@@ -11,17 +11,33 @@ QtDataView::QtDataView(QWidget* parent)
 
 void QtDataView::fill(const KvDiscreted& disc)
 {
-    setColumnCount(disc.dim() + disc.channels());
+    if (disc.isSampled()) {
+        setColumnCount(disc.dim() + disc.channels());
 
-    setRowCount(disc.size());
+        setRowCount(disc.size());
 
-    for (kIndex r = 0; r < disc.size(); r++) {
-        auto pt = disc.pointAt(r, 0);
-        for (kIndex col = 0; col <= disc.dim(); col++)
-            setItem(r, col, new QTableWidgetItem(QString("%1").arg(pt[col])));
-        for (kIndex ch = 1; ch < disc.channels(); ch++) 
-            setItem(r, disc.dim() + ch, 
-                new QTableWidgetItem(QString("%1").arg(disc.valueAt(r, ch))));
+        for (kIndex r = 0; r < disc.size(); r++) {
+            auto pt = disc.pointAt(r, 0);
+            for (kIndex col = 0; col <= disc.dim(); col++)
+                setItem(r, col, new QTableWidgetItem(QString("%1").arg(pt[col])));
+            for (kIndex ch = 1; ch < disc.channels(); ch++)
+                setItem(r, disc.dim() + ch,
+                    new QTableWidgetItem(QString("%1").arg(disc.valueAt(r, ch))));
+        }
+    }
+    else {
+        setColumnCount((disc.dim() + 1) * disc.channels());
+
+        setRowCount(disc.size());
+
+        for (kIndex r = 0; r < disc.size(); r++) {
+            for (kIndex ch = 0; ch < disc.channels(); ch++) {
+                auto pt = disc.pointAt(r, ch);
+                for(unsigned i = 0; i < pt.size(); i++)
+                    setItem(r, pt.size() * ch + i,
+                        new QTableWidgetItem(QString("%1").arg(pt[i])));
+            }
+        }
     }
 }
 

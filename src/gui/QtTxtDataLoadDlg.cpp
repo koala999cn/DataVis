@@ -91,8 +91,11 @@ void QtTxtDataLoadDlg::accept()
         break;
 
     case kPrivate::k_scattered_1d:
+        data = makeScattered_(mat_, 2);
+        break;
+
     case kPrivate::k_scattered_2d:
-        data = makeScattered_(mat_);
+        data = makeScattered_(mat_, 3);
         break;
 
     case kPrivate::k_sampled_1d:
@@ -184,17 +187,18 @@ void QtTxtDataLoadDlg::updateImportAs_()
         
         if (cols > 1) {
 
-            if (cols == 2)
+            if (cols % 2 == 0)
                 ui->cbImportAs->addItem("scattered-1d", kPrivate::k_scattered_1d);
-            else if (cols == 3)
+
+            if (cols % 3 == 0)
                 ui->cbImportAs->addItem("scattered-2d", kPrivate::k_scattered_2d);
      
-            if(!rowMajor && KgTxtDataLoader::isEvenlySpaced(KgTxtDataLoader::column(mat_, 0)) ||
-                rowMajor && KgTxtDataLoader::isEvenlySpaced(mat_[0]))
+            bool evenRow = KgTxtDataLoader::isEvenlySpaced(mat_[0]);
+            bool evenCol = KgTxtDataLoader::isEvenlySpaced(KgTxtDataLoader::column(mat_, 0));
+            if (!rowMajor && evenCol || rowMajor && evenRow)
                 ui->cbImportAs->addItem("sampled-1d", kPrivate::k_sampled_1d);
 
-            if (rows > 1 && KgTxtDataLoader::isEvenlySpaced(mat_[0]) 
-                && KgTxtDataLoader::isEvenlySpaced(KgTxtDataLoader::column(mat_, 0)))
+            if (rows > 1 && evenRow && evenCol)
                 ui->cbImportAs->addItem("sampled-2d", kPrivate::k_sampled_2d);
         }
     }
@@ -265,22 +269,39 @@ std::shared_ptr<KvData> QtTxtDataLoadDlg::makeSampled2d_(const std::vector<std::
 
 
 #include "KtScattered.h"
-std::shared_ptr<KvData> QtTxtDataLoadDlg::makeScattered_(const std::vector<std::vector<double>>& mat)
+std::shared_ptr<KvData> QtTxtDataLoadDlg::makeScattered_(const std::vector<std::vector<double>>& mat, unsigned dim)
 {
-    if (mat.size() == 2) {
+    assert(dim == 2 || dim == 3);
+    assert(mat.size() % dim == 0);
+
+    kIndex chs = mat.size() / dim;
+    if (dim == 2) {
         auto scattered = std::make_shared<KtScattered<1>>();
+        scattered->resize(nullptr , chs);
         scattered->reserve(mat[0].size());
-        for (unsigned i = 0; i < mat[0].size(); i++)
-            scattered->pushBack({ mat[0][i], mat[1][i] });
+        
+        for (unsigned i = 0; i < mat[0].size(); i++) {
+            std::vector<typename KtScattered<1>::element_type> points;
+            for (unsigned c = 0; c < chs; c++)
+                points.push_back({ mat[c * 2][i], mat[c * 2 + 1][i] });
+ 
+           scattered->pushBack(points.data());
+        }
 
         return scattered;
     }
     else {
-        assert(mat.size() == 3);
         auto scattered = std::make_shared<KtScattered<2>>();
+        scattered->resize(nullptr, chs);
         scattered->reserve(mat[0].size());
-        for (unsigned i = 0; i < mat[0].size(); i++)
-            scattered->pushBack({ mat[0][i], mat[1][i], mat[2][i] });
+
+        for (unsigned i = 0; i < mat[0].size(); i++) {
+            std::vector<typename KtScattered<2>::element_type> points;
+            for (unsigned c = 0; c < chs; c++)
+                points.push_back({ mat[c * 3][i], mat[c * 3 + 1][i], mat[c * 3 + 2][i] });
+
+            scattered->pushBack(points.data());
+        }
 
         return scattered;
     }
