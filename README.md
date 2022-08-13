@@ -7,7 +7,99 @@
 Qt6 + MSVC2019
 
 ### 主题
-目前，已实现ggthemr所有plotting主题，界面可参考[ggthemr开源页面](https://github.com/Mikata-Project/ggthemr)。
+目前，已实现ggthemr所有plotting主题，各主题样例如下。详细可参考[ggthemr开源页面](https://github.com/Mikata-Project/ggthemr)。
+
+#### camouflage
+
+![散点图](screenshots/camouflage-scatter.png)
+
+#### carrot
+
+![散点图](screenshots/carrot-scatter.png)
+
+#### chalk
+
+![散点图](screenshots/chalk-scatter.png)
+
+#### citrus
+
+![散点图](screenshots/citrus-scatter.png)
+
+#### copper
+
+![散点图](screenshots/copper-scatter.png)
+
+#### deadpool
+
+![散点图](screenshots/deadpool-scatter.png)
+
+#### dust
+
+![散点图](screenshots/dust-scatter.png)
+
+#### earth
+
+![散点图](screenshots/earth-scatter.png)
+
+#### flat dark
+
+![散点图](screenshots/flat dark-scatter.png)
+
+#### flat
+
+![散点图](screenshots/flat-scatter.png)
+
+#### fresh
+
+![散点图](screenshots/fresh-scatter.png)
+
+#### grape
+
+![散点图](screenshots/grape-scatter.png)
+
+#### grass
+
+![散点图](screenshots/grass-scatter.png)
+
+#### greyscale
+
+![散点图](screenshots/greyscale-scatter.png)
+
+#### light
+
+![散点图](screenshots/light-scatter.png)
+
+#### lilac
+
+![散点图](screenshots/lilac-scatter.png)
+
+#### pale
+
+![散点图](screenshots/pale-scatter.png)
+
+#### pink
+
+![散点图](screenshots/pink-scatter.png)
+
+#### sea
+
+![散点图](screenshots/sea-scatter.png)
+
+#### sky
+
+![散点图](screenshots/sky-scatter.png)
+
+#### solarized dark
+
+![散点图](screenshots/solarized dark-scatter.png)
+
+#### solarized
+
+![散点图](screenshots/solarized-scatter.png)
+
+#### dracula
+
+![散点图](screenshots/dracula-scatter.png)
 
 ### ScreenShots
 
