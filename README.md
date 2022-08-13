@@ -43,7 +43,7 @@ Qt6 + MSVC2019
 
 #### flat dark
 
-![散点图](screenshots/flat dark-scatter.png)
+![散点图](screenshots/flat_dark-scatter.png)
 
 #### flat
 
@@ -91,7 +91,7 @@ Qt6 + MSVC2019
 
 #### solarized dark
 
-![散点图](screenshots/solarized dark-scatter.png)
+![散点图](screenshots/solarized_dark-scatter.png)
 
 #### solarized
 
