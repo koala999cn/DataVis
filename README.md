@@ -127,3 +127,7 @@ Qt6 + MSVC2019
 - [readerwriterqueue](https://github.com/cameron314/readerwriterqueue/) - inline，无须单独编译
 - [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/)
 - [smarc](http://audio-smarc.sourceforge.net/)
+
+目前提供以下预编译的依赖库
+- [MSVC2019-x64-RELEASE](https://gitee.com/koala999/data-vis/attach_files/1156226/download)
+- [MSVC2019-x64-DEBUG](https://gitee.com/koala999/data-vis/attach_files/1156225/download)
