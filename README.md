@@ -11,7 +11,8 @@ Qt6 + MSVC2019
 
 #### camouflage
 
-![散点图](screenshots/camouflage-scatter.png)
+| ![散点图](screenshots/camouflage-scatter.png) | ![点线图](screenshots/camouflage-line-scatter.png) |
+|---|---|
 
 #### carrot
 
