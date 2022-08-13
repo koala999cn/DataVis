@@ -6,3 +6,4 @@
 6. plot标题等设置
 7. binary data loader
 8. 基于json的对象属性sheet
+9. AudioPlayer不能二次渲染
