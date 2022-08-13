@@ -16,91 +16,113 @@ Qt6 + MSVC2019
 
 #### carrot
 
-![散点图](screenshots/carrot-scatter.png)
+| ![散点图](screenshots/carrot-scatter.png) | ![点线图](screenshots/carrot-line-scatter.png) |
+|---|---|
 
 #### chalk
 
-![散点图](screenshots/chalk-scatter.png)
+| ![散点图](screenshots/chalk-scatter.png) | ![点线图](screenshots/chalk-line-scatter.png) |
+|---|---|
 
 #### citrus
 
-![散点图](screenshots/citrus-scatter.png)
+| ![散点图](screenshots/citrus-scatter.png) | ![点线图](screenshots/citrus-line-scatter.png) |
+|---|---|
 
 #### copper
 
-![散点图](screenshots/copper-scatter.png)
+| ![散点图](screenshots/copper-scatter.png) | ![点线图](screenshots/copper-line-scatter.png) |
+|---|---|
 
 #### deadpool
 
-![散点图](screenshots/deadpool-scatter.png)
+| ![散点图](screenshots/deadpool-scatter.png) | ![点线图](screenshots/deadpool-line-scatter.png) |
+|---|---|
 
 #### dust
 
-![散点图](screenshots/dust-scatter.png)
+| ![散点图](screenshots/dust-scatter.png) | ![点线图](screenshots/dust-line-scatter.png) |
+|---|---|
 
 #### earth
 
-![散点图](screenshots/earth-scatter.png)
+| ![散点图](screenshots/earth-scatter.png) | ![点线图](screenshots/earth-line-scatter.png) |
+|---|---|
 
 #### flat dark
 
-![散点图](screenshots/flat_dark-scatter.png)
+| ![散点图](screenshots/flat_dark-scatter.png) | ![点线图](screenshots/flat_dark-line-scatter.png) |
+|---|---|
 
 #### flat
 
-![散点图](screenshots/flat-scatter.png)
+| ![散点图](screenshots/flat-scatter.png) | ![点线图](screenshots/flat-line-scatter.png) |
+|---|---|
 
 #### fresh
 
-![散点图](screenshots/fresh-scatter.png)
+| ![散点图](screenshots/fresh-scatter.png) | ![点线图](screenshots/fresh-line-scatter.png) |
+|---|---|
 
 #### grape
 
-![散点图](screenshots/grape-scatter.png)
+| ![散点图](screenshots/grape-scatter.png) | ![点线图](screenshots/grape-line-scatter.png) |
+|---|---|
 
 #### grass
 
-![散点图](screenshots/grass-scatter.png)
+| ![散点图](screenshots/grass-scatter.png) | ![点线图](screenshots/grass-line-scatter.png) |
+|---|---|
 
 #### greyscale
 
-![散点图](screenshots/greyscale-scatter.png)
+| ![散点图](screenshots/greyscale-scatter.png) | ![点线图](screenshots/greyscale-line-scatter.png) |
+|---|---|
 
 #### light
 
-![散点图](screenshots/light-scatter.png)
+| ![散点图](screenshots/light-scatter.png) | ![点线图](screenshots/light-line-scatter.png) |
+|---|---|
 
 #### lilac
 
-![散点图](screenshots/lilac-scatter.png)
+| ![散点图](screenshots/lilac-scatter.png) | ![点线图](screenshots/lilac-line-scatter.png) |
+|---|---|
 
 #### pale
 
-![散点图](screenshots/pale-scatter.png)
+| ![散点图](screenshots/pale-scatter.png) | ![点线图](screenshots/pale-line-scatter.png) |
+|---|---|
 
 #### pink
 
-![散点图](screenshots/pink-scatter.png)
+| ![散点图](screenshots/pink-scatter.png) | ![点线图](screenshots/pink-line-scatter.png) |
+|---|---|
 
 #### sea
 
-![散点图](screenshots/sea-scatter.png)
+| ![散点图](screenshots/sea-scatter.png) | ![点线图](screenshots/sea-line-scatter.png) |
+|---|---|
 
 #### sky
 
-![散点图](screenshots/sky-scatter.png)
+| ![散点图](screenshots/sky-scatter.png) | ![点线图](screenshots/sky-line-scatter.png) |
+|---|---|
 
 #### solarized dark
 
-![散点图](screenshots/solarized_dark-scatter.png)
+| ![散点图](screenshots/solarized_dark-scatter.png) | ![点线图](screenshots/solarized_dark-line-scatter.png) |
+|---|---|
 
 #### solarized
 
-![散点图](screenshots/solarized-scatter.png)
+| ![散点图](screenshots/solarized-scatter.png) | ![点线图](screenshots/solarized-line-scatter.png) |
+|---|---|
 
 #### dracula
 
-![散点图](screenshots/dracula-scatter.png)
+| ![散点图](screenshots/dracula-scatter.png) | ![点线图](screenshots/dracula-line-scatter.png) |
+|---|---|
 
 ### ScreenShots
 
