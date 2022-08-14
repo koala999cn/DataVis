@@ -36,7 +36,7 @@ Qt6 + MSVC2019
 
 #### deadpool
 
-| ![散点图](screenshots/deadpool-scatter.png) | ![点线图](screenshots/deadpool-line-scatter.png) | ![点线图](screenshots/camouflage-bar.png) |
+| ![散点图](screenshots/deadpool-scatter.png) | ![点线图](screenshots/deadpool-line-scatter.png) | ![点线图](screenshots/deadpool-bar.png) |
 |---|---|---|
 
 #### dust
