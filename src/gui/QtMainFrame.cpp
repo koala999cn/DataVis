@@ -246,10 +246,10 @@ QMenu* QtMainFrame::setupRdMenu_()
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
         plot1d->setEnabled(obj && obj->dim() == 1);
-        color_map->setEnabled(obj && obj->dim() == 2);
+        color_map->setEnabled(obj && !obj->isScattered() && obj->dim() == 2);
         bars3d->setEnabled(obj && obj->isSampled() && obj->dim() <= 2);
         scatter3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
-        surface3d->setEnabled(obj && obj->dim() == 2); // 允许绘制连续曲面
+        surface3d->setEnabled(obj && !obj->isScattered() && obj->dim() == 2); 
         player->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
         });
 
