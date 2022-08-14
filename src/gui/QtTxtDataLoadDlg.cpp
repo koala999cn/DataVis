@@ -39,7 +39,9 @@ QtTxtDataLoadDlg::QtTxtDataLoadDlg(QString path, QWidget *parent) :
 
     ui->cbForceAlign->setChecked(true);
     ui->cbImportAs->setCurrentIndex(0);
+    ui->leStartRow->setText("0");
     ui->leStartRow->setValidator(new QIntValidator);
+    ui->leStartCol->setText("0");
     ui->leStartCol->setValidator(new QIntValidator);
 
     connect(ui->btReload, &QPushButton::click, this, &QtTxtDataLoadDlg::reload);
@@ -123,6 +125,7 @@ void QtTxtDataLoadDlg::reload()
     loader_->setIllegalMode(KgTxtDataLoader::KeIllegalMode(ui->cbIllegalAs->currentIndex()));
     loader_->setEmptyMode(KgTxtDataLoader::KeEmptyMode(ui->cbEmptyAs->currentIndex()));
 
+    mat_.clear();
     bool ok = loader_->load(path_.toLocal8Bit().constData(), mat_);
     QString result;
 
@@ -153,6 +156,8 @@ void QtTxtDataLoadDlg::reload()
     ui->dbBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
     ui->lbStatus->setText(result);
 
+    if (!mat_.empty()) 
+        ui->rbRowMajor->setChecked(mat_.size() < mat_[0].size());
 
     // 根据数据加载情况更新importAs组件
     updateImportAs_();
@@ -183,23 +188,35 @@ void QtTxtDataLoadDlg::updateImportAs_()
 
     if (rows && cols) {
         ui->cbImportAs->addItem("series", kPrivate::k_series);
+        ui->cbImportAs->setCurrentIndex(0);
+
         ui->cbImportAs->addItem("matrix", kPrivate::k_matrix);
+        if (mat_.size() > 8 && mat_[0].size() > 8)
+            ui->cbImportAs->setCurrentIndex(1);
         
         if (cols > 1) {
 
-            if (cols % 2 == 0)
+            if (cols % 2 == 0) {
                 ui->cbImportAs->addItem("scattered-1d", kPrivate::k_scattered_1d);
+                ui->cbImportAs->setCurrentIndex(ui->cbImportAs->count() - 1);
+            }
 
-            if (cols % 3 == 0)
+            if (cols % 3 == 0) {
                 ui->cbImportAs->addItem("scattered-2d", kPrivate::k_scattered_2d);
-     
+                ui->cbImportAs->setCurrentIndex(ui->cbImportAs->count() - 1);
+            }
+
             bool evenRow = KgTxtDataLoader::isEvenlySpaced(mat_[0]);
             bool evenCol = KgTxtDataLoader::isEvenlySpaced(KgTxtDataLoader::column(mat_, 0));
-            if (!rowMajor && evenCol || rowMajor && evenRow)
+            if (!rowMajor && evenCol || rowMajor && evenRow) {
                 ui->cbImportAs->addItem("sampled-1d", kPrivate::k_sampled_1d);
+                ui->cbImportAs->setCurrentIndex(ui->cbImportAs->count() - 1);
+            }
 
-            if (rows > 1 && evenRow && evenCol)
+            if (rows > 1 && evenRow && evenCol) {
                 ui->cbImportAs->addItem("sampled-2d", kPrivate::k_sampled_2d);
+                ui->cbImportAs->setCurrentIndex(ui->cbImportAs->count() - 1);
+            }
         }
     }
 }
