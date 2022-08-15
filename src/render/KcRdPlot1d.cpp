@@ -27,12 +27,19 @@ namespace kPrivate
 }
 
 
-KcRdPlot1d::KcRdPlot1d(KvDataProvider* is, KeType type)
+KcRdPlot1d::KcRdPlot1d(KvDataProvider* is)
 	: KvRdCustomPlot(is, "plot1d")
-	, type_(type)
 	, delayedChangeType_(false)
 {
 	barsGroup_ = new QCPBarsGroup(customPlot_);
+
+	// 根据is自动选择最优绘图类型
+	if (is->isScattered())
+		type_ = k_scatter;
+	else if (is->isContinued())
+		type_ = k_line;
+	else 
+		type_ = is->size() > 16 ? k_line : k_bars_grouped;
 
 	changePlotType_();
 

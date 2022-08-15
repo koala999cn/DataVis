@@ -22,7 +22,7 @@ public:
 	};
 
 	// @type: 初始类型
-	KcRdPlot1d(KvDataProvider* is, KeType type = k_line);
+	KcRdPlot1d(KvDataProvider* is);
 
 	kPropertySet propertySet() const override;
 
