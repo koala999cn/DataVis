@@ -5,7 +5,7 @@
 
 class QCustomPlot;
 class QCPAbstractPlottable;
-
+class QCPLegend;
 
 class KcThemedQCP : public KvThemedPlot
 {
@@ -33,10 +33,27 @@ public:
 	QMargins margins() const override;
 	void setMargins(const QMargins&) override;
 
+	KeLegendPlacement legendPlacement() override;
+	void setLegendPlacement(KeLegendPlacement lp) override;
+
+	int legendAlignment() override;
+	void setLegendAlignment(int la) override;
+
+	KeLegendArrangement legendArrangement() override;
+	void setLegendArrangement(KeLegendArrangement la) override;
+
+	std::pair<int, int> legendSpacing() override;
+	void setLegendSpacing(int xspacing, int yspacing) override;
+
 	static void applyPalette(QCPAbstractPlottable* plot, const QColor& major, const QColor& minor);
+
+private:
+	QCPLegend* takeLegend();
+	void putLegend(QCPLegend* legend, KeLegendPlacement place, int align);
 
 private:
 	std::shared_ptr<QCustomPlot> qcp_;
 	QBrush bkgnd_;
+	int legendAlign;
 };
 

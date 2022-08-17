@@ -62,6 +62,8 @@ KcThemedQCP::KcThemedQCP(std::shared_ptr<QCustomPlot> qcp)
 	qcp_ = qcp;
 	bkgnd_ = QColor("white");
 	qcp->setBackground(bkgnd_); // 同步背景色
+
+	legendAlign = k_align_right | k_align_top;
 }
 
 
@@ -403,3 +405,190 @@ void KcThemedQCP::setMargins(const QMargins& margins)
 	for (int i = 0; i < layout->elementCount(); i++) 
 		layout->elementAt(i)->setMinimumMargins(margins);
 }
+
+
+KcThemedQCP::KeLegendPlacement KcThemedQCP::legendPlacement()
+{
+	return dynamic_cast<QCPLayoutInset*>(qcp_->legend->parentLayerable()) ?
+		k_place_inner : k_place_outter;
+}
+
+
+void KcThemedQCP::setLegendPlacement(KeLegendPlacement lp)
+{
+	if (lp == legendPlacement())
+		return;
+
+	auto align = legendAlignment();
+	putLegend(takeLegend(), lp, align);
+}
+
+
+int KcThemedQCP::legendAlignment()
+{
+	return legendAlign;
+}
+
+
+namespace kPrivate
+{
+	static Qt::Alignment toQtAligment(int legendAlignment) 
+	{
+		Qt::Alignment qa = Qt::AlignJustify;
+
+		bool horted(false), verted(false);
+
+		if (legendAlignment & KcThemedQCP::k_align_left) {
+			qa |= Qt::AlignLeft;
+			horted = true;
+		}
+		else if (legendAlignment & KcThemedQCP::k_align_right) {
+			qa |= Qt::AlignRight;
+			horted = true;
+		}
+
+		if (legendAlignment & KcThemedQCP::k_align_top) {
+			qa |= Qt::AlignTop;
+			verted = true;
+		}
+		else if (legendAlignment & KcThemedQCP::k_align_bottom) {
+			qa |= Qt::AlignBottom;
+			verted = true;
+		}
+
+		if (legendAlignment & KcThemedQCP::k_align_center) {
+			if (!horted) qa |= Qt::AlignHCenter;
+			if (!verted) qa |= Qt::AlignVCenter;
+		}
+
+		return qa;
+	}
+}
+
+
+void KcThemedQCP::setLegendAlignment(int align)
+{
+	if (align == legendAlignment())
+		return;
+
+	auto place = legendPlacement();
+	putLegend(takeLegend(), place, align);
+}
+
+
+KcThemedQCP::KeLegendArrangement KcThemedQCP::legendArrangement()
+{
+	return qcp_->legend->fillOrder() == QCPLayoutGrid::foColumnsFirst ?
+		k_arrange_row : k_arrange_column;
+}
+
+
+void KcThemedQCP::setLegendArrangement(KeLegendArrangement la)
+{
+	if (la == legendArrangement())
+		return;
+
+	qcp_->legend->setFillOrder(la == k_arrange_row ? 
+		QCPLayoutGrid::foColumnsFirst : QCPLayoutGrid::foRowsFirst);
+}
+
+
+std::pair<int, int> KcThemedQCP::legendSpacing()
+{
+	auto margins = qcp_->legend->minimumMargins();
+	return { margins.left(), margins.top() };
+}
+
+
+void KcThemedQCP::setLegendSpacing(int xspacing, int yspacing)
+{
+	qcp_->legend->setMinimumMargins({ xspacing, yspacing, xspacing, yspacing });
+}
+
+
+QCPLegend* KcThemedQCP::takeLegend()
+{
+	auto place = legendPlacement();
+
+	auto layout = dynamic_cast<QCPLayout*>(qcp_->legend->parentLayerable());
+	assert(layout);
+	layout->take(qcp_->legend);
+	layout->simplify();
+	
+	/*if (place == k_place_outter) {
+		auto playout = dynamic_cast<QCPLayout*>(layout->parentLayerable());
+		assert(playout);
+		playout->remove(layout);
+		playout->simplify();
+	}*/
+
+	QSet<QCPMarginGroup*> groups;
+	for (auto mg : qcp_->legend->marginGroups())
+		groups.insert(mg);
+
+	for (auto mg : groups) {
+		mg->clear();
+		delete mg; // TODO: 是否需要显式delete
+	}
+	
+	return qcp_->legend;
+}
+
+
+void KcThemedQCP::putLegend(QCPLegend* legend, KeLegendPlacement place, int align)
+{
+	if (place == k_place_inner) {
+		auto grid = dynamic_cast<QCPLayoutInset*>(qcp_->axisRect()->insetLayout());
+		grid->addElement(legend, kPrivate::toQtAligment(align));
+	}
+	else {
+		auto grid = dynamic_cast<QCPLayoutGrid*>(qcp_->axisRect()->parentLayerable());
+		
+		int idx(0);
+		for (; idx < grid->elementCount(); idx++)
+			if (dynamic_cast<QCPAxisRect*>(grid->elementAt(idx)))
+				break;
+		assert(idx < grid->elementCount());
+
+		if (align == k_align_center ||
+			align == k_align_auto)
+			align = k_align_top;
+
+		bool verted = align & (k_align_bottom | k_align_top);
+		bool horted = align & (k_align_left | k_align_right);
+		if (horted && verted) {
+			if (legendArrangement() == k_arrange_row)
+				horted = false; // 如果legend横向排列，则优先将legend防止在top/bottom位置
+			else
+				verted = false; // 如果legend纵向排列，则优先将legend防止在left/right位置
+		}
+
+		int row, col;
+		grid->indexToRowCol(idx, row, col);
+
+		if (verted) {
+			if (align & k_align_bottom)
+				++row;
+
+			grid->insertRow(row);
+
+			// set legend's row stretch factor very samll so it ends up with minimum height
+			grid->setRowStretchFactor(row, 0.0001);
+		}
+		else {
+			if (align & k_align_right)
+				++col;
+
+			grid->insertColumn(col);
+			grid->setColumnStretchFactor(col, 0.0001);
+		}
+
+		grid->addElement(row, col, legend);
+
+		auto* group = new QCPMarginGroup(qcp_.get());
+		QCP::MarginSides sides = verted ? QCP::msLeft | QCP::msRight : QCP::msTop | QCP::msBottom;
+		qcp_->axisRect()->setMarginGroup(sides, group);
+		legend->setMarginGroup(sides, group);
+	}
+}
+
