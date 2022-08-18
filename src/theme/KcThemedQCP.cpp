@@ -409,8 +409,7 @@ void KcThemedQCP::setMargins(const QMargins& margins)
 
 KcThemedQCP::KeLegendPlacement KcThemedQCP::legendPlacement()
 {
-	return dynamic_cast<QCPLayoutInset*>(qcp_->legend->parentLayerable()) ?
-		k_place_inner : k_place_outter;
+	return qcp_->legend->layout()->layout() ? k_place_outter : k_place_inner;
 }
 
 
@@ -508,29 +507,26 @@ void KcThemedQCP::setLegendSpacing(int xspacing, int yspacing)
 
 QCPLegend* KcThemedQCP::takeLegend()
 {
-	auto place = legendPlacement();
+	if (legendPlacement() == k_place_outter) {
+		auto layout = qcp_->legend->layout();
+		assert(layout && dynamic_cast<QCPLayoutInset*>(layout));
+		layout->take(qcp_->legend);
 
-	auto layout = dynamic_cast<QCPLayout*>(qcp_->legend->parentLayerable());
-	assert(layout);
-	layout->take(qcp_->legend);
-	layout->simplify();
-	
-	/*if (place == k_place_outter) {
-		auto playout = dynamic_cast<QCPLayout*>(layout->parentLayerable());
-		assert(playout);
-		playout->remove(layout);
-		playout->simplify();
-	}*/
+		QSet<QCPMarginGroup*> groups;
+		for (auto mg : layout->marginGroups())
+			groups.insert(mg);
 
-	QSet<QCPMarginGroup*> groups;
-	for (auto mg : qcp_->legend->marginGroups())
-		groups.insert(mg);
+		for (auto mg : groups) {
+			mg->clear();
+			delete mg; // TODO: 是否需要显式delete
+		}
 
-	for (auto mg : groups) {
-		mg->clear();
-		delete mg; // TODO: 是否需要显式delete
+		auto layoutp = layout->layout();
+		assert(layoutp);
+		layoutp->remove(layout);
+		layoutp->simplify();
 	}
-	
+
 	return qcp_->legend;
 }
 
@@ -542,7 +538,7 @@ void KcThemedQCP::putLegend(QCPLegend* legend, KeLegendPlacement place, int alig
 		grid->addElement(legend, kPrivate::toQtAligment(align));
 	}
 	else {
-		auto grid = dynamic_cast<QCPLayoutGrid*>(qcp_->axisRect()->parentLayerable());
+		auto grid = dynamic_cast<QCPLayoutGrid*>(qcp_->axisRect()->layout());
 		
 		int idx(0);
 		for (; idx < grid->elementCount(); idx++)
@@ -573,22 +569,26 @@ void KcThemedQCP::putLegend(QCPLegend* legend, KeLegendPlacement place, int alig
 			grid->insertRow(row);
 
 			// set legend's row stretch factor very samll so it ends up with minimum height
-			grid->setRowStretchFactor(row, 0.0001);
+			grid->setRowStretchFactor(row, 0.001);
 		}
 		else {
 			if (align & k_align_right)
 				++col;
 
 			grid->insertColumn(col);
-			grid->setColumnStretchFactor(col, 0.0001);
+			
+			// set legend's column stretch factor very samll so it ends up with minimum width
+			grid->setColumnStretchFactor(col, 0.001);
 		}
 
-		grid->addElement(row, col, legend);
+		auto inset = new QCPLayoutInset;
+		inset->addElement(legend, kPrivate::toQtAligment(align) | Qt::AlignLeft);
+		grid->addElement(row, col, inset);
 
 		auto* group = new QCPMarginGroup(qcp_.get());
 		QCP::MarginSides sides = verted ? QCP::msLeft | QCP::msRight : QCP::msTop | QCP::msBottom;
 		qcp_->axisRect()->setMarginGroup(sides, group);
-		legend->setMarginGroup(sides, group);
+		inset->setMarginGroup(sides, group);
 	}
 }
 
