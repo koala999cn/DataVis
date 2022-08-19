@@ -83,7 +83,6 @@ protected:
 
 	static void tryMargins_(const QJsonObject& jobj, KvThemedPlot* plot);
 	static void tryLegend_(const QJsonObject& jobj, KvThemedPlot* plot);
-	static void trySpacing_(const QJsonObject& jobj, KvThemedPlot* plot);
 
 	static void trySpecial_(const QJsonObject& jobj, KvThemedPlot* plot, int level,
 		std::function<void(const QJsonValue&, KvThemedPlot*, int)> op);

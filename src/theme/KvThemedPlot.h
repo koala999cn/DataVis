@@ -150,6 +150,13 @@ public:
 		k_align_top			= 0x04,
 		k_align_bottom		= 0x08,
 		k_align_center		= 0x10,
+		 
+		// 当KeLegendPlacement为outter模式时，使用以下2个枚举量区分水平和纵向优先级
+		// 例如，如果k_align_left和k_align_top均被设置，则
+		//   -- 当k_align_vert_first有效时，legend位于axis-rect的顶端位置靠左对齐；
+		//   -- 当k_align_horz_first有效时，legend位于axis-rect的左端位置靠上对齐。
+		k_align_vert_first	= 0x20,
+		k_align_horz_first	= 0x40
 	};
 
 	virtual int legendAlignment() = 0;

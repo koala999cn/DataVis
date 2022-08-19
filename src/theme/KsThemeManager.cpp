@@ -287,7 +287,6 @@ void KsThemeManager::applyLayout_(const QJsonObject& jobj, KvThemedPlot* plot, b
 	tryGrid_(jobj, plot);
 	tryMargins_(jobj, plot);
 	tryLegend_(jobj, plot);
-	trySpacing_(jobj, plot);
 }
 
 
@@ -297,19 +296,19 @@ void KsThemeManager::applyCanvas_(const QJsonValue& jval, KvThemedPlot* plot) co
 		auto jobj = jval.toObject();
 
 		if (jobj.contains("background"))
-			applyCanvasBkgnd_(jobj["background"], plot);
+			applyCanvasBkgnd_(jobj["background"], plot); // TODO: 统一到applyFill_
 
 		if (jobj.contains("axis-rect"))
-			applyCanvasAxisRect_(jobj["axis-rect"], plot);
+			applyCanvasAxisRect_(jobj["axis-rect"], plot); // TODO: 统一到applyFill_
 
 		if (jobj.contains("text"))
-			applyCanvasText_(jobj["text"], plot);
+			applyCanvasText_(jobj["text"], plot); // TODO: 统一到applyText_
 
 		if (jobj.contains("line"))
-			applyCanvasLine_(jobj["line"], plot);
+			applyCanvasLine_(jobj["line"], plot);  // TODO: 统一到applyLine_
 
 		if (jobj.contains("gridline"))
-			applyCanvasGridline_(jobj["gridline"], plot);
+			applyCanvasGridline_(jobj["gridline"], plot); // TODO: 统一到applyLine_
 	}
 	else if (jval.isArray()) {
 		auto ar = jval.toArray();
@@ -569,6 +568,7 @@ void KsThemeManager::applyGrid_(const QJsonValue& jval, KvThemedPlot* plot, int 
 }
 
 
+// TODO: 按照level处理
 void KsThemeManager::tryMargins_(const QJsonObject& jobj, KvThemedPlot* plot)
 {
 	if (jobj.contains("margins")) {
@@ -584,11 +584,6 @@ void KsThemeManager::tryLegend_(const QJsonObject& jobj, KvThemedPlot* plot)
 
 }
 
-
-void KsThemeManager::trySpacing_(const QJsonObject& jobj, KvThemedPlot* plot)
-{
-
-}
 
 void KsThemeManager::trySpecial_(const QJsonObject& jobj, KvThemedPlot* plot, int level,
 	std::function<void(const QJsonValue&, KvThemedPlot*, int)> op)
