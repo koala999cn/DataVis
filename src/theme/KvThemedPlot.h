@@ -133,6 +133,9 @@ public:
 
 	// legendÏà¹Ø²Ù×÷
 	
+	virtual bool legendVisible() const = 0;
+	virtual void setLegendVisible(bool) = 0;
+
 	enum KeLegendPlacement
 	{
 		k_place_inner,

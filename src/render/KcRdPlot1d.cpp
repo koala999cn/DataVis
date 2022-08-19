@@ -81,6 +81,11 @@ namespace kPrivate
 		k_bar_width,
 		k_bar_fill_brush,
 		k_bar_fill_color,
+
+		k_legend_visible,
+		k_legend_place,
+		k_legend_align,
+		k_legend_arrange
 	};
 
 
@@ -186,6 +191,56 @@ KvPropertiedObject::kPropertySet KcRdPlot1d::propertySet() const
 		sl << typeToStr(KeType(i));
 	prop.makeEnum(sl);
 	prop.val = type_;
+	ps.push_back(prop);
+
+	prop.id = k_legend_visible;
+	prop.name = "Legend";
+	prop.val = themedPlot_->legendVisible();
+	prop.flag = 0;
+	prop.enumList.clear();
+	
+	subProp.id = k_legend_place;
+	subProp.name = "Placement";
+	std::pair<QString, int> place[] = {
+		{ "inner", KvThemedPlot::k_place_inner },
+		{ "outter", KvThemedPlot::k_place_outter }
+	};
+	subProp.makeEnum(place);
+	subProp.val = themedPlot_->legendPlacement();
+	prop.children.push_back(subProp);
+
+	subProp.id = k_legend_align;
+	subProp.name = "Aligment";
+	std::pair<QString, int> align[] = {
+		//{ "auto", KvThemedPlot::k_align_auto }, // TODO: auto没效果
+		{ "top", KvThemedPlot::k_align_top },
+		{ "right", KvThemedPlot::k_align_right },
+		{ "bottom", KvThemedPlot::k_align_bottom },
+		{ "left", KvThemedPlot::k_align_left },
+		{ "center", KvThemedPlot::k_align_center },
+		{ "top-left", KvThemedPlot::k_align_top | KvThemedPlot::k_align_left | KvThemedPlot::k_align_vert_first },
+		{ "top-right", KvThemedPlot::k_align_top | KvThemedPlot::k_align_right | KvThemedPlot::k_align_vert_first },
+		{ "right-top", KvThemedPlot::k_align_top | KvThemedPlot::k_align_right | KvThemedPlot::k_align_horz_first },
+		{ "right-bottom", KvThemedPlot::k_align_bottom | KvThemedPlot::k_align_right | KvThemedPlot::k_align_horz_first },
+		{ "bottom-left", KvThemedPlot::k_align_bottom | KvThemedPlot::k_align_left | KvThemedPlot::k_align_vert_first },
+		{ "bottom-right", KvThemedPlot::k_align_bottom | KvThemedPlot::k_align_right | KvThemedPlot::k_align_vert_first },
+		{ "left-top", KvThemedPlot::k_align_top | KvThemedPlot::k_align_left | KvThemedPlot::k_align_horz_first },
+		{ "left-bottom", KvThemedPlot::k_align_bottom | KvThemedPlot::k_align_left | KvThemedPlot::k_align_horz_first },
+	};
+	subProp.makeEnum(align);
+	subProp.val = themedPlot_->legendAlignment();
+	prop.children.push_back(subProp);
+
+	subProp.id = k_legend_arrange;
+	subProp.name = "Arrange";
+	std::pair<QString, int> arrange[] = {
+		{ "row", KvThemedPlot::k_arrange_row },
+		{ "column", KvThemedPlot::k_arrange_column }
+	};
+	subProp.makeEnum(arrange);
+	subProp.val = themedPlot_->legendArrangement();
+	prop.children.push_back(subProp);
+
 	ps.push_back(prop);
 
 	return ps;
@@ -414,6 +469,26 @@ void KcRdPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
 			delayedChangeType_ = ((KvDataProvider*)rootParent())->isStream();
 			if (!delayedChangeType_) 
 				changePlotType_();
+			break;
+
+		case k_legend_visible:
+			themedPlot_->setLegendVisible(newVal.toBool());
+			break;
+
+		case k_legend_place:
+			themedPlot_->setLegendPlacement(KvThemedPlot::KeLegendPlacement(newVal.toInt()));
+			break;
+
+		case k_legend_align:
+			themedPlot_->setLegendAlignment(newVal.toInt());
+			break;
+
+		case k_legend_arrange:
+			themedPlot_->setLegendArrangement(KvThemedPlot::KeLegendArrangement(newVal.toInt()));
+			break;
+
+		default:
+			assert(false);
 			break;
 		}
 	}

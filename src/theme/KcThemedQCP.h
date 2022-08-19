@@ -33,6 +33,9 @@ public:
 	QMargins margins() const override;
 	void setMargins(const QMargins&) override;
 
+	bool legendVisible() const override;
+	void setLegendVisible(bool) override;
+
 	KeLegendPlacement legendPlacement() override;
 	void setLegendPlacement(KeLegendPlacement lp) override;
 

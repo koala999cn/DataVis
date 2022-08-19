@@ -63,7 +63,7 @@ KcThemedQCP::KcThemedQCP(std::shared_ptr<QCustomPlot> qcp)
 	bkgnd_ = QColor("white");
 	qcp->setBackground(bkgnd_); // 同步背景色
 
-	legendAlign = k_align_right | k_align_top;
+	legendAlign = k_align_right | k_align_top | k_align_horz_first;
 }
 
 
@@ -409,9 +409,31 @@ void KcThemedQCP::setMargins(const QMargins& margins)
 }
 
 
+bool KcThemedQCP::legendVisible() const
+{
+	return qcp_->legend->visible();
+}
+
+
+void KcThemedQCP::setLegendVisible(bool b)
+{
+	if (legendPlacement() == k_place_outter) {
+		if (!b)
+			takeLegend(); // 调整grid
+		else
+			putLegend(qcp_->legend, k_place_outter, legendAlign);
+	}
+
+	qcp_->legend->setVisible(b);
+}
+
+
 KcThemedQCP::KeLegendPlacement KcThemedQCP::legendPlacement()
 {
-	return qcp_->legend->layout()->layout() ? k_place_outter : k_place_inner;
+	if (legendVisible())
+		return qcp_->legend->layout()->layout() ? k_place_outter : k_place_inner;
+	else
+		return qcp_->legend->layout() ? k_place_inner : k_place_outter;
 }
 
 
@@ -420,8 +442,12 @@ void KcThemedQCP::setLegendPlacement(KeLegendPlacement lp)
 	if (lp == legendPlacement())
 		return;
 
-	auto align = legendAlignment();
-	putLegend(takeLegend(), lp, align);
+	auto legend = takeLegend();
+
+	if (legendVisible() || lp == k_place_inner) {
+		auto align = legendAlignment();
+		putLegend(legend, lp, align);
+	}
 }
 
 
@@ -435,7 +461,10 @@ namespace kPrivate
 {
 	static Qt::Alignment toQtAligment(int legendAlignment) 
 	{
-		Qt::Alignment qa = Qt::AlignJustify;
+		if(legendAlignment == KcThemedQCP::k_align_auto)
+		    return Qt::AlignJustify | Qt::AlignTop;
+
+		Qt::Alignment qa = 0;
 
 		bool horted(false), verted(false);
 
@@ -472,8 +501,10 @@ void KcThemedQCP::setLegendAlignment(int align)
 	if (align == legendAlignment())
 		return;
 
-	auto place = legendPlacement();
-	putLegend(takeLegend(), place, align);
+	legendAlign = align;
+
+	if (legendVisible() || legendPlacement() == k_place_inner) 
+		putLegend(takeLegend(), legendPlacement(), align);
 }
 
 
@@ -491,6 +522,12 @@ void KcThemedQCP::setLegendArrangement(KeLegendArrangement la)
 
 	qcp_->legend->setFillOrder(la == k_arrange_row ? 
 		QCPLayoutGrid::foColumnsFirst : QCPLayoutGrid::foRowsFirst);
+
+	auto layout = qcp_->legend->layout();
+	if (layout) {
+		auto minSize = qcp_->legend->minimumOuterSizeHint();
+		layout->setMinimumSize({ minSize.width(), minSize.height() });
+	}
 }
 
 
@@ -509,9 +546,9 @@ void KcThemedQCP::setLegendSpacing(int xspacing, int yspacing)
 
 QCPLegend* KcThemedQCP::takeLegend()
 {
-	if (legendPlacement() == k_place_outter) {
-		auto layout = qcp_->legend->layout();
-		assert(layout && dynamic_cast<QCPLayoutInset*>(layout));
+	auto layout = qcp_->legend->layout();
+	if (layout) {
+		assert(dynamic_cast<QCPLayoutInset*>(layout));
 		layout->take(qcp_->legend);
 
 		QSet<QCPMarginGroup*> groups;
@@ -524,9 +561,10 @@ QCPLegend* KcThemedQCP::takeLegend()
 		}
 
 		auto layoutp = layout->layout();
-		assert(layoutp);
-		layoutp->remove(layout);
-		layoutp->simplify();
+		if (layoutp) {
+			layoutp->remove(layout);
+			layoutp->simplify();
+		}
 	}
 
 	return qcp_->legend;
@@ -553,12 +591,12 @@ void KcThemedQCP::putLegend(QCPLegend* legend, KeLegendPlacement place, int alig
 			align = k_align_top;
 
 		bool verted = align & (k_align_bottom | k_align_top);
-		bool horted = align & (k_align_left | k_align_right);
-		if (horted && verted) {
-			if (legendArrangement() == k_arrange_row)
-				horted = false; // 如果legend横向排列，则优先将legend防止在top/bottom位置
+		bool horzed = align & (k_align_left | k_align_right);
+		if (horzed && verted) {
+			if (align & k_align_horz_first)
+				verted = false; // 如果legend横向排列，则优先将legend防止在top/bottom位置
 			else
-				verted = false; // 如果legend纵向排列，则优先将legend防止在left/right位置
+				horzed = false; // 如果legend纵向排列，则优先将legend防止在left/right位置
 		}
 
 		int row, col;
@@ -586,13 +624,7 @@ void KcThemedQCP::putLegend(QCPLegend* legend, KeLegendPlacement place, int alig
 		//legend->setMinimumMargins({ 0, 0, 0, 0 });
 		auto minSize = legend->minimumOuterSizeHint();
 		auto inset = new QCPLayoutInset;
-		inset->setMinimumMargins({ 0, 0, 0, 0 });
-		if (verted)
-			inset->setMinimumSize({ 0, minSize.height() });
-		else
-			inset->setMinimumSize({ minSize.width(), 0 });
-
-		
+		inset->setMinimumSize({ minSize.width(), minSize.height() });	
 		inset->addElement(legend, kPrivate::toQtAligment(align));
 		grid->addElement(row, col, inset);
 
