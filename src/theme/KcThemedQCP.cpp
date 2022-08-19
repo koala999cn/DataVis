@@ -394,16 +394,18 @@ void KcThemedQCP::setVisible(int level, bool b)
 
 QMargins KcThemedQCP::margins() const
 {
-	auto layout = qcp_->plotLayout();
-	return layout->elementAt(0)->minimumMargins();
+	return qcp_->axisRect()->minimumMargins();
+	//auto layout = qcp_->plotLayout();
+	//return layout->elementAt(0)->minimumMargins();
 }
 
 
 void KcThemedQCP::setMargins(const QMargins& margins)
 {
-	auto layout = qcp_->plotLayout();
-	for (int i = 0; i < layout->elementCount(); i++) 
-		layout->elementAt(i)->setMinimumMargins(margins);
+	//auto layout = qcp_->plotLayout();
+	//for (int i = 0; i < layout->elementCount(); i++) 
+	//	layout->elementAt(i)->setMinimumMargins(margins);
+	qcp_->axisRect()->setMinimumMargins(margins);
 }
 
 
@@ -581,8 +583,17 @@ void KcThemedQCP::putLegend(QCPLegend* legend, KeLegendPlacement place, int alig
 			grid->setColumnStretchFactor(col, 0.001);
 		}
 
+		//legend->setMinimumMargins({ 0, 0, 0, 0 });
+		auto minSize = legend->minimumOuterSizeHint();
 		auto inset = new QCPLayoutInset;
-		inset->addElement(legend, kPrivate::toQtAligment(align) | Qt::AlignLeft);
+		inset->setMinimumMargins({ 0, 0, 0, 0 });
+		if (verted)
+			inset->setMinimumSize({ 0, minSize.height() });
+		else
+			inset->setMinimumSize({ minSize.width(), 0 });
+
+		
+		inset->addElement(legend, kPrivate::toQtAligment(align));
 		grid->addElement(row, col, inset);
 
 		auto* group = new QCPMarginGroup(qcp_.get());
