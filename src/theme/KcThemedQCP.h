@@ -13,11 +13,17 @@ public:
 	KcThemedQCP(std::shared_ptr<QCustomPlot> qcp); // 接管qcp控制权
 	virtual ~KcThemedQCP();
 
-	QBrush background() const override;
-	void setBackground(const QBrush& brush) override;
+	QBrush fill(int level) const override;
+	void applyFill(int level, const QBrush&) override;
 
-	QBrush axisBackground() const override;
-	void setAxisBackground(const QBrush& brush) override;
+	QPen border(int level) const override;
+	void applyBorder(int level, const QPen&) override;
+
+	QMargins margins(int level) const override;
+	void applyMargins(int level, const QMargins&) override;
+
+	bool visible(int level) const override;
+	void applyVisible(int level, bool b) override;
 
 	void applyLine(int level, std::function<QPen(const QPen&)> op) override;
 	void applyText(int level, std::function<QFont(const QFont&)> op) override;
@@ -27,14 +33,6 @@ public:
 
 	unsigned numPlots() const override;
 	void applyPalette(unsigned plotIdx, const QColor& major, const QColor& minor) override;
-
-	void setVisible(int level, bool b) override;
-
-	QMargins margins() const override;
-	void setMargins(const QMargins&) override;
-
-	bool legendVisible() const override;
-	void setLegendVisible(bool) override;
 
 	KeLegendPlacement legendPlacement() override;
 	void setLegendPlacement(KeLegendPlacement lp) override;
@@ -48,11 +46,20 @@ public:
 	std::pair<int, int> legendSpacing() override;
 	void setLegendSpacing(int xspacing, int yspacing) override;
 
+	// some helper methods
+
+	bool legendVisible() const;
+	void setLegendVisible(bool b);
+
 	static void applyPalette(QCPAbstractPlottable* plot, const QColor& major, const QColor& minor);
 
 private:
-	QCPLegend* takeLegend();
-	void putLegend(QCPLegend* legend, KeLegendPlacement place, int align);
+
+	void applyAxisVisible_(int level, bool b);
+	//void applyGridVisible_(int level, bool b); TODO:
+
+	QCPLegend* takeLegend_();
+	void putLegend_(QCPLegend* legend, KeLegendPlacement place, int align);
 
 private:
 	std::shared_ptr<QCustomPlot> qcp_;

@@ -10,14 +10,17 @@
 
       "disc": "no axis & no girds & no legned & no margins",
 
-      "axis": null,
+      "axis": {
+        "visible": false,
+        "margins": null
+      },
 
       "grid": null,
 
       "legend": null,
 
       "margins": null
-    },
+      },
 
     {
       "name": "clean",
@@ -31,17 +34,25 @@
 
       "axis": {
         "title": { "face": "bold" },
-        "label": {},
-        "left": "solid",
-        "bottom": "solid",
-        "right": "NA",
-        "top": "NA",
-        "tick": "NA"
+
+        "left": {
+          "baseline": true,
+          "label": true,
+          "tick": null
+        },
+        "bottom": {
+          "baseline": true,
+          "label": true,
+          "tick": null
+        },
+        "right": null,
+        "top": null,
+        "margins": [ 15, 15, 15, 15 ]
       },
 
-      "grid": "NA",
+      "grid": null,
 
-      "margins": [ 15, 15, 15, 15 ]
+      "margins": null
     },
 
     {
@@ -57,10 +68,18 @@
       },
 
       "grid": {
-        "major": "dash",
-        "minor": "dot",
-        "zeroline": "NA"
-      }
+        "major": {
+          "visible": true,
+          "style": "dash"
+        },
+
+        "minor": {
+          "visible": true,
+          "style": "dot"
+        },
+         
+        "zeroline": null
+        }
     },
 
     {

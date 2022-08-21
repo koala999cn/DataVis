@@ -195,6 +195,7 @@
     <ClCompile Include="src\theme\KsThemeManager.cpp" />
     <ClCompile Include="src\theme\KcThemedQCP.cpp" />
     <ClCompile Include="src\theme\KuThemeParser.cpp" />
+    <ClCompile Include="src\theme\KvThemedPlot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\audio\KcAudio.h" />

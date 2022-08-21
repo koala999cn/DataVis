@@ -24,19 +24,15 @@ bool KuThemeParser::isNull(const QJsonValue& jval)
 }
 
 
-void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush, bool forceShow)
+void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush)
 {
 	if (isNull(jval)) {
 		brush.setStyle(Qt::NoBrush);
 	}
 	else if (jval.isString()) {
 		QColor color;
-		if (color_value(jval.toString(), color)) {
-			brush.setColor(color);
-
-			if (brush.style() == Qt::NoBrush && forceShow)
-				brush.setStyle(Qt::SolidPattern);
-		}
+		if (color_value(jval.toString(), color)) 
+			brush = color;
 	}
 	else if (jval.isObject()) {
 
@@ -46,11 +42,8 @@ void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush, bool force
 		if (jobj.contains("color")) {
 			QColor color;
 			color_value(jval, color);
-			if (color.isValid()) {
-				brush.setColor(color);
-				if (brush.style() == Qt::NoBrush && forceShow)
-					brush.setStyle(Qt::SolidPattern);
-			}
+			if (color.isValid()) 
+				brush = color;
 		}
 			
 		// TODO: 
@@ -63,7 +56,7 @@ void KuThemeParser::fill_value(const QJsonValue& jval, QBrush& brush, bool force
 }
 
 
-void KuThemeParser::line_value(const QJsonValue& jval, QPen& pen, bool forceShow)
+void KuThemeParser::line_value(const QJsonValue& jval, QPen& pen)
 {
 	if (isNull(jval)) {
 		pen.setStyle(Qt::NoPen); 
@@ -99,8 +92,8 @@ void KuThemeParser::line_value(const QJsonValue& jval, QPen& pen, bool forceShow
 			line_style(style, pen);
 	}
 
-	if (forceShow && pen.style() == Qt::NoPen)
-		pen.setStyle(Qt::SolidLine); // 置为可见. 由于无法得知隐藏前的线型，此处统一使用solid-line
+	//if (forceShow && pen.style() == Qt::NoPen)
+	//	pen.setStyle(Qt::SolidLine); // 置为可见. 由于无法得知隐藏前的线型，此处统一使用solid-line
 }
 
 

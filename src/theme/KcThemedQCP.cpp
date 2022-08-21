@@ -73,30 +73,165 @@ KcThemedQCP::~KcThemedQCP()
 }
 
 
-QBrush KcThemedQCP::background() const
+QBrush KcThemedQCP::fill(int level) const
 {
-	return bkgnd_;
+	if (level == k_plot) 
+		return bkgnd_;
+	else if (level == k_axis) 
+		return qcp_->axisRect()->backgroundBrush();
+	else if (level == k_legend) 
+		return qcp_->legend->brush();
+	else 
+		assert(false);
+
+	return Qt::NoBrush; // make compiler happy
 }
 
 
-void KcThemedQCP::setBackground(const QBrush& brush)
+void KcThemedQCP::applyFill(int level, const QBrush& brush)
 {
-	bkgnd_ = brush;
-	qcp_->setBackground(bkgnd_);
+	if (level == k_plot) {
+		bkgnd_ = brush;
+		qcp_->setBackground(bkgnd_);
+	}
+	else if (level == k_axis) {
+		for (auto rect : qcp_->axisRects())
+			rect->setBackground(brush);
+	}
+	else if (level == k_legend) {
+		qcp_->legend->setBrush(brush);
+	}
+	else {
+		assert(false);
+	}
 }
 
 
-QBrush KcThemedQCP::axisBackground() const
+QPen KcThemedQCP::border(int level) const
 {
-	auto rect = qcp_->axisRect();
-	return rect ? qcp_->axisRect()->backgroundBrush() : QBrush(Qt::NoBrush);
+	if (level == k_legend) 
+	    return qcp_->legend->borderPen();
+	
+	return QPen(Qt::NoPen); // TODO: 其他元素的边框支持
 }
 
 
-void KcThemedQCP::setAxisBackground(const QBrush& brush)
+void KcThemedQCP::applyBorder(int level, const QPen& pen)
 {
-	for (auto rect : qcp_->axisRects())
-		rect->setBackground(brush);
+	if (level == k_legend)
+		qcp_->legend->setBorderPen(pen);
+
+	// TODO: legend-icon's border
+}
+
+
+QMargins KcThemedQCP::margins(int level) const
+{
+	if (level == k_plot) 
+		return qcp_->plotLayout()->minimumMargins();
+	else if (level == k_axis) 
+		return qcp_->axisRect()->minimumMargins();
+	else if (level == k_legend) 
+		return qcp_->legend->minimumMargins();
+	else 
+		assert(false);
+
+	return { 0, 0, 0, 0 }; // make compiler happy
+}
+
+
+void KcThemedQCP::applyMargins(int level, const QMargins& margins)
+{
+	if (level == k_plot)
+		qcp_->plotLayout()->setMinimumMargins(margins);
+	else if (level == k_axis)
+		qcp_->axisRect()->setMinimumMargins(margins);
+	else if (level == k_legend)
+		qcp_->legend->setMinimumMargins(margins);
+	else
+		assert(false);
+}
+
+
+bool KcThemedQCP::visible(int level) const
+{
+	if (level == k_legend)
+		return legendVisible();
+
+	assert(false); // TODO:
+	return false;
+}
+
+
+void KcThemedQCP::applyVisible(int level, bool b)
+{
+	if (level & k_legend)
+		setLegendVisible(b); // TODO: 区分legend元素
+
+	if (level & (k_axis_all | k_grid_all))
+		applyAxisVisible_(level & (k_axis_all | k_grid_all), b);
+}
+
+
+void KcThemedQCP::applyAxisVisible_(int level, bool b)
+{
+	bool wholeAxis = level == (k_axis_all | k_grid_all);
+	bool showAxisRect = b || !wholeAxis;
+	for (auto ar : qcp_->axisRects())
+		ar->setVisible(showAxisRect);
+	if (!showAxisRect)
+		return;
+
+	kPrivate::for_axis(qcp_.get(), level, [level, b](QCPAxis* axis) {
+
+		std::function<QPen(const QPen&)> show = [](const QPen& pen) {
+			QPen newPen(pen);
+			if (newPen.style() == Qt::NoPen)
+				newPen.setStyle(Qt::SolidLine);
+			return newPen;
+		};
+
+		std::function<QPen(const QPen&)> hide = [](const QPen& pen) {
+			QPen newPen(pen);
+			newPen.setStyle(Qt::NoPen);
+			return newPen;
+		};
+
+		auto op = b ? show : hide;
+
+		if (level & k_axis_baseline)
+			axis->setBasePen(op(axis->basePen()));
+		if (level & k_axis_tick_major)
+			axis->setTickPen(op(axis->tickPen()));
+		if (level & k_axis_tick_minor)
+			axis->setSubTickPen(op(axis->subTickPen()));
+
+		auto grid = axis->grid();
+		//if ((level & k_grid_line) == k_grid_line)
+		//	grid->setVisible(b);
+		if (level & k_grid_major)
+			grid->setPen(op(grid->pen()));
+		if (level & k_grid_minor) {
+			grid->setSubGridVisible(b);
+			if (b) {
+				QPen pen = grid->subGridPen();
+				if (pen.style() == Qt::NoPen) {
+					pen.setStyle(Qt::DashDotLine);
+					grid->setSubGridPen(pen);
+				}
+			}
+		}
+		if (level & k_grid_zeroline)
+			grid->setZeroLinePen(op(grid->zeroLinePen()));
+
+		if (level & k_label)
+			axis->setTickLabels(b);
+
+		if (level & k_axis_title) {
+			// TODO: axis->setLabel
+		}
+
+		});
 }
 
 
@@ -341,74 +476,6 @@ void KcThemedQCP::applyPalette(QCPAbstractPlottable* plot, const QColor& major_,
 }
 
 
-void KcThemedQCP::setVisible(int level, bool b)
-{
-	kPrivate::for_axis(qcp_.get(), level, [level, b](QCPAxis* axis) {
-		
-		std::function<QPen(const QPen&)> show = [](const QPen& pen) {
-			QPen newPen(pen);
-			if (newPen.style() == Qt::NoPen)
-				newPen.setStyle(Qt::SolidLine);
-			return newPen;
-		};
-		
-		std::function<QPen(const QPen&)> hide = [](const QPen& pen) {
-			QPen newPen(pen);
-			newPen.setStyle(Qt::NoPen);
-			return newPen;
-		};
-
-		auto op = b ? show : hide;
-
-		if (level & k_axis_baseline)
-			axis->setBasePen(op(axis->basePen()));
-		if (level & k_axis_tick_major)
-			axis->setTickPen(op(axis->tickPen()));
-		if (level & k_axis_tick_minor)
-			axis->setSubTickPen(op(axis->subTickPen()));
-
-		auto grid = axis->grid();
-		if (level & k_grid_major)
-			grid->setPen(op(grid->pen()));
-		if (level & k_grid_minor) {
-			grid->setSubGridVisible(b);
-			if (b) {
-				QPen pen = grid->subGridPen();
-				if (pen.style() == Qt::NoPen) {
-					pen.setStyle(Qt::DashDotLine);
-					grid->setSubGridPen(pen);
-				}
-			}
-		}
-		if (level & k_grid_zeroline)
-			grid->setZeroLinePen(op(grid->zeroLinePen()));
-
-		if ((level & k_axis_label) == k_axis_label) // TODO: 统一
-			axis->setTickLabels(b);
-
-		// TODO: axis->setLabel
-
-	});
-}
-
-
-QMargins KcThemedQCP::margins() const
-{
-	return qcp_->axisRect()->minimumMargins();
-	//auto layout = qcp_->plotLayout();
-	//return layout->elementAt(0)->minimumMargins();
-}
-
-
-void KcThemedQCP::setMargins(const QMargins& margins)
-{
-	//auto layout = qcp_->plotLayout();
-	//for (int i = 0; i < layout->elementCount(); i++) 
-	//	layout->elementAt(i)->setMinimumMargins(margins);
-	qcp_->axisRect()->setMinimumMargins(margins);
-}
-
-
 bool KcThemedQCP::legendVisible() const
 {
 	return qcp_->legend->visible();
@@ -419,9 +486,9 @@ void KcThemedQCP::setLegendVisible(bool b)
 {
 	if (legendPlacement() == k_place_outter) {
 		if (!b)
-			takeLegend(); // 调整grid
+			takeLegend_(); // 调整grid
 		else
-			putLegend(qcp_->legend, k_place_outter, legendAlign);
+			putLegend_(qcp_->legend, k_place_outter, legendAlign);
 	}
 
 	qcp_->legend->setVisible(b);
@@ -442,11 +509,11 @@ void KcThemedQCP::setLegendPlacement(KeLegendPlacement lp)
 	if (lp == legendPlacement())
 		return;
 
-	auto legend = takeLegend();
+	auto legend = takeLegend_();
 
 	if (legendVisible() || lp == k_place_inner) {
 		auto align = legendAlignment();
-		putLegend(legend, lp, align);
+		putLegend_(legend, lp, align);
 	}
 }
 
@@ -504,7 +571,7 @@ void KcThemedQCP::setLegendAlignment(int align)
 	legendAlign = align;
 
 	if (legendVisible() || legendPlacement() == k_place_inner) 
-		putLegend(takeLegend(), legendPlacement(), align);
+		putLegend_(takeLegend_(), legendPlacement(), align);
 }
 
 
@@ -544,7 +611,7 @@ void KcThemedQCP::setLegendSpacing(int xspacing, int yspacing)
 }
 
 
-QCPLegend* KcThemedQCP::takeLegend()
+QCPLegend* KcThemedQCP::takeLegend_()
 {
 	auto layout = qcp_->legend->layout();
 	if (layout) {
@@ -571,7 +638,7 @@ QCPLegend* KcThemedQCP::takeLegend()
 }
 
 
-void KcThemedQCP::putLegend(QCPLegend* legend, KeLegendPlacement place, int align)
+void KcThemedQCP::putLegend_(QCPLegend* legend, KeLegendPlacement place, int align)
 {
 	if (place == k_place_inner) {
 		auto grid = dynamic_cast<QCPLayoutInset*>(qcp_->axisRect()->insetLayout());

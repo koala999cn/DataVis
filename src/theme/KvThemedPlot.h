@@ -24,8 +24,10 @@ public:
 		k_grid		= 0x4,
 		k_legend	= 0x8,
 
+		k_element	= k_plot | k_axis | k_grid | k_legend,
+
 		k_left		= 0x10,
-		k_right		 = 0x20,
+		k_right		= 0x20,
 		k_top		= 0x40,
 		k_bottom	= 0x80,
 		k_x			= k_top | k_bottom,
@@ -34,6 +36,7 @@ public:
 
 		k_axis_xy	= k_axis | k_xy,
 		k_grid_xy	= k_grid | k_xy,
+
 
 
 		/// 属性
@@ -67,6 +70,10 @@ public:
 		k_axis_label			= k_axis | k_label,
 		k_axis_text				= k_axis | k_text,
 
+		k_axis_title_left		= k_left | k_axis_title,
+		k_axis_label_left		= k_left | k_axis_label,
+		k_axis_text_left		= k_left | k_axis_text,
+
 		k_axis_title_all		= k_xy | k_axis_title,
 		k_axis_label_all		= k_xy | k_axis_label,
 		k_axis_text_all			= k_xy | k_axis_text,
@@ -78,7 +85,6 @@ public:
 		k_axis_line_all			= k_axis_baseline_all | k_axis_tick_all,
 
 		k_axis_all				= k_axis_text | k_axis_line_all,
-
 
 		k_grid_major_all		= k_axis_xy | k_grid_major,
 		k_grid_minor_all		= k_axis_xy | k_grid_minor,
@@ -108,62 +114,28 @@ public:
 		k_tick_bothside	= k_tick_inside | k_tick_outside
 	};
 
-
-	virtual ~KvThemedPlot() {}
-
-	virtual QBrush background() const = 0;
-	virtual void setBackground(const QBrush&) = 0;
-
-	virtual QBrush axisBackground() const = 0;
-	virtual void setAxisBackground(const QBrush&) = 0;
-
-	virtual void applyLine(int level, std::function<QPen(const QPen&)> op) = 0;
-	virtual void applyText(int level, std::function<QFont(const QFont&)> op) = 0;
-	virtual void applyTextColor(int level, std::function<QColor(const QColor&)> op) = 0;
-
-	virtual void setTickLength(int level, KeTickSide side, int len) = 0;
-
-	virtual unsigned numPlots() const = 0;
-	virtual void applyPalette(unsigned plotIdx, const QColor& major, const QColor& minor) = 0;
-
-	virtual void setVisible(int level, bool b) = 0; // level其一可见，则返回true
-
-	virtual QMargins margins() const = 0;
-	virtual void setMargins(const QMargins&) = 0;
-
-	// legend相关操作
-	
-	virtual bool legendVisible() const = 0;
-	virtual void setLegendVisible(bool) = 0;
-
 	enum KeLegendPlacement
 	{
 		k_place_inner,
 		k_place_outter
 	};
 
-	virtual KeLegendPlacement legendPlacement() = 0;
-	virtual void setLegendPlacement(KeLegendPlacement) = 0;
-
 	enum KeLegendAlignment
 	{
-		k_align_auto		= 0x00,
-		k_align_left		= 0x01,
-		k_align_right		= 0x02,
-		k_align_top			= 0x04,
-		k_align_bottom		= 0x08,
-		k_align_center		= 0x10,
-		 
+		k_align_auto = 0x00,
+		k_align_left = 0x01,
+		k_align_right = 0x02,
+		k_align_top = 0x04,
+		k_align_bottom = 0x08,
+		k_align_center = 0x10,
+
 		// 当KeLegendPlacement为outter模式时，使用以下2个枚举量区分水平和纵向优先级
 		// 例如，如果k_align_left和k_align_top均被设置，则
 		//   -- 当k_align_vert_first有效时，legend位于axis-rect的顶端位置靠左对齐；
 		//   -- 当k_align_horz_first有效时，legend位于axis-rect的左端位置靠上对齐。
-		k_align_vert_first	= 0x20,
-		k_align_horz_first	= 0x40
+		k_align_vert_first = 0x20,
+		k_align_horz_first = 0x40
 	};
-
-	virtual int legendAlignment() = 0;
-	virtual void setLegendAlignment(int) = 0;
 
 	enum KeLegendArrangement
 	{
@@ -171,10 +143,56 @@ public:
 		k_arrange_column
 	};
 
+	virtual ~KvThemedPlot() {}
+
+	// 填充(QBrush)
+	virtual QBrush fill(int level) const = 0;
+	virtual void applyFill(int level, const QBrush&) = 0;
+
+	// 边框(QPen)
+	virtual QPen border(int level) const = 0;
+	virtual void applyBorder(int level, const QPen&) = 0;
+
+	// 留白（QMargins）
+	virtual QMargins margins(int level) const = 0;
+	virtual void applyMargins(int level, const QMargins&) = 0;
+
+	// 可见性(bool)
+	virtual bool visible(int level) const = 0;
+	virtual void applyVisible(int level, bool b) = 0;
+
+	// 线条
+	virtual void applyLine(int level, std::function<QPen(const QPen&)> op) = 0;
+
+	// 字体
+	virtual void applyText(int level, std::function<QFont(const QFont&)> op) = 0;
+
+	// 文字颜色
+	virtual void applyTextColor(int level, std::function<QColor(const QColor&)> op) = 0;
+
+	// 坐标轴刻度
+	virtual void setTickLength(int level, KeTickSide side, int len) = 0;
+
+	virtual unsigned numPlots() const = 0;
+	virtual void applyPalette(unsigned plotIdx, const QColor& major, const QColor& minor) = 0;
+
+
+	// legend相关操作
+
+	virtual KeLegendPlacement legendPlacement() = 0;
+	virtual void setLegendPlacement(KeLegendPlacement) = 0;
+
+	virtual int legendAlignment() = 0;
+	virtual void setLegendAlignment(int) = 0;
+
 	virtual KeLegendArrangement legendArrangement() = 0;
 	virtual void setLegendArrangement(KeLegendArrangement) = 0;
 
 	virtual std::pair<int, int> legendSpacing() = 0;
 	virtual void setLegendSpacing(int xspacing, int yspacing) = 0;
+
+	// KeLevel有关的帮助函数
+
+	static int enterLevel(int curLevel, int into);
 };
 

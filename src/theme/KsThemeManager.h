@@ -51,44 +51,40 @@ protected:
 
 	void applyLayout_(const QJsonObject& jobj, KvThemedPlot* plot, bool inTheme) const; // TODO: 是否需要inTheme
 	void applyCanvas_(const QJsonValue& jval, KvThemedPlot* plot) const;
-	    static void applyCanvasBkgnd_(const QJsonValue& jval, KvThemedPlot* plot);
-	    static void applyCanvasAxisRect_(const QJsonValue& jval, KvThemedPlot* plot);
-	    static void applyCanvasText_(const QJsonValue& jval, KvThemedPlot* plot);
-	    static void applyCanvasLine_(const QJsonValue& jval, KvThemedPlot* plot);
-	    static void applyCanvasGridline_(const QJsonValue& jval, KvThemedPlot* plot);
 	void applyPalette_(const QJsonValue& jval, KvThemedPlot* plot) const;
 
-	// 解析全局属性，目前包括line，text，title，label
-	static void tryLevel_(const QJsonObject& jobj, KvThemedPlot* plot, int level);
+	// 返回0表示为检测未调用applyVisible
+	// 返回1表示调用了applyVisible(level, true)
+	// 返回-1表示调用了applyVisible(level, false)
+	static int tryVisible_(int level, const QJsonValue& jval, KvThemedPlot* plot);
 
-	static void tryBkgnd_(const QJsonObject& jobj, KvThemedPlot* plot);
+	// 解析全局属性，目前包括line，text，title，label
+	static void tryLevel_(int level, const QJsonObject& jobj, KvThemedPlot* plot);
+
+	static void tryBkgnd_(int level, const QJsonObject& jobj, KvThemedPlot* plot);
 
 	static void tryAxis_(const QJsonObject& jobj, KvThemedPlot* plot);
-	    static void applyAxis_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-		static void applyTick_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-
-		static void applyAxesLine_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-		static void applyAxesBaseline_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-	    
-	    static void applyAxesSubtick_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-		static void applyAxesTitle_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-		static void applyAxesLabel_(const QJsonValue& jval, KvThemedPlot* plot, int level); // tick-label
+	static void applyAxis_(int level, const QJsonValue& jval, KvThemedPlot* plot);
+	static void applyTick_(int level, const QJsonValue& jval, KvThemedPlot* plot);
 
 	static void tryGrid_(const QJsonObject& jobj, KvThemedPlot* plot);
-	    static void applyGrid_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-		static void applyGridLine_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-	    static void applyGridMajor_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-	    static void applyGridMinor_(const QJsonValue& jval, KvThemedPlot* plot, int level);
-	    static void applyGridZeroline_(const QJsonValue& jval, KvThemedPlot* plot, int level);
+	static void applyGrid_(int level, const QJsonValue& jval, KvThemedPlot* plot);
 
-	static void tryMargins_(const QJsonObject& jobj, KvThemedPlot* plot);
+	static void tryMargins_(int level, const QJsonObject& jobj, KvThemedPlot* plot);
 	static void tryLegend_(const QJsonObject& jobj, KvThemedPlot* plot);
 
-	static void trySpecial_(const QJsonObject& jobj, KvThemedPlot* plot, int level,
-		std::function<void(const QJsonValue&, KvThemedPlot*, int)> op);
+	static void trySpecials_(int level, const QJsonObject& jobj, KvThemedPlot* plot,
+		std::function<void(int, const QJsonValue&, KvThemedPlot*)> op);
 
-	static void applyLine_(int level, const QJsonValue& jval, KvThemedPlot* plot, bool doShow = false);
-	static void applyText_(int level, const QJsonValue& jval, KvThemedPlot* plot, bool doShow = false);
+	// 检测jobj是否包含属性propName，若包含则调用enterLevel(level, propId)进入下一level，并回调op
+	// @newLevel: enterLevel(level, propId)的返回结果
+	// @jval: jobj[propName]
+	static void trySpecialProp_(int level, const QJsonObject& jobj, const char* propName, int propId,
+		std::function<void(int newLevel, const QJsonValue& jval)> op);
+
+	static void applyFill_(int level, const QJsonValue& jval, KvThemedPlot* plot);
+	static void applyLine_(int level, const QJsonValue& jval, KvThemedPlot* plot);
+	static void applyText_(int level, const QJsonValue& jval, KvThemedPlot* plot);
 	static void applyTextColor_(int level, const QJsonValue& jval, KvThemedPlot* plot);
 
 private:

@@ -195,7 +195,7 @@ KvPropertiedObject::kPropertySet KcRdPlot1d::propertySet() const
 
 	prop.id = k_legend_visible;
 	prop.name = "Legend";
-	prop.val = themedPlot_->legendVisible();
+	prop.val = themedPlot_->visible(KvThemedPlot::k_legend);
 	prop.flag = 0;
 	prop.enumList.clear();
 	
@@ -472,7 +472,7 @@ void KcRdPlot1d::setPropertyImpl_(int id, const QVariant& newVal)
 			break;
 
 		case k_legend_visible:
-			themedPlot_->setLegendVisible(newVal.toBool());
+			themedPlot_->applyVisible(KvThemedPlot::k_legend, newVal.toBool());
 			break;
 
 		case k_legend_place:
