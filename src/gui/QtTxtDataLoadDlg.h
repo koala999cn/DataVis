@@ -32,12 +32,6 @@ private:
 
     static void updateIntEdit_(QLineEdit* edit, int low, int high);
 
-    static std::shared_ptr<KvData> makeSeries_(const std::vector<std::vector<double>>& mat);
-    static std::shared_ptr<KvData> makeMatrix_(const std::vector<std::vector<double>>& mat);
-    static std::shared_ptr<KvData> makeSampled1d_(const std::vector<std::vector<double>>& mat);
-    static std::shared_ptr<KvData> makeSampled2d_(const std::vector<std::vector<double>>& mat);
-    static std::shared_ptr<KvData> makeScattered_(const std::vector<std::vector<double>>& mat, unsigned dim);
-
 private:
     Ui::txt_data_load_dlg *ui;
     QString path_;

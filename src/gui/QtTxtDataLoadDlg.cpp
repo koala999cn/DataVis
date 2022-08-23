@@ -1,21 +1,8 @@
 #include "QtTxtDataLoadDlg.h"
 #include "ui_txt_data_load_dlg.h"
 #include "prov/KgTxtDataLoader.h"
+#include "dsp/KuDataUtil.h"
 #include <QButtonGroup>
-
-
-namespace kPrivate
-{
-    enum KeDataType
-    {
-        k_series,
-        k_matrix,
-        k_scattered_1d,
-        k_scattered_2d,
-        k_sampled_1d,
-        k_sampled_2d
-    };
-}
 
 
 QtTxtDataLoadDlg::QtTxtDataLoadDlg(QString path, QWidget *parent) :
@@ -66,7 +53,7 @@ void QtTxtDataLoadDlg::accept()
     auto startCol = ui->leStartCol->text().toInt();
 
     if (forceAligned)
-        KgTxtDataLoader::forceAligned(mat_);
+        KuDataUtil::forceAligned(mat_);
 
     if (startRow != 0)
         mat_.erase(mat_.begin(), mat_.begin() + startRow);
@@ -77,41 +64,12 @@ void QtTxtDataLoadDlg::accept()
 
     // 为方便数据转换，使用rowMajor布局
     if (!rowMajor)
-        mat_ = KgTxtDataLoader::transpose(mat_);
+        mat_ = KuDataUtil::transpose(mat_);
 
 
     /// 生成data_, 此时mat_为rowMajor
-    auto dataType = ui->cbImportAs->currentData().toInt();
-    switch (dataType)
-    {
-    case kPrivate::k_series:
-        data = makeSeries_(mat_);
-        break;
-
-    case kPrivate::k_matrix:
-        data = makeMatrix_(mat_);
-        break;
-
-    case kPrivate::k_scattered_1d:
-        data = makeScattered_(mat_, 2);
-        break;
-
-    case kPrivate::k_scattered_2d:
-        data = makeScattered_(mat_, 3);
-        break;
-
-    case kPrivate::k_sampled_1d:
-        data = makeSampled1d_(mat_);
-        break;
-
-    case kPrivate::k_sampled_2d:
-        data = makeSampled2d_(mat_);
-        break;
-
-    default:
-        data.reset();
-        assert(false);
-    }
+    auto type = ui->cbImportAs->currentData().toInt();
+    data = KuDataUtil::makeData(mat_, KuDataUtil::KeDataType(type));
 
     QDialog::accept();
 }
@@ -135,7 +93,7 @@ void QtTxtDataLoadDlg::reload()
         updateIntEdit_(ui->leStartCol, 0, 0);
     }
     else {
-        auto cr = KgTxtDataLoader::colsRange(mat_);
+        auto cr = KuDataUtil::colsRange(mat_);
         if (cr.second == 0) {
             result = tr("no data loaded");
             ok = false;
@@ -186,140 +144,9 @@ void QtTxtDataLoadDlg::updateImportAs_()
     // column major
     ui->cbImportAs->clear();
 
-    if (rows && cols) {
-        ui->cbImportAs->addItem("series", kPrivate::k_series);
-        ui->cbImportAs->setCurrentIndex(0);
-
-        ui->cbImportAs->addItem("matrix", kPrivate::k_matrix);
-        if (mat_.size() > 8 && mat_[0].size() > 8)
-            ui->cbImportAs->setCurrentIndex(1);
-        
-        if (cols > 1) {
-
-            if (cols % 2 == 0) {
-                ui->cbImportAs->addItem("scattered-1d", kPrivate::k_scattered_1d);
-                ui->cbImportAs->setCurrentIndex(ui->cbImportAs->count() - 1);
-            }
-
-            if (cols % 3 == 0) {
-                ui->cbImportAs->addItem("scattered-2d", kPrivate::k_scattered_2d);
-                ui->cbImportAs->setCurrentIndex(ui->cbImportAs->count() - 1);
-            }
-
-            bool evenRow = KgTxtDataLoader::isEvenlySpaced(mat_[0]);
-            bool evenCol = KgTxtDataLoader::isEvenlySpaced(KgTxtDataLoader::column(mat_, 0));
-            if (!rowMajor && evenCol || rowMajor && evenRow) {
-                ui->cbImportAs->addItem("sampled-1d", kPrivate::k_sampled_1d);
-                ui->cbImportAs->setCurrentIndex(ui->cbImportAs->count() - 1);
-            }
-
-            if (rows > 1 && evenRow && evenCol) {
-                ui->cbImportAs->addItem("sampled-2d", kPrivate::k_sampled_2d);
-                ui->cbImportAs->setCurrentIndex(ui->cbImportAs->count() - 1);
-            }
-        }
-    }
+    auto types = KuDataUtil::validTypes(mat_, !rowMajor);
+    for(auto t : types)
+        ui->cbImportAs->addItem(KuDataUtil::typeStr(t), t);
+    ui->cbImportAs->setCurrentIndex(0);
 }
 
-
-#include "KcSampled1d.h"
-std::shared_ptr<KvData> QtTxtDataLoadDlg::makeSeries_(const std::vector<std::vector<double>>& mat)
-{
-    // 暂时使用sampled1d表示series数据
-
-    auto samp = std::make_shared<KcSampled1d>();
-    samp->resize(mat[0].size(), mat.size());
-    samp->reset(0, 0, 1);
-
-    for(unsigned c = 0; c < samp->channels(); c++)
-        samp->setChannel(0, c, mat[c].data());
-
-    return samp;
-}
-
-
-#include "KcSampled2d.h"
-std::shared_ptr<KvData> QtTxtDataLoadDlg::makeMatrix_(const std::vector<std::vector<double>>& mat)
-{
-    auto samp2d = std::make_shared<KcSampled2d>();
-    samp2d->resize(mat.size() , mat[0].size());
-    samp2d->reset(0, 0, 1);
-    samp2d->reset(1, 0, 1);
-
-    for (kIndex idx = 0; samp2d->size(0); idx++)
-        samp2d->setChannel(&idx, 0, mat[idx].data()); // 始终单通道
-
-    return samp2d;
-}
-
-
-std::shared_ptr<KvData> QtTxtDataLoadDlg::makeSampled1d_(const std::vector<std::vector<double>>& mat)
-{
-    auto samp = std::make_shared<KcSampled1d>();
-    samp->resize(mat[0].size(), mat.size() - 1);
-    samp->reset(0, mat[0][0], mat[0][1] - mat[0][0]);
-
-    for (unsigned c = 0; c < samp->channels(); c++)
-        samp->setChannel(0, c, mat[c + 1].data());
-
-    return samp;
-}
-
-
-std::shared_ptr<KvData> QtTxtDataLoadDlg::makeSampled2d_(const std::vector<std::vector<double>>& mat)
-{
-    // mat[0][0]为占位符，无效
-
-    auto dx = mat[2][0] - mat[1][0];
-    auto dy = mat[0][2] - mat[0][1];
-
-    auto samp2d = std::make_shared<KcSampled2d>();
-    samp2d->resize(mat.size() - 1, mat[0].size() - 1);
-    samp2d->reset(0, mat[1][0], dx);
-    samp2d->reset(1, mat[0][1], dy);
-
-    for(kIndex idx = 0; samp2d->size(0); idx++)
-        samp2d->setChannel(&idx, 0, mat[idx + 1].data() + 1); // 始终单通道, 忽略mat数据的首行首列
-
-    return samp2d;
-}
-
-
-#include "KtScattered.h"
-std::shared_ptr<KvData> QtTxtDataLoadDlg::makeScattered_(const std::vector<std::vector<double>>& mat, unsigned dim)
-{
-    assert(dim == 2 || dim == 3);
-    assert(mat.size() % dim == 0);
-
-    kIndex chs = mat.size() / dim;
-    if (dim == 2) {
-        auto scattered = std::make_shared<KtScattered<1>>();
-        scattered->resize(nullptr , chs);
-        scattered->reserve(mat[0].size());
-        
-        for (unsigned i = 0; i < mat[0].size(); i++) {
-            std::vector<typename KtScattered<1>::element_type> points;
-            for (unsigned c = 0; c < chs; c++)
-                points.push_back({ mat[c * 2][i], mat[c * 2 + 1][i] });
- 
-           scattered->pushBack(points.data());
-        }
-
-        return scattered;
-    }
-    else {
-        auto scattered = std::make_shared<KtScattered<2>>();
-        scattered->resize(nullptr, chs);
-        scattered->reserve(mat[0].size());
-
-        for (unsigned i = 0; i < mat[0].size(); i++) {
-            std::vector<typename KtScattered<2>::element_type> points;
-            for (unsigned c = 0; c < chs; c++)
-                points.push_back({ mat[c * 3][i], mat[c * 3 + 1][i], mat[c * 3 + 2][i] });
-
-            scattered->pushBack(points.data());
-        }
-
-        return scattered;
-    }
-}
