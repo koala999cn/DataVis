@@ -81,7 +81,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>QtnPropertyd.lib;smarcd.lib;exprtkXd.lib;sndfiled.lib;rtaudiod.lib;kddockwidgets-qt6d.lib;QCustomPlotd.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenXLSXd.lib;QtnPropertyd.lib;smarcd.lib;exprtkXd.lib;sndfiled.lib;rtaudiod.lib;kddockwidgets-qt6d.lib;QCustomPlotd.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
   </ItemDefinitionGroup>
@@ -97,7 +97,7 @@
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <Version>0.1</Version>
-      <AdditionalDependencies>exprtkX.lib;sndfile.lib;rtaudio.lib;kddockwidgets-qt6.lib;QCustomPlot.lib;QtnProperty.lib;smarc.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
+      <AdditionalDependencies>OpenXLSX.lib;exprtkX.lib;sndfile.lib;rtaudio.lib;kddockwidgets-qt6.lib;QCustomPlot.lib;QtnProperty.lib;smarc.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -149,6 +149,7 @@
     <ClCompile Include="src\dsp\KgWindowing.cpp" />
     <ClCompile Include="src\dsp\KmBins.cpp" />
     <ClCompile Include="src\dsp\KpExprtkHelper_.cpp" />
+    <ClCompile Include="src\dsp\KuDataUtil.cpp" />
     <ClCompile Include="src\dsp\KuExtrapolate.cpp" />
     <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
     <ClCompile Include="src\dsp\KuInterp1d.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="src\dsp\functions.h" />
     <ClInclude Include="src\dsp\KtSampler.h" />
     <ClInclude Include="src\dsp\KtScattered.h" />
+    <ClInclude Include="src\dsp\KuDataUtil.h" />
     <ClInclude Include="src\dsp\KuExtrapolate.h" />
     <ClInclude Include="src\dsp\KuFreqUnit.h" />
     <ClInclude Include="src\dsp\KuInterp1d.h" />

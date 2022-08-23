@@ -52,6 +52,7 @@ public:
 	static std::vector<KeDataType> validTypes(const matrixd& mat, bool colMajor);
 
 	// 把mat转换为type类型数据
+	// 按照row-major读取mat数据
 	static std::shared_ptr<KvData> makeData(const matrixd& mat, KeDataType type);
 
 	static const char* typeStr(KeDataType type);

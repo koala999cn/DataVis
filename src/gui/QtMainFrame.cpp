@@ -92,6 +92,9 @@ QMenu* QtMainFrame::setupPvMenu_()
     QAction* txtData = fileMenu->addAction(u8"Text Data(&T)...");
     connect(txtData, &QAction::triggered, this, &QtMainFrame::openTxtData);
 
+    QAction* xlsFile = fileMenu->addAction(u8"Excel File(&X)...");
+    connect(xlsFile, &QAction::triggered, this, &QtMainFrame::openXlsFile);
+
     QAction* audioFile = fileMenu->addAction(u8"Audio File(&A)...");
     connect(audioFile, &QAction::triggered, this, &QtMainFrame::openAudioFile);
 
@@ -310,6 +313,51 @@ void QtMainFrame::openTxtData()
         QtTxtDataLoadDlg dlg(path, this);
         if (dlg.exec() == QDialog::Accepted)
             kPrivate::insertObject<KcPvData>(workDock_, true, QFileInfo(path).fileName(), dlg.data);
+    }
+}
+
+
+#include "OpenXLSX/XLDocument.hpp"
+#include "OpenXLSX/XLSheet.hpp"
+#include "dsp/KuDataUtil.h"
+void QtMainFrame::openXlsFile()
+{
+    auto path = QFileDialog::getOpenFileName(this, QString(), QString(),
+        "Excel Files (*.xls *.xlsx)");
+
+    if (!path.isEmpty()) {
+        OpenXLSX::XLDocument doc;
+        doc.open(path.toStdString());
+        if (!doc.isOpen()) {
+            QMessageBox::information(this, u8"错误", "无法打开文件"); 
+            return;
+        }
+
+        if (doc.workbook().worksheetCount() == 0) {
+            QMessageBox::information(this, u8"警告", "空文档");
+            return;
+        }
+
+        // TODO: 目前只打开第一个worksheet
+        auto names = doc.workbook().worksheetNames();
+        auto sheet = doc.workbook().worksheet(names.front());
+
+        typename KuDataUtil::matrixd mat;
+        mat.resize(sheet.rowCount());
+        for (uint32_t i = 0; i < sheet.rowCount(); i++) {
+            auto row = sheet.row(i + 1); // one-based
+            mat[i].reserve(row.cellCount());
+            for (auto& c : row.cells())
+                mat[i].push_back(c.value());           
+        }
+        
+        bool colMajor = true;
+        auto types = KuDataUtil::validTypes(mat, colMajor);
+        assert(!types.empty());
+
+        kPrivate::insertObject<KcPvData>(workDock_, true, QString::fromStdString(sheet.name()), 
+            KuDataUtil::makeData(
+                colMajor ? KuDataUtil::transpose(mat) : mat, types[0]));
     }
 }
 

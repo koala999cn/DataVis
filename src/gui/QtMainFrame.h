@@ -20,6 +20,7 @@ public:
 
 private slots:
     void openTxtData();
+    void openXlsFile();
     void openAudioFile();
     void openFormula();
     void openStochastic();
