@@ -243,6 +243,12 @@
     <ClCompile Include="src\dsp\KuDataUtil.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\QCPBubbleChart.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\KcRdBubble2d.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -287,6 +293,9 @@
     </QtMoc>
     <QtMoc Include="src\gui\QtTxtDataLoadDlg.h">
       <Filter>gui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\render\QCPBubbleChart.h">
+      <Filter>render</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -523,6 +532,9 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KuDataUtil.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdBubble2d.h">
+      <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

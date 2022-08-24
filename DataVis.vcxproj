@@ -187,12 +187,14 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\render\KcRdAudioPlayer.cpp" />
     <ClCompile Include="src\render\KcRdBar3d.cpp" />
+    <ClCompile Include="src\render\KcRdBubble2d.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
     <ClCompile Include="src\render\KcRdPlot2d.cpp" />
     <ClCompile Include="src\render\KcRdScatter3d.cpp" />
     <ClCompile Include="src\render\KcRdSurface3d.cpp" />
     <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
     <ClCompile Include="src\render\KvRdPlot3d.cpp" />
+    <ClCompile Include="src\render\QCPBubbleChart.cpp" />
     <ClCompile Include="src\theme\KsThemeManager.cpp" />
     <ClCompile Include="src\theme\KcThemedQCP.cpp" />
     <ClCompile Include="src\theme\KuThemeParser.cpp" />
@@ -243,6 +245,8 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\render\KcRdBubble2d.h" />
+    <QtMoc Include="src\render\QCPBubbleChart.h" />
     <ClInclude Include="src\theme\KvThemedPlot.h" />
     <ClInclude Include="src\theme\KcThemedQCP.h" />
     <QtMoc Include="src\gui\QtTxtDataLoadDlg.h" />

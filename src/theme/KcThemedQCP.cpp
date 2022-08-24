@@ -464,13 +464,14 @@ void KcThemedQCP::applyPalette(QCPAbstractPlottable* plot, const QColor& major_,
 
 		dynamic_cast<QCPGraph*>(plot)->setScatterStyle(scatter);
 	}
-	else if (dynamic_cast<QCPBars*>(plot)) {
+	else {
 		auto pen = plot->pen();
 		pen.setColor(minor);
 		plot->setPen(pen);
 
 		auto brush = plot->brush();
-		brush.setColor(major);
+		//brush.setColor(major);
+		brush = major;
 		plot->setBrush(brush);
 	}
 }

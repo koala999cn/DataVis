@@ -365,7 +365,7 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 		break;
 
 	case k_background:
-		themedPlot_->setBackground(newVal.value<QBrush>());
+		themedPlot_->applyFill(KvThemedPlot::k_plot, newVal.value<QBrush>());
 		break;
 
 	case k_xrange:
@@ -386,7 +386,8 @@ void KvRdCustomPlot::setPropertyImpl_(int id, const QVariant& newVal)
 
 	case k_margins: {
 		auto r = newVal.value<QRect>(); 
-		themedPlot_->setMargins({ r.left(), r.top(), r.right(), r.bottom() });
+		// TODO:
+		themedPlot_->applyMargins(KvThemedPlot::k_plot, { r.left(), r.top(), r.right(), r.bottom() });
 		break;
 	}
 

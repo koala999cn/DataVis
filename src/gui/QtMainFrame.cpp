@@ -220,9 +220,14 @@ QMenu* QtMainFrame::setupRdMenu_()
         kPrivate::insertObjectP<KcRdPlot1d>(workDock_, false);
         });
 
-    QAction* color_map = renderMenu->addAction(u8"Color Map(&M)");
-    connect(color_map, &QAction::triggered, [this] {
+    QAction* image2d = renderMenu->addAction(u8"Image2d(&M)");
+    connect(image2d, &QAction::triggered, [this] {
         kPrivate::insertObjectP<KcRdPlot2d>(workDock_, false);
+        });
+
+    QAction* bubble2d = renderMenu->addAction(u8"Bubble2d(&M)");
+    connect(bubble2d, &QAction::triggered, [this] {
+        kPrivate::insertObjectP<KcRdBubble2d>(workDock_, false);
         });
 
     QAction* bars3d = renderMenu->addAction(u8"Bars3d(&D)");
@@ -235,7 +240,7 @@ QMenu* QtMainFrame::setupRdMenu_()
         kPrivate::insertObjectP<KcRdScatter3d>(workDock_, false);
         });
 
-    QAction* surface3d = renderMenu->addAction(u8"Surface3d(&S)");
+    QAction* surface3d = renderMenu->addAction(u8"Surface3d(&U)");
     connect(surface3d, &QAction::triggered, [this] {
         kPrivate::insertObjectP<KcRdSurface3d>(workDock_, false);
         });
@@ -249,7 +254,8 @@ QMenu* QtMainFrame::setupRdMenu_()
         auto treeView = dynamic_cast<QtWorkspaceWidget*>(workDock_->widget());
         auto obj = dynamic_cast<KvDataProvider*>(treeView->currentObject());
         plot1d->setEnabled(obj && obj->dim() == 1);
-        color_map->setEnabled(obj && !obj->isScattered() && obj->dim() == 2);
+        image2d->setEnabled(obj && !obj->isScattered() && obj->dim() == 2);
+        bubble2d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
         bars3d->setEnabled(obj && obj->isSampled() && obj->dim() <= 2);
         scatter3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
         surface3d->setEnabled(obj && !obj->isScattered() && obj->dim() == 2); 
