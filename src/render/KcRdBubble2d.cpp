@@ -38,7 +38,7 @@ KcRdBubble2d::KcRdBubble2d(KvDataProvider* is)
     // 设置map range
     auto xrange = is->range(0);
     auto yrange = is->range(1);
-    auto zrange = is->range(2);
+    //auto zrange = is->range(2);
     customPlot_->xAxis->setRange({ xrange.low(), xrange.high() });
     customPlot_->yAxis->setRange({ yrange.low(), yrange.high() });
 }
