@@ -51,13 +51,13 @@ KcOpInterpolater::kPropertySet KcOpInterpolater::propertySet() const
     prop.id = k_dim;
     prop.name = tr("Dim");
     prop.flag = k_readonly;
-    prop.val = dim();
+    prop.val = int(dim());
     ps.push_back(prop);
 
     prop.id = k_channels;
     prop.name = tr("Channels");
     prop.flag = k_readonly;
-    prop.val = channels();
+    prop.val = int(channels());
     ps.push_back(prop);
 
     prop.id = k_range_x;

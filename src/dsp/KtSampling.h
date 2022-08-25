@@ -77,7 +77,7 @@ public:
     }
 
     void clear() {
-        resetHigh(xmin()); // making high_ == low_
+        interval::resetHigh(xmin()); // making high_ == low_
     }
 
 

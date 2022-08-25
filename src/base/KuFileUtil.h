@@ -49,8 +49,8 @@ private:
 template<typename T>
 bool KuFileUtil::readData1d(const std::string& path, std::vector<T>& x)
 {
-	std::string text;
-    if (!readAsString(path, text))
+	std::string text = readAsString(path);
+    if (text.empty())
 		return false;
 
     auto tokens = KuStrUtil::split(text, " \t\n\r\f\v,[](){}");
@@ -64,11 +64,11 @@ bool KuFileUtil::readData1d(const std::string& path, std::vector<T>& x)
 		if (::isdigit(heading) || heading == '-' || heading == '.' 
 			|| heading == '+' || heading == 'i' || heading == 'I') // +inf支持，TODO:词法合规性检测不严格
 		{
-            data.push_back(KuStrUtil::Str2Val<T>(tokens[n].c_str()));
+            x.push_back(KuStrUtil::Str2Val<T>(tokens[n].c_str()));
 		}
 		else
 		{
-			K_TRACE(_T("KuFileUtil::readData1D: ignore illegal data-string '%s'\n"), tokens[n].c_str());
+			// K_TRACE(_T("KuFileUtil::readData1D: ignore illegal data-string '%s'\n"), tokens[n].c_str());
 		}
 	}
 
@@ -84,7 +84,7 @@ bool KuFileUtil::readData2d(const std::string& path, std::vector<T>& x, std::vec
 
 	if (tmp.size() % 2)
 	{
-		K_TRACE(_T("KuFileUtil::readData2D: 读取的有效数据非偶数(共%d个数据)。\n"), tmp.size());
+		// K_TRACE(_T("KuFileUtil::readData2D: 读取的有效数据非偶数(共%d个数据)。\n"), tmp.size());
 	}
 
 	size_t n = 0;
@@ -96,7 +96,7 @@ bool KuFileUtil::readData2d(const std::string& path, std::vector<T>& x, std::vec
 
 	if (n < tmp.size())
 	{
-		K_ASSERT(n == tmp.size() - 1);
+		//K_ASSERT(n == tmp.size() - 1);
 		x.push_back(tmp[n]);
 		y.push_back(0);
 	}
@@ -113,11 +113,12 @@ bool KuFileUtil::readData3d(const std::string& path, std::vector<T>& x, std::vec
 
 	if (tmp.size() % 3)
 	{
-		K_TRACE(_T("KuFileUtil::readData3D: 读取的有效数据非3的倍数(共%d个数据)。\n"), tmp.size());
+		//K_TRACE(_T("KuFileUtil::readData3D: 读取的有效数据非3的倍数(共%d个数据)。\n"), tmp.size());
 	}
 
 
-	for (size_t n = 0; n < tmp.size() - 2; n += 3)
+	size_t n = 0;
+	for (; n < tmp.size() - 2; n += 3)
 	{
 		x.push_back(tmp[n]);
 		y.push_back(tmp[n + 1]);
@@ -129,7 +130,7 @@ bool KuFileUtil::readData3d(const std::string& path, std::vector<T>& x, std::vec
 		x.push_back(tmp[n++]);
 		y.push_back(n < tmp.size() ? tmp[n++] : 0);
 		z.push_back(0);
-		K_ASSERT(n == tmp.size());
+		//K_ASSERT(n == tmp.size());
 	}
 
 	return true;
@@ -138,51 +139,51 @@ bool KuFileUtil::readData3d(const std::string& path, std::vector<T>& x, std::vec
 template<typename T>
 bool KuFileUtil::writeData1d(const std::string& path, const T* data, unsigned size)
 {
-    KtComPtr<KcFileWriter> w = new KcFileWriter(path);
-	if (!w->canWrite())
-		return false;
+    //KtComPtr<KcFileWriter> w = new KcFileWriter(path);
+	//if (!w->canWrite())
+	//	return false;
 
-	for (size_t n = 0; n < data_number; n++)
-		w->WriteLine(KuStrUtil::Val2Str(data[n]).c_str());
+	//for (size_t n = 0; n < data_number; n++)
+	//	w->WriteLine(KuStrUtil::Val2Str(data[n]).c_str());
 
-	return true;
+	return false;
 }
 
 template<typename T>
 bool KuFileUtil::writeData2d(const std::string& path, const T* x, const T* y, size_t size)
 {
-    KtComPtr<KcFileWriter> w = new KcFileWriter(path);
-	if (!w->canWrite())
-		return false;
+    //KtComPtr<KcFileWriter> w = new KcFileWriter(path);
+	//if (!w->canWrite())
+	//	return false;
 
-	for (size_t n = 0; n < data_number; n++)
-	{
-		std::string str = KuStrUtil::Val2Str(x[n]);
-		str += "\t";
-		str += KuStrUtil::Val2Str(y[n]);
-		w->WriteLine(str.c_str());
-	}
+	//for (size_t n = 0; n < data_number; n++)
+	//{
+	//	std::string str = KuStrUtil::Val2Str(x[n]);
+	//	str += "\t";
+	//	str += KuStrUtil::Val2Str(y[n]);
+	//	w->WriteLine(str.c_str());
+	//}
 
-	return true;
+	return false;
 }
 
 template<typename T>
 bool KuFileUtil::writeData(const std::string& path, std::vector< std::vector<T> >& data, const char* delim)
 {
-    KtComPtr<KcFileWriter> w = new KcFileWriter(path);
-	if (!w->canWrite())
-		return false;
+    //KtComPtr<KcFileWriter> w = new KcFileWriter(path);
+	//if (!w->canWrite())
+	//	return false;
 
-	for (size_t row = 0; row < data.size(); row++)
-	{
-		std::string line;
-		for (size_t col = 0; col < data[row].size(); col++)
-		{
-			line += KuStrUtil::Val2Str(data[row][col]);
-			line += delim;
-		}
-		w->WriteLine(line.c_str());
-	}
+	//for (size_t row = 0; row < data.size(); row++)
+	//{
+	//	std::string line;
+	//	for (size_t col = 0; col < data[row].size(); col++)
+	//	{
+	//		line += KuStrUtil::Val2Str(data[row][col]);
+	//		line += delim;
+	//	}
+	//	w->WriteLine(line.c_str());
+	//}
 
-	return true;
+	return false;
 }

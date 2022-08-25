@@ -140,9 +140,9 @@ KcPvAudioInput::kPropertySet KcPvAudioInput::propertySet() const
 	prop.id = kPrivate::k_channels;
 	prop.name = u8"Channles";
 	prop.desc = u8"channels of audio input device";
-	prop.val = channels_; // int类型代表enum类型
+	prop.val = int(channels_); 
 	prop.minVal = 1; 
-	prop.maxVal = info.inputChannels; 
+	prop.maxVal = int(info.inputChannels); 
 	prop.step = 1;
 	ps.push_back(prop);
 

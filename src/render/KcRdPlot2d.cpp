@@ -72,7 +72,7 @@ KcRdPlot2d::KcRdPlot2d(KvDataProvider* is)
                 KtSampling<kReal> xsamp(0, 1, prov->step(0), 0);
                 auto keySize = xsamp.size(newRange.size());
                 colorMap->data()->setKeySize(keySize);
-                emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, keySize);
+                emit kAppEventHub->objectPropertyChanged(this, kPrivate::k_key_size, int(keySize));
             }   
             else if (prov->isContinued() && contData_) {
                 doRender_(contData_); 

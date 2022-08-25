@@ -19,19 +19,19 @@ KvDataProvider::kPropertySet KvDataProvider::propertySet() const
 
 	// 维度
 	prop.name = tr("Dim");
-	prop.val = dim();
+	prop.val = int(dim());
 	ps.push_back(prop);
 
 	// 通道数
 	prop.name = tr("Channels");
-	prop.val = channels();
+	prop.val = int(channels());
 	ps.push_back(prop);
 
 	// 数据数量
 	if (isDiscreted()) {
 		prop.name = tr("Size");
 		prop.desc = tr("number of data points per-channel");
-		prop.val = size();
+		prop.val = int(size());
 		ps.push_back(prop);
 		prop.desc.clear();
 	}

@@ -10,10 +10,12 @@ template<int DIM>
 class KtSampler : public KtSampled<DIM>
 {
 public:
-	KtSampler(std::shared_ptr<KvContinued>& cont)
+	using super_ = KtSampled<DIM>;
+	
+	KtSampler(std::shared_ptr<KvContinued> cont)
 		: internal_(cont) {
 		for (kIndex i = 0; i < cont->dim(); i++)
-			samp_[i].resetn(100, cont->range(i).low(), cont->range(i).high(), 0.5); 
+			super_::samp_[i].resetn(100, cont->range(i).low(), cont->range(i).high(), 0.5);
 	}
 
 
@@ -24,13 +26,13 @@ public:
 	kReal value(kIndex idx[], kIndex channel) const final {
 		kReal pt[DIM];
 		for (kIndex i = 0; i < DIM; i++)
-			pt[i] = indexToValue(i, idx[i]);
+			pt[i] = super_::indexToValue(i, idx[i]);
 
 		return internal_->value(pt, channel);
 	}
 
 	void reset(kIndex axis, kIndex nx, kReal xmin, kReal xmax, kReal x0_rel_offset = 0) {
-		samp_[axis].resetn(nx, xmin, xmax, x0_rel_offset); 
+		super_::samp_[axis].resetn(nx, xmin, xmax, x0_rel_offset);
 	}
 
 private:

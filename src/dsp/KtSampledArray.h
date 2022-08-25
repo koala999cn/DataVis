@@ -82,7 +82,7 @@ public:
 
     // 直接从data拷贝数据填充底层数组
     void fill(const kReal* data) {
-        std::copy(data, data + array_.size(); array_.dataFirst());
+        std::copy(data, data + array_.size(), array_.dataFirst());
     }
 
     // 设置特定通道的数据
@@ -92,10 +92,10 @@ public:
 
 
     // 删除前rows行
-    void popFront(kIndex rows);
+    //void popFront(kIndex rows);
 
     // 移除第0轴数值小于x的rows
-    void cutBefore(kReal x);
+    //void cutBefore(kReal x);
 
 private:
     static auto makeTinyVector_(kIndex idx[], kIndex channel) {
@@ -131,7 +131,7 @@ void KtSampledArray<DIM>::setChannel(kIndex idx[], kIndex channel, const kReal* 
     }
 }
 
-
+#if 0
 template<int DIM>
 void KtSampledArray<DIM>::popFront(kIndex rows)
 {
@@ -163,3 +163,4 @@ void KtSampledArray<DIM>::cutBefore(kReal x)
     if(nx > 0)
         popFront(nx);
 }
+#endif

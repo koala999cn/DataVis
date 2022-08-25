@@ -47,7 +47,7 @@ KcOpFraming::kPropertySet KcOpFraming::propertySet() const
 	prop.name = tr(u8"frame_size");
 	prop.disp = tr(u8"Frame Size");
 	prop.desc = tr(u8"number of samples per frame");
-	prop.val = frameSize();
+	prop.val = int(frameSize());
 	prop.flag = k_readonly;
 	ps.push_back(prop);
 
@@ -65,7 +65,7 @@ KcOpFraming::kPropertySet KcOpFraming::propertySet() const
 	prop.name = tr(u8"shift_size");
 	prop.disp = tr(u8"Shift Size");
 	prop.desc = tr(u8"number of samples once shift");
-	prop.val = shiftSize();
+	prop.val = int(shiftSize());
 	prop.flag = k_readonly;
 	ps.push_back(prop);
 
@@ -85,13 +85,13 @@ void KcOpFraming::setPropertyImpl_(int id, const QVariant& newVal)
 	case kPrivate::k_length:
 		frameTime_ = newVal.toFloat();
 		emit kAppEventHub->objectPropertyChanged(this, 
-			kPrivate::k_frame_size, frameSize()); // 同步属性页的k_frame_size值
+			kPrivate::k_frame_size, int(frameSize())); // 同步属性页的k_frame_size值
 		break;
 
 	case kPrivate::k_shift:
 		shiftTime_ = newVal.toFloat();
 		emit kAppEventHub->objectPropertyChanged(this,
-			kPrivate::k_shift_size, shiftSize()); // // 同步属性页的k_shift_size值
+			kPrivate::k_shift_size, int(shiftSize())); // // 同步属性页的k_shift_size值
 		break;
 	};
 }

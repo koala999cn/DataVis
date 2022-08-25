@@ -36,7 +36,7 @@ public:
 
 	kRange range(kIndex axis) const override {
 		assert(axis >= 0 && axis <= dim());
-		return axis < dim() ? samp_[axis] : valueRange();
+		return axis < dim() ? kRange(samp_[axis]) : valueRange();
 	}
 
 	kReal step(kIndex axis) const override {

@@ -20,7 +20,7 @@ public:
         setColumnCount(2);
         setRowCount(data.size());
 
-        for (kIndex r = 0; r < data.size(); r++) {
+        for (int r = 0; r < data.size(); r++) {
             auto iter = data.at(r);
             setItem(r, 0, new QTableWidgetItem(QString("%1").arg(iter->key)));
             setItem(r, 1, new QTableWidgetItem(QString("%1").arg(iter->value)));;

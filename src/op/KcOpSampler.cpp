@@ -13,7 +13,7 @@ KcOpSampler::KcOpSampler(KvDataProvider* prov)
 kRange KcOpSampler::range(kIndex axis) const
 {
     assert(axis <= dim());
-    return axis < dim() ? samps_[axis] :
+    return axis < dim() ? kRange(samps_[axis]) :
         dynamic_cast<KvDataProvider*>(parent())->range(axis); 
     // TODO: samps_的坐标范围可能超出parent的设定，此时得到的valueRange是不准确的
 }
@@ -56,7 +56,7 @@ namespace kPrivate
         prop.id = idBase + k_dim_size;
         prop.name = QStringLiteral("Size");
         prop.flag = KvPropertiedObject::k_readonly;
-        prop.val = samp.size();
+        prop.val = int(samp.size());
         psAxis.push_back(prop);
 
         prop.id = idBase + k_dim_step;
@@ -92,19 +92,19 @@ KcOpSampler::kPropertySet KcOpSampler::propertySet() const
     prop.id = k_sampler_dim;
     prop.name = tr("Dim");
     prop.flag = k_readonly;
-    prop.val = dim();
+    prop.val = int(dim());
     ps.push_back(prop);
 
     prop.id = k_sampler_channels;
     prop.name = tr("Channels");
     prop.flag = k_readonly;
-    prop.val = channels();
+    prop.val = int(channels());
     ps.push_back(prop);
 
     prop.id = k_sampler_count;
     prop.name = tr("Size");
     prop.flag = k_readonly;
-    prop.val = KvDataProvider::size();
+    prop.val = int(KvDataProvider::size());
     ps.push_back(prop);
 
     for (kIndex i = 0; i < dim(); i++) {

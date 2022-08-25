@@ -61,14 +61,14 @@ bool KcRdBubble2d::doRender_(std::shared_ptr<KvData> data)
     bubbleData.setSize(disc->size());
     if (disc->dim() == 1) {
         for (kIndex i = 0; i < disc->size(); i++) {
-            auto& pt = disc->pointAt(i, 0);
+            auto pt = disc->pointAt(i, 0);
             bubbleData.setData(i, pt[0], pt[1], pt[1]);
         }
     }
     else {
         assert(disc->dim() == 2);       
         for (kIndex i = 0; i < disc->size(); i++) {
-            auto& pt = disc->pointAt(i, 0);
+            auto pt = disc->pointAt(i, 0);
             bubbleData.setData(i, pt[0], pt[1], pt[2]);
         }
     }

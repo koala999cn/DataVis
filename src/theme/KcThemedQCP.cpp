@@ -532,7 +532,7 @@ namespace kPrivate
 		if(legendAlignment == KcThemedQCP::k_align_auto)
 		    return Qt::AlignJustify | Qt::AlignTop;
 
-		Qt::Alignment qa = 0;
+		Qt::Alignment qa;
 
 		bool horted(false), verted(false);
 

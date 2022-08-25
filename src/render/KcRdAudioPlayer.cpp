@@ -53,7 +53,7 @@ KcRdAudioPlayer::kPropertySet KcRdAudioPlayer::propertySet() const
 	prop.disp.clear();
 	prop.desc = tr("channels of audio input device");
 	prop.flag = k_readonly;
-	prop.val = pobj->channels();
+	prop.val = int(pobj->channels());
 	ps.push_back(prop);
 
 	prop.id = kPrivate::k_sample_rate;
