@@ -17,6 +17,10 @@ int main(int argc, char *argv[])
     //KDDockWidgets::Config::self().setFlags(KDDockWidgets::Config::Flag_AutoHideSupport);
     KDDockWidgets::Config::self().setSeparatorThickness(3);
 
+    // 打开Flag_NativeTitleBar，否则浮动QOpenGLWidget时，标题栏渲染位置有问题
+    KDDockWidgets::Config::self().setFlags(KDDockWidgets::Config::Flag_NativeTitleBar);
+    
+    
     auto mainWindow = new QtMainFrame;
     mainWindow->setWindowTitle(u8"DataVis");
     mainWindow->setWindowIcon(app.style()->standardIcon(QStyle::SP_DesktopIcon));

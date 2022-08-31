@@ -34,7 +34,7 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>Qt6.2.2_msvc2019_x64</QtInstall>
-    <QtModules>core;gui;widgets;datavisualization;</QtModules>
+    <QtModules>core;gui;widgets;datavisualization;opengl;openglwidgets;</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
     <QtHeaderSearchPath>
     </QtHeaderSearchPath>
@@ -81,7 +81,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenXLSXd.lib;QtnPropertyd.lib;smarcd.lib;exprtkXd.lib;sndfiled.lib;rtaudiod.lib;kddockwidgets-qt6d.lib;QCustomPlotd.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;qwtplot3d.lib;OpenXLSXd.lib;QtnPropertyd.lib;smarcd.lib;exprtkXd.lib;sndfiled.lib;rtaudiod.lib;kddockwidgets-qt6d.lib;QCustomPlotd.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
   </ItemDefinitionGroup>
@@ -188,12 +188,15 @@
     <ClCompile Include="src\render\KcRdAudioPlayer.cpp" />
     <ClCompile Include="src\render\KcRdBar3d.cpp" />
     <ClCompile Include="src\render\KcRdBubble2d.cpp" />
+    <ClCompile Include="src\render\KcRdGrid3d.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
     <ClCompile Include="src\render\KcRdPlot2d.cpp" />
     <ClCompile Include="src\render\KcRdScatter3d.cpp" />
+    <ClCompile Include="src\render\KcRdScatter3d_.cpp" />
     <ClCompile Include="src\render\KcRdSurface3d.cpp" />
     <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
     <ClCompile Include="src\render\KvRdPlot3d.cpp" />
+    <ClCompile Include="src\render\KvRdQwtPlot3d.cpp" />
     <ClCompile Include="src\render\QCPBubbleChart.cpp" />
     <ClCompile Include="src\theme\KsThemeManager.cpp" />
     <ClCompile Include="src\theme\KcThemedQCP.cpp" />
@@ -247,6 +250,9 @@
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\render\KcRdBubble2d.h" />
     <QtMoc Include="src\render\QCPBubbleChart.h" />
+    <ClInclude Include="src\render\KcRdGrid3d.h" />
+    <ClInclude Include="src\render\KcRdScatter3d_.h" />
+    <ClInclude Include="src\render\KvRdQwtPlot3d.h" />
     <ClInclude Include="src\theme\KvThemedPlot.h" />
     <ClInclude Include="src\theme\KcThemedQCP.h" />
     <QtMoc Include="src\gui\QtTxtDataLoadDlg.h" />

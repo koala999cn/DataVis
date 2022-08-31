@@ -57,6 +57,7 @@ void QtAppEventHub::showDock(KvPropertiedObject* obj, QWidget* widget)
 
 	if (dock->widget() == nullptr) {
 		dock->setWidget(widget);
+		widget->setParent(dock, Qt::FramelessWindowHint);
 		widget->setVisible(true);
 
 		connect(dock, &DockWidget::isFocusedChanged, [=](bool focus) {
@@ -98,6 +99,8 @@ void QtAppEventHub::closeDock(KvPropertiedObject* obj)
 		auto widget = dock->widget();
 		if (widget) {
 			dock->setWidget(nullptr); // 不释放关联的widget
+			if (widget->parent() == dock)
+				widget->setParent(nullptr);
 			widget->setVisible(false);
 		}
 
