@@ -73,6 +73,11 @@ void QtAppEventHub::showDock(KvPropertiedObject* obj, QWidget* widget)
 		connect(obj, &QObject::objectNameChanged, dock, &DockWidget::setTitle);
 
 		connect(obj, &QObject::destroyed, [=]() { closeDock(obj); });
+
+		connect(dock, &DockWidget::isFloatingChanged, [=](bool floating) {
+			emit isFloatingChanged(obj, floating);
+			});
+
 	}
 	else {
 		assert(dock->widget() == widget);
@@ -99,8 +104,7 @@ void QtAppEventHub::closeDock(KvPropertiedObject* obj)
 		auto widget = dock->widget();
 		if (widget) {
 			dock->setWidget(nullptr); // 不释放关联的widget
-			if (widget->parent() == dock)
-				widget->setParent(nullptr);
+			assert(widget->parent() == nullptr);
 			widget->setVisible(false);
 		}
 

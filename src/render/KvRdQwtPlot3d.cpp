@@ -7,7 +7,6 @@ KvRdQwtPlot3d::KvRdQwtPlot3d(KvDataProvider* is, const QString& name)
 	: KvDataRender(name ,is)
 {
 	options_ = k_show;
-	//plot3d_ = std::make_unique<Qwt3D::Plot3D>();
 }
 
 
@@ -28,9 +27,20 @@ KvRdQwtPlot3d::kPropertySet KvRdQwtPlot3d::propertySet() const
 void KvRdQwtPlot3d::setOption(KeObjectOption opt, bool on)
 {
 	assert(opt == k_show);
-	if (on)
+	if (on) {
+		auto c = connect(kAppEventHub, &QtAppEventHub::isFloatingChanged, [this](KvPropertiedObject* obj, bool) {
+			if (obj == this)
+				plot3d_->updateData();
+			});
+
+		connect(kAppEventHub, &QtAppEventHub::dockClosed, [this, c](KvPropertiedObject* obj) {
+			if (obj == this)
+				disconnect(c);
+			});
+
 		kAppEventHub->showDock(this, plot3d_.get());
-	else
+	}
+	else 
 		kAppEventHub->closeDock(this);
 }
 

@@ -83,7 +83,7 @@ bool KcRdGrid3d::doRender_(std::shared_ptr<KvData> data)
 
 	plot3d_->coordinates()->axes[Qwt3D::X1].setLabelString("x-axis");
 	plot3d_->coordinates()->axes[Qwt3D::Y1].setLabelString("y-axis");
-	//coordinates()->axes[Z1].setLabelString(QChar(0x38f)); // Omega - see http://www.unicode.org/charts/
+	plot3d_->coordinates()->axes[Qwt3D::Z1].setLabelString(QChar(0x38f)); // Omega - see http://www.unicode.org/charts/
 
 
 	plot3d_->setCoordinateStyle(Qwt3D::BOX);
