@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="render\KsPlotManager.cpp" />
+    <ClCompile Include="render\KvAxis.cpp" />
     <ClCompile Include="render\KvPlot.cpp" />
     <ClCompile Include="src\audio\KcAudio.cpp" />
     <ClCompile Include="src\audio\KcAudioCapture.cpp" />
@@ -205,6 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="render\KsPlotManager.h" />
+    <ClInclude Include="render\KvAxis.h" />
     <ClInclude Include="render\KvPlot.h" />
     <ClInclude Include="src\audio\KcAudio.h" />
     <ClInclude Include="src\audio\KcAudioCapture.h" />

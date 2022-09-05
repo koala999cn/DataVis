@@ -258,6 +258,9 @@
     <ClCompile Include="render\KvPlot.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="render\KvAxis.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -552,6 +555,9 @@
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="render\KvPlot.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\KvAxis.h">
       <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
