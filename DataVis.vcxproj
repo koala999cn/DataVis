@@ -75,13 +75,13 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/vl;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
       <PreprocessorDefinitions>QCUSTOMPLOT_USE_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;qwtplot3d.lib;OpenXLSXd.lib;QtnPropertyd.lib;smarcd.lib;exprtkXd.lib;sndfiled.lib;rtaudiod.lib;kddockwidgets-qt6d.lib;QCustomPlotd.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>VLCore-d.lib;VLGraphics-d.lib;VLMain-d.lib;VLQt6-d.lib;OpenXLSXd.lib;QtnPropertyd.lib;smarcd.lib;exprtkXd.lib;sndfiled.lib;rtaudiod.lib;kddockwidgets-qt6d.lib;QCustomPlotd.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
   </ItemDefinitionGroup>
@@ -127,6 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="render\KsPlotManager.cpp" />
+    <ClCompile Include="render\KvPlot.cpp" />
     <ClCompile Include="src\audio\KcAudio.cpp" />
     <ClCompile Include="src\audio\KcAudioCapture.cpp" />
     <ClCompile Include="src\audio\KcAudioDevice.cpp" />
@@ -194,6 +196,7 @@
     <ClCompile Include="src\render\KcRdSurface3d.cpp" />
     <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
     <ClCompile Include="src\render\KvRdPlot3d.cpp" />
+    <ClCompile Include="src\render\KvRdPlot3d_.cpp" />
     <ClCompile Include="src\render\QCPBubbleChart.cpp" />
     <ClCompile Include="src\theme\KsThemeManager.cpp" />
     <ClCompile Include="src\theme\KcThemedQCP.cpp" />
@@ -201,6 +204,8 @@
     <ClCompile Include="src\theme\KvThemedPlot.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="render\KsPlotManager.h" />
+    <ClInclude Include="render\KvPlot.h" />
     <ClInclude Include="src\audio\KcAudio.h" />
     <ClInclude Include="src\audio\KcAudioCapture.h" />
     <ClInclude Include="src\audio\KcAudioDevice.h" />
@@ -247,6 +252,7 @@
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\render\KcRdBubble2d.h" />
     <QtMoc Include="src\render\QCPBubbleChart.h" />
+    <QtMoc Include="src\render\KvRdPlot3d_.h" />
     <ClInclude Include="src\theme\KvThemedPlot.h" />
     <ClInclude Include="src\theme\KcThemedQCP.h" />
     <QtMoc Include="src\gui\QtTxtDataLoadDlg.h" />

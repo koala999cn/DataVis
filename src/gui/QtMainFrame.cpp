@@ -21,7 +21,6 @@
 #include "provider.h"
 #include "operator.h"
 #include "render.h"
-#include "render/KcRdGrid3d.h"
 
 
 using namespace KDDockWidgets;
@@ -246,11 +245,6 @@ QMenu* QtMainFrame::setupRdMenu_()
         kPrivate::insertObjectP<KcRdSurface3d>(workDock_, false);
         });
 
-    QAction* grid3d = renderMenu->addAction(u8"Grid3d(&G)");
-    connect(grid3d, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcRdGrid3d>(workDock_, false);
-        });
-
     QAction* player = renderMenu->addAction(u8"AudioPlayer(&P)");
     connect(player, &QAction::triggered, [this] {
         kPrivate::insertObjectP<KcRdAudioPlayer>(workDock_, false);
@@ -265,7 +259,6 @@ QMenu* QtMainFrame::setupRdMenu_()
         bars3d->setEnabled(obj && obj->isSampled() && obj->dim() <= 2);
         scatter3d->setEnabled(obj && obj->isDiscreted() && obj->dim() <= 2);
         surface3d->setEnabled(obj && !obj->isScattered() && obj->dim() == 2); 
-        grid3d->setEnabled(obj && obj->isContinued() && obj->dim() == 2);
         player->setEnabled(obj && obj->dim() == 1 && obj->isSampled());
         });
 

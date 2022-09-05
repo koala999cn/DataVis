@@ -249,6 +249,15 @@
     <ClCompile Include="src\render\KcRdBubble2d.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\KvRdPlot3d_.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="render\KsPlotManager.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="render\KvPlot.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -295,6 +304,9 @@
       <Filter>gui</Filter>
     </QtMoc>
     <QtMoc Include="src\render\QCPBubbleChart.h">
+      <Filter>render</Filter>
+    </QtMoc>
+    <QtMoc Include="src\render\KvRdPlot3d_.h">
       <Filter>render</Filter>
     </QtMoc>
   </ItemGroup>
@@ -534,6 +546,12 @@
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\render\KcRdBubble2d.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\KsPlotManager.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\KvPlot.h">
       <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
