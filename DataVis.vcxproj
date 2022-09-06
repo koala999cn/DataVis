@@ -174,9 +174,9 @@
     <ClCompile Include="src\op\KcOpFilterBank.cpp" />
     <ClCompile Include="src\op\KcOpWindowing.cpp" />
     <ClCompile Include="src\op\KvOpHelper1d.cpp" />
+    <ClCompile Include="src\plot\KcVlPlotWidget.cpp" />
     <ClCompile Include="src\plot\KsPlotManager.cpp" />
     <ClCompile Include="src\plot\KvAxis.cpp" />
-    <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
     <ClCompile Include="src\prov\KcPvExcitationSource.cpp" />
@@ -249,10 +249,14 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\plot\KcVlPlotWidget.h" />
     <ClInclude Include="src\plot\KsPlotManager.h" />
     <ClInclude Include="src\plot\KvAxis.h" />
     <ClInclude Include="src\plot\KvCoordSystem.h" />
-    <ClInclude Include="src\plot\KvPlot.h" />
+    <ClInclude Include="src\plot\KvPlotWidget.h" />
+    <ClInclude Include="src\plot\KvPlottable.h" />
+    <ClInclude Include="src\plot\KvRenderable.h" />
+    <ClInclude Include="src\plot\KvRenderer.h" />
     <ClInclude Include="src\render\KcRdBubble2d.h" />
     <QtMoc Include="src\render\QCPBubbleChart.h" />
     <QtMoc Include="src\render\KvRdPlot3d_.h" />

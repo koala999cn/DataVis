@@ -59,7 +59,7 @@ public:
 	void setTitle(const std::string& title) { title_ = title; }
 
 	const std::vector<std::string>& labels() const { return labels_; }
-	void setLabels(const std::vector<std::string>& lables) { labels_ = labels; }
+	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
 
 	enum KeTickSide
 	{
@@ -106,10 +106,10 @@ public:
 	/// fonts
 
 	QFont labelFont() const { return labelFont_; }
-	void setLabelFont(Font font) { labelFont_ = font; }
+	void setLabelFont(QFont font) { labelFont_ = font; }
 
 	QFont titleFont() const { return titleFont_; }
-	void setTitleFont(Font font) { titleFont_ = font; }
+	void setTitleFont(QFont font) { titleFont_ = font; }
 
 private:
 	KeType type_; // type

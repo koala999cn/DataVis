@@ -1,4 +1,4 @@
-#include "KvPlot.h"
+#include "KcVlPlotWidget.h"
 #include <vlQt6/Qt6Widget.hpp>
 #include <vlGraphics/Applet.hpp>
 #include <vlGraphics/GeometryPrimitives.hpp>
@@ -12,11 +12,11 @@
 
 namespace kPrivate
 {
-	struct KpPlotImpl_
-	{
-		vl::ref<vl::Applet> applet;
-		vl::ref<vlQt6::Qt6Widget> widget;
-	};
+    struct KpVlPlotWidgetImpl_
+    {
+        vl::ref<vl::Applet> applet;
+        vl::ref<vlQt6::Qt6Widget> widget;
+    };
 
     class KcPlotApp_ : public vl::Applet
     {
@@ -71,12 +71,12 @@ namespace kPrivate
 }
 
 
-KvPlot::KvPlot(void* parent)
+KcVlPlotWidget::KcVlPlotWidget(widget_t* parent)
 {
     using namespace vl;
 
-	auto d = new kPrivate::KpPlotImpl_;
-	d_ptr_ = d;
+    auto d = new kPrivate::KpVlPlotWidgetImpl_;
+    d_ptr_ = d;
 
     /* setup the OpenGL context format */
     OpenGLContextFormat format;
@@ -92,8 +92,8 @@ KvPlot::KvPlot(void* parent)
     d->applet = new kPrivate::KcPlotApp_;
     d->applet->initialize();
 
-	/* create a native Qt6 window */
-	d->widget = new vlQt6::Qt6Widget((QWidget*)parent);
+    /* create a native Qt6 window */
+    d->widget = new vlQt6::Qt6Widget((QWidget*)parent);
 
     /* bind the applet so it receives all the GUI events related to the OpenGLContext */
     d->widget->addEventListener(d->applet.get());
@@ -117,36 +117,49 @@ KvPlot::KvPlot(void* parent)
     int width = 96;
     int height = 96;
     d->widget->initQt6Widget("kPlot", format, x, y, width, height);
-    
+
     /* show the window */
     //d->widget->show();
 }
 
 
-KvPlot::~KvPlot()
+KcVlPlotWidget::~KcVlPlotWidget()
 {
-    delete static_cast<kPrivate::KpPlotImpl_*>(d_ptr_);
+    delete static_cast<kPrivate::KpVlPlotWidgetImpl_*>(d_ptr_);
 }
 
 
-void* KvPlot::handle() const
+KcVlPlotWidget::widget_t* KcVlPlotWidget::widget() const
 {
-    return static_cast<kPrivate::KpPlotImpl_*>(d_ptr_)->widget.get();
+    auto d = static_cast<kPrivate::KpVlPlotWidgetImpl_*>(d_ptr_);
+    return (widget_t*)d->widget.get();
 }
 
 
-void KvPlot::show(bool b)
+void KcVlPlotWidget::show(bool b)
 {
-    auto w = (vlQt6::Qt6Widget*)handle();
-    if(b)
+    auto w = (vlQt6::Qt6Widget*)widget();
+    if (b)
         w->show();
-    else 
+    else
         w->hide();
 }
 
 
-bool KvPlot::visible() const
+bool KcVlPlotWidget::visible() const
 {
-    auto w = (vlQt6::Qt6Widget*)handle();
+    auto w = (vlQt6::Qt6Widget*)widget();
     return w->isVisible();
+}
+
+
+void KcVlPlotWidget::draw(KvRenderer*) const
+{
+
+}
+
+
+void KcVlPlotWidget::update(bool immediately)
+{
+
 }
