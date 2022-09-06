@@ -127,9 +127,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="render\KsPlotManager.cpp" />
-    <ClCompile Include="render\KvAxis.cpp" />
-    <ClCompile Include="render\KvPlot.cpp" />
     <ClCompile Include="src\audio\KcAudio.cpp" />
     <ClCompile Include="src\audio\KcAudioCapture.cpp" />
     <ClCompile Include="src\audio\KcAudioDevice.cpp" />
@@ -177,6 +174,9 @@
     <ClCompile Include="src\op\KcOpFilterBank.cpp" />
     <ClCompile Include="src\op\KcOpWindowing.cpp" />
     <ClCompile Include="src\op\KvOpHelper1d.cpp" />
+    <ClCompile Include="src\plot\KsPlotManager.cpp" />
+    <ClCompile Include="src\plot\KvAxis.cpp" />
+    <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
     <ClCompile Include="src\prov\KcPvExcitationSource.cpp" />
@@ -205,9 +205,6 @@
     <ClCompile Include="src\theme\KvThemedPlot.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="render\KsPlotManager.h" />
-    <ClInclude Include="render\KvAxis.h" />
-    <ClInclude Include="render\KvPlot.h" />
     <ClInclude Include="src\audio\KcAudio.h" />
     <ClInclude Include="src\audio\KcAudioCapture.h" />
     <ClInclude Include="src\audio\KcAudioDevice.h" />
@@ -252,6 +249,10 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\plot\KsPlotManager.h" />
+    <ClInclude Include="src\plot\KvAxis.h" />
+    <ClInclude Include="src\plot\KvCoordSystem.h" />
+    <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\render\KcRdBubble2d.h" />
     <QtMoc Include="src\render\QCPBubbleChart.h" />
     <QtMoc Include="src\render\KvRdPlot3d_.h" />

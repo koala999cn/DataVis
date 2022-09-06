@@ -33,6 +33,9 @@
     <Filter Include="theme">
       <UniqueIdentifier>{eae69fc4-1091-4517-ac16-1b12905729cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="plot">
+      <UniqueIdentifier>{8a43f5cc-ba62-4f8b-a6c3-aee1ef50082b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\op\KvOpHelper1d.cpp">
@@ -252,14 +255,14 @@
     <ClCompile Include="src\render\KvRdPlot3d_.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="render\KsPlotManager.cpp">
-      <Filter>render</Filter>
+    <ClCompile Include="src\plot\KsPlotManager.cpp">
+      <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="render\KvPlot.cpp">
-      <Filter>render</Filter>
+    <ClCompile Include="src\plot\KvAxis.cpp">
+      <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="render\KvAxis.cpp">
-      <Filter>render</Filter>
+    <ClCompile Include="src\plot\KvPlot.cpp">
+      <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -551,14 +554,17 @@
     <ClInclude Include="src\render\KcRdBubble2d.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="render\KsPlotManager.h">
-      <Filter>render</Filter>
+    <ClInclude Include="src\plot\KsPlotManager.h">
+      <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="render\KvPlot.h">
-      <Filter>render</Filter>
+    <ClInclude Include="src\plot\KvAxis.h">
+      <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="render\KvAxis.h">
-      <Filter>render</Filter>
+    <ClInclude Include="src\plot\KvCoordSystem.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvPlot.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
