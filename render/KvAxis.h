@@ -22,6 +22,8 @@ public:
 
 	KeType type() const { return type_; }
 
+	/// range 
+
 	double lower() const { return lower_; }
 	double upper() const { return upper_; }
 	std::pair<double, double> range() const { return { lower_, upper_ }; }
@@ -69,7 +71,45 @@ public:
 	double baselineSize() const { return baselineSize_; }
 	void setBaselineSize(double size) { baselineSize_ = size; }
 
+	// major ticks
+	double tickSize() const { return tickSize_; }
+	void setTickSize(double size) { tickSize_ = size; }
+	double tickLength() const { return tickLength_; }
+	void setTickLength(double len) { tickLength_ = len; }
 
+	// minor ticks
+	double subtickSize() const { return subtickSize_; }
+	void setSubtickSize(double size) { subtickSize_ = size; }
+	double subtickLength() const { return subtickLength_; }
+	void setSubtickLength(double len) { subtickLength_ = len; }
+
+	KeTickSide tickSide() const { return tickSide_; }
+	void setTickSide(KeTickSide side) { tickSide_ = side; }
+
+	/// colors
+
+	QColor baselineColor() const { return baselineColor_; }
+	void setBaselineColor(QColor clr) { baselineColor_ = clr; }
+
+	QColor tickColor() const { return tickColor_; }
+	void setTickColor(QColor clr) { tickColor_ = clr; }
+
+	QColor subtickColor() const { return subtickColor_; }
+	void setSubtickColor(QColor clr) { subtickColor_ = clr; }
+
+	QColor labelColor() const { return labelColor_; }
+	void setLabelColor(QColor clr) { labelColor_ = clr; }
+
+	QColor titleColor() const { return titleColor_; }
+	void setTitleColor(QColor clr) { titleColor_ = clr; }
+
+	/// fonts
+
+	QFont labelFont() const { return labelFont_; }
+	void setLabelFont(Font font) { labelFont_ = font; }
+
+	QFont titleFont() const { return titleFont_; }
+	void setTitleFont(Font font) { titleFont_ = font; }
 
 private:
 	KeType type_; // type
