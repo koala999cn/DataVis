@@ -1,6 +1,8 @@
 #pragma once
 #include "KtSingleton.h"
 
+class KvPlot;
+class QWidget;
 
 class KsPlotManager
 {
@@ -12,11 +14,13 @@ public:
 		return *singleton_type::instance();
 	}
 
-	static bool init();
+	bool init();
 
-	static void shutdown() {
+	void shutdown() {
 		singleton_type::destroy();
 	}
+
+	KvPlot* createPlot3d(QWidget* parent = nullptr);
 
 private:
 

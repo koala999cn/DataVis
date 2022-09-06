@@ -46,6 +46,9 @@ namespace kPrivate
         effect->shader()->setRenderState(new vl::Light, 0);
         // enable the standard OpenGL lighting
         effect->shader()->enable(vl::EN_LIGHTING);
+        effect->shader()->gocLightModel()->setAmbientColor(vl::white);
+        effect->shader()->gocMaterial()->setAmbient(vl::crimson);
+        effect->shader()->gocMaterial()->setDiffuse(vl::crimson);
 
         // install our scene manager, we use the SceneManagerActorTree which is the most generic
         vl::ref<vl::SceneManagerActorTree> scene_manager = new vl::SceneManagerActorTree;
@@ -60,6 +63,8 @@ namespace kPrivate
         //vl::real degrees = vl::Time::currentTime() * 45.0f;
         //vl::mat4 matrix = vl::mat4::getRotation(degrees, 0, 1, 0);
         //globalTransform_->setLocalMatrix(matrix);
+
+        
     }
 }
 
@@ -112,6 +117,12 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
 }
 
 
+KcVlPlot3d::~KcVlPlot3d()
+{
+    applet_ = nullptr; // Í£Ö¹äÖÈ¾
+    widget_ = nullptr;
+}
+
 void KcVlPlot3d::show(bool b)
 {
     if (b)
@@ -124,6 +135,12 @@ void KcVlPlot3d::show(bool b)
 bool KcVlPlot3d::visible() const
 {
     return widget_->isVisible();
+}
+
+
+void* KcVlPlot3d::widget() const
+{
+    return (void*)widget_.get();
 }
 
 

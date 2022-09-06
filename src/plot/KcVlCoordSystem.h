@@ -12,6 +12,10 @@ public:
 
 	KcVlCoordSystem();
 
+	void setVisible(bool b) override;
+
+	bool visible() const override;
+
 	void update(KvPlot*) const override;
 
 private:

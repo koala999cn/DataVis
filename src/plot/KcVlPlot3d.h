@@ -9,13 +9,16 @@ namespace vl { class Applet; }
 class KcVlPlot3d : public KvPlot
 {
 public:
-    KcVlPlot3d(QWidget* parent);
+    KcVlPlot3d(QWidget* parent = nullptr);
+    ~KcVlPlot3d();
 
     vl::Applet* applet() { return applet_.get(); }
 
     void show(bool b) override;
 
     bool visible() const override;
+
+    void* widget() const override;
 
     void update(bool immediately = true) override;
 

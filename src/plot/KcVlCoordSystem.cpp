@@ -2,6 +2,8 @@
 #include "KvAxis.h"
 #include "KcVlPlot3d.h"
 #include <vlGraphics/Applet.hpp>
+#include <vlGraphics/Geometry.hpp>
+#include <vlGraphics/GeometryPrimitives.hpp>
 
 
 KcVlCoordSystem::KcVlCoordSystem()
@@ -19,8 +21,20 @@ KcVlCoordSystem::KcVlCoordSystem()
 	ax_effect->shader()->setRenderState(new vl::Light, 0);
 	ax_effect->shader()->gocMaterial()->setDiffuse(vl::red);
 
-	vl::ref<vl::Geometry> axis1 = vl::makeCylinder(vl::vec3(-360, 0, -360), 10, 360 * 2);
+	vl::ref<vl::Geometry> axis1 = vl::makeCylinder(vl::vec3(0, 0, 0), 4, 10);
 	actorTree_->addActor(axis1.get(), ax_effect.get());
+}
+
+
+void KcVlCoordSystem::setVisible(bool b)
+{
+	actorTree_->setEnabled(b);
+}
+
+
+bool KcVlCoordSystem::visible() const
+{
+	return actorTree_->isEnabled();
 }
 
 
@@ -31,5 +45,5 @@ void KcVlCoordSystem::update(KvPlot* plot) const
 
 	auto applet = plot3d->applet();
 	auto sm = applet->sceneManager();
-	sm->tree()->addChildOnce(actorTree_);
+	sm->tree()->addChildOnce(actorTree_.get_writable());
 }
