@@ -81,7 +81,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>VLCore-d.lib;VLGraphics-d.lib;VLMain-d.lib;VLQt6-d.lib;OpenXLSXd.lib;QtnPropertyd.lib;smarcd.lib;exprtkXd.lib;sndfiled.lib;rtaudiod.lib;kddockwidgets-qt6d.lib;QCustomPlotd.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;VLCore-d.lib;VLGraphics-d.lib;VLMain-d.lib;VLQt6-d.lib;OpenXLSXd.lib;QtnPropertyd.lib;smarcd.lib;exprtkXd.lib;sndfiled.lib;rtaudiod.lib;kddockwidgets-qt6d.lib;QCustomPlotd.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
   </ItemDefinitionGroup>
@@ -176,6 +176,7 @@
     <ClCompile Include="src\op\KvOpHelper1d.cpp" />
     <ClCompile Include="src\plot\KcVlCoordSystem.cpp" />
     <ClCompile Include="src\plot\KcVlPlot3d.cpp" />
+    <ClCompile Include="src\plot\KglPaint.cpp" />
     <ClCompile Include="src\plot\KsPlotManager.cpp" />
     <ClCompile Include="src\plot\KgAxis.cpp" />
     <ClCompile Include="src\plot\KvCoordSystem.cpp" />
@@ -215,6 +216,8 @@
     <ClInclude Include="src\base\KtObservable.h" />
     <ClInclude Include="src\base\KtSingleton.h" />
     <ClInclude Include="src\base\KtuMath.h" />
+    <ClInclude Include="src\base\KtVector3.h" />
+    <ClInclude Include="src\base\KtVector4.h" />
     <ClInclude Include="src\base\KuFileUtil.h" />
     <ClInclude Include="src\base\KuPathUtil.h" />
     <ClInclude Include="src\base\KuStrUtil.h" />
@@ -256,6 +259,7 @@
     <ClInclude Include="src\plot\KsPlotManager.h" />
     <ClInclude Include="src\plot\KgAxis.h" />
     <ClInclude Include="src\plot\KvCoordSystem.h" />
+    <ClInclude Include="src\plot\KglPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\plot\KvPlottable.h" />
     <ClInclude Include="src\plot\KvRenderable.h" />
