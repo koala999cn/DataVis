@@ -19,10 +19,14 @@ public:
 
 	virtual void* widget() const = 0;
 
+	// 告知KvPlot绘图数据是比较稳定（静态数据）还是更新频繁（动态数据），以便优化显示
+	virtual void setImmutable(bool b) = 0;
+
 	// 更新绘图
 	virtual void update(bool immediately = true) = 0;
 
-	QColor background() const { return bkgnd_; }
+	virtual QColor background() const = 0;
+	virtual void setBackground(const QColor& clr) = 0;
 
 	KvCoordSystem* coordSystem() {
 		return coord_.get();
@@ -37,7 +41,6 @@ public:
 	}
 
 protected:
-	QColor bkgnd_;
 	std::unique_ptr<KvCoordSystem> coord_;
 	std::vector<std::unique_ptr<KvPlottable>> plottables_;
 };

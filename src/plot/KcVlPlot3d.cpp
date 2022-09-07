@@ -23,32 +23,22 @@ namespace kPrivate
         // called every frame
         void updateScene() override;
 
-    protected:
-        vl::ref<vl::Transform> globalTransform_; // plot的全局旋转矩阵，用于支持plot的自动旋转功能
+    private:
+        void makeDefaultEffect_();
+
+    private:
+        vl::ref<vl::Effect> effect_;
+        vl::ref<vl::Transform> tr_; // plot的全局旋转矩阵，用于支持plot的自动旋转功能
     };
 
     void KcVlPlotApplet_::initEvent()
     {
         // allocate the Transform
-        globalTransform_ = new vl::Transform;
+        tr_ = new vl::Transform;
         // bind the Transform with the transform tree of the rendring pipeline
-        rendering()->as<vl::Rendering>()->transform()->addChild(globalTransform_.get());
+        rendering()->as<vl::Rendering>()->transform()->addChild(tr_.get());
 
-        // create the cube's Geometry and compute its normals to support lighting
-        vl::ref<vl::Geometry> cube = vl::makeBox(vl::vec3(0, 0, 0), 10, 10, 10);
-        cube->computeNormals();
-
-        // setup the effect to be used to render the cube
-        vl::ref<vl::Effect> effect = new vl::Effect;
-        // enable depth test and lighting
-        effect->shader()->enable(vl::EN_DEPTH_TEST);
-        // add a Light to the scene, since no Transform is associated to the Light it will follow the camera
-        effect->shader()->setRenderState(new vl::Light, 0);
-        // enable the standard OpenGL lighting
-        effect->shader()->enable(vl::EN_LIGHTING);
-        effect->shader()->gocLightModel()->setAmbientColor(vl::white);
-        effect->shader()->gocMaterial()->setAmbient(vl::crimson);
-        effect->shader()->gocMaterial()->setDiffuse(vl::crimson);
+        makeDefaultEffect_();
 
         // install our scene manager, we use the SceneManagerActorTree which is the most generic
         vl::ref<vl::SceneManagerActorTree> scene_manager = new vl::SceneManagerActorTree;
@@ -62,9 +52,44 @@ namespace kPrivate
         // rotates the cube around the Y axis 45 degrees per second
         //vl::real degrees = vl::Time::currentTime() * 45.0f;
         //vl::mat4 matrix = vl::mat4::getRotation(degrees, 0, 1, 0);
-        //globalTransform_->setLocalMatrix(matrix);
+        //tr_->setLocalMatrix(matrix);
+    }
 
-        
+    void KcVlPlotApplet_::makeDefaultEffect_()
+    {
+        // setup the effect to be used to render the cube
+        effect_ = new vl::Effect;
+        // enable depth test and lighting
+        effect_->shader()->enable(vl::EN_DEPTH_TEST);
+        // add a Light to the scene, since no Transform is associated to the Light it will follow the camera
+        effect_->shader()->setRenderState(new vl::Light, 0);
+        // enable the standard OpenGL lighting
+        effect_->shader()->enable(vl::EN_LIGHTING);
+        effect_->shader()->gocLightModel()->setAmbientColor(vl::white);
+        effect_->shader()->gocMaterial()->setAmbient(vl::crimson);
+        effect_->shader()->gocMaterial()->setDiffuse(vl::crimson);
+
+        /*
+        glEnable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glShadeModel(GL_SMOOTH);
+
+        // Set up the lights
+        disableLighting();
+
+        GLfloat whiteAmb[4] = { 1.0, 1.0, 1.0, 1.0 };
+
+        setLightShift(0, 0, 3000);
+        glEnable(GL_COLOR_MATERIAL);
+
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, whiteAmb);
+
+        setMaterialComponent(GL_DIFFUSE, 1.0);
+        setMaterialComponent(GL_SPECULAR, 0.3);
+        setMaterialComponent(GL_SHININESS, 5.0);
+        setLightComponent(GL_DIFFUSE, 1.0);
+        setLightComponent(GL_SPECULAR, 1.0);*/
     }
 }
 
@@ -111,9 +136,6 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     int width = 96;
     int height = 96;
     widget_->initQt6Widget("kPlot", format, x, y, width, height);
-
-    /* show the window */
-    //d->widget->show();
 }
 
 
@@ -144,10 +166,31 @@ void* KcVlPlot3d::widget() const
 }
 
 
+void KcVlPlot3d::setImmutable(bool b)
+{
+    widget_->setContinuousUpdate(!b);
+}
+
+
 void KcVlPlot3d::update(bool immediately)
 {
     coordSystem()->update(this);
 
     for (int idx = 0; idx < numPlottables(); idx++)
         plottable(idx)->update(this);
+
+    if (immediately) // TODO: 优化
+        widget_->update();
+}
+
+
+QColor KcVlPlot3d::background() const
+{
+    auto clr = applet_->rendering()->as<vl::Rendering>()->camera()->viewport()->clearColor();
+}
+
+
+void KcVlPlot3d::setBackground(const QColor& clr)
+{
+    applet_->rendering()->as<vl::Rendering>()->camera()->viewport()->setClearColor(clr);
 }

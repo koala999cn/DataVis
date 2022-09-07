@@ -258,7 +258,7 @@
     <ClCompile Include="src\plot\KsPlotManager.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KvAxis.cpp">
+    <ClCompile Include="src\plot\KgAxis.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KcVlPlot3d.cpp">
@@ -560,7 +560,7 @@
     <ClInclude Include="src\plot\KsPlotManager.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KvAxis.h">
+    <ClInclude Include="src\plot\KgAxis.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KvCoordSystem.h">

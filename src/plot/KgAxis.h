@@ -3,24 +3,42 @@
 #include <string>
 #include <QColor>
 #include <QFont>
+#include "KtVector3.h"
 
 
-// 坐标轴（单轴）基类
+// 坐标轴（单轴）实现
 // 坐标轴由4类元素构成：1.baseline, 2.ticks(major & minor), 3.labels, 4.title
 
-class KvAxis
+class KgAxis
 {
+	using vec3 = KtVector3<double>;
+
 public:
-	enum KeType
+
+	enum KeTickOrient
 	{
-		k_x,
-		k_y,
-		k_z
+		k_x, k_neg_x, k_bi_x,
+		k_y, k_neg_y, k_bi_y,
+		k_z, k_neg_z, k_bi_z
 	};
 
-	KvAxis(KeType type);
 
-	KeType type() const { return type_; }
+	KgAxis();
+
+	const vec3& start() const { return start_; }
+	void setStart(const vec3& v) { start_ = v; }
+
+	const vec3& end() const { return end_; }
+	void setEnd(const vec3& v) { end_ = v; }
+
+	const vec3& tickOrient() const { return tickOrient_; }
+
+	void setTickOrient(const vec3& v, bool bothSide) { 
+		tickOrient_ = v; 
+		tickShowBothSide_ = bothSide;
+	}
+
+	void setTickOrient(KeTickOrient side);
 
 	/// range 
 
@@ -30,6 +48,10 @@ public:
 	void setLower(double lower) { lower_ = lower; }
 	void setUpper(double upper) { upper_ = upper; }
 	void setRange(double lower, double upper) { lower_ = lower, upper_ = upper; }
+
+	double length() const {
+		return upper_ - lower_; // == (end - start).length ? 
+	}
 
 	bool visible() const { return visible_; }
 	void setVisible(bool b) { visible_ = b; }
@@ -61,13 +83,6 @@ public:
 	const std::vector<std::string>& labels() const { return labels_; }
 	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
 
-	enum KeTickSide
-	{
-		k_inner_side,
-		k_outter_side,
-		k_both_side
-	};
-
 	double baselineSize() const { return baselineSize_; }
 	void setBaselineSize(double size) { baselineSize_ = size; }
 
@@ -83,8 +98,6 @@ public:
 	double subtickLength() const { return subtickLength_; }
 	void setSubtickLength(double len) { subtickLength_ = len; }
 
-	KeTickSide tickSide() const { return tickSide_; }
-	void setTickSide(KeTickSide side) { tickSide_ = side; }
 
 	/// colors
 
@@ -112,7 +125,6 @@ public:
 	void setTitleFont(QFont font) { titleFont_ = font; }
 
 private:
-	KeType type_; // type
 	std::string title_;
 	std::vector<std::string> labels_; // tick labels
 	double lower_, upper_; // range
@@ -122,11 +134,14 @@ private:
 	double baselineSize_;
 	double tickSize_, tickLength_;
 	double subtickSize_, subtickLength_;
-	KeTickSide tickSide_;
 
 	QColor baselineColor_;
 	QColor tickColor_, subtickColor_;
 	QColor labelColor_, titleColor_;
 
 	QFont labelFont_, titleFont_;
+
+	vec3 start_, end_;
+	vec3 tickOrient_;
+	bool tickShowBothSide_;
 };

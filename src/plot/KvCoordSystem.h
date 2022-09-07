@@ -17,30 +17,28 @@ public:
 
 	KvCoordSystem() : axes_(12, nullptr) {}
 
-	// 12根坐标轴的id定义，可用于索引axes_
+	// 12根坐标轴的id，用于索引axes_
 	enum KeAxis
 	{
-		k_x,
-		k_y,
-		k_z,
-		k_x_top,
-		k_x_near,
-		k_x_top_near,
-		k_y_right,
-		k_y_near,
-		k_y_right_near,
-		k_z_right,
-		k_z_top,
-		k_z_right_top
+		k_x0, // bottom-far
+		k_y0, // left-far
+		k_z0, // left-bottom
+
+		k_x1, // top-far,
+		k_y1, // right-far,
+		k_z1, // right-bottom,
+
+		k_x2, // top-near,
+		k_y2, // right-near,
+		k_z2, // right-top,
+
+		k_x3, // bottom_near,
+		k_y3, // left_near,
+		k_z3  // left_top
 	};
 
-	axis_ptr& axisX() { return axes_[0]; }
-	axis_ptr& axisY() { return axes_[1]; }
-	axis_ptr& axisZ() { return axes_[2]; }
-
-	axis_ptr axisX() const { return axes_[0]; }
-	axis_ptr axisY() const { return axes_[1]; }
-	axis_ptr axisZ() const { return axes_[2]; }
+	axis_ptr& axis(KeAxis id) { return axes_[id]; }
+	axis_ptr axisX(KeAxis id) const { return axes_[id]; }
 
 private:
 	QColor bkgnd_;

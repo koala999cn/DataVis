@@ -20,7 +20,12 @@ public:
 
     void* widget() const override;
 
+    void setImmutable(bool b) override;
+
     void update(bool immediately = true) override;
+
+    QColor background() const override;
+    void setBackground(const QColor& clr) override;
 
 private:
     vl::ref<vl::Applet> applet_;
