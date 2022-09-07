@@ -23,6 +23,8 @@ namespace kPrivate
         // called every frame
         void updateScene() override;
 
+        vl::Effect* defaultEffect() const { return effect_.get_writable(); }
+
     private:
         void makeDefaultEffect_();
 
@@ -59,15 +61,27 @@ namespace kPrivate
     {
         // setup the effect to be used to render the cube
         effect_ = new vl::Effect;
-        // enable depth test and lighting
+
+        // enable blend & depth-test & line-smooth
+        effect_->shader()->enable(vl::EN_BLEND);
         effect_->shader()->enable(vl::EN_DEPTH_TEST);
+        effect_->shader()->enable(vl::EN_LINE_SMOOTH);
+
+        // Set up the lights
+        effect_->shader()->disable(vl::EN_LIGHTING); // disable the standard OpenGL lighting
+        effect_->shader()->gocLightModel()->setTwoSide(true);
+        effect_->shader()->gocLightModel()->setAmbientColor(vl::white);
+
         // add a Light to the scene, since no Transform is associated to the Light it will follow the camera
         effect_->shader()->setRenderState(new vl::Light, 0);
-        // enable the standard OpenGL lighting
-        effect_->shader()->enable(vl::EN_LIGHTING);
-        effect_->shader()->gocLightModel()->setAmbientColor(vl::white);
-        effect_->shader()->gocMaterial()->setAmbient(vl::crimson);
-        effect_->shader()->gocMaterial()->setDiffuse(vl::crimson);
+
+        effect_->shader()->gocMaterial()->setColorMaterialEnabled(true);
+        effect_->shader()->gocMaterial()->setDiffuse(vl::vec4(1.0f));
+        effect_->shader()->gocMaterial()->setSpecular(vl::vec4(0.3f));
+        effect_->shader()->gocMaterial()->setShininess(5.0f);
+
+        effect_->shader()->gocLight(0)->setDiffuse(vl::vec4(1.0f));
+        effect_->shader()->gocLight(0)->setSpecular(vl::vec4(1.0f));
 
         /*
         glEnable(GL_BLEND);
@@ -136,6 +150,8 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     int width = 96;
     int height = 96;
     widget_->initQt6Widget("kPlot", format, x, y, width, height);
+
+    setBackground(Qt::white);
 }
 
 
