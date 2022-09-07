@@ -25,22 +25,10 @@ KcVlCoordSystem::KcVlCoordSystem()
 	effect_->shader()->enable(vl::EN_DEPTH_TEST);
 	effect_->shader()->enable(vl::EN_LINE_SMOOTH);
 
-	// Set up the lights
-	effect_->shader()->disable(vl::EN_LIGHTING); // disable the standard OpenGL lighting
-	effect_->shader()->gocLightModel()->setTwoSide(true);
-	effect_->shader()->gocLightModel()->setAmbientColor(vl::white);
+	// enable the standard OpenGL lighting
+	effect_->shader()->enable(vl::EN_LIGHTING); 
 
-	// add a Light to the scene, since no Transform is associated to the Light it will follow the camera
-	effect_->shader()->setRenderState(new vl::Light, 0);
-
-	effect_->shader()->gocMaterial()->setColorMaterialEnabled(true);
-	effect_->shader()->gocMaterial()->setDiffuse(vl::vec4(1.0f));
-	effect_->shader()->gocMaterial()->setSpecular(vl::vec4(0.3f));
-	effect_->shader()->gocMaterial()->setShininess(5.0f);
-
-	effect_->shader()->gocLight(0)->setDiffuse(vl::vec4(1.0f));
-	effect_->shader()->gocLight(0)->setSpecular(vl::vec4(1.0f));
-
+	effect_->shader()->gocMaterial()->setFlatColor(vl::black);
 	vl::ref<vl::Geometry> axis1 = vl::makeCylinder(vl::vec3(0, 0, 0), 4, 10);
 	actorTree_->addActor(axis1.get(), effect_);
 }
