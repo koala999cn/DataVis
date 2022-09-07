@@ -1,5 +1,5 @@
 #include "KcVlCoordSystem.h"
-#include "KvAxis.h"
+#include "KgAxis.h"
 #include "KcVlPlot3d.h"
 #include <vlGraphics/Applet.hpp>
 #include <vlGraphics/Geometry.hpp>
@@ -7,11 +7,8 @@
 
 
 KcVlCoordSystem::KcVlCoordSystem()
+	: KvCoordSystem(vec3(0, 0, 0), vec3(1, 1, 1))
 {
-	axisX().reset(new KvAxis(KvAxis::k_x));
-	axisY().reset(new KvAxis(KvAxis::k_y));
-	axisZ().reset(new KvAxis(KvAxis::k_z));
-
 	actorTree_ = new vl::ActorTree;
 	
 	vl::ref<vl::Effect> ax_effect = new vl::Effect;

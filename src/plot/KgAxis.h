@@ -27,9 +27,11 @@ public:
 
 	const vec3& start() const { return start_; }
 	void setStart(const vec3& v) { start_ = v; }
+	void setStart(double x, double y, double z) { start_ = vec3(x, y, z); }
 
 	const vec3& end() const { return end_; }
 	void setEnd(const vec3& v) { end_ = v; }
+	void setEnd(double x, double y, double z) { end_ = vec3(x, y, z); }
 
 	const vec3& tickOrient() const { return tickOrient_; }
 
@@ -38,7 +40,7 @@ public:
 		tickShowBothSide_ = bothSide;
 	}
 
-	void setTickOrient(KeTickOrient side);
+	void setTickOrient(KeTickOrient orient);
 
 	/// range 
 

@@ -9,9 +9,7 @@ class KvPlot
 {
 public:
 
-	KvPlot(KvCoordSystem* coord) : coord_(coord) {
-		bkgnd_ = Qt::white;
-	}
+	KvPlot(KvCoordSystem* coord) : coord_(coord) {}
 
 	virtual void show(bool b) = 0;
 

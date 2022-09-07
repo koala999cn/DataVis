@@ -3,19 +3,20 @@
 #include <vector>
 #include <memory>
 #include <QColor>
+#include "KtVector3.h"
 
-class KvAxis;
+class KgAxis;
 
 // 坐标系基类
 // 默认X轴向右，Y轴向上，Z轴向外
 
 class KvCoordSystem : public KvRenderable
 {
-	using axis_ptr = std::shared_ptr<KvAxis>;
-
 public:
+	using axis_ptr = std::shared_ptr<KgAxis>;
+	using vec3 = KtVector3<double>;
 
-	KvCoordSystem() : axes_(12, nullptr) {}
+	KvCoordSystem(const vec3& lower, const vec3& upper);
 
 	// 12根坐标轴的id，用于索引axes_
 	enum KeAxis
@@ -39,6 +40,8 @@ public:
 
 	axis_ptr& axis(KeAxis id) { return axes_[id]; }
 	axis_ptr axisX(KeAxis id) const { return axes_[id]; }
+
+	void updateRange(const vec3& lower, const vec3& upper);
 
 private:
 	QColor bkgnd_;

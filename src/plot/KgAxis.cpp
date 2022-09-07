@@ -12,7 +12,6 @@ KgAxis::KgAxis()
 	baselineSize_ = 1;
 	tickSize_ = 1, tickLength_ = 1;
 	subtickSize_ = 1, subtickLength_ = 1;
-	tickSide_ = k_outter_side;
 
 	baselineColor_ = QColor("black");
 	tickColor_ = subtickColor_ = QColor("black");
@@ -24,9 +23,9 @@ KgAxis::KgAxis()
 }
 
 
-void KgAxis::setTickOrient(KeTickSide side)
+void KgAxis::setTickOrient(KeTickOrient to)
 {
-	switch (side)
+	switch (to)
 	{
 	case k_x:
 		setTickOrient(vec3(1, 0, 0), false);

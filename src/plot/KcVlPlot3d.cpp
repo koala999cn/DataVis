@@ -186,11 +186,14 @@ void KcVlPlot3d::update(bool immediately)
 
 QColor KcVlPlot3d::background() const
 {
-    auto clr = applet_->rendering()->as<vl::Rendering>()->camera()->viewport()->clearColor();
+    auto vp = applet_->rendering()->as<vl::Rendering>()->camera()->viewport();
+    auto clr = vp->clearColor();
+    return QColor::fromRgbF(clr.r(), clr.g(), clr.b(), clr.a());
 }
 
 
 void KcVlPlot3d::setBackground(const QColor& clr)
 {
-    applet_->rendering()->as<vl::Rendering>()->camera()->viewport()->setClearColor(clr);
+    auto vp = applet_->rendering()->as<vl::Rendering>()->camera()->viewport();
+    vp->setClearColor(clr.redF(), clr.greenF(), clr.blueF(), clr.alphaF());
 }

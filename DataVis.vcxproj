@@ -178,6 +178,7 @@
     <ClCompile Include="src\plot\KcVlPlot3d.cpp" />
     <ClCompile Include="src\plot\KsPlotManager.cpp" />
     <ClCompile Include="src\plot\KgAxis.cpp" />
+    <ClCompile Include="src\plot\KvCoordSystem.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
     <ClCompile Include="src\prov\KcPvExcitationSource.cpp" />
