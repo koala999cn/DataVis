@@ -307,17 +307,32 @@ public:
     //! Renders a closed line passing through the points defined by 'ln'.
     vl::Actor* drawLineLoop(const std::vector<vl::dvec2>& ln);
 
+    //! 3d경
+    vl::Actor* drawLineLoop(const std::vector<vl::dvec3>& ln);
+
     //! Renders a convex polygon whose corners are defined by 'poly'
     vl::Actor* fillPolygon(const std::vector<vl::dvec2>& poly);
+
+    //! 3d경
+    vl::Actor* fillPolygon(const std::vector<vl::dvec3>& poly);
 
     //! Renders a set of triangles. The 'triangles' parameters must contain N triplets of dvec2. Each triplet defines a triangle.
     vl::Actor* fillTriangles(const std::vector<vl::dvec2>& triangles);
 
+    //! 3d경
+    vl::Actor* fillTriangles(const std::vector<vl::dvec3>& triangles);
+
     //! Renders a triangle fan.
     vl::Actor* fillTriangleFan(const std::vector<vl::dvec2>& fan);
 
+    //! 3d경
+    vl::Actor* fillTriangleFan(const std::vector<vl::dvec3>& fan);
+
     //! Renders a strip of triangles as defined by the OpenGL primitive GL_TRIANGLE_STRIP.
     vl::Actor* fillTriangleStrip(const std::vector<vl::dvec2>& strip);
+
+    //! 3d경
+    vl::Actor* fillTriangleStrip(const std::vector<vl::dvec3>& strip);
 
     //! Renders a set of rectangles as defined by the OpenGL primitive GL_QUADS
     vl::Actor* fillQuads(const std::vector<vl::dvec2>& quads);
@@ -604,9 +619,10 @@ public:
     vl::Effect* currentEffect() { return currentEffect(mState); }
 
 private:
-    void generateQuadsTexCoords(vl::Geometry* geom, const std::vector<vl::dvec2>& points);
+    void generateQuadsTexCoords(vl::Geometry* geom, int numPoints);
 
     void generatePlanarTexCoords(vl::Geometry* geom, const std::vector<vl::dvec2>& points);
+    void generatePlanarTexCoords(vl::Geometry* geom, const std::vector<vl::dvec3>& points);
 
     void generateLinearTexCoords(vl::Geometry* geom);
 
@@ -629,6 +645,20 @@ private:
     vl::Actor* drawLines_(vl::Geometry* geom, int numPoints);
 
     vl::Actor* drawLineStrip_(vl::Geometry* geom, int numPoints);
+
+    vl::Actor* drawLineLoop_(vl::Geometry* geom, int numPoints);
+
+    template<typename T>
+    vl::Actor* fillTriangles_(const std::vector<T>& triangles, int type) {
+        // fill the vertex position array
+        vl::ref<vl::Geometry> geom = prepareGeometry(triangles);
+        // generate texture coords
+        generatePlanarTexCoords(geom.get(), triangles);
+        // issue the primitive
+        geom->drawCalls().push_back(new vl::DrawArrays(type, 0, (int)triangles.size()));
+        // add the actor
+        return addActor_(geom.get());
+    }
 
 private:
     // state-machine state variables

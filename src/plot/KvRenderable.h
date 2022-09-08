@@ -1,6 +1,6 @@
 #pragma once
 
-class KvPlot;
+class KglPaint;
 
 class KvRenderable
 {
@@ -10,6 +10,6 @@ public:
 
 	virtual bool visible() const = 0;
 
-	virtual void update(KvPlot*) const = 0;
+	virtual void draw(KglPaint*) const = 0;
 
 };

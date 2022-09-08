@@ -77,16 +77,28 @@ Actor* KglPaint::drawLineStrip(const std::vector<dvec3>& ln)
     return drawLineStrip_(geom.get(), int(ln.size()));
 }
 //-----------------------------------------------------------------------------
+Actor* KglPaint::drawLineLoop_(vl::Geometry* geom, int numPoints)
+{
+    // generate texture coords
+    generateLinearTexCoords(geom);
+    // issue the primitive
+    geom->drawCalls().push_back(new DrawArrays(PT_LINE_LOOP, 0, numPoints));
+    // add the actor
+    return addActor_(geom);
+}
+//-----------------------------------------------------------------------------
 Actor* KglPaint::drawLineLoop(const std::vector<dvec2>& ln)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(ln);
-    // generate texture coords
-    generateLinearTexCoords(geom.get());
-    // issue the primitive
-    geom->drawCalls().push_back(new DrawArrays(PT_LINE_LOOP, 0, (int)ln.size()));
-    // add the actor
-    return addActor_(geom.get());
+    drawLineLoop_(geom.get(), int(ln.size()));
+}
+//-----------------------------------------------------------------------------
+Actor* KglPaint::drawLineLoop(const std::vector<dvec3>& ln)
+{
+    // fill the vertex position array
+    ref<Geometry> geom = prepareGeometry(ln);
+    drawLineLoop_(geom.get(), int(ln.size()));
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillPolygon(const std::vector<dvec2>& poly)
@@ -101,40 +113,46 @@ Actor* KglPaint::fillPolygon(const std::vector<dvec2>& poly)
     return addActor_(geom.get());
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillTriangles(const std::vector<dvec2>& triangles)
+Actor* KglPaint::fillPolygon(const std::vector<dvec3>& poly)
 {
     // fill the vertex position array
-    ref<Geometry> geom = prepareGeometry(triangles);
+    ref<Geometry> geom = prepareGeometryPolyToTriangles(poly);
     // generate texture coords
-    generatePlanarTexCoords(geom.get(), triangles);
+    generatePlanarTexCoords(geom.get(), poly);
     // issue the primitive
-    geom->drawCalls().push_back(new DrawArrays(PT_TRIANGLES, 0, (int)triangles.size()));
+    geom->drawCalls().push_back(new DrawArrays(PT_TRIANGLES, 0, (int)geom->vertexArray()->size()));
     // add the actor
     return addActor_(geom.get());
+}
+//-----------------------------------------------------------------------------
+Actor* KglPaint::fillTriangles(const std::vector<dvec2>& triangles)
+{
+    return fillTriangles_(triangles, PT_TRIANGLES);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillTriangleFan(const std::vector<dvec2>& fan)
 {
-    // fill the vertex position array
-    ref<Geometry> geom = prepareGeometry(fan);
-    // generate texture coords
-    generatePlanarTexCoords(geom.get(), fan);
-    // issue the primitive
-    geom->drawCalls().push_back(new DrawArrays(PT_TRIANGLE_FAN, 0, (int)fan.size()));
-    // add the actor
-    return addActor_(geom.get());
+    return fillTriangles_(triangles, PT_TRIANGLE_FAN);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillTriangleStrip(const std::vector<dvec2>& strip)
 {
-    // fill the vertex position array
-    ref<Geometry> geom = prepareGeometry(strip);
-    // generate texture coords
-    generatePlanarTexCoords(geom.get(), strip);
-    // issue the primitive
-    geom->drawCalls().push_back(new DrawArrays(PT_TRIANGLE_STRIP, 0, (int)strip.size()));
-    // add the actor
-    return addActor_(geom.get());
+    return fillTriangles_(triangles, PT_TRIANGLE_STRIP);
+}
+//-----------------------------------------------------------------------------
+Actor* KglPaint::fillTriangles(const std::vector<dvec3>& triangles)
+{
+    return fillTriangles_(triangles, PT_TRIANGLES);
+}
+//-----------------------------------------------------------------------------
+Actor* KglPaint::fillTriangleFan(const std::vector<dvec3>& fan)
+{
+    return fillTriangles_(triangles, PT_TRIANGLE_FAN);
+}
+//-----------------------------------------------------------------------------
+Actor* KglPaint::fillTriangleStrip(const std::vector<dvec3>& strip)
+{
+    return fillTriangles_(triangles, PT_TRIANGLE_STRIP);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillQuads(const std::vector<dvec2>& quads)
@@ -142,7 +160,7 @@ Actor* KglPaint::fillQuads(const std::vector<dvec2>& quads)
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(quads);
     // generate texture coords
-    generateQuadsTexCoords(geom.get(), quads);
+    generateQuadsTexCoords(geom.get(), (int)quads.size());
     // issue the primitive
     geom->drawCalls().push_back(new DrawArrays(PT_QUADS, 0, (int)quads.size()));
     // add the actor
@@ -154,7 +172,7 @@ Actor* KglPaint::fillQuadStrip(const std::vector<dvec2>& quad_strip)
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(quad_strip);
     // generate texture coords
-    generatePlanarTexCoords(geom.get(), quad_strip);
+    generatePlanarTexCoords(geom.get(), (int)quad_strip.size());
     // issue the primitive
     geom->drawCalls().push_back(new DrawArrays(PT_QUAD_STRIP, 0, (int)quad_strip.size()));
     // add the actor
@@ -541,7 +559,7 @@ void KglPaint::popScissor()
     mScissorStack.pop_back();
 }
 //-----------------------------------------------------------------------------
-void KglPaint::generateQuadsTexCoords(Geometry* geom, const std::vector<dvec2>& points)
+void KglPaint::generateQuadsTexCoords(Geometry* geom, int numPoints)
 {
     // generate only if there is an image active
     if (mState.mImage)
@@ -558,7 +576,7 @@ void KglPaint::generateQuadsTexCoords(Geometry* geom, const std::vector<dvec2>& 
             //  |    |
             //  0    3
             fvec2 texc[] = { fvec2(du,dv), fvec2(du,1.0f - dv), fvec2(1.0f - du,1.0f - dv), fvec2(1.0f - du,dv) };
-            for (unsigned i = 0; i < points.size(); ++i)
+            for (int i = 0; i < numPoints; ++i)
             {
                 float s = texc[i % 4].s();
                 float t = texc[i % 4].t();
@@ -569,9 +587,9 @@ void KglPaint::generateQuadsTexCoords(Geometry* geom, const std::vector<dvec2>& 
         else
         {
             AABB aabb;
-            for (unsigned i = 0; i < points.size(); ++i)
+            for (int i = 0; i < numPoints; ++i)
                 aabb.addPoint(geom->vertexArray()->getAsVec3(i));
-            for (unsigned i = 0; i < points.size(); ++i)
+            for (int i = 0; i < numPoints; ++i)
             {
                 vec4 v = geom->vertexArray()->getAsVec4(i);
                 double s = (v.s() - aabb.minCorner().s()) / (mState.mImage->width());
@@ -598,6 +616,46 @@ void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec2>&
             AABB aabb;
             for (unsigned i = 0; i < points.size(); ++i)
                 aabb.addPoint((vec3)dvec3(points[i], 0.0));
+            for (unsigned i = 0; i < points.size(); ++i)
+            {
+                float s = float((points[i].x() - aabb.minCorner().x()) / aabb.width());
+                float t = float((points[i].y() - aabb.minCorner().y()) / aabb.height());
+                tex_array->at(i).s() = s;
+                tex_array->at(i).t() = t;
+            }
+        }
+        else
+        {
+            AABB aabb;
+            for (unsigned i = 0; i < points.size(); ++i)
+                aabb.addPoint(geom->vertexArray()->getAsVec3(i) + vec3(0.5f, 0.5f, 0.0f));
+            for (unsigned i = 0; i < points.size(); ++i)
+            {
+                vec4 v = geom->vertexArray()->getAsVec4(i);
+                double s = (v.s() - aabb.minCorner().s()) / mState.mImage->width();
+                double t = (v.t() - aabb.minCorner().t()) / mState.mImage->height();
+                tex_array->at(i).s() = (float)s;
+                tex_array->at(i).t() = (float)t;
+            }
+        }
+    }
+}
+//-----------------------------------------------------------------------------
+void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec3>& points)
+{
+    // generate only if there is an image active
+    if (mState.mImage)
+    {
+        // generate uv coordinates based on the aabb
+        ref<ArrayFloat2> tex_array = new ArrayFloat2;
+        tex_array->resize(geom->vertexArray()->size());
+        geom->setTexCoordArray(0, tex_array.get());
+        if (mState.mTextureMode == TextureMode_Clamp)
+        {
+            // compute aabb
+            AABB aabb;
+            for (unsigned i = 0; i < points.size(); ++i)
+                aabb.addPoint(points[i]);
             for (unsigned i = 0; i < points.size(); ++i)
             {
                 float s = float((points[i].x() - aabb.minCorner().x()) / aabb.width());

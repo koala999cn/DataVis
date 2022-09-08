@@ -14,96 +14,84 @@
 
 namespace kPrivate
 {
-    class KcVlPlotApplet_: public vl::Applet
+    using namespace vl;
+
+    class KcPlotSceneManager_ : public SceneManager
+    {
+        VL_INSTRUMENT_CLASS(KcPlotSceneManager_, SceneManager)
+
+    public:
+        KcPlotSceneManager_(KglPaint* paint) : paint_(paint) {}
+
+
+        void extractVisibleActors(ActorCollection& queue, const Camera*) override
+        {
+            if (cullingEnabled())
+                // FIXME: implement 2d/3d culling?
+                extractActors(queue);
+            else
+                extractActors(queue);
+        }
+
+        void extractActors(ActorCollection& queue) override
+        {
+            int actor_rank = 0;
+            for (size_t i = 0; i < paint_->actors()->size(); ++i) {
+                paint_->actors()->at(i)->setRenderRank(actor_rank++);
+                queue.push_back(paint_->actors()->at(i));
+            }
+        }
+
+    private:
+        KglPaint* paint_;
+    };
+
+    class KcPlotApplet_: public vl::Applet
     {
     public:
+        KcPlotApplet_(KcVlPlot3d* plot3d, KglPaint* paint) 
+            : plot3d_(plot3d), paint_(paint) {}
+
         // called once after the OpenGL window has been opened
         void initEvent() override;
 
         // called every frame
         void updateScene() override;
 
-        vl::Effect* defaultEffect() const { return effect_.get_writable(); }
+        void resizeEvent(int w, int h) override;
 
     private:
-        void makeDefaultEffect_();
-
-    private:
-        vl::ref<vl::Effect> effect_;
         vl::ref<vl::Transform> tr_; // plot的全局旋转矩阵，用于支持plot的自动旋转功能
+        KcVlPlot3d* plot3d_;
+        KglPaint* paint_;
     };
 
-    void KcVlPlotApplet_::initEvent()
+    void KcPlotApplet_::initEvent()
     {
         // allocate the Transform
         tr_ = new vl::Transform;
         // bind the Transform with the transform tree of the rendring pipeline
         rendering()->as<vl::Rendering>()->transform()->addChild(tr_.get());
 
-        makeDefaultEffect_();
-
-        // install our scene manager, we use the SceneManagerActorTree which is the most generic
-        vl::ref<vl::SceneManagerActorTree> scene_manager = new vl::SceneManagerActorTree;
+        vl::ref<KcPlotSceneManager_> scene_manager = new KcPlotSceneManager_(paint_);
         rendering()->as<vl::Rendering>()->sceneManagers()->push_back(scene_manager.get());
-        // add the cube to the scene using the previously defined effect and transform
-        //scene_manager->tree()->addActor(cube.get(), effect.get(), globalTransform_.get());
     }
 
-    void KcVlPlotApplet_::updateScene()
+    void KcPlotApplet_::updateScene()
     {
         // rotates the cube around the Y axis 45 degrees per second
         //vl::real degrees = vl::Time::currentTime() * 45.0f;
         //vl::mat4 matrix = vl::mat4::getRotation(degrees, 0, 1, 0);
         //tr_->setLocalMatrix(matrix);
+
+        plot3d_->update();
     }
 
-    void KcVlPlotApplet_::makeDefaultEffect_()
+    void KcPlotApplet_::resizeEvent(int w, int h)
     {
-        // setup the effect to be used to render the cube
-        effect_ = new vl::Effect;
-
-        // enable blend & depth-test & line-smooth
-        effect_->shader()->enable(vl::EN_BLEND);
-        effect_->shader()->enable(vl::EN_DEPTH_TEST);
-        effect_->shader()->enable(vl::EN_LINE_SMOOTH);
-
-        // Set up the lights
-        effect_->shader()->disable(vl::EN_LIGHTING); // disable the standard OpenGL lighting
-        effect_->shader()->gocLightModel()->setTwoSide(true);
-        effect_->shader()->gocLightModel()->setAmbientColor(vl::white);
-
-        // add a Light to the scene, since no Transform is associated to the Light it will follow the camera
-        effect_->shader()->setRenderState(new vl::Light, 0);
-
-        effect_->shader()->gocMaterial()->setColorMaterialEnabled(true);
-        effect_->shader()->gocMaterial()->setDiffuse(vl::vec4(1.0f));
-        effect_->shader()->gocMaterial()->setSpecular(vl::vec4(0.3f));
-        effect_->shader()->gocMaterial()->setShininess(5.0f);
-
-        effect_->shader()->gocLight(0)->setDiffuse(vl::vec4(1.0f));
-        effect_->shader()->gocLight(0)->setSpecular(vl::vec4(1.0f));
-
-        /*
-        glEnable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        glShadeModel(GL_SMOOTH);
-
-        // Set up the lights
-        disableLighting();
-
-        GLfloat whiteAmb[4] = { 1.0, 1.0, 1.0, 1.0 };
-
-        setLightShift(0, 0, 3000);
-        glEnable(GL_COLOR_MATERIAL);
-
-        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, whiteAmb);
-
-        setMaterialComponent(GL_DIFFUSE, 1.0);
-        setMaterialComponent(GL_SPECULAR, 0.3);
-        setMaterialComponent(GL_SHININESS, 5.0);
-        setLightComponent(GL_DIFFUSE, 1.0);
-        setLightComponent(GL_SPECULAR, 1.0);*/
+        rendering()->as<vl::Rendering>()->camera()->viewport()->setWidth(w);
+        rendering()->as<vl::Rendering>()->camera()->viewport()->setHeight(h);
+        //rendering()->as<vl::Rendering>()->camera()->setProjectionOrtho(-0.5f);
     }
 }
 
@@ -111,11 +99,13 @@ namespace kPrivate
 KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     : KvPlot(new KcVlCoordSystem)
 {
+    paint_ = std::make_unique<KglPaint>();
+
     /* create a native Qt6 window */
     widget_ = new vlQt6::Qt6Widget(parent);
 
     /* create the applet to be run */
-    applet_ = new kPrivate::KcVlPlotApplet_; 
+    applet_ = new kPrivate::KcPlotApplet_; 
     applet_->initialize();
 
     /* bind the applet so it receives all the GUI events related to the OpenGLContext */
@@ -123,9 +113,6 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
 
     /* target the window so we can render on it */
     applet_->rendering()->as<vl::Rendering>()->renderer()->setFramebuffer(widget_->framebuffer());
-
-    /* black background */
-    applet_->rendering()->as<vl::Rendering>()->camera()->viewport()->setClearColor(vl::black);
 
     /* define the camera position and orientation */
     vl::vec3 eye = vl::vec3(0, 10, 35);  // camera position
@@ -182,21 +169,24 @@ void* KcVlPlot3d::widget() const
 }
 
 
-void KcVlPlot3d::setImmutable(bool b)
-{
-    widget_->setContinuousUpdate(!b);
-}
-
-
 void KcVlPlot3d::update(bool immediately)
 {
-    coordSystem()->update(this);
+    paint_->beginDraw();
+
+    // 绘制背景?
+
+    coordSystem()->draw(paint_);
 
     for (int idx = 0; idx < numPlottables(); idx++)
-        plottable(idx)->update(this);
+        plottable(idx)->draw(paint_);
 
-    if (immediately) // TODO: 优化
-        widget_->update();
+    paint_->endDraw();
+
+    // 更新场景
+    applet_->;
+
+    //if (immediately) // TODO: 优化
+    //    widget_->update();
 }
 
 

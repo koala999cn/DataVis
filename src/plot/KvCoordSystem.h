@@ -38,8 +38,8 @@ public:
 		k_z3  // left_top
 	};
 
-	axis_ptr& axis(KeAxis id) { return axes_[id]; }
-	axis_ptr axisX(KeAxis id) const { return axes_[id]; }
+	axis_ptr& axis(int id) { return axes_[id]; }
+	axis_ptr axis(int id) const { return axes_[id]; }
 
 	void updateRange(const vec3& lower, const vec3& upper);
 

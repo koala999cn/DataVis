@@ -1,10 +1,12 @@
 #pragma once
 #include "KvPlot.h"
 #include <vlCore/Object.hpp>
+#include <memory>
 
-class QWidget;
 namespace vlQt6 { class Qt6Widget; }
 namespace vl { class Applet; }
+class QWidget;
+class KglPaint;
 
 class KcVlPlot3d : public KvPlot
 {
@@ -20,8 +22,6 @@ public:
 
     void* widget() const override;
 
-    void setImmutable(bool b) override;
-
     void update(bool immediately = true) override;
 
     QColor background() const override;
@@ -30,4 +30,5 @@ public:
 private:
     vl::ref<vl::Applet> applet_;
     vl::ref<vlQt6::Qt6Widget> widget_;
+    std::unique_ptr<KglPaint> paint_;
 };

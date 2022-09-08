@@ -16,8 +16,5 @@ public:
 
 	bool visible() const override;
 
-	void update(KvPlot*) const override;
-
-private:
-	vl::ref<vl::ActorTree> actorTree_;
+	void draw(KglPaint*) const override;
 };
