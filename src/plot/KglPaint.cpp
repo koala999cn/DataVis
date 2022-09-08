@@ -91,14 +91,14 @@ Actor* KglPaint::drawLineLoop(const std::vector<dvec2>& ln)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(ln);
-    drawLineLoop_(geom.get(), int(ln.size()));
+    return drawLineLoop_(geom.get(), int(ln.size()));
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::drawLineLoop(const std::vector<dvec3>& ln)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(ln);
-    drawLineLoop_(geom.get(), int(ln.size()));
+    return drawLineLoop_(geom.get(), int(ln.size()));
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillPolygon(const std::vector<dvec2>& poly)
@@ -132,12 +132,12 @@ Actor* KglPaint::fillTriangles(const std::vector<dvec2>& triangles)
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillTriangleFan(const std::vector<dvec2>& fan)
 {
-    return fillTriangles_(triangles, PT_TRIANGLE_FAN);
+    return fillTriangles_(fan, PT_TRIANGLE_FAN);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillTriangleStrip(const std::vector<dvec2>& strip)
 {
-    return fillTriangles_(triangles, PT_TRIANGLE_STRIP);
+    return fillTriangles_(strip, PT_TRIANGLE_STRIP);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillTriangles(const std::vector<dvec3>& triangles)
@@ -147,12 +147,12 @@ Actor* KglPaint::fillTriangles(const std::vector<dvec3>& triangles)
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillTriangleFan(const std::vector<dvec3>& fan)
 {
-    return fillTriangles_(triangles, PT_TRIANGLE_FAN);
+    return fillTriangles_(fan, PT_TRIANGLE_FAN);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillTriangleStrip(const std::vector<dvec3>& strip)
 {
-    return fillTriangles_(triangles, PT_TRIANGLE_STRIP);
+    return fillTriangles_(strip, PT_TRIANGLE_STRIP);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillQuads(const std::vector<dvec2>& quads)
@@ -172,7 +172,7 @@ Actor* KglPaint::fillQuadStrip(const std::vector<dvec2>& quad_strip)
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(quad_strip);
     // generate texture coords
-    generatePlanarTexCoords(geom.get(), (int)quad_strip.size());
+    generatePlanarTexCoords(geom.get(), quad_strip);
     // issue the primitive
     geom->drawCalls().push_back(new DrawArrays(PT_QUAD_STRIP, 0, (int)quad_strip.size()));
     // add the actor
@@ -254,7 +254,7 @@ Actor* KglPaint::fillQuad(double left, double bottom, double right, double top)
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(quad);
     // generate texture coords
-    generateQuadsTexCoords(geom.get(), quad);
+    generateQuadsTexCoords(geom.get(), (int)quad.size());
     // issue the primitive
     geom->drawCalls().push_back(new DrawArrays(PT_TRIANGLE_FAN, 0, (int)quad.size()));
     // add the actor
@@ -655,7 +655,7 @@ void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec3>&
             // compute aabb
             AABB aabb;
             for (unsigned i = 0; i < points.size(); ++i)
-                aabb.addPoint(points[i]);
+                aabb.addPoint((vec3)points[i]);
             for (unsigned i = 0; i < points.size(); ++i)
             {
                 float s = float((points[i].x() - aabb.minCorner().x()) / aabb.width());

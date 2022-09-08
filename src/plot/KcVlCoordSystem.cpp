@@ -14,27 +14,18 @@ KcVlCoordSystem::KcVlCoordSystem()
 }
 
 
-void KcVlCoordSystem::setVisible(bool b)
-{
-	actorTree_->setEnabled(b);
-}
-
-
-bool KcVlCoordSystem::visible() const
-{
-	return actorTree_->isEnabled();
-}
-
-
 void KcVlCoordSystem::draw(KglPaint* paint) const
 {
 	if (visible()) {
 		for (int i = 0; i < 12; i++) {
 			auto ax = axis(i);
 			if (ax && ax->visible()) {
-				paint->setColor(ax->baselineColor());
-				paint->SetLineWidth(ax->baselineSize());
-				paint->drawLine(ax->start(), ax->end());
+				auto clr = ax->baselineColor();
+				paint->setColor(vl::fvec4(clr.redF(), clr.greenF(), clr.blueF(), clr.alphaF()));
+				//paint->setLineWidth(ax->baselineSize());
+				paint->setLineWidth(0.5);
+				paint->drawLine(ax->start().x, ax->start().y, ax->start().z,
+					ax->end().x, ax->end().y, ax->end().z);
 			}
 		}
 	}

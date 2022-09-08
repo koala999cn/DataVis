@@ -10,6 +10,7 @@
 #include <vlQt6/Qt6Widget.hpp>
 #include "KcVlCoordSystem.h"
 #include "KvPlottable.h"
+#include "KglPaint.h"
 
 
 namespace kPrivate
@@ -105,7 +106,7 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     widget_ = new vlQt6::Qt6Widget(parent);
 
     /* create the applet to be run */
-    applet_ = new kPrivate::KcPlotApplet_; 
+    applet_ = new kPrivate::KcPlotApplet_(this, paint_.get()); 
     applet_->initialize();
 
     /* bind the applet so it receives all the GUI events related to the OpenGLContext */
@@ -171,19 +172,16 @@ void* KcVlPlot3d::widget() const
 
 void KcVlPlot3d::update(bool immediately)
 {
-    paint_->beginDraw();
+    paint_->startDrawing();
 
     // 绘制背景?
 
-    coordSystem()->draw(paint_);
+    coordSystem()->draw(paint_.get());
 
     for (int idx = 0; idx < numPlottables(); idx++)
-        plottable(idx)->draw(paint_);
+        plottable(idx)->draw(paint_.get());
 
-    paint_->endDraw();
-
-    // 更新场景
-    applet_->;
+    paint_->endDrawing();
 
     //if (immediately) // TODO: 优化
     //    widget_->update();

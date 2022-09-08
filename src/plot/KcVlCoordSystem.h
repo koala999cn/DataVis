@@ -12,9 +12,5 @@ public:
 
 	KcVlCoordSystem();
 
-	void setVisible(bool b) override;
-
-	bool visible() const override;
-
 	void draw(KglPaint*) const override;
 };
