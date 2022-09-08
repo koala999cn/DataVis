@@ -43,6 +43,10 @@ public:
 
 	void updateRange(const vec3& lower, const vec3& upper);
 
+	void setVisible(bool b) override;
+
+	bool visible() const override;
+
 private:
 	QColor bkgnd_;
 	bool visible_;

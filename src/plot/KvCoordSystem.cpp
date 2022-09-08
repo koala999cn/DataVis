@@ -57,5 +57,17 @@ void KvCoordSystem::updateRange(const vec3& lower, const vec3& upper)
 	axes_[k_z2]->setRange(lower.z, upper.z);
 	axes_[k_z2]->setStart(p6); axes_[k_z2]->setEnd(upper);
 	axes_[k_z3]->setRange(lower.z, upper.z);
-	axes_[k_z3]->setStart(p1); axes_[k_z2]->setEnd(p2);
+	axes_[k_z3]->setStart(p1); axes_[k_z3]->setEnd(p2);
+}
+
+
+void KvCoordSystem::setVisible(bool b)
+{
+	visible_ = b;;
+}
+
+
+bool KvCoordSystem::visible() const
+{
+	return visible_;
 }

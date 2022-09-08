@@ -292,6 +292,14 @@ public:
         return drawLine(x1, y1, 0, x2, y2, 0);
     }
 
+    vl::Actor* drawLine(const vl::dvec2& from, const vl::dvec2& to) {
+        return drawLine(from.x(), from.y(), to.x(), to.y());
+    }
+
+    vl::Actor* drawLine(const vl::dvec3& from, const vl::dvec3& to) {
+        return drawLine(from.x(), from.y(), from.z(), to.x(), to.y(), to.z());
+    }
+
     //! Renders a set of lines. The 'ln' parameter shoud contain N pairs of dvec2. Each pair defines a line segment.
     vl::Actor* drawLines(const std::vector<vl::dvec2>& ln);
 
@@ -649,7 +657,7 @@ private:
     vl::Actor* drawLineLoop_(vl::Geometry* geom, int numPoints);
 
     template<typename T>
-    vl::Actor* fillTriangles_(const std::vector<T>& triangles, int type) {
+    vl::Actor* fillTriangles_(const std::vector<T>& triangles, vl::EPrimitiveType type) {
         // fill the vertex position array
         vl::ref<vl::Geometry> geom = prepareGeometry(triangles);
         // generate texture coords
