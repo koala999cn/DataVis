@@ -116,11 +116,7 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     applet_->rendering()->as<vl::Rendering>()->renderer()->setFramebuffer(widget_->framebuffer());
 
     /* define the camera position and orientation */
-    vl::vec3 eye = vl::vec3(0, 10, 35);  // camera position
-    vl::vec3 center = vl::vec3(0, 0, 0); // point the camera is looking at
-    vl::vec3 up = vl::vec3(0, 1, 0);     // up direction
-    vl::mat4 view_mat = vl::mat4::getLookAt(eye, center, up);
-    applet_->rendering()->as<vl::Rendering>()->camera()->setViewMatrix(view_mat);
+    autoProject();
 
     /* setup the OpenGL context format */
     vl::OpenGLContextFormat format;
@@ -139,7 +135,7 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     int height = 96;
     widget_->initQt6Widget("kPlot", format, x, y, width, height);
 
-    setBackground(Qt::white);
+    setBackground({1, 1, 1, 1});
 }
 
 
@@ -188,16 +184,48 @@ void KcVlPlot3d::update(bool immediately)
 }
 
 
-QColor KcVlPlot3d::background() const
+KcVlPlot3d::vec4 KcVlPlot3d::background() const
 {
     auto vp = applet_->rendering()->as<vl::Rendering>()->camera()->viewport();
     auto clr = vp->clearColor();
-    return QColor::fromRgbF(clr.r(), clr.g(), clr.b(), clr.a());
+    return { clr.r(), clr.g(), clr.b(), clr.a() };
 }
 
 
-void KcVlPlot3d::setBackground(const QColor& clr)
+void KcVlPlot3d::setBackground(const vec4& clr)
 {
     auto vp = applet_->rendering()->as<vl::Rendering>()->camera()->viewport();
-    vp->setClearColor(clr.redF(), clr.greenF(), clr.blueF(), clr.alphaF());
+    vp->setClearColor(clr.x, clr.y, clr.z, clr.w);
 }
+
+
+void KcVlPlot3d::autoProject()
+{
+    auto camera = applet_->rendering()->as<vl::Rendering>()->camera();
+    auto lower = coordSystem()->lowerCorner();
+    auto upper = coordSystem()->upperCorner();
+    auto center = lower + (upper - lower) / 2;
+    double radius = (center - lower).length();
+
+    vl::vec3 scale(1 / (upper.x - lower.x), 1 / (upper.y - lower.y), 1 / (upper.z - lower.z));
+    double zoom = 2 * radius / sqrt(3.);
+    scale *= zoom;
+    vl::vec3 shift(0, 0, 0);
+
+    vl::Transform tr;
+    tr.rotate(-90, 1, 0, 0); // 旋转+z轴由向外为向上, +y轴由向上为向内
+    tr.translate(shift.x() - center.x, shift.y() - center.y, shift.z() - center.z); // 把物理坐标AABB的中心点调整为摄像机坐标的原点
+    tr.scale(scale.x(), scale.y(), scale.z());
+
+    tr.translate(0, 0, -7 * radius); // 调整摄像机z轴位置，给near/far平面留出足够空间
+    camera->setViewMatrix(tr.localMatrix());
+
+    if (radius == 0)
+        radius = 1;
+
+    if (ortho_)
+        camera->setProjectionOrtho(-radius, +radius, -radius, +radius, 0, 40 * radius);
+    else
+        camera->setProjectionFrustum(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
+}
+

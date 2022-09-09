@@ -6,9 +6,13 @@ template<class KReal>
 class KtVector4 : public KtVector3<KReal>
 {
 	using super_ = KtVector3<KReal>;
-	using super_::kMath;
+	using kMath = KtuMath<KReal>;
 
 public:
+	using super_::x;
+	using super_::y;
+	using super_::z;
+
 	KtVector4() : w(1) { }
 
 	KtVector4(KReal _x, KReal _y, KReal _z, KReal _w = 1) : super_(_x, _y, _z), w(_w) { }

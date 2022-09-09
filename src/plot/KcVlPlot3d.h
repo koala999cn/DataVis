@@ -24,8 +24,10 @@ public:
 
     void update(bool immediately = true) override;
 
-    QColor background() const override;
-    void setBackground(const QColor& clr) override;
+    vec4 background() const override;
+    void setBackground(const vec4& clr) override;
+
+    void autoProject();
 
 private:
     vl::ref<vl::Applet> applet_;

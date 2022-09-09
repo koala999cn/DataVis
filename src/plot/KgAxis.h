@@ -1,10 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <QColor>
-#include <QFont>
 #include "KtVector3.h"
-
+#include "KtVector4.h"
 
 // 坐标轴（单轴）实现
 // 坐标轴由4类元素构成：1.baseline, 2.ticks(major & minor), 3.labels, 4.title
@@ -12,6 +10,7 @@
 class KgAxis
 {
 	using vec3 = KtVector3<double>;
+	using vec4 = KtVector4<double>;
 
 public:
 
@@ -103,28 +102,28 @@ public:
 
 	/// colors
 
-	QColor baselineColor() const { return baselineColor_; }
-	void setBaselineColor(QColor clr) { baselineColor_ = clr; }
+	vec4 baselineColor() const { return baselineColor_; }
+	void setBaselineColor(vec4 clr) { baselineColor_ = clr; }
 
-	QColor tickColor() const { return tickColor_; }
-	void setTickColor(QColor clr) { tickColor_ = clr; }
+	vec4 tickColor() const { return tickColor_; }
+	void setTickColor(vec4 clr) { tickColor_ = clr; }
 
-	QColor subtickColor() const { return subtickColor_; }
-	void setSubtickColor(QColor clr) { subtickColor_ = clr; }
+	vec4 subtickColor() const { return subtickColor_; }
+	void setSubtickColor(vec4 clr) { subtickColor_ = clr; }
 
-	QColor labelColor() const { return labelColor_; }
-	void setLabelColor(QColor clr) { labelColor_ = clr; }
+	vec4 labelColor() const { return labelColor_; }
+	void setLabelColor(vec4 clr) { labelColor_ = clr; }
 
-	QColor titleColor() const { return titleColor_; }
-	void setTitleColor(QColor clr) { titleColor_ = clr; }
+	vec4 titleColor() const { return titleColor_; }
+	void setTitleColor(vec4 clr) { titleColor_ = clr; }
 
 	/// fonts
 
-	QFont labelFont() const { return labelFont_; }
-	void setLabelFont(QFont font) { labelFont_ = font; }
+	//QFont labelFont() const { return labelFont_; }
+	//void setLabelFont(QFont font) { labelFont_ = font; }
 
-	QFont titleFont() const { return titleFont_; }
-	void setTitleFont(QFont font) { titleFont_ = font; }
+	//QFont titleFont() const { return titleFont_; }
+	//void setTitleFont(QFont font) { titleFont_ = font; }
 
 private:
 	std::string title_;
@@ -137,11 +136,11 @@ private:
 	double tickSize_, tickLength_;
 	double subtickSize_, subtickLength_;
 
-	QColor baselineColor_;
-	QColor tickColor_, subtickColor_;
-	QColor labelColor_, titleColor_;
+	vec4 baselineColor_;
+	vec4 tickColor_, subtickColor_;
+	vec4 labelColor_, titleColor_;
 
-	QFont labelFont_, titleFont_;
+	//QFont labelFont_, titleFont_;
 
 	vec3 start_, end_;
 	vec3 tickOrient_;

@@ -20,7 +20,7 @@ public:
 		singleton_type::destroy();
 	}
 
-	KvPlot* createPlot3d(QWidget* parent = nullptr);
+	//KvPlot* createPlot3d(QWidget* parent = nullptr);
 
 private:
 

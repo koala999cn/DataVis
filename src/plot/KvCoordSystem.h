@@ -2,8 +2,8 @@
 #include "KvRenderable.h"
 #include <vector>
 #include <memory>
-#include <QColor>
 #include "KtVector3.h"
+#include "KtVector4.h"
 
 class KgAxis;
 
@@ -15,6 +15,7 @@ class KvCoordSystem : public KvRenderable
 public:
 	using axis_ptr = std::shared_ptr<KgAxis>;
 	using vec3 = KtVector3<double>;
+	using vec4 = KtVector4<double>;
 
 	KvCoordSystem(const vec3& lower, const vec3& upper);
 
@@ -41,14 +42,17 @@ public:
 	axis_ptr& axis(int id) { return axes_[id]; }
 	axis_ptr axis(int id) const { return axes_[id]; }
 
-	void updateRange(const vec3& lower, const vec3& upper);
+	void setRange(const vec3& lower, const vec3& upper);
+
+	vec3 lowerCorner() const;
+	vec3 upperCorner() const;
 
 	void setVisible(bool b) override;
 
 	bool visible() const override;
 
 private:
-	QColor bkgnd_;
+	vec4 bkgnd_;
 	bool visible_;
 
 	std::vector<axis_ptr> axes_;

@@ -13,11 +13,11 @@ KgAxis::KgAxis()
 	tickSize_ = 1, tickLength_ = 1;
 	subtickSize_ = 1, subtickLength_ = 1;
 
-	baselineColor_ = QColor("black");
-	tickColor_ = subtickColor_ = QColor("black");
-	labelColor_ = titleColor_ = QColor("black");
+	baselineColor_ = vec4(0, 0, 0, 1);
+	tickColor_ = subtickColor_ = vec4(0, 0, 0, 1);
+	labelColor_ = titleColor_ = vec4(0, 0, 0, 1);
 
-	labelFont_, titleFont_; // TODO:
+	//labelFont_, titleFont_; // TODO:
 
 	tickShowBothSide_ = false;
 }

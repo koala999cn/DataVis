@@ -1,6 +1,5 @@
 #include "KcVlCoordSystem.h"
 #include "KgAxis.h"
-#include "KcVlPlot3d.h"
 #include <vlGraphics/Applet.hpp>
 #include <vlGraphics/Geometry.hpp>
 #include <vlGraphics/GeometryPrimitives.hpp>
@@ -21,7 +20,7 @@ void KcVlCoordSystem::draw(KglPaint* paint) const
 			auto ax = axis(i);
 			if (ax && ax->visible()) {
 				auto clr = ax->baselineColor();
-				paint->setColor(vl::fvec4(clr.redF(), clr.greenF(), clr.blueF(), clr.alphaF()));
+				paint->setColor(vl::fvec4(clr.x, clr.y, clr.z, clr.w));
 				//paint->setLineWidth(ax->baselineSize());
 				paint->setLineWidth(0.5); // TODO: dock后，线的宽度会改变
 				paint->drawLine(ax->start().x, ax->start().y, ax->start().z,

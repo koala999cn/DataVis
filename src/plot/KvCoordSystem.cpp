@@ -3,26 +3,27 @@
 
 
 KvCoordSystem::KvCoordSystem(const vec3& lower, const vec3& upper)
+	: visible_(true)
 {
 	// 初始化12根坐标轴
 	axes_.resize(12, nullptr);
 	for (int i = 0; i < 12; i++) 
 		axes_[i].reset(new KgAxis);
 
-	updateRange(lower, upper);
+	setRange(lower, upper);
 }
 
 
 /*                  
  *    p1 -------x1------  p6
- *  z3 /             z2/|
+ *     /z3           z2/|
  *  p2 --------x2-----  |y1
- *  y3|             y2| | p5
+ *    |y3           y2| | p5
  *    |_______________|/z1
  *  p3         x3    p4
  *    
  */
-void KvCoordSystem::updateRange(const vec3& lower, const vec3& upper)
+void KvCoordSystem::setRange(const vec3& lower, const vec3& upper)
 {
 	// p0 = lower, p7 = upper
 	auto p1 = vec3(lower.x, upper.y, lower.z);
@@ -58,6 +59,18 @@ void KvCoordSystem::updateRange(const vec3& lower, const vec3& upper)
 	axes_[k_z2]->setStart(p6); axes_[k_z2]->setEnd(upper);
 	axes_[k_z3]->setRange(lower.z, upper.z);
 	axes_[k_z3]->setStart(p1); axes_[k_z3]->setEnd(p2);
+}
+
+
+KvCoordSystem::vec3 KvCoordSystem::lowerCorner() const
+{
+	return { axes_[k_x0]->lower(), axes_[k_y0]->lower(), axes_[k_z0]->lower() };
+}
+
+
+KvCoordSystem::vec3 KvCoordSystem::upperCorner() const
+{
+	return { axes_[k_x0]->upper(), axes_[k_y0]->upper(), axes_[k_z0]->upper() };
 }
 
 
