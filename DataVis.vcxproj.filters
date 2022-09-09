@@ -273,6 +273,9 @@
     <ClCompile Include="src\plot\KglPaint.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KvAxisTicker.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -595,6 +598,9 @@
     </ClInclude>
     <ClInclude Include="src\base\KtVector4.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvAxisTicker.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

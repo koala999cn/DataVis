@@ -179,6 +179,7 @@
     <ClCompile Include="src\plot\KglPaint.cpp" />
     <ClCompile Include="src\plot\KsPlotManager.cpp" />
     <ClCompile Include="src\plot\KgAxis.cpp" />
+    <ClCompile Include="src\plot\KvAxisTicker.cpp" />
     <ClCompile Include="src\plot\KvCoordSystem.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="src\plot\KcVlPlot3d.h" />
     <ClInclude Include="src\plot\KsPlotManager.h" />
     <ClInclude Include="src\plot\KgAxis.h" />
+    <ClInclude Include="src\plot\KvAxisTicker.h" />
     <ClInclude Include="src\plot\KvCoordSystem.h" />
     <ClInclude Include="src\plot\KglPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />

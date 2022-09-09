@@ -96,6 +96,12 @@ public:
     }
 
 
+    // 返回最大的整数x，以使得pow(10, x) <= val
+    // @val: 必须大于0
+    static int mantissa(KREAL val) {
+        return static_cast<int>(std::floor(std::log10(val)));
+    }
+
     // x = log(a), y = log(b)
     // return log(a+b)
     static KREAL addLog(KREAL x, KREAL y);
@@ -269,6 +275,9 @@ public:
     static unsigned argRand(const KREAL x[], unsigned n); // 返回累加和大于随机值的索引[-1, dim)
     static std::pair<unsigned, unsigned> argMixMax(const KREAL x[], unsigned n);
 
+    // 返回x中与val最接近的值
+    // 要求x已排序
+    static KREAL pickNearest(KREAL val, const KREAL x[], unsigned n);
 
     // x[i] = op(x[i])
     template<typename UNARY_OP>
@@ -927,4 +936,20 @@ void KtuMath<KREAL>::linspace(KREAL left, KREAL right, KREAL x0ref, KREAL* out, 
 
     for (unsigned i = 0; i < olen; i++)
         out[i] = left + (x0ref + i) * dx;
+}
+
+
+template<typename KREAL>
+KREAL KtuMath<KREAL>::pickNearest(KREAL val, const KREAL x[], unsigned n)
+{
+    if (n < 2) return val;
+   
+    auto iter = std::lower_bound(x, x + n, val);
+
+    if (iter == x + n)
+        return *(iter - 1);
+    else if (iter == x)
+        return *iter;
+    else
+        return (val - *(iter - 1)) < (*iter - val) ? *(iter - 1) : *iter;
 }
