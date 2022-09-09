@@ -28,6 +28,8 @@ void KcVlCoordSystem::draw(KglPaint* paint) const
 
 void KcVlCoordSystem::drawAxis_(KglPaint* paint, KgAxis* axis) const
 {
+	assert(axis->visible());
+
 	// draw baseline
 	if (axis->showBaseline()) {
 		auto clr = axis->baselineColor();
@@ -37,48 +39,59 @@ void KcVlCoordSystem::drawAxis_(KglPaint* paint, KgAxis* axis) const
 	}
 
 	// draw ticks
-	if (axis->showTick()) {
+	if (axis->showTick())
+		drawTicks_(paint, axis);
+}
 
-		// major
-		auto aabbLen = (upperCorner()-lowerCorner()).length();
-		
-		auto ticker = axis->ticker();
-		auto lower = axis->lower();
-		auto upper = axis->upper();
-		ticker->autoRange(lower, upper);
-		auto ticks = ticker->getTicks(lower, upper);
-		if (!ticks.empty()) {
 
-			double tickLen = axis->tickLength() / aabbLen; // tick的长度取相对值
-			auto clr = axis->tickColor();
-			paint->setColor(clr);
-			paint->setLineWidth(axis->tickSize());
+void KcVlCoordSystem::drawTicks_(KglPaint* paint, KgAxis* axis) const
+{
+	assert(axis->showTick());
 
-			for (unsigned i = 0; i < ticks.size(); i++) {
-				auto ref = (ticks[i] - axis->lower()) / axis->length();
-				auto tickStart = axis->start() + (axis->end() - axis->start()) * ref; // lerp
-				auto tickEnd = tickStart + axis->tickOrient() * tickLen;
-				paint->drawLine(tickStart, tickEnd);
-			}
+	auto aabbLen = (upperCorner() - lowerCorner()).length();
+	auto ticker = axis->ticker();
+	auto lower = axis->lower();
+	auto upper = axis->upper();
+	ticker->autoRange(lower, upper);
+
+	// major
+	auto ticks = ticker->getTicks(lower, upper);
+	if (!ticks.empty()) {
+
+		double tickLen = axis->tickLength() / aabbLen; // tick的长度取相对值
+		auto clr = axis->tickColor();
+		paint->setColor(clr);
+		paint->setLineWidth(axis->tickSize());
+
+		for (unsigned i = 0; i < ticks.size(); i++) {
+			auto ref = (ticks[i] - axis->lower()) / axis->length();
+			auto tickStart = axis->start() + (axis->end() - axis->start()) * ref; // lerp
+			drawTick_(paint, axis, tickStart, tickLen);
 		}
+	}
 
-		// minor
-		if (axis->showSubtick()) {
-			auto subticks = ticker->getSubticks(ticks);
-			if (!subticks.empty()) {
+	// minor
+	if (axis->showSubtick()) {
+		auto subticks = ticker->getSubticks(ticks);
+		if (!subticks.empty()) {
 
-				double subtickLen = axis->subtickLength() / aabbLen; // subtick的长度取相对值
-				auto clr = axis->subtickColor();
-				paint->setColor(clr);
-				paint->setLineWidth(axis->subtickSize());
+			double subtickLen = axis->subtickLength() / aabbLen; // subtick的长度取相对值
+			auto clr = axis->subtickColor();
+			paint->setColor(clr);
+			paint->setLineWidth(axis->subtickSize());
 
-				for (unsigned i = 0; i < subticks.size(); i++) {
-					auto ref = (subticks[i] - axis->lower()) / axis->length();
-					auto tickStart = axis->start() + (axis->end() - axis->start()) * ref; // lerp
-					auto tickEnd = tickStart + axis->tickOrient() * subtickLen;
-					paint->drawLine(tickStart, tickEnd);
-				}
+			for (unsigned i = 0; i < subticks.size(); i++) {
+				auto ref = (subticks[i] - axis->lower()) / axis->length();
+				auto tickStart = axis->start() + (axis->end() - axis->start()) * ref; // lerp
+				drawTick_(paint, axis, tickStart, subtickLen);
 			}
 		}
 	}
+}
+
+
+void KcVlCoordSystem::drawTick_(KglPaint* paint, KgAxis* axis, const vec3& pt, double length) const
+{
+	auto d = axis->tickOrient() * length;
+	paint->drawLine(axis->tickShowBothSide() ? pt - d : pt, pt + d);
 }

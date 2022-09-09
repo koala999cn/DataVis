@@ -12,20 +12,20 @@ KvCoordSystem::KvCoordSystem(const vec3& lower, const vec3& upper)
 
 	setRange(lower, upper);
 
-	axes_[k_x0]->setTickOrient(KgAxis::k_z);
-	axes_[k_x1]->setTickOrient(KgAxis::k_z);
-	axes_[k_x2]->setTickOrient(KgAxis::k_z);
-	axes_[k_x3]->setTickOrient(KgAxis::k_z);
+	axes_[k_x0]->setTickOrient(KgAxis::k_bi_z);
+	axes_[k_x1]->setTickOrient(KgAxis::k_bi_z);
+	axes_[k_x2]->setTickOrient(KgAxis::k_bi_z);
+	axes_[k_x3]->setTickOrient(KgAxis::k_bi_z);
 
-	axes_[k_y0]->setTickOrient(KgAxis::k_x);
-	axes_[k_y1]->setTickOrient(KgAxis::k_x);
-	axes_[k_y2]->setTickOrient(KgAxis::k_x);
-	axes_[k_y3]->setTickOrient(KgAxis::k_x);
+	axes_[k_y0]->setTickOrient(KgAxis::k_bi_x);
+	axes_[k_y1]->setTickOrient(KgAxis::k_bi_x);
+	axes_[k_y2]->setTickOrient(KgAxis::k_bi_x);
+	axes_[k_y3]->setTickOrient(KgAxis::k_bi_x);
 
-	axes_[k_z0]->setTickOrient(KgAxis::k_y);
-	axes_[k_z1]->setTickOrient(KgAxis::k_y);
-	axes_[k_z2]->setTickOrient(KgAxis::k_y);
-	axes_[k_z3]->setTickOrient(KgAxis::k_y);
+	axes_[k_z0]->setTickOrient(KgAxis::k_bi_y);
+	axes_[k_z1]->setTickOrient(KgAxis::k_bi_y);
+	axes_[k_z2]->setTickOrient(KgAxis::k_bi_y);
+	axes_[k_z3]->setTickOrient(KgAxis::k_bi_y);
 }
 
 

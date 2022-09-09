@@ -13,4 +13,6 @@ public:
 
 private:
 	void drawAxis_(KglPaint*, KgAxis*) const;
+	void drawTicks_(KglPaint*, KgAxis*) const;
+	void drawTick_(KglPaint*, KgAxis*, const vec3& pt, double length) const; // 绘制单条刻度线
 };

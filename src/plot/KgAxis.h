@@ -44,6 +44,8 @@ public:
 
 	void setTickOrient(KeTickOrient orient);
 
+	bool tickShowBothSide() const { return tickShowBothSide_; }
+
 	/// range 
 
 	double lower() const { return lower_; }
