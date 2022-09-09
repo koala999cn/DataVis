@@ -154,7 +154,9 @@ public:
     static void zeros(KREAL x[], unsigned n) { assign(x, n, 0); }
     static void ones(KREAL x[], unsigned n) { assign(x, n, 1); }
 
-    static KREAL lerp(KREAL xmin, KREAL xmax, KREAL x/*[0, 1]*/) { return xmin + x*(xmax-xmin); } // 线性插值
+    static KREAL lerp(KREAL xmin, KREAL xmax, double x/*[0, 1]*/) { 
+        return xmin + (xmax-xmin) * x; } // 线性插值
+
     static KREAL quantile(const KREAL x[], unsigned n, KREAL factor);
 
     static KREAL sum(const KREAL x[], unsigned n); // 各元素之和

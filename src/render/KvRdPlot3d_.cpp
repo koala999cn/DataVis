@@ -37,9 +37,6 @@ void KvRdPlot3d_::setOption(KeObjectOption opt, bool on)
 		kAppEventHub->closeDock(this);
 
 	plot3d_->show(on);
-
-	if (on)
-		plot3d_->update();
 }
 
 

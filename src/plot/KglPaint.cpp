@@ -591,7 +591,7 @@ void KglPaint::generateQuadsTexCoords(Geometry* geom, int numPoints)
                 aabb.addPoint(geom->vertexArray()->getAsVec3(i));
             for (int i = 0; i < numPoints; ++i)
             {
-                vec4 v = geom->vertexArray()->getAsVec4(i);
+                auto v = geom->vertexArray()->getAsVec4(i);
                 double s = (v.s() - aabb.minCorner().s()) / (mState.mImage->width());
                 double t = (v.t() - aabb.minCorner().t()) / (mState.mImage->height());
                 tex_array->at(i).s() = (float)s;
@@ -615,7 +615,7 @@ void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec2>&
             // compute aabb
             AABB aabb;
             for (unsigned i = 0; i < points.size(); ++i)
-                aabb.addPoint((vec3)dvec3(points[i], 0.0));
+                aabb.addPoint((vl::vec3)dvec3(points[i], 0.0));
             for (unsigned i = 0; i < points.size(); ++i)
             {
                 float s = float((points[i].x() - aabb.minCorner().x()) / aabb.width());
@@ -628,10 +628,10 @@ void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec2>&
         {
             AABB aabb;
             for (unsigned i = 0; i < points.size(); ++i)
-                aabb.addPoint(geom->vertexArray()->getAsVec3(i) + vec3(0.5f, 0.5f, 0.0f));
+                aabb.addPoint(geom->vertexArray()->getAsVec3(i) + vl::vec3(0.5f, 0.5f, 0.0f));
             for (unsigned i = 0; i < points.size(); ++i)
             {
-                vec4 v = geom->vertexArray()->getAsVec4(i);
+                auto v = geom->vertexArray()->getAsVec4(i);
                 double s = (v.s() - aabb.minCorner().s()) / mState.mImage->width();
                 double t = (v.t() - aabb.minCorner().t()) / mState.mImage->height();
                 tex_array->at(i).s() = (float)s;
@@ -655,7 +655,7 @@ void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec3>&
             // compute aabb
             AABB aabb;
             for (unsigned i = 0; i < points.size(); ++i)
-                aabb.addPoint((vec3)points[i]);
+                aabb.addPoint((vl::vec3)points[i]);
             for (unsigned i = 0; i < points.size(); ++i)
             {
                 float s = float((points[i].x() - aabb.minCorner().x()) / aabb.width());
@@ -668,10 +668,10 @@ void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec3>&
         {
             AABB aabb;
             for (unsigned i = 0; i < points.size(); ++i)
-                aabb.addPoint(geom->vertexArray()->getAsVec3(i) + vec3(0.5f, 0.5f, 0.0f));
+                aabb.addPoint(geom->vertexArray()->getAsVec3(i) + vl::vec3(0.5f, 0.5f, 0.0f));
             for (unsigned i = 0; i < points.size(); ++i)
             {
-                vec4 v = geom->vertexArray()->getAsVec4(i);
+                auto v = geom->vertexArray()->getAsVec4(i);
                 double s = (v.s() - aabb.minCorner().s()) / mState.mImage->width();
                 double t = (v.t() - aabb.minCorner().t()) / mState.mImage->height();
                 tex_array->at(i).s() = (float)s;

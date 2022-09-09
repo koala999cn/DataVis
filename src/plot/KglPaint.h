@@ -11,6 +11,8 @@
 #include <vlGraphics/Scissor.hpp>
 #include <vlGraphics/Geometry.hpp>
 #include <vlGraphics/FontManager.hpp>
+#include "KtVector3.h"
+#include "KtVector4.h"
 
 namespace vl
 {
@@ -56,6 +58,9 @@ class KglPaint : public vl::Object
 {
 public:
     VL_INSTRUMENT_CLASS(KglPaint, Object)
+
+    using vec3 = KtVector3<double>;
+    using vec4 = KtVector4<double>;
 
 private:
     //------------------------------------------------------------------------- start internal
@@ -300,6 +305,10 @@ public:
         return drawLine(from.x(), from.y(), from.z(), to.x(), to.y(), to.z());
     }
 
+    vl::Actor* drawLine(const vec3& from, const vec3& to) {
+        return drawLine(from.x, from.y, from.z, to.x, to.y, to.z);
+    }
+
     //! Renders a set of lines. The 'ln' parameter shoud contain N pairs of dvec2. Each pair defines a line segment.
     vl::Actor* drawLines(const std::vector<vl::dvec2>& ln);
 
@@ -383,6 +392,8 @@ public:
 
     //! The current color. Note that the current color also modulates the currently active image.
     void setColor(const vl::fvec4& color) { mState.mColor = color; }
+
+    void setColor(const vec4& c) { mState.mColor = vl::fvec4(c.x, c.y, c.z, c.w); }
 
     //! The current color. Note that the current color also modulates the currently active image.
     const vl::fvec4& color() const { return mState.mColor; }

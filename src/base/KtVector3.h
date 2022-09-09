@@ -156,7 +156,7 @@ public:
 	const KtVector3& normalize() { // 对当前矢量进行规范化操作
 		KReal fLen2 = squaredLength();
 		if (fLen2 > 1e-8) // 如果矢量长度太小，则不进行规范化操作
-			*this *= kMath::invSqrt(fLen2);
+			*this *= 1 / std::sqrt(fLen2);
 
 		return *this;
 	}

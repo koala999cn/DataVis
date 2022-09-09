@@ -1,8 +1,11 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <memory>
 #include "KtVector3.h"
 #include "KtVector4.h"
+#include "KvTicker.h"
+
 
 // 坐标轴（单轴）实现
 // 坐标轴由4类元素构成：1.baseline, 2.ticks(major & minor), 3.labels, 4.title
@@ -125,6 +128,9 @@ public:
 	//QFont titleFont() const { return titleFont_; }
 	//void setTitleFont(QFont font) { titleFont_ = font; }
 
+	std::shared_ptr<KvTicker> ticker() const;
+	void setTicker(std::shared_ptr<KvTicker> tic);
+
 private:
 	std::string title_;
 	std::vector<std::string> labels_; // tick labels
@@ -145,4 +151,6 @@ private:
 	vec3 start_, end_;
 	vec3 tickOrient_;
 	bool tickShowBothSide_;
+
+	std::shared_ptr<KvTicker> ticker_;
 };

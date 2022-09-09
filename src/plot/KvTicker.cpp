@@ -5,6 +5,7 @@
 KvTicker::KvTicker()
 {
 	ticks_ = 5;
+	subticks_ = 4;
 	format_ = "%d";
 }
 
@@ -28,3 +29,21 @@ std::string KvTicker::label(double val) const
 	return buf;
 }
 
+
+std::vector<double> KvTicker::getSubticks(const std::vector<double>& ticks, unsigned subticks)
+{
+	if (subticks == 0)
+		subticks = subticks_;
+
+	std::vector<double> res;
+	if (ticks.size() > 1) {
+		res.reserve((ticks.size() - 1) * subticks);
+		for (unsigned i = 1; i < ticks.size(); i++) {
+			auto ts = getTicks(ticks[i], ticks[i - 1], subticks + 2);
+			for (unsigned j = 1; j < ts.size() - 1; j++)
+				res.push_back(ts[j]);
+		}
+	}
+
+	return res;
+}

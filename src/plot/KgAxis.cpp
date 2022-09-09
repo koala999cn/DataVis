@@ -1,5 +1,6 @@
 #include "KgAxis.h"
 #include <assert.h>
+#include "KcLinearTicker.h"
 
 
 KgAxis::KgAxis() 
@@ -9,9 +10,9 @@ KgAxis::KgAxis()
 	visible_ = true;
 	showAll();
 
-	baselineSize_ = 1;
-	tickSize_ = 1, tickLength_ = 1;
-	subtickSize_ = 1, subtickLength_ = 1;
+	baselineSize_ = 0.8;
+	tickSize_ = 0.6, tickLength_ = 5;
+	subtickSize_ = 0.5, subtickLength_ = 3;
 
 	baselineColor_ = vec4(0, 0, 0, 1);
 	tickColor_ = subtickColor_ = vec4(0, 0, 0, 1);
@@ -20,6 +21,8 @@ KgAxis::KgAxis()
 	//labelFont_, titleFont_; // TODO:
 
 	tickShowBothSide_ = false;
+
+	ticker_ = std::make_shared<KcLinearTicker>();
 }
 
 
@@ -67,4 +70,16 @@ void KgAxis::setTickOrient(KeTickOrient to)
 		assert(false);
 		break;
 	}
+}
+
+
+std::shared_ptr<KvTicker> KgAxis::ticker() const
+{
+	return ticker_;
+}
+
+
+void KgAxis::setTicker(std::shared_ptr<KvTicker> tic)
+{
+	ticker_ = tic;
 }
