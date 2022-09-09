@@ -273,7 +273,10 @@
     <ClCompile Include="src\plot\KglPaint.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KvAxisTicker.cpp">
+    <ClCompile Include="src\plot\KvTicker.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcLinearTicker.cpp">
       <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
@@ -599,7 +602,10 @@
     <ClInclude Include="src\base\KtVector4.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KvAxisTicker.h">
+    <ClInclude Include="src\plot\KvTicker.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcLinearTicker.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
