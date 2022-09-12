@@ -8,7 +8,7 @@
 #include <vlCore/Time.hpp>
 #include <vlGraphics/Light.hpp>
 #include <vlQt6/Qt6Widget.hpp>
-#include "KcVlCoordSystem.h"
+#include "KcCoordSystem.h"
 #include "KvPlottable.h"
 #include "KglPaint.h"
 
@@ -98,7 +98,7 @@ namespace kPrivate
 
 
 KcVlPlot3d::KcVlPlot3d(QWidget* parent)
-    : KvPlot(new KcVlCoordSystem)
+    : KvPlot(new KcCoordSystem)
 {
     paint_ = std::make_unique<KglPaint>();
 
@@ -202,10 +202,10 @@ void KcVlPlot3d::setBackground(const vec4& clr)
 void KcVlPlot3d::autoProject()
 {
     auto camera = applet_->rendering()->as<vl::Rendering>()->camera();
-    auto lower = coordSystem()->lowerCorner();
-    auto upper = coordSystem()->upperCorner();
-    auto center = lower + (upper - lower) / 2;
-    double radius = (center - lower).length();
+    auto lower = coordSystem()->lower();
+    auto upper = coordSystem()->upper();
+    auto center = coordSystem()->center();
+    double radius = coordSystem()->diag() / 2;
 
     vl::vec3 scale(1 / (upper.x - lower.x), 1 / (upper.y - lower.y), 1 / (upper.z - lower.z));
     double zoom = 2 * radius / sqrt(3.);

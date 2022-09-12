@@ -1,31 +1,38 @@
-#include "KvCoordSystem.h"
-#include "KgAxis.h"
+#include "KcCoordSystem.h"
+#include "KcAxis.h"
 
 
-KvCoordSystem::KvCoordSystem(const vec3& lower, const vec3& upper)
+KcCoordSystem::KcCoordSystem()
+	: KcCoordSystem(vec3(0, 0, 0), vec3(100, 100, 100))
+{
+
+}
+
+
+KcCoordSystem::KcCoordSystem(const vec3& lower, const vec3& upper)
 	: visible_(true)
 {
 	// 初始化12根坐标轴
 	axes_.resize(12, nullptr);
 	for (int i = 0; i < 12; i++) 
-		axes_[i].reset(new KgAxis);
+		axes_[i].reset(new KcAxis);
 
 	setRange(lower, upper);
 
-	axes_[k_x0]->setTickOrient(KgAxis::k_bi_z);
-	axes_[k_x1]->setTickOrient(KgAxis::k_bi_z);
-	axes_[k_x2]->setTickOrient(KgAxis::k_bi_z);
-	axes_[k_x3]->setTickOrient(KgAxis::k_bi_z);
+	axes_[k_x0]->setTickOrient(KcAxis::k_bi_z);
+	axes_[k_x1]->setTickOrient(KcAxis::k_bi_z);
+	axes_[k_x2]->setTickOrient(KcAxis::k_bi_z);
+	axes_[k_x3]->setTickOrient(KcAxis::k_bi_z);
 
-	axes_[k_y0]->setTickOrient(KgAxis::k_bi_x);
-	axes_[k_y1]->setTickOrient(KgAxis::k_bi_x);
-	axes_[k_y2]->setTickOrient(KgAxis::k_bi_x);
-	axes_[k_y3]->setTickOrient(KgAxis::k_bi_x);
+	axes_[k_y0]->setTickOrient(KcAxis::k_bi_x);
+	axes_[k_y1]->setTickOrient(KcAxis::k_bi_x);
+	axes_[k_y2]->setTickOrient(KcAxis::k_bi_x);
+	axes_[k_y3]->setTickOrient(KcAxis::k_bi_x);
 
-	axes_[k_z0]->setTickOrient(KgAxis::k_bi_y);
-	axes_[k_z1]->setTickOrient(KgAxis::k_bi_y);
-	axes_[k_z2]->setTickOrient(KgAxis::k_bi_y);
-	axes_[k_z3]->setTickOrient(KgAxis::k_bi_y);
+	axes_[k_z0]->setTickOrient(KcAxis::k_bi_y);
+	axes_[k_z1]->setTickOrient(KcAxis::k_bi_y);
+	axes_[k_z2]->setTickOrient(KcAxis::k_bi_y);
+	axes_[k_z3]->setTickOrient(KcAxis::k_bi_y);
 }
 
 
@@ -38,7 +45,7 @@ KvCoordSystem::KvCoordSystem(const vec3& lower, const vec3& upper)
  *  p3         x3    p4
  *    
  */
-void KvCoordSystem::setRange(const vec3& lower, const vec3& upper)
+void KcCoordSystem::setRange(const vec3& lower, const vec3& upper)
 {
 	// p0 = lower, p7 = upper
 	auto p1 = vec3(lower.x, upper.y, lower.z);
@@ -77,25 +84,52 @@ void KvCoordSystem::setRange(const vec3& lower, const vec3& upper)
 }
 
 
-KvCoordSystem::vec3 KvCoordSystem::lowerCorner() const
+KcCoordSystem::vec3 KcCoordSystem::lower() const
 {
 	return { axes_[k_x0]->lower(), axes_[k_y0]->lower(), axes_[k_z0]->lower() };
 }
 
 
-KvCoordSystem::vec3 KvCoordSystem::upperCorner() const
+KcCoordSystem::vec3 KcCoordSystem::upper() const
 {
 	return { axes_[k_x0]->upper(), axes_[k_y0]->upper(), axes_[k_z0]->upper() };
 }
 
 
-void KvCoordSystem::setVisible(bool b)
+KcCoordSystem::vec3 KcCoordSystem::center() const
+{
+	return (lower() + upper()) / 2;
+}
+
+
+double KcCoordSystem::diag() const
+{
+	return (upper() - lower()).length();
+}
+
+
+void KcCoordSystem::setVisible(bool b)
 {
 	visible_ = b;;
 }
 
 
-bool KvCoordSystem::visible() const
+bool KcCoordSystem::visible() const
 {
 	return visible_;
+}
+
+
+void KcCoordSystem::draw(KglPaint* paint) const
+{
+	if (visible()) {
+		for (int i = 0; i < 12; i++) {
+			auto ax = axis(i);
+			auto rlen = diag();
+			if (ax && ax->visible()) {
+				ax->setRefLength(rlen);
+				ax->draw(paint);
+			}
+		}
+	}
 }

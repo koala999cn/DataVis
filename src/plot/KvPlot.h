@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 #include "KvPlottable.h"
-#include "KvCoordSystem.h"
+#include "KcCoordSystem.h"
 #include "KtVector4.h"
 
 class KvPlot
@@ -10,7 +10,7 @@ class KvPlot
 public:
 	using vec4 = KtVector4<double>;
 
-	KvPlot(KvCoordSystem* coord) : coord_(coord), ortho_(true) {}
+	KvPlot(KcCoordSystem* coord) : coord_(coord), ortho_(true) {}
 
 	virtual void show(bool b) = 0;
 
@@ -24,7 +24,7 @@ public:
 	virtual vec4 background() const = 0;
 	virtual void setBackground(const vec4& clr) = 0;
 
-	KvCoordSystem* coordSystem() {
+	KcCoordSystem* coordSystem() {
 		return coord_.get();
 	}
 
@@ -37,7 +37,7 @@ public:
 	}
 
 protected:
-	std::unique_ptr<KvCoordSystem> coord_;
+	std::unique_ptr<KcCoordSystem> coord_;
 	std::vector<std::unique_ptr<KvPlottable>> plottables_;
 	bool ortho_; // 正交投影 vs. 透视投影
 };

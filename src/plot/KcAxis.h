@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include "KvRenderable.h"
 #include "KtVector3.h"
 #include "KtVector4.h"
 #include "KvTicker.h"
@@ -10,7 +11,7 @@
 // 坐标轴（单轴）实现
 // 坐标轴由4类元素构成：1.baseline, 2.ticks(major & minor), 3.labels, 4.title
 
-class KgAxis
+class KcAxis : public KvRenderable
 {
 	using vec3 = KtVector3<double>;
 	using vec4 = KtVector4<double>;
@@ -25,7 +26,7 @@ public:
 	};
 
 
-	KgAxis();
+	KcAxis();
 
 	const vec3& start() const { return start_; }
 	void setStart(const vec3& v) { start_ = v; }
@@ -59,8 +60,10 @@ public:
 		return upper_ - lower_; // == (end - start).length ? 
 	}
 
-	bool visible() const { return visible_; }
-	void setVisible(bool b) { visible_ = b; }
+	bool visible() const override { return visible_; }
+	void setVisible(bool b) override { visible_ = b; }
+
+	void draw(KglPaint*) const override;
 
 	bool showBaseline() const { return showBaseline_; }
 	void setShowBaseline(bool b) { showBaseline_ = b; }
@@ -104,6 +107,10 @@ public:
 	double subtickLength() const { return subtickLength_; }
 	void setSubtickLength(double len) { subtickLength_ = len; }
 
+	// tick长度以rlen为参考值取百分数
+	// 如，设tick为5，rlen为300，则绘制tick的实际长度为300*5%，即15
+	// rlen通常置为坐标系aabb的对角线长度
+	void setRefLength(double rlen) { refLength_ = rlen; }
 
 	/// colors
 
@@ -134,6 +141,11 @@ public:
 	void setTicker(std::shared_ptr<KvTicker> tic);
 
 private:
+	void drawTicks_(KglPaint*) const; // 绘制所有刻度
+	void drawTick_(KglPaint*, const vec3& pt, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
+	void drawLabel_(KglPaint*);
+
+private:
 	std::string title_;
 	std::vector<std::string> labels_; // tick labels
 	double lower_, upper_; // range
@@ -143,6 +155,9 @@ private:
 	double baselineSize_;
 	double tickSize_, tickLength_;
 	double subtickSize_, subtickLength_;
+	double labelPadding_; // 刻度label距离刻度线的距离
+	mutable double refLength_; // 标准参考长度. tickLength_, subtickLength_, labelPadding_均为其相对值
+	                           // 一般取AABB的对角线长度
 
 	vec4 baselineColor_;
 	vec4 tickColor_, subtickColor_;

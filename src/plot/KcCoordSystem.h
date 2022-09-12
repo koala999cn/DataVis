@@ -5,19 +5,20 @@
 #include "KtVector3.h"
 #include "KtVector4.h"
 
-class KgAxis;
+class KcAxis;
 
 // 坐标系基类
 // 默认X轴向右，Y轴向上，Z轴向外
 
-class KvCoordSystem : public KvRenderable
+class KcCoordSystem : public KvRenderable
 {
 public:
-	using axis_ptr = std::shared_ptr<KgAxis>;
+	using axis_ptr = std::shared_ptr<KcAxis>;
 	using vec3 = KtVector3<double>;
 	using vec4 = KtVector4<double>;
 
-	KvCoordSystem(const vec3& lower, const vec3& upper);
+	KcCoordSystem();
+	KcCoordSystem(const vec3& lower, const vec3& upper);
 
 	// 12根坐标轴的id，用于索引axes_
 	enum KeAxis
@@ -44,12 +45,19 @@ public:
 
 	void setRange(const vec3& lower, const vec3& upper);
 
-	vec3 lowerCorner() const;
-	vec3 upperCorner() const;
+	vec3 lower() const; // the lower conner
+	vec3 upper() const; // the upper conner
+
+	vec3 center() const; // the center point
+
+	// 返回aabb的对角线长度
+	double diag() const;
 
 	void setVisible(bool b) override;
 
 	bool visible() const override;
+
+	void draw(KglPaint*) const override;
 
 private:
 	vec4 bkgnd_;
