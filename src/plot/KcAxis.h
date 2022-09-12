@@ -142,8 +142,8 @@ public:
 
 private:
 	void drawTicks_(KglPaint*) const; // 绘制所有刻度
-	void drawTick_(KglPaint*, const vec3& pt, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
-	void drawLabel_(KglPaint*);
+	void drawTick_(KglPaint*, const vec3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
+	void drawLabel_(KglPaint*, const vec3& anchor, const std::string& text) const;
 
 private:
 	std::string title_;

@@ -126,12 +126,26 @@ void KcAxis::drawTicks_(KglPaint* paint) const
 		paint->setColor(tickColor());
 		paint->setLineWidth(tickSize());
 
+		std::vector<vec3> labelAchors;
+		if (showLabel())
+			labelAchors.resize(ticks.size());
+
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto ref = (ticks[i] - lower()) / length();
-			auto tickPos = start() + (end() - start()) * ref; // lerp
-			drawTick_(paint, tickPos, tickLen);
+			auto tickAnchor = start() + (end() - start()) * ref; // lerp
+			drawTick_(paint, tickAnchor, tickLen);
 
-			auto labelPos = tickPos + tickOrient() * tickLen * 1.2;
+			if (showLabel())
+				labelAchors[i] = tickAnchor + tickOrient() * tickLen * 1.2;
+		}
+
+		if (showLabel()) {
+			// TODO: paint->setFont();
+			paint->setColor(labelColor());
+			for (unsigned i = 0; i < ticks.size(); i++) {
+				auto label = i < labels_.size() ? labels_[i] : tic->label(ticks[i]);
+				drawLabel_(paint, labelAchors[i], label);
+			}
 		}
 	}
 
@@ -146,16 +160,23 @@ void KcAxis::drawTicks_(KglPaint* paint) const
 
 			for (unsigned i = 0; i < subticks.size(); i++) {
 				auto ref = (subticks[i] - lower()) / length();
-				auto tickPos = start() + (end() - start()) * ref; // lerp
-				drawTick_(paint, tickPos, subtickLen);
+				auto subtickAnchor = start() + (end() - start()) * ref; // lerp
+				drawTick_(paint, subtickAnchor, subtickLen);
 			}
 		}
 	}
 }
 
 
-void KcAxis::drawTick_(KglPaint* paint, const vec3& pt, double length) const
+void KcAxis::drawTick_(KglPaint* paint, const vec3& anchor, double length) const
 {
 	auto d = tickOrient() * length;
-	paint->drawLine(tickShowBothSide() ? pt - d : pt, pt + d);
+	paint->drawLine(tickShowBothSide() ? anchor - d : anchor, anchor + d);
 }
+
+
+void KcAxis::drawLabel_(KglPaint* paint, const vec3& anchor, const std::string& str) const
+{
+	paint->drawText(anchor.x, anchor.y, str);
+}
+
