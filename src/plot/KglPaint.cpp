@@ -479,6 +479,24 @@ Actor* KglPaint::drawText(const String& text, int alignment)
     return drawText(t.get());
 }
 //-----------------------------------------------------------------------------
+vl::Actor* KglPaint::drawText(const vl::fvec3& pos, const vl::String& str, int alignment)
+{
+    ref<Text> text = new Text;
+    text->setDisplayListEnabled(false);
+    text->setBufferObjectEnabled(false);
+    text->setText(str);
+    text->setAlignment(alignment);
+    text->setColor(mState.mColor);
+    text->setFont(mState.mFont.get());
+    text->setMatrix((fmat4)matrix());
+    
+    ref<Actor> act = new Actor(text.get(), currentEffect(), new Transform);
+    act->transform()->translate(pos);
+    act->transform()->computeWorldMatrix();
+
+    return addActor(act.get());
+}
+//-----------------------------------------------------------------------------
 Actor* KglPaint::drawActor(Actor* actor, Transform* transform, bool keep_effect)
 {
     VL_CHECK(actor->effect())
@@ -505,6 +523,11 @@ void KglPaint::rotate(double deg)
 void KglPaint::translate(double x, double y, double z)
 {
     mMatrix = mMatrix * dmat4::getTranslation(x, y, z);
+}
+//-----------------------------------------------------------------------------
+void KglPaint::translate(const vl::dvec3& v)
+{
+    mMatrix = mMatrix * dmat4::getTranslation(v);
 }
 //-----------------------------------------------------------------------------
 void KglPaint::scale(double x, double y, double z)

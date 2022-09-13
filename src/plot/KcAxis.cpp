@@ -38,7 +38,7 @@ void KcAxis::setTickOrient(KeTickOrient to)
 		break;
 
 	case k_neg_x:
-		setTickOrient(vec3(11, 0, 0), false);
+		setTickOrient(vec3(-1, 0, 0), false);
 		break;
 
 	case k_bi_x:
@@ -177,6 +177,6 @@ void KcAxis::drawTick_(KglPaint* paint, const vec3& anchor, double length) const
 
 void KcAxis::drawLabel_(KglPaint* paint, const vec3& anchor, const std::string& str) const
 {
-	paint->drawText(anchor.x, anchor.y, str);
+	paint->drawText(vl::fvec3(anchor.x, anchor.y, anchor.z), str, vl::AlignHCenter | vl::AlignVCenter);
 }
 

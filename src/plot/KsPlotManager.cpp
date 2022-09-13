@@ -21,5 +21,6 @@ KsPlotManager::~KsPlotManager()
 
 KvPlot* KsPlotManager::createPlot3d(QWidget* parent)
 {
-	return new KcVlPlot3d(parent);
+	return 0;
+	//return new KcVlPlot3d(parent);
 }

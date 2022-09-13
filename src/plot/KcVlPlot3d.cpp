@@ -171,6 +171,8 @@ void KcVlPlot3d::update(bool immediately)
     paint_->startDrawing();
 
     // »æÖÆ±³¾°?
+    auto bkclr = background();
+    paint_->clearColor(vl::fvec4(bkclr.x, bkclr.y, bkclr.z, bkclr.w));
 
     coordSystem()->draw(paint_.get());
 

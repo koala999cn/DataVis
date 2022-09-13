@@ -576,6 +576,9 @@ public:
     //! Draws the specified text
     vl::Actor* drawText(const vl::String& text, int alignment = vl::AlignBottom | vl::AlignLeft);
 
+    //! 3d°æ
+    vl::Actor* drawText(const vl::fvec3& pos, const vl::String& text, int alignment = vl::AlignBottom | vl::AlignLeft);
+
     /** Draws the specified Actor with the specified Transform.
      * If keep_effect is set to 'false' or the Actor's Effect is NULL a default Effect is automatically generated.
      * If 'transform' is non NULL it is bound to the Actor. */
@@ -599,6 +602,8 @@ public:
 
     //! Translates the current transform matrix
     void translate(double x, double y, double z = 0.0);
+
+    void translate(const vl::dvec3& v);
 
     //! Scales the current transform matrix
     void scale(double x, double y, double z = 1.0);

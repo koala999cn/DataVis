@@ -6,7 +6,7 @@ KvTicker::KvTicker()
 {
 	ticks_ = 5;
 	subticks_ = 4;
-	format_ = "%d";
+	format_ = "%g";
 }
 
 
