@@ -19,20 +19,27 @@ KcCoordSystem::KcCoordSystem(const vec3& lower, const vec3& upper)
 
 	setRange(lower, upper);
 
-	axes_[k_x0]->setTickOrient(KcAxis::k_bi_z);
-	axes_[k_x1]->setTickOrient(KcAxis::k_bi_z);
-	axes_[k_x2]->setTickOrient(KcAxis::k_bi_z);
-	axes_[k_x3]->setTickOrient(KcAxis::k_bi_z);
+	axes_[k_x0]->setTickOrient(KcAxis::k_neg_y);
+	axes_[k_x1]->setTickOrient(KcAxis::k_y);
+	axes_[k_x2]->setTickOrient(KcAxis::k_y);
+	axes_[k_x3]->setTickOrient(KcAxis::k_neg_y);
 
-	axes_[k_y0]->setTickOrient(KcAxis::k_bi_x);
-	axes_[k_y1]->setTickOrient(KcAxis::k_bi_x);
-	axes_[k_y2]->setTickOrient(KcAxis::k_bi_x);
-	axes_[k_y3]->setTickOrient(KcAxis::k_bi_x);
+	axes_[k_y0]->setTickOrient(KcAxis::k_neg_x);
+	axes_[k_y1]->setTickOrient(KcAxis::k_x);
+	axes_[k_y2]->setTickOrient(KcAxis::k_x);
+	axes_[k_y3]->setTickOrient(KcAxis::k_neg_x);
 
-	axes_[k_z0]->setTickOrient(KcAxis::k_bi_y);
-	axes_[k_z1]->setTickOrient(KcAxis::k_bi_y);
-	axes_[k_z2]->setTickOrient(KcAxis::k_bi_y);
-	axes_[k_z3]->setTickOrient(KcAxis::k_bi_y);
+	axes_[k_z0]->setTickOrient(KcAxis::k_neg_x);
+	axes_[k_z1]->setTickOrient(KcAxis::k_x);
+	axes_[k_z2]->setTickOrient(KcAxis::k_x);
+	axes_[k_z3]->setTickOrient(KcAxis::k_neg_x);
+
+	for(unsigned i = 0; i < 12; i++)
+	    axes_[i]->setShowTick(false), axes_[i]->setShowLabel(false);
+
+	axes_[k_x3]->setShowTick(true), axes_[k_x3]->setShowLabel(true);
+	axes_[k_y3]->setShowTick(true), axes_[k_y3]->setShowLabel(true);
+	axes_[k_z1]->setShowTick(true), axes_[k_z1]->setShowLabel(true);
 }
 
 

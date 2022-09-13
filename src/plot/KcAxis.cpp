@@ -143,8 +143,9 @@ void KcAxis::drawTicks_(KglPaint* paint) const
 			// TODO: paint->setFont();
 			paint->setColor(labelColor());
 			for (unsigned i = 0; i < ticks.size(); i++) {
+				auto pos = vl::fvec3(labelAchors[i].x, labelAchors[i].y, labelAchors[i].z);
 				auto label = i < labels_.size() ? labels_[i] : tic->label(ticks[i]);
-				drawLabel_(paint, labelAchors[i], label);
+				paint->drawText(pos, label, labelAlignment_(tickOrient_));
 			}
 		}
 	}
@@ -175,8 +176,25 @@ void KcAxis::drawTick_(KglPaint* paint, const vec3& anchor, double length) const
 }
 
 
-void KcAxis::drawLabel_(KglPaint* paint, const vec3& anchor, const std::string& str) const
+int KcAxis::labelAlignment_(const vec3& orient)
 {
-	paint->drawText(vl::fvec3(anchor.x, anchor.y, anchor.z), str, vl::AlignHCenter | vl::AlignVCenter);
-}
+	int align(0);
 
+	if (orient.x > 0)
+		align |= vl::AlignLeft;
+	else if (orient.x < 0)
+		align |= vl::AlignRight;
+
+	if (orient.y > 0 || orient.z < 0 )
+		align |= vl::AlignBottom;
+	else if (orient.y < 0 || orient.z > 0)
+		align |= vl::AlignTop;
+
+	if ((align & (vl::AlignLeft | vl::AlignRight)) == 0)
+		align |= vl::AlignHCenter;
+
+	if ((align & (vl::AlignBottom | vl::AlignTop)) == 0)
+		align |= vl::AlignVCenter;
+
+	return align;
+}
