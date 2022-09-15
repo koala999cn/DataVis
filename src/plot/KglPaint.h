@@ -122,7 +122,7 @@ private:
             mAlphaFuncRefValue = 0.0f;
             mAlphaFunc = FU_ALWAYS;
             // font
-            mFont = defFontManager()->acquireFont("/font/bitstream-vera/VeraMono.ttf", 10, false);
+            mFont = defFontManager()->acquireFont("font/bitstream-vera/VeraMono.ttf", 10, false);
             // masks
             /*mDepthMask   = true;*/
             mColorMask = ivec4(1, 1, 1, 1);
@@ -536,7 +536,9 @@ public:
     void setFont(const vl::Font* font) { setFont(font->filePath(), font->size(), font->smooth()); }
 
     //! Sets the default Font
-    void setDefaultFont() { setFont(vl::defFontManager()->acquireFont("/font/bitstream-vera/VeraMono.ttf", 10, false)); }
+    void setDefaultFont() { 
+        setFont(vl::defFontManager()->acquireFont("font/bitstream-vera/VeraMono.ttf", 10, false)); 
+    }
 
     //! Returns the current Font
     const vl::Font* font() const { return mState.mFont.get(); }
