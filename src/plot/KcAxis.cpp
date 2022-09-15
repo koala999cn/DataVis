@@ -8,12 +8,11 @@ KcAxis::KcAxis()
 {
 	lower_ = upper_ = 0;
 
-	visible_ = true;
 	showAll();
 
-	baselineSize_ = 0.8;
-	tickSize_ = 0.6, tickLength_ = 1.6;
-	subtickSize_ = 0.5, subtickLength_ = 1;
+	baselineWidth_ = 0.8;
+	tickWidth_ = 0.6, tickLength_ = 1;
+	subtickWidth_ = 0.4, subtickLength_ = 0.6;
 	labelPadding_ = 0.2;
 	refLength_ = 0;
 
@@ -96,7 +95,7 @@ void KcAxis::draw(KglPaint* paint) const
 	if (showBaseline()) {
 		auto clr = baselineColor();
 		paint->setColor(clr);
-		paint->setLineWidth(baselineSize()); // TODO: dock后，线的宽度会改变
+		paint->setLineWidth(baselineWidth()); // TODO: dock后，线的宽度会改变
 		paint->drawLine(start(), end()); // 物理坐标
 	}
 
@@ -124,19 +123,18 @@ void KcAxis::drawTicks_(KglPaint* paint) const
 
 		double tickLen = tickLength() * refLength_ / 100; // tick的长度取相对值
 		paint->setColor(tickColor());
-		paint->setLineWidth(tickSize());
+		paint->setLineWidth(tickWidth());
 
 		std::vector<vec3> labelAchors;
 		if (showLabel())
 			labelAchors.resize(ticks.size());
 
 		for (unsigned i = 0; i < ticks.size(); i++) {
-			auto ref = (ticks[i] - lower()) / length();
-			auto tickAnchor = start() + (end() - start()) * ref; // lerp
-			drawTick_(paint, tickAnchor, tickLen);
+			auto anchor = tickPos(ticks[i]);
+			drawTick_(paint, anchor, tickLen);
 
 			if (showLabel())
-				labelAchors[i] = tickAnchor + tickOrient() * tickLen * 1.2;
+				labelAchors[i] = anchor + tickOrient() * (tickLen + labelPadding_);
 		}
 
 		if (showLabel()) {
@@ -157,13 +155,10 @@ void KcAxis::drawTicks_(KglPaint* paint) const
 
 			double subtickLen = subtickLength() * refLength_ / 100; // subtick的长度取相对值
 			paint->setColor(subtickColor());
-			paint->setLineWidth(subtickSize());
+			paint->setLineWidth(subtickWidth());
 
-			for (unsigned i = 0; i < subticks.size(); i++) {
-				auto ref = (subticks[i] - lower()) / length();
-				auto subtickAnchor = start() + (end() - start()) * ref; // lerp
-				drawTick_(paint, subtickAnchor, subtickLen);
-			}
+			for (unsigned i = 0; i < subticks.size(); i++) 
+				drawTick_(paint, tickPos(subticks[i]), subtickLen);
 		}
 	}
 }
@@ -197,4 +192,11 @@ int KcAxis::labelAlignment_(const vec3& orient)
 		align |= vl::AlignVCenter;
 
 	return align;
+}
+
+
+KcAxis::vec3 KcAxis::tickPos(double val) const
+{
+	auto ratio = (val - lower()) / length();
+	return start() + (end() - start()) * ratio; // TODO: lerp
 }

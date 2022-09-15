@@ -60,9 +60,6 @@ public:
 		return upper_ - lower_; // == (end - start).length ? 
 	}
 
-	bool visible() const override { return visible_; }
-	void setVisible(bool b) override { visible_ = b; }
-
 	void draw(KglPaint*) const override;
 
 	bool showBaseline() const { return showBaseline_; }
@@ -92,18 +89,18 @@ public:
 	const std::vector<std::string>& labels() const { return labels_; }
 	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
 
-	double baselineSize() const { return baselineSize_; }
-	void setBaselineSize(double size) { baselineSize_ = size; }
+	double baselineWidth() const { return baselineWidth_; }
+	void setBaselineWidth(double width) { baselineWidth_ = width; }
 
 	// major ticks
-	double tickSize() const { return tickSize_; }
-	void setTickSize(double size) { tickSize_ = size; }
+	double tickWidth() const { return tickWidth_; }
+	void setTickWidth(double width) { tickWidth_ = width; }
 	double tickLength() const { return tickLength_; }
 	void setTickLength(double len) { tickLength_ = len; }
 
 	// minor ticks
-	double subtickSize() const { return subtickSize_; }
-	void setSubtickSize(double size) { subtickSize_ = size; }
+	double subtickWidth() const { return subtickWidth_; }
+	void setSubtickWidth(double width) { subtickWidth_ = width; }
 	double subtickLength() const { return subtickLength_; }
 	void setSubtickLength(double len) { subtickLength_ = len; }
 
@@ -140,6 +137,9 @@ public:
 	std::shared_ptr<KvTicker> ticker() const;
 	void setTicker(std::shared_ptr<KvTicker> tic);
 
+	// 根据tick的数值，返回tick在坐标轴上的的3维坐标
+	vec3 tickPos(double val) const;
+
 private:
 	void drawTicks_(KglPaint*) const; // 绘制所有刻度
 	void drawTick_(KglPaint*, const vec3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
@@ -149,12 +149,11 @@ private:
 	std::string title_;
 	std::vector<std::string> labels_; // tick labels
 	double lower_, upper_; // range
-	bool visible_;
 	bool showBaseline_, showTick_, showSubtick_, showTitle_, showLabel_;
 
-	double baselineSize_;
-	double tickSize_, tickLength_;
-	double subtickSize_, subtickLength_;
+	double baselineWidth_;
+	double tickWidth_, tickLength_;
+	double subtickWidth_, subtickLength_;
 	double labelPadding_; // 刻度label距离刻度线的距离
 	mutable double refLength_; // 标准参考长度. tickLength_, subtickLength_, labelPadding_均为其相对值
 	                           // 一般取AABB的对角线长度

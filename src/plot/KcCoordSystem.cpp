@@ -1,5 +1,7 @@
 #include "KcCoordSystem.h"
 #include "KcAxis.h"
+#include "KcGridPlane.h"
+#include "KglPaint.h"
 
 
 KcCoordSystem::KcCoordSystem()
@@ -10,11 +12,9 @@ KcCoordSystem::KcCoordSystem()
 
 
 KcCoordSystem::KcCoordSystem(const vec3& lower, const vec3& upper)
-	: visible_(true)
 {
 	// 初始化12根坐标轴
-	axes_.resize(12, nullptr);
-	for (int i = 0; i < 12; i++) 
+	for (unsigned i = 0; i < std::size(axes_); i++)
 		axes_[i].reset(new KcAxis);
 
 	setRange(lower, upper);
@@ -34,12 +34,38 @@ KcCoordSystem::KcCoordSystem(const vec3& lower, const vec3& upper)
 	axes_[k_z2]->setTickOrient(KcAxis::k_x);
 	axes_[k_z3]->setTickOrient(KcAxis::k_neg_x);
 
-	for(unsigned i = 0; i < 12; i++)
+	for(unsigned i = 0; i < std::size(axes_); i++)
 	    axes_[i]->setShowTick(false), axes_[i]->setShowLabel(false);
 
 	axes_[k_x3]->setShowTick(true), axes_[k_x3]->setShowLabel(true);
 	axes_[k_y3]->setShowTick(true), axes_[k_y3]->setShowLabel(true);
 	axes_[k_z1]->setShowTick(true), axes_[k_z1]->setShowLabel(true);
+
+
+	// 初始化6个grid平面
+	planes_[k_xy_back] = std::make_shared<KcGridPlane>(
+		axes_[k_x0], axes_[k_x1], axes_[k_y0], axes_[k_y1]);
+	planes_[k_xy_front] = std::make_shared<KcGridPlane>(
+		axes_[k_x2], axes_[k_x3], axes_[k_y2], axes_[k_y3]);
+
+	planes_[k_yz_left] = std::make_shared<KcGridPlane>(
+		axes_[k_y0], axes_[k_y3], axes_[k_z0], axes_[k_z3]);
+	planes_[k_yz_right] = std::make_shared<KcGridPlane>(
+		axes_[k_y1], axes_[k_y2], axes_[k_z1], axes_[k_z2]);
+
+	planes_[k_xz_ceil] = std::make_shared<KcGridPlane>(
+		axes_[k_x1], axes_[k_x2], axes_[k_z2], axes_[k_z3]);
+	planes_[k_xz_floor] = std::make_shared<KcGridPlane>(
+		axes_[k_x0], axes_[k_x3], axes_[k_z0], axes_[k_z1]);
+
+	for (unsigned i = 0; i < std::size(planes_); i++) {
+		planes_[i]->setVisible(false);
+		planes_[i]->setMinorVisible(false);
+	}
+
+	planes_[k_xy_back]->setVisible(true);
+	planes_[k_yz_left]->setVisible(true);
+	planes_[k_xz_floor]->setVisible(true);
 }
 
 
@@ -115,28 +141,24 @@ double KcCoordSystem::diag() const
 }
 
 
-void KcCoordSystem::setVisible(bool b)
-{
-	visible_ = b;;
-}
-
-
-bool KcCoordSystem::visible() const
-{
-	return visible_;
-}
-
-
 void KcCoordSystem::draw(KglPaint* paint) const
 {
 	if (visible()) {
-		for (int i = 0; i < 12; i++) {
-			auto ax = axis(i);
+		for (unsigned i = 0; i < std::size(axes_); i++) {
+			auto axis = axes_[i];
 			auto rlen = diag();
-			if (ax && ax->visible()) {
-				ax->setRefLength(rlen);
-				ax->draw(paint);
+			if (axis && axis->visible()) {
+				axis->setRefLength(rlen);
+				axis->draw(paint);
+			}
+		}
+
+		for (unsigned i = 0; i < std::size(planes_); i++) {
+			auto& plane = planes_[i];
+			if (plane && plane->visible()) {
+				plane->draw(paint);
 			}
 		}
 	}
 }
+

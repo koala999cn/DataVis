@@ -14,19 +14,37 @@
 #include "KtVector3.h"
 #include "KtVector4.h"
 
-namespace vl
+
+// OpenGL绘图接口
+// 从vl::VectorGraphics改编，以支持3d绘图
+
+struct KpLine
 {
+    int style; // 线型
+    double width; // 线宽
+    KtVector4<double> color;
+};
+
+class KglPaint : public vl::Object
+{
+public:
+    VL_INSTRUMENT_CLASS(KglPaint, Object)
+
+public:
+    using vec3 = KtVector3<double>;
+    using vec4 = KtVector4<double>;
+
     //! Defines how the texture is applied to the rendering primitive
-    typedef enum
+    enum ETextureMode
     {
         //! The texture is stretched over the primitive
         TextureMode_Clamp,
         //! The texture is repeated over the primitive
         TextureMode_Repeat
-    } ETextureMode;
+    };
 
     //! Poligon stipple patterns
-    typedef enum
+    enum EPolygonStipple
     {
         //! The poligon is completely filled (default)
         PolygonStipple_Solid,
@@ -34,10 +52,10 @@ namespace vl
         PolygonStipple_Chain,
         PolygonStipple_HLine,
         PolygonStipple_VLine
-    } EPolygonStipple;
+    } ;
 
     //! Line stipple patterns
-    typedef enum
+    enum ELineStipple
     {
         //! The line is completely filled  (default)
         LineStipple_Solid,
@@ -47,20 +65,7 @@ namespace vl
         LineStipple_Dash8,
         LineStipple_DashDot,
         LineStipple_DashDotDot
-    } ELineStipple;
-}
-
-
-// OpenGL绘图接口
-// 从vl::VectorGraphics改编，以支持3d绘图
-
-class KglPaint : public vl::Object
-{
-public:
-    VL_INSTRUMENT_CLASS(KglPaint, Object)
-
-    using vec3 = KtVector3<double>;
-    using vec4 = KtVector4<double>;
+    };
 
 private:
     //------------------------------------------------------------------------- start internal
@@ -68,7 +73,7 @@ private:
     class ImageState
     {
     public:
-        ImageState(const vl::Image* img, vl::ETextureMode mode) : mImage(img), mTextureMode(mode) {}
+        ImageState(const vl::Image* img, ETextureMode mode) : mImage(img), mTextureMode(mode) {}
 
         bool operator<(const ImageState& other) const
         {
@@ -82,7 +87,7 @@ private:
         }
     protected:
         const vl::Image* mImage;
-        vl::ETextureMode mTextureMode;
+        ETextureMode mTextureMode;
     };
     //------------------------------------------------------------------------- start internal
     //! \internal
@@ -135,7 +140,7 @@ private:
         vl::fvec4 mColor;
         int mPointSize;
         vl::ref<vl::Image> mImage;
-        vl::ETextureMode mTextureMode;
+        ETextureMode mTextureMode;
         vl::ELogicOp mLogicOp;
         float mLineWidth;
         bool mPointSmoothing;
@@ -417,10 +422,10 @@ public:
     void setPoint(vl::Image* image) { setImage(image); setPointSize(image->width()); }
 
     //! The current texture mode
-    void setTextureMode(vl::ETextureMode mode) { mState.mTextureMode = mode; }
+    void setTextureMode(ETextureMode mode) { mState.mTextureMode = mode; }
 
     //! The current texture mode
-    vl::ETextureMode textureMode() const { return mState.mTextureMode; }
+    ETextureMode textureMode() const { return mState.mTextureMode; }
 
     //! The current logic operation, see also http://www.opengl.org/sdk/docs/man/xhtml/glLogicOp.xml for more information.
     void setLogicOp(vl::ELogicOp op) { mState.mLogicOp = op; }
@@ -453,7 +458,7 @@ public:
     bool polygonSmoothing() const { return mState.mPolygonSmoothing; }
 
     //! The current line stipple, see also http://www.opengl.org/sdk/docs/man/xhtml/glLineStipple.xml for more information.
-    void setLineStipple(vl::ELineStipple stipple);
+    void setLineStipple(ELineStipple stipple);
 
     //! The current line stipple
     void setLineStipple(unsigned short stipple) { mState.mLineStipple = stipple; }
@@ -462,7 +467,7 @@ public:
     unsigned short lineStipple() const { return mState.mLineStipple; }
 
     //! The current polygon stipple, see also http://www.opengl.org/sdk/docs/man/xhtml/glPolygonStipple.xml for more information.
-    void setPolygonStipple(vl::EPolygonStipple stipple);
+    void setPolygonStipple(EPolygonStipple stipple);
 
     //! The current polygon stipple
     void setPolygonStipple(unsigned char* stipple) { memcpy(mState.mPolyStipple, stipple, 32 * 32 / 8); }
@@ -641,6 +646,10 @@ public:
 
     //! Returns the Effect representing the current VectorGraphic's state.
     vl::Effect* currentEffect() { return currentEffect(mState); }
+
+
+    // render-state设置的辅助函数
+    void apply(const KpLine& line);
 
 private:
     void generateQuadsTexCoords(vl::Geometry* geom, int numPoints);

@@ -811,7 +811,7 @@ Texture* KglPaint::resolveTexture(const Image* image)
 #else
         texture->getTexParameter()->setBorderColor(fvec4(1, 1, 1, 0)); // transparent white
 #endif
-        if (mState.mTextureMode == vl::TextureMode_Repeat)
+        if (mState.mTextureMode == TextureMode_Repeat)
         {
             texture->getTexParameter()->setWrapS(TPW_REPEAT);
             texture->getTexParameter()->setWrapT(TPW_REPEAT);
@@ -946,5 +946,12 @@ Actor* KglPaint::addActor(Actor* actor)
 Actor* KglPaint::addActor_(vl::Geometry* geom)
 {
     return addActor(new Actor(geom, currentEffect()));
+}
+//-----------------------------------------------------------------------------
+void KglPaint::apply(const KpLine& line)
+{
+    setLineStipple(ELineStipple(line.style));
+    setLineWidth(line.width);
+    setColor(line.color);
 }
 //-----------------------------------------------------------------------------
