@@ -11,8 +11,7 @@
 #include <vlGraphics/Scissor.hpp>
 #include <vlGraphics/Geometry.hpp>
 #include <vlGraphics/FontManager.hpp>
-#include "KtVector3.h"
-#include "KtVector4.h"
+#include "KtColor.h"
 
 
 // OpenGL绘图接口
@@ -22,7 +21,7 @@ struct KpLine
 {
     int style; // 线型
     double width; // 线宽
-    KtVector4<double> color;
+    color4f color;
 };
 
 class KglPaint : public vl::Object
@@ -31,8 +30,9 @@ public:
     VL_INSTRUMENT_CLASS(KglPaint, Object)
 
 public:
-    using vec3 = KtVector3<double>;
-    using vec4 = KtVector4<double>;
+    using vec2 = pt2d;
+    using vec3 = pt3d;
+    using vec4 = pt4d;
 
     //! Defines how the texture is applied to the rendering primitive
     enum ETextureMode
@@ -302,16 +302,12 @@ public:
         return drawLine(x1, y1, 0, x2, y2, 0);
     }
 
-    vl::Actor* drawLine(const vl::dvec2& from, const vl::dvec2& to) {
+    vl::Actor* drawLine(const pt2d& from, const pt2d& to) {
         return drawLine(from.x(), from.y(), to.x(), to.y());
     }
 
-    vl::Actor* drawLine(const vl::dvec3& from, const vl::dvec3& to) {
+    vl::Actor* drawLine(const pt3d& from, const pt3d& to) {
         return drawLine(from.x(), from.y(), from.z(), to.x(), to.y(), to.z());
-    }
-
-    vl::Actor* drawLine(const vec3& from, const vec3& to) {
-        return drawLine(from.x, from.y, from.z, to.x, to.y, to.z);
     }
 
     //! Renders a set of lines. The 'ln' parameter shoud contain N pairs of dvec2. Each pair defines a line segment.
@@ -398,7 +394,7 @@ public:
     //! The current color. Note that the current color also modulates the currently active image.
     void setColor(const vl::fvec4& color) { mState.mColor = color; }
 
-    void setColor(const vec4& c) { mState.mColor = vl::fvec4(c.x, c.y, c.z, c.w); }
+    void setColor(const color4f& c) { mState.mColor = vl::fvec4(c.r(), c.g(), c.b(), c.a()); }
 
     //! The current color. Note that the current color also modulates the currently active image.
     const vl::fvec4& color() const { return mState.mColor; }
@@ -661,8 +657,8 @@ private:
 
     void generateLinearTexCoords(vl::Geometry* geom);
 
-    vl::ref<vl::Geometry> prepareGeometry(const std::vector<vl::dvec2>& ln);
-    vl::ref<vl::Geometry> prepareGeometry(const std::vector<vl::dvec3>& ln);
+    vl::ref<vl::Geometry> prepareGeometry(const std::vector<pt2d>& ln);
+    vl::ref<vl::Geometry> prepareGeometry(const std::vector<pt3d>& ln);
 
     vl::ref<vl::Geometry> prepareGeometryPolyToTriangles(const std::vector<vl::dvec2>& ln);
     vl::ref<vl::Geometry> prepareGeometryPolyToTriangles(const std::vector<vl::dvec3>& ln);

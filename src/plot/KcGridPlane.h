@@ -8,7 +8,7 @@ class KcAxis;
 class KcGridPlane : public KvRenderable
 {
 	using axis_ptr = std::shared_ptr<KcAxis>;
-	using vec4 = KtVector4<double>;
+	using vec4 = pt4d;
 
 public:
 	KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);
@@ -18,10 +18,10 @@ public:
 	bool minorVisible() const { return minorVisible_; }
 	void setMinorVisible(bool b) { minorVisible_ = b; }
 
-	vec4 majorColor() const {
+	color4f majorColor() const {
 		return majorLine_.color;
 	}
-	void setMajorColor(const vec4& color) {
+	void setMajorColor(const color4f& color) {
 		majorLine_.color = color;
 	}
 
@@ -32,17 +32,17 @@ public:
 		majorLine_.style = style;
 	}
 
-	int majorWidth() const {
+	double majorWidth() const {
 		return majorLine_.width;
 	}
 	void setMajorWidth(double width) {
 		majorLine_.width = width;
 	}
 
-	vec4 minorColor() const {
+	color4f minorColor() const {
 		return minorLine_.color;
 	}
-	void setMinorColor(const vec4& color) {
+	void setMinorColor(const color4f& color) {
 		minorLine_.color = color;
 	}
 
@@ -53,7 +53,7 @@ public:
 		minorLine_.style = style;
 	}
 
-	int minorWidth() const {
+	double minorWidth() const {
 		return minorLine_.width;
 	}
 	void setMinorWidth(double width) {

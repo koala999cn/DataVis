@@ -172,7 +172,7 @@ void KcVlPlot3d::update(bool immediately)
 
     // »æÖÆ±³¾°?
     auto bkclr = background();
-    paint_->clearColor(vl::fvec4(bkclr.x, bkclr.y, bkclr.z, bkclr.w));
+    paint_->clearColor(vl::fvec4(bkclr.r(), bkclr.g(), bkclr.b(), bkclr.a()));
 
     coordSystem()->draw(paint_.get());
 
@@ -186,7 +186,7 @@ void KcVlPlot3d::update(bool immediately)
 }
 
 
-KcVlPlot3d::vec4 KcVlPlot3d::background() const
+color4f KcVlPlot3d::background() const
 {
     auto vp = applet_->rendering()->as<vl::Rendering>()->camera()->viewport();
     auto clr = vp->clearColor();
@@ -194,10 +194,10 @@ KcVlPlot3d::vec4 KcVlPlot3d::background() const
 }
 
 
-void KcVlPlot3d::setBackground(const vec4& clr)
+void KcVlPlot3d::setBackground(const color4f& clr)
 {
     auto vp = applet_->rendering()->as<vl::Rendering>()->camera()->viewport();
-    vp->setClearColor(clr.x, clr.y, clr.z, clr.w);
+    vp->setClearColor(clr.r(), clr.g(), clr.b(), clr.a());
 }
 
 

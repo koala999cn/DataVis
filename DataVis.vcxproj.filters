@@ -608,6 +608,12 @@
     <ClInclude Include="src\plot\KcGridPlane.h">
       <Filter>plot</Filter>
     </ClInclude>
+    <ClInclude Include="src\dsp\KtArray.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtPoint.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="resource\DataVis.qrc">

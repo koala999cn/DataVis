@@ -3,12 +3,11 @@
 #include <vector>
 #include "KvPlottable.h"
 #include "KcCoordSystem.h"
-#include "KtVector4.h"
+#include "KtColor.h"
 
 class KvPlot
 {
 public:
-	using vec4 = KtVector4<double>;
 
 	KvPlot(KcCoordSystem* coord) : coord_(coord), ortho_(true) {}
 
@@ -21,8 +20,8 @@ public:
 	// ¸üÐÂ»æÍ¼
 	virtual void update(bool immediately = true) = 0;
 
-	virtual vec4 background() const = 0;
-	virtual void setBackground(const vec4& clr) = 0;
+	virtual color4f background() const = 0;
+	virtual void setBackground(const color4f& clr) = 0;
 
 	KcCoordSystem* coordSystem() {
 		return coord_.get();

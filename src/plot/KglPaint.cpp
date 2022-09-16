@@ -759,7 +759,7 @@ ref<Geometry> KglPaint::prepareGeometryPolyToTriangles(const std::vector<dvec3>&
     return geom;
 }
 //-----------------------------------------------------------------------------
-ref<Geometry> KglPaint::prepareGeometry(const std::vector<dvec2>& ln)
+ref<Geometry> KglPaint::prepareGeometry(const std::vector<pt2d>& ln)
 {
     // transform the lines
     ref<ArrayFloat3> pos_array = new ArrayFloat3;
@@ -773,14 +773,14 @@ ref<Geometry> KglPaint::prepareGeometry(const std::vector<dvec2>& ln)
     return geom;
 }
 //-----------------------------------------------------------------------------
-ref<Geometry> KglPaint::prepareGeometry(const std::vector<dvec3>& ln)
+ref<Geometry> KglPaint::prepareGeometry(const std::vector<pt3d>& ln)
 {
     // transform the lines
     ref<ArrayFloat3> pos_array = new ArrayFloat3;
     pos_array->resize(ln.size());
     // transform done using high precision
     for (unsigned i = 0; i < ln.size(); ++i)
-        pos_array->at(i) = (fvec3)(matrix() * ln[i]);
+        pos_array->at(i) = (fvec3)(matrix() * (dvec3)ln[i]);
     // generate geometry
     ref< Geometry > geom = new Geometry;
     geom->setVertexArray(pos_array.get());

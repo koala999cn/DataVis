@@ -24,8 +24,8 @@ public:
 
     void update(bool immediately = true) override;
 
-    vec4 background() const override;
-    void setBackground(const vec4& clr) override;
+    color4f background() const override;
+    void setBackground(const color4f& clr) override;
 
     void autoProject();
 

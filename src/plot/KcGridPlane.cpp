@@ -11,10 +11,10 @@ KcGridPlane::KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
 	minorVisible_ = false;
 	majorLine_.style = KglPaint::LineStipple_Solid;
 	majorLine_.width = 0.6;
-	majorLine_.color = vec4(0.3, 0.3, 0.3, 0.3);
+	majorLine_.color = color4f(0.3);
 	minorLine_.style = KglPaint::LineStipple_Dash;
 	minorLine_.width = 0.4;
-	minorLine_.color = vec4(0.3, 0.3, 0.3, 0.3);
+	minorLine_.color = color4f(0.3);
 }
 
 
