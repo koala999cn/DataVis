@@ -5,13 +5,13 @@
 
 
 KcCoordSystem::KcCoordSystem()
-	: KcCoordSystem(vec3(0, 0, 0), vec3(100, 100, 100))
+	: KcCoordSystem(point3d(0, 0, 0), point3d(100, 100, 100))
 {
 
 }
 
 
-KcCoordSystem::KcCoordSystem(const vec3& lower, const vec3& upper)
+KcCoordSystem::KcCoordSystem(const point3d& lower, const point3d& upper)
 {
 	// 初始化12根坐标轴
 	for (unsigned i = 0; i < std::size(axes_); i++)
@@ -78,58 +78,58 @@ KcCoordSystem::KcCoordSystem(const vec3& lower, const vec3& upper)
  *  p3         x3    p4
  *    
  */
-void KcCoordSystem::setRange(const vec3& lower, const vec3& upper)
+void KcCoordSystem::setRange(const point3d& lower, const point3d& upper)
 {
 	// p0 = lower, p7 = upper
-	auto p1 = vec3(lower.x, upper.y, lower.z);
-	auto p2 = vec3(lower.x, upper.y, upper.z);
-	auto p3 = vec3(lower.x, lower.y, upper.z);
-	auto p4 = vec3(upper.x, lower.y, upper.z);
-	auto p5 = vec3(upper.x, lower.y, lower.z);
-	auto p6 = vec3(upper.x, upper.y, lower.z);
+	point3d p1 = { lower.x(), upper.y(), lower.z() };
+	point3d p2 = { lower.x(), upper.y(), upper.z() };
+	point3d p3 = { lower.x(), lower.y(), upper.z() };
+	point3d p4 = { upper.x(), lower.y(), upper.z() };
+	point3d p5 = { upper.x(), lower.y(), lower.z() };
+	point3d p6 = { upper.x(), upper.y(), lower.z() };
 
-	axes_[k_x0]->setRange(lower.x, upper.x);
+	axes_[k_x0]->setRange(lower.x(), upper.x());
 	axes_[k_x0]->setStart(lower); axes_[k_x0]->setEnd(p5);
-	axes_[k_x1]->setRange(lower.x, upper.x);
+	axes_[k_x1]->setRange(lower.x(), upper.x());
 	axes_[k_x1]->setStart(p1); axes_[k_x1]->setEnd(p6);
-	axes_[k_x2]->setRange(lower.x, upper.x);
+	axes_[k_x2]->setRange(lower.x(), upper.x());
 	axes_[k_x2]->setStart(p2); axes_[k_x2]->setEnd(upper);
-	axes_[k_x3]->setRange(lower.x, upper.x);
+	axes_[k_x3]->setRange(lower.x(), upper.x());
 	axes_[k_x3]->setStart(p3); axes_[k_x3]->setEnd(p4);
 
-	axes_[k_y0]->setRange(lower.y, upper.y);
+	axes_[k_y0]->setRange(lower.y(), upper.y());
 	axes_[k_y0]->setStart(lower); axes_[k_y0]->setEnd(p1);
-	axes_[k_y1]->setRange(lower.y, upper.y);
+	axes_[k_y1]->setRange(lower.y(), upper.y());
 	axes_[k_y1]->setStart(p5); axes_[k_y1]->setEnd(p6);
-	axes_[k_y2]->setRange(lower.y, upper.y);
+	axes_[k_y2]->setRange(lower.y(), upper.y());
 	axes_[k_y2]->setStart(p4); axes_[k_y2]->setEnd(upper);
-	axes_[k_y3]->setRange(lower.y, upper.y);
+	axes_[k_y3]->setRange(lower.y(), upper.y());
 	axes_[k_y3]->setStart(p3); axes_[k_y3]->setEnd(p2);
 
-	axes_[k_z0]->setRange(lower.z, upper.z);
+	axes_[k_z0]->setRange(lower.z(), upper.z());
 	axes_[k_z0]->setStart(lower); axes_[k_z0]->setEnd(p3);
-	axes_[k_z1]->setRange(lower.z, upper.z);
+	axes_[k_z1]->setRange(lower.z(), upper.z());
 	axes_[k_z1]->setStart(p5); axes_[k_z1]->setEnd(p4);
-	axes_[k_z2]->setRange(lower.z, upper.z);
+	axes_[k_z2]->setRange(lower.z(), upper.z());
 	axes_[k_z2]->setStart(p6); axes_[k_z2]->setEnd(upper);
-	axes_[k_z3]->setRange(lower.z, upper.z);
+	axes_[k_z3]->setRange(lower.z(), upper.z());
 	axes_[k_z3]->setStart(p1); axes_[k_z3]->setEnd(p2);
 }
 
 
-KcCoordSystem::vec3 KcCoordSystem::lower() const
+point3d KcCoordSystem::lower() const
 {
 	return { axes_[k_x0]->lower(), axes_[k_y0]->lower(), axes_[k_z0]->lower() };
 }
 
 
-KcCoordSystem::vec3 KcCoordSystem::upper() const
+point3d KcCoordSystem::upper() const
 {
 	return { axes_[k_x0]->upper(), axes_[k_y0]->upper(), axes_[k_z0]->upper() };
 }
 
 
-KcCoordSystem::vec3 KcCoordSystem::center() const
+point3d KcCoordSystem::center() const
 {
 	return (lower() + upper()) / 2;
 }

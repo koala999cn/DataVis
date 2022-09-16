@@ -8,7 +8,6 @@ class KcAxis;
 class KcGridPlane : public KvRenderable
 {
 	using axis_ptr = std::shared_ptr<KcAxis>;
-	using vec4 = pt4d;
 
 public:
 	KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);

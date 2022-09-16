@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-
+#include "KtuMath.h"
 
 template<typename T, int DIM>
 class KtPoint : public std::array<T, DIM>
@@ -8,13 +8,19 @@ class KtPoint : public std::array<T, DIM>
 private:
 	static_assert(DIM >= 2);
 	using super_ = std::array<T, DIM>;
+	using kMath = KtuMath<T>;
 
 public:
 
 	using super_::super_;
-	KtPoint(const T& val) {
-		super_::fill(val);
-	}
+	using super_::data;
+	using super_::size;
+
+	// 所有元素都填充val值
+	KtPoint(const T& val) { super_::fill(val); }
+
+	template<typename... ARGS>
+	KtPoint(ARGS... args) : super_{ static_cast<T>(args)... } {}
 
 	constexpr static int dim() { return DIM; }
 
@@ -35,12 +41,99 @@ public:
 
 	const T& v() const { return super_::at(5); }
 	T& v() { return super_::at(5); }
+
+	/// 一般运算
+
+	KtPoint& operator+() { return *this; }
+	KtPoint operator-() const { 
+		KtPoint pt;
+		for (int i = 0; i < dim(); i++)
+			pt[i] = -super_::at(i);
+		return pt; 
+	}
+
+	KtPoint operator+(const KtPoint& rhs) const {
+		KtPoint pt;
+		kMath::add(data(), rhs.data(), pt.data(), size());
+		return pt;
+	}
+	KtPoint operator-(const KtPoint& rhs) const {
+		KtPoint pt;
+		kMath::sub(data(), rhs.data(), pt.data(), size());
+		return pt;
+	}
+	KtPoint operator*(const KtPoint& rhs) const {
+		KtPoint pt;
+		kMath::mul(data(), rhs.data(), pt.data(), size());
+		return pt;
+	}
+	KtPoint operator/(const KtPoint& rhs) const {
+		KtPoint pt;
+		kMath::div(data(), rhs.data(), pt.data(), size());
+		return pt;
+	}
+
+	KtPoint operator+(T dc) const {
+		KtPoint pt;
+		kMath::shift(data(), pt.data(), size(), dc);
+		return pt;
+	}
+	KtPoint operator-(T dc) const {
+		return operator+(-dc);
+	}
+	KtPoint operator*(T factor) const {
+		KtPoint pt;
+		kMath::scale(data(), pt.data(), size(), factor);
+		return pt;
+	}
+	KtPoint operator/(T factor) const {
+		return operator*(1/factor);
+	}
+
+	KtPoint& operator+=(const KtPoint& v) {
+		kMath::add(data(), v.data(), data(), size());
+		return *this;
+	}
+	KtPoint& operator-=(const KtPoint& v) {
+		kMath::sub(data(), v.data(), data(), size());
+		return *this;
+	}
+	KtPoint& operator*=(const KtPoint& v) {
+		kMath::mul(data(), v.data(), data(), size());
+		return *this;
+	}
+	KtPoint& operator/=(const KtPoint& v) {
+		kMath::div(data(), v.data(), data(), size());
+		return *this;
+	}
+
+	KtPoint& operator+=(T dc) {
+		kMath::shift(data(), size(), dc);
+		return *this;
+	}
+	KtPoint& operator-=(T dc) {
+		return operator+=(-dc);
+	}
+	KtPoint& operator*=(T factor) {
+		kMath::scale(data(), size(), factor);
+		return *this;
+	}
+	KtPoint& operator/=(T factor) {
+		return operator*=(1/ factor);
+	}
+
+	T length() const {
+		T len(0);
+		for (int i = 0; i < dim(); i++)
+			len += super_::at(i) * super_::at(i);
+		return std::sqrt(len);
+	}
 };
 
 
-using pt2d = KtPoint<double, 2>;
-using pt2f = KtPoint<float,  2>;
-using pt3d = KtPoint<double, 3>;
-using pt3f = KtPoint<float,  3>;
-using pt4d = KtPoint<double, 4>;
-using pt4f = KtPoint<float,  4>;
+using point2d = KtPoint<double, 2>;
+using point2f = KtPoint<float,  2>;
+using point3d = KtPoint<double, 3>;
+using point3f = KtPoint<float,  3>;
+using point4d = KtPoint<double, 4>;
+using point4f = KtPoint<float,  4>;

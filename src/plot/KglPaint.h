@@ -30,9 +30,9 @@ public:
     VL_INSTRUMENT_CLASS(KglPaint, Object)
 
 public:
-    using vec2 = pt2d;
-    using vec3 = pt3d;
-    using vec4 = pt4d;
+    using vec2 = point2d;
+    using vec3 = point3d;
+    using vec4 = point4d;
 
     //! Defines how the texture is applied to the rendering primitive
     enum ETextureMode
@@ -302,67 +302,67 @@ public:
         return drawLine(x1, y1, 0, x2, y2, 0);
     }
 
-    vl::Actor* drawLine(const pt2d& from, const pt2d& to) {
+    vl::Actor* drawLine(const point2d& from, const point2d& to) {
         return drawLine(from.x(), from.y(), to.x(), to.y());
     }
 
-    vl::Actor* drawLine(const pt3d& from, const pt3d& to) {
+    vl::Actor* drawLine(const point3d& from, const point3d& to) {
         return drawLine(from.x(), from.y(), from.z(), to.x(), to.y(), to.z());
     }
 
     //! Renders a set of lines. The 'ln' parameter shoud contain N pairs of dvec2. Each pair defines a line segment.
-    vl::Actor* drawLines(const std::vector<vl::dvec2>& ln);
+    vl::Actor* drawLines(const std::vector<point2d>& ln);
 
     //! 3d경
-    vl::Actor* drawLines(const std::vector<vl::dvec3>& ln);
+    vl::Actor* drawLines(const std::vector<point3d>& ln);
 
     //! Renders a line passing through the points defined by 'ln'.
-    vl::Actor* drawLineStrip(const std::vector<vl::dvec2>& ln);
+    vl::Actor* drawLineStrip(const std::vector<point2d>& ln);
 
     //! 3d경
-    vl::Actor* drawLineStrip(const std::vector<vl::dvec3>& ln);
+    vl::Actor* drawLineStrip(const std::vector<point3d>& ln);
 
     //! Renders a closed line passing through the points defined by 'ln'.
-    vl::Actor* drawLineLoop(const std::vector<vl::dvec2>& ln);
+    vl::Actor* drawLineLoop(const std::vector<point2d>& ln);
 
     //! 3d경
-    vl::Actor* drawLineLoop(const std::vector<vl::dvec3>& ln);
+    vl::Actor* drawLineLoop(const std::vector<point3d>& ln);
 
     //! Renders a convex polygon whose corners are defined by 'poly'
-    vl::Actor* fillPolygon(const std::vector<vl::dvec2>& poly);
+    vl::Actor* fillPolygon(const std::vector<point2d>& poly);
 
     //! 3d경
-    vl::Actor* fillPolygon(const std::vector<vl::dvec3>& poly);
+    vl::Actor* fillPolygon(const std::vector<point3d>& poly);
 
     //! Renders a set of triangles. The 'triangles' parameters must contain N triplets of dvec2. Each triplet defines a triangle.
-    vl::Actor* fillTriangles(const std::vector<vl::dvec2>& triangles);
+    vl::Actor* fillTriangles(const std::vector<point2d>& triangles);
 
     //! 3d경
-    vl::Actor* fillTriangles(const std::vector<vl::dvec3>& triangles);
+    vl::Actor* fillTriangles(const std::vector<point3d>& triangles);
 
     //! Renders a triangle fan.
-    vl::Actor* fillTriangleFan(const std::vector<vl::dvec2>& fan);
+    vl::Actor* fillTriangleFan(const std::vector<point2d>& fan);
 
     //! 3d경
-    vl::Actor* fillTriangleFan(const std::vector<vl::dvec3>& fan);
+    vl::Actor* fillTriangleFan(const std::vector<point3d>& fan);
 
     //! Renders a strip of triangles as defined by the OpenGL primitive GL_TRIANGLE_STRIP.
-    vl::Actor* fillTriangleStrip(const std::vector<vl::dvec2>& strip);
+    vl::Actor* fillTriangleStrip(const std::vector<point2d>& strip);
 
     //! 3d경
-    vl::Actor* fillTriangleStrip(const std::vector<vl::dvec3>& strip);
+    vl::Actor* fillTriangleStrip(const std::vector<point3d>& strip);
 
     //! Renders a set of rectangles as defined by the OpenGL primitive GL_QUADS
-    vl::Actor* fillQuads(const std::vector<vl::dvec2>& quads);
+    vl::Actor* fillQuads(const std::vector<point2d>& quads);
 
     //! Renders a set of rectangles as defined by the OpenGL primitive GL_QUAD_STRIP
-    vl::Actor* fillQuadStrip(const std::vector<vl::dvec2>& quad_strip);
+    vl::Actor* fillQuadStrip(const std::vector<point2d>& quad_strip);
 
     //! Renders a single point. This is only an utility function. If you want to draw many points use drawPoints(const std::vector<dvec2>& pt) instead.
     vl::Actor* drawPoint(double x, double y);
 
     //! Renders a set of points using the currently set pointSize(), color() and image().
-    vl::Actor* drawPoints(const std::vector<vl::dvec2>& pt);
+    vl::Actor* drawPoints(const std::vector<point2d>& pt);
 
     //! Renders the outline of an ellipse.
     vl::Actor* drawEllipse(double origx, double origy, double xaxis, double yaxis, int segments = 64);
@@ -580,7 +580,7 @@ public:
     vl::Actor* drawText(const vl::String& text, int alignment = vl::AlignBottom | vl::AlignLeft);
 
     //! 3d경
-    vl::Actor* drawText(const vl::fvec3& pos, const vl::String& text, int alignment = vl::AlignBottom | vl::AlignLeft);
+    vl::Actor* drawText(const point3d& pos, const vl::String& text, int alignment = vl::AlignBottom | vl::AlignLeft);
 
     /** Draws the specified Actor with the specified Transform.
      * If keep_effect is set to 'false' or the Actor's Effect is NULL a default Effect is automatically generated.
@@ -606,7 +606,7 @@ public:
     //! Translates the current transform matrix
     void translate(double x, double y, double z = 0.0);
 
-    void translate(const vl::dvec3& v);
+    void translate(const point3d& v);
 
     //! Scales the current transform matrix
     void scale(double x, double y, double z = 1.0);
@@ -652,16 +652,16 @@ public:
 private:
     void generateQuadsTexCoords(vl::Geometry* geom, int numPoints);
 
-    void generatePlanarTexCoords(vl::Geometry* geom, const std::vector<vl::dvec2>& points);
-    void generatePlanarTexCoords(vl::Geometry* geom, const std::vector<vl::dvec3>& points);
+    void generatePlanarTexCoords(vl::Geometry* geom, const std::vector<point2d>& points);
+    void generatePlanarTexCoords(vl::Geometry* geom, const std::vector<point3d>& points);
 
     void generateLinearTexCoords(vl::Geometry* geom);
 
-    vl::ref<vl::Geometry> prepareGeometry(const std::vector<pt2d>& ln);
-    vl::ref<vl::Geometry> prepareGeometry(const std::vector<pt3d>& ln);
+    vl::ref<vl::Geometry> prepareGeometry(const std::vector<point2d>& ln);
+    vl::ref<vl::Geometry> prepareGeometry(const std::vector<point3d>& ln);
 
-    vl::ref<vl::Geometry> prepareGeometryPolyToTriangles(const std::vector<vl::dvec2>& ln);
-    vl::ref<vl::Geometry> prepareGeometryPolyToTriangles(const std::vector<vl::dvec3>& ln);
+    vl::ref<vl::Geometry> prepareGeometryPolyToTriangles(const std::vector<point2d>& ln);
+    vl::ref<vl::Geometry> prepareGeometryPolyToTriangles(const std::vector<point3d>& ln);
 
     vl::Scissor* resolveScissor(int x, int y, int width, int height);
 

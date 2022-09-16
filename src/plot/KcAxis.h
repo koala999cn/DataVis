@@ -3,9 +3,8 @@
 #include <string>
 #include <memory>
 #include "KvRenderable.h"
-#include "KtVector3.h"
-#include "KtVector4.h"
 #include "KvTicker.h"
+#include "KtColor.h"
 
 
 // 坐标轴（单轴）实现
@@ -13,10 +12,9 @@
 
 class KcAxis : public KvRenderable
 {
-	using vec3 = KtVector3<double>;
-	using vec4 = KtVector4<double>;
-
 public:
+
+	using vec3 = point3d;
 
 	enum KeTickOrient
 	{
@@ -28,13 +26,13 @@ public:
 
 	KcAxis();
 
-	const vec3& start() const { return start_; }
-	void setStart(const vec3& v) { start_ = v; }
-	void setStart(double x, double y, double z) { start_ = vec3(x, y, z); }
+	const point3d& start() const { return start_; }
+	void setStart(const point3d& v) { start_ = v; }
+	void setStart(double x, double y, double z) { start_ = point3d(x, y, z); }
 
-	const vec3& end() const { return end_; }
-	void setEnd(const vec3& v) { end_ = v; }
-	void setEnd(double x, double y, double z) { end_ = vec3(x, y, z); }
+	const point3d& end() const { return end_; }
+	void setEnd(const point3d& v) { end_ = v; }
+	void setEnd(double x, double y, double z) { end_ = point3d(x, y, z); }
 
 	const vec3& tickOrient() const { return tickOrient_; }
 
@@ -111,20 +109,20 @@ public:
 
 	/// colors
 
-	vec4 baselineColor() const { return baselineColor_; }
-	void setBaselineColor(vec4 clr) { baselineColor_ = clr; }
+	color4f baselineColor() const { return baselineColor_; }
+	void setBaselineColor(color4f clr) { baselineColor_ = clr; }
 
-	vec4 tickColor() const { return tickColor_; }
-	void setTickColor(vec4 clr) { tickColor_ = clr; }
+	color4f tickColor() const { return tickColor_; }
+	void setTickColor(color4f clr) { tickColor_ = clr; }
 
-	vec4 subtickColor() const { return subtickColor_; }
-	void setSubtickColor(vec4 clr) { subtickColor_ = clr; }
+	color4f subtickColor() const { return subtickColor_; }
+	void setSubtickColor(color4f clr) { subtickColor_ = clr; }
 
-	vec4 labelColor() const { return labelColor_; }
-	void setLabelColor(vec4 clr) { labelColor_ = clr; }
+	color4f labelColor() const { return labelColor_; }
+	void setLabelColor(color4f clr) { labelColor_ = clr; }
 
-	vec4 titleColor() const { return titleColor_; }
-	void setTitleColor(vec4 clr) { titleColor_ = clr; }
+	color4f titleColor() const { return titleColor_; }
+	void setTitleColor(color4f clr) { titleColor_ = clr; }
 
 	/// fonts
 
@@ -158,9 +156,9 @@ private:
 	mutable double refLength_; // 标准参考长度. tickLength_, subtickLength_, labelPadding_均为其相对值
 	                           // 一般取AABB的对角线长度
 
-	vec4 baselineColor_;
-	vec4 tickColor_, subtickColor_;
-	vec4 labelColor_, titleColor_;
+	color4f baselineColor_;
+	color4f tickColor_, subtickColor_;
+	color4f labelColor_, titleColor_;
 
 	//QFont labelFont_, titleFont_;
 

@@ -209,14 +209,14 @@ void KcVlPlot3d::autoProject()
     auto center = coordSystem()->center();
     double radius = coordSystem()->diag() / 2;
 
-    vl::vec3 scale(1 / (upper.x - lower.x), 1 / (upper.y - lower.y), 1 / (upper.z - lower.z));
+    point3d scale(1 / (upper.x() - lower.x()), 1 / (upper.y() - lower.y()), 1 / (upper.z() - lower.z()));
     double zoom = 2 * radius / sqrt(3.);
     scale *= zoom;
     vl::vec3 shift(0, 0, 0);
 
     vl::Transform tr;
     tr.rotate(-90, 1, 0, 0); // 旋转+z轴由向外为向上, +y轴由向上为向内
-    tr.translate(shift.x() - center.x, shift.y() - center.y, shift.z() - center.z); // 把物理坐标AABB的中心点调整为摄像机坐标的原点
+    tr.translate(shift.x() - center.x(), shift.y() - center.y(), shift.z() - center.z()); // 把物理坐标AABB的中心点调整为摄像机坐标的原点
     tr.scale(scale.x(), scale.y(), scale.z());
 
     tr.translate(0, 0, -7 * radius); // 调整摄像机z轴位置，给near/far平面留出足够空间

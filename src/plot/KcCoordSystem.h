@@ -2,8 +2,7 @@
 #include "KvRenderable.h"
 #include <vector>
 #include <memory>
-#include "KtVector3.h"
-#include "KtVector4.h"
+#include "KtPoint.h"
 
 class KcAxis;
 class KcGridPlane;
@@ -16,8 +15,6 @@ class KcCoordSystem : public KvRenderable
 public:
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using grid_plane_ptr = std::shared_ptr<KcGridPlane>;
-	using vec3 = KtVector3<double>;
-	using vec4 = KtVector4<double>;
 
 	// 12根坐标轴的id，用于索引axes_
 	enum KeAxis
@@ -63,14 +60,14 @@ public:
 public:
 
 	KcCoordSystem();
-	KcCoordSystem(const vec3& lower, const vec3& upper);
+	KcCoordSystem(const point3d& lower, const point3d& upper);
 
-	void setRange(const vec3& lower, const vec3& upper);
+	void setRange(const point3d& lower, const point3d& upper);
 
-	vec3 lower() const; // the lower conner
-	vec3 upper() const; // the upper conner
+	point3d lower() const; // the lower conner
+	point3d upper() const; // the upper conner
 
-	vec3 center() const; // the center point
+	point3d center() const; // the center point
 
 	// 返回aabb的对角线长度
 	double diag() const;
@@ -140,8 +137,6 @@ public:
 */
 
 private:
-	vec4 bkgnd_;
-
 	axis_ptr axes_[12];
 	grid_plane_ptr planes_[6];
 };

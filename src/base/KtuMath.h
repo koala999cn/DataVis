@@ -188,12 +188,15 @@ public:
     static KREAL nonZeroMean(const KREAL x[], unsigned n);
 
     static void scale(KREAL x[], unsigned n, KREAL alpha); // x[i] *= alpha
+    static void scale(const KREAL x[], KREAL y[], unsigned n, KREAL alpha); // y[i] = x[i] * alpha
     static void shift(KREAL x[], unsigned n, KREAL scalar); // x[i] += scalar
+    static void shift(const KREAL x[], KREAL y[], unsigned n, KREAL alpha); // y[i] = x[i] + alpha
     static void subMean(KREAL x[], unsigned n); // x[i] -= mean
 
     static void add(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] + y[i]
     static void sub(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] - y[i]
     static void mul(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] * y[i]
+    static void div(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] / y[i]
 
     static KREAL dot(const KREAL x[], const KREAL y[], unsigned n); // Sum(x[i]*y[i])
 
@@ -484,6 +487,11 @@ void KtuMath<KREAL>::scale(KREAL x[], unsigned n, KREAL alpha)
     forEach(x, n, [alpha](KREAL x) { return x * alpha; });
 }
 
+template<typename KREAL>
+void KtuMath<KREAL>::scale(const KREAL x[], KREAL y[], unsigned n, KREAL alpha)
+{
+    forEach(x, y, n, [alpha](KREAL x) { return x * alpha; });
+}
 
 template<typename KREAL>
 void KtuMath<KREAL>::shift(KREAL x[], unsigned n, KREAL dc)
@@ -491,6 +499,11 @@ void KtuMath<KREAL>::shift(KREAL x[], unsigned n, KREAL dc)
     forEach(x, n, [dc](KREAL x) { return x + dc; });
 }
 
+template<typename KREAL>
+void KtuMath<KREAL>::shift(const KREAL x[], KREAL y[], unsigned n, KREAL dc)
+{
+    forEach(x, y, n, [dc](KREAL x) { return x + dc; });
+}
 
 template<class KREAL>
 KREAL KtuMath<KREAL>::sum(const KREAL x[], unsigned n)
@@ -678,6 +691,21 @@ void KtuMath<KREAL>::mul(const KREAL x[], const KREAL y[], KREAL z[], unsigned n
     }
     for(; i < n; i++)
         z[i] = x[i] * y[i];
+}
+
+
+template<class KREAL>
+void KtuMath<KREAL>::div(const KREAL x[], const KREAL y[], KREAL z[], unsigned n)
+{
+    unsigned i = 0;
+    for (; i + 4 <= n; i += 4) {
+        z[i] = x[i] / y[i];
+        z[i + 1] = x[i + 1] / y[i + 1];
+        z[i + 2] = x[i + 2] / y[i + 2];
+        z[i + 3] = x[i + 3] / y[i + 3];
+    }
+    for (; i < n; i++)
+        z[i] = x[i] / y[i];
 }
 
 

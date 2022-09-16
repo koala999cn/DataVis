@@ -12,9 +12,9 @@ KglPaint::KglPaint()
 //-----------------------------------------------------------------------------
 Actor* KglPaint::drawLine(double x1, double y1, double z1, double x2, double y2, double z2)
 {
-    std::vector<dvec3> ln;
-    ln.push_back(dvec3(x1, y1, z1));
-    ln.push_back(dvec3(x2, y2, z2));
+    std::vector<point3d> ln;
+    ln.push_back(point3d(x1, y1, z1));
+    ln.push_back(point3d(x2, y2, z2));
     return drawLines(ln);
 }
 //-----------------------------------------------------------------------------
@@ -41,13 +41,13 @@ Actor* KglPaint::drawLines_(vl::Geometry* geom, int numPoints)
     return addActor(new Actor(geom, currentEffect(), NULL));
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::drawLines(const std::vector<dvec2>& ln)
+Actor* KglPaint::drawLines(const std::vector<point2d>& ln)
 {
     ref<Geometry> geom = prepareGeometry(ln);
     return drawLines_(geom.get(), int(ln.size()));
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::drawLines(const std::vector<dvec3>& ln)
+Actor* KglPaint::drawLines(const std::vector<point3d>& ln)
 {
     ref<Geometry> geom = prepareGeometry(ln);
     return drawLines_(geom.get(), int(ln.size()));
@@ -63,14 +63,14 @@ Actor* KglPaint::drawLineStrip_(vl::Geometry* geom, int numPoints)
     return addActor(new Actor(geom, currentEffect(), NULL));
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::drawLineStrip(const std::vector<dvec2>& ln)
+Actor* KglPaint::drawLineStrip(const std::vector<point2d>& ln)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(ln);
     return drawLineStrip_(geom.get(), int(ln.size()));
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::drawLineStrip(const std::vector<dvec3>& ln)
+Actor* KglPaint::drawLineStrip(const std::vector<point3d>& ln)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(ln);
@@ -87,21 +87,21 @@ Actor* KglPaint::drawLineLoop_(vl::Geometry* geom, int numPoints)
     return addActor_(geom);
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::drawLineLoop(const std::vector<dvec2>& ln)
+Actor* KglPaint::drawLineLoop(const std::vector<point2d>& ln)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(ln);
     return drawLineLoop_(geom.get(), int(ln.size()));
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::drawLineLoop(const std::vector<dvec3>& ln)
+Actor* KglPaint::drawLineLoop(const std::vector<point3d>& ln)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(ln);
     return drawLineLoop_(geom.get(), int(ln.size()));
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillPolygon(const std::vector<dvec2>& poly)
+Actor* KglPaint::fillPolygon(const std::vector<point2d>& poly)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometryPolyToTriangles(poly);
@@ -113,7 +113,7 @@ Actor* KglPaint::fillPolygon(const std::vector<dvec2>& poly)
     return addActor_(geom.get());
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillPolygon(const std::vector<dvec3>& poly)
+Actor* KglPaint::fillPolygon(const std::vector<point3d>& poly)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometryPolyToTriangles(poly);
@@ -125,37 +125,37 @@ Actor* KglPaint::fillPolygon(const std::vector<dvec3>& poly)
     return addActor_(geom.get());
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillTriangles(const std::vector<dvec2>& triangles)
+Actor* KglPaint::fillTriangles(const std::vector<point2d>& triangles)
 {
     return fillTriangles_(triangles, PT_TRIANGLES);
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillTriangleFan(const std::vector<dvec2>& fan)
+Actor* KglPaint::fillTriangleFan(const std::vector<point2d>& fan)
 {
     return fillTriangles_(fan, PT_TRIANGLE_FAN);
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillTriangleStrip(const std::vector<dvec2>& strip)
+Actor* KglPaint::fillTriangleStrip(const std::vector<point2d>& strip)
 {
     return fillTriangles_(strip, PT_TRIANGLE_STRIP);
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillTriangles(const std::vector<dvec3>& triangles)
+Actor* KglPaint::fillTriangles(const std::vector<point3d>& triangles)
 {
     return fillTriangles_(triangles, PT_TRIANGLES);
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillTriangleFan(const std::vector<dvec3>& fan)
+Actor* KglPaint::fillTriangleFan(const std::vector<point3d>& fan)
 {
     return fillTriangles_(fan, PT_TRIANGLE_FAN);
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillTriangleStrip(const std::vector<dvec3>& strip)
+Actor* KglPaint::fillTriangleStrip(const std::vector<point3d>& strip)
 {
     return fillTriangles_(strip, PT_TRIANGLE_STRIP);
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillQuads(const std::vector<dvec2>& quads)
+Actor* KglPaint::fillQuads(const std::vector<point2d>& quads)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(quads);
@@ -167,7 +167,7 @@ Actor* KglPaint::fillQuads(const std::vector<dvec2>& quads)
     return addActor_(geom.get());
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::fillQuadStrip(const std::vector<dvec2>& quad_strip)
+Actor* KglPaint::fillQuadStrip(const std::vector<point2d>& quad_strip)
 {
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(quad_strip);
@@ -181,12 +181,12 @@ Actor* KglPaint::fillQuadStrip(const std::vector<dvec2>& quad_strip)
 //-----------------------------------------------------------------------------
 Actor* KglPaint::drawPoint(double x, double y)
 {
-    std::vector<dvec2> pt;
-    pt.push_back(dvec2(x, y));
+    std::vector<point2d> pt;
+    pt.push_back(point2d(x, y));
     return drawPoints(pt);
 }
 //-----------------------------------------------------------------------------
-Actor* KglPaint::drawPoints(const std::vector<dvec2>& pt)
+Actor* KglPaint::drawPoints(const std::vector<point2d>& pt)
 {
     // transform the points
     ref<ArrayFloat3> pos_array = new ArrayFloat3;
@@ -194,7 +194,7 @@ Actor* KglPaint::drawPoints(const std::vector<dvec2>& pt)
     // transform done using high precision
     for (unsigned i = 0; i < pt.size(); ++i)
     {
-        pos_array->at(i) = (fvec3)(matrix() * dvec3(pt[i].x(), pt[i].y(), 0));
+        pos_array->at(i) = (fvec3)(matrix() * vl::dvec3(pt[i].x(), pt[i].y(), 0));
         // needed for pixel/perfect rendering
         if (mState.mPointSize % 2 == 0)
         {
@@ -212,45 +212,45 @@ Actor* KglPaint::drawPoints(const std::vector<dvec2>& pt)
 //-----------------------------------------------------------------------------
 Actor* KglPaint::drawEllipse(double origx, double origy, double xaxis, double yaxis, int segments)
 {
-    std::vector<dvec2> points;
+    std::vector<point2d> points;
     points.resize(segments);
     for (int i = 0; i < segments; ++i)
     {
         double t = (double)i / (segments - 1) * dPi * 2.0 + dPi * 0.5;
-        points[i] = dvec2(cos(t) * xaxis * 0.5 + origx, sin(t) * yaxis * 0.5 + origy);
+        points[i] = point2d(cos(t) * xaxis * 0.5 + origx, sin(t) * yaxis * 0.5 + origy);
     }
     return drawLineStrip(points);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillEllipse(double origx, double origy, double xaxis, double yaxis, int segments)
 {
-    std::vector<dvec2> points;
+    std::vector<point2d> points;
     points.resize(segments);
     for (int i = 0; i < segments; ++i)
     {
         double t = (double)i / segments * dPi * 2.0 + dPi * 0.5;
-        points[i] = dvec2(cos(t) * xaxis * 0.5 + origx, sin(t) * yaxis * 0.5 + origy);
+        points[i] = point2d(cos(t) * xaxis * 0.5 + origx, sin(t) * yaxis * 0.5 + origy);
     }
     return fillPolygon(points);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::drawQuad(double left, double bottom, double right, double top)
 {
-    std::vector<dvec2> quad;
-    quad.push_back(dvec2(left, bottom));
-    quad.push_back(dvec2(left, top));
-    quad.push_back(dvec2(right, top));
-    quad.push_back(dvec2(right, bottom));
+    std::vector<point2d> quad;
+    quad.push_back(point2d(left, bottom));
+    quad.push_back(point2d(left, top));
+    quad.push_back(point2d(right, top));
+    quad.push_back(point2d(right, bottom));
     return drawLineLoop(quad);
 }
 //-----------------------------------------------------------------------------
 Actor* KglPaint::fillQuad(double left, double bottom, double right, double top)
 {
-    std::vector<dvec2> quad;
-    quad.push_back(dvec2(left, bottom));
-    quad.push_back(dvec2(left, top));
-    quad.push_back(dvec2(right, top));
-    quad.push_back(dvec2(right, bottom));
+    std::vector<point2d> quad;
+    quad.push_back(point2d(left, bottom));
+    quad.push_back(point2d(left, top));
+    quad.push_back(point2d(right, top));
+    quad.push_back(point2d(right, bottom));
     // fill the vertex position array
     ref<Geometry> geom = prepareGeometry(quad);
     // generate texture coords
@@ -479,7 +479,7 @@ Actor* KglPaint::drawText(const String& text, int alignment)
     return drawText(t.get());
 }
 //-----------------------------------------------------------------------------
-vl::Actor* KglPaint::drawText(const vl::fvec3& pos, const vl::String& str, int alignment)
+vl::Actor* KglPaint::drawText(const point3d& pos, const vl::String& str, int alignment)
 {
     ref<Text> text = new Text;
     text->setDisplayListEnabled(false);
@@ -491,7 +491,7 @@ vl::Actor* KglPaint::drawText(const vl::fvec3& pos, const vl::String& str, int a
     text->setMatrix((fmat4)matrix());
     
     ref<Actor> act = new Actor(text.get(), currentEffect(), new Transform);
-    act->transform()->translate(pos);
+    act->transform()->translate(pos.x(), pos.y(), pos.z());
     act->transform()->computeWorldMatrix();
 
     return addActor(act.get());
@@ -525,9 +525,9 @@ void KglPaint::translate(double x, double y, double z)
     mMatrix = mMatrix * dmat4::getTranslation(x, y, z);
 }
 //-----------------------------------------------------------------------------
-void KglPaint::translate(const vl::dvec3& v)
+void KglPaint::translate(const point3d& v)
 {
-    mMatrix = mMatrix * dmat4::getTranslation(v);
+    mMatrix = mMatrix * dmat4::getTranslation(v.x(), v.y(), v.z());
 }
 //-----------------------------------------------------------------------------
 void KglPaint::scale(double x, double y, double z)
@@ -624,7 +624,7 @@ void KglPaint::generateQuadsTexCoords(Geometry* geom, int numPoints)
     }
 }
 //-----------------------------------------------------------------------------
-void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec2>& points)
+void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<point2d>& points)
 {
     // generate only if there is an image active
     if (mState.mImage)
@@ -638,7 +638,7 @@ void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec2>&
             // compute aabb
             AABB aabb;
             for (unsigned i = 0; i < points.size(); ++i)
-                aabb.addPoint((vl::vec3)dvec3(points[i], 0.0));
+                aabb.addPoint(vl::vec3(points[i].x(), points[i].y(), 0.0));
             for (unsigned i = 0; i < points.size(); ++i)
             {
                 float s = float((points[i].x() - aabb.minCorner().x()) / aabb.width());
@@ -664,7 +664,7 @@ void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec2>&
     }
 }
 //-----------------------------------------------------------------------------
-void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<dvec3>& points)
+void KglPaint::generatePlanarTexCoords(Geometry* geom, const std::vector<point3d>& points)
 {
     // generate only if there is an image active
     if (mState.mImage)
@@ -723,7 +723,7 @@ void KglPaint::generateLinearTexCoords(Geometry* geom)
     }
 }
 //-----------------------------------------------------------------------------
-ref<Geometry> KglPaint::prepareGeometryPolyToTriangles(const std::vector<dvec2>& ln)
+ref<Geometry> KglPaint::prepareGeometryPolyToTriangles(const std::vector<point2d>& ln)
 {
     // transform the lines
     ref<ArrayFloat3> pos_array = new ArrayFloat3;
@@ -741,7 +741,7 @@ ref<Geometry> KglPaint::prepareGeometryPolyToTriangles(const std::vector<dvec2>&
     return geom;
 }
 //-----------------------------------------------------------------------------
-ref<Geometry> KglPaint::prepareGeometryPolyToTriangles(const std::vector<dvec3>& ln)
+ref<Geometry> KglPaint::prepareGeometryPolyToTriangles(const std::vector<point3d>& ln)
 {
     // transform the lines
     ref<ArrayFloat3> pos_array = new ArrayFloat3;
@@ -749,9 +749,9 @@ ref<Geometry> KglPaint::prepareGeometryPolyToTriangles(const std::vector<dvec3>&
     // transform done using high precision
     for (unsigned i = 0, itri = 0; i < ln.size() - 2; ++i, itri += 3)
     {
-        pos_array->at(itri + 0) = (fvec3)(matrix() * ln[0]);
-        pos_array->at(itri + 1) = (fvec3)(matrix() * ln[i + 1]);
-        pos_array->at(itri + 2) = (fvec3)(matrix() * ln[i + 2]);
+        pos_array->at(itri + 0) = (fvec3)(matrix() * dvec3(ln[0]));
+        pos_array->at(itri + 1) = (fvec3)(matrix() * dvec3(ln[i + 1]));
+        pos_array->at(itri + 2) = (fvec3)(matrix() * dvec3(ln[i + 2]));
     }
     // generate geometry
     ref< Geometry > geom = new Geometry;
@@ -759,7 +759,7 @@ ref<Geometry> KglPaint::prepareGeometryPolyToTriangles(const std::vector<dvec3>&
     return geom;
 }
 //-----------------------------------------------------------------------------
-ref<Geometry> KglPaint::prepareGeometry(const std::vector<pt2d>& ln)
+ref<Geometry> KglPaint::prepareGeometry(const std::vector<point2d>& ln)
 {
     // transform the lines
     ref<ArrayFloat3> pos_array = new ArrayFloat3;
@@ -773,7 +773,7 @@ ref<Geometry> KglPaint::prepareGeometry(const std::vector<pt2d>& ln)
     return geom;
 }
 //-----------------------------------------------------------------------------
-ref<Geometry> KglPaint::prepareGeometry(const std::vector<pt3d>& ln)
+ref<Geometry> KglPaint::prepareGeometry(const std::vector<point3d>& ln)
 {
     // transform the lines
     ref<ArrayFloat3> pos_array = new ArrayFloat3;
