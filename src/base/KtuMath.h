@@ -191,6 +191,8 @@ public:
     static void shift(KREAL x[], unsigned n, KREAL scalar); // x[i] += scalar
     static void shift(const KREAL x[], KREAL y[], unsigned n, KREAL alpha); // y[i] = x[i] + alpha
     static void subMean(KREAL x[], unsigned n); // x[i] -= mean
+    static void recip(KREAL x[], unsigned n); // 倒数: x[i] = 1 / x[i]
+    static void recip(const KREAL x[], KREAL r[], unsigned n); // 倒数: r[i] = 1 / x[i]
 
     static void add(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] + y[i]
     static void sub(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] - y[i]
@@ -241,6 +243,12 @@ public:
 
     // 对x进行缩放，确保absMax(x) = val
     static void scaleTo(KREAL x[], unsigned n, KREAL val);
+
+    // x[i] *= i/(n-1)
+    static void fadeIn(KREAL x[], unsigned n);
+
+    // x[i] *= (n-i-1)/(n-1)
+    static void fadeOut(KREAL x[], unsigned n);
 
     ////////////////////////////////////////////////////////////////////////
 
@@ -329,11 +337,16 @@ template<class KREAL>
 bool KtuMath<KREAL>::almostEqualRel(KREAL x1, KREAL x2, KREAL rel_tol)
 {
     // a==b handles infinities.
-    if(x1 == x2) return true;
-    if (x1 == 0 || x2 == 0) return almostEqual(x1, x2, rel_tol); // TODO: 
+    if(x1 == x2) 
+        return true;
+
+    if (almostEqual(x1, 0) || almostEqual(x2, 0)) 
+        return almostEqual(x1, x2); // TODO: 
+
     double diff = std::abs(x1 - x2);
     if(isUndefined(diff))
         return false;
+
     return diff <= rel_tol*(std::abs(x1) + std::abs(x2));
 }
 
@@ -645,66 +658,49 @@ KREAL KtuMath<KREAL>::dot(const KREAL x[], const KREAL y[], unsigned n)
 }
 
 template<class KREAL>
-void KtuMath<KREAL>::add(const KREAL x[], const KREAL y[], KREAL z[], unsigned n)
-{
-    unsigned i = 0;
-    for (; i + 4 <= n; i += 4) {
-        z[i] = x[i] + y[i];
-        z[i + 1] = x[i + 1] + y[i + 1];
-        z[i + 2] = x[i + 2] + y[i + 2];
-        z[i + 3] = x[i + 3] + y[i + 3];
-    }
-    for (; i < n; i++)
-        z[i] = x[i] + y[i];
-}
-
-template<class KREAL>
-void KtuMath<KREAL>::sub(const KREAL x[], const KREAL y[], KREAL z[], unsigned n)
-{
-    unsigned i = 0;
-    for (; i + 4 <= n; i += 4) {
-        z[i] = x[i] - y[i];
-        z[i + 1] = x[i + 1] - y[i + 1];
-        z[i + 2] = x[i + 2] - y[i + 2];
-        z[i + 3] = x[i + 3] - y[i + 3];
-    }
-    for (; i < n; i++)
-        z[i] = x[i] - y[i];
-}
-
-template<class KREAL>
 void KtuMath<KREAL>::subMean(KREAL x[], unsigned n)
 {
     shift(x, n, -mean(x, n));
 }
 
 template<class KREAL>
-void KtuMath<KREAL>::mul(const KREAL x[], const KREAL y[], KREAL z[], unsigned n)
+void KtuMath<KREAL>::recip(KREAL x[], unsigned n)
 {
-    unsigned i = 0;
-    for(; i + 4 <= n; i += 4) {
-        z[i] = x[i] * y[i];
-        z[i+1] = x[i+1] * y[i+1];
-        z[i+2] = x[i+2] * y[i+2];
-        z[i+3] = x[i+3] * y[i+3];
-    }
-    for(; i < n; i++)
-        z[i] = x[i] * y[i];
+    forEach(x, n, [](KREAL x) { return 1 / x; });
 }
 
 
 template<class KREAL>
-void KtuMath<KREAL>::div(const KREAL x[], const KREAL y[], KREAL z[], unsigned n)
+void KtuMath<KREAL>::recip(const KREAL x[], KREAL r[], unsigned n)
 {
-    unsigned i = 0;
-    for (; i + 4 <= n; i += 4) {
-        z[i] = x[i] / y[i];
-        z[i + 1] = x[i + 1] / y[i + 1];
-        z[i + 2] = x[i + 2] / y[i + 2];
-        z[i + 3] = x[i + 3] / y[i + 3];
-    }
-    for (; i < n; i++)
-        z[i] = x[i] / y[i];
+    forEach(x, r, n, [](KREAL x) { return 1 / x; });
+}
+
+template<class KREAL>
+void KtuMath<KREAL>::add(const KREAL x[], const KREAL y[], KREAL r[], unsigned n)
+{
+    forEach(x, y, r, n, [](KREAL x, KREAL y) { return x + y; });
+}
+
+
+template<class KREAL>
+void KtuMath<KREAL>::sub(const KREAL x[], const KREAL y[], KREAL r[], unsigned n)
+{
+    forEach(x, y, r, n, [](KREAL x, KREAL y) { return x - y; });
+}
+
+
+template<class KREAL>
+void KtuMath<KREAL>::mul(const KREAL x[], const KREAL y[], KREAL r[], unsigned n)
+{
+    forEach(x, y, r, n, [](KREAL x, KREAL y) { return x * y; });
+}
+
+
+template<class KREAL>
+void KtuMath<KREAL>::div(const KREAL x[], const KREAL y[], KREAL r[], unsigned n)
+{
+    forEach(x, y, r, n, [](KREAL x, KREAL y) { return x / y; });
 }
 
 
@@ -967,6 +963,21 @@ void KtuMath<KREAL>::linspace(KREAL left, KREAL right, KREAL x0ref, KREAL* out, 
         out[i] = left + (x0ref + i) * dx;
 }
 
+
+template<typename KREAL>
+void KtuMath<KREAL>::fadeIn(KREAL x[], unsigned n)
+{
+    for (unsigned i = 0; i < n; i++)
+        x[i] *= KREAL(i) / KREAL(n - 1);
+}
+
+
+template<typename KREAL>
+void KtuMath<KREAL>::fadeOut(KREAL x[], unsigned n)
+{
+    for (unsigned i = 0; i < n; i++)
+        x[i] *= KREAL(n - i - 1) / KREAL(n - 1);
+}
 
 template<typename KREAL>
 KREAL KtuMath<KREAL>::pickNearest(KREAL val, const KREAL x[], unsigned n)
