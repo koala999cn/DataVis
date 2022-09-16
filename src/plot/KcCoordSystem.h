@@ -62,7 +62,7 @@ public:
 	KcCoordSystem();
 	KcCoordSystem(const point3d& lower, const point3d& upper);
 
-	void setRange(const point3d& lower, const point3d& upper);
+	void setExtents(const point3d& lower, const point3d& upper);
 
 	point3d lower() const; // the lower conner
 	point3d upper() const; // the upper conner

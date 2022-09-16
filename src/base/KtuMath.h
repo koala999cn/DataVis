@@ -17,7 +17,6 @@ public:
     static constexpr KREAL golden_section = static_cast<KREAL>(0.6180339887498948482045868343656381177203L); // sqrt(5)/2-0.5
     static constexpr KREAL nan = std::numeric_limits<KREAL>::quiet_NaN();
     static constexpr KREAL inf = std::numeric_limits<KREAL>::infinity();
-    static constexpr KREAL neginf = -inf;
     static constexpr KREAL eps = std::numeric_limits<KREAL>::epsilon();
 
 
@@ -341,10 +340,10 @@ bool KtuMath<KREAL>::almostEqualRel(KREAL x1, KREAL x2, KREAL rel_tol)
 template<class KREAL>
 KREAL KtuMath<KREAL>::addLog(KREAL x, KREAL y)
 {
-    if (x == neginf) {
+    if (x == -inf) {
         return y;
     }
-    else if (y == neginf) {
+    else if (y == -inf) {
         return x;
     }
     else if (x > y) {
@@ -362,9 +361,9 @@ KREAL KtuMath<KREAL>::subLog(KREAL x, KREAL y)
         return nan;
 
     else if (x == y) // log(0)
-        return neginf;
+        return -inf;
 
-    else if (y == neginf) // log(x-0) = log(x) = x
+    else if (y == -inf) // log(x-0) = log(x) = x
         return x;
 
     else

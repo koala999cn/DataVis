@@ -5,7 +5,7 @@
 
 
 KcCoordSystem::KcCoordSystem()
-	: KcCoordSystem(point3d(0, 0, 0), point3d(100, 100, 100))
+	: KcCoordSystem(point3d(0), point3d(10))
 {
 
 }
@@ -17,7 +17,7 @@ KcCoordSystem::KcCoordSystem(const point3d& lower, const point3d& upper)
 	for (unsigned i = 0; i < std::size(axes_); i++)
 		axes_[i].reset(new KcAxis);
 
-	setRange(lower, upper);
+	setExtents(lower, upper);
 
 	axes_[k_x0]->setTickOrient(KcAxis::k_neg_y);
 	axes_[k_x1]->setTickOrient(KcAxis::k_y);
@@ -78,7 +78,7 @@ KcCoordSystem::KcCoordSystem(const point3d& lower, const point3d& upper)
  *  p3         x3    p4
  *    
  */
-void KcCoordSystem::setRange(const point3d& lower, const point3d& upper)
+void KcCoordSystem::setExtents(const point3d& lower, const point3d& upper)
 {
 	// p0 = lower, p7 = upper
 	point3d p1 = { lower.x(), upper.y(), lower.z() };

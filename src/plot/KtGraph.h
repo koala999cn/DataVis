@@ -14,10 +14,12 @@ public:
 	using super_::super_;
 
 	void draw(KglPaint* paint) const override {
-		paint->drawLineStrip();
+		paint->drawLineStrip(data());
 	}
 
 private:
 
 };
 
+using kGraph2d = KtGraph<2>;
+using kGraph3d = KtGraph<3>;

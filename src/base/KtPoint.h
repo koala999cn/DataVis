@@ -19,7 +19,8 @@ public:
 	// 所有元素都填充val值
 	KtPoint(const T& val) { super_::fill(val); }
 
-	template<typename... ARGS>
+	template<typename... ARGS, 
+		std::enable_if_t<sizeof...(ARGS) == DIM, bool> = true> // 加个enable_if, 否则上个构造多数情况下不会被调用
 	KtPoint(ARGS... args) : super_{ static_cast<T>(args)... } {}
 
 	constexpr static int dim() { return DIM; }
@@ -127,6 +128,35 @@ public:
 		for (int i = 0; i < dim(); i++)
 			len += super_::at(i) * super_::at(i);
 		return std::sqrt(len);
+	}
+
+	bool isNan() const {
+		return std::isnan(x()) || std::isnan(y()) || std::isnan(z());
+	}
+
+	bool isInf() const {
+		return std::isinf(x()) || std::isinf(y()) || std::isinf(z());
+	}
+
+	bool isDefined() const {
+		return !isNan() && !isInf();
+	}
+
+
+	static KtPoint ceil(const KtPoint& pt1, const KtPoint& pt2) {
+		KtPoint pt;
+		kMath::forEach(pt1.data(), pt2.data(), pt.data(), dim(), [](T x, T y) {
+			return std::max(x, y);
+			});
+		return pt;
+	}
+
+	static KtPoint floor(const KtPoint& pt1, const KtPoint& pt2) {
+		KtPoint pt;
+		kMath::forEach(pt1.data(), pt2.data(), pt.data(), dim(), [](T x, T y) {
+			return std::min(x, y);
+			});
+		return pt;
 	}
 };
 
