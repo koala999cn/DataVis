@@ -25,10 +25,12 @@ void KvPlot::addPlottable(KvPlottable* plot)
 
 void KvPlot::update()
 {
-	//if (fitData_ && !plottables_.empty())
-	//	autoFit_();
-
-	// autoProject_();
+	if (fitData_ && !plottables_.empty()) {
+		auto box = coord_->boundingBox();
+		autoFit_();
+		if(box != coord_->boundingBox())
+			autoProject_();
+	}
 
 	updateImpl_();
 }

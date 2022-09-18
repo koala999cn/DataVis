@@ -5,6 +5,7 @@
 
 namespace vlQt6 { class Qt6Widget; }
 namespace vl { class Applet; }
+namespace vl { class Transform; }
 class QWidget;
 class KglPaint;
 
@@ -31,6 +32,7 @@ private:
 
 private:
     vl::ref<vl::Applet> applet_;
+    vl::ref<vl::Transform> tr_;
     vl::ref<vlQt6::Qt6Widget> widget_;
     std::unique_ptr<KglPaint> paint_;
 };

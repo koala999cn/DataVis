@@ -6,6 +6,7 @@
 #include <vlGraphics/Actor.hpp>
 #include <vlGraphics/Effect.hpp>
 #include <vlCore/Time.hpp>
+#include <vlCore/Transform.hpp>
 #include <vlGraphics/Light.hpp>
 #include <vlQt6/Qt6Widget.hpp>
 #include "KcCoordSystem.h"
@@ -114,8 +115,10 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     /* target the window so we can render on it */
     applet_->rendering()->as<vl::Rendering>()->renderer()->setFramebuffer(widget_->framebuffer());
 
+    tr_ = new vl::Transform;
+
     /* define the camera position and orientation */
-    autoProject_(); // TODO: remove it!!!
+    autoProject_(); 
 
     /* setup the OpenGL context format */
     vl::OpenGLContextFormat format;
@@ -173,6 +176,8 @@ void KcVlPlot3d::updateImpl_()
     //auto bkclr = background();
     //paint_->clearColor(vl::fvec4(bkclr.r(), bkclr.g(), bkclr.b(), bkclr.a()));
 
+    paint_->setMatrix(vl::dmat4(tr_->localMatrix()));
+
     coordSystem()->draw(paint_.get());
 
     for (unsigned idx = 0; idx < plottableCount(); idx++)
@@ -226,9 +231,11 @@ void KcVlPlot3d::autoProject_()
     else
         camera->setProjectionFrustum(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
 
-    vl::AABB box;
-    box.setMinCorner(lower.x(), lower.y(), lower.z());
-    box.setMaxCorner(upper.x(), upper.y(), upper.z());
-    camera->adjustView(box, vl::vec3(0, 0, -1), vl::vec3(0, 1, 0));
+    applet_->trackball()->setPivot(vl::vec3(center.x(), center.y(), center.z()));
+
+    //vl::AABB box;
+    //box.setMinCorner(lower.x(), lower.y(), lower.z());
+    //box.setMaxCorner(upper.x(), upper.y(), upper.z());
+    //camera->adjustView(box, vl::vec3(0, 0, -1), vl::vec3(0, 1, 0));
 }
 

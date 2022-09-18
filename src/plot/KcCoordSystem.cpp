@@ -2,6 +2,7 @@
 #include "KcAxis.h"
 #include "KcGridPlane.h"
 #include "KglPaint.h"
+#include <assert.h>
 
 
 KcCoordSystem::KcCoordSystem()
@@ -144,6 +145,15 @@ double KcCoordSystem::diag() const
 KtAABB<double> KcCoordSystem::boundingBox() const
 {
 	return { lower(), upper() };
+}
+
+
+void KcCoordSystem::zoom(double factor)
+{
+	auto c = center();
+	auto delta = (upper() - lower()) * factor * 0.5;
+	setExtents(c - delta, c + delta);
+	//assert(center() == c);
 }
 
 
