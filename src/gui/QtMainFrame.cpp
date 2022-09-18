@@ -21,7 +21,7 @@
 #include "provider.h"
 #include "operator.h"
 #include "render.h"
-#include "render/KvRdPlot3d_.h"
+#include "render/KcRdScatter3d_.h"
 
 
 using namespace KDDockWidgets;
@@ -238,17 +238,12 @@ QMenu* QtMainFrame::setupRdMenu_()
 
     QAction* scatter3d = renderMenu->addAction(u8"Scatter3d(&S)");
     connect(scatter3d, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KcRdScatter3d>(workDock_, false);
+        kPrivate::insertObjectP<KcRdScatter3d_>(workDock_, false);
         });
 
     QAction* surface3d = renderMenu->addAction(u8"Surface3d(&U)");
     connect(surface3d, &QAction::triggered, [this] {
         kPrivate::insertObjectP<KcRdSurface3d>(workDock_, false);
-        });
-
-    QAction* plot3d = renderMenu->addAction(u8"Plot3d Test(&O)");
-    connect(plot3d, &QAction::triggered, [this] {
-        kPrivate::insertObjectP<KvRdPlot3d_>(workDock_, false);
         });
 
     QAction* player = renderMenu->addAction(u8"AudioPlayer(&P)");

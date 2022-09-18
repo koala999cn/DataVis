@@ -279,6 +279,15 @@
     <ClCompile Include="src\plot\KcGridPlane.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcGraph.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KvPlot.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\KcRdScatter3d_.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -616,6 +625,15 @@
     </ClInclude>
     <ClInclude Include="src\base\KtAABB.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcGraph.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvPlottable1d.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdScatter3d_.h">
+      <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

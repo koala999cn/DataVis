@@ -174,12 +174,14 @@
     <ClCompile Include="src\op\KcOpFilterBank.cpp" />
     <ClCompile Include="src\op\KcOpWindowing.cpp" />
     <ClCompile Include="src\op\KvOpHelper1d.cpp" />
+    <ClCompile Include="src\plot\KcGraph.cpp" />
     <ClCompile Include="src\plot\KcGridPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
     <ClCompile Include="src\plot\KcVlPlot3d.cpp" />
     <ClCompile Include="src\plot\KglPaint.cpp" />
     <ClCompile Include="src\plot\KsPlotManager.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
+    <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvTicker.cpp" />
     <ClCompile Include="src\plot\KcCoordSystem.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
@@ -199,6 +201,7 @@
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
     <ClCompile Include="src\render\KcRdPlot2d.cpp" />
     <ClCompile Include="src\render\KcRdScatter3d.cpp" />
+    <ClCompile Include="src\render\KcRdScatter3d_.cpp" />
     <ClCompile Include="src\render\KcRdSurface3d.cpp" />
     <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
     <ClCompile Include="src\render\KvRdPlot3d.cpp" />
@@ -264,6 +267,8 @@
     <ClInclude Include="src\plot\KcVlPlot3d.h" />
     <ClInclude Include="src\plot\KsPlotManager.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
+    <ClInclude Include="src\plot\KcGraph.h" />
+    <ClInclude Include="src\plot\KvPlottable1d.h" />
     <ClInclude Include="src\plot\KvTicker.h" />
     <ClInclude Include="src\plot\KcCoordSystem.h" />
     <ClInclude Include="src\plot\KglPaint.h" />
@@ -273,6 +278,7 @@
     <ClInclude Include="src\render\KcRdBubble2d.h" />
     <QtMoc Include="src\render\QCPBubbleChart.h" />
     <QtMoc Include="src\render\KvRdPlot3d_.h" />
+    <ClInclude Include="src\render\KcRdScatter3d_.h" />
     <ClInclude Include="src\theme\KvThemedPlot.h" />
     <ClInclude Include="src\theme\KcThemedQCP.h" />
     <QtMoc Include="src\gui\QtTxtDataLoadDlg.h" />

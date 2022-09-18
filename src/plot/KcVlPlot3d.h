@@ -22,12 +22,12 @@ public:
 
     void* widget() const override;
 
-    void update(bool immediately = true) override;
-
     color4f background() const override;
     void setBackground(const color4f& clr) override;
 
-    void autoProject();
+private:
+    void updateImpl_() override;
+    void autoProject_() override;
 
 private:
     vl::ref<vl::Applet> applet_;

@@ -98,7 +98,6 @@ namespace kPrivate
 
 
 KcVlPlot3d::KcVlPlot3d(QWidget* parent)
-    : KvPlot(new KcCoordSystem)
 {
     paint_ = std::make_unique<KglPaint>();
 
@@ -116,7 +115,7 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     applet_->rendering()->as<vl::Rendering>()->renderer()->setFramebuffer(widget_->framebuffer());
 
     /* define the camera position and orientation */
-    autoProject();
+    autoProject_(); // TODO: remove it!!!
 
     /* setup the OpenGL context format */
     vl::OpenGLContextFormat format;
@@ -166,23 +165,20 @@ void* KcVlPlot3d::widget() const
 }
 
 
-void KcVlPlot3d::update(bool immediately)
+void KcVlPlot3d::updateImpl_()
 {
     paint_->startDrawing();
 
     // 绘制背景?
-    auto bkclr = background();
-    paint_->clearColor(vl::fvec4(bkclr.r(), bkclr.g(), bkclr.b(), bkclr.a()));
+    //auto bkclr = background();
+    //paint_->clearColor(vl::fvec4(bkclr.r(), bkclr.g(), bkclr.b(), bkclr.a()));
 
     coordSystem()->draw(paint_.get());
 
-    for (int idx = 0; idx < numPlottables(); idx++)
+    for (unsigned idx = 0; idx < plottableCount(); idx++)
         plottable(idx)->draw(paint_.get());
 
     paint_->endDrawing();
-
-    //if (immediately) // TODO: 优化
-    //    widget_->update();
 }
 
 
@@ -201,7 +197,7 @@ void KcVlPlot3d::setBackground(const color4f& clr)
 }
 
 
-void KcVlPlot3d::autoProject()
+void KcVlPlot3d::autoProject_()
 {
     auto camera = applet_->rendering()->as<vl::Rendering>()->camera();
     auto lower = coordSystem()->lower();
@@ -215,7 +211,7 @@ void KcVlPlot3d::autoProject()
     vl::vec3 shift(0, 0, 0);
 
     vl::Transform tr;
-    tr.rotate(-90, 1, 0, 0); // 旋转+z轴由向外为向上, +y轴由向上为向内
+    //tr.rotate(-90, 1, 0, 0); // 旋转+z轴由向外为向上, +y轴由向上为向内
     tr.translate(shift.x() - center.x(), shift.y() - center.y(), shift.z() - center.z()); // 把物理坐标AABB的中心点调整为摄像机坐标的原点
     tr.scale(scale.x(), scale.y(), scale.z());
 
@@ -229,5 +225,10 @@ void KcVlPlot3d::autoProject()
         camera->setProjectionOrtho(-radius, +radius, -radius, +radius, 0, 40 * radius);
     else
         camera->setProjectionFrustum(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
+
+    vl::AABB box;
+    box.setMinCorner(lower.x(), lower.y(), lower.z());
+    box.setMaxCorner(upper.x(), upper.y(), upper.z());
+    camera->adjustView(box, vl::vec3(0, 0, -1), vl::vec3(0, 1, 0));
 }
 
