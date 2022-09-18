@@ -87,6 +87,12 @@ void KcAxis::setTicker(std::shared_ptr<KvTicker> tic)
 }
 
 
+KtAABB<double> KcAxis::boundingBox() const
+{
+	return { start(), end() };
+}
+
+
 void KcAxis::draw(KglPaint* paint) const
 {
 	assert(visible());

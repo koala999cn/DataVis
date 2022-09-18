@@ -12,8 +12,6 @@ class KcGridPlane : public KvRenderable
 public:
 	KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);
 
-	void draw(KglPaint*) const override;
-
 	bool minorVisible() const { return minorVisible_; }
 	void setMinorVisible(bool b) { minorVisible_ = b; }
 
@@ -58,6 +56,10 @@ public:
 	void setMinorWidth(double width) {
 		minorLine_.width = width;
 	}
+
+	KtAABB<double> boundingBox() const override;
+
+	void draw(KglPaint*) const override;
 
 private:
 

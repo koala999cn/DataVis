@@ -1,4 +1,5 @@
 #pragma once
+#include "KtAABB.h"
 
 class KglPaint;
 
@@ -12,6 +13,8 @@ public:
 	virtual bool visible() const { return visible_; }
 
 	virtual void draw(KglPaint*) const = 0;
+
+	virtual KtAABB<double> boundingBox() const = 0;
 
 private:
 	bool visible_;

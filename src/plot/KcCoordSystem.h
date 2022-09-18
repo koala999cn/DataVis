@@ -75,6 +75,9 @@ public:
 	axis_ptr& axis(KeAxis id) { return axes_[id]; }
 	axis_ptr axis(KeAxis id) const { return axes_[id]; }
 
+
+	KtAABB<double> boundingBox() const override;
+
 	void draw(KglPaint*) const override;
 
 	// grid相关成员方法

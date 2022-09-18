@@ -141,6 +141,12 @@ double KcCoordSystem::diag() const
 }
 
 
+KtAABB<double> KcCoordSystem::boundingBox() const
+{
+	return { lower(), upper() };
+}
+
+
 void KcCoordSystem::draw(KglPaint* paint) const
 {
 	if (visible()) {

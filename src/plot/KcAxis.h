@@ -58,8 +58,6 @@ public:
 		return upper_ - lower_; // == (end - start).length ? 
 	}
 
-	void draw(KglPaint*) const override;
-
 	bool showBaseline() const { return showBaseline_; }
 	void setShowBaseline(bool b) { showBaseline_ = b; }
 
@@ -137,6 +135,11 @@ public:
 
 	// 根据tick的数值，返回tick在坐标轴上的的3维坐标
 	vec3 tickPos(double val) const;
+
+
+	KtAABB<double> boundingBox() const override;
+
+	void draw(KglPaint*) const override;
 
 private:
 	void drawTicks_(KglPaint*) const; // 绘制所有刻度

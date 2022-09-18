@@ -18,6 +18,17 @@ KcGridPlane::KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
 }
 
 
+KtAABB<double> KcGridPlane::boundingBox() const
+{
+	auto box1 = KtAABB<double>{ point3d::floor(horz_[0]->start(), horz_[1]->start()),
+		point3d::ceil(horz_[0]->end(), horz_[1]->end()) };
+	auto box2 = KtAABB<double>{ point3d::floor(vert_[0]->start(), vert_[1]->start()),
+		point3d::ceil(vert_[0]->end(), vert_[1]->end()) };
+
+	return box1.merge(box2);
+}
+
+
 void KcGridPlane::draw(KglPaint* paint) const
 {
 	assert(visible());
