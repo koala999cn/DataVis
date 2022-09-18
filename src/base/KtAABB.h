@@ -128,7 +128,7 @@ public:
 	/** Sets the box to a 'null' value i.e. not a box.
 	*/
 	void setNull() {
-		setExtents(point(kMath::nan), point(kMath::nan));
+		lower_ = upper_ = point(kMath::nan);
 	}
 
 	/** Returns true if the box is null i.e. empty.
@@ -145,13 +145,13 @@ public:
 
 	/** Returns true if the box is infinite.
 	*/
-	bool isInf(void) const {
+	bool isInf() const {
 		return lower_.isInf() || upper_.isInf();
 	}
 
 	/** Returns true if the box is finite.
 	*/
-	bool isFinite(void) const {
+	bool isFinite() const {
 		return !isNull() && !isInf();
 	}
 
@@ -185,11 +185,11 @@ public:
 	/** Merges the passed in box into the current box. The result is the
 	box which encompasses both.
 	*/
-	void merge(const KtAABB& rhs);
+	KtAABB& merge(const KtAABB& rhs);
 
 	/** Extends the box to encompass the specified point (if needed).
 	*/
-	void merge(const point& pt);
+	KtAABB& merge(const point& pt);
 
 	/// Calculate the area of intersection of this box and another
 	KtAABB intersection(const KtAABB& rhs) const;
@@ -271,7 +271,7 @@ bool KtAABB<T>::contains(const KtAABB& rhs) const
 }
 
 template<class T>
-void KtAABB<T>::merge(const point& pt)
+KtAABB<T>& KtAABB<T>::merge(const point& pt)
 {
 	if (isNull()) // if null, use this point
 		setExtents(pt, pt);
@@ -280,14 +280,16 @@ void KtAABB<T>::merge(const point& pt)
 		auto upper = point::ceil(upper_, pt);
 		setExtents(lower, upper);
 	}
+
+	return *this;
 }
 
 template<class T>
-void KtAABB<T>::merge(const KtAABB& rhs) 
+KtAABB<T>& KtAABB<T>::merge(const KtAABB& rhs)
 {
 	// Do nothing if rhs null, or this is infinite
 	if (rhs.isNull() || isInf())
-		return;
+		return *this;
 	// Otherwise if rhs is infinite, make this infinite, too
 	else if (rhs.isInf())
 		setInf();
@@ -300,6 +302,8 @@ void KtAABB<T>::merge(const KtAABB& rhs)
 		auto upper = point::ceil(upper_, rhs.upper_);
 		setExtents(lower, upper);
 	}
+
+	return *this;
 }
 
 template<class T>
