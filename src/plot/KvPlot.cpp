@@ -6,7 +6,13 @@
 KvPlot::KvPlot() 
 	: ortho_(true)
 	, fitData_(true)
+    , isometric_(false)
 {
+	zoom_ = 1;
+	scale_ = { 1, 1, 1 };
+	shift_ = { 0, 0, 0 };
+	rotate_ = { 0, 0, 0 };
+
 	coord_ = std::make_unique<KcCoordSystem>();
 }
 
@@ -25,12 +31,10 @@ void KvPlot::addPlottable(KvPlottable* plot)
 
 void KvPlot::update()
 {
-	if (fitData_ && !plottables_.empty()) {
-		auto box = coord_->boundingBox();
+	if (fitData_ && !plottables_.empty()) 
 		autoFit_();
-		if(box != coord_->boundingBox())
-			autoProject_();
-	}
+
+	autoProject_();
 
 	updateImpl_();
 }

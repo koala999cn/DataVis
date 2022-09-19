@@ -452,6 +452,14 @@ Actor* KglPaint::clearStencil(int clear_val, int x, int y, int w, int h)
     return addActor(new Actor(clear.get(), /*mDefaultEffect.get()*/currentEffect(), NULL));
 }
 //-----------------------------------------------------------------------------
+vl::Actor* KglPaint::clearDepth(float clear_val)
+{
+    ref<Clear> clear = new Clear;
+    clear->setClearDepthBuffer(true);
+    clear->setClearDepthValue(clear_val); 
+    return addActor(new Actor(clear.get(), /*mDefaultEffect.get()*/currentEffect(), NULL));
+}
+//-----------------------------------------------------------------------------
 Actor* KglPaint::drawText(Text* text)
 {
     if (text->font() == NULL)

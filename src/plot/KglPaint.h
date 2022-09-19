@@ -569,6 +569,9 @@ public:
      * \note The specified rectangular area is not affected by the current matrix transform. */
     vl::Actor* clearStencil(int clear_val, int x = 0, int y = 0, int w = -1, int h = -1);
 
+    // 3d°æ
+    vl::Actor* clearDepth(float clear_val);
+
     //! Draw the specified Text object
     vl::Actor* drawText(vl::Text* text);
 
