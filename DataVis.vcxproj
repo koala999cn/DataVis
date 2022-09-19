@@ -177,6 +177,7 @@
     <ClCompile Include="src\plot\KcGraph.cpp" />
     <ClCompile Include="src\plot\KcGridPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
+    <ClCompile Include="src\plot\KcPlotApplet_.cpp" />
     <ClCompile Include="src\plot\KcVlPlot3d.cpp" />
     <ClCompile Include="src\plot\KglPaint.cpp" />
     <ClCompile Include="src\plot\KsPlotManager.cpp" />
@@ -264,6 +265,7 @@
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\plot\KcGridPlane.h" />
     <ClInclude Include="src\plot\KcLinearTicker.h" />
+    <ClInclude Include="src\plot\KcPlotApplet_.h" />
     <ClInclude Include="src\plot\KcVlPlot3d.h" />
     <ClInclude Include="src\plot\KsPlotManager.h" />
     <ClInclude Include="src\plot\KcAxis.h" />

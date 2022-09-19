@@ -1,6 +1,4 @@
 #include "KvPlot.h"
-#include "KvPlottable.h"
-#include "KcCoordSystem.h"
 
 
 KvPlot::KvPlot() 

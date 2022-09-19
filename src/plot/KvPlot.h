@@ -2,9 +2,8 @@
 #include <memory>
 #include <vector>
 #include "KtColor.h"
-
-class KvPlottable;
-class KcCoordSystem;
+#include "KvPlottable.h"
+#include "KcCoordSystem.h"
 
 class KvPlot
 {

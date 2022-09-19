@@ -1,6 +1,6 @@
 #pragma once
 #include "KvPlot.h"
-#include <vlCore/Object.hpp>
+#include <vlCore/Object.hpp> // for vl::ref
 #include <memory>
 
 namespace vlQt6 { class Qt6Widget; }
@@ -32,7 +32,6 @@ private:
 
 private:
     vl::ref<vl::Applet> applet_;
-    vl::ref<vl::Transform> tr_;
     vl::ref<vlQt6::Qt6Widget> widget_;
     std::unique_ptr<KglPaint> paint_;
 };

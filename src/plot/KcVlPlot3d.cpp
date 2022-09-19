@@ -1,5 +1,5 @@
 #include "KcVlPlot3d.h"
-#include <vlWin32/Win32Window.hpp>
+#include <vlQt6/Qt6Widget.hpp>
 #include "KcCoordSystem.h"
 #include "KvPlottable.h"
 #include "KglPaint.h"
@@ -11,7 +11,7 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     paint_ = std::make_unique<KglPaint>();
 
     /* create a native Qt6 window */
-    widget_ = new vlWin32::Win32Window;
+    widget_ = new vlQt6::Qt6Widget;
 
     /* create the applet to be run */
     applet_ = new kPrivate::KcPlotApplet_(this, paint_.get());
@@ -40,7 +40,7 @@ KcVlPlot3d::KcVlPlot3d(QWidget* parent)
     int y = 0;
     int width = 512;
     int height = 512;
-    widget_->initWin32GLWindow(NULL, NULL, "Visualization Library on Win32 - Rotating Cube", format, x, y, width, height);
+    widget_->initQt6Widget("plot3d", format, x, y, width, height);
 
     setBackground({ 1, 1, 1, 1 });
 
@@ -66,7 +66,7 @@ void KcVlPlot3d::show(bool b)
 
 bool KcVlPlot3d::visible() const
 {
-    return ::IsWindowVisible(widget_->hwnd()) && !::IsIconic(widget_->hwnd());
+    return widget_->isVisible();
 }
 
 
@@ -81,9 +81,9 @@ void KcVlPlot3d::updateImpl_()
     paint_->startDrawing();
 
     // »æÖÆ±³¾°?
-    auto bkclr = background();
-    paint_->clearColor(vl::fvec4(bkclr.r(), bkclr.g(), bkclr.b(), bkclr.a()));
-    paint_->clearDepth(0);
+    //auto bkclr = background();
+    //paint_->clearColor(vl::fvec4(bkclr.r(), bkclr.g(), bkclr.b(), bkclr.a()));
+    //paint_->clearDepth(0);
 
     coordSystem().draw(paint_.get());
 

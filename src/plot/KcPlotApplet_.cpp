@@ -65,8 +65,9 @@ namespace kPrivate
 
     void KcPlotApplet_::initEvent()
     {
-        auto sm = new kPrivate::KcPlotSceneManager_(paint_);
-        rendering()->as<vl::Rendering>()->sceneManagers()->push_back(sm);
+        auto r = rendering()->as<vl::Rendering>();
+        r->sceneManagers()->push_back(new kPrivate::KcPlotSceneManager_(paint_));
+        r->renderer()->setClearFlags(vl::CF_CLEAR_COLOR_DEPTH);
     }
 
 

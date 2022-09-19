@@ -288,6 +288,9 @@
     <ClCompile Include="src\render\KcRdScatter3d_.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcPlotApplet_.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\op\KvDataOperator.h">
@@ -634,6 +637,9 @@
     </ClInclude>
     <ClInclude Include="src\render\KcRdScatter3d_.h">
       <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcPlotApplet_.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
