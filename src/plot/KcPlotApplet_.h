@@ -41,8 +41,8 @@ namespace kPrivate {
         void doRotate_(int x, int y);
         void doShift_(int x, int y);
 
-        // trackball帮助函数，根据屏幕坐标计算方向矢量，用于旋转操作
-        vec3d computeVector_(int x, int y);
+        // trackball帮助函数，将屏幕坐标投影到trackball矢量，用于旋转操作
+        vec3d projectToTrackball_(int x, int y);
 
     private:
         KvPlot* plot3d_;

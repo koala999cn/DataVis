@@ -220,6 +220,7 @@
     <ClInclude Include="src\audio\KcAudioRender.h" />
     <ClInclude Include="src\audio\KgAudioFile.h" />
     <ClInclude Include="src\base\KtAABB.h" />
+    <ClInclude Include="src\base\KtMatrix3.h" />
     <ClInclude Include="src\base\KtObservable.h" />
     <ClInclude Include="src\base\KtPoint.h" />
     <ClInclude Include="src\base\KtSingleton.h" />

@@ -3,6 +3,7 @@
 #include "KglPaint.h"
 #include "KcCoordSystem.h"
 #include "KtuMath.h"
+#include "KtMatrix3.h"
 
 
 namespace kPrivate
@@ -133,29 +134,17 @@ namespace kPrivate
 
         // 参考lv实现的trackball旋转算法
 
-        auto a = computeVector_(posX_, posY_);
-        auto b = computeVector_(x, y);
-        auto n = a.cross(b);
-        n.normalize();
-        a.normalize();
-        b.normalize();
+        auto a = projectToTrackball_(posX_, posY_);
+        auto b = projectToTrackball_(x, y);
+        auto dir = a.cross(b);
+        dir.normalize();
         auto dot_a_b = a.dot(b);
         dot_a_b = KtuMath<double>::clamp(dot_a_b, -1.0, +1.0);
-        auto rot = acos(dot_a_b) * rotateSpeed_;
+        auto angle = acos(dot_a_b) * rotateSpeed_;
 
-        rot *= 180 / KtuMath<double>::pi; // rad2deg
-        plot3d_->rotate(rot);
-
-        vl::vec3 nc(n);
-        nc.normalize();
-        auto m = vl::mat4::getRotation(rot, nc);
-        
-        //vec3 nc = camera()->modelingMatrix().get3x3() * n;
-        //if (mTransform && mTransform->parent())
-       //     nc = mTransform->parent()->getComputedWorldMatrix().getInverse() * nc;
-        //nc.normalize();
-        //return mat4::getRotation(alpha * (real)dRAD_TO_DEG, nc);
-
+        angle *= 180 / KtuMath<double>::pi; // rad2deg
+        plot3d_->rotate(dir * angle * 6); // FIXME: 暂时用dir在各轴的投影分量模拟trackball旋转，效果凑合
+                                          // TODO: (旋转+平移后，出现旋转错乱情况)
     }
 
 
@@ -189,26 +178,34 @@ namespace kPrivate
     }
 
 
-    vec3d KcPlotApplet_::computeVector_(int x, int y)
+    vec3d KcPlotApplet_::projectToTrackball_(int x, int y)
     {
         int w = viewport_()->width();
         int h = viewport_()->height();
 
         vec3d c(w / 2.0f, h / 2.0f, 0);
 
-        double sphere_x = w * 0.5f;
-        double sphere_y = h * 0.5f;
+        // 设定整个屏幕为trackball的展开，计算trackball的半径
+        double sphere_x = w * 0.5;
+        double sphere_y = h * 0.5;
 
+        // 将x, y归一化
         vec3d v(x, y, 0);
         v -= c;
         v.x() /= sphere_x;
         v.y() /= sphere_y;
         v.y() = -v.y();
 
-        double z2 = 1.0f - v.x() * v.x() - v.y() * v.y();
-        if (z2 < 0)
-            z2 = 0;
-        v.z() = std::sqrt(z2);
+        // 算法关键在于求z
+        // 若sqrt(x*x+y*y) <= r/sqrt(2), z = sqrt(r*r-x*x-y*y)
+        // 否则, z = r*r/2/sqrt(x*x+y*y)
+        // 在归一化情况下，r=1
+        double xy2 = v.x() * v.x() + v.y() * v.y();
+        if (xy2 <= 0.5)
+            v.z() = std::sqrt(1 - xy2);
+        else
+            v.z() = 0.5 / std::sqrt(xy2);
+
         v.normalize();
         return v;
     }

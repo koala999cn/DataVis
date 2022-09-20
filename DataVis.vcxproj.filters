@@ -641,6 +641,9 @@
     <ClInclude Include="src\plot\KcPlotApplet_.h">
       <Filter>plot</Filter>
     </ClInclude>
+    <ClInclude Include="src\base\KtMatrix3.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="resource\DataVis.qrc">

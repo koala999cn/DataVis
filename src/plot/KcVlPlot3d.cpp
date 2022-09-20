@@ -113,7 +113,7 @@ void KcVlPlot3d::autoProject_()
     auto lower = coordSystem().lower();
     auto upper = coordSystem().upper();
     auto center = lower + (upper - lower) / 2;
-    double radius = (center - lower).length();
+    double radius = coordSystem().diag() / 2;
 
     auto zoom = getZoom();
     auto scale = getScale();
@@ -127,11 +127,12 @@ void KcVlPlot3d::autoProject_()
 
     vl::Transform tr;
     //tr.rotate(-90, 1, 0, 0); // 旋转+z轴由向外为向上, +y轴由向上为向内
-    tr.translate(vl::vec3(shift - center)); // 把物理坐标AABB的中心点调整为摄像机坐标的原点
+    tr.translate(vl::vec3(-center)); // 把物理坐标AABB的中心点调整为摄像机坐标的原点
     tr.scale(scale.x(), scale.y(), scale.z());
     tr.rotate(rot.x(), 1, 0, 0);
     tr.rotate(rot.y(), 0, 1, 0);
     tr.rotate(rot.z(), 0, 0, 1);
+    tr.translate(vl::vec3(shift));
     tr.translate(0, 0, -7 * radius); // 调整z轴位置，给near/far平面留出足够空间
     camera->setViewMatrix(tr.localMatrix());
 
