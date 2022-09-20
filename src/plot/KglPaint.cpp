@@ -202,10 +202,34 @@ Actor* KglPaint::drawPoints(const std::vector<point2d>& pt)
             pos_array->at(i).t() += 0.5;
         }
     }
+    return drawPoints_(pos_array.get());
+}
+//-----------------------------------------------------------------------------
+Actor* KglPaint::drawPoints(const std::vector<point3d>& pt)
+{
+    // transform the points
+    ref<ArrayFloat3> pos_array = new ArrayFloat3;
+    pos_array->resize(pt.size());
+    // transform done using high precision
+    for (unsigned i = 0; i < pt.size(); ++i)
+    {
+        pos_array->at(i) = (fvec3)(matrix() * vl::dvec3(pt[i]));
+        // needed for pixel/perfect rendering
+        if (mState.mPointSize % 2 == 0)
+        {
+            pos_array->at(i).s() += 0.5;
+            pos_array->at(i).t() += 0.5;
+        }
+    }
+    return drawPoints_(pos_array.get());
+}
+//-----------------------------------------------------------------------------
+vl::Actor* KglPaint::drawPoints_(vl::ArrayFloat3* pts)
+{
     // generate geometry
     ref< Geometry > geom = new Geometry;
-    geom->setVertexArray(pos_array.get());
-    geom->drawCalls().push_back(new DrawArrays(PT_POINTS, 0, (int)pos_array->size()));
+    geom->setVertexArray(pts);
+    geom->drawCalls().push_back(new DrawArrays(PT_POINTS, 0, (int)pts->size()));
     // add the actor
     return addActor_(geom.get());
 }

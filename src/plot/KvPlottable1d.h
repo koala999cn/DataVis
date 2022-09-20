@@ -30,6 +30,9 @@ public:
 	const color4f& majorColor() const { return major_; }
 	const color4f& minorColor() const { return minor_; }
 
+	void setMajorColor(const color4f& clr) { major_ = clr; }
+	void setMinorColor(const color4f& clr) { minor_ = clr; }
+
 	bool empty() const {
 		return !data_ || data_->empty();
 	}

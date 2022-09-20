@@ -364,6 +364,9 @@ public:
     //! Renders a set of points using the currently set pointSize(), color() and image().
     vl::Actor* drawPoints(const std::vector<point2d>& pt);
 
+    //! 3d°æ
+    vl::Actor* drawPoints(const std::vector<point3d>& pt);
+
     //! Renders the outline of an ellipse.
     vl::Actor* drawEllipse(double origx, double origy, double xaxis, double yaxis, int segments = 64);
 
@@ -675,6 +678,8 @@ private:
     vl::Actor* addActor(vl::Actor* actor);
 
     vl::Actor* addActor_(vl::Geometry* geom);
+
+    vl::Actor* drawPoints_(vl::ArrayFloat3* pts);
 
     vl::Actor* drawLines_(vl::Geometry* geom, int numPoints);
 

@@ -76,7 +76,8 @@ namespace kPrivate
     {
         viewport_()->setWidth(w);
         viewport_()->setHeight(h);
-        rendering()->as<vl::Rendering>()->camera()->setProjectionOrtho(-0.5f);
+        if(plot3d_->isOrtho())
+            rendering()->as<vl::Rendering>()->camera()->setProjectionOrtho(-0.5f);
     }
 
 
@@ -130,9 +131,9 @@ namespace kPrivate
 
         //plot3d_->rotate({ relyz, relx, relx });
 
-        //return;
+        // 以上为qwtplot3d实现的旋转算法;
 
-        // 参考lv实现的trackball旋转算法
+        // 以下为trackball旋转算法
 
         auto a = projectToTrackball_(posX_, posY_);
         auto b = projectToTrackball_(x, y);
