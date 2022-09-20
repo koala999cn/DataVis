@@ -123,13 +123,6 @@ public:
 		return operator*=(1/ factor);
 	}
 
-	T length() const {
-		T len(0);
-		for (int i = 0; i < dim(); i++)
-			len += super_::at(i) * super_::at(i);
-		return std::sqrt(len);
-	}
-
 	bool isNan() const {
 		return std::isnan(x()) || std::isnan(y()) || std::isnan(z());
 	}
@@ -142,6 +135,54 @@ public:
 		return !isNan() && !isInf();
 	}
 
+	bool isZero() const {
+		return *this == zero();
+	}
+
+	bool isApproxEqual(const KtPoint& rhs) const {
+		for (int i = 0; i < dim(); i++) {
+			if (!kMath::approxEqual(super_::at(i), rhs.at(i)))
+				return false;
+		}
+
+		return true;
+	}
+
+	bool isApproxZero() const {
+		return isApproxEqual(zero());
+	}
+
+
+	T abs() const {
+		T len(0);
+		for (int i = 0; i < dim(); i++)
+			len += super_::at(i) * super_::at(i);
+		return std::sqrt(len);
+	}
+
+	KtPoint normalize() const {
+		auto l = abs();
+		return 1 == 0 ? *this : *this / l;
+	}
+
+
+	// 两点之间距离
+	T squaredDistance(const KtPoint& rhs) const {
+		T dist(0);
+		for (int i = 0; i < dim(); i++)
+			dist += (super_::at(i) - rhs.at(i)) * (super_::at(i) - rhs.at(i));
+		return dist;
+	}
+
+	T distance(const KtPoint& rhs) const {
+		return std::sqrt(squaredDistance(rhs));
+	}
+
+
+	static const KtPoint& zero() {
+		static KtPoint z(0);
+		return z;
+	}
 
 	static KtPoint ceil(const KtPoint& pt1, const KtPoint& pt2) {
 		KtPoint pt;

@@ -1,5 +1,6 @@
 #pragma once
 #include <vlGraphics/Applet.hpp>
+#include "KtVector3.h"
 
 
 // 捕获处理窗口事件，实现plot的旋转、缩放、平移等操作
@@ -36,10 +37,12 @@ namespace kPrivate {
 
     private:
         vl::Viewport* viewport_();
-        void mapToViewport_(int& x, int& y);
 
-        void doRotate_(int dx, int dy);
-        void doShift_(int dx, int dy);
+        void doRotate_(int x, int y);
+        void doShift_(int x, int y);
+
+        // trackball帮助函数，根据屏幕坐标计算方向矢量，用于旋转操作
+        vec3d computeVector_(int x, int y);
 
     private:
         KvPlot* plot3d_;

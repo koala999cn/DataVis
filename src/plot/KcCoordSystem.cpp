@@ -138,7 +138,7 @@ point3d KcCoordSystem::center() const
 
 double KcCoordSystem::diag() const
 {
-	return (upper() - lower()).length();
+	return (upper() - lower()).abs();
 }
 
 

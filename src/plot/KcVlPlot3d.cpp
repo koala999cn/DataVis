@@ -81,9 +81,8 @@ void KcVlPlot3d::updateImpl_()
     paint_->startDrawing();
 
     // 绘制背景?
-    //auto bkclr = background();
-    //paint_->clearColor(vl::fvec4(bkclr.r(), bkclr.g(), bkclr.b(), bkclr.a()));
-    //paint_->clearDepth(0);
+    // 每个render周期，会在一开始调用viewport::active成员，其中将激活glClear系列函数
+    // 此处不再需要清楚背景颜色和深度等
 
     coordSystem().draw(paint_.get());
 

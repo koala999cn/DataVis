@@ -2,6 +2,7 @@
 #include "KvPlot.h"
 #include "KglPaint.h"
 #include "KcCoordSystem.h"
+#include "KtuMath.h"
 
 
 namespace kPrivate
@@ -84,13 +85,13 @@ namespace kPrivate
         if (btn_ != vl::NoButton)
             return;
 
-        // enter new mode
-        btn_ = btn;
-
         VL_CHECK(openglContext()->framebuffer());
 
-        if (viewport_()->isPointInside(x, y, openglContext()->framebuffer()->height()))
+        if (viewport_()->isPointInside(x, y, openglContext()->framebuffer()->height())) {
+            // enter new mode
+            btn_ = btn;
             posX_ = x, posY_ = y;
+        }
     }
 
 
@@ -104,47 +105,76 @@ namespace kPrivate
     {
         VL_CHECK(openglContext()->framebuffer());
 
-        auto dx = x - posX_;
-        auto dy = y - posY_;
-
         if (btn_ == vl::LeftButton) {
-            doRotate_(dx, dy);
+            doRotate_(x, y);
             updateScene();
             posX_ = x, posY_ = y;
         }
         else if (btn_ == vl::RightButton) {
-            doShift_(dx, dy);
+            doShift_(x, y);
             updateScene();
             posX_ = x, posY_ = y;
         }
     }
 
 
-    void KcPlotApplet_::doRotate_(int dx, int dy)
+    void KcPlotApplet_::doRotate_(int x, int y)
     {
-        // 鼠标每移动一个viewport长度，旋转90度
-        double relx = dx * rotateSpeed_ / viewport_()->width() * 90;
-        double relyz = dy * rotateSpeed_ / viewport_()->height() * 90;
+        //auto dx = x - posX_;
+        //auto dy = y - posY_;
 
-        plot3d_->rotate({ relyz, relx, relx });
+        // 鼠标每移动一个viewport长度，旋转90度
+        //double relx = dx * rotateSpeed_ / viewport_()->width() * 90;
+        //double relyz = dy * rotateSpeed_ / viewport_()->height() * 90;
+
+        //plot3d_->rotate({ relyz, relx, relx });
+
+        //return;
+
+        // 参考lv实现的trackball旋转算法
+
+        auto a = computeVector_(posX_, posY_);
+        auto b = computeVector_(x, y);
+        auto n = a.cross(b);
+        n.normalize();
+        a.normalize();
+        b.normalize();
+        auto dot_a_b = a.dot(b);
+        dot_a_b = KtuMath<double>::clamp(dot_a_b, -1.0, +1.0);
+        auto rot = acos(dot_a_b) * rotateSpeed_;
+
+        rot *= 180 / KtuMath<double>::pi; // rad2deg
+        plot3d_->rotate(rot);
+
+        vl::vec3 nc(n);
+        nc.normalize();
+        auto m = vl::mat4::getRotation(rot, nc);
+        
+        //vec3 nc = camera()->modelingMatrix().get3x3() * n;
+        //if (mTransform && mTransform->parent())
+       //     nc = mTransform->parent()->getComputedWorldMatrix().getInverse() * nc;
+        //nc.normalize();
+        //return mat4::getRotation(alpha * (real)dRAD_TO_DEG, nc);
+
     }
 
 
-    void KcPlotApplet_::doShift_(int dx, int dy)
+    void KcPlotApplet_::doShift_(int x, int y)
     {
+        auto dx = x - posX_;
+        auto dy = y - posY_;
+
         double relx = dx * shiftSpeed_ / viewport_()->width();
         double rely = dy * shiftSpeed_ / viewport_()->height();
 
         auto box = plot3d_->coordSystem().boundingBox();
-        auto delta = (box.upper() - box.lower()) * point3d(relx, -rely, 0); // 屏幕的y轴坐标与视图的y轴坐标反向
+        auto delta = (box.upper() - box.lower()) * point3d(relx, -rely, 0); // 屏幕的y轴坐标与视图的y轴坐标反向，此处取-rely
         plot3d_->shift(delta);
     }
 
 
     void KcPlotApplet_::mouseWheelEvent(int delta)
     {
-        // 自己实现zoom功能. trackball靠调整摄像机的远近进行zoom，在ortho模式投影下无效
-
         double factor = 1 + double(delta) / WHEEL_DELTA;
         factor *= zoomSpeed_;
 
@@ -156,6 +186,31 @@ namespace kPrivate
             plot3d_->coordSystem().zoom(factor);
             updateScene();
         }
+    }
+
+
+    vec3d KcPlotApplet_::computeVector_(int x, int y)
+    {
+        int w = viewport_()->width();
+        int h = viewport_()->height();
+
+        vec3d c(w / 2.0f, h / 2.0f, 0);
+
+        double sphere_x = w * 0.5f;
+        double sphere_y = h * 0.5f;
+
+        vec3d v(x, y, 0);
+        v -= c;
+        v.x() /= sphere_x;
+        v.y() /= sphere_y;
+        v.y() = -v.y();
+
+        double z2 = 1.0f - v.x() * v.x() - v.y() * v.y();
+        if (z2 < 0)
+            z2 = 0;
+        v.z() = std::sqrt(z2);
+        v.normalize();
+        return v;
     }
 
 } // namespace kPrivate
