@@ -36,33 +36,15 @@
     <Filter Include="plot">
       <UniqueIdentifier>{8a43f5cc-ba62-4f8b-a6c3-aee1ef50082b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{61d07be6-8ba9-46de-9220-7c7e9c20a938}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\op\KvOpHelper1d.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
-    <ClCompile Include="src\op\KcOpSpectrum.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
-    <ClCompile Include="src\op\KcOpFraming.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
-    <ClCompile Include="src\op\KcOpHist.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
-    <ClCompile Include="src\op\KcOpFilterBank.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
-    <ClCompile Include="src\op\KcOpWindowing.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KcSampled1d.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KcSampled2d.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\KgAudioFile.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KgFilterBank.cpp">
@@ -95,65 +77,11 @@
     <ClCompile Include="src\dsp\KpExprtkHelper_.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\gui\QtWaveBar.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtVolumnBar.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtAudioCaptureDlg.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtFormulaDlg.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtMainFrame.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtnPropertyWidgetX.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtWorkspaceWidget.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\prov\KcPvAudioInput.cpp">
-      <Filter>prov</Filter>
-    </ClCompile>
-    <ClCompile Include="src\prov\KcPvData.cpp">
-      <Filter>prov</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\KcRdPlot1d.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\KcRdPlot2d.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\KvRdCustomPlot.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\KcAudio.cpp">
-      <Filter>audio</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\KcAudioCapture.cpp">
-      <Filter>audio</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\KcAudioDevice.cpp">
-      <Filter>audio</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\KcAudioRender.cpp">
-      <Filter>audio</Filter>
-    </ClCompile>
     <ClCompile Include="src\base\KuPathUtil.cpp">
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="src\base\KuStrUtil.cpp">
       <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtAuidoUtils.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\op\KcOpSampler.cpp">
-      <Filter>op</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KuInterp1d.cpp">
       <Filter>dsp</Filter>
@@ -164,20 +92,8 @@
     <ClCompile Include="src\dsp\KcInterpolater.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcOpInterpolater.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
-    <ClCompile Include="src\op\KcOpFIR.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KgResampler.cpp">
       <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\op\KcOpResampler.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
-    <ClCompile Include="src\prov\KvDataProvider.cpp">
-      <Filter>prov</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KvContinued.cpp">
       <Filter>dsp</Filter>
@@ -185,18 +101,9 @@
     <ClCompile Include="src\dsp\KvDiscreted.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\render\KcRdAudioPlayer.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\QtAppEventHub.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\dsp\KgRand.cpp">
       <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\prov\KcPvExcitationSource.cpp">
-      <Filter>prov</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KmBins.cpp">
       <Filter>dsp</Filter>
@@ -204,71 +111,11 @@
     <ClCompile Include="src\dsp\KgHistC.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\op\KcOpHistC.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtDataView.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\KcRdBar3d.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\KvRdPlot3d.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\KcRdScatter3d.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\KcRdSurface3d.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\theme\KuThemeParser.cpp">
-      <Filter>theme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\theme\KsThemeManager.cpp">
-      <Filter>theme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\prov\KgTxtDataLoader.cpp">
-      <Filter>prov</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\QtTxtDataLoadDlg.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\theme\KcThemedQCP.cpp">
-      <Filter>theme</Filter>
-    </ClCompile>
     <ClCompile Include="src\base\KuFileUtil.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="src\theme\KvThemedPlot.cpp">
-      <Filter>theme</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KuDataUtil.cpp">
       <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\QCPBubbleChart.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\KcRdBubble2d.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\render\KvRdPlot3d_.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
-    <ClCompile Include="src\plot\KsPlotManager.cpp">
-      <Filter>plot</Filter>
-    </ClCompile>
-    <ClCompile Include="src\plot\KcAxis.cpp">
-      <Filter>plot</Filter>
-    </ClCompile>
-    <ClCompile Include="src\plot\KcVlPlot3d.cpp">
-      <Filter>plot</Filter>
-    </ClCompile>
-    <ClCompile Include="src\plot\KcCoordSystem.cpp">
-      <Filter>plot</Filter>
-    </ClCompile>
-    <ClCompile Include="src\plot\KglPaint.cpp">
-      <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KvTicker.cpp">
       <Filter>plot</Filter>
@@ -276,92 +123,26 @@
     <ClCompile Include="src\plot\KcLinearTicker.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcGridPlane.cpp">
-      <Filter>plot</Filter>
+    <ClCompile Include="3rdparty\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcGraph.cpp">
-      <Filter>plot</Filter>
+    <ClCompile Include="3rdparty\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KvPlot.cpp">
-      <Filter>plot</Filter>
+    <ClCompile Include="3rdparty\imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\render\KcRdScatter3d_.cpp">
-      <Filter>render</Filter>
+    <ClCompile Include="3rdparty\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcPlotApplet_.cpp">
-      <Filter>plot</Filter>
+    <ClCompile Include="3rdparty\imgui\backends\imgui_impl_glfw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="src\op\KvDataOperator.h">
-      <Filter>op</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtWaveBar.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtVolumnBar.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtAudioCaptureDlg.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtFormulaDlg.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtMainFrame.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtnPropertyWidgetX.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtWorkspaceWidget.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\prov\KvDataProvider.h">
-      <Filter>prov</Filter>
-    </QtMoc>
-    <QtMoc Include="src\QtAppEventHub.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\KvPropertiedObject.h" />
-    <QtMoc Include="src\gui\QtDataView.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\render\KvDataRender.h">
-      <Filter>render</Filter>
-    </QtMoc>
-    <QtMoc Include="src\render\KvRdPlot3d.h">
-      <Filter>render</Filter>
-    </QtMoc>
-    <QtMoc Include="src\gui\QtTxtDataLoadDlg.h">
-      <Filter>gui</Filter>
-    </QtMoc>
-    <QtMoc Include="src\render\QCPBubbleChart.h">
-      <Filter>render</Filter>
-    </QtMoc>
-    <QtMoc Include="src\render\KvRdPlot3d_.h">
-      <Filter>render</Filter>
-    </QtMoc>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\op\KvOpHelper1d.h">
-      <Filter>op</Filter>
-    </ClInclude>
-    <ClInclude Include="src\op\KcOpWindowing.h">
-      <Filter>op</Filter>
-    </ClInclude>
-    <ClInclude Include="src\op\KcOpFilterBank.h">
-      <Filter>op</Filter>
-    </ClInclude>
-    <ClInclude Include="src\op\KcOpSpectrum.h">
-      <Filter>op</Filter>
-    </ClInclude>
-    <ClInclude Include="src\op\KcOpFraming.h">
-      <Filter>op</Filter>
-    </ClInclude>
-    <ClInclude Include="src\op\KcOpHist.h">
-      <Filter>op</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KvData.h">
       <Filter>dsp</Filter>
     </ClInclude>
@@ -428,36 +209,6 @@
     <ClInclude Include="src\dsp\KvSampled.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\prov\KcPvAudioInput.h">
-      <Filter>prov</Filter>
-    </ClInclude>
-    <ClInclude Include="src\prov\KcPvData.h">
-      <Filter>prov</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\KcRdPlot1d.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\KcRdPlot2d.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\KvRdCustomPlot.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\KcAudio.h">
-      <Filter>audio</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\KcAudioCapture.h">
-      <Filter>audio</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\KcAudioDevice.h">
-      <Filter>audio</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\KcAudioRender.h">
-      <Filter>audio</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\KgAudioFile.h">
-      <Filter>audio</Filter>
-    </ClInclude>
     <ClInclude Include="src\base\KtObservable.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -476,12 +227,6 @@
     <ClInclude Include="src\dsp\functions.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\gui\QtAudioUtils.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\op\KcOpSampler.h">
-      <Filter>op</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KuExtrapolate.h">
       <Filter>dsp</Filter>
     </ClInclude>
@@ -497,14 +242,8 @@
     <ClInclude Include="src\dsp\KvContinued.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcOpInterpolater.h">
-      <Filter>op</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KvFilter.h">
       <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\op\KcOpFIR.h">
-      <Filter>op</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtFIR.h">
       <Filter>dsp</Filter>
@@ -518,20 +257,11 @@
     <ClInclude Include="src\dsp\KgResampler.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcOpResampler.h">
-      <Filter>op</Filter>
-    </ClInclude>
     <ClInclude Include="src\base\KtuMath.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\render\KcRdAudioPlayer.h">
-      <Filter>render</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KgRand.h">
       <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\prov\KcPvExcitationSource.h">
-      <Filter>prov</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KvExcitor.h">
       <Filter>dsp</Filter>
@@ -545,44 +275,11 @@
     <ClInclude Include="src\dsp\KmBins.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KcOpHistC.h">
-      <Filter>op</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\KcRdBar3d.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\KcRdScatter3d.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\KcRdSurface3d.h">
-      <Filter>render</Filter>
-    </ClInclude>
     <ClInclude Include="src\render.h" />
     <ClInclude Include="src\provider.h" />
     <ClInclude Include="src\operator.h" />
-    <ClInclude Include="src\theme\KuThemeParser.h">
-      <Filter>theme</Filter>
-    </ClInclude>
-    <ClInclude Include="src\theme\KsThemeManager.h">
-      <Filter>theme</Filter>
-    </ClInclude>
-    <ClInclude Include="src\prov\KgTxtDataLoader.h">
-      <Filter>prov</Filter>
-    </ClInclude>
-    <ClInclude Include="src\theme\KvThemedPlot.h">
-      <Filter>theme</Filter>
-    </ClInclude>
-    <ClInclude Include="src\theme\KcThemedQCP.h">
-      <Filter>theme</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KuDataUtil.h">
       <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\render\KcRdBubble2d.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KsPlotManager.h">
-      <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcAxis.h">
       <Filter>plot</Filter>
@@ -593,16 +290,10 @@
     <ClInclude Include="src\plot\KvPlottable.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcVlPlot3d.h">
-      <Filter>plot</Filter>
-    </ClInclude>
     <ClInclude Include="src\plot\KvPlot.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KvRenderable.h">
-      <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KglPaint.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtVector3.h">
@@ -635,30 +326,35 @@
     <ClInclude Include="src\plot\KvPlottable1d.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\render\KcRdScatter3d_.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KcPlotApplet_.h">
-      <Filter>plot</Filter>
-    </ClInclude>
     <ClInclude Include="src\base\KtMatrix3.h">
       <Filter>base</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <QtRcc Include="resource\DataVis.qrc">
-      <Filter>resource</Filter>
-    </QtRcc>
-  </ItemGroup>
-  <ItemGroup>
-    <QtUic Include="src\form\audio_capture_dlg.ui">
-      <Filter>form</Filter>
-    </QtUic>
-    <QtUic Include="src\form\formula_dlg.ui">
-      <Filter>form</Filter>
-    </QtUic>
-    <QtUic Include="src\form\txt_data_load_dlg.ui">
-      <Filter>form</Filter>
-    </QtUic>
+    <ClInclude Include="3rdparty\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\backends\imgui_impl_glfw.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3_loader.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

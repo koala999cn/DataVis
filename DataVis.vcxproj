@@ -12,10 +12,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D9888577-7A80-4515-84C7-5E24DB39FDED}</ProjectGuid>
-    <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
-    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -29,34 +27,13 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
-    <Import Project="$(QtMsBuild)\qt_defaults.props" />
-  </ImportGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>Qt6.2.2_msvc2019_x64</QtInstall>
-    <QtModules>core;gui;widgets;datavisualization;opengl;openglwidgets;</QtModules>
-    <QtBuildConfig>debug</QtBuildConfig>
-    <QtHeaderSearchPath>
-    </QtHeaderSearchPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>Qt6.2.2_msvc2019_x64</QtInstall>
-    <QtModules>core;gui;widgets;datavisualization;</QtModules>
-    <QtBuildConfig>release</QtBuildConfig>
-    <QtDeploy>false</QtDeploy>
-  </PropertyGroup>
-  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
-    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
-  </Target>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(QtMsBuild)\Qt.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(QtMsBuild)\Qt.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
@@ -75,13 +52,13 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/vl;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/vl;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
       <PreprocessorDefinitions>QCUSTOMPLOT_USE_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;VLCore-d.lib;VLGraphics-d.lib;VLMain-d.lib;VLQt6-d.lib;OpenXLSXd.lib;QtnPropertyd.lib;smarcd.lib;exprtkXd.lib;sndfiled.lib;rtaudiod.lib;kddockwidgets-qt6d.lib;QCustomPlotd.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3d.lib;smarcd.lib;exprtkXd.lib;rtaudiod.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
   </ItemDefinitionGroup>
@@ -90,14 +67,14 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(Qt_INCLUDEPATH_);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
-      <PreprocessorDefinitions>QCUSTOMPLOT_USE_LIBRARY;$(Qt_DEFINES_);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>QCUSTOMPLOT_USE_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);$(Qt_LIBPATH_);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <Version>0.1</Version>
-      <AdditionalDependencies>OpenXLSX.lib;exprtkX.lib;sndfile.lib;rtaudio.lib;kddockwidgets-qt6.lib;QCustomPlot.lib;QtnProperty.lib;smarc.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
+      <AdditionalDependencies>OpenXLSX.lib;exprtkX.lib;sndfile.lib;rtaudio.lib;smarc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -109,7 +86,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -127,11 +104,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\audio\KcAudio.cpp" />
-    <ClCompile Include="src\audio\KcAudioCapture.cpp" />
-    <ClCompile Include="src\audio\KcAudioDevice.cpp" />
-    <ClCompile Include="src\audio\KcAudioRender.cpp" />
-    <ClCompile Include="src\audio\KgAudioFile.cpp" />
+    <ClCompile Include="3rdparty\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="3rdparty\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui_tables.cpp" />
+    <ClCompile Include="3rdparty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\base\KuFileUtil.cpp" />
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
@@ -156,69 +134,21 @@
     <ClCompile Include="src\dsp\KuWindowFactory.cpp" />
     <ClCompile Include="src\dsp\KvContinued.cpp" />
     <ClCompile Include="src\dsp\KvDiscreted.cpp" />
-    <ClCompile Include="src\gui\QtAudioCaptureDlg.cpp" />
-    <ClCompile Include="src\gui\QtDataView.cpp" />
-    <ClCompile Include="src\gui\QtFormulaDlg.cpp" />
-    <ClCompile Include="src\gui\QtMainFrame.cpp" />
-    <ClCompile Include="src\gui\QtnPropertyWidgetX.cpp" />
-    <ClCompile Include="src\gui\QtTxtDataLoadDlg.cpp" />
-    <ClCompile Include="src\gui\QtWorkspaceWidget.cpp" />
-    <ClCompile Include="src\op\KcOpFIR.cpp" />
-    <ClCompile Include="src\op\KcOpHistC.cpp" />
-    <ClCompile Include="src\op\KcOpInterpolater.cpp" />
-    <ClCompile Include="src\op\KcOpResampler.cpp" />
-    <ClCompile Include="src\op\KcOpSampler.cpp" />
-    <ClCompile Include="src\op\KcOpSpectrum.cpp" />
-    <ClCompile Include="src\op\KcOpFraming.cpp" />
-    <ClCompile Include="src\op\KcOpHist.cpp" />
-    <ClCompile Include="src\op\KcOpFilterBank.cpp" />
-    <ClCompile Include="src\op\KcOpWindowing.cpp" />
-    <ClCompile Include="src\op\KvOpHelper1d.cpp" />
-    <ClCompile Include="src\plot\KcGraph.cpp" />
-    <ClCompile Include="src\plot\KcGridPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
-    <ClCompile Include="src\plot\KcPlotApplet_.cpp" />
-    <ClCompile Include="src\plot\KcVlPlot3d.cpp" />
-    <ClCompile Include="src\plot\KglPaint.cpp" />
-    <ClCompile Include="src\plot\KsPlotManager.cpp" />
-    <ClCompile Include="src\plot\KcAxis.cpp" />
-    <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvTicker.cpp" />
-    <ClCompile Include="src\plot\KcCoordSystem.cpp" />
-    <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
-    <ClCompile Include="src\prov\KcPvData.cpp" />
-    <ClCompile Include="src\prov\KcPvExcitationSource.cpp" />
-    <ClCompile Include="src\prov\KgTxtDataLoader.cpp" />
-    <ClCompile Include="src\prov\KvDataProvider.cpp" />
-    <ClCompile Include="src\QtAppEventHub.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
-    <ClCompile Include="src\gui\QtAuidoUtils.cpp" />
-    <ClCompile Include="src\gui\QtVolumnBar.cpp" />
-    <ClCompile Include="src\gui\QtWaveBar.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\render\KcRdAudioPlayer.cpp" />
-    <ClCompile Include="src\render\KcRdBar3d.cpp" />
-    <ClCompile Include="src\render\KcRdBubble2d.cpp" />
-    <ClCompile Include="src\render\KcRdPlot1d.cpp" />
-    <ClCompile Include="src\render\KcRdPlot2d.cpp" />
-    <ClCompile Include="src\render\KcRdScatter3d.cpp" />
-    <ClCompile Include="src\render\KcRdScatter3d_.cpp" />
-    <ClCompile Include="src\render\KcRdSurface3d.cpp" />
-    <ClCompile Include="src\render\KvRdCustomPlot.cpp" />
-    <ClCompile Include="src\render\KvRdPlot3d.cpp" />
-    <ClCompile Include="src\render\KvRdPlot3d_.cpp" />
-    <ClCompile Include="src\render\QCPBubbleChart.cpp" />
-    <ClCompile Include="src\theme\KsThemeManager.cpp" />
-    <ClCompile Include="src\theme\KcThemedQCP.cpp" />
-    <ClCompile Include="src\theme\KuThemeParser.cpp" />
-    <ClCompile Include="src\theme\KvThemedPlot.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\audio\KcAudio.h" />
-    <ClInclude Include="src\audio\KcAudioCapture.h" />
-    <ClInclude Include="src\audio\KcAudioDevice.h" />
-    <ClInclude Include="src\audio\KcAudioRender.h" />
-    <ClInclude Include="src\audio\KgAudioFile.h" />
+    <ClInclude Include="3rdparty\imgui\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="3rdparty\imgui\imconfig.h" />
+    <ClInclude Include="3rdparty\imgui\imgui.h" />
+    <ClInclude Include="3rdparty\imgui\imgui_internal.h" />
+    <ClInclude Include="3rdparty\imgui\imstb_rectpack.h" />
+    <ClInclude Include="3rdparty\imgui\imstb_textedit.h" />
+    <ClInclude Include="3rdparty\imgui\imstb_truetype.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtMatrix3.h" />
     <ClInclude Include="src\base\KtObservable.h" />
@@ -266,86 +196,25 @@
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\plot\KcGridPlane.h" />
     <ClInclude Include="src\plot\KcLinearTicker.h" />
-    <ClInclude Include="src\plot\KcPlotApplet_.h" />
-    <ClInclude Include="src\plot\KcVlPlot3d.h" />
-    <ClInclude Include="src\plot\KsPlotManager.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
     <ClInclude Include="src\plot\KvPlottable1d.h" />
     <ClInclude Include="src\plot\KvTicker.h" />
     <ClInclude Include="src\plot\KcCoordSystem.h" />
-    <ClInclude Include="src\plot\KglPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\plot\KvPlottable.h" />
     <ClInclude Include="src\plot\KvRenderable.h" />
-    <ClInclude Include="src\render\KcRdBubble2d.h" />
-    <QtMoc Include="src\render\QCPBubbleChart.h" />
-    <QtMoc Include="src\render\KvRdPlot3d_.h" />
-    <ClInclude Include="src\render\KcRdScatter3d_.h" />
-    <ClInclude Include="src\theme\KvThemedPlot.h" />
-    <ClInclude Include="src\theme\KcThemedQCP.h" />
-    <QtMoc Include="src\gui\QtTxtDataLoadDlg.h" />
     <ClInclude Include="src\operator.h" />
     <ClInclude Include="src\provider.h" />
-    <ClInclude Include="src\prov\KgTxtDataLoader.h" />
     <ClInclude Include="src\render.h" />
-    <ClInclude Include="src\render\KcRdScatter3d.h" />
-    <ClInclude Include="src\render\KcRdSurface3d.h" />
-    <ClInclude Include="src\theme\KsThemeManager.h" />
-    <ClInclude Include="src\theme\KuThemeParser.h" />
-    <QtMoc Include="src\render\KvRdPlot3d.h" />
-    <QtMoc Include="src\gui\QtDataView.h" />
-    <ClInclude Include="src\op\KcOpFIR.h" />
-    <ClInclude Include="src\op\KcOpHistC.h" />
-    <ClInclude Include="src\op\KcOpInterpolater.h" />
-    <ClInclude Include="src\op\KcOpResampler.h" />
-    <ClInclude Include="src\op\KcOpSampler.h" />
-    <ClInclude Include="src\prov\KcPvAudioInput.h" />
-    <ClInclude Include="src\prov\KcPvData.h" />
-    <ClInclude Include="src\prov\KcPvExcitationSource.h" />
-    <ClInclude Include="src\render\KcRdAudioPlayer.h" />
-    <ClInclude Include="src\render\KcRdBar3d.h" />
-    <ClInclude Include="src\render\KcRdPlot1d.h" />
-    <ClInclude Include="src\render\KcRdPlot2d.h" />
-    <QtMoc Include="src\render\KvDataRender.h" />
-    <ClInclude Include="src\render\KvRdCustomPlot.h" />
-    <QtMoc Include="src\prov\KvDataProvider.h" />
-    <QtMoc Include="src\gui\QtAudioCaptureDlg.h" />
-    <QtMoc Include="src\gui\QtFormulaDlg.h" />
-    <QtMoc Include="src\gui\QtMainFrame.h" />
-    <QtMoc Include="src\gui\QtnPropertyWidgetX.h" />
-    <QtMoc Include="src\gui\QtWorkspaceWidget.h" />
-    <ClInclude Include="src\op\KcOpSpectrum.h" />
-    <ClInclude Include="src\op\KcOpWindowing.h" />
-    <ClInclude Include="src\op\KvOpHelper1d.h" />
-    <QtMoc Include="src\op\KvDataOperator.h" />
-    <ClInclude Include="src\op\KcOpFraming.h" />
-    <ClInclude Include="src\op\KcOpHist.h" />
-    <ClInclude Include="src\op\KcOpFilterBank.h" />
-    <QtMoc Include="src\QtAppEventHub.h" />
-    <QtMoc Include="src\KvPropertiedObject.h" />
     <ClInclude Include="src\dsp\KtContinuedExpr.h" />
     <ClInclude Include="src\dsp\KcSampled1d.h" />
     <ClInclude Include="src\dsp\kDsp.h" />
     <ClInclude Include="src\dsp\KtInterval.h" />
     <ClInclude Include="src\dsp\KtSampling.h" />
     <ClInclude Include="src\dsp\KvData.h" />
-    <ClInclude Include="src\gui\QtAudioUtils.h" />
-    <QtMoc Include="src\gui\QtWaveBar.h" />
-    <QtMoc Include="src\gui\QtVolumnBar.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtRcc Include="resource\DataVis.qrc" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtUic Include="src\form\audio_capture_dlg.ui" />
-    <QtUic Include="src\form\formula_dlg.ui" />
-    <QtUic Include="src\form\txt_data_load_dlg.ui" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
-    <Import Project="$(QtMsBuild)\qt.targets" />
-  </ImportGroup>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
