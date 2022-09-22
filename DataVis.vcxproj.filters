@@ -39,6 +39,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{61d07be6-8ba9-46de-9220-7c7e9c20a938}</UniqueIdentifier>
     </Filter>
+    <Filter Include="imapp">
+      <UniqueIdentifier>{c8c5e653-b833-421c-b10c-303e20857f09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KcSampled1d.cpp">
@@ -141,7 +144,12 @@
     <ClCompile Include="3rdparty\imgui\backends\imgui_impl_opengl3.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\KsImApp.cpp" />
+    <ClCompile Include="src\imapp\KsImApp.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KvImWidget.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -357,6 +365,11 @@
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3_loader.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="src\KsImApp.h" />
+    <ClInclude Include="src\imapp\KsImApp.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KvImWidget.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

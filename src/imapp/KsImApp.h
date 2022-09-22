@@ -29,23 +29,23 @@ public:
 	// 回调函数
 
 	// 主循环run开始时回调，返回false结束主循环
-	using start_listener = std::function<bool(void)>;
+	using start_listener = std::function<bool()>;
 
 	// 每个run周期回调，返回false退出主循环
-	using update_listener = std::function<bool(void)>;
+	using update_listener = std::function<bool()>;
 
 	// 主循环run结束时回调
-	using finish_listener = std::function<void(void)>;
+	using finish_listener = std::function<void()>;
 
-	void listenStart(start_listener ls) {
+	void listenStartRun(start_listener ls) {
 		lsStart_.push_back(ls);
 	}
 
-	void listenUpdate(update_listener ls) {
+	void listenPerFrame(update_listener ls) {
 		lsUpdate_.push_back(ls);
 	}
 
-	void listenFinish(finish_listener ls) {
+	void listenFinishRun(finish_listener ls) {
 		lsFinish_.push_back(ls);
 	}
 
@@ -55,6 +55,8 @@ private:
 
 	KsImApp(const KsImApp& app) = delete;
 	void operator=(const KsImApp& app) = delete;
+
+	void drawFrame_();
 
 private:
 	void* mainWindow_;

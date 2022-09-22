@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 #include <assert.h>
+#include <chrono>
 
 
 namespace kPrivate
@@ -58,14 +59,27 @@ bool KsImApp::init(int w, int h, const char* title)
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-    //glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // 不显示非imgui窗口
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(w, h, title, nullptr, nullptr);
     if (window == nullptr)
         return false;
+
+    { // TODO:
+        GLFWimage icon;
+        //icon.pixels = stbi_load_from_memory((const stbi_uc*)Icon_data, Icon_size, &icon.width, &icon.height, nullptr, 4);
+        //glfwSetWindowIcon(window, 1, &icon);
+        //free(icon.pixels);
+    }
+
+    // TODO: if (maximize) 
+    glfwMaximizeWindow(window);
+
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
+
+    glfwShowWindow(window);
 
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
@@ -74,6 +88,8 @@ bool KsImApp::init(int w, int h, const char* title)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+    // TODO: std::string iniFileName = tracy::GetSavePath("imgui.ini");
+    //io.IniFilename = iniFileName.c_str();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -84,8 +100,7 @@ bool KsImApp::init(int w, int h, const char* title)
     //ImGui::StyleColorsClassic();
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         ImGuiStyle& style = ImGui::GetStyle();
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
@@ -121,13 +136,11 @@ bool KsImApp::init(int w, int h, const char* title)
 
 void KsImApp::run()
 {
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
     for (auto ls : lsStart_)
         if (!ls()) return;
 
-    while (!glfwWindowShouldClose(static_cast<GLFWwindow*>(mainWindow_)))
-    {
+    auto window = static_cast<GLFWwindow*>(mainWindow_);
+    while (!glfwWindowShouldClose(window)) {
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
@@ -135,38 +148,11 @@ void KsImApp::run()
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
 
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        drawFrame_();
 
-        for (auto ls : lsUpdate_)
-            if (!ls()) {
-                quit();
-                break;
-            }
-
-        // Rendering
-        ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(static_cast<GLFWwindow*>(mainWindow_), &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // Update and Render additional Platform Windows
-        // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-        //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-        //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            GLFWwindow* backup_current_context = glfwGetCurrentContext();
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-            glfwMakeContextCurrent(backup_current_context);
-        }
-
-        glfwSwapBuffers(static_cast<GLFWwindow*>(mainWindow_));
+        // 无焦点时，放慢更新节奏
+        //if (!glfwGetWindowAttrib(window, GLFW_FOCUSED)) 
+        //    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     for (auto ls : lsFinish_)
@@ -192,4 +178,50 @@ void KsImApp::shutdown()
     mainWindow_ = nullptr;
 
 	singleton_type::destroy();
+}
+
+
+void KsImApp::drawFrame_()
+{
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    auto window = static_cast<GLFWwindow*>(mainWindow_);
+
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    for (auto ls : lsUpdate_)
+        if (!ls()) {
+            quit();
+            break;
+        }
+
+    // 最小化时，不进行实际渲染
+    if (glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+        ImGui::EndFrame();
+    }
+    else { // Rendering 
+        ImGui::Render();
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+
+    // Update and Render additional Platform Windows
+    // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+    //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+    // TODO: if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        GLFWwindow* backup_current_context = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup_current_context);
+    }
+
+    glfwSwapBuffers(window);
 }

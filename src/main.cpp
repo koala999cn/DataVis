@@ -1,10 +1,26 @@
-﻿#include "KsImApp.h"
+﻿#include "imapp/KsImApp.h"
 #include "imgui.h"
 
 bool update()
 {
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     static bool show_demo_window, show_another_window;
+    
+    auto& style = ImGui::GetStyle();
+
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Open")) {
+                
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Quit")) {
+                KsImApp::singleton().quit();
+            }
+
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
     
     {
         static float f = 0.0f;
@@ -17,7 +33,7 @@ bool update()
         ImGui::Checkbox("Another Window", &show_another_window);
 
         ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+        ImGui::ColorEdit3("background color", (float*)&style.Colors[ImGuiCol_WindowBg]); // Edit 3 floats representing a color
 
         if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
             counter++;
@@ -33,7 +49,7 @@ bool update()
         ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
         ImGui::Text("Hello from another window!");
         if (ImGui::Button("Close Me"))
-            show_another_window = false;
+            KsImApp::singleton().quit();
         ImGui::End();
     }
 
@@ -48,7 +64,7 @@ int main_(int, char**)
     if (!app.init(1024, 768, "DataVis"))
         return 1;
 
-    app.listenUpdate(update);
+    app.listenPerFrame(update);
     app.run();
 
     app.shutdown();
