@@ -42,6 +42,9 @@
     <Filter Include="imapp">
       <UniqueIdentifier>{c8c5e653-b833-421c-b10c-303e20857f09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="imnodes">
+      <UniqueIdentifier>{32801069-2ba1-439d-90d1-44f3b878732f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KcSampled1d.cpp">
@@ -152,6 +155,9 @@
     </ClCompile>
     <ClCompile Include="src\imapp\KgImMenu.cpp">
       <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\imnodes\imnodes.cpp">
+      <Filter>imnodes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -376,6 +382,12 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KgImMenu.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imnodes\imnodes.h">
+      <Filter>imnodes</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imnodes\imnodes_internal.h">
+      <Filter>imnodes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
