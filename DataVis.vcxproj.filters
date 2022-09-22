@@ -150,6 +150,9 @@
     <ClCompile Include="src\imapp\KvImWidget.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KgImMenu.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -369,6 +372,9 @@
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KvImWidget.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KgImMenu.h">
       <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>

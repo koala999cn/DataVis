@@ -134,6 +134,7 @@
     <ClCompile Include="src\dsp\KuWindowFactory.cpp" />
     <ClCompile Include="src\dsp\KvContinued.cpp" />
     <ClCompile Include="src\dsp\KvDiscreted.cpp" />
+    <ClCompile Include="src\imapp\KgImMenu.cpp" />
     <ClCompile Include="src\imapp\KvImWidget.cpp" />
     <ClCompile Include="src\imapp\KsImApp.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\imapp\KgImMenu.h" />
     <ClInclude Include="src\imapp\KvImWidget.h" />
     <ClInclude Include="src\imapp\KsImApp.h" />
     <ClInclude Include="src\plot\KcGridPlane.h" />

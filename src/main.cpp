@@ -1,5 +1,37 @@
 ﻿#include "imapp/KsImApp.h"
 #include "imgui.h"
+#include "imapp/KgImMenu.h"
+
+
+static void showMainMenuBar()
+{
+    KgImMenu view("View");
+    auto& item = view.addItem("Style", nullptr);
+    KgImMenu::KpItem subItem;
+    subItem.label = "Classic";
+    subItem.handler = []() {
+        ImGui::StyleColorsClassic();
+    };
+    subItem.selected = false;
+    item.subItems.push_back(subItem);
+    subItem.label = "Dark";
+    subItem.handler = []() {
+        ImGui::StyleColorsDark();
+    };
+    item.subItems.push_back(subItem);
+    subItem.label = "Light";
+    subItem.handler = []() {
+        ImGui::StyleColorsLight();
+    };
+    item.subItems.push_back(subItem);
+
+
+    if (ImGui::BeginMainMenuBar()) {
+        view.apply();
+        ImGui::EndMainMenuBar();
+    }
+}
+
 
 bool update()
 {
@@ -7,20 +39,7 @@ bool update()
     
     auto& style = ImGui::GetStyle();
 
-    if (ImGui::BeginMainMenuBar()) {
-        if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Open")) {
-                
-            }
-            ImGui::Separator();
-            if (ImGui::MenuItem("Quit")) {
-                KsImApp::singleton().quit();
-            }
-
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
+    showMainMenuBar();
     
     {
         static float f = 0.0f;
