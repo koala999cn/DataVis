@@ -1,6 +1,7 @@
 ﻿#include "imapp/KsImApp.h"
 #include "imgui.h"
 #include "imapp/KgImMenu.h"
+#include "imnodes/imnodes.h"
 
 
 static void showMainMenuBar()
@@ -37,6 +38,29 @@ bool update()
 {
     showMainMenuBar();
     
+    ImGui::BeginChild("simple node editor");
+
+    ImNodes::BeginNodeEditor();
+    ImNodes::BeginNode(1);
+
+    ImNodes::BeginNodeTitleBar();
+    ImGui::TextUnformatted("simple node :)");
+    ImNodes::EndNodeTitleBar();
+
+    ImNodes::BeginInputAttribute(2);
+    ImGui::Text("input");
+    ImNodes::EndInputAttribute();
+
+    ImNodes::BeginOutputAttribute(3);
+    ImGui::Indent(40);
+    ImGui::Text("output");
+    ImNodes::EndOutputAttribute();
+
+    ImNodes::EndNode();
+    ImNodes::EndNodeEditor();
+
+    ImGui::EndChild();
+
     return true;
 }
 
@@ -48,11 +72,15 @@ int main_(int, char**)
     if (!app.init(1024, 768, "DataVis"))
         return 1;
 
+    ImNodes::CreateContext();
+    ImNodes::SetNodeGridSpacePos(1, ImVec2(200.0f, 200.0f));
+
     app.listenPerFrame(update);
     app.run();
 
+    ImNodes::DestroyContext();
     app.shutdown();
-
+    
     return 0;
 }
 
