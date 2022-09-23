@@ -3,6 +3,7 @@
 #include "imapp/KgImMenu.h"
 #include "imnodes/imnodes.h"
 #include "imapp/KgImWindowManager.h"
+#include "imapp/KcImNodeEditor.h"
 
 
 namespace kPrivate
@@ -39,29 +40,6 @@ bool update()
 
     kPrivate::wm.draw();
 
-    ImGui::BeginChild("simple node editor");
-
-    ImNodes::BeginNodeEditor();
-    ImNodes::BeginNode(1);
-
-    ImNodes::BeginNodeTitleBar();
-    ImGui::TextUnformatted("simple node :)");
-    ImNodes::EndNodeTitleBar();
-
-    ImNodes::BeginInputAttribute(2);
-    ImGui::Text("input");
-    ImNodes::EndInputAttribute();
-
-    ImNodes::BeginOutputAttribute(3);
-    ImGui::Indent(40);
-    ImGui::Text("output");
-    ImNodes::EndOutputAttribute();
-
-    ImNodes::EndNode();
-    ImNodes::EndNodeEditor();
-
-    ImGui::EndChild();
-
     return true;
 }
 
@@ -75,6 +53,9 @@ int main_(int, char**)
 
     ImNodes::CreateContext();
     ImNodes::SetNodeGridSpacePos(1, ImVec2(200.0f, 200.0f));
+
+    auto editor = std::make_shared<KcImNodeEditor>("Node Editor");
+    kPrivate::wm.registerInstance(editor);
 
     app.listenPerFrame(update);
     app.run();
