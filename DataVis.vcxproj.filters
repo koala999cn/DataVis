@@ -150,7 +150,7 @@
     <ClCompile Include="src\imapp\KsImApp.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KvImWidget.cpp">
+    <ClCompile Include="src\imapp\KvImWindow.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="src\imapp\KgImMenu.cpp">
@@ -158,6 +158,12 @@
     </ClCompile>
     <ClCompile Include="3rdparty\imnodes\imnodes.cpp">
       <Filter>imnodes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KgImWindowManager.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -377,7 +383,7 @@
     <ClInclude Include="src\imapp\KsImApp.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KvImWidget.h">
+    <ClInclude Include="src\imapp\KvImWindow.h">
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KgImMenu.h">
@@ -388,6 +394,9 @@
     </ClInclude>
     <ClInclude Include="3rdparty\imnodes\imnodes_internal.h">
       <Filter>imnodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KgImWindowManager.h">
+      <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

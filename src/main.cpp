@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include "imapp/KgImMenu.h"
 #include "imnodes/imnodes.h"
+#include "imapp/KgImWindowManager.h"
 
 
 namespace kPrivate
@@ -11,7 +12,7 @@ namespace kPrivate
     };
 
     static int style_colors = k_style_dark;
-    static bool show_app_metrics = false;
+    static KgImWindowManager wm;
 }
 
 
@@ -19,40 +20,14 @@ static void showMainMenuBar()
 {
     using namespace kPrivate;
 
-    KgImMenu view("View");
-    auto& style = view.addItem("Style", nullptr);
-    KgImMenu::KpItem subItem;
-    subItem.label = "Classic";
-    subItem.selected = style_colors == k_style_classic;
-    subItem.handler = []() {
-        ImGui::StyleColorsClassic();
-        style_colors = k_style_classic;
-
-    };
-    style.subItems.push_back(subItem);
-    subItem.label = "Dark";
-    subItem.selected = style_colors == k_style_dark;
-    subItem.handler = []() {
-        ImGui::StyleColorsDark();
-        style_colors = k_style_dark;
-    };
-    style.subItems.push_back(subItem);
-    subItem.label = "Light";
-    subItem.selected = style_colors == k_style_light;
-    subItem.handler = []() {
-        ImGui::StyleColorsLight();
-        style_colors = k_style_light;
-    };
-    style.subItems.push_back(subItem);
     
-    auto& metric = view.addItem("Metric/Debugger", []() {
-        show_app_metrics = !show_app_metrics;
-        });
-    metric.selected = show_app_metrics;
-    
-
     if (ImGui::BeginMainMenuBar()) {
-        view.apply();
+        if (ImGui::BeginMenu("View")) {
+            ImGui::ShowStyleSelector("Style");
+            ImGui::EndMenu();
+        }
+
+        wm.showMenu("Window");
         ImGui::EndMainMenuBar();
     }
 }
@@ -62,8 +37,7 @@ bool update()
 {
     showMainMenuBar();
 
-    if (kPrivate::show_app_metrics)
-        ImGui::ShowMetricsWindow(&kPrivate::show_app_metrics);
+    kPrivate::wm.draw();
 
     ImGui::BeginChild("simple node editor");
 
