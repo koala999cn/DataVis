@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.32002.261
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataVis", "DataVis.vcxproj", "{D9888577-7A80-4515-84C7-5E24DB39FDED}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kGraph", "3rdparty\kgl\graph.vcxproj", "{3FB56DDA-6C67-49A3-B88B-029722002532}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,14 +19,6 @@ Global
 		{D9888577-7A80-4515-84C7-5E24DB39FDED}.Release|x64.ActiveCfg = Release|x64
 		{D9888577-7A80-4515-84C7-5E24DB39FDED}.Release|x64.Build.0 = Release|x64
 		{D9888577-7A80-4515-84C7-5E24DB39FDED}.Release|x86.ActiveCfg = Release|x64
-		{3FB56DDA-6C67-49A3-B88B-029722002532}.Debug|x64.ActiveCfg = Debug|x64
-		{3FB56DDA-6C67-49A3-B88B-029722002532}.Debug|x64.Build.0 = Debug|x64
-		{3FB56DDA-6C67-49A3-B88B-029722002532}.Debug|x86.ActiveCfg = Debug|Win32
-		{3FB56DDA-6C67-49A3-B88B-029722002532}.Debug|x86.Build.0 = Debug|Win32
-		{3FB56DDA-6C67-49A3-B88B-029722002532}.Release|x64.ActiveCfg = Release|x64
-		{3FB56DDA-6C67-49A3-B88B-029722002532}.Release|x64.Build.0 = Release|x64
-		{3FB56DDA-6C67-49A3-B88B-029722002532}.Release|x86.ActiveCfg = Release|Win32
-		{3FB56DDA-6C67-49A3-B88B-029722002532}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

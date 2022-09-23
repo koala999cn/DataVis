@@ -3,7 +3,8 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include <stdio.h>
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
+#include <glad.h>
+#include <glfw3.h> // Will drag system OpenGL headers
 #include <assert.h>
 #include <chrono>
 
@@ -63,8 +64,10 @@ bool KsImApp::init(int w, int h, const char* title)
 
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(w, h, title, nullptr, nullptr);
-    if (window == nullptr)
+    if (window == nullptr) {
+        glfwTerminate();
         return false;
+    }
 
     { // TODO:
         GLFWimage icon;
@@ -78,6 +81,12 @@ bool KsImApp::init(int w, int h, const char* title)
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {        
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return false;
+    }
 
     glfwShowWindow(window);
 
@@ -108,10 +117,10 @@ bool KsImApp::init(int w, int h, const char* title)
 
     // Setup Platform/Renderer backends
     if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
-        return false;
+        return false; // TODO: shutdown
 
     if (!ImGui_ImplOpenGL3_Init(glsl_version))
-        return false;
+        return false; // TODO: shutdown
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -215,7 +224,8 @@ void KsImApp::drawFrame_()
     // Update and Render additional Platform Windows
     // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
     //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-    // TODO: if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         GLFWwindow* backup_current_context = glfwGetCurrentContext();
         ImGui::UpdatePlatformWindows();

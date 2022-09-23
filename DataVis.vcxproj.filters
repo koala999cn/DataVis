@@ -45,6 +45,9 @@
     <Filter Include="imnodes">
       <UniqueIdentifier>{32801069-2ba1-439d-90d1-44f3b878732f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="imFileDialog">
+      <UniqueIdentifier>{3ce5a1f3-ec03-4789-9bf1-b55abfac78dd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KcSampled1d.cpp">
@@ -170,6 +173,12 @@
     </ClCompile>
     <ClCompile Include="src\imapp\KvNode.cpp">
       <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KcImActionList.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\ImFileDialog\ImFileDialog.cpp">
+      <Filter>imFileDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -409,6 +418,12 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KvNode.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcImActionList.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\ImFileDialog\ImFileDialog.h">
+      <Filter>imFileDialog</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -52,13 +52,13 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/vl;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
-      <PreprocessorDefinitions>QCUSTOMPLOT_USE_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3d.lib;smarcd.lib;exprtkXd.lib;rtaudiod.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glad.lib;glfw3.lib;smarcd.lib;exprtkXd.lib;rtaudiod.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
   </ItemDefinitionGroup>
@@ -104,6 +104,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="3rdparty\ImFileDialog\ImFileDialog.cpp" />
     <ClCompile Include="3rdparty\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="3rdparty\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="3rdparty\imgui\imgui.cpp" />
@@ -137,6 +138,7 @@
     <ClCompile Include="src\dsp\KvContinued.cpp" />
     <ClCompile Include="src\dsp\KvDiscreted.cpp" />
     <ClCompile Include="src\imapp\KcImNodeEditor.cpp" />
+    <ClCompile Include="src\imapp\KcImActionList.cpp" />
     <ClCompile Include="src\imapp\KgImMenu.cpp" />
     <ClCompile Include="src\imapp\KgImWindowManager.cpp" />
     <ClCompile Include="src\imapp\KvImWindow.cpp" />
@@ -148,6 +150,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3rdparty\ImFileDialog\ImFileDialog.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3_loader.h" />
@@ -205,6 +208,7 @@
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\imapp\KcImNodeEditor.h" />
+    <ClInclude Include="src\imapp\KcImActionList.h" />
     <ClInclude Include="src\imapp\KgImMenu.h" />
     <ClInclude Include="src\imapp\KgImWindowManager.h" />
     <ClInclude Include="src\imapp\KvImWindow.h" />
