@@ -141,6 +141,7 @@
     <ClCompile Include="src\imapp\KgImWindowManager.cpp" />
     <ClCompile Include="src\imapp\KvImWindow.cpp" />
     <ClCompile Include="src\imapp\KsImApp.cpp" />
+    <ClCompile Include="src\imapp\KvNode.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
     <ClCompile Include="src\plot\KvTicker.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="src\imapp\KgImWindowManager.h" />
     <ClInclude Include="src\imapp\KvImWindow.h" />
     <ClInclude Include="src\imapp\KsImApp.h" />
+    <ClInclude Include="src\imapp\KvNode.h" />
     <ClInclude Include="src\plot\KcGridPlane.h" />
     <ClInclude Include="src\plot\KcLinearTicker.h" />
     <ClInclude Include="src\plot\KcAxis.h" />

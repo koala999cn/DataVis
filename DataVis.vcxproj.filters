@@ -168,6 +168,9 @@
     <ClCompile Include="src\imapp\KcImNodeEditor.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KvNode.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -402,6 +405,9 @@
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcImNodeEditor.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KvNode.h">
       <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
