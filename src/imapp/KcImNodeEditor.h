@@ -19,7 +19,7 @@ public:
 
     const char* id() const override { return "NodeEditor"; }
 
-    void draw() override;
+    void update() override;
 
 private:
     unsigned vertex2Index_(const vertex_type& v) const;

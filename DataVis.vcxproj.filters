@@ -174,7 +174,7 @@
     <ClCompile Include="src\imapp\KvNode.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcImActionList.cpp">
+    <ClCompile Include="src\imapp\KcImActionPanel.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\ImFileDialog\ImFileDialog.cpp">
@@ -422,7 +422,7 @@
     <ClInclude Include="src\imapp\KvNode.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcImActionList.h">
+    <ClInclude Include="src\imapp\KcImActionPanel.h">
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\ImFileDialog\ImFileDialog.h">

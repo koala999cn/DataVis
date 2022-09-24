@@ -20,7 +20,7 @@ public:
     void end();
 
     virtual const char* id() const = 0; // 窗口类型的标识符，确保每类窗口返回值一致
-    virtual void draw() = 0; // 绘制窗口部件
+    virtual void update() = 0; // 绘制窗口部件
     virtual void onBegin();
     virtual void onEnd();
     virtual int flags(); // ImGuiWindowFlags

@@ -4,9 +4,10 @@
 #include "imnodes/imnodes.h"
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KcImNodeEditor.h"
-#include "imapp/KcImActionList.h"
+#include "imapp/KcImActionPanel.h"
 #include "ImFileDialog/ImFileDialog.h"
 #include <glad.h>
+#include "imapp/KcActionLoadText.h"
 
 
 namespace kPrivate
@@ -78,10 +79,11 @@ int main_(int, char**)
     };
 
     auto editor = std::make_shared<KcImNodeEditor>("Node Editor");
-    auto actionlist = std::make_shared<KcImActionList>("Action List");
+    auto panel = std::make_shared<KcImActionPanel>("Action Panel");
+    panel->addAction("Provider", std::make_shared<KcActionLoadText>("Text Data"));
 
     kPrivate::wm.registerInstance(editor);
-    kPrivate::wm.registerInstance(actionlist);
+    kPrivate::wm.registerInstance(panel);
 
     app.listenPerFrame(update);
     app.run();
