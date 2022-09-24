@@ -425,5 +425,11 @@
     <ClInclude Include="3rdparty\ImFileDialog\ImFileDialog.h">
       <Filter>imFileDialog</Filter>
     </ClInclude>
+    <ClInclude Include="src\base\KtUId.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtUniObject.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

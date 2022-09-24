@@ -52,7 +52,7 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -167,12 +167,14 @@
     <ClInclude Include="src\base\KtObservable.h" />
     <ClInclude Include="src\base\KtPoint.h" />
     <ClInclude Include="src\base\KtSingleton.h" />
+    <ClInclude Include="src\base\KtUId.h" />
     <ClInclude Include="src\base\KtuMath.h" />
     <ClInclude Include="src\base\KtVector3.h" />
     <ClInclude Include="src\base\KtVector4.h" />
     <ClInclude Include="src\base\KuFileUtil.h" />
     <ClInclude Include="src\base\KuPathUtil.h" />
     <ClInclude Include="src\base\KuStrUtil.h" />
+    <ClInclude Include="src\base\KtUniObject.h" />
     <ClInclude Include="src\dsp\excitors.h" />
     <ClInclude Include="src\dsp\KcSampled2d.h" />
     <ClInclude Include="src\dsp\KgFilterBank.h" />
