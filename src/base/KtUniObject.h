@@ -5,7 +5,7 @@
 
 // 具有名字和唯一标识符的对象基类
 
-template<typename ID_TYPE = int>
+template<typename OBJ_TYPE, typename ID_TYPE = int>
 class KtUniObject
 {
 public:
@@ -26,6 +26,6 @@ public:
 	T as() { return dynamic_cast<T>(this); }
 
 protected:
-	KtUId<ID_TYPE> id_; // 用于表示node的唯一id
+	KtUId<OBJ_TYPE, ID_TYPE> id_; // 用于表示node的唯一id
 	std::string name_;
 };

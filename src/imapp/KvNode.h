@@ -6,11 +6,11 @@
 // 可用于KcImNodeEditor的节点抽象类
 // 实现端口管理功能
 
-class KvNode : public KtUniObject<>
+class KvNode : public KtUniObject<KvNode>
 {
 public:
 
-	using super_ = KtUniObject<>;
+	using super_ = KtUniObject<KvNode>;
 
 	class KcPort : public super_
 	{
