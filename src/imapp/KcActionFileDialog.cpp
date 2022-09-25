@@ -15,12 +15,6 @@ KcActionFileDialog::KcActionFileDialog(KeType type, const std::string_view& titl
 }
 
 
-auto KcActionFileDialog::desc() const -> const std::string_view
-{
-	return KvAction::name();
-}
-
-
 bool KcActionFileDialog::trigger()
 {
 	bool res{};

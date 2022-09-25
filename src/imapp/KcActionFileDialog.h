@@ -14,8 +14,6 @@ public:
 	KcActionFileDialog(KeType type, const std::string_view& title, 
 		const std::string_view& filter, const std::string_view& dir = "");
 
-	auto desc() const -> const std::string_view override;
-
 	bool trigger() override;
 
 	void update() override;

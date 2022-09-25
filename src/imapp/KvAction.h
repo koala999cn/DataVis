@@ -23,7 +23,9 @@ public:
 
 
 	// 关于该action的描述信息，主要用于显示tooltip
-	virtual auto desc() const -> const std::string_view = 0;
+	virtual auto desc() const -> const std::string_view {
+		return name();
+	}
 
 	// 触发action，返回true表示成功触发，false表示触发失败
 	virtual bool trigger() = 0;
