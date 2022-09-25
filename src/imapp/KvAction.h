@@ -7,6 +7,7 @@ class KvAction : public KtUniObject<KvAction>
 public:
 	using super_ = KtUniObject<KvAction>;
 
+	// action的状态定义
 	enum class KeState
 	{
 		k_ready,
@@ -15,6 +16,7 @@ public:
 		k_cancelled,
 		k_disabled
 	};
+
 
 	explicit KvAction(const std::string_view& name) 
 		: super_(name), state_(KeState::k_ready) {}
@@ -59,5 +61,5 @@ public:
 	}
 
 protected:
-	KeState state_; // 由派生类负责更新
+	KeState state_; // action的当前状态，由派生类负责更新
 };

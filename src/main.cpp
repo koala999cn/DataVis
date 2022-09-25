@@ -80,7 +80,7 @@ int main_(int, char**)
 
     auto editor = std::make_shared<KcImNodeEditor>("Node Editor");
     auto panel = std::make_shared<KcImActionPanel>("Action Panel");
-    panel->addAction("Provider", std::make_shared<KcActionLoadText>("Text Data"));
+    panel->addAction("Provider", std::make_shared<KcActionLoadText>());
 
     kPrivate::wm.registerInstance(editor);
     kPrivate::wm.registerInstance(panel);

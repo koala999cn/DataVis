@@ -183,6 +183,12 @@
     <ClCompile Include="src\imapp\KcActionLoadText.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KcActionSequence.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KcActionFileDialog.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -438,6 +444,12 @@
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcActionLoadText.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcActionSequence.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcActionFileDialog.h">
       <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
