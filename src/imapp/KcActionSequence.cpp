@@ -22,6 +22,8 @@ bool KcActionSequence::trigger()
 	if (seqs_.empty())
 		return false;
 
+	// TODO: 序列中各action的状态是否需要先reset
+
 	bool res = seqs_.front()->trigger();
 	state_ = seqs_.front()->state();
 	return res;
@@ -31,10 +33,26 @@ bool KcActionSequence::trigger()
 void KcActionSequence::update()
 {
 	assert(triggered());
-	for (auto& i : seqs_) { // seqs_中必有一个元素处于触发态
-		if (i->triggered()) {
-			i->update();
-			break;
+
+	auto iter = seqs_.begin();
+	for (; iter != seqs_.end(); iter++) { // seqs_中必有一个元素处于触发态
+		if ((*iter)->triggered()) {
+			(*iter)->update();
+			
+			if ((*iter)->done()) { // 当前action结束，触发下一个状态
+				auto st = (*iter++)->state();
+				if (iter == seqs_.end()) {
+					state_ = st;
+				}
+				else {
+					(*iter)->trigger();
+					state_ = (*iter)->state();
+				}
+
+				break;
+			}
+
+			state_ = (*iter)->state();
 		}
 	}
 }

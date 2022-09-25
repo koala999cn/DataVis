@@ -9,6 +9,8 @@ public:
 
 	enum class KeType { k_open, k_open_multi, k_save };
 
+	// @filter: File filter. syntax: Name1{ .ext1,.ext2 }, Name2{ .ext3,.ext4 }, .*
+	// 若empty, 使用dir模式，否则file模式
 	KcActionFileDialog(KeType type, const std::string_view& title, 
 		const std::string_view& filter, const std::string_view& dir = "");
 
