@@ -1,45 +1,25 @@
 ﻿#include "imapp/KsImApp.h"
 #include "imgui.h"
-#include "imapp/KgImMenu.h"
-#include "imapp/KgImWindowManager.h"
 #include "imapp/KcImNodeEditor.h"
 #include "imapp/KcImActionPanel.h"
 #include "imapp/KcActionLoadText.h"
+#include "imapp/KgImWindowManager.h"
 
 
-namespace kPrivate
+bool update()
 {
-    enum {
-        k_style_classic, k_style_dark, k_style_light
-    };
-
-    static int style_colors = k_style_dark;
-    static KgImWindowManager wm;
-}
-
-
-static void showMainMenuBar()
-{
-    using namespace kPrivate;
-
-    
+    // show menu bar of main window
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("View")) {
             ImGui::ShowStyleSelector("Style");
             ImGui::EndMenu();
         }
 
-        wm.showMenu("Window");
+        KsImApp::singleton().windowManager().showMenu("Window");
         ImGui::EndMainMenuBar();
     }
-}
 
-
-bool update()
-{
-    showMainMenuBar();
-
-    kPrivate::wm.draw();
+    KsImApp::singleton().windowManager().draw();
 
     return true;
 }
@@ -56,8 +36,8 @@ int main_(int, char**)
     auto panel = std::make_shared<KcImActionPanel>("Action Panel");
     panel->addAction("Provider", std::make_shared<KcActionLoadText>());
 
-    kPrivate::wm.registerInstance(editor);
-    kPrivate::wm.registerInstance(panel);
+    app.windowManager().registerInstance(editor);
+    app.windowManager().registerInstance(panel);
 
     app.listenPerFrame(update);
     app.run();

@@ -9,6 +9,7 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "imnodes/imnodes.h"
 #include "ImFileDialog/ImFileDialog.h"
+#include "imapp/KgImWindowManager.h"
 
 
 namespace kPrivate
@@ -23,6 +24,7 @@ namespace kPrivate
 KsImApp::KsImApp()
 {
     mainWindow_ = nullptr;
+    winMgr_ = std::make_unique<KgImWindowManager>();
 }
 
 

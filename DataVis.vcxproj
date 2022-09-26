@@ -140,6 +140,7 @@
     <ClCompile Include="src\imapp\KcActionDataClean.cpp" />
     <ClCompile Include="src\imapp\KcActionLoadText.cpp" />
     <ClCompile Include="src\imapp\KcActionFileDialog.cpp" />
+    <ClCompile Include="src\imapp\KcImDataView.cpp" />
     <ClCompile Include="src\imapp\KcImNodeEditor.cpp" />
     <ClCompile Include="src\imapp\KcImActionPanel.cpp" />
     <ClCompile Include="src\imapp\KgImMenu.cpp" />

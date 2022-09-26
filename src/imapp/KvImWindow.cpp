@@ -35,7 +35,7 @@ bool KvImWindow::begin()
         ImVec2{ maxSize_[0], maxSize_[1] }
     );
 
-    ImGui::PushID(id_.id());
+    //ImGui::PushID(id_.id());
     const bool not_collapsed = ImGui::Begin(
         name().data(),
         &keep_visible,
@@ -52,7 +52,7 @@ void KvImWindow::end()
 {
     onEnd();
     ImGui::End();
-    ImGui::PopID();
+    //ImGui::PopID();
 }
 
 

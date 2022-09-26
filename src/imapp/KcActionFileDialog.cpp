@@ -23,8 +23,7 @@ bool KcActionFileDialog::trigger()
 		res = ifd::FileDialog::Instance().Save(key_, name(), filter_, dir_);
 	}
 	else {
-		res = ifd::FileDialog::Instance().Open(key_, name(), filter_, 
-			type_ == KeType::k_open_multi, dir_);
+		res = ifd::FileDialog::Instance().Open(key_, name(), filter_, false, dir_);
 	}
 
 	if (res)
@@ -39,21 +38,15 @@ void KcActionFileDialog::update()
 	assert(triggered());
 
 	if (ifd::FileDialog::Instance().IsDone(key_)) {
-		state_ = ifd::FileDialog::Instance().HasResult() ? 
-			KeState::k_done : KeState::k_cancelled;
+		if (ifd::FileDialog::Instance().HasResult()) {
+			result_ = ifd::FileDialog::Instance().GetResult().u8string();
+			state_ = KeState::k_done;
+		}
+		else {
+			result_.clear();
+			state_ = KeState::k_cancelled;
+		}
 
 		ifd::FileDialog::Instance().Close();
 	}
-}
-
-
-auto KcActionFileDialog::result() const -> const std::filesystem::path&
-{
-	return ifd::FileDialog::Instance().GetResult();
-}
-
-
-auto KcActionFileDialog::results() const -> const std::vector<std::filesystem::path>&
-{
-	return ifd::FileDialog::Instance().GetResults();
 }

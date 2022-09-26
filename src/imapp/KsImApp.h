@@ -3,6 +3,7 @@
 #include <functional>
 #include <vector>
 
+class KgImWindowManager;
 
 class KsImApp
 {
@@ -23,6 +24,9 @@ public:
 
 	void shutdown();
 
+	KgImWindowManager& windowManager() {
+		return *winMgr_;
+	}
 
 public:
 
@@ -74,4 +78,6 @@ private:
 	std::vector<start_listener> lsStart_;
 	std::vector<update_listener> lsUpdate_;
 	std::vector<finish_listener> lsFinish_;
+
+	std::unique_ptr<KgImWindowManager> winMgr_;
 };
