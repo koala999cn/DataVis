@@ -39,8 +39,13 @@ bool KcActionDataClean::trigger()
 
 void KcActionDataClean::update()
 {
-    if (dataView_ && dataView_->visible())
+    if (dataView_ == nullptr)
+        return;
+
+    if (dataView_->opened())
         dataView_->update();
+    else 
+        state_ = rawData_.empty() ? KeState::k_cancelled : KeState::k_done;
 }
 
 

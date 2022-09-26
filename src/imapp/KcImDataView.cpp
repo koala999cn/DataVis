@@ -5,18 +5,12 @@
 #include "KuMatrixUtil.h"
 
 
-KcImDataView::KcImDataView(const std::string& source, const matrix<std::string>& rawData)
-    : KvImWindow(KuPathUtil::fileName(source))
+KcImDataView::KcImDataView(const std::string& source, matrix<std::string>& rawData)
+    : KvImModalWindow(KuPathUtil::fileName(source))
     , source_(source)
     , rawData_(rawData)
 {
 
-}
-
-
-int KcImDataView::flags()
-{
-    return ImGuiWindowFlags_Modal;
 }
 
 
@@ -31,6 +25,22 @@ void KcImDataView::updateImpl_()
         ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
     static int freeze_cols = 1;
     static int freeze_rows = 1;
+
+    bool keepEmpty = false;
+    ImGui::Checkbox("keep empty tokens", &keepEmpty);
+
+    if (ImGui::Button("OK", ImVec2(120, 0))) {
+        close();
+        return;
+    }
+    ImGui::SetItemDefaultFocus();
+    ImGui::SameLine();
+    if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        close();
+        rawData_.clear();
+        return;
+    }
+    ImGui::Separator();
 
     assert(!rawData_.empty());
     int cols = KuMatrixUtil::colsRange(rawData_).second;

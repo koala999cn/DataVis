@@ -26,37 +26,7 @@ void KvImWindow::toggleVisibility()
 }
 
 
-bool KvImWindow::begin_()
-{
-    onBegin();
-    bool keep_visible{ true };
-    ImGui::SetNextWindowSizeConstraints(
-        ImVec2{ minSize_[0], minSize_[1] },
-        ImVec2{ maxSize_[0], maxSize_[1] }
-    );
-
-    ImGui::PushID(id_.id());
-    const bool not_collapsed = ImGui::Begin(
-        name().data(),
-        &keep_visible,
-        flags()
-    );
-
-    if (!keep_visible)
-        setVisible(false);
-    return not_collapsed;
-}
-
-
-void KvImWindow::end_()
-{
-    onEnd();
-    ImGui::End();
-    ImGui::PopID();
-}
-
-
-int KvImWindow::flags()
+int KvImWindow::flags() const
 {
     return 0; //ImGuiWindowFlags_NoCollapse;
 }
@@ -64,7 +34,19 @@ int KvImWindow::flags()
 
 void KvImWindow::update()
 {
-    if (begin_() && visible())
+    ImGui::SetNextWindowSizeConstraints(
+        ImVec2{ minSize_[0], minSize_[1] },
+        ImVec2{ maxSize_[0], maxSize_[1] }
+    );
+
+    bool _open{ true };
+    bool not_collapsed = ImGui::Begin(name().c_str(), &_open, flags());
+
+    if (!_open)
+        setVisible(false);
+
+    if (not_collapsed && visible())
         updateImpl_();
-    end_();
+
+    ImGui::End();
 }

@@ -190,6 +190,9 @@
     <ClCompile Include="src\imapp\KcImDataView.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KvImModalWindow.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -460,6 +463,9 @@
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KvModule.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KvImModalWindow.h">
       <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>

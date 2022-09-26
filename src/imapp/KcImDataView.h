@@ -1,24 +1,22 @@
 #pragma once
-#include "KvImWindow.h"
+#include "KvImModalWindow.h"
 #include <vector>
 
 
-class KcImDataView : public KvImWindow
+class KcImDataView : public KvImModalWindow
 {
 public:
     template<typename T>
     using matrix = std::vector<std::vector<T>>;
 
-    KcImDataView(const std::string& source, const matrix<std::string>& rawData);
+    KcImDataView(const std::string& source, matrix<std::string>& rawData);
 
     const char* type() const override { return "DataView"; }
-
-    int flags() override;
 
 private:
     void updateImpl_() override;
 
 private:
     const std::string& source_;
-    const matrix<std::string>& rawData_;
+    matrix<std::string>& rawData_;
 };

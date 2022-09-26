@@ -145,6 +145,7 @@
     <ClCompile Include="src\imapp\KcImActionPanel.cpp" />
     <ClCompile Include="src\imapp\KgImMenu.cpp" />
     <ClCompile Include="src\imapp\KgImWindowManager.cpp" />
+    <ClCompile Include="src\imapp\KvImModalWindow.cpp" />
     <ClCompile Include="src\imapp\KvImWindow.cpp" />
     <ClCompile Include="src\imapp\KsImApp.cpp" />
     <ClCompile Include="src\imapp\KvNode.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="src\imapp\KgImMenu.h" />
     <ClInclude Include="src\imapp\KgImWindowManager.h" />
     <ClInclude Include="src\imapp\KvAction.h" />
+    <ClInclude Include="src\imapp\KvImModalWindow.h" />
     <ClInclude Include="src\imapp\KvImWindow.h" />
     <ClInclude Include="src\imapp\KsImApp.h" />
     <ClInclude Include="src\imapp\KvModule.h" />
