@@ -25,7 +25,7 @@ void KgImWindowManager::registerInstance(window_ptr instance)
 void KgImWindowManager::registerInstance(window_ptr instance, const std::string_view& group)
 {
 	auto& g = groups_[std::string(group)];
-	g.push_back(instance);
+	g.push_back(instance); // FIXME: 在update的过程中，调用该函数会crack
 }
 
 
@@ -84,16 +84,13 @@ void KgImWindowManager::showMenu(const std::string_view& menuName)
 }
 
 
-void KgImWindowManager::draw()
+void KgImWindowManager::update()
 {
 	for (auto& g : groups_)
 		for (auto i = g.second.begin(); i != g.second.end(); i++) {
 			auto& w = *i;
-			if (w->visible()) {
-				if (w->begin())
-				    w->update();
-				w->end();
-			}
+			if (w->visible()) 
+				w->update();
 		}	
 
 	if (showDemo_)

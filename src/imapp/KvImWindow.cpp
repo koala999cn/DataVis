@@ -26,7 +26,7 @@ void KvImWindow::toggleVisibility()
 }
 
 
-bool KvImWindow::begin()
+bool KvImWindow::begin_()
 {
     onBegin();
     bool keep_visible{ true };
@@ -35,7 +35,7 @@ bool KvImWindow::begin()
         ImVec2{ maxSize_[0], maxSize_[1] }
     );
 
-    //ImGui::PushID(id_.id());
+    ImGui::PushID(id_.id());
     const bool not_collapsed = ImGui::Begin(
         name().data(),
         &keep_visible,
@@ -48,23 +48,11 @@ bool KvImWindow::begin()
 }
 
 
-void KvImWindow::end()
+void KvImWindow::end_()
 {
     onEnd();
     ImGui::End();
-    //ImGui::PopID();
-}
-
-
-void KvImWindow::onBegin()
-{
-
-}
-
-
-void KvImWindow::onEnd()
-{
-
+    ImGui::PopID();
 }
 
 
@@ -74,19 +62,9 @@ int KvImWindow::flags()
 }
 
 
-bool KvImWindow::consumesMouseInput() const
+void KvImWindow::update()
 {
-    return false;
-}
-
-
-bool KvImWindow::hasToolbar() const
-{
-    return false;
-}
-
-
-void KvImWindow::toolbar()
-{
-
+    if (begin_() && visible())
+        updateImpl_();
+    end_();
 }

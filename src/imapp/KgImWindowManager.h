@@ -27,7 +27,7 @@ public:
 
 	void showMenu(const std::string_view& menuName);
 
-	void draw(); // draw all registered imgui_windows
+	void update(); // draw all registered imgui_windows
 
 	void showAll(); // 显示所有窗口
 	void closeAll(); // 关闭所有窗口，实际是隐藏而非销毁

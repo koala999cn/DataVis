@@ -19,9 +19,9 @@ public:
 
     const char* type() const override { return "NodeEditor"; }
 
-    void update() override;
-
 private:
+    void updateImpl_() override;
+
     unsigned vertex2Index_(const vertex_type& v) const;
 
 private:

@@ -9,7 +9,7 @@ void KcImActionPanel::addAction(const std::string_view& groupName, action_ptr ac
 }
 
 
-void KcImActionPanel::update()
+void KcImActionPanel::updateImpl_()
 {
 	// 水平平铺button
 	const auto btnSize = ImVec2{ ImGui::GetContentRegionAvail().x, 0.0f };
@@ -22,7 +22,7 @@ void KcImActionPanel::update()
 		if (ImGui::CollapsingHeader(groupName.c_str())) // 按分组创建header
 			for (auto& act : actionList) // 依次绘制该分组下的action触发按钮
 				if (ImGui::Button(act->name().c_str(), btnSize)) {
-					if (act->trigger())
+					if (!act->triggered() && act->trigger())
 						triggered_.push_back(act);
 				}
 	}

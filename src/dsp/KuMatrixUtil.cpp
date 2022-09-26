@@ -1,82 +1,10 @@
-#include "KuDataUtil.h"
+#include "KuMatrixUtil.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
 #include "KtScattered.h"
 
 
-std::pair<unsigned, unsigned> KuDataUtil::colsRange(const matrixd& mat)
-{
-    unsigned minCols(0), maxCols(0);
-    if (!mat.empty()) {
-        minCols = maxCols = mat[0].size();
-        for (unsigned i = 1; i < mat.size(); i++) {
-            if (mat[i].size() > maxCols)
-                maxCols = mat[i].size();
-
-            if (mat[i].size() < minCols)
-                minCols = mat[i].size();
-        }
-    }
-
-    return { minCols, maxCols };
-}
-
-
-KuDataUtil::matrixd KuDataUtil::transpose(const matrixd& mat)
-{
-    matrixd trans;
-    if (!mat.empty()) {
-        trans.resize(mat.front().size(), vectord(mat.size()));
-        for (unsigned r = 0; r < mat.size(); r++)
-            for (unsigned c = 0; c < trans.size(); c++)
-                trans[c][r] = mat[r][c];
-    }
-
-    return trans;
-}
-
-
-KuDataUtil::vectord KuDataUtil::column(const matrixd& mat, unsigned idx)
-{
-    vectord v(mat.size());
-    for (unsigned i = 0; i < mat.size(); i++)
-        v[i] = mat[i][idx];
-
-    return v;
-}
-
-
-void KuDataUtil::forceAligned(matrixd& mat, unsigned cols, double missingVal)
-{
-    if (cols == -1)
-        cols = colsRange(mat).second;
-    else if (cols == 0)
-        cols = colsRange(mat).first;
-
-    for (auto& row : mat)
-        row.resize(cols, missingVal);
-}
-
-
-bool KuDataUtil::isEvenlySpaced(const vectord& v)
-{
-    if (v.size() < 2)
-        return true;
-
-    auto dx = v[1] - v[0];
-
-    for (unsigned i = 1; i < v.size(); i++) {
-        auto delta = v[i] - v[i - 1];
-        if (std::abs(dx - delta) > 1e-6) // TODO: tol可设置
-            return false;
-        dx = delta;
-    }
-
-    return true;
-}
-
-
-std::shared_ptr<KvData> KuDataUtil::makeSeries(const matrixd& mat)
+std::shared_ptr<KvData> KuMatrixUtil::makeSeries(const matrixd& mat)
 {
     // 暂时使用sampled1d表示series数据
 
@@ -92,7 +20,7 @@ std::shared_ptr<KvData> KuDataUtil::makeSeries(const matrixd& mat)
 
 
 
-std::shared_ptr<KvData> KuDataUtil::makeMatrix(const matrixd& mat)
+std::shared_ptr<KvData> KuMatrixUtil::makeMatrix(const matrixd& mat)
 {
     auto samp2d = std::make_shared<KcSampled2d>();
     samp2d->resize(mat.size(), mat[0].size());
@@ -106,7 +34,7 @@ std::shared_ptr<KvData> KuDataUtil::makeMatrix(const matrixd& mat)
 }
 
 
-std::shared_ptr<KvData> KuDataUtil::makeSampled1d(const matrixd& mat)
+std::shared_ptr<KvData> KuMatrixUtil::makeSampled1d(const matrixd& mat)
 {
     auto samp = std::make_shared<KcSampled1d>();
     samp->resize(mat[0].size(), mat.size() - 1);
@@ -119,7 +47,7 @@ std::shared_ptr<KvData> KuDataUtil::makeSampled1d(const matrixd& mat)
 }
 
 
-std::shared_ptr<KvData> KuDataUtil::makeSampled2d(const matrixd& mat)
+std::shared_ptr<KvData> KuMatrixUtil::makeSampled2d(const matrixd& mat)
 {
     // mat[0][0]为占位符，无效
 
@@ -138,7 +66,7 @@ std::shared_ptr<KvData> KuDataUtil::makeSampled2d(const matrixd& mat)
 }
 
 
-std::shared_ptr<KvData> KuDataUtil::makeScattered(const matrixd& mat, unsigned dim)
+std::shared_ptr<KvData> KuMatrixUtil::makeScattered(const matrixd& mat, unsigned dim)
 {
     assert(dim == 2 || dim == 3);
     assert(mat.size() % dim == 0);
@@ -177,7 +105,7 @@ std::shared_ptr<KvData> KuDataUtil::makeScattered(const matrixd& mat, unsigned d
 }
 
 
-std::vector<KuDataUtil::KeDataType> KuDataUtil::validTypes(const matrixd& mat, bool colMajor)
+std::vector<KuMatrixUtil::KeDataType> KuMatrixUtil::validTypes(const matrixd& mat, bool colMajor)
 {
     if (mat.empty())
         return {};
@@ -208,8 +136,8 @@ std::vector<KuDataUtil::KeDataType> KuDataUtil::validTypes(const matrixd& mat, b
         if (cols % 3 == 0) 
             types.insert(types.begin(), k_scattered_2d);
    
-        bool evenRow = KuDataUtil::isEvenlySpaced(mat[0]);
-        bool evenCol = KuDataUtil::isEvenlySpaced(KuDataUtil::column(mat, 0));
+        bool evenRow = KuMatrixUtil::isEvenlySpaced(mat[0]);
+        bool evenCol = KuMatrixUtil::isEvenlySpaced(KuMatrixUtil::extractColumn(mat, 0));
         if (colMajor && evenCol || !colMajor && evenRow)
             types.insert(types.begin(), k_sampled_1d);
 
@@ -221,7 +149,7 @@ std::vector<KuDataUtil::KeDataType> KuDataUtil::validTypes(const matrixd& mat, b
 }
 
 
-std::shared_ptr<KvData> KuDataUtil::makeData(const matrixd& mat, KeDataType type)
+std::shared_ptr<KvData> KuMatrixUtil::makeData(const matrixd& mat, KeDataType type)
 {
     std::shared_ptr<KvData> data;
 
@@ -258,7 +186,7 @@ std::shared_ptr<KvData> KuDataUtil::makeData(const matrixd& mat, KeDataType type
     return data;
 }
 
-const char* KuDataUtil::typeStr(KeDataType type)
+const char* KuMatrixUtil::typeStr(KeDataType type)
 {
     const char* text[] = {
         "series",

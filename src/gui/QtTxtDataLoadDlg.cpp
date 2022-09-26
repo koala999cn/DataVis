@@ -1,7 +1,7 @@
 #include "QtTxtDataLoadDlg.h"
 #include "ui_txt_data_load_dlg.h"
 #include "prov/KgTxtDataLoader.h"
-#include "dsp/KuDataUtil.h"
+#include "dsp/KuMatrixUtil.h"
 #include <QButtonGroup>
 
 
@@ -53,7 +53,7 @@ void QtTxtDataLoadDlg::accept()
     auto startCol = ui->leStartCol->text().toInt();
 
     if (forceAligned)
-        KuDataUtil::forceAligned(mat_);
+        KuMatrixUtil::forceAligned(mat_);
 
     if (startRow != 0)
         mat_.erase(mat_.begin(), mat_.begin() + startRow);
@@ -64,12 +64,12 @@ void QtTxtDataLoadDlg::accept()
 
     // 为方便数据转换，使用rowMajor布局
     if (!rowMajor)
-        mat_ = KuDataUtil::transpose(mat_);
+        mat_ = KuMatrixUtil::transpose(mat_);
 
 
     /// 生成data_, 此时mat_为rowMajor
     auto type = ui->cbImportAs->currentData().toInt();
-    data = KuDataUtil::makeData(mat_, KuDataUtil::KeDataType(type));
+    data = KuMatrixUtil::makeData(mat_, KuMatrixUtil::KeDataType(type));
 
     QDialog::accept();
 }
@@ -93,7 +93,7 @@ void QtTxtDataLoadDlg::reload()
         updateIntEdit_(ui->leStartCol, 0, 0);
     }
     else {
-        auto cr = KuDataUtil::colsRange(mat_);
+        auto cr = KuMatrixUtil::colsRange(mat_);
         if (cr.second == 0) {
             result = tr("no data loaded");
             ok = false;
@@ -144,9 +144,9 @@ void QtTxtDataLoadDlg::updateImportAs_()
     // column major
     ui->cbImportAs->clear();
 
-    auto types = KuDataUtil::validTypes(mat_, !rowMajor);
+    auto types = KuMatrixUtil::validTypes(mat_, !rowMajor);
     for(auto t : types)
-        ui->cbImportAs->addItem(KuDataUtil::typeStr(t), t);
+        ui->cbImportAs->addItem(KuMatrixUtil::typeStr(t), t);
     ui->cbImportAs->setCurrentIndex(0);
 }
 

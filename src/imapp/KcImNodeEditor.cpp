@@ -13,7 +13,7 @@ KcImNodeEditor::KcImNodeEditor(const std::string_view& name)
 }
 
 
-void KcImNodeEditor::update()
+void KcImNodeEditor::updateImpl_()
 {
     ImNodes::BeginNodeEditor();
 

@@ -14,6 +14,7 @@ public:
 		k_triggered,
 		k_done,
 		k_cancelled,
+		k_failed,
 		k_disabled
 	};
 
@@ -56,6 +57,10 @@ public:
 
 	bool cancelled() const {
 		return state() == KeState::k_cancelled;
+	}
+
+	bool failed() const {
+		return state() == KeState::k_failed;
 	}
 
 	bool disabled() const {

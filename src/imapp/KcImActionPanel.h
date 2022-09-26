@@ -17,9 +17,10 @@ public:
 
     const char* type() const override { return "ActionPanel"; }
 
-    void update() override;
-
     void addAction(const std::string_view& groupName, action_ptr act);
+
+private:
+    void updateImpl_() override;
 
 private:
     

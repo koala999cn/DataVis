@@ -19,7 +19,7 @@ bool update()
         ImGui::EndMainMenuBar();
     }
 
-    KsImApp::singleton().windowManager().draw();
+    KsImApp::singleton().windowManager().update();
 
     return true;
 }

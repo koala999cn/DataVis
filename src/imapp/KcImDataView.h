@@ -13,7 +13,10 @@ public:
 
     const char* type() const override { return "DataView"; }
 
-    void update() override;
+    int flags() override;
+
+private:
+    void updateImpl_() override;
 
 private:
     const std::string& source_;
