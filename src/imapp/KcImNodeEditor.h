@@ -17,7 +17,7 @@ public:
 
     explicit KcImNodeEditor(const std::string_view& name);
 
-    const char* id() const override { return "NodeEditor"; }
+    const char* type() const override { return "NodeEditor"; }
 
     void update() override;
 

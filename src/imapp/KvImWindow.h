@@ -1,12 +1,15 @@
 #pragma once
-#include <string_view>
+#include "KtUniObject.h"
 
 // imgui窗口的封装类
 
-class KvImWindow
+class KvImWindow : public KtUniObject<KvImWindow>
 {
 public:
-    explicit KvImWindow(const std::string_view& name);
+    using super_ = KtUniObject<KvImWindow>;
+
+    using super_::super_;
+
     virtual ~KvImWindow() noexcept;
 
     // 可见性
@@ -14,12 +17,10 @@ public:
     void setVisible(bool b);
     void toggleVisibility();
 
-    const std::string_view& name() const;
-
     bool begin();
     void end();
 
-    virtual const char* id() const = 0; // 窗口类型的标识符，确保每类窗口返回值一致
+    virtual const char* type() const = 0; // 窗口类型的标识符，确保每类窗口返回值一致
     virtual void update() = 0; // 绘制窗口部件
     virtual void onBegin();
     virtual void onEnd();

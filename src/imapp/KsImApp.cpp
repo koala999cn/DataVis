@@ -1,12 +1,14 @@
 #include "KsImApp.h"
-#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <glad.h>
 #include <glfw3.h> // Will drag system OpenGL headers
 #include <assert.h>
 #include <chrono>
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "imnodes/imnodes.h"
+#include "ImFileDialog/ImFileDialog.h"
 
 
 namespace kPrivate
@@ -32,10 +34,38 @@ KsImApp::~KsImApp()
 
 bool KsImApp::init(int w, int h, const char* title)
 {
+    auto glsl_version = initGl_(w, h, title);
+    if (glsl_version == nullptr)
+        return false;
+
+    if (!initImGui_(glsl_version)) {
+        shutGl_();
+        return false;
+    }
+
+    if (!initImNode_()) {
+        shutImGui_();
+        shutGl_();
+        return false;
+    }
+
+    if (!initImFileDialog_()) {
+        shutImNode_();
+        shutImGui_();
+        shutGl_();
+        return false;
+    }
+
+    return true;
+}
+
+
+const char* KsImApp::initGl_(int w, int h, const char* title)
+{
     // Setup window
     glfwSetErrorCallback(kPrivate::glfw_error_callback);
     if (!glfwInit())
-        return false;
+        return nullptr;
 
     // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -66,7 +96,7 @@ bool KsImApp::init(int w, int h, const char* title)
     GLFWwindow* window = glfwCreateWindow(w, h, title, nullptr, nullptr);
     if (window == nullptr) {
         glfwTerminate();
-        return false;
+        return nullptr;
     }
 
     { // TODO:
@@ -82,20 +112,30 @@ bool KsImApp::init(int w, int h, const char* title)
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {        
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         glfwDestroyWindow(window);
         glfwTerminate();
-        return false;
+        return nullptr;
     }
 
-    glfwShowWindow(window);
+    glfwShowWindow(window); // TODO: 放到post-init
 
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
 
+    mainWindow_ = window;
+    return glsl_version;
+}
+
+
+bool KsImApp::initImGui_(const char* glsl_version)
+{
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    if (ImGui::CreateContext() == nullptr)
+        return false;
+
+    // io设置须放在其他初始化之前，否则ImGui初始化不完全，后面程序运行会crack
     ImGuiIO& io = ImGui::GetIO();
     // TODO: std::string iniFileName = tracy::GetSavePath("imgui.ini");
     //io.IniFilename = iniFileName.c_str();
@@ -103,6 +143,19 @@ bool KsImApp::init(int w, int h, const char* title)
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+
+    // Setup Platform/Renderer backends
+    if (!ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)mainWindow_, true)) {
+        ImGui::DestroyContext();
+        return false;
+    }
+
+    if (!ImGui_ImplOpenGL3_Init(glsl_version)) {
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+        return false; // TODO: shutdown
+    }
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -114,13 +167,6 @@ bool KsImApp::init(int w, int h, const char* title)
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
-
-    // Setup Platform/Renderer backends
-    if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
-        return false; // TODO: shutdown
-
-    if (!ImGui_ImplOpenGL3_Init(glsl_version))
-        return false; // TODO: shutdown
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -137,7 +183,42 @@ bool KsImApp::init(int w, int h, const char* title)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
-    mainWindow_ = window;
+    return true;
+}
+
+
+bool KsImApp::initImNode_()
+{
+    if (ImNodes::CreateContext() == nullptr)
+        return false;
+
+    ImNodes::SetNodeGridSpacePos(1, ImVec2(200.0f, 200.0f));
+
+    return true;
+}
+
+
+bool KsImApp::initImFileDialog_()
+{
+    ifd::FileDialog::Instance().CreateTexture = [](uint8_t* data, int w, int h, char fmt) -> void* {
+        GLuint tex;
+
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, (fmt == 0) ? GL_BGRA : GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        return (void*)tex;
+    };
+    ifd::FileDialog::Instance().DeleteTexture = [](void* tex) {
+        GLuint texID = (GLuint)tex;
+        glDeleteTextures(1, &texID);
+    };
 
     return true;
 }
@@ -177,16 +258,41 @@ void KsImApp::quit()
 
 void KsImApp::shutdown()
 {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    shutImFileDialog_();
+    shutImNode_();
+    shutImGui_();
+    shutGl_();
 
+	singleton_type::destroy();
+}
+
+
+void KsImApp::shutGl_()
+{
     glfwDestroyWindow(static_cast<GLFWwindow*>(mainWindow_));
     glfwTerminate();
 
     mainWindow_ = nullptr;
+}
 
-	singleton_type::destroy();
+
+void KsImApp::shutImGui_()
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+
+
+void KsImApp::shutImNode_()
+{
+    ImNodes::DestroyContext();
+}
+
+
+void KsImApp::shutImFileDialog_()
+{
+    // do nothing
 }
 
 

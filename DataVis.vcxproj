@@ -217,6 +217,7 @@
     <ClInclude Include="src\imapp\KcActionLoadText.h" />
     <ClInclude Include="src\imapp\KcActionFileDialog.h" />
     <ClInclude Include="src\imapp\KcActionSequence.h" />
+    <ClInclude Include="src\imapp\KcImDataView.h" />
     <ClInclude Include="src\imapp\KcImNodeEditor.h" />
     <ClInclude Include="src\imapp\KcImActionPanel.h" />
     <ClInclude Include="src\imapp\KgImMenu.h" />
@@ -224,6 +225,7 @@
     <ClInclude Include="src\imapp\KvAction.h" />
     <ClInclude Include="src\imapp\KvImWindow.h" />
     <ClInclude Include="src\imapp\KsImApp.h" />
+    <ClInclude Include="src\imapp\KvModule.h" />
     <ClInclude Include="src\imapp\KvNode.h" />
     <ClInclude Include="src\plot\KcGridPlane.h" />
     <ClInclude Include="src\plot\KcLinearTicker.h" />

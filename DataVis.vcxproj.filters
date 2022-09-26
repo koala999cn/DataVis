@@ -458,5 +458,11 @@
     <ClInclude Include="src\imapp\KcActionDataClean.h">
       <Filter>imapp</Filter>
     </ClInclude>
+    <ClInclude Include="src\imapp\KcImDataView.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KvModule.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

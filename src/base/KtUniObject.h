@@ -19,6 +19,7 @@ public:
 	virtual ~KtUniObject() {} // make this polymorphism
 
 	ID_TYPE id() const { return id_.id(); }
+	operator ID_TYPE() const { return id(); }
 
 	const std::string& name() const { return name_; }
 

@@ -2,22 +2,9 @@
 #include "imgui.h"
 
 
-KvImWindow::KvImWindow(const std::string_view& name)
-    : name_(name)
-{
-
-}
-
-
 KvImWindow::~KvImWindow()
 {
 
-}
-
-
-const std::string_view& KvImWindow::name() const 
-{ 
-    return name_; 
 }
 
 
@@ -47,6 +34,8 @@ bool KvImWindow::begin()
         ImVec2{ minSize_[0], minSize_[1] },
         ImVec2{ maxSize_[0], maxSize_[1] }
     );
+
+    ImGui::PushID(id_.id());
     const bool not_collapsed = ImGui::Begin(
         name().data(),
         &keep_visible,
@@ -63,6 +52,7 @@ void KvImWindow::end()
 {
     onEnd();
     ImGui::End();
+    ImGui::PopID();
 }
 
 

@@ -58,6 +58,16 @@ private:
 
 	void drawFrame_();
 
+	const char* initGl_(int w, int h, const char* title);
+	bool initImGui_(const char* glsl_version);
+	bool initImNode_();
+	bool initImFileDialog_();
+
+	void shutGl_();
+	void shutImGui_();
+	void shutImNode_();
+	void shutImFileDialog_();
+
 private:
 	void* mainWindow_;
 

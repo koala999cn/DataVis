@@ -13,9 +13,9 @@ public:
 
     using action_ptr = std::shared_ptr<KvAction>;
 
-    KcImActionPanel(const std::string_view& name);
+    using KvImWindow::KvImWindow;
 
-    const char* id() const override { return "ActionPanel"; }
+    const char* type() const override { return "ActionPanel"; }
 
     void update() override;
 

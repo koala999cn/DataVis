@@ -3,10 +3,10 @@
 
 
 KcActionLoadText::KcActionLoadText()
-	: KcActionSequence("Text Data", "insert a data-provider node from text file")
+	: KcActionSequence("Text Data", "insert a provider node loading data from text file")
 {
 	addAction(std::make_shared<KcActionFileDialog>(
 		KcActionFileDialog::KeType::k_open,
-		"Load Text Data", 
+		"Select text data file", 
 		"text file (*.txt;*.cvs){.txt,.cvs},.*"));
 }

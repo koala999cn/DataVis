@@ -90,8 +90,7 @@ void KgImWindowManager::draw()
 		for (auto i = g.second.begin(); i != g.second.end(); i++) {
 			auto& w = *i;
 			if (w->visible()) {
-				auto is_window_visible = w->begin();
-				if(is_window_visible)
+				if (w->begin())
 				    w->update();
 				w->end();
 			}
