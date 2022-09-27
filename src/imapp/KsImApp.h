@@ -2,10 +2,11 @@
 #include "KtSingleton.h"
 #include <functional>
 #include <vector>
+#include "KgModuleManager.h"
 
 class KgImWindowManager;
 
-class KsImApp
+class KsImApp : public KgModuleManager
 {
 public:
 	using singleton_type = KtSingleton<KsImApp, false, true>;
@@ -15,14 +16,10 @@ public:
 		return *singleton_type::instance();
 	}
 
-	bool init(int w, int h, const char* title);
-	
 	// Main loop
 	void run();
 
 	void quit(); // 调用该函数后，主循环run将退出
-
-	void shutdown();
 
 	KgImWindowManager& windowManager() {
 		return *winMgr_;
@@ -62,19 +59,7 @@ private:
 
 	void drawFrame_();
 
-	const char* initGl_(int w, int h, const char* title);
-	bool initImGui_(const char* glsl_version);
-	bool initImNode_();
-	bool initImFileDialog_();
-
-	void shutGl_();
-	void shutImGui_();
-	void shutImNode_();
-	void shutImFileDialog_();
-
 private:
-	void* mainWindow_;
-
 	std::vector<start_listener> lsStart_;
 	std::vector<update_listener> lsUpdate_;
 	std::vector<finish_listener> lsFinish_;

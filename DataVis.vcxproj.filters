@@ -193,6 +193,18 @@
     <ClCompile Include="src\imapp\KvImModalWindow.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KgModuleManager.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KcModuleImGuiGlfw.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KcModuleImNode.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KcModuleImFileDialog.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -466,6 +478,18 @@
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KvImModalWindow.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KgModuleManager.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcModuleImGuiGlfw.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcModuleImNode.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcModuleImFileDialog.h">
       <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>

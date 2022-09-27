@@ -4,6 +4,9 @@
 #include "imapp/KcImActionPanel.h"
 #include "imapp/KcActionLoadText.h"
 #include "imapp/KgImWindowManager.h"
+#include "imapp/KcModuleImGuiGlfw.h"
+#include "imapp/KcModuleImNode.h"
+#include "imapp/KcModuleImFileDialog.h"
 
 
 bool update()
@@ -28,8 +31,15 @@ bool update()
 int main_(int, char**)
 {
     auto& app = KsImApp::singleton();
+    
+    auto imnode = app.registerModule<KcModuleImNode>();
+    auto imfiledialog = app.registerModule<KcModuleImFileDialog>();
+    auto imgui = app.registerModule<KcModuleImGuiGlfw>(1024, 768, "DataVis");
+    app.setDependent(imnode, imgui);
+    app.setDependent(imfiledialog, imgui);
 
-    if (!app.init(1024, 768, "DataVis"))
+
+    if (!app.initialize())
         return 1;
 
     auto editor = std::make_shared<KcImNodeEditor>("Node Editor");
@@ -42,7 +52,7 @@ int main_(int, char**)
     app.listenPerFrame(update);
     app.run();
 
-    app.shutdown();
+    app.deinitialize();
     
     return 0;
 }

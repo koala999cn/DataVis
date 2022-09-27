@@ -88,7 +88,7 @@ public:
     // @val: 新增列的初始值
     void appendCol(const_reference val) {
         data_.resize(data_.size() + rows_);
-        auto src = data_.data() + (rows_ - 1) * cols_;
+        auto src = data_.begin() + (rows_ - 1) * cols_;
         auto dst = data_.end() - 1;
         for (unsigned r = 1; r < rows_; r++) { // 首行不移动，所以r从1起
             std::copy_backward(src, src + cols_, dst);
@@ -104,6 +104,6 @@ public:
 
 
 private:
-    unsigned rows_, cols_;
+    unsigned rows_{ 0 }, cols_{ 0 };
     container data_;
 };

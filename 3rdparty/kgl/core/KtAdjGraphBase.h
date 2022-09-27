@@ -31,7 +31,7 @@ public:
 
 protected:
 	ADJ_MATRIX adjMat_; // 邻接矩阵
-	unsigned E_; // 实时追踪边的数目
+	unsigned E_{ 0 }; // 实时追踪边的数目
 	vertex_container vertexes_;
 };
 
@@ -52,5 +52,5 @@ public:
 
 protected:
 	ADJ_MATRIX adjMat_;
-	unsigned E_; 
+	unsigned E_{ 0 };
 };
