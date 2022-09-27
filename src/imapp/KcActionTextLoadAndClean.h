@@ -3,12 +3,12 @@
 #include <memory>
 #include <vector>
 
-class KcImDataView;
+class KcImTextCleanWindow;
 
-class KcActionDataClean : public KvAction
+class KcActionTextLoadAndClean : public KvAction
 {
 public:
-	KcActionDataClean(const std::string& filepath);
+	KcActionTextLoadAndClean(const std::string& filepath);
 
 	bool trigger() override;
 
@@ -19,6 +19,6 @@ private:
 
 private:
 	const std::string& filepath_;  // 数据文件路径
-	std::unique_ptr<KcImDataView> dataView_;
+	std::unique_ptr<KcImTextCleanWindow> dataView_;
 	std::vector<std::vector<std::string>> rawData_; // 从filepath_读取的字符串矩阵
 };

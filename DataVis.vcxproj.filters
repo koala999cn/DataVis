@@ -184,10 +184,10 @@
     <ClCompile Include="src\imapp\KcActionFileDialog.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcActionDataClean.cpp">
+    <ClCompile Include="src\imapp\KcActionTextLoadAndClean.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcImDataView.cpp">
+    <ClCompile Include="src\imapp\KcImTextCleanWindow.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="src\imapp\KvImModalWindow.cpp">
@@ -468,10 +468,10 @@
     <ClInclude Include="src\imapp\KcActionFileDialog.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcActionDataClean.h">
+    <ClInclude Include="src\imapp\KcActionTextLoadAndClean.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcImDataView.h">
+    <ClInclude Include="src\imapp\KcImTextCleanWindow.h">
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KvModule.h">

@@ -26,7 +26,7 @@ public:
 
 
 	// 是否为浮点数
-	static bool isFloat(char* str);
+	static bool isFloat(const char* str);
     static bool isFloat(const std::string& str) { return isFloat(str.c_str()); }
 
 

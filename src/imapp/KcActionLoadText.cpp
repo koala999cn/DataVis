@@ -1,6 +1,6 @@
 #include "KcActionLoadText.h"
 #include "KcActionFileDialog.h"
-#include "KcActionDataClean.h"
+#include "KcActionTextLoadAndClean.h"
 
 
 KcActionLoadText::KcActionLoadText()
@@ -11,10 +11,10 @@ KcActionLoadText::KcActionLoadText()
 		"Select text data file",
 		"text file (*.txt;*.cvs){.txt,.cvs},.*");
 
-	auto dataCleam = std::make_shared<KcActionDataClean>(
+	auto dataClean = std::make_shared<KcActionTextLoadAndClean>(
 		fileDialog->result()
 		);
 
 	addAction(fileDialog);
-	addAction(dataCleam);
+	addAction(dataClean);
 }

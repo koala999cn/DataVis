@@ -1,11 +1,11 @@
-#include "KcActionDataClean.h"
-#include "KcImDataView.h"
+#include "KcActionTextLoadAndClean.h"
+#include "KcImTextCleanWindow.h"
 #include <regex>
 #include <fstream>
 #include "KuStrUtil.h"
 
 
-KcActionDataClean::KcActionDataClean(const std::string& filepath)
+KcActionTextLoadAndClean::KcActionTextLoadAndClean(const std::string& filepath)
     : KvAction("DataClean")
     , filepath_(filepath)
 {
@@ -13,7 +13,7 @@ KcActionDataClean::KcActionDataClean(const std::string& filepath)
 }
 
 
-bool KcActionDataClean::trigger()
+bool KcActionTextLoadAndClean::trigger()
 {
     // 加载数据文件
     if (!loadData_()) {
@@ -26,7 +26,7 @@ bool KcActionDataClean::trigger()
     }
     
     // 创建数据窗口
-    dataView_ = std::make_unique<KcImDataView>(filepath_, rawData_);
+    dataView_ = std::make_unique<KcImTextCleanWindow>(filepath_, rawData_);
     if (dataView_ == nullptr) {
         state_ = KeState::k_failed;
         return false;
@@ -37,7 +37,7 @@ bool KcActionDataClean::trigger()
 }
 
 
-void KcActionDataClean::update()
+void KcActionTextLoadAndClean::update()
 {
     if (dataView_ == nullptr)
         return;
@@ -49,9 +49,9 @@ void KcActionDataClean::update()
 }
 
 
-bool KcActionDataClean::loadData_()
+bool KcActionTextLoadAndClean::loadData_()
 {
-    const std::string rexpNA = "na|nan|n/a|-";
+    const std::string rexpNA = "na|nan|n/a";
     const std::string rexpDelim = "\\s+";
 
     rawData_.clear();

@@ -36,7 +36,7 @@ void KuStrUtil::toLower(std::string& str)
 }
 
 
-bool KuStrUtil::isFloat(char* str)
+bool KuStrUtil::isFloat(const char* str)
 {
 	return std::regex_match(str, std::regex("^[-+]?[0-9]*\\.?[0-9]+$"));
 }

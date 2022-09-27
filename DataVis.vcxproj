@@ -137,10 +137,10 @@
     <ClCompile Include="src\dsp\KuWindowFactory.cpp" />
     <ClCompile Include="src\dsp\KvContinued.cpp" />
     <ClCompile Include="src\dsp\KvDiscreted.cpp" />
-    <ClCompile Include="src\imapp\KcActionDataClean.cpp" />
+    <ClCompile Include="src\imapp\KcActionTextLoadAndClean.cpp" />
     <ClCompile Include="src\imapp\KcActionLoadText.cpp" />
     <ClCompile Include="src\imapp\KcActionFileDialog.cpp" />
-    <ClCompile Include="src\imapp\KcImDataView.cpp" />
+    <ClCompile Include="src\imapp\KcImTextCleanWindow.cpp" />
     <ClCompile Include="src\imapp\KcModuleImFileDialog.cpp" />
     <ClCompile Include="src\imapp\KcModuleImGuiGlfw.cpp" />
     <ClCompile Include="src\imapp\KcImNodeEditor.cpp" />
@@ -219,11 +219,11 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvFilter.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
-    <ClInclude Include="src\imapp\KcActionDataClean.h" />
+    <ClInclude Include="src\imapp\KcActionTextLoadAndClean.h" />
     <ClInclude Include="src\imapp\KcActionLoadText.h" />
     <ClInclude Include="src\imapp\KcActionFileDialog.h" />
     <ClInclude Include="src\imapp\KcActionSequence.h" />
-    <ClInclude Include="src\imapp\KcImDataView.h" />
+    <ClInclude Include="src\imapp\KcImTextCleanWindow.h" />
     <ClInclude Include="src\imapp\KcModuleImFileDialog.h" />
     <ClInclude Include="src\imapp\KcModuleImGuiGlfw.h" />
     <ClInclude Include="src\imapp\KcImNodeEditor.h" />
