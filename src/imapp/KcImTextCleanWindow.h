@@ -15,6 +15,11 @@ public:
 
     const char* type() const override { return "ImTextCleanWindow"; }
 
+    // 返回数据清洗结果
+    matrix<double>& cleanData() {
+        return cleanData_;
+    }
+
 private:
     void updateImpl_() override;
 
@@ -24,10 +29,16 @@ private:
     // 是否忽略非法字串
     bool skipIllegal_();
 
+    // 根据用户配置，执行数据清洗操作
+    void clean_();
+
+    double emptyValue_(const std::string& tok);
+    double illegalValue_(const std::string& tok);
+
 private:
     const std::string& source_;
     matrix<std::string>& rawData_; // 原始数据
-    matrix<std::string> cleanData_; // 清洗后的数据
+    matrix<double> cleanData_; // 清洗后的数据
 
     // 解析text文件时的配置项
     int illegalMode_{ 0 }; // 如何处理非数字字串

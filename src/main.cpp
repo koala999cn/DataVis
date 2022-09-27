@@ -13,12 +13,12 @@ bool update()
 {
     // show menu bar of main window
     if (ImGui::BeginMainMenuBar()) {
-        if (ImGui::BeginMenu("View")) {
-            ImGui::ShowStyleSelector("Style");
-            ImGui::EndMenu();
-        }
+        //if (ImGui::BeginMenu("View")) {
+        //    ImGui::ShowStyleSelector("Style");
+        //    ImGui::EndMenu();
+        //}
 
-        KsImApp::singleton().windowManager().showMenu("Window");
+        KsImApp::singleton().windowManager().showMenu("View");
         ImGui::EndMainMenuBar();
     }
 
@@ -38,16 +38,12 @@ int main_(int, char**)
     app.setDependent(imnode, imgui);
     app.setDependent(imfiledialog, imgui);
 
-
     if (!app.initialize())
         return 1;
 
-    auto editor = std::make_shared<KcImNodeEditor>("Node Editor");
-    auto panel = std::make_shared<KcImActionPanel>("Action Panel");
+    auto editor = app.windowManager().registerStatic<KcImNodeEditor>("Node Editor");
+    auto panel = app.windowManager().registerStatic<KcImActionPanel>("Action Panel");
     panel->addAction("Provider", std::make_shared<KcActionLoadText>());
-
-    app.windowManager().registerInstance(editor);
-    app.windowManager().registerInstance(panel);
 
     app.listenPerFrame(update);
     app.run();

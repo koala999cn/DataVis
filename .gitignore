@@ -4,4 +4,4 @@ bin/
 lib/
 old/
 *.user
-imgui.ini
+*.ini

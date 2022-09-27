@@ -73,6 +73,7 @@ void KcImTextCleanWindow::updateImpl_()
     ImGui::BeginDisabled(parseFailed_);
     if (ImGui::Button("OK", ImVec2(99, 0))) {
         ImGui::EndDisabled();
+        clean_();
         close();
         return;
     }
@@ -124,12 +125,12 @@ void KcImTextCleanWindow::updateImpl_()
                 if (c == 0)
                     ImGui::Text(KuStrUtil::toString(r).c_str()); // 打印行号
                 else if (c <= rawData_[r - 1].size()) {
-                    auto& text = rawData_[r - 1][c - 1];
-                    bool illegalToken = !KuStrUtil::isFloat(text);
+                    auto& tok = rawData_[r - 1][c - 1];
+                    bool illegalToken = !KuStrUtil::isFloat(tok);
                     if (illegalToken) // 突出显示非法子串
                         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
 
-                    ImGui::Text(text.c_str()); // 打印内容
+                    ImGui::Text(tok.c_str()); // 打印内容
 
                     if (illegalToken)
                         ImGui::PopStyleColor();
@@ -154,13 +155,13 @@ void KcImTextCleanWindow::updateStats_()
 
         int cols = rawData_[i].size();
         for (unsigned j = 0; j < rawData_[i].size(); j++) {
-            auto& text = rawData_[i][j];
-            if (text.empty()) {
+            auto& tok = rawData_[i][j];
+            if (tok.empty()) {
                 emptyTokens_++;
                 if (emptyMode_ == kPrivate::k_empty_skip)
                     cols--;
             }
-            else if (!KuStrUtil::isFloat(text)) {
+            else if (!KuStrUtil::isFloat(tok)) {
                 illegalTokens_++;
                 if (skipIllegal_())
                     cols--;
@@ -186,3 +187,61 @@ bool KcImTextCleanWindow::skipIllegal_()
     return illegalMode_ == k_illegal_ignore ||
         (illegalMode_ == k_illegal_as_empty && emptyMode_ == k_empty_skip);
 }
+
+
+void KcImTextCleanWindow::clean_()
+{
+    using namespace kPrivate;
+
+    assert(!parseFailed_);
+
+    cleanData_.reserve(rows_);
+
+    for (unsigned r = 0; r < rawData_.size(); r++) {
+        std::vector<double> data;
+        data.reserve(maxCols_);
+
+        for (unsigned c = 0; c < rawData_[r].size(); c++) {
+            auto& tok = rawData_[r][c];
+
+            if (tok.empty()) {
+                if (emptyMode_ == k_empty_skip)
+                    continue;
+                data.push_back(emptyValue_(tok));
+            }
+            else if (KuStrUtil::isFloat(tok)) {
+                data.push_back(KuStrUtil::toDouble(tok.c_str()));
+            }
+            else { // illegal tokens
+                assert(illegalMode_ != k_illegal_fail);
+
+                if (skipIllegal_())
+                    continue;
+                data.push_back(illegalValue_(tok));
+            }
+        }
+
+        if (!data.empty()) {
+            assert(data.size() >= minCols_ && data.size() <= maxCols_);
+            data.resize(maxCols_, 0);
+            cleanData_.emplace_back(std::move(data));
+        }
+    }
+
+    assert(cleanData_.size() == rows_);
+}
+
+
+double KcImTextCleanWindow::emptyValue_(const std::string& tok)
+{
+    return emptyMode_ == kPrivate::k_empty_as_zero ? 0 : KtuMath<double>::nan;
+}
+
+
+double KcImTextCleanWindow::illegalValue_(const std::string& tok)
+{
+    return illegalMode_ == kPrivate::k_illegal_as_zero ? 0
+        : illegalMode_ == kPrivate::k_illegal_as_nan ?
+        KtuMath<double>::nan : emptyValue_(tok);
+}
+
