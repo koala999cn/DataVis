@@ -10,19 +10,20 @@ class KcImNodeEditor : public KvImWindow
 {
 public:
     using node_ptr = std::shared_ptr<typename KvNode::super_>;
-    using vertex_type = node_ptr;
 
     // 使用稀疏有向图存储node节点数据
-    using node_graph = DigraphSx<bool, vertex_type>;
+    using node_graph = DigraphSx<bool, node_ptr>;
 
     explicit KcImNodeEditor(const std::string_view& name);
 
     const char* type() const override { return "NodeEditor"; }
 
+    void insertNode(const std::shared_ptr<KvBlockNode>& node);
+
 private:
     void updateImpl_() override;
 
-    unsigned vertex2Index_(const vertex_type& v) const;
+    unsigned node2Index_(const node_ptr& node) const;
 
 private:
     node_graph graph_;

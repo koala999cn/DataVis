@@ -2,7 +2,7 @@
 #include "imgui.h"
 #include "imapp/KcImNodeEditor.h"
 #include "imapp/KcImActionPanel.h"
-#include "imapp/KcActionLoadText.h"
+#include "imapp/KcActionNewTextData.h"
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KcModuleImGuiGlfw.h"
 #include "imapp/KcModuleImNode.h"
@@ -43,7 +43,7 @@ int main_(int, char**)
 
     auto editor = app.windowManager().registerStatic<KcImNodeEditor>("Node Editor");
     auto panel = app.windowManager().registerStatic<KcImActionPanel>("Action Panel");
-    panel->addAction("Provider", std::make_shared<KcActionLoadText>());
+    panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
 
     app.listenPerFrame(update);
     app.run();

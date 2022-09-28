@@ -148,9 +148,6 @@
     <ClCompile Include="src\imapp\KvImWindow.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KgImMenu.cpp">
-      <Filter>imapp</Filter>
-    </ClCompile>
     <ClCompile Include="3rdparty\imnodes\imnodes.cpp">
       <Filter>3rdparty\imnodes</Filter>
     </ClCompile>
@@ -172,7 +169,7 @@
     <ClCompile Include="3rdparty\ImFileDialog\ImFileDialog.cpp">
       <Filter>3rdparty\imFileDialog</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcActionLoadText.cpp">
+    <ClCompile Include="src\imapp\KcActionNewTextData.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="src\imapp\KcActionSequence.cpp">
@@ -207,6 +204,9 @@
     </ClCompile>
     <ClCompile Include="src\imapp\KcActionInsertDataNode.cpp">
       <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prov\KvDataProvider.cpp">
+      <Filter>prov</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -429,9 +429,6 @@
     <ClInclude Include="src\imapp\KvImWindow.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KgImMenu.h">
-      <Filter>imapp</Filter>
-    </ClInclude>
     <ClInclude Include="3rdparty\imnodes\imnodes.h">
       <Filter>3rdparty\imnodes</Filter>
     </ClInclude>
@@ -462,7 +459,7 @@
     <ClInclude Include="src\imapp\KvAction.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcActionLoadText.h">
+    <ClInclude Include="src\imapp\KcActionNewTextData.h">
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcActionSequence.h">
@@ -500,6 +497,9 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcActionInsertDataNode.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KvDataProvider.h">
+      <Filter>prov</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

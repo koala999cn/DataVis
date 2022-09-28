@@ -3,7 +3,7 @@
 #include <memory>
 #include "KtUniObject.h"
 
-// 可用于KcImNodeEditor的节点抽象类
+// 用于KcImNodeEditor的节点抽象类
 // 实现端口管理功能
 
 class KvNode : public KtUniObject<KvNode>
@@ -12,29 +12,36 @@ public:
 
 	using super_ = KtUniObject<KvNode>;
 
-	class KcPort : public super_
-	{
-	public:
-		KcPort(const std::string_view& name) : super_(name) {}
+	using super_::super_;
+};
 
-	private:
-		KvNode* parent_{ nullptr };
-	};
 
-	// @ins: 输入端口数
-	// @outs: 输出端口数
-	KvNode(const std::string_view& name, unsigned ins, unsigned outs);
+class KvBlockNode : public KvNode
+{
+public:
 
-	unsigned ins() const { return ins_.size(); }
-	unsigned outs() const { return outs_.size(); }
+	using KvNode::KvNode;
 
-	bool hasIn() const { return !ins_.empty(); }
-	bool hasOut() const { return !outs_.empty(); }
+	virtual unsigned inPorts() const = 0;
 
-	KcPort& inPort(unsigned idx) { return *ins_[idx]; }
-	KcPort& outPort(unsigned idx) { return *outs_[idx]; }
+	virtual unsigned outPorts() const = 0;
+};
+
+
+class KcPortNode : public KvNode
+{
+public:
+	enum KeType { k_in, k_out };
+
+	// 构造parent节点的第index个type类型端口
+	KcPortNode(KeType type, std::weak_ptr<KvBlockNode> parent, unsigned index);
+
 
 private:
-	using port_type = std::unique_ptr<KcPort>;
-	std::vector<port_type> ins_, outs_; // 输入输出端口
+	static std::string portName_(KeType type, unsigned index);
+
+private:
+	KeType type_;
+	std::weak_ptr<KvBlockNode> parent_;
+	unsigned index_;
 };
