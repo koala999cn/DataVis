@@ -2,14 +2,18 @@
 #include "KuStrUtil.h"
 
 
-KvNode::KvNode(const std::string_view& name, unsigned ins, unsigned outs)
-	: super_(name)
+KcPortNode::KcPortNode(KeType type, std::weak_ptr<KvBlockNode> parent, unsigned index)
+	: type_(type)
+	, parent_(parent)
+	, index_(index)
+	, KvNode(portName_(type, index))
 {
-	ins_.resize(ins);
-	for (unsigned i = 0; i < ins; i++)
-		ins_[i] = std::make_unique<KcPort>("in" + KuStrUtil::toString(i));
 
-	outs_.resize(outs);
-	for (unsigned i = 0; i < outs; i++)
-		outs_[i] = std::make_unique<KcPort>("out" + KuStrUtil::toString(i));
+}
+
+
+std::string KcPortNode::portName_(KeType type, unsigned index)
+{
+	return type == k_in ? "in" + KuStrUtil::toString(index)
+		: "out" + KuStrUtil::toString(index);
 }

@@ -7,8 +7,8 @@
 // 二是KcActionDataClean，数据清洗与类型转换
 // 三是KcActionNewNode，向NodeEditor插入provider节点
 
-class KcActionLoadText : public KcActionSequence
+class KcActionNewTextData : public KcActionSequence
 {
 public:
-	explicit KcActionLoadText();
+	KcActionNewTextData();
 };

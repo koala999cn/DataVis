@@ -1,19 +1,16 @@
 ﻿#pragma once
-#include "KvPropertiedObject.h"
+#include "KvNode.h"
 #include <memory>
-#include "dsp/KvDiscreted.h"
+#include "kDsp.h"
 
 
 // 数据源的抽象类
 
-class KvDataProvider : public KvPropertiedObject
+class KvDataProvider : public KvBlockNode
 {
-	Q_OBJECT
-
 public:
 
-	KvDataProvider(const QString& name, KvDataProvider* parent = nullptr) 
-		: KvPropertiedObject(name, parent) {}
+	using KvBlockNode::KvBlockNode;
 
 	virtual bool isStream() const = 0;
 
@@ -32,7 +29,7 @@ public:
 	virtual kIndex size(kIndex axis) const = 0;
 
 	// 实现dim, channels, range, step等基本属性
-	kPropertySet propertySet() const override;
+	//kPropertySet propertySet() const override;
 
 	kIndex size() const {
 		kIndex c(1);
@@ -40,9 +37,6 @@ public:
 			c *= size(i);
 		return c;
 	}
-
-	// 数据流是否在流动
-	virtual bool isRunning() const = 0;
 
 	bool isContinued() const {
 		return size(0) == KvData::k_inf_size;
@@ -60,7 +54,7 @@ public:
 		return isDiscreted() && step(0) != KvDiscreted::k_nonuniform_step;
 	}
 
-signals:
-	void pushData(std::shared_ptr<KvData> data);
+
+	virtual void pushData(std::shared_ptr<KvData> data) = 0;
 };
 

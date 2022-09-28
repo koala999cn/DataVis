@@ -1,10 +1,10 @@
-#include "KcActionLoadText.h"
+#include "KcActionNewTextData.h"
 #include "KcActionFileDialog.h"
 #include "KcActionTextLoadAndClean.h"
 #include "KcActionInsertDataNode.h"
 
 
-KcActionLoadText::KcActionLoadText()
+KcActionNewTextData::KcActionNewTextData()
 	: KcActionSequence("Text Data", "insert a provider node loading data from text file")
 {
 	auto fileDialog = std::make_shared<KcActionFileDialog>(
