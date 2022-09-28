@@ -37,7 +37,7 @@ private:
     // 返回非法字串的取值
     double illegalValue_(const std::string& tok) const;
 
-    void drawTable_() const;
+    void showTable_() const;
 
 private:
     const std::string& source_;

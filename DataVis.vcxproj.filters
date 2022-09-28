@@ -118,9 +118,6 @@
     <ClCompile Include="src\base\KuFileUtil.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KuMatrixUtil.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
     <ClCompile Include="src\plot\KvTicker.cpp">
       <Filter>plot</Filter>
     </ClCompile>

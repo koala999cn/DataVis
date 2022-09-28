@@ -6,14 +6,14 @@
 KvImModalWindow::KvImModalWindow(const std::string_view& _name)
     : KvImWindow(_name)
 {
-    //open(); // TODO: 有更好的地方调用吗？
+
 }
 
 
 KvImModalWindow::KvImModalWindow(std::string&& _name)
     : KvImWindow(std::move(_name))
 {
-    //open();
+
 }
 
 
@@ -57,6 +57,8 @@ void KvImModalWindow::open()
 
 void KvImModalWindow::close()
 {
-    assert(opened());
+    // 该断言不成立，因为当前环境为调用了BeginPopupModal之后，此时popup-stack有变化
+    //assert(opened()); 
+
     ImGui::CloseCurrentPopup();
 }

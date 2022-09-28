@@ -130,7 +130,6 @@
     <ClCompile Include="src\dsp\KgWindowing.cpp" />
     <ClCompile Include="src\dsp\KmBins.cpp" />
     <ClCompile Include="src\dsp\KpExprtkHelper_.cpp" />
-    <ClCompile Include="src\dsp\KuMatrixUtil.cpp" />
     <ClCompile Include="src\dsp\KuExtrapolate.cpp" />
     <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
     <ClCompile Include="src\dsp\KuInterp1d.cpp" />

@@ -86,9 +86,8 @@ void KcImTextCleanWindow::updateImpl_()
 
     ImGui::BeginDisabled(parseFailed_);
     if (ImGui::Button("OK", ImVec2(99, 0))) {
-        ImGui::EndDisabled();
         close();
-        setVisible(false);
+        //setVisible(false);
         clean_();
     }
     ImGui::SetItemDefaultFocus();
@@ -97,7 +96,7 @@ void KcImTextCleanWindow::updateImpl_()
     ImGui::SameLine();
     if (ImGui::Button("Cancel", ImVec2(99, 0))) {
         close();
-        setVisible(false);
+        //setVisible(false);
         cleanData_.clear();
     }
 
@@ -107,7 +106,7 @@ void KcImTextCleanWindow::updateImpl_()
 
     /// draw the table
 
-    drawTable_();
+    showTable_();
 }
 
 
@@ -217,7 +216,7 @@ double KcImTextCleanWindow::illegalValue_(const std::string& tok) const
 }
 
 
-void KcImTextCleanWindow::drawTable_() const
+void KcImTextCleanWindow::showTable_() const
 {
     const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
     const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();

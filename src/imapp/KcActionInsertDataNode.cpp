@@ -33,7 +33,7 @@ void KcActionInsertDataNode::update()
 {
     assert(dataView_ != nullptr);
 
-    if (dataView_->visible())
+    if (dataView_->opened())
         dataView_->update();
     else {
         assert(!dataView_->opened());
