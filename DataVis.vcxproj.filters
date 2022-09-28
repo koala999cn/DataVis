@@ -205,6 +205,12 @@
     <ClCompile Include="src\imapp\KcModuleImFileDialog.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KcImDataView.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KcActionInsertDataNode.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -490,6 +496,12 @@
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcModuleImFileDialog.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcImDataView.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcActionInsertDataNode.h">
       <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>

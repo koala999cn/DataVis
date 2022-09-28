@@ -2,6 +2,7 @@
 #include "KcImTextCleanWindow.h"
 #include <regex>
 #include <fstream>
+#include <assert.h>
 #include "KuStrUtil.h"
 
 
@@ -26,32 +27,30 @@ bool KcActionTextLoadAndClean::trigger()
     }
     
     // 创建数据窗口
-    dataView_ = std::make_unique<KcImTextCleanWindow>(filepath_, rawData_);
-    if (dataView_ == nullptr) {
+    cleanWindow_ = std::make_unique<KcImTextCleanWindow>(filepath_, rawData_, cleanData_);
+    if (cleanWindow_ == nullptr) {
         state_ = KeState::k_failed;
         return false;
     }
 
-    state_ = KeState::k_triggered;
+    state_ = cleanWindow_->visible() ? KeState::k_triggered : KeState::k_done;
     return true;
 }
 
 
 void KcActionTextLoadAndClean::update()
 {
-    if (dataView_ == nullptr)
-        return;
+    assert(cleanWindow_ != nullptr);
 
-    if (dataView_->opened())
-        dataView_->update();
+    if (cleanWindow_->visible())
+        cleanWindow_->update();
     else 
-        state_ = rawData_.empty() ? KeState::k_cancelled : KeState::k_done;
+        state_ = cleanData_.empty() ? KeState::k_cancelled : KeState::k_done;
 }
 
 
 bool KcActionTextLoadAndClean::loadData_()
 {
-    const std::string rexpNA = "na|nan|n/a";
     const std::string rexpDelim = "\\s+";
 
     rawData_.clear();

@@ -1,6 +1,7 @@
 #include "KcActionLoadText.h"
 #include "KcActionFileDialog.h"
 #include "KcActionTextLoadAndClean.h"
+#include "KcActionInsertDataNode.h"
 
 
 KcActionLoadText::KcActionLoadText()
@@ -15,6 +16,11 @@ KcActionLoadText::KcActionLoadText()
 		fileDialog->result()
 		);
 
+	auto insertNode = std::make_shared<KcActionInsertDataNode>(
+		fileDialog->result(),
+		dataClean->cleanData());
+
 	addAction(fileDialog);
 	addAction(dataClean);
+	addAction(insertNode);
 }

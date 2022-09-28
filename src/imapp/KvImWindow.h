@@ -27,7 +27,7 @@ public:
 protected:
     virtual void updateImpl_() = 0;
 
-private:
+protected:
     bool visible_{ true };
 
     float minSize_[2]{ 120.0f, 120.0f };

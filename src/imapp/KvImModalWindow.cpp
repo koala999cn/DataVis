@@ -18,20 +18,16 @@ KvImModalWindow::KvImModalWindow(std::string&& _name)
 
 void KvImModalWindow::update()
 {
-    if (opened()) {
+    assert(opened());
+    assert(visible());
 
-        // Always center this window when appearing
-        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    // Always center this window when appearing
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-        bool opend{ true };
-        if (ImGui::BeginPopupModal(name().c_str(), &opend, flags())) {
-            updateImpl_();
-            ImGui::EndPopup();
-        }
-
-        if (!opend) // 用户点击了关闭按钮
-            close();
+    if (ImGui::BeginPopupModal(name().c_str(), &visible_, flags())) {
+        updateImpl_();
+        ImGui::EndPopup();
     }
 }
 
@@ -44,12 +40,14 @@ bool KvImModalWindow::opened() const
 
 void KvImModalWindow::open()
 {
+    assert(!opened());
     ImGui::OpenPopup(name().c_str());
+    assert(opened());
 }
 
 
 void KvImModalWindow::close()
 {
-    ImGui::CloseCurrentPopup();
-    setVisible(false); // TODO: 如何处理open和visible的关系
+    if (opened()) 
+        ImGui::CloseCurrentPopup();
 }

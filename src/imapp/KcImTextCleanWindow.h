@@ -1,9 +1,10 @@
 #pragma once
 #include "KvImModalWindow.h"
 #include <vector>
+#include <set>
 
 
-// 加载text数据并根据用户配置进行清洗
+// 加载text数据并根据用户配置进行清洗，生成数据对象
 
 class KcImTextCleanWindow : public KvImModalWindow
 {
@@ -11,14 +12,12 @@ public:
     template<typename T>
     using matrix = std::vector<std::vector<T>>;
 
-    KcImTextCleanWindow(const std::string& source, matrix<std::string>& rawData);
+    // @source: 数据来源，用来获取title
+    // @rawData: 待清洗的原始数据
+    // @cleanData: 返回数据清洗结果
+    KcImTextCleanWindow(const std::string& source, const matrix<std::string>& rawData, matrix<double>& cleanData);
 
     const char* type() const override { return "ImTextCleanWindow"; }
-
-    // 返回数据清洗结果
-    matrix<double>& cleanData() {
-        return cleanData_;
-    }
 
 private:
     void updateImpl_() override;
@@ -27,18 +26,23 @@ private:
     void updateStats_();
 
     // 是否忽略非法字串
-    bool skipIllegal_();
+    bool skipIllegal_() const;
 
     // 根据用户配置，执行数据清洗操作
     void clean_();
 
-    double emptyValue_(const std::string& tok);
-    double illegalValue_(const std::string& tok);
+    // 返回empty字串的取值
+    double emptyValue_(const std::string& tok) const;
+
+    // 返回非法字串的取值
+    double illegalValue_(const std::string& tok) const;
+
+    void drawTable_() const;
 
 private:
     const std::string& source_;
-    matrix<std::string>& rawData_; // 原始数据
-    matrix<double> cleanData_; // 清洗后的数据
+    const matrix<std::string>& rawData_; // 原始数据
+    matrix<double>& cleanData_; // 清洗后的数据
 
     // 解析text文件时的配置项
     int illegalMode_{ 0 }; // 如何处理非数字字串
@@ -51,4 +55,5 @@ private:
     int illegalTokens_{ 0 };
     int minCols_, maxCols_{ 0 };
     bool parseFailed_{ true }; // 解析失败？
+    std::set<int> emptyLines_; // 所有空行行号
 };
