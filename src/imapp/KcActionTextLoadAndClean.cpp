@@ -33,7 +33,10 @@ bool KcActionTextLoadAndClean::trigger()
         return false;
     }
 
-    state_ = cleanWindow_->visible() ? KeState::k_triggered : KeState::k_done;
+    if(cleanWindow_->visible())
+        cleanWindow_->open();
+
+    state_ = KeState::k_triggered;
     return true;
 }
 
@@ -44,8 +47,11 @@ void KcActionTextLoadAndClean::update()
 
     if (cleanWindow_->visible())
         cleanWindow_->update();
-    else 
-        state_ = cleanData_.empty() ? KeState::k_cancelled : KeState::k_done;
+    else {
+        assert(!cleanWindow_->opened());
+        state_ = cleanData_.empty() ? KeState::k_cancelled : KeState::k_done;  
+        cleanWindow_ = nullptr;
+    }
 }
 
 

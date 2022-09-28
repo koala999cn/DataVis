@@ -1,18 +1,25 @@
 #include "KvImModalWindow.h"
 #include "imgui.h"
+#include <assert.h>
 
 
 KvImModalWindow::KvImModalWindow(const std::string_view& _name)
     : KvImWindow(_name)
 {
-    open(); // TODO: 有更好的地方调用吗？
+    //open(); // TODO: 有更好的地方调用吗？
 }
 
 
 KvImModalWindow::KvImModalWindow(std::string&& _name)
     : KvImWindow(std::move(_name))
 {
-    open();
+    //open();
+}
+
+
+KvImModalWindow::~KvImModalWindow()
+{
+    assert(!opened());
 }
 
 
@@ -27,6 +34,8 @@ void KvImModalWindow::update()
 
     if (ImGui::BeginPopupModal(name().c_str(), &visible_, flags())) {
         updateImpl_();
+        if (!visible())
+            close();
         ImGui::EndPopup();
     }
 }
@@ -48,6 +57,6 @@ void KvImModalWindow::open()
 
 void KvImModalWindow::close()
 {
-    if (opened()) 
-        ImGui::CloseCurrentPopup();
+    assert(opened());
+    ImGui::CloseCurrentPopup();
 }

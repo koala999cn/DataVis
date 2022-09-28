@@ -5,6 +5,8 @@
 
 KcActionInsertDataNode::KcActionInsertDataNode(const std::string& filepath, const matrixd& idata)
     : KvAction("InsertDataNode")
+    , filepath_(filepath)
+    , idata_(idata)
 {
 
 }
@@ -13,13 +15,16 @@ KcActionInsertDataNode::KcActionInsertDataNode(const std::string& filepath, cons
 bool KcActionInsertDataNode::trigger()
 {
     // 创建数据窗口
-    dataView_ = std::make_unique<KcImDataView>();
+    dataView_ = std::make_unique<KcImDataView>(filepath_, idata_, odata_);
     if (dataView_ == nullptr) {
         state_ = KeState::k_failed;
         return false;
     }
 
-    state_ = dataView_->visible() ? KeState::k_triggered : KeState::k_done;
+    if(dataView_->visible())
+        dataView_->open();
+
+    state_ = KeState::k_triggered;
     return true;
 }
 
@@ -30,6 +35,9 @@ void KcActionInsertDataNode::update()
 
     if (dataView_->visible())
         dataView_->update();
-    else
+    else {
+        assert(!dataView_->opened());
         state_ = odata_ == nullptr ? KeState::k_cancelled : KeState::k_done;
+        dataView_ = nullptr;
+    }
 }

@@ -33,8 +33,6 @@ KcImTextCleanWindow::KcImTextCleanWindow(const std::string& source, const matrix
     , rawData_(rawData)
     , cleanData_(cleanData)
 {
-    assert(opened());
-
     updateStats_();
     if (emptyTokens_ == 0 && illegalTokens_ == 0 && !parseFailed_) {
         // 数据正常，没有需要用户配置的，直接清洗数据并关闭窗口
@@ -89,18 +87,18 @@ void KcImTextCleanWindow::updateImpl_()
     ImGui::BeginDisabled(parseFailed_);
     if (ImGui::Button("OK", ImVec2(99, 0))) {
         ImGui::EndDisabled();
+        close();
         setVisible(false);
         clean_();
-        return;
     }
     ImGui::SetItemDefaultFocus();
     ImGui::EndDisabled();
 
     ImGui::SameLine();
     if (ImGui::Button("Cancel", ImVec2(99, 0))) {
+        close();
         setVisible(false);
         cleanData_.clear();
-        return;
     }
 
     ImGui::Spacing();

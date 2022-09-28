@@ -19,5 +19,7 @@ public:
 
 private:
 	std::unique_ptr<KcImDataView> dataView_;
+	const std::string& filepath_;
+	const matrixd& idata_;
 	std::shared_ptr<KvData> odata_;
 };
