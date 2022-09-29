@@ -8,6 +8,7 @@
 #include "imapp/KcModuleImNode.h"
 #include "imapp/KcModuleImFileDialog.h"
 
+#include "imapp/KvImGuizmoWindow.h"
 
 bool update()
 {
@@ -43,6 +44,7 @@ int main_(int, char**)
 
     auto editor = app.windowManager().registerStatic<KcImNodeEditor>("Node Editor");
     auto panel = app.windowManager().registerStatic<KcImActionPanel>("Action Panel");
+    app.windowManager().registerStatic<KvImGuizmoWindow>("Guizmo");
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
 
     app.listenPerFrame(update);

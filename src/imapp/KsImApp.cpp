@@ -7,6 +7,7 @@
 #include "imapp/KgImWindowManager.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "KcModuleImGuiGlfw.h"
+#include "ImGuizmo.h"
 
 
 KsImApp::KsImApp()
@@ -66,6 +67,7 @@ void KsImApp::drawFrame_()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
 
     for (auto ls : lsUpdate_)
         if (!ls()) {

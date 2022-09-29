@@ -52,7 +52,7 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -105,6 +105,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="3rdparty\ImFileDialog\ImFileDialog.cpp" />
+    <ClCompile Include="3rdparty\ImGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="3rdparty\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="3rdparty\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="3rdparty\imgui\imgui.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="src\imapp\KcModuleImNode.cpp" />
     <ClCompile Include="src\imapp\KgImWindowManager.cpp" />
     <ClCompile Include="src\imapp\KgModuleManager.cpp" />
+    <ClCompile Include="src\imapp\KvImGuizmoWindow.cpp" />
     <ClCompile Include="src\imapp\KvImModalWindow.cpp" />
     <ClCompile Include="src\imapp\KvImWindow.cpp" />
     <ClCompile Include="src\imapp\KsImApp.cpp" />
@@ -163,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdparty\ImFileDialog\ImFileDialog.h" />
+    <ClInclude Include="3rdparty\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3_loader.h" />
@@ -236,6 +239,7 @@
     <ClInclude Include="src\imapp\KgImWindowManager.h" />
     <ClInclude Include="src\imapp\KgModuleManager.h" />
     <ClInclude Include="src\imapp\KvAction.h" />
+    <ClInclude Include="src\imapp\KvImGuizmoWindow.h" />
     <ClInclude Include="src\imapp\KvImModalWindow.h" />
     <ClInclude Include="src\imapp\KvImWindow.h" />
     <ClInclude Include="src\imapp\KsImApp.h" />

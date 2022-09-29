@@ -43,6 +43,9 @@
     <Filter Include="3rdparty\imFileDialog">
       <UniqueIdentifier>{3ce5a1f3-ec03-4789-9bf1-b55abfac78dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="3rdparty\ImGuizmo">
+      <UniqueIdentifier>{71fc2fb1-bf3d-40ed-a352-8160ba65cfa2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KcSampled1d.cpp">
@@ -210,6 +213,12 @@
     </ClCompile>
     <ClCompile Include="src\prov\KcPvData.cpp">
       <Filter>prov</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\ImGuizmo\ImGuizmo.cpp">
+      <Filter>3rdparty\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KvImGuizmoWindow.cpp">
+      <Filter>imapp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -506,6 +515,12 @@
     </ClInclude>
     <ClInclude Include="src\prov\KcPvData.h">
       <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\ImGuizmo\ImGuizmo.h">
+      <Filter>3rdparty\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KvImGuizmoWindow.h">
+      <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

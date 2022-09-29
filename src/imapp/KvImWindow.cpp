@@ -39,13 +39,7 @@ void KvImWindow::update()
         ImVec2{ maxSize_[0], maxSize_[1] }
     );
 
-    bool _open{ true };
-    bool not_collapsed = ImGui::Begin(name().c_str(), &_open, flags());
-
-    if (!_open)
-        setVisible(false);
-
-    if (not_collapsed && visible())
+    if (ImGui::Begin(name().c_str(), &visible_, flags()))
         updateImpl_();
 
     ImGui::End();
