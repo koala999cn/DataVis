@@ -23,7 +23,11 @@
 //           0       0       1
 // where t > 0 indicates a counterclockwise rotation in the xy-plane.
 
-template<class KReal, bool ROW_MAJOR = false>
+// @ROW_MAJOR: 底层数据的布局
+// 若true, 底层数据按行存储，排列顺序为m[0][0], m[0][1], m[0][2], m[1][0], ...
+// 若false, 底层数据按列存储，排列顺序为m[0][0], m[1][0], m[2][0], m[0][1], ...
+
+template<class KReal, bool ROW_MAJOR = true>
 class KtMatrix3  
 {
 	using vec3 = KtVector3<KReal>;
@@ -35,13 +39,41 @@ public:
 
 	constexpr static bool rowMajor() { return ROW_MAJOR; }
 
-	KtMatrix3() {}
+	// 零构造
+	KtMatrix3() : m_{ 0 } {}
+
 	KtMatrix3(KReal _00, KReal _01, KReal _02, 
 		     KReal _10, KReal _11, KReal _12, 
 		     KReal _20, KReal _21, KReal _22) {
 	    m00() = _00, m01() = _01, m02() = _02,
 		m10() = _10, m11() = _11, m12() = _12,
 		m20() = _20, m21() = _21, m22() = _22;
+	}
+
+	KtMatrix3(const KtMatrix3& m) {
+		std::copy(std::cbegin(rhs.m_), std::cend(rhs.m_), m_);
+	}
+
+	// 假定data的布局与KtMatrix3一致
+	// 若ROW_MAJOR为true，则均为行主序，否则均为列主序
+	KtMatrix3(KReal* data) { 
+		std::copy(data, data + 9, m_);
+	}
+
+	// 该构造方便不同类型matrix之间的转换
+	template<typename ITER>
+	KtMatrix3(ITER iter) {
+		std::copy(iter, iter + 9, m_);
+	}
+
+	static mat3 zero() {
+		return mat3();
+	}
+
+	static mat3 identity() {
+		mat3 v;
+		v.m00() = v.m11() = v.m22() = 1;
+		return v;
 	}
 
 	mat3& operator=(const mat3& rhs) {
@@ -54,7 +86,7 @@ public:
 
 	mat3 operator-();
 	mat3 operator*(const mat3& rhs) const;
-	vec3 operator*(const vec3& rhs) const; // 将局部坐标系中的rhs矢量变换到世界坐标系
+	vec3 operator*(const vec3& v) const;
 
 	mat3& transpose() // 置当前矩阵为其转置
 	{
@@ -219,11 +251,11 @@ KtMatrix3<KReal, ROW_MAJOR> KtMatrix3<KReal, ROW_MAJOR>::operator*(const mat3& r
 }
 
 template<class KReal, bool ROW_MAJOR> KtVector3<KReal> 
-KtMatrix3<KReal, ROW_MAJOR>::operator*(const vec3& rhs) const
+KtMatrix3<KReal, ROW_MAJOR>::operator*(const vec3& v) const
 {
-	auto x = m00() * rhs.x() + m01() * rhs.y() + m02() * rhs.z();
-	auto y = m10() * rhs.x() + m11() * rhs.y() + m12() * rhs.z();
-	auto z = m20() * rhs.x() + m21() * rhs.y() + m22() * rhs.z();
+	auto x = m00() * v.x() + m01() * v.y() + m02() * v.z();
+	auto y = m10() * v.x() + m11() * v.y() + m12() * v.z();
+	auto z = m20() * v.x() + m21() * v.y() + m22() * v.z();
 	return { x, y, z };
 }
 
@@ -659,3 +691,5 @@ KtMatrix3<KReal, ROW_MAJOR>::fromEulerAngleZYX(KReal angleX, KReal angleY, KReal
 using mat3f = KtMatrix3<float>;
 using mat3d = KtMatrix3<double>;
 
+using float3x3 = mat3f;
+using double3x3 = mat3d;

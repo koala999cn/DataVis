@@ -1,13 +1,13 @@
 #pragma once
-#include <array>
+#include "KtArray.h"
 #include "KtuMath.h"
 
 template<typename T, int DIM>
-class KtPoint : public std::array<T, DIM>
+class KtPoint : public KtArray<T, DIM>
 {
 private:
 	static_assert(DIM >= 2);
-	using super_ = std::array<T, DIM>;
+	using super_ = KtArray<T, DIM>;
 	using kMath = KtuMath<T>;
 
 public:
@@ -15,15 +15,6 @@ public:
 	using super_::super_;
 	using super_::data;
 	using super_::size;
-
-	// 所有元素都填充val值
-	KtPoint(const T& val) { super_::fill(val); }
-
-	template<typename... ARGS, 
-		std::enable_if_t<sizeof...(ARGS) == DIM, bool> = true> // 加个enable_if, 否则上个构造多数情况下不会被调用
-	KtPoint(ARGS... args) : super_{ static_cast<T>(args)... } {}
-
-	constexpr static int dim() { return DIM; }
 
 	const T& x() const { return super_::at(0); }
 	T& x() { return super_::at(0); }

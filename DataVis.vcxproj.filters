@@ -522,5 +522,14 @@
     <ClInclude Include="src\imapp\KvImGuizmoWindow.h">
       <Filter>imapp</Filter>
     </ClInclude>
+    <ClInclude Include="src\base\KtMatrix4.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtQuaternion.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtArray.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

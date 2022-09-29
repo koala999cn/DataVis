@@ -127,3 +127,5 @@ public:
 using vec3f = KtVector3<float> ;
 using vec3d = KtVector3<double>;
 
+using float3 = vec3f;
+using double3 = vec3d;

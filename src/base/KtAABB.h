@@ -195,7 +195,7 @@ public:
 	KtAABB intersection(const KtAABB& rhs) const;
 
 	/** Returns whether or not this box intersects another. */
-	bool intersects(const KtAABB& rhs) const;
+	bool isIntersects(const KtAABB& rhs) const;
 
 private:
 	KtPoint<T, 3> lower_, upper_;
@@ -327,7 +327,7 @@ KtAABB<T> KtAABB<T>::intersection(const KtAABB& rhs) const
 }
 
 template<class T>
-bool KtAABB<T>::intersects(const KtAABB& rhs) const
+bool KtAABB<T>::isIntersects(const KtAABB& rhs) const
 {
 	// Early-fail for nulls
 	if (isNull() || rhs.isNull())
