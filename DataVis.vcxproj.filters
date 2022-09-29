@@ -390,7 +390,7 @@
     <ClInclude Include="src\plot\KcGridPlane.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KtArray.h">
+    <ClInclude Include="src\dsp\KtMultiArray.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtPoint.h">

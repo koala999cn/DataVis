@@ -39,7 +39,7 @@ public:
 	KtPoint& operator+() { return *this; }
 	KtPoint operator-() const { 
 		KtPoint pt;
-		for (int i = 0; i < dim(); i++)
+		for (unsigned i = 0; i < size(); i++)
 			pt[i] = -super_::at(i);
 		return pt; 
 	}
@@ -131,7 +131,7 @@ public:
 	}
 
 	bool isApproxEqual(const KtPoint& rhs) const {
-		for (int i = 0; i < dim(); i++) {
+		for (unsigned i = 0; i < size(); i++) {
 			if (!kMath::approxEqual(super_::at(i), rhs.at(i)))
 				return false;
 		}
@@ -146,7 +146,7 @@ public:
 
 	T abs() const {
 		T len(0);
-		for (int i = 0; i < dim(); i++)
+		for (unsigned i = 0; i < size(); i++)
 			len += super_::at(i) * super_::at(i);
 		return std::sqrt(len);
 	}
@@ -160,7 +160,7 @@ public:
 	// 两点之间距离
 	T squaredDistance(const KtPoint& rhs) const {
 		T dist(0);
-		for (int i = 0; i < dim(); i++)
+		for (unsigned i = 0; i < size(); i++)
 			dist += (super_::at(i) - rhs.at(i)) * (super_::at(i) - rhs.at(i));
 		return dist;
 	}
@@ -177,7 +177,7 @@ public:
 
 	static KtPoint ceil(const KtPoint& pt1, const KtPoint& pt2) {
 		KtPoint pt;
-		kMath::forEach(pt1.data(), pt2.data(), pt.data(), dim(), [](T x, T y) {
+		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
 			return std::max(x, y);
 			});
 		return pt;
@@ -185,7 +185,7 @@ public:
 
 	static KtPoint floor(const KtPoint& pt1, const KtPoint& pt2) {
 		KtPoint pt;
-		kMath::forEach(pt1.data(), pt2.data(), pt.data(), dim(), [](T x, T y) {
+		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
 			return std::min(x, y);
 			});
 		return pt;

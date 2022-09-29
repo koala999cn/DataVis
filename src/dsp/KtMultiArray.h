@@ -8,7 +8,7 @@
 //
 
 template<typename T, int DIM>
-class KtArray
+class KtMultiArray
 {
     static_assert(DIM > 0);
 

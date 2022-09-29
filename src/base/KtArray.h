@@ -4,10 +4,10 @@
 
 // std::array的增强版，提供了多种类型的构造函数
 
-template<typename T, int DIM>
-class KtArray : public std::array<T, DIM>
+template<typename T, int SIZE>
+class KtArray : public std::array<T, SIZE>
 {
-	using super_ = std::array<T, DIM>;
+	using super_ = std::array<T, SIZE>;
 
 public:
 
@@ -21,18 +21,18 @@ public:
 	}
 
 	// 所有元素都填充val值
-	KtPoint(const T& val) {
+	explicit KtPoint(const T& val) {
 		super_::fill(val);
 	}
 
 	// 从数据指针构造
-	KtPoint(const T* buf) {
+	explicit KtPoint(const T* buf) {
 		std::copy(buf, buf + DIM, super_::begin());
 	}
 
 	// 从迭代器构造，方便类型转换
 	template<typename ITER>
-	KtPoint(ITER iter) {
+	explicit KtPoint(ITER iter) {
 		std::copy(iter, iter + DIM, super_::begin());
 	}
 
@@ -40,7 +40,4 @@ public:
 	template<typename... ARGS,
 		std::enable_if_t<sizeof...(ARGS) == DIM, bool> = true> // 加个enable_if, 否则上个构造多数情况下不会被调用
 		KtPoint(ARGS... args) : super_{ static_cast<T>(args)... } {}
-
-	constexpr static int dim() { return DIM; }
-
 };

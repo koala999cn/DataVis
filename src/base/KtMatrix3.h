@@ -1,5 +1,5 @@
 #pragma once
-#include <memory.h>
+#include "KtArray.h"
 #include "KtVector3.h"
 
 // 旋转矩阵(rotation matrix)的实现，用于将局部坐标系的矢量变换到世界坐标系
@@ -28,19 +28,19 @@
 // 若false, 底层数据按列存储，排列顺序为m[0][0], m[1][0], m[2][0], m[0][1], ...
 
 template<class KReal, bool ROW_MAJOR = true>
-class KtMatrix3  
+class KtMatrix3 : public KtArray<KReal, 9>
 {
 	using vec3 = KtVector3<KReal>;
 	using mat3 = KtMatrix3<KReal, ROW_MAJOR>;
 	using kMath = KtuMath<KReal>;
 	using point3 = KtPoint<KReal, 3>;
+	using super_ = KtArray<KReal, 9>;
 
 public:
 
 	constexpr static bool rowMajor() { return ROW_MAJOR; }
 
-	// 零构造
-	KtMatrix3() : m_{ 0 } {}
+	using super_::super_;
 
 	KtMatrix3(KReal _00, KReal _01, KReal _02, 
 		     KReal _10, KReal _11, KReal _12, 
@@ -50,28 +50,20 @@ public:
 		m20() = _20, m21() = _21, m22() = _22;
 	}
 
-	KtMatrix3(const KtMatrix3& m) {
-		std::copy(std::cbegin(rhs.m_), std::cend(rhs.m_), m_);
+	// 根据列矢量构造矩阵
+	KtMatrix3(const vec3& c0, const vec3& c1, const vec3& c2) {
+		m00() = c0.y(); m10() = c0.y(); m20() = c0.z();
+		m01() = c1.x(); m11() = c1.y(); m21() = c1.z();
+		m02() = c2.x(); m12() = c2.y(); m22() = c2.z();
 	}
 
-	// 假定data的布局与KtMatrix3一致
-	// 若ROW_MAJOR为true，则均为行主序，否则均为列主序
-	KtMatrix3(KReal* data) { 
-		std::copy(data, data + 9, m_);
-	}
-
-	// 该构造方便不同类型matrix之间的转换
-	template<typename ITER>
-	KtMatrix3(ITER iter) {
-		std::copy(iter, iter + 9, m_);
-	}
 
 	static mat3 zero() {
-		return mat3();
+		return mat3{ 0 };
 	}
 
 	static mat3 identity() {
-		mat3 v;
+		mat3 v{ 0 };
 		v.m00() = v.m11() = v.m22() = 1;
 		return v;
 	}
@@ -139,69 +131,65 @@ public:
 	mat3& fromEulerAngleZXY(const point3& v) { return fromEulerAngleZXY(v.x(), v.y(), v.z()); }
 	mat3& fromEulerAngleZYX(const point3& v) { return fromEulerAngleZYX(v.x(), v.y(), v.z()); }
 
-	mat3& fromRotationYawPitchRoll(KReal yaw, KReal pitch, KReal roll) {
+	mat3& fromYawPitchRoll(KReal yaw, KReal pitch, KReal roll) {
 		return fromEulerAngleYXZ(pitch, yaw, roll); 
 	}
 
-	KReal m00() const {	return m_[0]; }
+	KReal m00() const {	return at(0); }
 	KReal m01() const { 
-		if constexpr (rowMajor()) return m_[1];
-		else return m_[3];
+		if constexpr (rowMajor()) return at(1);
+		else return at(3);
 	}	
 	KReal m02() const { 
-		if constexpr (rowMajor()) return m_[2];
-		else return m_[6];
+		if constexpr (rowMajor()) return at(2);
+		else return at(6);
 	 }	
 	KReal m10() const { 
-		if constexpr (rowMajor()) return m_[3];
-		else return m_[1];
+		if constexpr (rowMajor()) return at(3);
+		else return at(1);
 	}
-	KReal m11() const { return m_[4]; }
+	KReal m11() const { return at(4); }
 	KReal m12() const { 
-		if constexpr (rowMajor()) return m_[5];
-		else return m_[7];
+		if constexpr (rowMajor()) return at(5);
+		else return at(7);
 	}
 	KReal m20() const { 
-		if constexpr (rowMajor()) return m_[6];
-		else return m_[2];
+		if constexpr (rowMajor()) return at(6);
+		else return at(2);
 	}
 	KReal m21() const { 
-		if constexpr (rowMajor()) return m_[7];
-		else return m_[5];
+		if constexpr (rowMajor()) return at(7);
+		else return at(5);
 	}
-	KReal m22() const { return m_[8]; }
+	KReal m22() const { return at(8); }
 	
-	KReal& m00() { return m_[0]; }
+	KReal& m00() { return at(0); }
 	KReal& m01() {
-		if constexpr (rowMajor()) return m_[1];
-		else return m_[3];
+		if constexpr (rowMajor()) return at(1);
+		else return at(3);
 	}
 	KReal& m02() {
-		if constexpr (rowMajor()) return m_[2];
-		else return m_[6];
+		if constexpr (rowMajor()) return at(2);
+		else return at(6);
 	}
 	KReal& m10() {
-		if constexpr (rowMajor()) return m_[3];
-		else return m_[1];
+		if constexpr (rowMajor()) return at(3);
+		else return at(1);
 	}
-	KReal& m11() { return m_[4]; }
+	KReal& m11() { return at(4); }
 	KReal& m12() {
-		if constexpr (rowMajor()) return m_[5];
-		else return m_[7];
+		if constexpr (rowMajor()) return at(5);
+		else return at(7);
 	}
 	KReal& m20() {
-		if constexpr (rowMajor()) return m_[6];
-		else return m_[2];
+		if constexpr (rowMajor()) return at(6);
+		else return at(2);
 	}
 	KReal& m21() {
-		if constexpr (rowMajor()) return m_[7];
-		else return m_[5];
+		if constexpr (rowMajor()) return at(7);
+		else return at(5);
 	}
-	KReal& m22() { return m_[8]; }
-
-private: 
-	// 数据成员
-	KReal m_[9]; 
+	KReal& m22() { return at(8); }
 };
 
 template<class KReal, bool ROW_MAJOR>

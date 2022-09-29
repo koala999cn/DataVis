@@ -39,14 +39,19 @@ public:
 	KtQuaternion(const KReal data[]) : super_(data) {}*/
 
 	 /// Construct a quaternion from a rotation matrix
-	KtQuaternion(const mat3& rot) { 
-		fromRotationMatrix(rot); 
-	}
+	KtQuaternion(const mat3& rot);
 
 	/// Construct a quaternion from an angle/axis
-	KtQuaternion(KReal angle, const vec3& axis) { 
-		fromAngleAxis(angle, axis); 
-	}
+	KtQuaternion(KReal angle, const vec3& axis);
+
+	// 从局部坐标系相对世界坐标系的坐标来构造四元数
+	KtQuaternion(const vec3& x, const vec3& y, const vec3& z) 
+	    : KtQuaternion(mat3(x, y, z)) {}
+
+	/** Construct the shortest arc quaternion to rotate "from" vector to
+		the destination "to" vector.
+	*/
+	KtQuaternion(const vec3& from, const vec3& to);
 
 	static KtQuaternion zero() {
 		return { 0, 0, 0, 0 };
@@ -60,9 +65,11 @@ public:
 		return kMath::almostEqual(norm(), 1);
 	}
 
+	// 四元数的乘法是不可交换的
 	KtQuaternion operator*(const KtQuaternion& rhs) const;
 
-	vec3 operator*(const vec3& v) const; // 将原坐标系中的矢量v变换到目标坐标系
+	// 将原坐标系中的矢量v变换到目标坐标系
+	vec3 operator*(const vec3& v) const; 
  
 	// 返回当前四元数的共轭
 	KtQuaternion conjugate() const { 
@@ -89,35 +96,124 @@ public:
 	KReal select() const { return w(); } 
 
 	void toAngleAxis(KReal& angle, vec3& axis) const;
-	void fromAngleAxis(KReal angle, const vec3& axis);
 	void toRotationMatrix(mat3& rot) const;
-	void fromRotationMatrix(const mat3& rot);
-
 	void toAxes(vec3& x, vec3& y, vec3& z) const;
-	vec3 getXAxis() const; // 单独提取局部坐标x方向的单位矢量在世界坐标的投影
-	vec3 getYAxis() const; // 单独提取局部坐标y方向的单位矢量在世界坐标的投影
-	vec3 getZAxis() const; // 单独提取局部坐标z方向的单位矢量在世界坐标的投影
-	void formAxes(const vec3& x, const vec3& y, const vec3& z);
+
+	vec3 xAxis() const; // 单独提取局部坐标x方向的单位矢量在世界坐标的投影
+	vec3 yAxis() const; // 单独提取局部坐标y方向的单位矢量在世界坐标的投影
+	vec3 zAxis() const; // 单独提取局部坐标z方向的单位矢量在世界坐标的投影
 
 	// 获取当前局部坐标系的俯仰（绕右向轴Z旋转）、偏航（绕上轴Y旋转）和滚动（绕方向轴X旋转）角
 	KReal pitch(); // 俯仰
 	KReal yaw(); // 偏航
 	KReal roll(); // 滚动
+
 };
 
-/** Gets the shortest arc quaternion to rotate kvFrom vector to the destination
-    kvTo vector.
-@remarks
-    If you call this with a dest kvTo vector that is close to the inverse
-    of kvFrom vector, we will rotate 180 degrees around the 'kvFallbackAxis'
-	(if specified, or a generated axis if not) since in this case
-	ANY axis of rotation is valid.
-*/
-// TODO：VS编译器在处理默认的模板参数时，会发生内部错误。
-template<class KReal>
-KtQuaternion<KReal> GetRotationBetween(const KtVector3<KReal>& kvFrom, const KtVector3<KReal>& kvTo, 
-	const KtVector3<KReal>& kvFallbackAxis/* = KtVector3<KReal>::ZERO*/);
 
+// cos(A) = (trace(R)-1)/2 
+// 2cos^2(A/2) = 1+cos(A)  
+// ==> w^2 = cos^2(A/2) = (trace(R)+1)/4
+// ==> |w| = sqrt(trace(R)+1)/2
+// 分两种情况计算：
+// 1. trace(R) > 0, |w| > 1/2
+// w = sqrt(trace(R)+1)/2
+// x = (r21-r12)/4w
+// y = (r02-r20)/4w
+// z = (r10-r01)/4w
+// 2. trace(R) <= 0, |w| <= 1/2
+//   2.1. r00为R阵对角元素的最大值
+//        x = sqrt(r00-r11-r22+1)/2
+//        w = (r21-r12)/4x
+//        y = (r01+r10)/4x
+//        z = (r02+r20)/4x
+//  2.2. r11为R阵对角元素的最大值
+//        y = sqrt(r11-r00-r22+1)/2
+//        w = (r02-r20)/4y
+//        x = (r01+r10)/4y
+//        z = (r12+r21)/4y
+//  2.3. r22为R阵对角元素的最大值
+//        z = sqrt(r22-r00-r11+1)/2
+//        w = (r10-r01)/4z
+//        x = (r02+r20)/4z
+//        y = (r12+r21)/4z
+template<class KReal>
+KtQuaternion<KReal>::KtQuaternion<KReal>(const mat3& rot)
+{
+	KReal fTrace = rot.m00() + rot.m11() + rot.m22();
+	if (fTrace > 0) {
+		w = 0.5f * std::sqrt(fTrace + 1);
+		KReal fCoeff = 0.25f / w;
+		v.x = fCoeff * (rot.m21() - rot.m12());
+		v.y = fCoeff * (rot.m02() - rot.m20());
+		v.z = fCoeff * (rot.m10() - rot.m01());
+	}
+	else if (rot.m00() > rot.m11() && rot.m00() > rot.m22()) {// r00为最大值
+		v.x = 0.5f * std::sqrt(rot.m00() - rot.m11() - rot.m22() + 1);
+		KReal fCoeff = 0.25f / v.x;
+		w = fCoeff * (rot.m21() - rot.m12());
+		v.y = fCoeff * (rot.m10() + rot.m01());
+		v.z = fCoeff * (rot.m20() + rot.m02());
+	}
+	else if (rot.m11() > rot.m22()) { // m00 <= m11, r11为最大值
+		v.y = 0.5f * std::sqrt(rot.m11() - rot.m22() - rot.m00() + 1);
+		KReal fCoeff = 0.25f / v.y;
+		w = fCoeff * (rot.m02() - rot.m20());
+		v.x = fCoeff * (rot.m10() + rot.m01());
+		v.z = fCoeff * (rot.m21() + rot.m12());
+	}
+	else {// r22为最大值
+		v.z = 0.5f * std::sqrt(rot.m22() - rot.m00() - rot.m11() + 1);
+		KReal fCoeff = 0.25f / v.z;
+		w = fCoeff * (rot.m10() - rot.m01());
+		v.x = fCoeff * (rot.m20() + rot.m02());
+		v.y = fCoeff * (rot.m21() + rot.m12());
+	}
+}
+
+// q = w+xi+yj+zk = cos(A/2)+sin(A/2)(u0i+u1j+u2k)
+template<class KReal>
+KtQuaternion<KReal>::KtQuaternion<KReal>(KReal angle, const vec3& axis)
+{
+	assert(kMath::almostEqual(1, axis.length()));
+
+	KReal halfAngle = angle / 2;
+	KReal fsin = std::sin(halfAngle);
+	w() = std::cos(halfAngle);
+	x() = axis.x() * fsin;
+	y() = axis.y() * fsin;
+	z() = axis.z() * fsin;
+}
+
+// Based on Stan Melax's article in Game Programming Gems
+template<class KReal>
+KtQuaternion<KReal>::KtQuaternion<KReal>(const vec3& from, const vec3& to)
+{
+	// Copy, since cannot modify local
+	auto v0 = from.normalize();
+	auto v1 = to.normalize();
+
+	KReal d = v0.dot(v1);
+
+	// If dot == 1, vectors are the same
+	if (d >= 1.0f) {
+		*this = identify();
+	}
+	if (d < (1e-6f - 1.0f)) {
+		// 绕任意轴旋转180度，此处选择from的垂直轴
+		*this = KtQuaternion(kMath::pi, from.perpendicular());
+	}
+	else {
+		KReal s = std::sqrt((1 + d) * 2);
+		auto c = v0.cross(v1) / s;
+
+		x() = c.x();
+		y() = c.y();
+		z() = c.z();
+		w() = s * 0.5f;
+		normalize();
+	}
+}
 
 
 template<class KReal>
@@ -140,7 +236,7 @@ KtQuaternion<KReal> KtQuaternion<KReal>::inverse() const
 		return zero();
 
 	auto invNorm = 1 / n;
-	return KtQuaternion<KReal>(w * fInvNorm, -v * fInvNorm);
+	return KtQuaternion<KReal>(w * invNorm, -v * invNorm);
 }
 
 // 单位四元数q = cos(A)+u*sin(A)，其中u为旋转轴，2A为旋转角度
@@ -163,20 +259,6 @@ void KtQuaternion<KReal>::toAngleAxis(KReal& angle, vec3& axis) const
 		axis.y = y() * factor;
 		axis.z = z() * factor;
 	}
-}
-
-// q = w+xi+yj+zk = cos(A/2)+sin(A/2)(u0i+u1j+u2k)
-template<class KReal>
-void KtQuaternion<KReal>::fromAngleAxis(KReal angle, const vec3& axis)
-{
-	assert(kMath::almostEqual(1, axis.length()));
-
-	KReal halfAngle = angle / 2;
-	KReal fsin = std::sin(halfAngle);
-	w() = std::cos(halfAngle);
-	x() = axis.x() * fsin;
-	y() = axis.y() * fsin;
-	z() = axis.z() * fsin;
 }
 
 //     | ww+xx-yy-zz    2xy-2wz       2xz+2wy   |
@@ -216,67 +298,54 @@ void KtQuaternion<KReal>::toRotationMatrix(mat3& rot) const
 	rot.m22() = 1 - f2xx - f2yy;
 }
 
-// cos(A) = (trace(R)-1)/2 
-// 2cos^2(A/2) = 1+cos(A)  
-// ==> w^2 = cos^2(A/2) = (trace(R)+1)/4
-// ==> |w| = sqrt(trace(R)+1)/2
-// 分两种情况计算：
-// 1. trace(R) > 0, |w| > 1/2
-// w = sqrt(trace(R)+1)/2
-// x = (r21-r12)/4w
-// y = (r02-r20)/4w
-// z = (r10-r01)/4w
-// 2. trace(R) <= 0, |w| <= 1/2
-//   2.1. r00为R阵对角元素的最大值
-//        x = sqrt(r00-r11-r22+1)/2
-//        w = (r21-r12)/4x
-//        y = (r01+r10)/4x
-//        z = (r02+r20)/4x
-//  2.2. r11为R阵对角元素的最大值
-//        y = sqrt(r11-r00-r22+1)/2
-//        w = (r02-r20)/4y
-//        x = (r01+r10)/4y
-//        z = (r12+r21)/4y
-//  2.3. r22为R阵对角元素的最大值
-//        z = sqrt(r22-r00-r11+1)/2
-//        w = (r10-r01)/4z
-//        x = (r02+r20)/4z
-//        y = (r12+r21)/4z
 template<class KReal>
-void KtQuaternion<KReal>::fromRotationMatrix(const mat3& rot)
+void KtQuaternion<KReal>::toAxes(vec3& x, vec3& y, vec3& z) const
 {
-	KReal fTrace = rot.m00() + rot.m11() + rot.m22();
-	if (fTrace > 0) {
-		w = 0.5f * std::sqrt(fTrace + 1);
-		KReal fCoeff = 0.25f / w;
-		v.x = fCoeff * (rot.m21() - rot.m12());
-		v.y = fCoeff * (rot.m02() - rot.m20());
-		v.z = fCoeff * (rot.m10() - rot.m01());
-	}
-	else if (rot.m00() > rot.m11() && rot.m00() > rot.m22()) {// r00为最大值
-		v.x = 0.5f * std::sqrt(rot.m00() - rot.m11() - rot.m22() + 1);
-		KReal fCoeff = 0.25f / v.x;
-		w = fCoeff * (rot.m21() - rot.m12());
-		v.y = fCoeff * (rot.m10() + rot.m01());
-		v.z = fCoeff * (rot.m20() + rot.m02());
-	}
-	else if (rot.m11() > rot.m22()) { // m00 <= m11, r11为最大值
-		v.y = 0.5f * std::sqrt(rot.m11() - rot.m22() - rot.m00() + 1);
-		KReal fCoeff = 0.25f / v.y;
-		w = fCoeff * (rot.m02() - rot.m20());
-		v.x = fCoeff * (rot.m10() + rot.m01());
-		v.z = fCoeff * (rot.m21() + rot.m12());
-	}
-	else {// r22为最大值
-		v.z = 0.5f * std::sqrt(rot.m22() - rot.m00() - rot.m11() + 1);
-		KReal fCoeff = 0.25f / v.z;
-		w = fCoeff * (rot.m10() - rot.m01());
-		v.x = fCoeff * (rot.m20() + rot.m02());
-		v.y = fCoeff * (rot.m21() + rot.m12());
-	}
+	mat3 rot;
+	toRotationMatrix(rot);
+
+	// 提取旋转矩阵的各列
+	x = { rot.m00(), rot.m10(), rot.m20() };
+	y = { rot.m01(), rot.m11(), rot.m21() };
+	z = { rot.m02(), rot.m12(), rot.m22() };
 }
 
-// 四元数的乘法是不可交换的
+template<class KReal>
+KtVector3<KReal> KtQuaternion<KReal>::xAxis() const
+{
+	// 1-2yy-2zz, 2xy+2wz, 2xz-2wy
+	assert(isUnit());
+
+	KReal dy = 2 * y();
+	KReal dz = 2 * z();
+
+	return { 1 - dy * y() - dz * z(), dy * x() + dz * w(), dz * x() - dy * w() };
+}
+
+template<class KReal>
+KtVector3<KReal> KtQuaternion<KReal>::yAxis() const
+{
+	// 2xy-2wz, 1-2xx-2zz, 2yz+2wx
+	assert(isUnit());
+
+	KReal dx = 2 * x();
+	KReal dz = 2 * z();
+
+	return { dx * y() - dz * w(), 1 - dx * x() - dz * z(), dz * y() + dx * w() };
+}
+
+template<class KReal>
+KtVector3<KReal> KtQuaternion<KReal>::zAxis() const
+{
+	// 2xz+2wy, 2yz-2wx, 1-2xx-2yy
+	assert(isUnit());
+
+	KReal dx = 2 * x();
+	KReal dy = 2 * y();
+
+	return { dx * z() + dy * w(), dy * z() - dx * w(), 1 - dx * x() - dy * y() };
+}
+
 template<class KReal>
 KtQuaternion<KReal> KtQuaternion<KReal>::operator*(const KtQuaternion<KReal>& rhs) const
 {
@@ -288,7 +357,6 @@ KtQuaternion<KReal> KtQuaternion<KReal>::operator*(const KtQuaternion<KReal>& rh
 	};
 }
 
-// 变换局部坐标到世界坐标
 template<class KReal>
 KtVector3<KReal> KtQuaternion<KReal>::operator*(const vec3& v) const
 {
@@ -305,169 +373,40 @@ KtVector3<KReal> KtQuaternion<KReal>::operator*(const vec3& v) const
 	return v + uv + uuv;
 }
 
-// 四元数表示的局部坐标系各轴在世界坐标系的投影
-template<class KReal>
-void KtQuaternion<KReal>::ToAxes(KtVector3<KReal>& x, KtVector3<KReal>& y, KtVector3<KReal>& z) const
-{
-	KtMatrix3<KReal> kRot;
-	ToRotationMatrix(kRot);
-
-	// 提取旋转矩阵的各列
-
-	x.x = kRot.m00();
-	x.y = kRot.m10();
-	x.z = kRot.m20();
-
-	y.x = kRot.m01();
-	y.y = kRot.m11();
-	y.z = kRot.m21();
-
-	z.x = kRot.m02();
-	z.y = kRot.m12();
-	z.z = kRot.m22();
-}
-
-template<class KReal>
-KtVector3<KReal> KtQuaternion<KReal>::GetXAxis() const // 单独提取局部坐标x方向的单位矢量在世界坐标的投影
-{
-	// 1-2yy-2zz, 2xy+2wz, 2xz-2wy
-//	ASSERT(IsUnit()); 
-//	return KtVector3<KReal>(1-2*v.y*v.y-2*v.z*v.z, 2*v.x*v.y+2*w*v.z, 2*v.x*v.z-2*w*v.y);
-
-	KReal dy = 2 * v.y;
-	KReal dz = 2 * v.z;
-
-	return KtVector3<KReal>(1 - dy * v.y - dz * v.z, dy * v.x + dz * w, dz * v.x - dy * w);
-}
-
-template<class KReal>
-KtVector3<KReal> KtQuaternion<KReal>::GetYAxis() const // 单独提取局部坐标y方向的单位矢量在世界坐标的投影
-{
-	// 2xy-2wz, 1-2xx-2zz, 2yz+2wx
-//	ASSERT(IsUnit()); 
-
-	KReal dx = 2 * v.x;
-	KReal dz = 2 * v.z;
-
-	return KtVector3<KReal>(dx * v.y - dz * w, 1 - dx * v.x - dz * v.z, dz * v.y + dx * w);
-}
-
-template<class KReal>
-KtVector3<KReal> KtQuaternion<KReal>::GetZAxis() const // 单独提取局部坐标z方向的单位矢量在世界坐标的投影
-{
-	// 2xz+2wy, 2yz-2wx, 1-2xx-2yy
-//	ASSERT(IsUnit()); 
-
-	KReal dx = 2 * v.x;
-	KReal dy = 2 * v.y;
-
-	return KtVector3<KReal>(dx * v.z + dy * w, dy * v.z - dx * w, 1 - dx * v.x - dy * v.y);
-}
-
-// 从局部坐标系相对世界坐标系的坐标来构造四元数
-template<class KReal>
-void KtQuaternion<KReal>::FormAxes(const KtVector3<KReal>& x, const KtVector3<KReal>& y, const KtVector3<KReal>& z)
-{
-	KtMatrix3<KReal> kRot;
-
-	kRot.m00() = x.y;
-	kRot.m10() = x.y;
-	kRot.m20() = x.z;
-
-	kRot.m01() = y.x;
-	kRot.m11() = y.y;
-	kRot.m21() = y.z;
-
-	kRot.m02() = z.x;
-	kRot.m12() = z.y;
-	kRot.m22() = z.z;
-
-	FromRotationMatrix(kRot);
-}
-
 // 滚动：绕X轴旋转
 template<class KReal>
-KReal KtQuaternion<KReal>::GetRoll()
+KReal KtQuaternion<KReal>::roll()
 {
 	// roll = atan2(localy.z, localy.y);
-	// 以下代码参考GetYAxis
+
 	KReal dx = 2 * v.x;
 	KReal dz = 2 * v.z;
 
-	//	return KtVector3<KReal>(dx*v.y-dz*w, 1-dx*v.x-dz*v.z, dz*v.y+dx*w); 
-	return KtuMath<KReal>::ATan2(dz * v.y + dx * w, 1 - dx * v.x - dz * v.z);
+	return std::atan2(dz * y() + dx * w(), 1 - dx * x() - dz * z());
 }
 
 // 偏航：绕Z轴转动
 template<class KReal>
-KReal KtQuaternion<KReal>::GetYaw()
+KReal KtQuaternion<KReal>::yaw()
 {
 	// yaw = atan2(localx.y, localx.x);
-	// 以下代码参考GetXAxis
+
 	KReal dy = 2 * v.y;
 	KReal dz = 2 * v.z;
-
-	//	return KtVector3<KReal>(1-dy*v.y-dz*v.z, dy*v.x+dz*w, dz*v.x-dy*w); 
-	return KtuMath<KReal>::ATan2(dy * v.x + dz * w, 1 - dy * v.y - dz * v.z);
+ 
+	return std::atan2(dy * x() + dz * w(), 1 - dy * y() - dz * z());
 }
 
 // 俯仰：绕Y轴转动
 template<class KReal>
-KReal KtQuaternion<KReal>::GetPitch()
+KReal KtQuaternion<KReal>::pitch()
 {
-	// pitch= atan2(localz.x, localz.z);
-	// 以下代码参考GetZAxis
-	KReal dx = 2 * v.x;
-	KReal dy = 2 * v.y;
+	// pitch = atan2(localz.x, localz.z);
 
-	//	return KtVector3<KReal>(dx*v.z+dy*w, dy*v.z-dx*w, 1-dx*v.x-dy*v.y); 
-	return KtuMath<KReal>::ATan2(dx * v.z + dy * w, 1 - dx * v.x - dy * v.y);
-}
+	KReal dx = 2 * x();
+	KReal dy = 2 * y();
 
-template<class KReal>
-KtQuaternion<KReal> GetRotationBetween(const KtVector3<KReal>& kvFrom, const KtVector3<KReal>& kvTo,
-	const KtVector3<KReal>& kvFallbackAxis)
-{
-	// Based on Stan Melax's article in Game Programming Gems
-	KtQuaternion<KReal> q;
-	// Copy, since cannot modify local
-	KtVector3<KReal> v0 = kvFrom.GetNormalize();
-	KtVector3<KReal> v1 = kvTo.GetNormalize();
-
-	KReal d = v0.Dot(v1);
-	// If dot == 1, vectors are the same
-	if (d >= 1.0f)
-	{
-		return KtQuaternion<KReal>::IDENTITY;
-	}
-	if (d < (1e-6f - 1.0f))
-	{
-		if (kvFallbackAxis != KtVector3<KReal>::ZERO)
-		{
-			// rotate 180 degrees about the fallback axis
-			q.FromAngleAxis(KtuMath<KReal>::PI, kvFallbackAxis);
-		}
-		else
-		{
-			// Generate an axis
-			KtVector3<KReal> kvAxis = kvFrom.Perpendicular();
-			q.FromAngleAxis(KtuMath<KReal>::PI, kvAxis);
-		}
-	}
-	else
-	{
-		KReal s = std::sqrt((1 + d) * 2);
-		KReal invs = 1 / s;
-
-		KtVector3<KReal> c = v0.Cross(v1);
-
-		q.v.x = c.x * invs;
-		q.v.y = c.y * invs;
-		q.v.z = c.z * invs;
-		q.w = s * 0.5f;
-		q.Normalize();
-	}
-	return q;
+	return std::atan2(dx * z() + dy * w(), 1 - dx * x() - dy * y());
 }
 
 using quatf = KtQuaternion<float>;

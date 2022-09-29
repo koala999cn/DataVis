@@ -18,14 +18,6 @@ public:
 
 	using super_::super_;
 
-	KtVector4() : super_(0, 0, 0, 1) {}
-
-	/*
-	KtVector4(KReal x, KReal y, KReal z, KReal w = 1) : super_(x, y, z, w) {}
-	KtVector4(const vec3& v) : KtVector4(v.x(), v.y(), v.z(), 1) {}
-	KtVector4(const KtVector4& v) : super_(v) {}
-	KtVector4(const KReal data[]) : super_(data) {} */
-	
 	// 在齐次坐标下，矢量的w为0，点的w非零.
 	// 这样在乘以齐次变换矩阵的时候，矩阵中的位移部分不会影响矢量
 	bool isPoint() const { return w() != 0; }
@@ -33,8 +25,8 @@ public:
 
 	KtVector4& homogenize() {
 		if(w() != 0 && w() != 1) { 
-			KReal f = 1 / w;
-			x *= f, y *= f, z *= f, w=1; 
+			KReal f = 1 / w();
+			x() *= f, y() *= f, z() *= f, w = 1;
 		} 
 
 		return *this;

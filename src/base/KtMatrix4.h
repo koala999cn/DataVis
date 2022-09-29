@@ -1,6 +1,8 @@
 #pragma once
-#include <memory.h>
+#include "KtArray.h"
+#include "KtVector3.h"
 #include "KtVector4.h"
+#include "KtMatrix3.h"
 #include "KtQuaternion.h"
 
 
@@ -24,20 +26,27 @@
         The generic form M * V which shows the layout of the matrix 
         entries is shown below:
         <pre>
-            [ m[0][0]  m[0][1]  m[0][2]  m[0][3] ]   {x}
-            | m[1][0]  m[1][1]  m[1][2]  m[1][3] | * {y}
-            | m[2][0]  m[2][1]  m[2][2]  m[2][3] |   {z}
-            [ m[3][0]  m[3][1]  m[3][2]  m[3][3] ]   {1}
+            [ at(0)[0]  at(0)[1]  at(0)[2]  at(0)[3] ]   {x}
+            | at(1)[0]  at(1)[1]  at(1)[2]  at(1)[3] | * {y}
+            | at(2)[0]  at(2)[1]  at(2)[2]  at(2)[3] |   {z}
+            [ at(3)[0]  at(3)[1]  at(3)[2]  at(3)[3] ]   {1}
         </pre>
 */
 
 // @ROW_MAJOR: 底层数据的布局. 详见KtMatrix3
 template<class KReal, bool ROW_MAJOR = true>
-class KtMatrix4  
+class KtMatrix4 : public KtArray<KReal, 16>
 {
+	using super_ = KtArray<KReal, 16>;
+	using vec3 = KtVector3<KReal>;
+	using vec4 = KtVector4<KReal>;
+	using mat3 = KtMatrix3<KReal>;
+	using mat4 = KtMatrix4<KReal>;
+	using quat = KtQuaternion<KReal>;
+
 public:
-	// 构造
-	KtMatrix4();
+	
+	using super_::super_;
 
 	KtMatrix4(KReal _00, KReal _01, KReal _02, KReal _03,
 			 KReal _10, KReal _11, KReal _12, KReal _13,
@@ -50,24 +59,34 @@ public:
 		m30() = _30, m31() = _31, m32() = _32, m33() = _33;
 	}
 		
+	static mat4 zero() {
+		return mat4{ 0 };
+	}
+
+	static mat4 identity() {
+		mat4 v{ 0 };
+		v.m00() = v.m11() = v.m22() = v.33() = 1;
+		return v;
+	}
+
     /** Builds a translation matrix
     */
-    void MakeTranslation( const KtVector3<KReal>& v )
+	static mat4 buildTanslation(const vec3& v)
     {
-        m00() = 1.0; m01() = 0.0; m02() = 0.0; m03() = v.x;
-        m10() = 0.0; m11() = 1.0; m12() = 0.0; m13() = v.y;
-        m20() = 0.0; m21() = 0.0; m22() = 1.0; m23() = v.z;
-        m30() = 0.0; m31() = 0.0; m32() = 0.0; m33() = 1.0;
+		return { 1.0, 0.0, 0.0, v.x(),
+				 0.0, 1.0, 0.0, v.y(),
+				 0.0, 0.0, 1.0, v.z(),
+				 0.0, 0.0, 0.0, 1.0 };
     }
 
     /** Builds a scale matrix.
     */
-	void MakeScale( const KtVector3<KReal>& v )
+	static mat4 buildScale(const vec3& v)
     {
-        m00() = v.x;  m01() = 0.0;  m02() = 0.0;  m03() = 0.0;
-		m10() = 0.0;  m11() = v.y;  m12() = 0.0;  m13() = 0.0;
-		m20() = 0.0;  m21() = 0.0;  m22() = v.z;  m23() = 0.0;
-		m30() = 0.0;  m31() = 0.0;  m32() = 0.0;  m33() = 1.0;
+		return { v.x(), 0.0, 0.0, 0.0,
+				 0.0, v.y(), 0.0, 0.0,
+				 0.0, 0.0, v.z(), 0.0,
+				 0.0, 0.0, 0.0, 1.0 };
     }
 
     /** Building a Matrix4 from orientation / scale / position.
@@ -76,19 +95,29 @@ public:
         of orientation axes, scale does not affect size of translation, rotation and scaling are always
         centered on the origin.
     */
-    void MakeTransform(const KtVector3<KReal>& kvPos, const KtVector3<KReal>& kvScale, const KtQuaternion<KReal>& kvOrientation);
+	static mat4 buildTransform(const vec3& pos, const vec3& scale, const quat& orient) {
+		// Ordering: 1. Scale 2. Rotate 3. Translate
 
-	KtMatrix4& operator=(const KtMatrix4& rhs) { memcpy(m, rhs.m, 16*sizeof(KReal)); return *this; }
-	KtMatrix4& operator=(const KtMatrix3<KReal>& rhs);	
-	
-	// 比较
-	bool operator==(const KtMatrix4& rhs) const;
-	bool IsApproxEqual(const KtMatrix4& rhs) const;
+		mat3 rot;
+		orient.toRotationMatrix(rot);
+
+		// Set up final matrix with scale, rotation and translation
+		return {
+
+			// Set up final matrix with scale, rotation and translation
+			scale.x() * rot.m00(), scale.y() * rot.m01(), scale.z() * rot.m02(), pos.x(),
+			scale.x() * rot.m10(), scale.y() * rot.m11(), scale.z() * rot.m12(), pos.y(),
+			scale.x() * rot.m20(), scale.y() * rot.m21(), scale.z() * rot.m22(), pos.z(),
+
+			// No projection term
+			0, 0, 0, 1
+		};
+	}
 
 	// 运算
 	KtMatrix4 operator*(const KtMatrix4& rhs) const;
 	KtVector4<KReal> operator*(const KtVector4<KReal>& v) const;
-	KtVector4<KReal> operator*(const KtVector3<KReal>& v) const;
+	KtVector4<KReal> operator*(const vec3& v) const;
 
 	KtMatrix4 GetTranspose() const // 返回当前矩阵的转置
 	{
@@ -146,16 +175,16 @@ public:
     */
     /** Sets the translation transformation part of the matrix.
     */
-   void SetTranslation( const KtVector3<KReal>& v )
+   void SetTranslation( const vec3& v )
     {
         m03() = v.x, m13() = v.y, m23() = v.z;
     }
 
     /** Extracts the translation transformation part of the matrix.
         */
-    KtVector3<KReal> GetTranslation() const
+    vec3 GetTranslation() const
     {
-        return KtVector3<KReal>(m03(), m13(), m23());
+        return vec3(m03(), m13(), m23());
     }
 
     /*
@@ -165,7 +194,7 @@ public:
     */
     /** Sets the scale part of the matrix.
     */
-    void SetScale( const KtVector3<KReal>& v )
+    void SetScale( const vec3& v )
     {
         m00() = v.x, m11() = v.y, m22() = v.z;
     }
@@ -187,304 +216,219 @@ public:
 		return false;
 	}
 
-#ifdef K_COLUMN_MAJOR  // 列主序
-	KReal m00() const { return m[0]; }
-	KReal m10() const { return m[1]; }
-	KReal m20() const { return m[2]; }
-	KReal m30() const { return m[3]; }
+	KReal m00() const { return at(0); }
+	KReal m01() const { 
+		if constexpr (ROW_MAJOR)
+		    return at(1); 
+		else 
+			return at(4)
+	}
+	KReal m02() const { 
+		if constexpr (ROW_MAJOR)
+			return at(2);
+		else
+			return at(8);
+	}
+	KReal m03() const { 
+		if constexpr (ROW_MAJOR)
+			return at(3);
+		else
+			return at(12);
+	}
 
-	KReal m01() const { return m[4]; }
-	KReal m11() const { return m[5]; }
-	KReal m21() const { return m[6]; }
-	KReal m31() const { return m[7]; }
+	KReal m10() const { 
+		if constexpr (ROW_MAJOR)
+			return at(4); 
+		else
+			return at(1);
+	}
+	KReal m11() const { return at(5); }
+	KReal m12() const { 
+		if constexpr (ROW_MAJOR)
+			return at(6); 
+		else
+			return at(9);
+	}
+	KReal m13() const { 
+		if constexpr (ROW_MAJOR)
+			return at(7); 
+		else
+			return at(13);
+	}
 
-	KReal m02() const { return m[8]; }
-	KReal m12() const { return m[9]; }
-	KReal m22() const { return m[10]; }
-	KReal m32() const { return m[11]; }
+	KReal m20() const { 
+		if constexpr (ROW_MAJOR)
+			return at(8); 
+		else
+			return at(2);
+	}
+	KReal m21() const { 
+		if constexpr (ROW_MAJOR)
+			return at(9); 
+		else
+			return at(6);
+	}
+	KReal m22() const { return at(10); }
+	KReal m23() const { 
+		if constexpr (ROW_MAJOR)
+			return at(11); 
+		else
+			return at(14);
+	}
 
-	KReal m03() const { return m[12]; }
-	KReal m13() const { return m[13]; }
-	KReal m23() const { return m[14]; }
-	KReal m33() const { return m[15]; }
-
-	KReal& m00() { return m[0]; }
-	KReal& m10() { return m[1]; }
-	KReal& m20() { return m[2]; }
-	KReal& m30() { return m[3]; }
-	
-	KReal& m01() { return m[4]; }
-	KReal& m11() { return m[5]; }
-	KReal& m21() { return m[6]; }
-	KReal& m31() { return m[7]; }
-	
-	KReal& m02() { return m[8]; }
-	KReal& m12() { return m[9]; }
-	KReal& m22() { return m[10]; }
-	KReal& m32() { return m[11]; }
-	
-	KReal& m03() { return m[12]; }
-	KReal& m13() { return m[13]; }
-	KReal& m23() { return m[14]; }
-	KReal& m33() { return m[15]; }
-#else
-	KReal m00() const { return m[0]; }
-	KReal m01() const { return m[1]; }
-	KReal m02() const { return m[2]; }
-	KReal m03() const { return m[3]; }
-
-	KReal m10() const { return m[4]; }
-	KReal m11() const { return m[5]; }
-	KReal m12() const { return m[6]; }
-	KReal m13() const { return m[7]; }
-
-	KReal m20() const { return m[8]; }
-	KReal m21() const { return m[9]; }
-	KReal m22() const { return m[10]; }
-	KReal m23() const { return m[11]; }
-
-	KReal m30() const { return m[12]; }
-	KReal m31() const { return m[13]; }
-	KReal m32() const { return m[14]; }
-	KReal m33() const { return m[15]; }
+	KReal m30() const { 
+		if constexpr (ROW_MAJOR)
+			return at(12); 
+		else
+			return at(3);
+	}
+	KReal m31() const { 
+		if constexpr (ROW_MAJOR)
+			return at(13);
+		else
+			return at(7);
+	}
+	KReal m32() const { 
+		if constexpr (ROW_MAJOR)
+			return at(14); 
+		else
+			return at(11);
+	}
+	KReal m33() const { return at(15); }
 
 
-	KReal& m00() { return m[0]; }
-	KReal& m01() { return m[1]; }
-	KReal& m02() { return m[2]; }
-	KReal& m03() { return m[3]; }
+	KReal& m00() const { return at(0); }
+	KReal& m01() const {
+		if constexpr (ROW_MAJOR)
+			return at(1);
+		else
+			return at(4)
+	}
+	KReal& m02() const {
+		if constexpr (ROW_MAJOR)
+			return at(2);
+		else
+			return at(8);
+	}
+	KReal& m03() const {
+		if constexpr (ROW_MAJOR)
+			return at(3);
+		else
+			return at(12);
+	}
 
-	KReal& m10() { return m[4]; }
-	KReal& m11() { return m[5]; }
-	KReal& m12() { return m[6]; }
-	KReal& m13() { return m[7]; }
+	KReal& m10() const {
+		if constexpr (ROW_MAJOR)
+			return at(4);
+		else
+			return at(1);
+	}
+	KReal& m11() const { return at(5); }
+	KReal& m12() const {
+		if constexpr (ROW_MAJOR)
+			return at(6);
+		else
+			return at(9);
+	}
+	KReal& m13() const {
+		if constexpr (ROW_MAJOR)
+			return at(7);
+		else
+			return at(13);
+	}
 
-	KReal& m20() { return m[8]; }
-	KReal& m21() { return m[9]; }
-	KReal& m22() { return m[10]; }
-	KReal& m23() { return m[11]; }
+	KReal& m20() const {
+		if constexpr (ROW_MAJOR)
+			return at(8);
+		else
+			return at(2);
+	}
+	KReal m21() const {
+		if constexpr (ROW_MAJOR)
+			return at(9);
+		else
+			return at(6);
+	}
+	KReal& m22() const { return at(10); }
+	KReal& m23() const {
+		if constexpr (ROW_MAJOR)
+			return at(11);
+		else
+			return at(14);
+	}
 
-	KReal& m30() { return m[12]; }
-	KReal& m31() { return m[13]; }
-	KReal& m32() { return m[14]; }
-	KReal& m33() { return m[15]; }
-#endif
-
-	static const KtMatrix4 ZERO;
-	static const KtMatrix4 IDENTITY;
-
-private:
-	// 数据成员
-	KReal m[16];
+	KReal& m30() const {
+		if constexpr (ROW_MAJOR)
+			return at(12);
+		else
+			return at(3);
+	}
+	KReal& m31() const {
+		if constexpr (ROW_MAJOR)
+			return at(13);
+		else
+			return at(7);
+	}
+	KReal& m32() const {
+		if constexpr (ROW_MAJOR)
+			return at(14);
+		else
+			return at(11);
+	}
+	KReal& m33() const { return at(15); }
 };
 
 
-
 template<class KReal>
-void KtMatrix4<KReal>::MakeTransform(const KtVector3<KReal>& kvPos, const KtVector3<KReal>& kvScale,
-	const KtQuaternion<KReal>& kvOrientation)
+KtMatrix4<KReal> KtMatrix4<KReal>::operator*(const mat4& rhs) const
 {
-	// Ordering:
-	//    1. Scale
-	//    2. Rotate
-	//    3. Translate
+	return {
+	    m00() * rhs.m00() + m01() * rhs.m10() + m02() * rhs.m20() + m03() * rhs.m30(),
+	    m00() * rhs.m01() + m01() * rhs.m11() + m02() * rhs.m21() + m03() * rhs.m31(),
+	    m00() * rhs.m02() + m01() * rhs.m12() + m02() * rhs.m22() + m03() * rhs.m32(),
+	    m00() * rhs.m03() + m01() * rhs.m13() + m02() * rhs.m23() + m03() * rhs.m33(),
 
-	KtMatrix3<KReal> ktRot3x3;
-	kvOrientation.ToRotationMatrix(ktRot3x3);
+	    m10() * rhs.m00() + m11() * rhs.m10() + m12() * rhs.m20() + m13() * rhs.m30(),
+	    m10() * rhs.m01() + m11() * rhs.m11() + m12() * rhs.m21() + m13() * rhs.m31(),
+	    m10() * rhs.m02() + m11() * rhs.m12() + m12() * rhs.m22() + m13() * rhs.m32(),
+	    m10() * rhs.m03() + m11() * rhs.m13() + m12() * rhs.m23() + m13() * rhs.m33(),
 
-	// Set up final matrix with scale, rotation and translation
-	m00() = kvScale.x * ktRot3x3.m00(); m01() = kvScale.y * ktRot3x3.m01(); m02() = kvScale.z * ktRot3x3.m02(); m03() = kvPos.x;
-	m10() = kvScale.x * ktRot3x3.m10(); m11() = kvScale.y * ktRot3x3.m11(); m12() = kvScale.z * ktRot3x3.m12(); m13() = kvPos.y;
-	m20() = kvScale.x * ktRot3x3.m20(); m21() = kvScale.y * ktRot3x3.m21(); m22() = kvScale.z * ktRot3x3.m22(); m23() = kvPos.z;
+	    m20() * rhs.m00() + m21() * rhs.m10() + m22() * rhs.m20() + m23() * rhs.m30(),
+	    m20() * rhs.m01() + m21() * rhs.m11() + m22() * rhs.m21() + m23() * rhs.m31(),
+	    m20() * rhs.m02() + m21() * rhs.m12() + m22() * rhs.m22() + m23() * rhs.m32(),
+	    m20() * rhs.m03() + m21() * rhs.m13() + m22() * rhs.m23() + m23() * rhs.m33(),
 
-	// No projection term
-	m30() = 0; m31() = 0; m32() = 0; m33() = 1;
+	    m30() * rhs.m00() + m31() * rhs.m10() + m32() * rhs.m20() + m33() * rhs.m30(),
+	    m30() * rhs.m01() + m31() * rhs.m11() + m32() * rhs.m21() + m33() * rhs.m31(),
+	    m30() * rhs.m02() + m31() * rhs.m12() + m32() * rhs.m22() + m33() * rhs.m32(),
+	    m30() * rhs.m03() + m31() * rhs.m13() + m32() * rhs.m23() + m33() * rhs.m33()
+	};
 }
 
 template<class KReal>
-bool KtMatrix4<KReal>::operator==(const KtMatrix4<KReal>& rhs) const
+KtVector4<KReal> KtMatrix4<KReal>::operator*(const vec4& v) const
 {
-	return m00() == rhs.m00() && m01() == rhs.m01() && m02() == rhs.m02() && m03() == rhs.m03() &&
-		m10() == rhs.m10() && m11() == rhs.m11() && m12() == rhs.m12() && m13() == rhs.m13() &&
-		m20() == rhs.m20() && m21() == rhs.m21() && m22() == rhs.m22() && m23() == rhs.m23() &&
-		m30() == rhs.m30() && m31() == rhs.m31() && m32() == rhs.m32() && m33() == rhs.m33();
+	return {
+	    m00() * v.x() + m01() * v.y() + m02() * v.z() + m03() * v.w(),
+	    m10() * v.x() + m11() * v.y() + m12() * v.z() + m13() * v.w(),
+	    m20() * v.x() + m21() * v.y() + m22() * v.z() + m23() * v.w(),
+	    m30() * v.x() + m31() * v.y() + m32() * v.z() + m33() * v.w()
+	};
 }
 
 template<class KReal>
-bool KtMatrix4<KReal>::IsApproxEqual(const KtMatrix4<KReal>& rhs) const
+KtVector4<KReal> KtMatrix4<KReal>::operator*(const vec3& v) const
 {
-	for (int i = 0; i < 16; i++)
-	{
-		if (!KtuMath<KReal>::ApproxEqual(m[i], rhs[i]))
-			return false;
-	}
-
-	return true;
+	return {
+	    m00() * v.x() + m01() * v.y() + m02() * v.z() + m03(),
+	    m10() * v.x() + m11() * v.y() + m12() * v.z() + m13(),
+	    m20() * v.x() + m21() * v.y() + m22() * v.z() + m23(),
+	    m30() * v.x() + m31() * v.y() + m32() * v.z() + m33()
+	};
 }
 
 template<class KReal>
-KtMatrix4<KReal>& KtMatrix4<KReal>::operator=(const KtMatrix3<KReal>& rhs)
-{
-	m00() = rhs.m00();	m01() = rhs.m01();	m02() = rhs.m02();
-	m10() = rhs.m10();	m11() = rhs.m11();	m12() = rhs.m12();
-	m20() = rhs.m20();	m21() = rhs.m21();	m22() = rhs.m22();
-
-	return *this;
-}
-
-template<class KReal>
-KtMatrix4<KReal> KtMatrix4<KReal>::operator*(const KtMatrix4<KReal>& rhs) const
-{
-	KtMatrix4<KReal> r;
-	r.m00() = m00() * rhs.m00() + m01() * rhs.m10() + m02() * rhs.m20() + m03() * rhs.m30();
-	r.m01() = m00() * rhs.m01() + m01() * rhs.m11() + m02() * rhs.m21() + m03() * rhs.m31();
-	r.m02() = m00() * rhs.m02() + m01() * rhs.m12() + m02() * rhs.m22() + m03() * rhs.m32();
-	r.m03() = m00() * rhs.m03() + m01() * rhs.m13() + m02() * rhs.m23() + m03() * rhs.m33();
-
-	r.m10() = m10() * rhs.m00() + m11() * rhs.m10() + m12() * rhs.m20() + m13() * rhs.m30();
-	r.m11() = m10() * rhs.m01() + m11() * rhs.m11() + m12() * rhs.m21() + m13() * rhs.m31();
-	r.m12() = m10() * rhs.m02() + m11() * rhs.m12() + m12() * rhs.m22() + m13() * rhs.m32();
-	r.m13() = m10() * rhs.m03() + m11() * rhs.m13() + m12() * rhs.m23() + m13() * rhs.m33();
-
-	r.m20() = m20() * rhs.m00() + m21() * rhs.m10() + m22() * rhs.m20() + m23() * rhs.m30();
-	r.m21() = m20() * rhs.m01() + m21() * rhs.m11() + m22() * rhs.m21() + m23() * rhs.m31();
-	r.m22() = m20() * rhs.m02() + m21() * rhs.m12() + m22() * rhs.m22() + m23() * rhs.m32();
-	r.m23() = m20() * rhs.m03() + m21() * rhs.m13() + m22() * rhs.m23() + m23() * rhs.m33();
-
-	r.m30() = m30() * rhs.m00() + m31() * rhs.m10() + m32() * rhs.m20() + m33() * rhs.m30();
-	r.m31() = m30() * rhs.m01() + m31() * rhs.m11() + m32() * rhs.m21() + m33() * rhs.m31();
-	r.m32() = m30() * rhs.m02() + m31() * rhs.m12() + m32() * rhs.m22() + m33() * rhs.m32();
-	r.m33() = m30() * rhs.m03() + m31() * rhs.m13() + m32() * rhs.m23() + m33() * rhs.m33();
-
-	return r;
-}
-
-template<class KReal>
-KtVector4<KReal> KtMatrix4<KReal>::operator*(const KtVector4<KReal>& v) const
-{
-	KtVector4<KReal> r;
-	r.x = m00() * v.x + m01() * v.y + m02() * v.z + m03() * v.w;
-	r.y = m10() * v.x + m11() * v.y + m12() * v.z + m13() * v.w;
-	r.z = m20() * v.x + m21() * v.y + m22() * v.z + m23() * v.w;
-	r.w = m30() * v.x + m31() * v.y + m32() * v.z + m33() * v.w;
-
-	return r;
-}
-
-template<class KReal>
-KtVector4<KReal> KtMatrix4<KReal>::operator*(const KtVector3<KReal>& v) const
-{
-	KtVector4<KReal> r;
-	r.x = m00() * v.x + m01() * v.y + m02() * v.z + m03();
-	r.y = m10() * v.x + m11() * v.y + m12() * v.z + m13();
-	r.z = m20() * v.x + m21() * v.y + m22() * v.z + m23();
-	r.w = m30() * v.x + m31() * v.y + m32() * v.z + m33();
-
-	return r;
-}
-
-#if 0
-// performs 4x4-matrix inversion with Cramer's Rule
-template<class KReal>
-void KtMatrix4<KReal>::Inverse0(const KtMatrix4<KReal>& mat)
-{
-	KReal tmp[12]; /* temp array for pairs */
-	KReal src[16]; /* array of transpose source matrix */
-	KReal det; /* determinant */
-	/* transpose matrix */
-	for (int i = 0; i < 4; i++) {
-		src[i] = mat[i * 4];
-		src[i + 4] = mat[i * 4 + 1];
-		src[i + 8] = mat[i * 4 + 2];
-		src[i + 12] = mat[i * 4 + 3];
-	}
-	/* calculate pairs for first 8 elements (cofactors) */
-	tmp[0] = src[10] * src[15];
-	tmp[1] = src[11] * src[14];
-	tmp[2] = src[9] * src[15];
-	tmp[3] = src[11] * src[13];
-	tmp[4] = src[9] * src[14];
-	tmp[5] = src[10] * src[13];
-	tmp[6] = src[8] * src[15];
-	tmp[7] = src[11] * src[12];
-	tmp[8] = src[8] * src[14];
-	tmp[9] = src[10] * src[12];
-	tmp[10] = src[8] * src[13];
-	tmp[11] = src[9] * src[12];
-	/* calculate first 8 elements (cofactors) */
-	m[0] = tmp[0] * src[5] + tmp[3] * src[6] + tmp[4] * src[7];
-	m[0] -= tmp[1] * src[5] + tmp[2] * src[6] + tmp[5] * src[7];
-	m[1] = tmp[1] * src[4] + tmp[6] * src[6] + tmp[9] * src[7];
-	m[1] -= tmp[0] * src[4] + tmp[7] * src[6] + tmp[8] * src[7];
-	m[2] = tmp[2] * src[4] + tmp[7] * src[5] + tmp[10] * src[7];
-	m[2] -= tmp[3] * src[4] + tmp[6] * src[5] + tmp[11] * src[7];
-	m[3] = tmp[5] * src[4] + tmp[8] * src[5] + tmp[11] * src[6];
-	m[3] -= tmp[4] * src[4] + tmp[9] * src[5] + tmp[10] * src[6];
-	m[4] = tmp[1] * src[1] + tmp[2] * src[2] + tmp[5] * src[3];
-	m[4] -= tmp[0] * src[1] + tmp[3] * src[2] + tmp[4] * src[3];
-	m[5] = tmp[0] * src[0] + tmp[7] * src[2] + tmp[8] * src[3];
-	m[5] -= tmp[1] * src[0] + tmp[6] * src[2] + tmp[9] * src[3];
-	m[6] = tmp[3] * src[0] + tmp[6] * src[1] + tmp[11] * src[3];
-	m[6] -= tmp[2] * src[0] + tmp[7] * src[1] + tmp[10] * src[3];
-	m[7] = tmp[4] * src[0] + tmp[9] * src[1] + tmp[10] * src[2];
-	m[7] -= tmp[5] * src[0] + tmp[8] * src[1] + tmp[11] * src[2];
-	/* calculate pairs for second 8 elements (cofactors) */
-	tmp[0] = src[2] * src[7];
-	tmp[1] = src[3] * src[6];
-	tmp[2] = src[1] * src[7];
-	tmp[3] = src[3] * src[5];
-	tmp[4] = src[1] * src[6];
-	tmp[5] = src[2] * src[5];
-
-	tmp[6] = src[0] * src[7];
-	tmp[7] = src[3] * src[4];
-	tmp[8] = src[0] * src[6];
-	tmp[9] = src[2] * src[4];
-	tmp[10] = src[0] * src[5];
-	tmp[11] = src[1] * src[4];
-	/* calculate second 8 elements (cofactors) */
-	m[8] = tmp[0] * src[13] + tmp[3] * src[14] + tmp[4] * src[15];
-	m[8] -= tmp[1] * src[13] + tmp[2] * src[14] + tmp[5] * src[15];
-	m[9] = tmp[1] * src[12] + tmp[6] * src[14] + tmp[9] * src[15];
-	m[9] -= tmp[0] * src[12] + tmp[7] * src[14] + tmp[8] * src[15];
-	m[10] = tmp[2] * src[12] + tmp[7] * src[13] + tmp[10] * src[15];
-	m[10] -= tmp[3] * src[12] + tmp[6] * src[13] + tmp[11] * src[15];
-	m[11] = tmp[5] * src[12] + tmp[8] * src[13] + tmp[11] * src[14];
-	m[11] -= tmp[4] * src[12] + tmp[9] * src[13] + tmp[10] * src[14];
-	m[12] = tmp[2] * src[10] + tmp[5] * src[11] + tmp[1] * src[9];
-	m[12] -= tmp[4] * src[11] + tmp[0] * src[9] + tmp[3] * src[10];
-	m[13] = tmp[8] * src[11] + tmp[0] * src[8] + tmp[7] * src[10];
-	m[13] -= tmp[6] * src[10] + tmp[9] * src[11] + tmp[1] * src[8];
-	m[14] = tmp[6] * src[9] + tmp[11] * src[11] + tmp[3] * src[8];
-	m[14] -= tmp[10] * src[11] + tmp[2] * src[8] + tmp[7] * src[9];
-	m[15] = tmp[10] * src[10] + tmp[4] * src[8] + tmp[9] * src[9];
-	m[15] -= tmp[8] * src[9] + tmp[11] * src[10] + tmp[5] * src[8];
-	/* calculate determinant */
-	det = src[0] * m[0] + src[1] * m[1] + src[2] * m[2] + src[3] * m[3];
-	/* calculate matrix inverse */
-	det = 1 / det;
-	for (int j = 0; j < 16; j++)
-		m[j] *= det;
-}
-#endif
-
-template<class KReal>
-KtMatrix4<KReal> KtMatrix4<KReal>::GetInverse() const
-{
-	KtMatrix4<KReal> inverseMat;
-	inverseMat.SetInverseOf(*this);
-	return inverseMat;
-}
-
-template<class KReal>
-KtMatrix4<KReal>& KtMatrix4<KReal>::Inverse()
-{
-	return *this = GetInverse();
-}
-
-// OGRE版本，比Inverse0要快很多，至少是几十倍
-template<class KReal>
-KtMatrix4<KReal>& KtMatrix4<KReal>::SetInverseOf(const KtMatrix4<KReal>& mat)
+KtMatrix4<KReal> KtMatrix4<KReal>::inverse() const
 {
 	KReal _00 = mat.m00(), _01 = mat.m01(), _02 = mat.m02(), _03 = mat.m03();
 	KReal _10 = mat.m10(), _11 = mat.m11(), _12 = mat.m12(), _13 = mat.m13();
@@ -505,6 +449,20 @@ KtMatrix4<KReal>& KtMatrix4<KReal>::SetInverseOf(const KtMatrix4<KReal>& mat)
 
 	KReal invDet = 1 / (t00 * _00 + t10 * _01 + t20 * _02 + t30 * _03);
 
+	u0 = _10 * _31 - _11 * _30;
+	u1 = _10 * _32 - _12 * _30;
+	u2 = _10 * _33 - _13 * _30;
+	u3 = _11 * _32 - _12 * _31;
+	u4 = _11 * _33 - _13 * _31;
+	u5 = _12 * _33 - _13 * _32;
+
+	w0 = _21 * _10 - _20 * _11;
+	w1 = _22 * _10 - _20 * _12;
+	w2 = _23 * _10 - _20 * _13;
+	w3 = _22 * _11 - _21 * _12;
+	w4 = _23 * _11 - _21 * _13;
+	w5 = _23 * _12 - _22 * _13;
+
 	m00() = t00 * invDet;
 	m10() = t10 * invDet;
 	m20() = t20 * invDet;
@@ -515,29 +473,19 @@ KtMatrix4<KReal>& KtMatrix4<KReal>::SetInverseOf(const KtMatrix4<KReal>& mat)
 	m21() = -(v4 * _00 - v2 * _01 + v0 * _03) * invDet;
 	m31() = +(v3 * _00 - v1 * _01 + v0 * _02) * invDet;
 
-	v0 = _10 * _31 - _11 * _30;
-	v1 = _10 * _32 - _12 * _30;
-	v2 = _10 * _33 - _13 * _30;
-	v3 = _11 * _32 - _12 * _31;
-	v4 = _11 * _33 - _13 * _31;
-	v5 = _12 * _33 - _13 * _32;
 
-	m02() = +(v5 * _01 - v4 * _02 + v3 * _03) * invDet;
-	m12() = -(v5 * _00 - v2 * _02 + v1 * _03) * invDet;
-	m22() = +(v4 * _00 - v2 * _01 + v0 * _03) * invDet;
-	m32() = -(v3 * _00 - v1 * _01 + v0 * _02) * invDet;
 
-	v0 = _21 * _10 - _20 * _11;
-	v1 = _22 * _10 - _20 * _12;
-	v2 = _23 * _10 - _20 * _13;
-	v3 = _22 * _11 - _21 * _12;
-	v4 = _23 * _11 - _21 * _13;
-	v5 = _23 * _12 - _22 * _13;
+	m02() = +(u5 * _01 - u4 * _02 + u3 * _03) * invDet;
+	m12() = -(u5 * _00 - u2 * _02 + u1 * _03) * invDet;
+	m22() = +(u4 * _00 - u2 * _01 + u0 * _03) * invDet;
+	m32() = -(u3 * _00 - u1 * _01 + u0 * _02) * invDet;
 
-	m03() = -(v5 * _01 - v4 * _02 + v3 * _03) * invDet;
-	m13() = +(v5 * _00 - v2 * _02 + v1 * _03) * invDet;
-	m23() = -(v4 * _00 - v2 * _01 + v0 * _03) * invDet;
-	m33() = +(v3 * _00 - v1 * _01 + v0 * _02) * invDet;
+
+
+	m03() = -(w5 * _01 - w4 * _02 + w3 * _03) * invDet;
+	m13() = +(w5 * _00 - w2 * _02 + w1 * _03) * invDet;
+	m23() = -(w4 * _00 - w2 * _01 + w0 * _03) * invDet;
+	m33() = +(w3 * _00 - w1 * _01 + w0 * _02) * invDet;
 
 	return *this;
 }
