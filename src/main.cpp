@@ -1,29 +1,72 @@
-﻿#include "gui/QtMainFrame.h"
-#include <QApplication>
-#include <QStyleFactory>
-#include <QStyle>
-#include "kddockwidgets/Config.h"
-#include "QtAppEventHub.h"
-#include "QtnProperty/Delegates/PropertyDelegate.h"
+﻿#include "imapp/KsImApp.h"
+#include "imgui.h"
+#include "imapp/KcImNodeEditor.h"
+#include "imapp/KcImActionPanel.h"
+#include "imapp/KcActionNewTextData.h"
+#include "imapp/KgImWindowManager.h"
+#include "imapp/KcModuleImGuiGlfw.h"
+#include "imapp/KcModuleImNode.h"
+#include "imapp/KcModuleImFileDialog.h"
 
 
-int main(int argc, char *argv[])
+bool update()
 {
-    QtnPropertyDelegate::setBranchIndicatorStyle(QtnPropertyDelegate::QtnBranchIndicatorStyleNative);
+    // show menu bar of main window
+    if (ImGui::BeginMainMenuBar()) {
+        //if (ImGui::BeginMenu("View")) {
+        //    ImGui::ShowStyleSelector("Style");
+        //    ImGui::EndMenu();
+        //}
 
-    QApplication app(argc, argv);
-    app.setStyle(QStyleFactory::create(QStringLiteral("fusion")));
-    //app.setStyle(new DarkStyle);
-    //KDDockWidgets::Config::self().setFlags(KDDockWidgets::Config::Flag_AutoHideSupport);
-    KDDockWidgets::Config::self().setSeparatorThickness(3);
+        KsImApp::singleton().windowManager().showMenu("View");
+        ImGui::EndMainMenuBar();
+    }
 
-    auto mainWindow = new QtMainFrame;
-    mainWindow->setWindowTitle(u8"DataVis");
-    mainWindow->setWindowIcon(app.style()->standardIcon(QStyle::SP_DesktopIcon));
-    mainWindow->showMaximized();
+    KsImApp::singleton().windowManager().update();
 
-    app.connect(&app, &QApplication::aboutToQuit, kAppEventHub, &singletonAppEventHub::destroy);
-
-    app.activeWindow();
-    return app.exec();
+    return true;
 }
+
+
+int main_(int, char**)
+{
+    auto& app = KsImApp::singleton();
+    
+    auto imnode = app.registerModule<KcModuleImNode>();
+    auto imfiledialog = app.registerModule<KcModuleImFileDialog>();
+    auto imgui = app.registerModule<KcModuleImGuiGlfw>(1024, 768, "DataVis");
+    app.setDependent(imnode, imgui);
+    app.setDependent(imfiledialog, imgui);
+
+    if (!app.initialize())
+        return 1;
+
+    auto editor = app.windowManager().registerStatic<KcImNodeEditor>("Node Editor");
+    auto panel = app.windowManager().registerStatic<KcImActionPanel>("Action Panel");
+    panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
+
+    app.listenPerFrame(update);
+    app.run();
+
+    app.deinitialize();
+    
+    return 0;
+}
+
+#ifdef _WIN32
+
+#include <Windows.h>
+
+int APIENTRY WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hInstPrev, _In_ PSTR cmdline, _In_ int cmdshow)
+{
+    return main_(__argc, __argv);
+}
+
+#else
+
+int main(int argc, char** argv)
+{
+    return main_(argc, argv);
+}
+
+#endif // WIN32_

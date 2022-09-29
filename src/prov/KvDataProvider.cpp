@@ -1,6 +1,6 @@
 ﻿#include "KvDataProvider.h"
 
-
+/*
 KvDataProvider::kPropertySet KvDataProvider::propertySet() const
 {
 	kPropertySet ps;
@@ -63,3 +63,4 @@ KvDataProvider::kPropertySet KvDataProvider::propertySet() const
 
 	return ps;
 }
+*/

@@ -17,7 +17,6 @@ public:
     static constexpr KREAL golden_section = static_cast<KREAL>(0.6180339887498948482045868343656381177203L); // sqrt(5)/2-0.5
     static constexpr KREAL nan = std::numeric_limits<KREAL>::quiet_NaN();
     static constexpr KREAL inf = std::numeric_limits<KREAL>::infinity();
-    static constexpr KREAL neginf = -inf;
     static constexpr KREAL eps = std::numeric_limits<KREAL>::epsilon();
 
 
@@ -96,6 +95,12 @@ public:
     }
 
 
+    // 返回最大的整数x，以使得pow(10, x) <= val
+    // @val: 必须大于0
+    static int mantissa(KREAL val) {
+        return static_cast<int>(std::floor(std::log10(val)));
+    }
+
     // x = log(a), y = log(b)
     // return log(a+b)
     static KREAL addLog(KREAL x, KREAL y);
@@ -148,7 +153,9 @@ public:
     static void zeros(KREAL x[], unsigned n) { assign(x, n, 0); }
     static void ones(KREAL x[], unsigned n) { assign(x, n, 1); }
 
-    static KREAL lerp(KREAL xmin, KREAL xmax, KREAL x/*[0, 1]*/) { return xmin + x*(xmax-xmin); } // 线性插值
+    static KREAL lerp(KREAL xmin, KREAL xmax, double x/*[0, 1]*/) { 
+        return xmin + (xmax-xmin) * x; } // 线性插值
+
     static KREAL quantile(const KREAL x[], unsigned n, KREAL factor);
 
     static KREAL sum(const KREAL x[], unsigned n); // 各元素之和
@@ -180,12 +187,17 @@ public:
     static KREAL nonZeroMean(const KREAL x[], unsigned n);
 
     static void scale(KREAL x[], unsigned n, KREAL alpha); // x[i] *= alpha
+    static void scale(const KREAL x[], KREAL y[], unsigned n, KREAL alpha); // y[i] = x[i] * alpha
     static void shift(KREAL x[], unsigned n, KREAL scalar); // x[i] += scalar
+    static void shift(const KREAL x[], KREAL y[], unsigned n, KREAL alpha); // y[i] = x[i] + alpha
     static void subMean(KREAL x[], unsigned n); // x[i] -= mean
+    static void recip(KREAL x[], unsigned n); // 倒数: x[i] = 1 / x[i]
+    static void recip(const KREAL x[], KREAL r[], unsigned n); // 倒数: r[i] = 1 / x[i]
 
     static void add(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] + y[i]
     static void sub(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] - y[i]
     static void mul(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] * y[i]
+    static void div(const KREAL x[], const KREAL y[], KREAL r[], unsigned n); // r[i] = x[i] / y[i]
 
     static KREAL dot(const KREAL x[], const KREAL y[], unsigned n); // Sum(x[i]*y[i])
 
@@ -232,6 +244,12 @@ public:
     // 对x进行缩放，确保absMax(x) = val
     static void scaleTo(KREAL x[], unsigned n, KREAL val);
 
+    // x[i] *= i/(n-1)
+    static void fadeIn(KREAL x[], unsigned n);
+
+    // x[i] *= (n-i-1)/(n-1)
+    static void fadeOut(KREAL x[], unsigned n);
+
     ////////////////////////////////////////////////////////////////////////
 
     // computes the entropy of a possibly unnormalized distribution
@@ -269,6 +287,9 @@ public:
     static unsigned argRand(const KREAL x[], unsigned n); // 返回累加和大于随机值的索引[-1, dim)
     static std::pair<unsigned, unsigned> argMixMax(const KREAL x[], unsigned n);
 
+    // 返回x中与val最接近的值
+    // 要求x已排序
+    static KREAL pickNearest(KREAL val, const KREAL x[], unsigned n);
 
     // x[i] = op(x[i])
     template<typename UNARY_OP>
@@ -316,21 +337,26 @@ template<class KREAL>
 bool KtuMath<KREAL>::almostEqualRel(KREAL x1, KREAL x2, KREAL rel_tol)
 {
     // a==b handles infinities.
-    if(x1 == x2) return true;
-    if (x1 == 0 || x2 == 0) return almostEqual(x1, x2, rel_tol); // TODO: 
+    if(x1 == x2) 
+        return true;
+
+    if (almostEqual(x1, 0) || almostEqual(x2, 0)) 
+        return almostEqual(x1, x2); // TODO: 
+
     double diff = std::abs(x1 - x2);
     if(isUndefined(diff))
         return false;
+
     return diff <= rel_tol*(std::abs(x1) + std::abs(x2));
 }
 
 template<class KREAL>
 KREAL KtuMath<KREAL>::addLog(KREAL x, KREAL y)
 {
-    if (x == neginf) {
+    if (x == -inf) {
         return y;
     }
-    else if (y == neginf) {
+    else if (y == -inf) {
         return x;
     }
     else if (x > y) {
@@ -348,9 +374,9 @@ KREAL KtuMath<KREAL>::subLog(KREAL x, KREAL y)
         return nan;
 
     else if (x == y) // log(0)
-        return neginf;
+        return -inf;
 
-    else if (y == neginf) // log(x-0) = log(x) = x
+    else if (y == -inf) // log(x-0) = log(x) = x
         return x;
 
     else
@@ -473,6 +499,11 @@ void KtuMath<KREAL>::scale(KREAL x[], unsigned n, KREAL alpha)
     forEach(x, n, [alpha](KREAL x) { return x * alpha; });
 }
 
+template<typename KREAL>
+void KtuMath<KREAL>::scale(const KREAL x[], KREAL y[], unsigned n, KREAL alpha)
+{
+    forEach(x, y, n, [alpha](KREAL x) { return x * alpha; });
+}
 
 template<typename KREAL>
 void KtuMath<KREAL>::shift(KREAL x[], unsigned n, KREAL dc)
@@ -480,6 +511,11 @@ void KtuMath<KREAL>::shift(KREAL x[], unsigned n, KREAL dc)
     forEach(x, n, [dc](KREAL x) { return x + dc; });
 }
 
+template<typename KREAL>
+void KtuMath<KREAL>::shift(const KREAL x[], KREAL y[], unsigned n, KREAL dc)
+{
+    forEach(x, y, n, [dc](KREAL x) { return x + dc; });
+}
 
 template<class KREAL>
 KREAL KtuMath<KREAL>::sum(const KREAL x[], unsigned n)
@@ -622,51 +658,49 @@ KREAL KtuMath<KREAL>::dot(const KREAL x[], const KREAL y[], unsigned n)
 }
 
 template<class KREAL>
-void KtuMath<KREAL>::add(const KREAL x[], const KREAL y[], KREAL z[], unsigned n)
-{
-    unsigned i = 0;
-    for (; i + 4 <= n; i += 4) {
-        z[i] = x[i] + y[i];
-        z[i + 1] = x[i + 1] + y[i + 1];
-        z[i + 2] = x[i + 2] + y[i + 2];
-        z[i + 3] = x[i + 3] + y[i + 3];
-    }
-    for (; i < n; i++)
-        z[i] = x[i] + y[i];
-}
-
-template<class KREAL>
-void KtuMath<KREAL>::sub(const KREAL x[], const KREAL y[], KREAL z[], unsigned n)
-{
-    unsigned i = 0;
-    for (; i + 4 <= n; i += 4) {
-        z[i] = x[i] - y[i];
-        z[i + 1] = x[i + 1] - y[i + 1];
-        z[i + 2] = x[i + 2] - y[i + 2];
-        z[i + 3] = x[i + 3] - y[i + 3];
-    }
-    for (; i < n; i++)
-        z[i] = x[i] - y[i];
-}
-
-template<class KREAL>
 void KtuMath<KREAL>::subMean(KREAL x[], unsigned n)
 {
     shift(x, n, -mean(x, n));
 }
 
 template<class KREAL>
-void KtuMath<KREAL>::mul(const KREAL x[], const KREAL y[], KREAL z[], unsigned n)
+void KtuMath<KREAL>::recip(KREAL x[], unsigned n)
 {
-    unsigned i = 0;
-    for(; i + 4 <= n; i += 4) {
-        z[i] = x[i] * y[i];
-        z[i+1] = x[i+1] * y[i+1];
-        z[i+2] = x[i+2] * y[i+2];
-        z[i+3] = x[i+3] * y[i+3];
-    }
-    for(; i < n; i++)
-        z[i] = x[i] * y[i];
+    forEach(x, n, [](KREAL x) { return 1 / x; });
+}
+
+
+template<class KREAL>
+void KtuMath<KREAL>::recip(const KREAL x[], KREAL r[], unsigned n)
+{
+    forEach(x, r, n, [](KREAL x) { return 1 / x; });
+}
+
+template<class KREAL>
+void KtuMath<KREAL>::add(const KREAL x[], const KREAL y[], KREAL r[], unsigned n)
+{
+    forEach(x, y, r, n, [](KREAL x, KREAL y) { return x + y; });
+}
+
+
+template<class KREAL>
+void KtuMath<KREAL>::sub(const KREAL x[], const KREAL y[], KREAL r[], unsigned n)
+{
+    forEach(x, y, r, n, [](KREAL x, KREAL y) { return x - y; });
+}
+
+
+template<class KREAL>
+void KtuMath<KREAL>::mul(const KREAL x[], const KREAL y[], KREAL r[], unsigned n)
+{
+    forEach(x, y, r, n, [](KREAL x, KREAL y) { return x * y; });
+}
+
+
+template<class KREAL>
+void KtuMath<KREAL>::div(const KREAL x[], const KREAL y[], KREAL r[], unsigned n)
+{
+    forEach(x, y, r, n, [](KREAL x, KREAL y) { return x / y; });
 }
 
 
@@ -927,4 +961,35 @@ void KtuMath<KREAL>::linspace(KREAL left, KREAL right, KREAL x0ref, KREAL* out, 
 
     for (unsigned i = 0; i < olen; i++)
         out[i] = left + (x0ref + i) * dx;
+}
+
+
+template<typename KREAL>
+void KtuMath<KREAL>::fadeIn(KREAL x[], unsigned n)
+{
+    for (unsigned i = 0; i < n; i++)
+        x[i] *= KREAL(i) / KREAL(n - 1);
+}
+
+
+template<typename KREAL>
+void KtuMath<KREAL>::fadeOut(KREAL x[], unsigned n)
+{
+    for (unsigned i = 0; i < n; i++)
+        x[i] *= KREAL(n - i - 1) / KREAL(n - 1);
+}
+
+template<typename KREAL>
+KREAL KtuMath<KREAL>::pickNearest(KREAL val, const KREAL x[], unsigned n)
+{
+    if (n < 2) return val;
+   
+    auto iter = std::lower_bound(x, x + n, val);
+
+    if (iter == x + n)
+        return *(iter - 1);
+    else if (iter == x)
+        return *iter;
+    else
+        return (val - *(iter - 1)) < (*iter - val) ? *(iter - 1) : *iter;
 }

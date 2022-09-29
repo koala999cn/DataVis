@@ -52,6 +52,7 @@ signals:
 
 	void pipelineStopped(KvPropertiedObject* root);
 
+	void isFloatingChanged(KvPropertiedObject* obj, bool floating);
 
 private:
 	QtAppEventHub() {}

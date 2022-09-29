@@ -38,7 +38,7 @@ QtWorkspaceWidget::QtWorkspaceWidget(QWidget* parent)
 
 QtWorkspaceWidget::~QtWorkspaceWidget()
 {
-	deleteItem_(root_);
+	deleteItem_(root_); // TODO: 有一次退出的时候，在deleteItem_内部crack
 }
 
 
