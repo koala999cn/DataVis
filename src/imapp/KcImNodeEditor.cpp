@@ -22,25 +22,43 @@ void KcImNodeEditor::updateImpl_()
 
         ImNodes::BeginNode(node->id());
 
+        float titleWidth = ImGui::CalcTextSize(node->name().c_str()).x;
+
         ImNodes::BeginNodeTitleBar();
         const char* text = node->name().c_str();
         ImGui::TextUnformatted(text, text + node->name().size());
         ImNodes::EndNodeTitleBar();
 
+        float maxInputWidth(0);
+
         auto w = node2Index_(node); // 端口节点的index必然与bolck节点连续
         for (unsigned i = 0; i < node->inPorts(); i++) {
             auto& port = graph_.vertexAt(++w);
+
+            auto thisWidth = ImGui::CalcTextSize(port->name().c_str()).x;
+            if (thisWidth > maxInputWidth)
+                maxInputWidth = thisWidth;
+
             ImNodes::BeginInputAttribute(port->id());
             ImGui::Text(port->name().c_str());
             ImNodes::EndInputAttribute();
         }
 
-        ImGui::Spacing();
+        if (node->inPorts() > 0)
+            ImGui::Spacing();
 
+        
         for (unsigned i = 0; i < node->outPorts(); i++) {
             auto& port = graph_.vertexAt(++w);
             ImNodes::BeginOutputAttribute(port->id());
-            ImGui::Indent(40); // TODO:
+
+            auto thisWidth = ImGui::CalcTextSize(port->name().c_str()).x;
+
+            if (thisWidth < titleWidth)
+                ImGui::Indent(titleWidth - thisWidth);
+            else
+                ImGui::Indent(maxInputWidth + 2);
+            
             ImGui::Text(port->name().c_str());
             ImNodes::EndOutputAttribute();
         }

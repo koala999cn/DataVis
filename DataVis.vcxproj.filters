@@ -208,6 +208,9 @@
     <ClCompile Include="src\prov\KvDataProvider.cpp">
       <Filter>prov</Filter>
     </ClCompile>
+    <ClCompile Include="src\prov\KcPvData.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -499,6 +502,9 @@
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\prov\KvDataProvider.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KcPvData.h">
       <Filter>prov</Filter>
     </ClInclude>
   </ItemGroup>

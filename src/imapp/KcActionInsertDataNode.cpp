@@ -1,6 +1,11 @@
 #include "KcActionInsertDataNode.h"
 #include "KcImDataView.h"
 #include <assert.h>
+#include "KsImApp.h"
+#include "KgImWindowManager.h"
+#include "KcImNodeEditor.h"
+#include "prov/KcPvData.h"
+#include "KuPathUtil.h"
 
 
 KcActionInsertDataNode::KcActionInsertDataNode(const std::string& filepath, const matrixd& idata)
@@ -37,7 +42,14 @@ void KcActionInsertDataNode::update()
         dataView_->update();
     else {
         assert(!dataView_->opened());
-        state_ = odata_ == nullptr ? KeState::k_cancelled : KeState::k_done;
+        if (odata_) {
+            state_ = KeState::k_done;
+            auto node = std::make_shared<KcPvData>(KuPathUtil::fileName(filepath_), odata_);
+            KsImApp::singleton().windowManager().getStatic<KcImNodeEditor>()->insertNode(node);
+        }
+        else {
+            state_ = KeState::k_cancelled;
+        }
         dataView_ = nullptr;
     }
 }

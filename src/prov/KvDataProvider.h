@@ -55,6 +55,7 @@ public:
 	}
 
 
-	virtual void pushData(std::shared_ptr<KvData> data) = 0;
+	// 抓取输出端口portIdx的数据
+	virtual std::shared_ptr<KvData> grabData(kIndex portIdx) = 0;
 };
 

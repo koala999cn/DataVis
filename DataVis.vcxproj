@@ -158,6 +158,7 @@
     <ClCompile Include="src\plot\KvTicker.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\prov\KcPvData.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -252,6 +253,7 @@
     <ClInclude Include="src\plot\KvRenderable.h" />
     <ClInclude Include="src\operator.h" />
     <ClInclude Include="src\provider.h" />
+    <ClInclude Include="src\prov\KcPvData.h" />
     <ClInclude Include="src\prov\KvDataProvider.h" />
     <ClInclude Include="src\render.h" />
     <ClInclude Include="src\dsp\KtContinuedExpr.h" />

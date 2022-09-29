@@ -1,21 +1,19 @@
 ﻿#include "KcPvData.h"
-#include <QPointF>
 #include "KvContinued.h"
-#include "QtAppEventHub.h"
-#include "gui/QtDataView.h"
+//#include "QtAppEventHub.h"
 
 
-KcPvData::KcPvData(const QString& name, std::shared_ptr<KvData> data)
+KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-	if (data->isDiscreted())
+/*	if (data->isDiscreted())
 		options_ |= k_show;
 
 	connect(kAppEventHub, &QtAppEventHub::pipelineStarted, 
 		this, [=](KvPropertiedObject* root, bool ok) {
 			if (ok && root == (KvPropertiedObject*)this)
 				pushData(data_);
-		});
+		});*/
 }
 
 
@@ -51,9 +49,10 @@ kIndex KcPvData::size(kIndex axis) const
 }
 
 
-bool KcPvData::isRunning() const
+std::shared_ptr<KvData> KcPvData::grabData(kIndex portIdx)
 {
-	return false;
+	assert(portIdx >= 0 && portIdx < outPorts());
+	return data_;
 }
 
 
@@ -66,46 +65,7 @@ namespace kPrivate
 }
 
 
-KcPvData::kPropertySet KcPvData::propertySet() const
-{
-	auto ps = KvDataProvider::propertySet();
-
-	// 替换ps中的range属性
-	/* TODO:
-	if (data_->isContinued()) {
-		KpProperty prop, subProp;
-		prop.id = kPrivate::k_range;
-		prop.name = tr("Range");
-		prop.flag = k_restrict;
-		prop.val = QPointF(range(0).low(), range(0).high());
-		subProp.name = tr("low");
-		prop.children.push_back(subProp);
-		subProp.name = QStringLiteral("high");
-		prop.children.push_back(subProp);
-		
-		for (auto& p : ps) {
-			if (p.name == tr("krange")) {
-				p = prop;
-				break;
-			}
-		}
-	}*/
-
-	return ps;
-}
-
-
-void KcPvData::setPropertyImpl_(int id, const QVariant& newVal)
-{
-	if (id == kPrivate::k_range) {
-
-		auto pt = newVal.value<QPointF>();
-		auto cnt = std::dynamic_pointer_cast<KvContinued>(data_);
-		// TODO:
-	}
-}
-
-
+/*
 bool KcPvData::getOption(KeObjectOption opt) const
 {
 	assert(opt == k_show);
@@ -127,3 +87,4 @@ void KcPvData::setOption(KeObjectOption opt, bool on)
 	else
 		kAppEventHub->closeDock(this);
 }
+*/

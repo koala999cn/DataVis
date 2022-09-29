@@ -192,7 +192,7 @@ std::shared_ptr<KvData> KcImDataView::makeSampled2d_(const matrixd& mat)
 std::shared_ptr<KvData> KcImDataView::makeScattered_(const matrixd& mat, unsigned dim)
 {
     assert(dim == 2 || dim == 3);
-    assert(mat.size() % dim == 0);
+    assert(mat[0].size() % dim == 0);
 
     kIndex chs = mat.size() / dim;
     if (dim == 2) {
