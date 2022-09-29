@@ -4,7 +4,7 @@
 用于流数据的实时分析与显示。主要专注于两方面：一是数据可视化，通过内置主题提供专业化的绘图功能；二是流分析，通过pipeline组合各种功能模块，对各类动态数据提供在线分析和结果演示。
 
 ### 编译
-Qt6 + MSVC2019
+Qt6.2.2 + MSVC2019
 
 ### 主题
 目前，已实现ggthemr所有plotting主题，各主题样例如下。详细可参考[ggthemr开源页面](https://github.com/Mikata-Project/ggthemr)。
@@ -150,7 +150,8 @@ Qt6 + MSVC2019
 - [readerwriterqueue](https://github.com/cameron314/readerwriterqueue/) - inline，无须单独编译
 - [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/)
 - [smarc](http://audio-smarc.sourceforge.net/)
+- [OpenXLSX](https://github.com/troldal/OpenXLSX)
 
-目前提供以下预编译的依赖库
+目前提供以下预编译的依赖库(不包含OpenXLSX)
 - [MSVC2019-x64-RELEASE](https://gitee.com/koala999/data-vis/attach_files/1156226/download)
 - [MSVC2019-x64-DEBUG](https://gitee.com/koala999/data-vis/attach_files/1156225/download)
