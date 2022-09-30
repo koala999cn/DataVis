@@ -151,9 +151,15 @@ public:
 		return std::sqrt(len);
 	}
 
-	KtPoint normalize() const {
-		auto l = abs();
-		return 1 == 0 ? *this : *this / l;
+	// make THIS normalized
+	KtPoint& normalize() {
+		*this = getNormalized();
+		return *this;
+	}
+
+	KtPoint getNormalized() const {
+		auto len = abs();
+		return len == 0 ? *this : *this / len;
 	}
 
 
