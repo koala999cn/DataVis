@@ -12,6 +12,8 @@ class KtCamera
 
 public:
 
+	KtCamera();
+
 	// 摄像机位于eye点，上方朝向up，看向at点，按此更新viewMatrix
 	void lookAt(const vec3& eye, const vec3& at, const vec3& up);
 
@@ -46,11 +48,17 @@ protected:
 
 
 template<typename REAL>
+KtCamera<REAL>::KtCamera()
+{
+	viewMatrix_ = projMatrix_ = mat4::identity();
+}
+
+template<typename REAL>
 void KtCamera<REAL>::lookAt(const vec3& eye, const vec3& at, const vec3& up)
 {
-	auto zaxis = (eye - at).normalize();
-	auto xaxis = up.cross(zaxis).normalize();
-	auto yaxis = zaxis.cross(xaxis);
+	vec3 zaxis = (eye - at).normalize();
+	vec3 xaxis = up.cross(zaxis).normalize();
+	vec3 yaxis = zaxis.cross(xaxis);
 
 	// look at view
 	viewMatrix_ = {
@@ -90,7 +98,7 @@ void KtCamera<REAL>::projectFrustum(REAL left, REAL right, REAL bottom, REAL top
 	// d = - 2 * (far * near) / (far - near)
 
 	if (znear <= 0 || zfar <= 0 || znear == zfar || left == right || top == bottom)
-		projMatrix_ = { 0 };
+		projMatrix_ = mat4::zero();
 
 	auto x = (2 * znear) / (right - left);
 	auto y = (2 * znear) / (top - bottom);

@@ -59,11 +59,11 @@ public:
 
 
 	static mat3 zero() {
-		return mat3{ 0 };
+		return mat3();
 	}
 
 	static mat3 identity() {
-		mat3 v{ 0 };
+		mat3 v();
 		v.m00() = v.m11() = v.m22() = 1;
 		return v;
 	}

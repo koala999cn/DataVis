@@ -1,9 +1,10 @@
 #include "KvImGuizmoWindow.h"
 #include "imgui.h"
 #include "ImGuizmo.h"
+#include "KtCamera.h" // TODO:
 
 
-int gizmoCount = 1;
+int gizmoCount = 3;
 float camDistance = 8.f;
 static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
 
@@ -82,6 +83,60 @@ void Perspective(float fovyInDegrees, float aspectRatio, float znear, float zfar
     Frustum(-xmax, xmax, -ymax, ymax, znear, zfar, m16);
 }
 
+
+void Cross(const float* a, const float* b, float* r)
+{
+    r[0] = a[1] * b[2] - a[2] * b[1];
+    r[1] = a[2] * b[0] - a[0] * b[2];
+    r[2] = a[0] * b[1] - a[1] * b[0];
+}
+
+float Dot(const float* a, const float* b)
+{
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+
+void Normalize(const float* a, float* r)
+{
+    float il = 1.f / (sqrtf(Dot(a, a)) + FLT_EPSILON);
+    r[0] = a[0] * il;
+    r[1] = a[1] * il;
+    r[2] = a[2] * il;
+}
+
+
+void LookAt(const float* eye, const float* at, const float* up, float* m16)
+{
+    float X[3], Y[3], Z[3], tmp[3];
+
+    tmp[0] = eye[0] - at[0];
+    tmp[1] = eye[1] - at[1];
+    tmp[2] = eye[2] - at[2];
+    Normalize(tmp, Z);
+    Normalize(up, Y);
+    Cross(Y, Z, tmp);
+    Normalize(tmp, X);
+    Cross(Z, X, tmp);
+    Normalize(tmp, Y);
+
+    m16[0] = X[0];
+    m16[1] = Y[0];
+    m16[2] = Z[0];
+    m16[3] = 0.0f;
+    m16[4] = X[1];
+    m16[5] = Y[1];
+    m16[6] = Z[1];
+    m16[7] = 0.0f;
+    m16[8] = X[2];
+    m16[9] = Y[2];
+    m16[10] = Z[2];
+    m16[11] = 0.0f;
+    m16[12] = -Dot(X, eye);
+    m16[13] = -Dot(Y, eye);
+    m16[14] = -Dot(Z, eye);
+    m16[15] = 1.0f;
+}
+
 void KvImGuizmoWindow::update()
 {
     ImGui::SetNextWindowSizeConstraints(
@@ -94,6 +149,17 @@ void KvImGuizmoWindow::update()
     ImGuiIO& io = ImGui::GetIO();
     Perspective(fov, io.DisplaySize.x / io.DisplaySize.y, 0.1f, 100.f, cameraProjection);
 
+    vec3f eye{ 0, 10, 0 };
+    vec3f at{};
+    vec3f up{ 0, 1, 0 };
+   // LookAt(eye.data(), at.data(), up.data(), cameraView);
+    KtCamera<float> cam;
+    cam.projectPerspective(fov, io.DisplaySize.x / io.DisplaySize.y, 0.1f, 100.f);
+    auto projMat = cam.projMatrix().getTransposed();
+
+    cam.lookAt(eye, at, up);
+    auto viewMat = cam.viewMatrix();
+
     float* matrix = objectMatrix[0];
 
     float viewManipulateRight = io.DisplaySize.x;
@@ -101,6 +167,7 @@ void KvImGuizmoWindow::update()
 
     if (ImGui::Begin(name().c_str(), &visible_, 
         noMove_ ? flags() | ImGuiWindowFlags_NoMove : flags())) {
+
         assert(visible_);
 
         ImGuizmo::SetDrawlist();

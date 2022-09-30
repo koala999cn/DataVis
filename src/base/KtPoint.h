@@ -177,7 +177,7 @@ public:
 
 
 	static const KtPoint& zero() {
-		static KtPoint z(0);
+		static KtPoint z();
 		return z;
 	}
 

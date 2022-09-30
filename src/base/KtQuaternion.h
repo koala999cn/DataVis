@@ -138,7 +138,7 @@ public:
 //        x = (r02+r20)/4z
 //        y = (r12+r21)/4z
 template<class KReal>
-KtQuaternion<KReal>::KtQuaternion<KReal>(const mat3& rot)
+KtQuaternion<KReal>::KtQuaternion(const mat3& rot)
 {
 	KReal fTrace = rot.m00() + rot.m11() + rot.m22();
 	if (fTrace > 0) {
@@ -173,7 +173,7 @@ KtQuaternion<KReal>::KtQuaternion<KReal>(const mat3& rot)
 
 // q = w+xi+yj+zk = cos(A/2)+sin(A/2)(u0i+u1j+u2k)
 template<class KReal>
-KtQuaternion<KReal>::KtQuaternion<KReal>(KReal angle, const vec3& axis)
+KtQuaternion<KReal>::KtQuaternion(KReal angle, const vec3& axis)
 {
 	assert(kMath::almostEqual(1, axis.length()));
 
@@ -187,7 +187,7 @@ KtQuaternion<KReal>::KtQuaternion<KReal>(KReal angle, const vec3& axis)
 
 // Based on Stan Melax's article in Game Programming Gems
 template<class KReal>
-KtQuaternion<KReal>::KtQuaternion<KReal>(const vec3& from, const vec3& to)
+KtQuaternion<KReal>::KtQuaternion(const vec3& from, const vec3& to)
 {
 	// Copy, since cannot modify local
 	auto v0 = from.getNormalized();
@@ -353,7 +353,7 @@ KtQuaternion<KReal> KtQuaternion<KReal>::operator*(const KtQuaternion<KReal>& rh
 		w() * rhs.x() + x() * rhs.w() + y() * rhs.z() - z() * rhs.y(),
 		w() * rhs.y() - x() * rhs.z() + y() * rhs.w() + z() * rhs.x(),
 		w() * rhs.z() + x() * rhs.y() - y() * rhs.x() + z() * rhs.w(),
-		w() * rhs.w() - x() * rhs.x() - y() * rhs.y() - z() * rhs.z())
+		w() * rhs.w() - x() * rhs.x() - y() * rhs.y() - z() * rhs.z()
 	};
 }
 
