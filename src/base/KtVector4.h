@@ -18,6 +18,11 @@ public:
 
 	using super_::super_;
 
+	KtVector4(const vec3& v) {
+		x() = v.x(), y() = v.y(), z() = v.z();
+		w() = 1;
+	}
+
 	// 在齐次坐标下，矢量的w为0，点的w非零.
 	// 这样在乘以齐次变换矩阵的时候，矩阵中的位移部分不会影响矢量
 	bool isPoint() const { return w() != 0; }

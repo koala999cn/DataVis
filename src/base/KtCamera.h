@@ -1,5 +1,6 @@
 #pragma once
 #include "KtVector3.h"
+#include "KtVector4.h"
 #include "KtMatrix4.h"
 
 
@@ -7,6 +8,7 @@ template<typename REAL>
 class KtCamera
 {
 	using vec3 = KtVector3<REAL>;
+	using vec4 = KtVector4<REAL>;
 	using mat3 = KtMatrix3<REAL>;
 	using mat4 = KtMatrix4<REAL>;
 
@@ -30,14 +32,18 @@ public:
 	const mat4& projMatrix() const { return projMatrix_; }
 	mat4& projMatrix() { return projMatrix_; }
 
-	void setViewport(REAL left, REAL right, REAL top, REAL bottom) {
-		left_ = left, right_ = right, top_ = top, bottom_ = bottom;
+	void setViewport(REAL x, REAL y, REAL width, REAL height) {
+		x_ = x, y_ = y, w_ = width, h_ = height;
 	}
+
+	bool project(const vec4& in, vec4& out) const;
+
+	bool unproject(const vec3& in, vec4& out) const;
 
 protected:
 
 	// Viewing window. 
-	REAL left_{ 0 }, top_{ 1 }, right_{ 1 }, bottom_{ 0 };
+	REAL x_{ 0 }, y_{ 0 }, w_{ 1 }, h_{ 1 };
 
 	// view matrix
 	mat4 viewMatrix_;
@@ -53,6 +59,7 @@ KtCamera<REAL>::KtCamera()
 	viewMatrix_ = projMatrix_ = mat4::identity();
 }
 
+
 template<typename REAL>
 void KtCamera<REAL>::lookAt(const vec3& eye, const vec3& at, const vec3& up)
 {
@@ -67,6 +74,8 @@ void KtCamera<REAL>::lookAt(const vec3& eye, const vec3& at, const vec3& up)
 	   xaxis.z()          , yaxis.z()          , zaxis.z()          , 0,
 	   -xaxis.dot(eye)    , -yaxis.dot(eye)    , -zaxis.dot(eye)    , 1
 	};
+
+	viewMatrix_.transpose(); // TODO:
 }
 
 
@@ -75,7 +84,8 @@ void KtCamera<REAL>::projectFrustum(REAL left, REAL right, REAL bottom, REAL top
 {
 	// NB: This creates 'uniform' perspective projection matrix,
 	// which depth range [-1,1]
-	//
+	// 即，假设相机位于零点，则将znear映射到-1, zfar映射到+1
+	// 
 	// right-handed rules
 	//
 	// [ x   0   a   0  ]
@@ -152,14 +162,58 @@ void KtCamera<REAL>::projectOrtho(REAL left, REAL right, REAL bottom, REAL top, 
 	auto qn = -(zfar + znear) / (zfar - znear);
 
 	projMatrix_ = {
-
-	    A,   0,   0,  C,
-
-	    0,   B,   0,  D,
-
-	    0,   0,   q,  qn,
-
-	    0,   0,   0,  1
-
+	    A, 0, 0, C,
+	    0, B, 0, D,
+	    0, 0, q, qn,
+	    0, 0, 0, 1
 	};
+}
+
+
+template<typename REAL>
+bool KtCamera<REAL>::project(const vec4& in, vec4& out) const
+{
+	out = projMatrix_ * viewMatrix_ * in;
+
+	if (out.w() == 0.0f)
+		return false;
+
+	out.x() /= out.w();
+	out.y() /= out.w();
+	out.z() /= out.w();
+
+	// map to range 0-1
+	out.x() = out.x() * 0.5f + 0.5f;
+	out.y() = out.y() * 0.5f + 0.5f;
+	out.z() = out.z() * 0.5f + 0.5f;
+
+	// map to viewport
+	out.x() = out.x() * w_ + x_;
+	out.y() = out.y() * h_ + y_;
+	return true;
+}
+
+
+template<typename REAL>
+bool KtCamera<REAL>::unproject(const vec3& in, vec4& out) const
+{
+	vec4 v(in);
+
+	// map from viewport to 0-1
+	v.x() = (v.x() - x_) / w_;
+	v.y() = (v.y() - y_) / h_;
+
+	// map to range -1 to 1
+	v.x() = v.x() * 2.0f - 1.0f;
+	v.y() = v.y() * 2.0f - 1.0f;
+	v.z() = v.z() * 2.0f - 1.0f;
+
+	mat4 inverse = (projMatrix_ * viewMatrix_).getInversed();
+
+	v = inverse * v;
+	if (v.w() == 0.0)
+		return false;
+
+	out = v / v.w();
+	return true;
 }

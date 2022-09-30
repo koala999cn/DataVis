@@ -12,7 +12,7 @@
 template<class KReal>
 class KtQuaternion : protected KtPoint<KReal, 4>
 {
-	using super_ = KtArray<KReal, 4>;
+	using super_ = KtPoint<KReal, 4>;
 	using vec3 = KtVector3<KReal>;
 	using vec4 = KtVector4<KReal>;
 	using mat3 = KtMatrix3<KReal>;
@@ -27,16 +27,10 @@ public:
 	using super_::w;
 	using super_::data;
 	using super_::size;
-	using super_::dim;
 	using super_::isApproxEqual;
 
 	// 重载零构造
 	KtQuaternion() : super_(0, 0, 0, 1) {}
-
-	/*
-	KtQuaternion(KReal x, KReal y, KReal z, KReal w) : super_(x, y, z, w) {}
-	KtQuaternion(const vec4& v) : super_(v) {}
-	KtQuaternion(const KReal data[]) : super_(data) {}*/
 
 	 /// Construct a quaternion from a rotation matrix
 	KtQuaternion(const mat3& rot);
@@ -140,34 +134,34 @@ public:
 template<class KReal>
 KtQuaternion<KReal>::KtQuaternion(const mat3& rot)
 {
-	KReal fTrace = rot.m00() + rot.m11() + rot.m22();
-	if (fTrace > 0) {
-		w = 0.5f * std::sqrt(fTrace + 1);
-		KReal fCoeff = 0.25f / w;
-		v.x = fCoeff * (rot.m21() - rot.m12());
-		v.y = fCoeff * (rot.m02() - rot.m20());
-		v.z = fCoeff * (rot.m10() - rot.m01());
+	KReal trace = rot.m00() + rot.m11() + rot.m22();
+	if (trace > 0) {
+		w() = 0.5f * std::sqrt(trace + 1);
+		KReal f = 0.25f / w();
+		x() = f * (rot.m21() - rot.m12());
+		y() = f * (rot.m02() - rot.m20());
+		z() = f * (rot.m10() - rot.m01());
 	}
 	else if (rot.m00() > rot.m11() && rot.m00() > rot.m22()) {// r00为最大值
-		v.x = 0.5f * std::sqrt(rot.m00() - rot.m11() - rot.m22() + 1);
-		KReal fCoeff = 0.25f / v.x;
-		w = fCoeff * (rot.m21() - rot.m12());
-		v.y = fCoeff * (rot.m10() + rot.m01());
-		v.z = fCoeff * (rot.m20() + rot.m02());
+		x() = 0.5f * std::sqrt(rot.m00() - rot.m11() - rot.m22() + 1);
+		KReal f = 0.25f / x();
+		w() = f * (rot.m21() - rot.m12());
+		y() = f * (rot.m10() + rot.m01());
+		z() = f * (rot.m20() + rot.m02());
 	}
 	else if (rot.m11() > rot.m22()) { // m00 <= m11, r11为最大值
-		v.y = 0.5f * std::sqrt(rot.m11() - rot.m22() - rot.m00() + 1);
-		KReal fCoeff = 0.25f / v.y;
-		w = fCoeff * (rot.m02() - rot.m20());
-		v.x = fCoeff * (rot.m10() + rot.m01());
-		v.z = fCoeff * (rot.m21() + rot.m12());
+		y() = 0.5f * std::sqrt(rot.m11() - rot.m22() - rot.m00() + 1);
+		KReal f = 0.25f / y();
+		w() = f * (rot.m02() - rot.m20());
+		x() = f * (rot.m10() + rot.m01());
+		z() = f * (rot.m21() + rot.m12());
 	}
 	else {// r22为最大值
-		v.z = 0.5f * std::sqrt(rot.m22() - rot.m00() - rot.m11() + 1);
-		KReal fCoeff = 0.25f / v.z;
-		w = fCoeff * (rot.m10() - rot.m01());
-		v.x = fCoeff * (rot.m20() + rot.m02());
-		v.y = fCoeff * (rot.m21() + rot.m12());
+		z() = 0.5f * std::sqrt(rot.m22() - rot.m00() - rot.m11() + 1);
+		KReal f = 0.25f / z();
+		w() = f * (rot.m10() - rot.m01());
+		x() = f * (rot.m20() + rot.m02());
+		y() = f * (rot.m21() + rot.m12());
 	}
 }
 
