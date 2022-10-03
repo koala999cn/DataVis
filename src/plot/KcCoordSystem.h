@@ -83,7 +83,7 @@ public:
 
 	KtAABB<double> boundingBox() const override;
 
-	void draw(KglPaint*) const override;
+	void draw(KvPaint&) const override;
 
 	// grid相关成员方法
 /*

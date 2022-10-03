@@ -13,11 +13,11 @@ KvImGuizmoWindow::KvImGuizmoWindow(const std::string_view& name)
     vec3f at{};
     vec3f up{ 0, 1, 0 };
     cam.lookAt(eye, at, up);
-    viewMat_ = cam.viewMatrix().getTransposed(); // ImGuizmo使用的矩阵与KtCamera使用的为转置关系
+    viewMat_ = cam.viewMatrix().getTranspose(); // ImGuizmo使用的矩阵与KtCamera使用的为转置关系
 
     ImGuiIO& io = ImGui::GetIO();
     cam.projectPerspective(45, io.DisplaySize.x / io.DisplaySize.y, 5, 100.f);
-    projMat_ = cam.projMatrix().getTransposed();
+    projMat_ = cam.projMatrix().getTranspose();
 }
 
 

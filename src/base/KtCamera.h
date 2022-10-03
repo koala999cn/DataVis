@@ -2,15 +2,17 @@
 #include "KtVector3.h"
 #include "KtVector4.h"
 #include "KtMatrix4.h"
-
+#include "KtQuaternion.h"
 
 template<typename REAL>
 class KtCamera
 {
+	using point2 = KtPoint<REAL, 2>;
 	using vec3 = KtVector3<REAL>;
 	using vec4 = KtVector4<REAL>;
 	using mat3 = KtMatrix3<REAL>;
 	using mat4 = KtMatrix4<REAL>;
+	using quat = KtQuaternion<REAL>;
 
 public:
 
@@ -36,9 +38,34 @@ public:
 		x_ = x, y_ = y, w_ = width, h_ = height;
 	}
 
+	vec3 getCameraPos() const;
+	quat getCameraOrient() const;
+
+	// 对world坐标点/矢量in进行投影，即转换到viewport坐标系
 	bool project(const vec4& in, vec4& out) const;
 
+	// 对viewport坐标点in进行反投影，即转换到world坐标系
 	bool unproject(const vec3& in, vec4& out) const;
+
+	// 返回ray的射向
+	// ray的原点可通过getCameraPos获取
+	vec3 screenPointToRay(const point2& pt) const;
+	
+	point2 worldToViewport(const vec4& in) const {
+		vec4 out;
+		project(in, out);
+		return { out.x(), out.y() };
+	}
+
+	point2 worldToScreen(const vec4& in) {
+		return switchViewportAndScreen(worldToViewport(in));
+	}
+
+	// viewport左下角为(0, 0)点，screen左上角为(0, 0)点
+	point2 switchViewportAndScreen(const point2& pt) const {
+		return { pt.x, h_ - pt.y };
+	}
+
 
 protected:
 
@@ -140,7 +167,7 @@ template<typename REAL>
 void KtCamera<REAL>::projectOrtho(REAL left, REAL right, REAL bottom, REAL top, REAL znear, REAL zfar)
 {
 	// NB: This creates 'uniform' orthographic projection matrix,
-	// which depth range [-1,1], right-handed rules
+	// which depth range [-1, +1], right-handed rules
 	//
 	// [ A   0   0   C  ]
 	// [ 0   B   0   D  ]
@@ -178,11 +205,10 @@ bool KtCamera<REAL>::project(const vec4& in, vec4& out) const
 	if (out.w() == 0.0f)
 		return false;
 
-	out.x() /= out.w();
-	out.y() /= out.w();
-	out.z() /= out.w();
+	// 此时out为各轴范围为[-1, +1]的规范化坐标
+	out.homogenize();
 
-	// map to range 0-1
+	// map to range [0, 1]
 	out.x() = out.x() * 0.5f + 0.5f;
 	out.y() = out.y() * 0.5f + 0.5f;
 	out.z() = out.z() * 0.5f + 0.5f;
@@ -199,11 +225,11 @@ bool KtCamera<REAL>::unproject(const vec3& in, vec4& out) const
 {
 	vec4 v(in);
 
-	// map from viewport to 0-1
+	// map from viewport to [0, 1]
 	v.x() = (v.x() - x_) / w_;
 	v.y() = (v.y() - y_) / h_;
 
-	// map to range -1 to 1
+	// map to range [-1, +1]
 	v.x() = v.x() * 2.0f - 1.0f;
 	v.y() = v.y() * 2.0f - 1.0f;
 	v.z() = v.z() * 2.0f - 1.0f;
@@ -216,4 +242,28 @@ bool KtCamera<REAL>::unproject(const vec3& in, vec4& out) const
 
 	out = v / v.w();
 	return true;
+}
+
+
+template<typename REAL>
+KtVector3<REAL> KtCamera<REAL>::screenPointToRay(const point2& pt) const
+{
+	auto vpt = switchViewportAndScreen(pt);
+	vec4 out;
+	unproject({ vpt.x(), vpt.y(), 0 }, out);
+	return (vec3(out.x(), out.y(), out.z()) - getCameraPos()).normalize();
+}
+
+
+template<typename REAL>
+KtVector3<REAL> KtCamera<REAL>::getCameraPos() const
+{
+	return viewMatrix_.getTranslation();
+}
+
+
+template<typename REAL>
+KtQuaternion<REAL> KtCamera<REAL>::getCameraOrient() const
+{
+	return viewMatrix_.getRotation(); // TODO:
 }

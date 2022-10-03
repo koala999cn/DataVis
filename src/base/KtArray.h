@@ -26,7 +26,7 @@ public:
 	}
 
 	// 从迭代器构造，方便类型转换
-	template<typename ITER>
+	template<typename ITER, typename = decltype(*ITER)>
 	KtArray(ITER iter) {
 		std::copy(iter, iter + SIZE, super_::begin());
 	}

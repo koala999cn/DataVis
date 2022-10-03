@@ -220,6 +220,18 @@
     <ClCompile Include="src\imapp\KvImGuizmoWindow.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KvPlot.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcCoordSystem.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcAxis.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcGridPlane.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -536,6 +548,12 @@
     </ClInclude>
     <ClInclude Include="src\base\KtPlane.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcImPlot3d.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvPaint.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

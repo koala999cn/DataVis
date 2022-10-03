@@ -1,6 +1,7 @@
 #include "KcGridPlane.h"
 #include <assert.h>
 #include "KcAxis.h"
+#include "KvPaint.h"
 
 
 KcGridPlane::KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
@@ -9,12 +10,12 @@ KcGridPlane::KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
 	vert_[0] = v0, vert_[1] = v1;
 
 	minorVisible_ = false;
-	majorLine_.style = KglPaint::LineStipple_Solid;
+	/*majorLine_.style = KglPaint::LineStipple_Solid;
 	majorLine_.width = 0.6;
 	majorLine_.color = color4f(0.3);
 	minorLine_.style = KglPaint::LineStipple_Dash;
 	minorLine_.width = 0.4;
-	minorLine_.color = color4f(0.3);
+	minorLine_.color = color4f(0.3);*/
 }
 
 
@@ -29,22 +30,22 @@ KtAABB<double> KcGridPlane::boundingBox() const
 }
 
 
-void KcGridPlane::draw(KglPaint* paint) const
+void KcGridPlane::draw(KvPaint& paint) const
 {
 	assert(visible());
-	paint->apply(majorLine_);
+	//paint->apply(majorLine_);
 	drawMajors_(paint, horz_[0], horz_[1]);
 	drawMajors_(paint, vert_[0], vert_[1]);
 
 	if (minorVisible()) {
-		paint->apply(minorLine_);
+		//paint->apply(minorLine_);
 		drawMinors_(paint, horz_[0], horz_[1]);
 		drawMinors_(paint, vert_[0], vert_[1]);
 	}
 }
 
 
-void KcGridPlane::drawMajors_(KglPaint* paint, axis_ptr axis0, axis_ptr axis1)
+void KcGridPlane::drawMajors_(KvPaint& paint, axis_ptr axis0, axis_ptr axis1)
 {
 	auto tic0 = axis0->ticker();
 	auto tic1 = axis1->ticker();
@@ -55,11 +56,11 @@ void KcGridPlane::drawMajors_(KglPaint* paint, axis_ptr axis0, axis_ptr axis1)
 	auto ticks = tic0->getTicks(axis0->lower(), axis0->upper()); // TODO: Òþ²Ø¸Ãº¯Êý
 	for (auto t : ticks) {
 		auto pos = axis0->tickPos(t);
-		paint->drawLine(pos, pos + vlen);
+		paint.drawLine(pos, pos + vlen);
 	}
 }
 
-void KcGridPlane::drawMinors_(KglPaint* paint, axis_ptr axis0, axis_ptr axis1)
+void KcGridPlane::drawMinors_(KvPaint& paint, axis_ptr axis0, axis_ptr axis1)
 {
 	auto tic0 = axis0->ticker();
 	auto tic1 = axis1->ticker();
@@ -71,6 +72,6 @@ void KcGridPlane::drawMinors_(KglPaint* paint, axis_ptr axis0, axis_ptr axis1)
 	auto subticks = tic0->getSubticks(ticks);
 	for (auto t : subticks) {
 		auto pos = axis0->tickPos(t);
-		paint->drawLine(pos, pos + vlen);
+		paint.drawLine(pos, pos + vlen);
 	}
 }

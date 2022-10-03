@@ -1,6 +1,5 @@
 #pragma once
 #include "KvPlottable1d.h"
-#include "KglPaint.h"
 
 // µ„œﬂÕº
 
@@ -21,7 +20,7 @@ public:
 
 	KtAABB<double> boundingBox() const override;
 
-	void draw(KglPaint* paint) const override;
+	void draw(KvPaint&) const override;
 
 private:
 	KeType type_;

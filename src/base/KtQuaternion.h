@@ -90,7 +90,7 @@ public:
 	KReal select() const { return w(); } 
 
 	void toAngleAxis(KReal& angle, vec3& axis) const;
-	void toRotationMatrix(mat3& rot) const;
+	void toRotateMatrix(mat3& rot) const;
 	void toAxes(vec3& x, vec3& y, vec3& z) const;
 
 	vec3 xAxis() const; // 单独提取局部坐标x方向的单位矢量在世界坐标的投影
@@ -263,7 +263,7 @@ void KtQuaternion<KReal>::toAngleAxis(KReal& angle, vec3& axis) const
 // R = |  2xy+2wz    1-2xx-2zz    2yz-2wx  |
 //     |  2xz-2wy     2yz+2wx    1-2xx-2yy |
 template<class KReal>
-void KtQuaternion<KReal>::toRotationMatrix(mat3& rot) const
+void KtQuaternion<KReal>::toRotateMatrix(mat3& rot) const
 {
 	assert(isUnit()); // 只对单位四元数有效
 
@@ -296,7 +296,7 @@ template<class KReal>
 void KtQuaternion<KReal>::toAxes(vec3& x, vec3& y, vec3& z) const
 {
 	mat3 rot;
-	toRotationMatrix(rot);
+	toRotateMatrix(rot);
 
 	// 提取旋转矩阵的各列
 	x = { rot.m00(), rot.m10(), rot.m20() };

@@ -183,7 +183,7 @@ public:
 
 	static KtPoint ceil(const KtPoint& pt1, const KtPoint& pt2) {
 		KtPoint pt;
-		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
+		kMath::forEach(pt1.data(), pt2.data(), pt.data(), DIM, [](T x, T y) {
 			return std::max(x, y);
 			});
 		return pt;
@@ -191,7 +191,7 @@ public:
 
 	static KtPoint floor(const KtPoint& pt1, const KtPoint& pt2) {
 		KtPoint pt;
-		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
+		kMath::forEach(pt1.data(), pt2.data(), pt.data(), DIM, [](T x, T y) {
 			return std::min(x, y);
 			});
 		return pt;

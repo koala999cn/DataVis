@@ -1,7 +1,7 @@
 #include "KcAxis.h"
 #include <assert.h>
 #include "KcLinearTicker.h"
-#include "KglPaint.h"
+#include "KvPaint.h"
 
 
 KcAxis::KcAxis() 
@@ -93,16 +93,16 @@ KtAABB<double> KcAxis::boundingBox() const
 }
 
 
-void KcAxis::draw(KglPaint* paint) const
+void KcAxis::draw(KvPaint& paint) const
 {
 	assert(visible());
 
 	// draw baseline
 	if (showBaseline()) {
 		auto clr = baselineColor();
-		paint->setColor(clr);
-		paint->setLineWidth(baselineWidth()); // TODO: dock后，线的宽度会改变
-		paint->drawLine(start(), end()); // 物理坐标
+		paint.setColor(clr);
+		paint.setLineWidth(baselineWidth()); // TODO: dock后，线的宽度会改变
+		paint.drawLine(start(), end()); // 物理坐标
 	}
 
 	// draw ticks
@@ -111,7 +111,7 @@ void KcAxis::draw(KglPaint* paint) const
 }
 
 
-void KcAxis::drawTicks_(KglPaint* paint) const
+void KcAxis::drawTicks_(KvPaint& paint) const
 {
 	assert(showTick());
 
@@ -128,8 +128,8 @@ void KcAxis::drawTicks_(KglPaint* paint) const
 	if (!ticks.empty()) {
 
 		double tickLen = tickLength() * refLength_ / 100; // tick的长度取相对值
-		paint->setColor(tickColor());
-		paint->setLineWidth(tickWidth());
+		paint.setColor(tickColor());
+		paint.setLineWidth(tickWidth());
 
 		std::vector<vec3> labelAchors;
 		if (showLabel())
@@ -145,10 +145,10 @@ void KcAxis::drawTicks_(KglPaint* paint) const
 
 		if (showLabel()) {
 			// TODO: paint->setFont();
-			paint->setColor(labelColor());
+			paint.setColor(labelColor());
 			for (unsigned i = 0; i < ticks.size(); i++) {
 				auto label = i < labels_.size() ? labels_[i] : tic->label(ticks[i]);
-				paint->drawText(labelAchors[i], label, labelAlignment_(tickOrient_));
+				paint.drawText(labelAchors[i], label, labelAlignment_(tickOrient_));
 			}
 		}
 	}
@@ -159,8 +159,8 @@ void KcAxis::drawTicks_(KglPaint* paint) const
 		if (!subticks.empty()) {
 
 			double subtickLen = subtickLength() * refLength_ / 100; // subtick的长度取相对值
-			paint->setColor(subtickColor());
-			paint->setLineWidth(subtickWidth());
+			paint.setColor(subtickColor());
+			paint.setLineWidth(subtickWidth());
 
 			for (unsigned i = 0; i < subticks.size(); i++) 
 				drawTick_(paint, tickPos(subticks[i]), subtickLen);
@@ -169,10 +169,10 @@ void KcAxis::drawTicks_(KglPaint* paint) const
 }
 
 
-void KcAxis::drawTick_(KglPaint* paint, const vec3& anchor, double length) const
+void KcAxis::drawTick_(KvPaint& paint, const vec3& anchor, double length) const
 {
 	auto d = tickOrient() * length;
-	paint->drawLine(tickShowBothSide() ? anchor - d : anchor, anchor + d);
+	paint.drawLine(tickShowBothSide() ? anchor - d : anchor, anchor + d);
 }
 
 
@@ -180,7 +180,7 @@ int KcAxis::labelAlignment_(const vec3& orient)
 {
 	int align(0);
 
-	if (orient.x() > 0)
+/*	if (orient.x() > 0)
 		align |= vl::AlignLeft;
 	else if (orient.x() < 0)
 		align |= vl::AlignRight;
@@ -194,7 +194,7 @@ int KcAxis::labelAlignment_(const vec3& orient)
 		align |= vl::AlignHCenter;
 
 	if ((align & (vl::AlignBottom | vl::AlignTop)) == 0)
-		align |= vl::AlignVCenter;
+		align |= vl::AlignVCenter;*/
 
 	return align;
 }

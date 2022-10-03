@@ -9,8 +9,11 @@ class KtVector3 : public KtPoint<KReal, 3>
 	using kMath = KtuMath<KReal>;
 
 public:
+
 	/// ¹¹Ôì
 	using super_::super_;
+
+	KtVector3(const super_& pt) : super_(pt) {}
 
 	using super_::x;
 	using super_::y;

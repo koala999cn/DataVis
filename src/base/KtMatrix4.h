@@ -99,7 +99,7 @@ public:
 		// Ordering: 1. Scale 2. Rotate 3. Translate
 
 		mat3 rot;
-		orient.toRotationMatrix(rot);
+		orient.toRotateMatrix(rot);
 
 		// Set up final matrix with scale, rotation and translation
 		return {
@@ -120,7 +120,7 @@ public:
 	vec4 operator*(const vec3& v) const;
 
 	// 返回当前矩阵的转置
-	mat4 getTransposed() const {
+	mat4 getTranspose() const {
 		return { m00(), m10(), m20(), m30(),
 				 m01(), m11(), m21(), m31(),
 				 m02(), m12(), m22(), m32(),
@@ -140,7 +140,7 @@ public:
 		return *this;
 	}
 
-	mat4 getInversed() const;
+	mat4 getInverse() const;
 
 	mat4& inverse(); // inverse of this
 
@@ -178,10 +178,11 @@ public:
     Scale Transformation
     -----------------------------------------------------------------------
     */
+
     /** Sets the scale part of the matrix.
     */
     void setScale(const vec3& v) {
-        m00() = v.x, m11() = v.y, m22() = v.z;
+        m00() = v.x(), m11() = v.y(), m22() = v.z();
     }
 
 	/** Determines if this matrix involves a scaling. */
@@ -471,7 +472,7 @@ KtMatrix4<KReal, ROW_MAJOR>& KtMatrix4<KReal, ROW_MAJOR>::inverse()
 }
 
 template<typename KReal, bool ROW_MAJOR>
-KtMatrix4<KReal, ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>::getInversed() const
+KtMatrix4<KReal, ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>::getInverse() const
 {
 	mat4 m(*this);
 	m.inverse();
