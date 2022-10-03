@@ -46,13 +46,13 @@ class KtMatrix4 : public KtArray<KReal, 16>
 
 public:
 	
-	using super_::super_;
+	KtMatrix4() : super_() {}
 
+	// 不导入基类构造，因为KtArray的元素构造会屏蔽以下构造，从而不能正确处理ROW_MAJOR参数
 	KtMatrix4(KReal _00, KReal _01, KReal _02, KReal _03,
 			 KReal _10, KReal _11, KReal _12, KReal _13,
 			 KReal _20, KReal _21, KReal _22, KReal _23,
-			 KReal _30, KReal _31, KReal _32, KReal _33) 
-	{
+			 KReal _30, KReal _31, KReal _32, KReal _33) {
 		m00() = _00, m01() = _01, m02() = _02, m03() = _03,
 		m10() = _10, m11() = _11, m12() = _12, m13() = _13,
 		m20() = _20, m21() = _21, m22() = _22, m23() = _23,
@@ -73,20 +73,20 @@ public:
     */
 	static mat4 buildTanslation(const vec3& v)
     {
-		return { 1.0, 0.0, 0.0, v.x(),
-				 0.0, 1.0, 0.0, v.y(),
-				 0.0, 0.0, 1.0, v.z(),
-				 0.0, 0.0, 0.0, 1.0 };
+		return { 1.0f, 0.0f, 0.0f, v.x(),
+				 0.0f, 1.0f, 0.0f, v.y(),
+				 0.0f, 0.0f, 1.0f, v.z(),
+				 0.0f, 0.0f, 0.0f, 1.0f };
     }
 
     /** Builds a scale matrix.
     */
 	static mat4 buildScale(const vec3& v)
     {
-		return { v.x(), 0.0, 0.0, 0.0,
-				 0.0, v.y(), 0.0, 0.0,
-				 0.0, 0.0, v.z(), 0.0,
-				 0.0, 0.0, 0.0, 1.0 };
+		return { v.x(), 0.0f,  0.0f,  0.0f,
+			     0.0f,  v.y(), 0.0f,  0.0f,
+				 0.0f,  0.0f,  v.z(), 0.0f,
+				 0.0f,  0.0f,  0.0f,  1.0f };
     }
 
     /** Building a Matrix4 from orientation / scale / position.
@@ -124,8 +124,7 @@ public:
 		return { m00(), m10(), m20(), m30(),
 				 m01(), m11(), m21(), m31(),
 				 m02(), m12(), m22(), m32(),
-			     m03(), m13(), m23(), m33()
-		       };
+				 m03(), m13(), m23(), m33() };
 	}
 
 	// 置当前矩阵为其转置
@@ -368,25 +367,25 @@ template<typename KReal, bool ROW_MAJOR>
 KtMatrix4<KReal, ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>::operator*(const mat4& rhs) const
 {
 	return {
-	    m00() * rhs.m00() + m01() * rhs.m10() + m02() * rhs.m20() + m03() * rhs.m30(),
-	    m00() * rhs.m01() + m01() * rhs.m11() + m02() * rhs.m21() + m03() * rhs.m31(),
-	    m00() * rhs.m02() + m01() * rhs.m12() + m02() * rhs.m22() + m03() * rhs.m32(),
-	    m00() * rhs.m03() + m01() * rhs.m13() + m02() * rhs.m23() + m03() * rhs.m33(),
+		m00() * rhs.m00() + m01() * rhs.m10() + m02() * rhs.m20() + m03() * rhs.m30(),
+		m00() * rhs.m01() + m01() * rhs.m11() + m02() * rhs.m21() + m03() * rhs.m31(),
+		m00() * rhs.m02() + m01() * rhs.m12() + m02() * rhs.m22() + m03() * rhs.m32(),
+		m00() * rhs.m03() + m01() * rhs.m13() + m02() * rhs.m23() + m03() * rhs.m33(),
 
-	    m10() * rhs.m00() + m11() * rhs.m10() + m12() * rhs.m20() + m13() * rhs.m30(),
-	    m10() * rhs.m01() + m11() * rhs.m11() + m12() * rhs.m21() + m13() * rhs.m31(),
-	    m10() * rhs.m02() + m11() * rhs.m12() + m12() * rhs.m22() + m13() * rhs.m32(),
-	    m10() * rhs.m03() + m11() * rhs.m13() + m12() * rhs.m23() + m13() * rhs.m33(),
+		m10() * rhs.m00() + m11() * rhs.m10() + m12() * rhs.m20() + m13() * rhs.m30(),
+		m10() * rhs.m01() + m11() * rhs.m11() + m12() * rhs.m21() + m13() * rhs.m31(),
+		m10() * rhs.m02() + m11() * rhs.m12() + m12() * rhs.m22() + m13() * rhs.m32(),
+		m10() * rhs.m03() + m11() * rhs.m13() + m12() * rhs.m23() + m13() * rhs.m33(),
 
-	    m20() * rhs.m00() + m21() * rhs.m10() + m22() * rhs.m20() + m23() * rhs.m30(),
-	    m20() * rhs.m01() + m21() * rhs.m11() + m22() * rhs.m21() + m23() * rhs.m31(),
-	    m20() * rhs.m02() + m21() * rhs.m12() + m22() * rhs.m22() + m23() * rhs.m32(),
-	    m20() * rhs.m03() + m21() * rhs.m13() + m22() * rhs.m23() + m23() * rhs.m33(),
+		m20() * rhs.m00() + m21() * rhs.m10() + m22() * rhs.m20() + m23() * rhs.m30(),
+		m20() * rhs.m01() + m21() * rhs.m11() + m22() * rhs.m21() + m23() * rhs.m31(),
+		m20() * rhs.m02() + m21() * rhs.m12() + m22() * rhs.m22() + m23() * rhs.m32(),
+		m20() * rhs.m03() + m21() * rhs.m13() + m22() * rhs.m23() + m23() * rhs.m33(),
 
-	    m30() * rhs.m00() + m31() * rhs.m10() + m32() * rhs.m20() + m33() * rhs.m30(),
-	    m30() * rhs.m01() + m31() * rhs.m11() + m32() * rhs.m21() + m33() * rhs.m31(),
-	    m30() * rhs.m02() + m31() * rhs.m12() + m32() * rhs.m22() + m33() * rhs.m32(),
-	    m30() * rhs.m03() + m31() * rhs.m13() + m32() * rhs.m23() + m33() * rhs.m33()
+		m30() * rhs.m00() + m31() * rhs.m10() + m32() * rhs.m20() + m33() * rhs.m30(),
+		m30() * rhs.m01() + m31() * rhs.m11() + m32() * rhs.m21() + m33() * rhs.m31(),
+		m30() * rhs.m02() + m31() * rhs.m12() + m32() * rhs.m22() + m33() * rhs.m32(),
+		m30() * rhs.m03() + m31() * rhs.m13() + m32() * rhs.m23() + m33() * rhs.m33()
 	};
 }
 
@@ -394,10 +393,10 @@ template<typename KReal, bool ROW_MAJOR>
 KtVector4<KReal> KtMatrix4<KReal, ROW_MAJOR>::operator*(const vec4& v) const
 {
 	return {
-	    m00() * v.x() + m01() * v.y() + m02() * v.z() + m03() * v.w(),
-	    m10() * v.x() + m11() * v.y() + m12() * v.z() + m13() * v.w(),
-	    m20() * v.x() + m21() * v.y() + m22() * v.z() + m23() * v.w(),
-	    m30() * v.x() + m31() * v.y() + m32() * v.z() + m33() * v.w()
+		m00() * v.x() + m01() * v.y() + m02() * v.z() + m03() * v.w(),
+		m10() * v.x() + m11() * v.y() + m12() * v.z() + m13() * v.w(),
+		m20() * v.x() + m21() * v.y() + m22() * v.z() + m23() * v.w(),
+		m30() * v.x() + m31() * v.y() + m32() * v.z() + m33() * v.w()
 	};
 }
 
@@ -405,10 +404,10 @@ template<typename KReal, bool ROW_MAJOR>
 KtVector4<KReal> KtMatrix4<KReal, ROW_MAJOR>::operator*(const vec3& v) const
 {
 	return {
-	    m00() * v.x() + m01() * v.y() + m02() * v.z() + m03(),
-	    m10() * v.x() + m11() * v.y() + m12() * v.z() + m13(),
-	    m20() * v.x() + m21() * v.y() + m22() * v.z() + m23(),
-	    m30() * v.x() + m31() * v.y() + m32() * v.z() + m33()
+		m00() * v.x() + m01() * v.y() + m02() * v.z() + m03(),
+		m10() * v.x() + m11() * v.y() + m12() * v.z() + m13(),
+		m20() * v.x() + m21() * v.y() + m22() * v.z() + m23(),
+		m30() * v.x() + m31() * v.y() + m32() * v.z() + m33()
 	};
 }
 
@@ -479,9 +478,14 @@ KtMatrix4<KReal, ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>::getInverse() const
 	return m;
 }
 
+template<bool ROW_MAJOR = true>
+using mat4f = KtMatrix4<float, ROW_MAJOR>;
 
-using mat4f = KtMatrix4<float>;
-using mat4d = KtMatrix4<double>;
+template<bool ROW_MAJOR = true>
+using mat4d = KtMatrix4<double, ROW_MAJOR>;
 
-using float4x4 = mat4f;
-using double4x4 = mat4d;
+template<bool ROW_MAJOR = true>
+using float4x4 = mat4f<ROW_MAJOR>;
+
+template<bool ROW_MAJOR = true>
+using double4x4 = mat4d<ROW_MAJOR>;

@@ -40,7 +40,7 @@ public:
 
 	constexpr static bool rowMajor() { return ROW_MAJOR; }
 
-	using super_::super_;
+	KtMatrix3() : super_() {}
 
 	KtMatrix3(KReal _00, KReal _01, KReal _02, 
 		     KReal _10, KReal _11, KReal _12, 
@@ -413,8 +413,8 @@ KtMatrix3<KReal, ROW_MAJOR>::fromEulerAngleX(KReal angleX)
 	KReal fSin = std::sin(angleX);
 
 	m00() = 1.0f, m01() = 0.0f, m02() = 0.0f,
-		m10() = 0.0f, m11() = fCos, m12() = -fSin,
-		m20() = 0.0f, m21() = fSin, m22() = fCos;
+	m10() = 0.0f, m11() = fCos, m12() = -fSin,
+	m20() = 0.0f, m21() = fSin, m22() = fCos;
 
 	return *this;
 }
@@ -426,8 +426,8 @@ KtMatrix3<KReal, ROW_MAJOR>::fromEulerAngleY(KReal angleY)
 	KReal fSin = std::sin(angleY);
 
 	m00() = fCos, m01() = 0.0f, m02() = fSin,
-		m10() = 0.0f, m11() = 1.0f, m12() = 0.0f,
-		m20() = -fSin, m21() = 0.0f, m22() = fCos;
+    m10() = 0.0f, m11() = 1.0f, m12() = 0.0f,
+	m20() = -fSin, m21() = 0.0f, m22() = fCos;
 
 	return *this;
 }
@@ -439,8 +439,8 @@ KtMatrix3<KReal, ROW_MAJOR>::fromEulerAngleZ(KReal angleZ)
 	KReal fSin = std::sin(angleZ);
 
 	m00() = fCos, m01() = -fSin, m02() = 0.0f,
-		m10() = fSin, m11() = fCos, m12() = 0.0f,
-		m20() = 0.0f, m21() = 0.0f, m22() = 1.0f;
+	m10() = fSin, m11() = fCos, m12() = 0.0f,
+	m20() = 0.0f, m21() = 0.0f, m22() = 1.0f;
 
 	return *this;
 }
@@ -676,8 +676,14 @@ KtMatrix3<KReal, ROW_MAJOR>::fromEulerAngleZYX(KReal angleX, KReal angleY, KReal
 	return *this = kMatZ * (kMatY * kMatX);
 }
 
-using mat3f = KtMatrix3<float>;
-using mat3d = KtMatrix3<double>;
+template<bool ROW_MAJOR = true>
+using mat3f = KtMatrix3<float, ROW_MAJOR>;
 
-using float3x3 = mat3f;
-using double3x3 = mat3d;
+template<bool ROW_MAJOR = true>
+using mat3d = KtMatrix3<double, ROW_MAJOR>;
+
+template<bool ROW_MAJOR = true>
+using float3x3 = mat3f<ROW_MAJOR>;
+
+template<bool ROW_MAJOR = true>
+using double3x3 = mat3d<ROW_MAJOR>;

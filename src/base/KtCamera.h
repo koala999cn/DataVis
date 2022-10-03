@@ -4,14 +4,14 @@
 #include "KtMatrix4.h"
 #include "KtQuaternion.h"
 
-template<typename REAL>
+template<typename REAL, bool ROW_MAJOR = true>
 class KtCamera
 {
 	using point2 = KtPoint<REAL, 2>;
 	using vec3 = KtVector3<REAL>;
 	using vec4 = KtVector4<REAL>;
-	using mat3 = KtMatrix3<REAL>;
-	using mat4 = KtMatrix4<REAL>;
+	using mat3 = KtMatrix3<REAL, ROW_MAJOR>;
+	using mat4 = KtMatrix4<REAL, ROW_MAJOR>;
 	using quat = KtQuaternion<REAL>;
 
 public:
@@ -73,41 +73,42 @@ protected:
 	REAL x_{ 0 }, y_{ 0 }, w_{ 1 }, h_{ 1 };
 
 	// view matrix
-	mat4 viewMatrix_;
+	mat4 viewMatrix_; // viewMatrix_ * 物理坐标系vec4 = 摄像机坐标系vec4
 
 	// standard projection matrix
 	mat4 projMatrix_;
 };
 
 
-template<typename REAL>
-KtCamera<REAL>::KtCamera()
+template<typename REAL, bool ROW_MAJOR>
+KtCamera<REAL, ROW_MAJOR>::KtCamera()
 {
 	viewMatrix_ = projMatrix_ = mat4::identity();
 }
 
 
-template<typename REAL>
-void KtCamera<REAL>::lookAt(const vec3& eye, const vec3& at, const vec3& up)
+template<typename REAL, bool ROW_MAJOR>
+void KtCamera<REAL, ROW_MAJOR>::lookAt(const vec3& eye, const vec3& at, const vec3& up)
 {
-	vec3 zaxis = (eye - at).normalize();
+	vec3 zaxis = (eye - at).normalize(); // 摄像机坐标系与物理坐标系的z轴是相反的，所以此处取反向
 	vec3 xaxis = up.cross(zaxis).normalize();
 	vec3 yaxis = zaxis.cross(xaxis);
 
 	// look at view
-	viewMatrix_ = {
-	   xaxis.x()          , yaxis.x()          , zaxis.x()          , 0,
-	   xaxis.y()          , yaxis.y()          , zaxis.y()          , 0,
-	   xaxis.z()          , yaxis.z()          , zaxis.z()          , 0,
-	   -xaxis.dot(eye)    , -yaxis.dot(eye)    , -zaxis.dot(eye)    , 1
-	};
 
-	viewMatrix_.transpose(); // TODO:
+	// 最后1列为eye在摄像机坐标轴的投影取反
+	// 摄像机在物理坐标系的(a, b, c)点，相当于物理坐标系原点在摄像机坐标系的(-a, -b, -c)点
+	viewMatrix_ = {
+	   xaxis.x(), xaxis.y(), xaxis.z(), -xaxis.dot(eye),
+	   yaxis.x(), yaxis.y(), yaxis.z(), -yaxis.dot(eye),
+	   zaxis.x(), zaxis.y(), zaxis.z(), -zaxis.dot(eye),
+			   0,         0,         0,               1
+	};
 }
 
 
-template<typename REAL>
-void KtCamera<REAL>::projectFrustum(REAL left, REAL right, REAL bottom, REAL top, REAL znear, REAL zfar)
+template<typename REAL, bool ROW_MAJOR>
+void KtCamera<REAL, ROW_MAJOR>::projectFrustum(REAL left, REAL right, REAL bottom, REAL top, REAL znear, REAL zfar)
 {
 	// NB: This creates 'uniform' perspective projection matrix,
 	// which depth range [-1,1]
@@ -145,16 +146,16 @@ void KtCamera<REAL>::projectFrustum(REAL left, REAL right, REAL bottom, REAL top
 	auto d = -(2 * zfar * znear) / (zfar - znear);
 
 	projMatrix_ = {
-	    x,    0,    a,    0,
-	    0,    y,    b,    0,
-	    0,    0,    c,    d,
-	    0,    0,   -1,    0
+		x,    0,    a,    0,
+		0,    y,    b,    0,
+		0,    0,    c,    d,
+		0,    0,   -1,    0
 	};
 }
 
 
-template<typename REAL>
-void KtCamera<REAL>::projectPerspective(REAL fovyInDegree, REAL aspectRatio, REAL znear, REAL zfar)
+template<typename REAL, bool ROW_MAJOR>
+void KtCamera<REAL, ROW_MAJOR>::projectPerspective(REAL fovyInDegree, REAL aspectRatio, REAL znear, REAL zfar)
 {
 	REAL ymax, xmax;
 	ymax = znear * std::tan(fovyInDegree * KtuMath<REAL>::pi / 180);
@@ -163,8 +164,8 @@ void KtCamera<REAL>::projectPerspective(REAL fovyInDegree, REAL aspectRatio, REA
 }
 
 
-template<typename REAL>
-void KtCamera<REAL>::projectOrtho(REAL left, REAL right, REAL bottom, REAL top, REAL znear, REAL zfar)
+template<typename REAL, bool ROW_MAJOR>
+void KtCamera<REAL, ROW_MAJOR>::projectOrtho(REAL left, REAL right, REAL bottom, REAL top, REAL znear, REAL zfar)
 {
 	// NB: This creates 'uniform' orthographic projection matrix,
 	// which depth range [-1, +1], right-handed rules
@@ -189,16 +190,16 @@ void KtCamera<REAL>::projectOrtho(REAL left, REAL right, REAL bottom, REAL top, 
 	auto qn = -(zfar + znear) / (zfar - znear);
 
 	projMatrix_ = {
-	    A, 0, 0, C,
-	    0, B, 0, D,
-	    0, 0, q, qn,
-	    0, 0, 0, 1
+		A, 0, 0, C,
+		0, B, 0, D,
+		0, 0, q, qn,
+		0, 0, 0, 1
 	};
 }
 
 
-template<typename REAL>
-bool KtCamera<REAL>::project(const vec4& in, vec4& out) const
+template<typename REAL, bool ROW_MAJOR>
+bool KtCamera<REAL, ROW_MAJOR>::project(const vec4& in, vec4& out) const
 {
 	out = projMatrix_ * viewMatrix_ * in;
 
@@ -220,8 +221,8 @@ bool KtCamera<REAL>::project(const vec4& in, vec4& out) const
 }
 
 
-template<typename REAL>
-bool KtCamera<REAL>::unproject(const vec3& in, vec4& out) const
+template<typename REAL, bool ROW_MAJOR>
+bool KtCamera<REAL, ROW_MAJOR>::unproject(const vec3& in, vec4& out) const
 {
 	vec4 v(in);
 
@@ -245,8 +246,8 @@ bool KtCamera<REAL>::unproject(const vec3& in, vec4& out) const
 }
 
 
-template<typename REAL>
-KtVector3<REAL> KtCamera<REAL>::screenPointToRay(const point2& pt) const
+template<typename REAL, bool ROW_MAJOR>
+KtVector3<REAL> KtCamera<REAL, ROW_MAJOR>::screenPointToRay(const point2& pt) const
 {
 	auto vpt = switchViewportAndScreen(pt);
 	vec4 out;
@@ -255,15 +256,15 @@ KtVector3<REAL> KtCamera<REAL>::screenPointToRay(const point2& pt) const
 }
 
 
-template<typename REAL>
-KtVector3<REAL> KtCamera<REAL>::getCameraPos() const
+template<typename REAL, bool ROW_MAJOR>
+KtVector3<REAL> KtCamera<REAL, ROW_MAJOR>::getCameraPos() const
 {
 	return viewMatrix_.getTranslation();
 }
 
 
-template<typename REAL>
-KtQuaternion<REAL> KtCamera<REAL>::getCameraOrient() const
+template<typename REAL, bool ROW_MAJOR>
+KtQuaternion<REAL> KtCamera<REAL, ROW_MAJOR>::getCameraOrient() const
 {
 	return viewMatrix_.getRotation(); // TODO:
 }

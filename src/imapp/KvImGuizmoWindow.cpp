@@ -7,17 +7,17 @@
 KvImGuizmoWindow::KvImGuizmoWindow(const std::string_view& name)
     : KvImWindow(name)
 {
-    KtCamera<float> cam;
+    KtCamera<float, false> cam; // 此处矩阵使用COL_MAJOR布局，以适应ImGuizmo
 
     vec3f eye{ 5, 5, 5 };
     vec3f at{};
     vec3f up{ 0, 1, 0 };
     cam.lookAt(eye, at, up);
-    viewMat_ = cam.viewMatrix().getTranspose(); // ImGuizmo使用的矩阵与KtCamera使用的为转置关系
+    viewMat_ = cam.viewMatrix(); 
 
     ImGuiIO& io = ImGui::GetIO();
     cam.projectPerspective(45, io.DisplaySize.x / io.DisplaySize.y, 5, 100.f);
-    projMat_ = cam.projMatrix().getTranspose();
+    projMat_ = cam.projMatrix();
 }
 
 

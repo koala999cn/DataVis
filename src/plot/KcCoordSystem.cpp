@@ -82,12 +82,12 @@ KcCoordSystem::KcCoordSystem(const point3d& lower, const point3d& upper)
 void KcCoordSystem::setExtents(const point3d& lower, const point3d& upper)
 {
 	// p0 = lower, p7 = upper
-	point3d p1 = { lower.x(), upper.y(), lower.z() };
-	point3d p2 = { lower.x(), upper.y(), upper.z() };
-	point3d p3 = { lower.x(), lower.y(), upper.z() };
-	point3d p4 = { upper.x(), lower.y(), upper.z() };
-	point3d p5 = { upper.x(), lower.y(), lower.z() };
-	point3d p6 = { upper.x(), upper.y(), lower.z() };
+	auto p1 = point3d{ lower.x(), upper.y(), lower.z() };
+	auto p2 = point3d{ lower.x(), upper.y(), upper.z() };
+	auto p3 = point3d{ lower.x(), lower.y(), upper.z() };
+	auto p4 = point3d{ upper.x(), lower.y(), upper.z() };
+	auto p5 = point3d{ upper.x(), lower.y(), lower.z() };
+	auto p6 = point3d{ upper.x(), upper.y(), lower.z() };
 
 	axes_[k_x0]->setRange(lower.x(), upper.x());
 	axes_[k_x0]->setStart(lower); axes_[k_x0]->setEnd(p5);
@@ -120,13 +120,13 @@ void KcCoordSystem::setExtents(const point3d& lower, const point3d& upper)
 
 point3d KcCoordSystem::lower() const
 {
-	return { axes_[k_x0]->lower(), axes_[k_y0]->lower(), axes_[k_z0]->lower() };
+	return point3d{ axes_[k_x0]->lower(), axes_[k_y0]->lower(), axes_[k_z0]->lower() };
 }
 
 
 point3d KcCoordSystem::upper() const
 {
-	return { axes_[k_x0]->upper(), axes_[k_y0]->upper(), axes_[k_z0]->upper() };
+	return point3d{ axes_[k_x0]->upper(), axes_[k_y0]->upper(), axes_[k_z0]->upper() };
 }
 
 

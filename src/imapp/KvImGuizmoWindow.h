@@ -15,7 +15,7 @@ public:
 	void updateImpl_() override;
 
 protected:
-	mat4f viewMat_, projMat_;
+	KtMatrix4<float, false> viewMat_, projMat_;
 
 private:
 	bool noMove_{ false }; // 禁止用户操作trackball的时候，ImGui同时移动窗口

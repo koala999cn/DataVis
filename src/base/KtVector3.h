@@ -53,9 +53,9 @@ public:
 
 	// 叉乘
 	KtVector3 cross(const KtVector3& rhs) const { 
-		return { y() * rhs.z() - rhs.y() * z(),
-			     z() * rhs.x() - rhs.z() * x(),
-			     x() * rhs.y() - rhs.x() * y() };
+		return KtVector3{ y() * rhs.z() - rhs.y() * z(),
+			              z() * rhs.x() - rhs.z() * x(),
+			              x() * rhs.y() - rhs.x() * y() };
 	} 
 
 	// 和矢量v之间的夹角（弧度）

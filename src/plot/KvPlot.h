@@ -23,11 +23,11 @@ public:
 	virtual color4f background() const = 0;
 	virtual void setBackground(const color4f& clr) = 0;
 
-	virtual mat4f viewMatrix() const = 0;
-	virtual void setViewMatrix(const mat4f&) = 0;
+	virtual mat4f<> viewMatrix() const = 0;
+	virtual void setViewMatrix(const mat4f<>&) = 0;
 
-	virtual mat4f projMatrix() const = 0;
-	virtual void setProjMatrix(const mat4f&) = 0;
+	virtual mat4f<> projMatrix() const = 0;
+	virtual void setProjMatrix(const mat4f<>&) = 0;
 
 	virtual void update(); // ¸üÐÂ»æÍ¼
 
