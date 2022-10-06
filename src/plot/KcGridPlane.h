@@ -8,6 +8,7 @@ class KcAxis;
 class KcGridPlane : public KvRenderable
 {
 	using axis_ptr = std::shared_ptr<KcAxis>;
+	using aabb_type = typename KvRenderable::aabb_tyle;
 
 public:
 	KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);
@@ -57,7 +58,7 @@ public:
 		minorLine_.width = width;
 	}*/
 
-	KtAABB<double> boundingBox() const override;
+	aabb_type boundingBox() const override;
 
 	void draw(KvPaint&) const override;
 

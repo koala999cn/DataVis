@@ -45,6 +45,7 @@ public:
 	bool project(const vec4& in, vec4& out) const;
 
 	// 对viewport坐标点in进行反投影，即转换到world坐标系
+	// 其中in.z()为规范化的深度值，取[0, 1]，对应[znear, zfar]
 	bool unproject(const vec3& in, vec4& out) const;
 
 	// 返回ray的射向
@@ -63,9 +64,11 @@ public:
 
 	// viewport左下角为(0, 0)点，screen左上角为(0, 0)点
 	point2 switchViewportAndScreen(const point2& pt) const {
-		return { pt.x, h_ - pt.y };
+		return { pt.x(), h_ - pt.y() };
 	}
 
+	REAL width() const { return w_; }
+	REAL height() const { return h_; }
 
 protected:
 
@@ -175,15 +178,15 @@ void KtCamera<REAL, ROW_MAJOR>::projectOrtho(REAL left, REAL right, REAL bottom,
 	// [ 0   0   q   qn ]
 	// [ 0   0   0   1  ]
 	//
-	// A = 2 * / (right - left)
-	// B = 2 * / (top - bottom)
+	// A = 2 / (right - left)
+	// B = 2 / (top - bottom)
 	// C = - (right + left) / (right - left)
 	// D = - (top + bottom) / (top - bottom)
 	// q = - 2 / (far - near)
 	// qn = - (far + near) / (far - near)
 
-	auto A = 2 * / (right - left);
-	auto B = 2 * / (top - bottom);
+	auto A = 2 / (right - left);
+	auto B = 2 / (top - bottom);
 	auto C = -(right + left) / (right - left);
 	auto D = -(top + bottom) / (top - bottom);
 	auto q = -2 / (zfar - znear);
@@ -235,7 +238,7 @@ bool KtCamera<REAL, ROW_MAJOR>::unproject(const vec3& in, vec4& out) const
 	v.y() = v.y() * 2.0f - 1.0f;
 	v.z() = v.z() * 2.0f - 1.0f;
 
-	mat4 inverse = (projMatrix_ * viewMatrix_).getInversed();
+	mat4 inverse = (projMatrix_ * viewMatrix_).getInverse();
 
 	v = inverse * v;
 	if (v.w() == 0.0)

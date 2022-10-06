@@ -15,7 +15,7 @@ public:
 
     using KvImWindow::KvImWindow;
 
-    const char* type() const override { return "ActionPanel"; }
+    //const char* type() const override { return "ActionPanel"; }
 
     void addAction(const std::string_view& groupName, action_ptr act);
 

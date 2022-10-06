@@ -87,7 +87,7 @@ void KcAxis::setTicker(std::shared_ptr<KvTicker> tic)
 }
 
 
-KtAABB<double> KcAxis::boundingBox() const
+KcAxis::aabb_tyle KcAxis::boundingBox() const
 {
 	return { start(), end() };
 }
@@ -148,7 +148,7 @@ void KcAxis::drawTicks_(KvPaint& paint) const
 			paint.setColor(labelColor());
 			for (unsigned i = 0; i < ticks.size(); i++) {
 				auto label = i < labels_.size() ? labels_[i] : tic->label(ticks[i]);
-				paint.drawText(labelAchors[i], label, labelAlignment_(tickOrient_));
+				paint.drawText(labelAchors[i], label.c_str(), labelAlignment_(tickOrient_));
 			}
 		}
 	}

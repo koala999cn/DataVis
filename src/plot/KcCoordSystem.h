@@ -15,6 +15,7 @@ class KcCoordSystem : public KvRenderable
 public:
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using grid_plane_ptr = std::shared_ptr<KcGridPlane>;
+	using aabb_type = typename KvRenderable::aabb_tyle;
 
 	// 12根坐标轴的id，用于索引axes_
 	enum KeAxis
@@ -60,14 +61,14 @@ public:
 public:
 
 	KcCoordSystem();
-	KcCoordSystem(const point3d& lower, const point3d& upper);
+	KcCoordSystem(const point3& lower, const point3& upper);
 
-	void setExtents(const point3d& lower, const point3d& upper);
+	void setExtents(const point3& lower, const point3& upper);
 
-	point3d lower() const; // the lower conner
-	point3d upper() const; // the upper conner
+	point3 lower() const; // the lower conner
+	point3 upper() const; // the upper conner
 
-	point3d center() const; // the center point
+	point3 center() const; // the center point
 
 	// 返回aabb的对角线长度
 	double diag() const;
@@ -81,7 +82,7 @@ public:
 	// factor=0时，坐标系收缩到中心点
 	void zoom(double factor);
 
-	KtAABB<double> boundingBox() const override;
+	aabb_type boundingBox() const override;
 
 	void draw(KvPaint&) const override;
 

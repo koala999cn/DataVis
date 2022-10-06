@@ -14,7 +14,7 @@ class KcAxis : public KvRenderable
 {
 public:
 
-	using vec3 = point3d;
+	using aabb_type = typename KvRenderable::aabb_tyle;
 
 	enum KeTickOrient
 	{
@@ -26,13 +26,13 @@ public:
 
 	KcAxis();
 
-	const point3d& start() const { return start_; }
-	void setStart(const point3d& v) { start_ = v; }
-	void setStart(double x, double y, double z) { start_ = point3d(x, y, z); }
+	const vec3& start() const { return start_; }
+	void setStart(const vec3& v) { start_ = v; }
+	void setStart(double x, double y, double z) { start_ = vec3(x, y, z); }
 
-	const point3d& end() const { return end_; }
-	void setEnd(const point3d& v) { end_ = v; }
-	void setEnd(double x, double y, double z) { end_ = point3d(x, y, z); }
+	const vec3& end() const { return end_; }
+	void setEnd(const vec3& v) { end_ = v; }
+	void setEnd(double x, double y, double z) { end_ = vec3(x, y, z); }
 
 	const vec3& tickOrient() const { return tickOrient_; }
 
@@ -137,7 +137,7 @@ public:
 	vec3 tickPos(double val) const;
 
 
-	KtAABB<double> boundingBox() const override;
+	aabb_tyle boundingBox() const override;
 
 	void draw(KvPaint&) const override;
 

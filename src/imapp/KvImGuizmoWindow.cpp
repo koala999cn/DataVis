@@ -37,7 +37,7 @@ void KvImGuizmoWindow::update()
 
         updateImpl_();
 
-        noMove_ = ImGui::IsWindowHovered(); 
+        noMove_ = false; // ImGui::IsWindowHovered();
     }
 
     ImGui::End();

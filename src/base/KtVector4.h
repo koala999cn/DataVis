@@ -21,9 +21,9 @@ public:
 	KtVector4(const super_& pt) : super_(pt) {}
 
 	// 若v为点，保留w=1; 若为矢量，置w=0
-	KtVector4(const KtPoint<KReal, 3>& v, KReal w = 1) {
+	KtVector4(const KtPoint<KReal, 3>& v, KReal _w = 1) {
 		x() = v.x(), y() = v.y(), z() = v.z();
-		w() = w;
+		w() = _w;
 	}
 
 	// 在齐次坐标下，矢量的w为0，点的w非零.
@@ -34,7 +34,7 @@ public:
 	KtVector4& homogenize() {
 		if(w() != 0 && w() != 1) { 
 			KReal f = 1 / w();
-			x() *= f, y() *= f, z() *= f, w = 1;
+			x() *= f, y() *= f, z() *= f, w() = 1;
 		} 
 
 		return *this;

@@ -16,7 +16,7 @@ public:
 
     explicit KcImNodeEditor(const std::string_view& name);
 
-    const char* type() const override { return "NodeEditor"; }
+    //const char* type() const override { return "NodeEditor"; }
 
     void insertNode(const std::shared_ptr<KvBlockNode>& node);
 

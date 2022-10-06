@@ -142,6 +142,8 @@
     <ClCompile Include="src\imapp\KcActionNewTextData.cpp" />
     <ClCompile Include="src\imapp\KcActionFileDialog.cpp" />
     <ClCompile Include="src\imapp\KcImDataView.cpp" />
+    <ClCompile Include="src\imapp\KcImPaint.cpp" />
+    <ClCompile Include="src\imapp\KcImPlot3d.cpp" />
     <ClCompile Include="src\imapp\KcImTextCleanWindow.cpp" />
     <ClCompile Include="src\imapp\KcModuleImFileDialog.cpp" />
     <ClCompile Include="src\imapp\KcModuleImGuiGlfw.cpp" />
@@ -160,7 +162,7 @@
     <ClCompile Include="src\plot\KcCoordSystem.cpp" />
     <ClCompile Include="src\plot\KcGridPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
-    <ClCompile Include="src\plot\KvPlot.cpp" />
+    <ClCompile Include="src\plot\KvPlot3d.cpp" />
     <ClCompile Include="src\plot\KvTicker.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -191,6 +193,7 @@
     <ClInclude Include="src\base\KtPoint.h" />
     <ClInclude Include="src\base\KtQuaternion.h" />
     <ClInclude Include="src\base\KtSingleton.h" />
+    <ClInclude Include="src\base\KtTrackballController.h" />
     <ClInclude Include="src\base\KtUId.h" />
     <ClInclude Include="src\base\KtuMath.h" />
     <ClInclude Include="src\base\KtVector3.h" />
@@ -239,6 +242,7 @@
     <ClInclude Include="src\imapp\KcActionFileDialog.h" />
     <ClInclude Include="src\imapp\KcActionSequence.h" />
     <ClInclude Include="src\imapp\KcImDataView.h" />
+    <ClInclude Include="src\imapp\KcImPaint.h" />
     <ClInclude Include="src\imapp\KcImPlot3d.h" />
     <ClInclude Include="src\imapp\KcImTextCleanWindow.h" />
     <ClInclude Include="src\imapp\KcModuleImFileDialog.h" />
@@ -263,7 +267,7 @@
     <ClInclude Include="src\plot\KvPlottable1d.h" />
     <ClInclude Include="src\plot\KvTicker.h" />
     <ClInclude Include="src\plot\KcCoordSystem.h" />
-    <ClInclude Include="src\plot\KvPlot.h" />
+    <ClInclude Include="src\plot\KvPlot3d.h" />
     <ClInclude Include="src\plot\KvPlottable.h" />
     <ClInclude Include="src\plot\KvRenderable.h" />
     <ClInclude Include="src\operator.h" />

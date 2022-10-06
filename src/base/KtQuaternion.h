@@ -15,7 +15,8 @@ class KtQuaternion : protected KtPoint<KReal, 4>
 	using super_ = KtPoint<KReal, 4>;
 	using vec3 = KtVector3<KReal>;
 	using vec4 = KtVector4<KReal>;
-	using mat3 = KtMatrix3<KReal>;
+	template<bool ROW_MAJOR = true>
+	using mat3 = KtMatrix3<KReal, ROW_MAJOR>;
 	using kMath = KtuMath<KReal>;
 
 public:
@@ -33,14 +34,15 @@ public:
 	KtQuaternion() : super_(0, 0, 0, 1) {}
 
 	 /// Construct a quaternion from a rotation matrix
-	KtQuaternion(const mat3& rot);
+	template<bool ROW_MAJOR>
+	KtQuaternion(const mat3<ROW_MAJOR>& rot);
 
 	/// Construct a quaternion from an angle/axis
 	KtQuaternion(KReal angle, const vec3& axis);
 
 	// 从局部坐标系相对世界坐标系的坐标来构造四元数
 	KtQuaternion(const vec3& x, const vec3& y, const vec3& z) 
-	    : KtQuaternion(mat3(x, y, z)) {}
+	    : KtQuaternion(mat3<>(x, y, z)) {}
 
 	/** Construct the shortest arc quaternion to rotate "from" vector to
 		the destination "to" vector.
@@ -90,7 +92,10 @@ public:
 	KReal select() const { return w(); } 
 
 	void toAngleAxis(KReal& angle, vec3& axis) const;
-	void toRotateMatrix(mat3& rot) const;
+
+	template<bool ROW_MAJOR>
+	void toRotateMatrix(mat3<ROW_MAJOR>& rot) const;
+
 	void toAxes(vec3& x, vec3& y, vec3& z) const;
 
 	vec3 xAxis() const; // 单独提取局部坐标x方向的单位矢量在世界坐标的投影
@@ -131,8 +136,8 @@ public:
 //        w = (r10-r01)/4z
 //        x = (r02+r20)/4z
 //        y = (r12+r21)/4z
-template<class KReal>
-KtQuaternion<KReal>::KtQuaternion(const mat3& rot)
+template<class KReal> template<bool ROW_MAJOR>
+KtQuaternion<KReal>::KtQuaternion(const mat3<ROW_MAJOR>& rot)
 {
 	KReal trace = rot.m00() + rot.m11() + rot.m22();
 	if (trace > 0) {
@@ -262,8 +267,8 @@ void KtQuaternion<KReal>::toAngleAxis(KReal& angle, vec3& axis) const
 //     | 1-2yy-2zz    2xy-2wz     2xz+2wy  |
 // R = |  2xy+2wz    1-2xx-2zz    2yz-2wx  |
 //     |  2xz-2wy     2yz+2wx    1-2xx-2yy |
-template<class KReal>
-void KtQuaternion<KReal>::toRotateMatrix(mat3& rot) const
+template<class KReal> template<bool ROW_MAJOR>
+void KtQuaternion<KReal>::toRotateMatrix(mat3<ROW_MAJOR>& rot) const
 {
 	assert(isUnit()); // 只对单位四元数有效
 
@@ -295,7 +300,7 @@ void KtQuaternion<KReal>::toRotateMatrix(mat3& rot) const
 template<class KReal>
 void KtQuaternion<KReal>::toAxes(vec3& x, vec3& y, vec3& z) const
 {
-	mat3 rot;
+	mat3<> rot;
 	toRotateMatrix(rot);
 
 	// 提取旋转矩阵的各列

@@ -1,34 +1,26 @@
-#include "KvPlot.h"
+#include "KvPlot3d.h"
 
 
-KvPlot::KvPlot(std::shared_ptr<KvPaint> paint)
-	: ortho_(true)
-	, autoFit_(true)
-    , isometric_(false)
-	, paint_(paint)
+KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint)
+	: paint_(paint)
 {
-	zoom_ = 1;
-	scale_ = { 1, 1, 1 };
-	shift_ = { 0, 0, 0 };
-	rotate_ = { 0, 0, 0 };
-
 	coord_ = std::make_unique<KcCoordSystem>();
 }
 
 
-KvPlottable* KvPlot::plottable(unsigned idx)
+KvPlottable* KvPlot3d::plottable(unsigned idx)
 {
 	return plottables_[idx].get();
 }
 
 
-void KvPlot::addPlottable(KvPlottable* plot) 
+void KvPlot3d::addPlottable(KvPlottable* plot) 
 {
 	plottables_.emplace_back(plot);
 }
 
 
-void KvPlot::update()
+void KvPlot3d::update()
 {
 	if (autoFit_ && !plottables_.empty()) 
 		fitData_();
@@ -42,9 +34,9 @@ void KvPlot::update()
 }
 
 
-void KvPlot::fitData_()
+void KvPlot3d::fitData_()
 {
-	KtAABB<double> box;
+	typename KvRenderable::aabb_tyle box;
 	for (auto& p : plottables_)
 		box.merge(p->boundingBox());
 

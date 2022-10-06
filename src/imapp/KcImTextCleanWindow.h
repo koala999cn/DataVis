@@ -17,7 +17,7 @@ public:
     // @cleanData: 返回数据清洗结果
     KcImTextCleanWindow(const std::string& source, const matrix<std::string>& rawData, matrix<double>& cleanData);
 
-    const char* type() const override { return "ImTextCleanWindow"; }
+    //const char* type() const override { return "ImTextCleanWindow"; }
 
 private:
     void updateImpl_() override;

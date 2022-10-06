@@ -6,13 +6,13 @@
 
 
 KcCoordSystem::KcCoordSystem()
-	: KcCoordSystem(point3d(0), point3d(10))
+	: KcCoordSystem(point3(0), point3(10))
 {
 
 }
 
 
-KcCoordSystem::KcCoordSystem(const point3d& lower, const point3d& upper)
+KcCoordSystem::KcCoordSystem(const point3& lower, const point3& upper)
 {
 	// 初始化12根坐标轴
 	for (unsigned i = 0; i < std::size(axes_); i++)
@@ -79,15 +79,15 @@ KcCoordSystem::KcCoordSystem(const point3d& lower, const point3d& upper)
  *  p3         x3    p4
  *    
  */
-void KcCoordSystem::setExtents(const point3d& lower, const point3d& upper)
+void KcCoordSystem::setExtents(const point3& lower, const point3& upper)
 {
 	// p0 = lower, p7 = upper
-	auto p1 = point3d{ lower.x(), upper.y(), lower.z() };
-	auto p2 = point3d{ lower.x(), upper.y(), upper.z() };
-	auto p3 = point3d{ lower.x(), lower.y(), upper.z() };
-	auto p4 = point3d{ upper.x(), lower.y(), upper.z() };
-	auto p5 = point3d{ upper.x(), lower.y(), lower.z() };
-	auto p6 = point3d{ upper.x(), upper.y(), lower.z() };
+	auto p1 = point3{ lower.x(), upper.y(), lower.z() };
+	auto p2 = point3{ lower.x(), upper.y(), upper.z() };
+	auto p3 = point3{ lower.x(), lower.y(), upper.z() };
+	auto p4 = point3{ upper.x(), lower.y(), upper.z() };
+	auto p5 = point3{ upper.x(), lower.y(), lower.z() };
+	auto p6 = point3{ upper.x(), upper.y(), lower.z() };
 
 	axes_[k_x0]->setRange(lower.x(), upper.x());
 	axes_[k_x0]->setStart(lower); axes_[k_x0]->setEnd(p5);
@@ -118,19 +118,19 @@ void KcCoordSystem::setExtents(const point3d& lower, const point3d& upper)
 }
 
 
-point3d KcCoordSystem::lower() const
+KcCoordSystem::point3 KcCoordSystem::lower() const
 {
-	return point3d{ axes_[k_x0]->lower(), axes_[k_y0]->lower(), axes_[k_z0]->lower() };
+	return { axes_[k_x0]->lower(), axes_[k_y0]->lower(), axes_[k_z0]->lower() };
 }
 
 
-point3d KcCoordSystem::upper() const
+KcCoordSystem::point3 KcCoordSystem::upper() const
 {
-	return point3d{ axes_[k_x0]->upper(), axes_[k_y0]->upper(), axes_[k_z0]->upper() };
+	return { axes_[k_x0]->upper(), axes_[k_y0]->upper(), axes_[k_z0]->upper() };
 }
 
 
-point3d KcCoordSystem::center() const
+KcCoordSystem::point3 KcCoordSystem::center() const
 {
 	return (lower() + upper()) / 2;
 }
@@ -142,7 +142,7 @@ double KcCoordSystem::diag() const
 }
 
 
-KtAABB<double> KcCoordSystem::boundingBox() const
+KcCoordSystem::aabb_type KcCoordSystem::boundingBox() const
 {
 	return { lower(), upper() };
 }

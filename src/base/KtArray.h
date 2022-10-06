@@ -21,9 +21,9 @@ public:
 	}
 
 	// 所有元素都填充val值
-	template<typename T>
-	explicit KtArray(const T& val) {
-		super_::fill(val);
+	template<typename U>
+	explicit KtArray(const U& val) {
+		super_::fill(T(val));
 	}
 
 	// 从迭代器构造，方便类型转换
@@ -32,8 +32,12 @@ public:
 		std::copy(iter, iter + SIZE, super_::begin());
 	}
 
+	template<typename U>
+	explicit KtArray(const KtArray<U, SIZE>& other) 
+	    : KtArray(other.cbegin()) { }
+
 	// 从元素值构造
 	template<typename... ARGS,
 		std::enable_if_t<sizeof...(ARGS) == SIZE, bool> = true> // 加个enable_if, 否则上个构造多数情况下不会被调用
-	explicit KtArray(ARGS... args) : super_{ static_cast<T>(args)... } {}
+	KtArray(ARGS... args) : super_{ static_cast<T>(args)... } {}
 };
