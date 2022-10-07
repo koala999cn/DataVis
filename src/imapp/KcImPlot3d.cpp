@@ -73,6 +73,7 @@ void KcImPlot3d::autoProject_()
 
     auto pos = ImGui::GetWindowPos();
     auto sz = ImGui::GetWindowSize();
+    auto vp = ImGui::GetWindowViewport();
     camera_.setViewport(pos.x, pos.y, sz.x, sz.y);
     camera_.lookAt({ 7 * radius, 7 * radius, 7 * radius }, center, { 0, 1, 0 });
 
@@ -83,4 +84,7 @@ void KcImPlot3d::autoProject_()
         camera_.projectOrtho(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
     else
         camera_.projectFrustum(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
+
+    auto pt = camera_.worldToViewport({ 0, 0, 0, 1 });
+    pt.x(), pt.y();
 }

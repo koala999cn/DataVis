@@ -43,8 +43,8 @@
     <Filter Include="3rdparty\imFileDialog">
       <UniqueIdentifier>{3ce5a1f3-ec03-4789-9bf1-b55abfac78dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="3rdparty\ImGuizmo">
-      <UniqueIdentifier>{71fc2fb1-bf3d-40ed-a352-8160ba65cfa2}</UniqueIdentifier>
+    <Filter Include="3rdparty\implot">
+      <UniqueIdentifier>{314d7329-2ade-4611-8dc7-ec78c60c94c3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -214,12 +214,6 @@
     <ClCompile Include="src\prov\KcPvData.cpp">
       <Filter>prov</Filter>
     </ClCompile>
-    <ClCompile Include="3rdparty\ImGuizmo\ImGuizmo.cpp">
-      <Filter>3rdparty\ImGuizmo</Filter>
-    </ClCompile>
-    <ClCompile Include="src\imapp\KvImGuizmoWindow.cpp">
-      <Filter>imapp</Filter>
-    </ClCompile>
     <ClCompile Include="src\plot\KvPlot3d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
@@ -236,6 +230,15 @@
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="src\imapp\KcImPlot3d.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\implot\implot.cpp">
+      <Filter>3rdparty\implot</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\implot\implot_items.cpp">
+      <Filter>3rdparty\implot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KcModuleImPlot.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
   </ItemGroup>
@@ -534,12 +537,6 @@
     <ClInclude Include="src\prov\KcPvData.h">
       <Filter>prov</Filter>
     </ClInclude>
-    <ClInclude Include="3rdparty\ImGuizmo\ImGuizmo.h">
-      <Filter>3rdparty\ImGuizmo</Filter>
-    </ClInclude>
-    <ClInclude Include="src\imapp\KvImGuizmoWindow.h">
-      <Filter>imapp</Filter>
-    </ClInclude>
     <ClInclude Include="src\base\KtMatrix4.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -565,6 +562,15 @@
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcImPaint.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\implot\implot.h">
+      <Filter>3rdparty\implot</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\implot\implot_internal.h">
+      <Filter>3rdparty\implot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcModuleImPlot.h">
       <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>

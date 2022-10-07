@@ -105,7 +105,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="3rdparty\ImFileDialog\ImFileDialog.cpp" />
-    <ClCompile Include="3rdparty\ImGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="3rdparty\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="3rdparty\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="3rdparty\imgui\imgui.cpp" />
@@ -114,6 +113,8 @@
     <ClCompile Include="3rdparty\imgui\imgui_tables.cpp" />
     <ClCompile Include="3rdparty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="3rdparty\imnodes\imnodes.cpp" />
+    <ClCompile Include="3rdparty\implot\implot.cpp" />
+    <ClCompile Include="3rdparty\implot\implot_items.cpp" />
     <ClCompile Include="src\base\KuFileUtil.cpp" />
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
@@ -150,9 +151,9 @@
     <ClCompile Include="src\imapp\KcImNodeEditor.cpp" />
     <ClCompile Include="src\imapp\KcImActionPanel.cpp" />
     <ClCompile Include="src\imapp\KcModuleImNode.cpp" />
+    <ClCompile Include="src\imapp\KcModuleImPlot.cpp" />
     <ClCompile Include="src\imapp\KgImWindowManager.cpp" />
     <ClCompile Include="src\imapp\KgModuleManager.cpp" />
-    <ClCompile Include="src\imapp\KvImGuizmoWindow.cpp" />
     <ClCompile Include="src\imapp\KvImModalWindow.cpp" />
     <ClCompile Include="src\imapp\KvImWindow.cpp" />
     <ClCompile Include="src\imapp\KsImApp.cpp" />
@@ -171,7 +172,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdparty\ImFileDialog\ImFileDialog.h" />
-    <ClInclude Include="3rdparty\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3_loader.h" />
@@ -183,6 +183,8 @@
     <ClInclude Include="3rdparty\imgui\imstb_truetype.h" />
     <ClInclude Include="3rdparty\imnodes\imnodes.h" />
     <ClInclude Include="3rdparty\imnodes\imnodes_internal.h" />
+    <ClInclude Include="3rdparty\implot\implot.h" />
+    <ClInclude Include="3rdparty\implot\implot_internal.h" />
     <ClInclude Include="src\base\KtCamera.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
@@ -250,10 +252,10 @@
     <ClInclude Include="src\imapp\KcImNodeEditor.h" />
     <ClInclude Include="src\imapp\KcImActionPanel.h" />
     <ClInclude Include="src\imapp\KcModuleImNode.h" />
+    <ClInclude Include="src\imapp\KcModuleImPlot.h" />
     <ClInclude Include="src\imapp\KgImWindowManager.h" />
     <ClInclude Include="src\imapp\KgModuleManager.h" />
     <ClInclude Include="src\imapp\KvAction.h" />
-    <ClInclude Include="src\imapp\KvImGuizmoWindow.h" />
     <ClInclude Include="src\imapp\KvImModalWindow.h" />
     <ClInclude Include="src\imapp\KvImWindow.h" />
     <ClInclude Include="src\imapp\KsImApp.h" />

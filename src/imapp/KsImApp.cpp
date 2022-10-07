@@ -7,7 +7,6 @@
 #include "imapp/KgImWindowManager.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "KcModuleImGuiGlfw.h"
-#include "ImGuizmo.h"
 
 
 KsImApp::KsImApp()
@@ -58,7 +57,7 @@ void KsImApp::quit()
 
 void KsImApp::drawFrame_()
 {
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 bkclr = ImVec4(0.45f, 0.55f, 0.60f, 1.00f); // 主窗口的背景色
 
     auto imgui = getModule<KcModuleImGuiGlfw>();
     auto window = imgui->glfwWindow();
@@ -67,7 +66,6 @@ void KsImApp::drawFrame_()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGuizmo::BeginFrame();
 
     for (auto ls : lsUpdate_)
         if (!ls()) {
@@ -84,7 +82,7 @@ void KsImApp::drawFrame_()
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        glClearColor(bkclr.x, bkclr.y, bkclr.z, bkclr.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }

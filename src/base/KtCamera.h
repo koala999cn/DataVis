@@ -63,8 +63,14 @@ public:
 	}
 
 	// viewport左下角为(0, 0)点，screen左上角为(0, 0)点
+	// 规范化坐标下：y(scr*) = 1 - y(vp*)
+	// 屏幕坐标下：y(scr) = y0 + y(scr*) * h 
+	//                    = y0 + (1-y(vp*)) * h = y0 + h - y(vp*) * h 
+	// 视图坐标下：y(vp) = y0 + y(vp*) * h ==> y(vp*) = (y(vp) - y0) / h
+	// 综上：y(scr) = y0 + h - y(vp) + y0 = 2 * y0 + h - y(vp)
 	point2 switchViewportAndScreen(const point2& pt) const {
-		return { pt.x(), h_ - pt.y() };
+
+		return { pt.x(), 2 * y_ + h_ - pt.y() };
 	}
 
 	REAL width() const { return w_; }
