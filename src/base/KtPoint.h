@@ -132,7 +132,7 @@ public:
 
 	bool isApproxEqual(const KtPoint& rhs) const {
 		for (unsigned i = 0; i < size(); i++) {
-			if (!kMath::approxEqual(super_::at(i), rhs.at(i)))
+			if (!kMath::almostEqual(super_::at(i), rhs.at(i)))
 				return false;
 		}
 
@@ -177,8 +177,8 @@ public:
 
 
 	static const KtPoint& zero() {
-		static KtPoint z();
-		return z;
+		static KtPoint o;
+		return o;
 	}
 
 	static KtPoint ceil(const KtPoint& pt1, const KtPoint& pt2) {

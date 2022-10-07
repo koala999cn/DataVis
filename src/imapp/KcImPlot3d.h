@@ -2,6 +2,7 @@
 #include "KvImWindow.h"
 #include "plot/KvPlot3d.h"
 #include "KtCamera.h"
+#include "KtTrackballController.h"
 
 
 class KcImPlot3d : public KvImWindow, public KvPlot3d
@@ -52,4 +53,8 @@ private:
 	KtCamera<float, false> camera_;
 	color4f bkclr_{ 1, 1, 1, 1 };
 	bool noMove_{ false };
+
+	KtQuaternion<float> orient_; // 摄像机的方位
+
+	KtTrackballController<float> trackball_; // 用于操控orient_
 };

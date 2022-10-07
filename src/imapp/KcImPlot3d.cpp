@@ -6,6 +6,7 @@
 KcImPlot3d::KcImPlot3d(const std::string_view& name)
     : KvPlot3d(std::make_shared<KcImPaint>(camera_))
     , KvImWindow(name)
+    , trackball_(orient_)
 {
 
 }
@@ -13,6 +14,7 @@ KcImPlot3d::KcImPlot3d(const std::string_view& name)
 
 void KcImPlot3d::update() 
 {
+    // 设置窗口背景为plot的背景色
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(bkclr_.r(), bkclr_.g(), bkclr_.b(), bkclr_.a()));
 
     KvImWindow::update();
@@ -23,6 +25,22 @@ void KcImPlot3d::update()
 
 void KcImPlot3d::updateImpl_()
 {
+    // 更新摄像机的视图
+    auto pos = ImGui::GetWindowPos();
+    auto sz = ImGui::GetWindowSize();
+    camera_.setViewport(pos.x, pos.y, sz.x, sz.y);
+
+    // 处理鼠标drag事件，转动trackball，更新摄像机方位角
+    if (ImGui::IsMouseClicked(0)) {
+        auto mousePos = ImGui::GetMousePos();      
+        trackball_.reset({ (pos.x + sz.x) / 2, (pos.y + sz.y) / 2 }, { sz.x / 2, sz.y / 2 });
+        trackball_.start(mousePos.x, mousePos.y);
+    }
+    if (ImGui::IsMouseDragging(0)) {
+        auto d = ImGui::GetMouseDragDelta();
+        trackball_.delta(d.x, d.y);
+    }
+
     KvPlot3d::update();
 
     // 设置只有拖动标题栏才能移动窗口
@@ -71,11 +89,9 @@ void KcImPlot3d::autoProject_()
     tr.translate(0, 0, -7 * radius); // 调整z轴位置，给near/far平面留出足够空间
     camera->setViewMatrix(tr.localMatrix());*/
 
-    auto pos = ImGui::GetWindowPos();
-    auto sz = ImGui::GetWindowSize();
-    auto vp = ImGui::GetWindowViewport();
-    camera_.setViewport(pos.x, pos.y, sz.x, sz.y);
     camera_.lookAt({ 7 * radius, 7 * radius, 7 * radius }, center, { 0, 1, 0 });
+
+    camera_.viewMatrix() = camera_.viewMatrix() * mat4::buildTransform({ 0, 0, 0 }, { 1, 1, 1 }, orient_);
 
     if (radius == 0)
         radius = 1;
@@ -84,7 +100,4 @@ void KcImPlot3d::autoProject_()
         camera_.projectOrtho(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
     else
         camera_.projectFrustum(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
-
-    auto pt = camera_.worldToViewport({ 0, 0, 0, 1 });
-    pt.x(), pt.y();
 }

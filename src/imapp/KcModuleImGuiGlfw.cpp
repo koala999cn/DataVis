@@ -126,7 +126,7 @@ bool KcModuleImGuiGlfw::initImGui_()
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // 先设置该标记，以便初始化Viewports支持
 
 
     // Setup Platform/Renderer backends
@@ -140,6 +140,8 @@ bool KcModuleImGuiGlfw::initImGui_()
         ImGui::DestroyContext();
         return false; // TODO: shutdown
     }
+
+    io.ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable; // 默认去除Viewports
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();

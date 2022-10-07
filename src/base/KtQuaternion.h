@@ -189,14 +189,14 @@ template<class KReal>
 KtQuaternion<KReal>::KtQuaternion(const vec3& from, const vec3& to)
 {
 	// Copy, since cannot modify local
-	auto v0 = from.getNormalized();
-	auto v1 = to.getNormalized();
+	vec3 v0 = from.getNormalized();
+	vec3 v1 = to.getNormalized();
 
 	KReal d = v0.dot(v1);
 
 	// If dot == 1, vectors are the same
 	if (d >= 1.0f) {
-		*this = identify();
+		*this = identity();
 	}
 	if (d < (1e-6f - 1.0f)) {
 		// 绕任意轴旋转180度，此处选择from的垂直轴
@@ -220,7 +220,7 @@ KtQuaternion<KReal>& KtQuaternion<KReal>::normalize()
 {
 	auto n = norm();
 	if (n > 1e-8)
-		operator *= 1 / std::sqrt(n);
+		operator *=(1 / std::sqrt(n));
 
 	return *this;
 }
