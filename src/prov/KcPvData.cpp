@@ -1,19 +1,10 @@
 ﻿#include "KcPvData.h"
-#include "KvContinued.h"
-//#include "QtAppEventHub.h"
 
 
 KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-/*	if (data->isDiscreted())
-		options_ |= k_show;
 
-	connect(kAppEventHub, &QtAppEventHub::pipelineStarted, 
-		this, [=](KvPropertiedObject* root, bool ok) {
-			if (ok && root == (KvPropertiedObject*)this)
-				pushData(data_);
-		});*/
 }
 
 
@@ -51,8 +42,7 @@ kIndex KcPvData::size(kIndex axis) const
 
 std::shared_ptr<KvData> KcPvData::grabData(kIndex portIdx)
 {
-	assert(portIdx >= 0 && portIdx < outPorts());
-	return data_;
+	return portIdx == 0 ? data_ : nullptr;
 }
 
 

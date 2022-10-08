@@ -241,6 +241,9 @@
     <ClCompile Include="src\imapp\KcModuleImPlot.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\KcRdPlot1d.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -572,6 +575,12 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcModuleImPlot.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KvDataRender.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdPlot1d.h">
+      <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

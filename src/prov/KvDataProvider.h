@@ -12,6 +12,13 @@ public:
 
 	using KvBlockNode::KvBlockNode;
 
+	// 数据源没有输入端口
+	unsigned inPorts() const override { return 0; }
+
+	// 缺省输出端口数为1
+	unsigned outPorts() const override { return 1; }
+
+
 	virtual bool isStream() const = 0;
 
 	// 数据的维度

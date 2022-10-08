@@ -169,6 +169,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
+    <ClCompile Include="src\render\KcRdPlot1d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdparty\ImFileDialog\ImFileDialog.h" />
@@ -283,6 +284,8 @@
     <ClInclude Include="src\dsp\KtInterval.h" />
     <ClInclude Include="src\dsp\KtSampling.h" />
     <ClInclude Include="src\dsp\KvData.h" />
+    <ClInclude Include="src\render\KcRdPlot1d.h" />
+    <ClInclude Include="src\render\KvDataRender.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
