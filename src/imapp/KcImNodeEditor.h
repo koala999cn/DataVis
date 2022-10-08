@@ -23,7 +23,17 @@ public:
 private:
     void updateImpl_() override;
 
-    unsigned node2Index_(const node_ptr& node) const;
+    void drawNodes_() const;
+
+    void drawLinks_() const;
+
+    void testNewLink_(); // 检测是否有新连接
+
+    unsigned nodeIndex_(const node_ptr& node) const;
+
+    unsigned nodeId2Index_(int id) const;
+
+    static int linkId_(int fromId, int toId);
 
 private:
     node_graph graph_;

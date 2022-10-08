@@ -198,12 +198,13 @@ KtQuaternion<KReal>::KtQuaternion(const vec3& from, const vec3& to)
 	if (d >= 1.0f) {
 		*this = identity();
 	}
-	if (d < (1e-6f - 1.0f)) {
+	if (d < (kMath::eps - 1.0f)) {
 		// 绕任意轴旋转180度，此处选择from的垂直轴
 		*this = KtQuaternion(kMath::pi, from.perpendicular());
 	}
 	else {
 		KReal s = std::sqrt((1 + d) * 2);
+		assert(s > kMath::eps);
 		auto c = v0.cross(v1) / s;
 
 		x() = c.x();
@@ -219,7 +220,7 @@ template<class KReal>
 KtQuaternion<KReal>& KtQuaternion<KReal>::normalize()
 {
 	auto n = norm();
-	if (n > 1e-8)
+	if (n > kMath::eps) 
 		operator *=(1 / std::sqrt(n));
 
 	return *this;

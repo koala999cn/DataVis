@@ -582,5 +582,8 @@
     <ClInclude Include="src\render\KcRdPlot1d.h">
       <Filter>render</Filter>
     </ClInclude>
+    <ClInclude Include="src\imapp\KtActionInsertNode.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

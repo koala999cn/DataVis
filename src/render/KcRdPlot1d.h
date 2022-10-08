@@ -20,6 +20,8 @@ public:
 
 	KcRdPlot1d();
 
+	void pushData(std::shared_ptr<KvData> data) override;
+
 private:
 	KeType type_;
 };

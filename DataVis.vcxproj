@@ -256,6 +256,7 @@
     <ClInclude Include="src\imapp\KcModuleImPlot.h" />
     <ClInclude Include="src\imapp\KgImWindowManager.h" />
     <ClInclude Include="src\imapp\KgModuleManager.h" />
+    <ClInclude Include="src\imapp\KtActionInsertNode.h" />
     <ClInclude Include="src\imapp\KvAction.h" />
     <ClInclude Include="src\imapp\KvImModalWindow.h" />
     <ClInclude Include="src\imapp\KvImWindow.h" />

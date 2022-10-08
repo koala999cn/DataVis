@@ -97,7 +97,7 @@ void KcImPlot3d::handleMouseInput_()
         else if (factor > 1.5f)
             factor = 1.5f;
 
-        if (io.MouseDown[1]) // 当同时按下鼠标右键时，仅缩放坐标系range
+        if (io.KeyCtrl) // 当同时按下CTRL键时，仅缩放坐标系range
             coordSystem().zoom(factor);
         else // 否则缩放plot
            zoom_ *= factor;

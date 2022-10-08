@@ -3,11 +3,13 @@
 #include "imapp/KcImNodeEditor.h"
 #include "imapp/KcImActionPanel.h"
 #include "imapp/KcActionNewTextData.h"
+#include "imapp/KtActionInsertNode.h"
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KcModuleImGuiGlfw.h"
 #include "imapp/KcModuleImNode.h"
 #include "imapp/KcModuleImFileDialog.h"
 #include "imapp/KcModuleImPlot.h"
+#include "render/KcRdPlot1d.h"
 
 #include "imapp/KcImPlot3d.h"
 
@@ -49,6 +51,7 @@ int main_(int, char**)
     auto panel = app.windowManager().registerStatic<KcImActionPanel>("Action Panel");
     app.windowManager().registerStatic<KcImPlot3d>("Plot3d");
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
+    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
 
     app.listenPerFrame(update);
     app.run();

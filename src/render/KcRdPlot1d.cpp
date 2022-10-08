@@ -11,3 +11,9 @@ KcRdPlot1d::KcRdPlot1d()
 {
 
 }
+
+
+void KcRdPlot1d::pushData(std::shared_ptr<KvData> data)
+{
+
+}

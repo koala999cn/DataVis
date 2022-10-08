@@ -42,8 +42,8 @@ private:
 	quat& orient_; // 待操控的方位角
 
     // trackball的参数：支点与半径
-    point2 pivot_;
-    point2 radius_;
+    point2 pivot_{ 0, 0 };
+    point2 radius_{ 1, 1 };
     REAL rotateSpeed_{ 0.1 };
 
     point2 lastPos_; // 追踪鼠标位置
