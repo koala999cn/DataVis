@@ -33,7 +33,13 @@ private:
 
     unsigned nodeId2Index_(int id) const;
 
+    // node id pair --> link id
     static int linkId_(int fromId, int toId);
+
+    // link id --> node id pair
+    static std::pair<int, int> nodeId_(int linkId);
+
+    void handleInput_();
 
 private:
     node_graph graph_;

@@ -36,6 +36,7 @@ public:
 	// 构造parent节点的第index个type类型端口
 	KcPortNode(KeType type, std::weak_ptr<KvBlockNode> parent, unsigned index);
 
+	KeType type() const { return type_; }
 
 private:
 	static std::string portName_(KeType type, unsigned index);
