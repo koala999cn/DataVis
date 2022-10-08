@@ -6,7 +6,7 @@
 
 class KcImPaint : public KvPaint
 {
-	using camera_type = KtCamera<float, false>;
+	using camera_type = KtCamera<float>;
 	
 public:
 
@@ -22,7 +22,8 @@ public:
 
 private:
 	ImVec2 world2Pos_(const point3& pt) const;
-	ImColor color() const {
+
+	ImColor color_() const {
 		return ImColor(clr_.r(), clr_.g(), clr_.b(), clr_.a());
 	}
 

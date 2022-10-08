@@ -144,20 +144,28 @@ public:
 	}
 
 
-	T abs() const {
+	T squaredLength() const {
 		T len(0);
 		for (unsigned i = 0; i < size(); i++)
 			len += super_::at(i) * super_::at(i);
-		return std::sqrt(len);
+		return len;
+	}
+
+	T length() const {
+		return std::sqrt(squaredLength());
+	}
+
+	T abs() const {
+		return length();
 	}
 
 	// make THIS normalized
 	KtPoint& normalize() {
-		*this = getNormalized();
+		*this = getNormalize();
 		return *this;
 	}
 
-	KtPoint getNormalized() const {
+	KtPoint getNormalize() const {
 		auto len = abs();
 		return len == 0 ? *this : *this / len;
 	}

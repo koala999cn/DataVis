@@ -22,7 +22,7 @@ void KcImPaint::setLineWidth(double width)
 void KcImPaint::drawLine(const point3& from, const point3& to)
 {
 	auto drawList = ImGui::GetWindowDrawList();
-	drawList->AddLine(world2Pos_(from), world2Pos_(to), color(), lineWidth_);
+	drawList->AddLine(world2Pos_(from), world2Pos_(to), color_(), lineWidth_);
 }
 
 
@@ -30,7 +30,7 @@ void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	// TODO: 根据align调整anchor
-	drawList->AddText(world2Pos_(anchor), color(), text);
+	drawList->AddText(world2Pos_(anchor), color_(), text);
 }
 
 

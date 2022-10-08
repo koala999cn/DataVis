@@ -89,6 +89,21 @@ public:
 				 0.0f,  0.0f,  0.0f,  1.0f };
     }
 
+	/** Builds a rotation matrix.
+	*/
+	static mat4 buildRotation(const quat& orient) {
+
+		mat3 rot;
+		orient.toRotateMatrix(rot);
+
+		return {
+			rot.m00(), rot.m01(), rot.m02(), 0,
+			rot.m10(), rot.m11(), rot.m12(), 0,
+			rot.m20(), rot.m21(), rot.m22(), 0,
+			        0,         0,         0, 1
+		};
+	}
+
     /** Building a Matrix4 from orientation / scale / position.
     @remarks
         Transform is performed in the order scale, rotate, translation, i.e. translation is independent

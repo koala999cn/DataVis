@@ -12,51 +12,29 @@ KcImPlot3d::KcImPlot3d(const std::string_view& name)
 }
 
 
-void KcImPlot3d::update() 
-{
-    // 设置窗口背景为plot的背景色
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(bkclr_.r(), bkclr_.g(), bkclr_.b(), bkclr_.a()));
-
-    KvImWindow::update();
-
-    ImGui::PopStyleColor();
-}
-
-
 void KcImPlot3d::updateImpl_()
 {
-    // 更新摄像机的视图
-    auto pos = ImGui::GetWindowPos();
-    auto sz = ImGui::GetWindowSize();
-    camera_.setViewport(pos.x, pos.y, sz.x, sz.y);
+    // 设置窗口背景为plot的背景色
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(bkclr_.r(), bkclr_.g(), bkclr_.b(), bkclr_.a()));
 
-    // 处理鼠标drag事件，转动trackball，更新摄像机方位角
-    if (ImGui::IsMouseClicked(0)) {
-        auto mousePos = ImGui::GetMousePos();      
-        trackball_.reset({ (pos.x + sz.x) / 2, (pos.y + sz.y) / 2 }, { sz.x / 2, sz.y / 2 });
-        trackball_.start(mousePos.x, mousePos.y);
+    if (ImGui::BeginChild("##plot3d_internal", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove)) {
+
+        // 更新摄像机的视图
+        auto pos = ImGui::GetWindowPos();
+        auto sz = ImGui::GetWindowSize();
+        camera_.setViewport(pos.x, pos.y, sz.x, sz.y);
+
+        // 处理鼠标事件
+        if (ImGui::IsMouseHoveringRect(pos, { pos.x + sz.x, pos.y + sz.y }))
+            handleMouseInput_();
+
+        // 绘制3d数据图
+        KvPlot3d::update();
+
+        ImGui::EndChild();
     }
-    if (ImGui::IsMouseDragging(0)) {
-        auto d = ImGui::GetMouseDragDelta();
-        trackball_.delta(d.x, d.y);
-    }
 
-    KvPlot3d::update();
-
-    // 设置只有拖动标题栏才能移动窗口
-    auto& style = ImGui::GetStyle();
-    auto titlebarHeight = ImGui::GetFontSize() + style.FramePadding.y * 2;
-    auto innerMin = ImGui::GetWindowPos();
-    auto innerMax = ImGui::GetWindowSize();
-    innerMax.x += innerMin.x, innerMax.y += innerMin.y;
-    innerMin.y += titlebarHeight;
-    noMove_ = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(innerMin, innerMax);
-}
-
-
-int KcImPlot3d::flags() const
-{
-    return noMove_ ? KvImWindow::flags() | ImGuiWindowFlags_NoMove : KvImWindow::flags();
+    ImGui::PopStyleColor();
 }
 
 
@@ -67,31 +45,20 @@ void KcImPlot3d::autoProject_()
     auto center = lower + (upper - lower) / 2;
     double radius = coordSystem().diag() / 2;
 
-    auto zoom = getZoom();
-    auto scale = getScale();
-    auto rot = getRotate();
-    auto shift = getShift();
+    auto zoom = zoom_;
+    auto scale = scale_;
+    auto shift = shift_;
     if (!isIsometric()) {
         zoom *= 2 * radius / sqrt(3.);
         scale /= (upper - lower);
     }
     scale *= zoom;
 
-    //camera_.viewMatrix() = camera_.viewMatrix().buildTanslation(-center);
- /*   vl::Transform tr;
-    //tr.rotate(-90, 1, 0, 0); // 旋转+z轴由向外为向上, +y轴由向上为向内
-    tr.translate(vl::vec3(-center)); // 把物理坐标AABB的中心点调整为摄像机坐标的原点
-    tr.scale(scale.x(), scale.y(), scale.z());
-    tr.rotate(rot.x(), 1, 0, 0);
-    tr.rotate(rot.y(), 0, 1, 0);
-    tr.rotate(rot.z(), 0, 0, 1);
-    tr.translate(vl::vec3(shift));
-    tr.translate(0, 0, -7 * radius); // 调整z轴位置，给near/far平面留出足够空间
-    camera->setViewMatrix(tr.localMatrix());*/
-
-    camera_.lookAt({ 7 * radius, 7 * radius, 7 * radius }, center, { 0, 1, 0 });
-
-    camera_.viewMatrix() = camera_.viewMatrix() * mat4::buildTransform({ 0, 0, 0 }, { 1, 1, 1 }, orient_);
+    // 先平移至AABB中心点，再缩放，再旋转，最后处理用户设定的平移
+    camera_.viewMatrix() = mat4::buildTanslation(shift)
+                         * mat4::buildRotation(orient_)
+                         * mat4::buildScale(scale)
+                         * mat4::buildTanslation(-center);
 
     if (radius == 0)
         radius = 1;
@@ -100,4 +67,50 @@ void KcImPlot3d::autoProject_()
         camera_.projectOrtho(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
     else
         camera_.projectFrustum(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
+
+    // 调整z轴位置，给near/far平面留出足够空间
+    camera_.viewMatrix() = mat4::buildTanslation({ 0, 0, -7 * radius }) * camera_.viewMatrix();
+}
+
+
+void KcImPlot3d::handleMouseInput_()
+{
+    // 处理鼠标drag事件，转动trackball，更新摄像机方位角
+    if (ImGui::IsMouseClicked(0)) {
+        auto mousePos = ImGui::GetMousePos();
+        auto pivot = camera_.worldToScreen(coordSystem().center());
+        auto sz = ImGui::GetWindowSize();
+        trackball_.reset({ mousePos.x, mousePos.y }, pivot, { sz.x / 2, sz.y / 2 });
+    }
+    if (ImGui::IsMouseDragging(0)) {
+        auto d = ImGui::GetMouseDragDelta(0);
+        trackball_.steer(d.x, d.y);
+    }
+
+    // 处理鼠标wheel事件，实现缩放功能
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.MouseWheel != 0) {
+
+        auto factor = 1 + io.MouseWheel / 25;
+        if (factor <= 0.1f)
+            factor = 0.1f;
+        else if (factor > 1.5f)
+            factor = 1.5f;
+
+        if (io.MouseDown[1]) // 当同时按下鼠标右键时，仅缩放坐标系range
+            coordSystem().zoom(factor);
+        else // 否则缩放plot
+           zoom_ *= factor;
+    }
+
+    if (ImGui::IsMouseDragging(1)) {
+        auto sz = ImGui::GetWindowSize();
+        auto d = ImGui::GetMouseDragDelta(1);
+        auto dx = d.x / sz.x;
+        auto dy = -d.y / sz.y; // 屏幕的y轴坐标与视图的y轴坐标反向，此处取-d.y
+
+        auto box = coordSystem().boundingBox();
+        auto delta = box.size() * point3(dx, dy, 0);
+        shift_ += delta * 0.1f;
+    }
 }

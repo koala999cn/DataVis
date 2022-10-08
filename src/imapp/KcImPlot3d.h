@@ -40,21 +40,18 @@ public:
 		camera_.projMatrix() = pm;
 	}
 
-	void update() override;
+private:
 
-	int flags() const override;
-
-protected:
 	void updateImpl_() override;
 
 	void autoProject_() override;
 
-private:
-	KtCamera<float, false> camera_;
-	color4f bkclr_{ 1, 1, 1, 1 };
-	bool noMove_{ false };
+	// 响应鼠标事件，实现旋转、平移、缩放变换
+	void handleMouseInput_();
 
-	KtQuaternion<float> orient_; // 摄像机的方位
+private:
+	KtCamera<float> camera_;
+	color4f bkclr_{ 1, 1, 1, 1 };
 
 	KtTrackballController<float> trackball_; // 用于操控orient_
 };

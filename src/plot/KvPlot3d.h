@@ -12,7 +12,7 @@ class KvPlot3d
 {
 public:
 
-	using mat4 = mat4f<false>;
+	using mat4 = mat4f<>;
 	using point3 = point3f;
 
 	KvPlot3d(std::shared_ptr<KvPaint> paint);
@@ -59,22 +59,6 @@ public:
 	bool isIsometric() const { return isometric_; }
 	void setIsometric(bool b) { isometric_ = b; }
 
-	double getZoom() const { return zoom_; }
-	void setZoom(double zoom) { zoom_ = zoom; }
-	void zoom(double factor) { zoom_ *= factor; }
-
-	point3 getScale() const { return scale_; }
-	void setScale(const point3& scale) { scale_ = scale; }
-	void scale(const point3& factor) { scale_ *= factor; }
-
-	point3 getShift() const { return shift_; }
-	void setShift(const point3& shift) { shift_ = shift; }
-	void shift(const point3& delta) { shift_ += delta; }
-
-	point3 getRotate() const { return rotate_; }
-	void setRotate(const point3& rotate) { rotate_ = rotate; }
-	void rotate(const point3& delta) { rotate_ += delta; }
-
 protected:
 	virtual void autoProject_() = 0;
 	virtual void fitData_();
@@ -88,10 +72,10 @@ protected:
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
 
 	// 以下参数用于调整摄像机modelview矩阵
-	double zoom_{ 1 };
-	point3 scale_{ 1, 1, 1 };
+	float zoom_{ 1 };
+	point3 scale_{ 1, 1, 1 }; 
 	point3 shift_{ 0, 0, 0 };
-	point3 rotate_{ 0, 0, 0 };
+	quatf orient_{ 0, 0, 0, 1 }; // 摄像机的方位
 
 	bool isometric_{ false }; // 若true，则保持坐标系的等比性，即各轴的单元长度保持一致
 	                          // 若false，则优先考虑布局美观性，坐标系的初始透视结果始终为正方形（后续可通过scale_参数进行拉伸）
