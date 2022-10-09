@@ -27,7 +27,6 @@ public:
         pivot_ = pivot, radius_ = radius;
         lastPos_ = pos;
         lastPos3d_ = project_(lastPos_);
-        orient_.normalize(); // 避免累计误差
     }
 
 	// 核心算法，根据新的屏幕坐标操纵Trackball，更新方位角
@@ -61,6 +60,7 @@ void KtTrackballController<REAL>::steer(REAL dx, REAL dy)
     lastPos_ = curPos;
     lastPos3d_ = curPos3d;
     orient_ = rot * orient_;
+    orient_.normalize();
 }
 
 

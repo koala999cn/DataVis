@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "KvDataRender.h"
+#include <memory>
 
+class KcImPlot1d;
 
 class KcRdPlot1d : public KvDataRender
 {
@@ -19,10 +21,12 @@ public:
 	};
 
 	KcRdPlot1d();
+	virtual ~KcRdPlot1d();
 
 	void pushData(std::shared_ptr<KvData> data) override;
 
 private:
 	KeType type_;
+	std::shared_ptr<KcImPlot1d> plot1d_;
 };
 

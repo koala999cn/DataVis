@@ -244,6 +244,9 @@
     <ClCompile Include="src\render\KcRdPlot1d.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KcImPlot1d.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -583,6 +586,9 @@
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KtActionInsertNode.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcImPlot1d.h">
       <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>

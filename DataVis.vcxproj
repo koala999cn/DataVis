@@ -144,6 +144,7 @@
     <ClCompile Include="src\imapp\KcActionFileDialog.cpp" />
     <ClCompile Include="src\imapp\KcImDataView.cpp" />
     <ClCompile Include="src\imapp\KcImPaint.cpp" />
+    <ClCompile Include="src\imapp\KcImPlot1d.cpp" />
     <ClCompile Include="src\imapp\KcImPlot3d.cpp" />
     <ClCompile Include="src\imapp\KcImTextCleanWindow.cpp" />
     <ClCompile Include="src\imapp\KcModuleImFileDialog.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="src\imapp\KcActionSequence.h" />
     <ClInclude Include="src\imapp\KcImDataView.h" />
     <ClInclude Include="src\imapp\KcImPaint.h" />
+    <ClInclude Include="src\imapp\KcImPlot1d.h" />
     <ClInclude Include="src\imapp\KcImPlot3d.h" />
     <ClInclude Include="src\imapp\KcImTextCleanWindow.h" />
     <ClInclude Include="src\imapp\KcModuleImFileDialog.h" />

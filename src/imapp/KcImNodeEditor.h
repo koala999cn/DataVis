@@ -18,6 +18,8 @@ public:
 
     //const char* type() const override { return "NodeEditor"; }
 
+    int flags() const override;
+
     void insertNode(const std::shared_ptr<KvBlockNode>& node);
 
 private:

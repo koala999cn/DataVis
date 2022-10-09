@@ -11,13 +11,20 @@ KcImNodeEditor::KcImNodeEditor(const std::string_view& name)
 }
 
 
+int KcImNodeEditor::flags() const
+{
+    return ImGuiWindowFlags_NoBringToFrontOnFocus; 
+    // TODO: 同时设置ImGuiWindowFlags_DockNodeHost，在窗口首次获得焦点时会出现断言失败
+}
+
+
 void KcImNodeEditor::updateImpl_()
 {
     // set the titlebar color for all nodes
     ImNodesStyle& style = ImNodes::GetStyle();
     style.Colors[ImNodesCol_Link] = IM_COL32(204, 108, 27, 255);
-    style.Colors[ImNodesCol_LinkSelected] = IM_COL32(241, 168, 26, 255);
-    style.Colors[ImNodesCol_LinkHovered] = IM_COL32(232, 132, 27, 255);
+    style.Colors[ImNodesCol_LinkSelected] = IM_COL32(241, 198, 56, 255);
+    style.Colors[ImNodesCol_LinkHovered] = IM_COL32(232, 165, 35, 255);
     style.Colors[ImNodesCol_Pin] = style.Colors[ImNodesCol_Link];
     style.Colors[ImNodesCol_PinHovered] = style.Colors[ImNodesCol_LinkHovered];
     style.Colors[ImNodesCol_MiniMapLink] = style.Colors[ImNodesCol_Link];
@@ -28,6 +35,7 @@ void KcImNodeEditor::updateImpl_()
     drawNodes_();
     drawLinks_();
 
+    // 在右下角显示缩略图
     ImNodes::MiniMap(0.2, ImNodesMiniMapLocation_BottomRight);
 
     ImNodes::EndNodeEditor();
@@ -194,7 +202,7 @@ void KcImNodeEditor::testNewLink_()
         auto node = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(fromIdx));
         assert(node && std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(toIdx)));
         if (node->type() != KcPortNode::k_in)
-            std::swap(fromIdx, toIdx); // 用户反向建立link
+            std::swap(fromIdx, toIdx); // 用户反向建立link，交换节点，以保证正确的顺序
 
         graph_.addEdge(fromIdx, toIdx);
     }
