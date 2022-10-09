@@ -30,7 +30,7 @@ KcGridPlane::aabb_type KcGridPlane::boundingBox() const
 }
 
 
-void KcGridPlane::draw(KvPaint& paint) const
+void KcGridPlane::draw(KvPaint* paint) const
 {
 	assert(visible());
 	//paint->apply(majorLine_);
@@ -45,7 +45,7 @@ void KcGridPlane::draw(KvPaint& paint) const
 }
 
 
-void KcGridPlane::drawMajors_(KvPaint& paint, axis_ptr axis0, axis_ptr axis1)
+void KcGridPlane::drawMajors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 {
 	auto tic0 = axis0->ticker();
 	auto tic1 = axis1->ticker();
@@ -56,12 +56,12 @@ void KcGridPlane::drawMajors_(KvPaint& paint, axis_ptr axis0, axis_ptr axis1)
 	auto ticks = tic0->getTicks(axis0->lower(), axis0->upper()); // TODO: Òþ²Ø¸Ãº¯Êý
 	for (auto t : ticks) {
 		auto pos = axis0->tickPos(t);
-		paint.drawLine(pos, pos + vlen);
+		paint->drawLine(pos, pos + vlen);
 	}
 }
 
 
-void KcGridPlane::drawMinors_(KvPaint& paint, axis_ptr axis0, axis_ptr axis1)
+void KcGridPlane::drawMinors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 {
 	auto tic0 = axis0->ticker();
 	auto tic1 = axis1->ticker();
@@ -73,6 +73,6 @@ void KcGridPlane::drawMinors_(KvPaint& paint, axis_ptr axis0, axis_ptr axis1)
 	auto subticks = tic0->getSubticks(ticks);
 	for (auto t : subticks) {
 		auto pos = axis0->tickPos(t);
-		paint.drawLine(pos, pos + vlen);
+		paint->drawLine(pos, pos + vlen);
 	}
 }

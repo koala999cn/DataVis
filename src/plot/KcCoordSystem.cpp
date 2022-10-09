@@ -157,7 +157,7 @@ void KcCoordSystem::zoom(double factor)
 }
 
 
-void KcCoordSystem::draw(KvPaint& paint) const
+void KcCoordSystem::draw(KvPaint* paint) const
 {
 	if (visible()) {
 		for (unsigned i = 0; i < std::size(axes_); i++) {

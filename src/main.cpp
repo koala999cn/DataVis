@@ -11,7 +11,7 @@
 #include "imapp/KcModuleImPlot.h"
 #include "render/KcRdPlot1d.h"
 
-#include "imapp/KcImPlot3d.h"
+#include "imapp/KcImPlot1d.h"
 
 bool update()
 {
@@ -49,7 +49,7 @@ int main_(int, char**)
 
     auto editor = app.windowManager().registerStatic<KcImNodeEditor>("Node Editor");
     auto panel = app.windowManager().registerStatic<KcImActionPanel>("Action Panel");
-    app.windowManager().registerStatic<KcImPlot3d>("Plot3d");
+    app.windowManager().registerStatic<KcImPlot1d>("Plot1d");
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
 

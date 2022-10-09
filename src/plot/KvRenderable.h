@@ -17,7 +17,7 @@ public:
 
 	virtual bool visible() const { return visible_; }
 
-	virtual void draw(KvPaint&) const = 0;
+	virtual void draw(KvPaint*) const = 0;
 
 	virtual aabb_tyle boundingBox() const = 0;
 

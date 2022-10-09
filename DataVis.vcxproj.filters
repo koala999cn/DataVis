@@ -247,6 +247,9 @@
     <ClCompile Include="src\imapp\KcImPlot1d.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KvPlot.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -590,6 +593,9 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcImPlot1d.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvPlot.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
