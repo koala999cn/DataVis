@@ -15,7 +15,7 @@ class KcCoordSystem : public KvRenderable
 public:
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using grid_plane_ptr = std::shared_ptr<KcGridPlane>;
-	using aabb_type = typename KvRenderable::aabb_tyle;
+	using KvRenderable::aabb_type;
 
 	// 12根坐标轴的id，用于索引axes_
 	enum KeAxis

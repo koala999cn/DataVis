@@ -11,26 +11,6 @@
 #include "imapp/KcModuleImPlot.h"
 #include "render/KcRdPlot1d.h"
 
-#include "imapp/KcImPlot1d.h"
-
-bool update()
-{
-    // show menu bar of main window
-    if (ImGui::BeginMainMenuBar()) {
-        //if (ImGui::BeginMenu("View")) {
-        //    ImGui::ShowStyleSelector("Style");
-        //    ImGui::EndMenu();
-        //}
-
-        KsImApp::singleton().windowManager().showMenu("View");
-        ImGui::EndMainMenuBar();
-    }
-
-    KsImApp::singleton().windowManager().update();
-
-    return true;
-}
-
 
 int main_(int, char**)
 {
@@ -49,11 +29,21 @@ int main_(int, char**)
 
     auto editor = app.windowManager().registerStatic<KcImNodeEditor>("Node Editor");
     auto panel = app.windowManager().registerStatic<KcImActionPanel>("Action Panel");
-    app.windowManager().registerStatic<KcImPlot1d>("Plot1d");
+
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
 
-    app.listenPerFrame(update);
+    app.listenPerFrame([]() {
+        if (ImGui::BeginMainMenuBar()) {
+            KsImApp::singleton().windowManager().showMenu("View");
+            ImGui::EndMainMenuBar();
+        }
+
+        KsImApp::singleton().windowManager().update();
+
+        return true;
+        });
+
     app.run();
 
     app.deinitialize();

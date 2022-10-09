@@ -14,7 +14,7 @@ class KcAxis : public KvRenderable
 {
 public:
 
-	using aabb_type = typename KvRenderable::aabb_tyle;
+	using KvRenderable::aabb_type;
 
 	enum KeTickOrient
 	{
@@ -137,7 +137,7 @@ public:
 	vec3 tickPos(double val) const;
 
 
-	aabb_tyle boundingBox() const override;
+	aabb_type boundingBox() const override;
 
 	void draw(KvPaint*) const override;
 

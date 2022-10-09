@@ -87,7 +87,7 @@ void KcAxis::setTicker(std::shared_ptr<KvTicker> tic)
 }
 
 
-KcAxis::aabb_tyle KcAxis::boundingBox() const
+KcAxis::aabb_type KcAxis::boundingBox() const
 {
 	return { start(), end() };
 }

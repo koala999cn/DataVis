@@ -24,7 +24,7 @@ void KvPlot3d::update()
 
 void KvPlot3d::fitData()
 {
-	typename KvRenderable::aabb_tyle box;
+	typename KvRenderable::aabb_type box;
 	for (auto& p : plottables_)
 		box.merge(p->boundingBox());
 

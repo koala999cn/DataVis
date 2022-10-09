@@ -39,6 +39,8 @@ public:
 	KeType type() const { return type_; }
 
 private:
+
+	// 构造缺省的端口名字
 	static std::string portName_(KeType type, unsigned index);
 
 private:
