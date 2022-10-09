@@ -1,5 +1,6 @@
 #include "KvImWindow.h"
 #include "imgui.h"
+#include "KuStrUtil.h"
 
 
 KvImWindow::~KvImWindow()
@@ -39,7 +40,9 @@ void KvImWindow::update()
         ImVec2{ maxSize_[0], maxSize_[1] }
     );
 
-    if (ImGui::Begin(name().c_str(), &visible_, flags()))
+    auto label = name();
+    label += "##" + KuStrUtil::toString(id());
+    if (ImGui::Begin(label.c_str(), &visible_, flags()))
         updateImpl_();
 
     ImGui::End();
