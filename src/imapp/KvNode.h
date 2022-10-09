@@ -15,6 +15,7 @@ public:
 	using super_::super_;
 };
 
+class KcPortNode;
 
 class KvBlockNode : public KvNode
 {
@@ -22,9 +23,26 @@ public:
 
 	using KvNode::KvNode;
 
+	// 输入端口数量
 	virtual unsigned inPorts() const = 0;
 
+	// 输出端口数量
 	virtual unsigned outPorts() const = 0;
+
+	// 以下虚拟接口用来处理流水线操作
+
+	virtual bool onStartPipeline() { return true; }
+	virtual void onStopPipeline() {}
+
+	virtual void onNewFrame(int frameIdx) {}
+	virtual void onEndFrame(int frameIdx) {}
+
+	// outPort输出端口，已准备好向this节点的第inPort个输入端口传送数据
+	virtual void onInput(KcPortNode* outPort, unsigned inPort) = 0;
+
+	// 当this节点的所有输入端口均已接收数据之后，调用该方法产生输出
+	// 该方法后，this节点的所有输出端口须全部ready
+	virtual void output() = 0;
 };
 
 
@@ -37,6 +55,10 @@ public:
 	KcPortNode(KeType type, std::weak_ptr<KvBlockNode> parent, unsigned index);
 
 	KeType type() const { return type_; }
+
+	std::weak_ptr<KvBlockNode> parent() { return parent_; }
+
+	unsigned index() const { return index_; }
 
 private:
 

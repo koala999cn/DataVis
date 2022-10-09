@@ -40,9 +40,10 @@ kIndex KcPvData::size(kIndex axis) const
 }
 
 
-std::shared_ptr<KvData> KcPvData::grabData(kIndex portIdx)
+std::shared_ptr<KvData> KcPvData::fetchData(kIndex outPort)
 {
-	return portIdx == 0 ? data_ : nullptr;
+	assert(outPort == 0);
+	return data_;
 }
 
 

@@ -62,7 +62,12 @@ public:
 	}
 
 
-	// 抓取输出端口portIdx的数据
-	virtual std::shared_ptr<KvData> grabData(kIndex portIdx) = 0;
+	void onInput(KcPortNode* outPort, unsigned inPort) override;
+
+	//默认所有数据都已就绪，需要逐帧准备数据的可以重载该方法
+	void output() override {}
+
+	// 抓取第outPort个输出端口的数据
+	virtual std::shared_ptr<KvData> fetchData(kIndex outPort) = 0;
 };
 

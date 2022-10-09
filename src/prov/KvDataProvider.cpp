@@ -1,4 +1,14 @@
 ﻿#include "KvDataProvider.h"
+#include <assert.h>
+
+
+void KvDataProvider::onInput(KcPortNode*, unsigned)
+{
+	// 对于数据提供者，断言该方法不会被调用
+
+	assert(false);
+}
+
 
 /*
 KvDataProvider::kPropertySet KvDataProvider::propertySet() const

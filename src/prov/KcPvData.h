@@ -23,7 +23,7 @@ public:
 
 	kIndex size(kIndex axis) const final;
 
-	std::shared_ptr<KvData> grabData(kIndex portIdx) override;
+	std::shared_ptr<KvData> fetchData(kIndex outPort) final;
 
 private:
 	std::shared_ptr<KvData> data_;

@@ -18,8 +18,5 @@ public:
 
 	// 渲染器没有输出
 	unsigned outPorts() const override { return 0; }
-
-	// 渲染数据
-	virtual void pushData(std::shared_ptr<KvData> data) = 0;
 };
 

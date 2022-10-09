@@ -158,6 +158,21 @@ void KcImNodeEditor::insertNode(const std::shared_ptr<KvBlockNode>& node)
 }
 
 
+void KcImNodeEditor::eraseNode(int nodeId)
+{
+    auto nodeIdx = nodeId2Index_(nodeId);
+    assert(nodeIdx < graph_.order());
+    auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(nodeIdx));
+    assert(node);
+
+    unsigned v = nodeIdx + node->inPorts() + node->outPorts();
+    for (; v > nodeIdx; v--)
+        graph_.eraseVertex(v); // 删除port节点
+
+    graph_.eraseVertex(nodeIdx); // 删除block节点
+}
+
+
 unsigned KcImNodeEditor::nodeIndex_(const node_ptr& node) const
 {
     for (unsigned v = 0; v < graph_.order(); v++)
@@ -180,7 +195,9 @@ unsigned KcImNodeEditor::nodeId2Index_(int id) const
 
 int KcImNodeEditor::linkId_(int fromId, int toId)
 {
-    assert(fromId < std::numeric_limits<short>::max() && toId < std::numeric_limits<short>::max());
+    assert(fromId < std::numeric_limits<short>::max() 
+        && toId < std::numeric_limits<short>::max());
+
     return fromId << 16 | toId;
 }
 
@@ -199,10 +216,11 @@ void KcImNodeEditor::testNewLink_()
         auto toIdx = nodeId2Index_(toId);
         assert(fromIdx != -1 && toIdx != -1);
 
-        auto node = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(fromIdx));
-        assert(node && std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(toIdx)));
-        if (node->type() != KcPortNode::k_in)
-            std::swap(fromIdx, toIdx); // 用户反向建立link，交换节点，以保证正确的顺序
+        auto fromNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(fromIdx));
+        auto toNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(toIdx));
+        assert(fromNode && toNode && fromNode->type() != toNode->type());
+        if (fromNode->type() != KcPortNode::k_out)
+            std::swap(fromIdx, toIdx); // 确保边的起点始终是输出端口
 
         graph_.addEdge(fromIdx, toIdx);
     }
@@ -214,8 +232,7 @@ void KcImNodeEditor::handleInput_()
     // 响应delete按键，删除选中的节点或边
 
     auto numLinks = ImNodes::NumSelectedLinks();
-    if (numLinks > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete))
-    {
+    if (numLinks > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete)) {
         std::vector<int> links;
         links.resize(numLinks);
         ImNodes::GetSelectedLinks(links.data());
@@ -226,20 +243,125 @@ void KcImNodeEditor::handleInput_()
     }
 
     auto numNodes = ImNodes::NumSelectedNodes();
-    if (numNodes > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete))
-    {
+    if (numNodes > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete)) {
         std::vector<int> nodes;
         nodes.resize(numNodes);
         ImNodes::GetSelectedNodes(nodes.data());
-        for (auto nodeId : nodes) {
-            auto nodeIdx = nodeId2Index_(nodeId);
-            auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(nodeIdx));
-            assert(node);
+        for (auto nodeId : nodes)
+            eraseNode(nodeId);
+    }
+}
 
-            unsigned v = nodeIdx + node->inPorts() + node->outPorts();
-            for (; v > nodeIdx; v--)
-                graph_.eraseVertex(v); // 删除port节点
-            graph_.eraseVertex(nodeIdx); // 删除block节点
+
+bool KcImNodeEditor::start()
+{
+    for (unsigned v = 0; v < graph_.order(); v++) {
+        auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
+        assert(node);
+        if (!node->onStartPipeline()) {
+            stop();
+            return false;
         }
+
+        // 跳过port节点
+        v += node->inPorts();
+        v += node->outPorts();
+    }
+}
+
+
+void KcImNodeEditor::stop()
+{
+    for (unsigned v = 0; v < graph_.order(); v++) {
+        auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
+        assert(node);
+        node->onStopPipeline();
+
+        // 跳过port节点
+        v += node->inPorts();
+        v += node->outPorts();
+    }
+}
+
+
+void KcImNodeEditor::stepFrame(int frameIdx)
+{
+    // 统计所有节点的入度
+    std::vector<unsigned> indegs(graph_.order(), 0); 
+    KtBfsIter<const node_graph, true, true> iter(graph_, 0);
+    for (; !iter.isEnd(); ++iter) {
+        assert(iter.from() != -1);
+        ++indegs[*iter];
+    }
+
+    std::vector<unsigned> q; // 待处理的block节点队列
+
+    // 初始化q为所有输入端口数为0的block节点
+    for (unsigned v = 0; v < graph_.order(); v++) {
+        auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
+        assert(node);
+        node->onNewFrame(frameIdx);
+
+        if (node->inPorts() == 0)
+            q.push_back(v);
+
+        // 统计block节点的indegreee
+        for (unsigned w = 1; w <= node->inPorts(); w++)
+            indegs[v] += indegs[v + w];
+
+        for (unsigned w = 1; w <= node->outPorts(); w++)
+            assert(indegs[v + w] == 0);
+
+        // 跳过port节点
+        v += node->inPorts();
+        v += node->outPorts();
+    }
+
+    bool deadloop = false; 
+    while (!deadloop) {
+        deadloop = true;
+
+        for (auto iter = q.begin(); iter != q.end(); ) {
+            auto v = *iter;
+            if (indegs[v] != 0) { 
+                ++iter;
+                continue;
+            }
+
+            // 该节点的所有输入均已fetch，可以output数据
+            deadloop = false;
+            iter = q.erase(iter);
+            auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
+            assert(node);
+            node->output();
+            for (unsigned portIdx = 0; portIdx < node->outPorts(); portIdx++) {
+                auto w = v + portIdx + 1;
+                auto outPort = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(w));
+                assert(outPort && outPort->type() == KcPortNode::k_out);
+
+                auto adj = KtAdjIter(graph_, w);
+                for (; !adj.isEnd(); ++adj) { // 遍历第portIdx个输出端口的连接
+                    auto inPort = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(*adj));
+                    assert(inPort && inPort->type() == KcPortNode::k_in);
+                    inPort->parent().lock()->onInput(outPort.get(), inPort->index());
+
+                    --indegs[*adj]; //
+                    不对，要找到inPort->parent()的index
+                }
+
+            }
+
+        }
+    }
+
+
+    for (unsigned v = 0; v < graph_.order(); v++) {
+        auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
+        assert(node);
+        node->onEndFrame(frameIdx);
+
+        // 跳过port节点
+        v += node->inPorts();
+        v += node->outPorts();
     }
 }

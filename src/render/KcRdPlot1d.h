@@ -23,7 +23,11 @@ public:
 	KcRdPlot1d();
 	virtual ~KcRdPlot1d();
 
-	void pushData(std::shared_ptr<KvData> data) override;
+	bool onStartPipeline() final;
+
+	void onInput(KcPortNode* outPort, unsigned inPort) final;
+
+	void output() final {}
 
 private:
 	KeType type_;

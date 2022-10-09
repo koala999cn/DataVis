@@ -16,11 +16,20 @@ public:
 
     explicit KcImNodeEditor(const std::string_view& name);
 
-    //const char* type() const override { return "NodeEditor"; }
-
     int flags() const override;
 
     void insertNode(const std::shared_ptr<KvBlockNode>& node);
+
+    void eraseNode(int nodeId);
+
+
+    // pipeline÷ß≥÷
+    
+    bool start();
+
+    void stop();
+
+    void stepFrame(int frameIdx);
 
 private:
     void updateImpl_() override;
