@@ -603,5 +603,8 @@
     <ClInclude Include="src\imapp\KcImPlottable.h">
       <Filter>imapp</Filter>
     </ClInclude>
+    <ClInclude Include="src\dsp\KcDataMono.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -27,6 +27,22 @@ void KvPlot::update()
 }
 
 
+void KvPlot::removePlottable(KvPlottable* plot)
+{
+	for (auto iter = plottables_.cbegin(); iter != plottables_.cend(); iter++)
+		if (iter->get() == plot) {
+			plottables_.erase(iter);
+			break;
+		}
+}
+
+
+void KvPlot::removePlottable(unsigned idx)
+{
+	plottables_.erase(plottables_.begin() + idx);
+}
+
+
 void KvPlot::removeAllPlottables()
 {
 	plottables_.clear();

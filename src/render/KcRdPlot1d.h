@@ -1,40 +1,33 @@
 ﻿#pragma once
 #include "KvDataRender.h"
 #include <memory>
-#include <unordered_map>
+#include <map>
 
 
 class KcImPlot1d;
+class KvPlottable;
 
 class KcRdPlot1d : public KvDataRender
 {
 public:
 
-	// 支持的6种一维图类型. TODO: 混合类型的支持
-	enum KeType
-	{
-		k_scatter,  // 散点图
-		k_line,   // 连线图
-		k_line_scatter, // 点线图
-		k_line_fill, // 填充图
-		k_bars_stacked,   // 层叠柱状图
-		k_bars_grouped, // 分组柱状图
-		k_type_count
-	};
-
 	KcRdPlot1d();
 	virtual ~KcRdPlot1d();
 
 	// 根据输入构造plottables
-	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
+	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
+
+	void onDelLink(KcPortNode* from, KcPortNode* to) final;
+
+	bool onStartPipeline() final;
 
 	void onInput(KcPortNode* outPort, unsigned inPort) final;
 
 	void output() final {}
 
 private:
-	KeType type_;
 	std::shared_ptr<KcImPlot1d> plot1d_;
-	std::unordered_map<int, unsigned> portId2Idx_; // 端口id向plottable序号的映射
+	std::multimap<int, KvPlottable*> port2Plts_; // 端口id向plottable序列的映射（每个通道对应1个plottable）
+	                                             // 1个端口可能有多个通道，为此可能映射到多个plottable
 };
 

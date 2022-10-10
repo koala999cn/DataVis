@@ -4,11 +4,12 @@
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KcImPlottable.h"
 #include "prov/KvDataProvider.h"
+#include "dsp/KcDataMono.h"
+#include "KuStrUtil.h"
 
 
 KcRdPlot1d::KcRdPlot1d()
-	: type_(k_line)
-	, KvDataRender("plot1d")
+	: KvDataRender("plot1d")
 {
 	plot1d_ = std::make_shared<KcImPlot1d>("Plot1d");
 	plot1d_->setVisible(false);
@@ -33,29 +34,77 @@ void KcRdPlot1d::onInput(KcPortNode* outPort, unsigned inPort)
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
 	assert(prov);
 
-	auto pos = portId2Idx_.find(outPort->id());
-	assert(pos != portId2Idx_.end());
+	auto r = port2Plts_.equal_range(outPort->id());
+	assert(r.first != r.second);
 
 	auto data = prov->fetchData(outPort->index());
-	plot1d_->plottable(pos->second)->data() = data;
+	assert(data->channels() == std::distance(r.first, r.second));
+
+	if (data->channels() == 1)
+		r.first->second->data() = data;
+	else {
+		kIndex ch(0);
+		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data);
+		assert(disc);
+
+		for (auto i = r.first; i != r.second; i++) {
+			assert(i->first == outPort->id());
+			i->second->data() = std::make_shared<KcDataMono>(disc, ch++);
+		}
+	}
 }
 
 
-bool KcRdPlot1d::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
+bool KcRdPlot1d::onNewLink(KcPortNode* from, KcPortNode* to)
 {
-	if (ins.empty())
-		return true;
+	assert(to->parent().lock().get() == this && to->index() == 0);
 
-	// 根据输入构造plottables
-	portId2Idx_.clear();
-	plot1d_->removeAllPlottables();
-	for (auto& i : ins) {
-		assert(i.first == 0); // 只有1个输入端口
-		auto name = i.second->parent().lock()->name();
-		plot1d_->addPlottable(new KcImPlottable(name));
-		portId2Idx_.insert({i.second->id(), plot1d_->plottableCount() - 1});
+	auto pnode = from->parent().lock();
+	assert(pnode);
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
+	assert(prov);
+
+	if (prov->channels() == 1) {
+		auto plt = new KcImPlottable(pnode->name());
+		plot1d_->addPlottable(plt);
+		port2Plts_.insert(std::make_pair(from->id(), plt));
+	}
+	else {
+		for (kIndex ch = 0; ch < prov->channels(); ch++) {
+			std::string name = pnode->name() + " - ch" + KuStrUtil::toString(ch);
+			auto plt = new KcImPlottable(name);
+			plot1d_->addPlottable(plt);
+			port2Plts_.insert(std::make_pair(from->id(), plt));
+		}
 	}
 
+	return true;
+}
+
+
+void KcRdPlot1d::onDelLink(KcPortNode* from, KcPortNode* to)
+{
+	assert(to->parent().lock().get() == this && to->index() == 0);
+
+	auto pnode = from->parent().lock();
+	assert(pnode);
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
+	assert(prov);
+
+	auto r = port2Plts_.equal_range(from->id());
+	assert(r.first != r.second);
+
+	for (auto i = r.first; i != r.second; i++)
+		plot1d_->removePlottable(i->second);
+
+	port2Plts_.erase(from->id());
+}
+
+
+bool KcRdPlot1d::onStartPipeline()
+{
 	plot1d_->setVisible(true);
 	return true;
 }

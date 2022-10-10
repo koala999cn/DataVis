@@ -200,6 +200,16 @@ public:
 		return getEdge(from, to, edge) != edges(from, to).end();
 	}
 
+	// 返回顶点v的所有入边的from顶点集合
+	std::vector<unsigned> inedges(unsigned v) const {
+		std::vector<unsigned> ins;
+		for (unsigned u = 0; u < order(); u++) {
+			auto r = edges(u, v);
+			for (unsigned i = 0; i < r.size(); i++)
+				ins.push_back(u);
+		}
+		return ins;
+	}
 
 protected:
 

@@ -2,7 +2,6 @@
 #include "imnodes/imnodes.h"
 #include <assert.h>
 #include "kgl/core/KtBfsIter.h"
-#include "kgl/util/inverse.h"
 
 
 KcImNodeEditor::KcImNodeEditor(const std::string_view& name)
@@ -40,8 +39,6 @@ void KcImNodeEditor::updateImpl_()
     ImNodes::MiniMap(0.2, ImNodesMiniMapLocation_BottomRight);
 
     ImNodes::EndNodeEditor();
-
-    testNewLink_();
 
     handleInput_();
 }
@@ -156,6 +153,12 @@ void KcImNodeEditor::insertNode(const std::shared_ptr<KvBlockNode>& node)
     // 构造输出端口节点
     for (unsigned i = 0; i < node->outPorts(); i++) 
         graph_.addVertex(std::make_shared<KcPortNode>(KcPortNode::k_out, node, i));
+
+    if (status_ == k_busy) {
+        node->onStartPipeline(); // 补一个流水线启动的回调
+        
+        // TODO: 检测错误
+    }
 }
 
 
@@ -167,8 +170,29 @@ void KcImNodeEditor::eraseNode(int nodeId)
     assert(node);
 
     unsigned v = nodeIdx + node->inPorts() + node->outPorts();
-    for (; v > nodeIdx; v--)
+    for (; v > nodeIdx; v--) {
+
+        // 发送onDelLink通知
+        auto port = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(v));
+        if (port->type() == KcPortNode::k_out) { // 出边
+            auto adj = KtAdjIter(graph_, v);
+            for (; !adj.isEnd(); ++adj) {
+                auto toNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(*adj));
+                node->onDelLink(port.get(), toNode.get());
+                toNode->parent().lock()->onDelLink(port.get(), toNode.get());
+            }
+        }
+        else { // 入边
+            auto ins = graph_.inedges(v);
+            for (auto w : ins) {
+                auto fromNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(w));
+                node->onDelLink(fromNode.get(), port.get());
+                fromNode->parent().lock()->onDelLink(fromNode.get(), port.get());
+            }
+        }
+
         graph_.eraseVertex(v); // 删除port节点
+    }
 
     graph_.eraseVertex(nodeIdx); // 删除block节点
 }
@@ -225,27 +249,13 @@ unsigned KcImNodeEditor::parentIndex_(unsigned v) const
 }
 
 
-void KcImNodeEditor::testNewLink_()
-{
-    int fromId, toId;
-    if (ImNodes::IsLinkCreated(&fromId, &toId)) {
-        auto fromIdx = nodeId2Index_(fromId);
-        auto toIdx = nodeId2Index_(toId);
-        assert(fromIdx != -1 && toIdx != -1);
-
-        auto fromNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(fromIdx));
-        auto toNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(toIdx));
-        assert(fromNode && toNode && fromNode->type() != toNode->type());
-        if (fromNode->type() != KcPortNode::k_out)
-            std::swap(fromIdx, toIdx); // 确保边的起点始终是输出端口
-
-        graph_.addEdge(fromIdx, toIdx);
-    }
-}
-
-
 void KcImNodeEditor::handleInput_()
 {
+    int fromId, toId;
+    if (ImNodes::IsLinkCreated(&fromId, &toId))
+        insertLink(fromId, toId);
+
+
     // 响应delete按键，删除选中的节点或边
 
     auto numLinks = ImNodes::NumSelectedLinks();
@@ -255,7 +265,7 @@ void KcImNodeEditor::handleInput_()
         ImNodes::GetSelectedLinks(links.data());
         for (auto linkId : links) {
             auto nodeIds = nodeId_(linkId);
-            graph_.eraseEdge(nodeId2Index_(nodeIds.first), nodeId2Index_(nodeIds.second));
+            eraseLink(nodeIds.first, nodeIds.second);
         }
     }
 
@@ -270,26 +280,50 @@ void KcImNodeEditor::handleInput_()
 }
 
 
+void KcImNodeEditor::insertLink(int fromId, int toId)
+{
+    auto fromIdx = nodeId2Index_(fromId);
+    auto toIdx = nodeId2Index_(toId);
+    assert(fromIdx != -1 && toIdx != -1);
+
+    auto fromNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(fromIdx));
+    auto toNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(toIdx));
+    assert(fromNode && toNode && fromNode->type() != toNode->type());
+    if (fromNode->type() != KcPortNode::k_out) {
+        std::swap(fromIdx, toIdx); // 确保边的起点始终是输出端口
+        std::swap(fromNode, toNode);
+    }
+
+    if (fromNode->parent().lock()->onNewLink(fromNode.get(), toNode.get())
+        && toNode->parent().lock()->onNewLink(fromNode.get(), toNode.get()))
+        graph_.addEdge(fromIdx, toIdx);
+}
+
+
+void KcImNodeEditor::eraseLink(int fromId, int toId)
+{
+    auto fromIdx = nodeId2Index_(fromId);
+    auto toIdx = nodeId2Index_(toId);
+    assert(fromIdx != -1 && toIdx != -1);
+
+    auto fromNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(fromIdx));
+    auto toNode = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(toIdx));
+    assert(fromNode && fromNode->type() == KcPortNode::k_out);
+    assert(toNode && toNode->type() == KcPortNode::k_in);
+
+    fromNode->parent().lock()->onDelLink(fromNode.get(), toNode.get());
+    toNode->parent().lock()->onDelLink(fromNode.get(), toNode.get());
+    graph_.eraseEdge(fromIdx, toIdx);
+}
+
+
 bool KcImNodeEditor::start()
 {
-    DigraphSx<bool> gR;
-    inverse(graph_, gR); // 求解graph_的逆，方便快速获取各顶点的入边
-
-    std::vector<std::pair<unsigned, KcPortNode*>> ins;
     for (unsigned v = 0; v < graph_.order(); v++) {
         auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
         assert(node);
 
-        ins.clear();
-        for (unsigned w = 0; w < node->inPorts(); w++) {
-            auto adj = KtAdjIter(gR, v + w + 1); // gR的出边等于graph_的入边
-            for (; !adj.isEnd(); ++adj) {
-                auto port = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(*adj));
-                ins.emplace_back(w, port.get());
-            }
-        }
-
-        if (!node->onStartPipeline(ins)) {
+        if (!node->onStartPipeline()) {
             stop();
             return false;
         }

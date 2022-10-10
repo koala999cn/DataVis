@@ -22,6 +22,9 @@ public:
 
     void eraseNode(int nodeId);
 
+    void insertLink(int fromId, int toId);
+
+    void eraseLink(int fromId, int toId);
 
     // pipeline支持
 
@@ -46,8 +49,6 @@ private:
     void drawNodes_() const;
 
     void drawLinks_() const;
-
-    void testNewLink_(); // 检测是否有新连接
 
     unsigned nodeIndex_(const node_ptr& node) const;
 

@@ -34,6 +34,10 @@ public:
 	// 接管plot的控制权
 	void addPlottable(KvPlottable* plot);
 
+	void removePlottable(KvPlottable* plot);
+
+	void removePlottable(unsigned idx);
+
 	void removeAllPlottables();
 
 protected:

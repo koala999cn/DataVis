@@ -29,10 +29,14 @@ public:
 	// 输出端口数量
 	virtual unsigned outPorts() const = 0;
 
+	// 返回true表示接受，返回false表示拒绝新链接
+	virtual bool onNewLink(KcPortNode* from, KcPortNode* to) { return true; }
+
+	virtual void onDelLink(KcPortNode* from, KcPortNode* to) { }
+
 	// 以下虚拟接口用来处理流水线操作
 
-	// @ins: 各pair元素表示：<当前节点的输入端口序号, 链接该端口的输出端口指针>
-	virtual bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) { return true; }
+	virtual bool onStartPipeline() { return true; }
 
 	virtual void onStopPipeline() {}
 

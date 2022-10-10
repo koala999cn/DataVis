@@ -209,6 +209,7 @@
     <ClInclude Include="src\base\KuStrUtil.h" />
     <ClInclude Include="src\base\KtUniObject.h" />
     <ClInclude Include="src\dsp\excitors.h" />
+    <ClInclude Include="src\dsp\KcDataMono.h" />
     <ClInclude Include="src\dsp\KcSampled2d.h" />
     <ClInclude Include="src\dsp\KgFilterBank.h" />
     <ClInclude Include="src\dsp\KgHist.h" />

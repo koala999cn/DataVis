@@ -30,7 +30,25 @@ void KcImPlottable::draw(KvPaint*) const
 		helper.disc = disc.get();
 		for (kIndex ch = 0; ch < disc->channels(); ch++) {
 			helper.channel = ch;
-			ImPlot::PlotLineG(name().c_str(), kPrivate::discGetter, &helper, disc->size());
+
+			switch (type_)
+			{
+			case k_line:
+				ImPlot::PlotLineG(name().c_str(), kPrivate::discGetter, &helper, disc->size());
+				break;
+
+			case k_scatter:
+				ImPlot::PlotScatterG(name().c_str(), kPrivate::discGetter, &helper, disc->size());
+				break;
+
+			case k_bars:
+				ImPlot::PlotBarsG(name().c_str(), kPrivate::discGetter, &helper, disc->size(), 0.67);
+				break;
+
+			default:
+				break;
+			}
+			
 		}
 	}
 }
