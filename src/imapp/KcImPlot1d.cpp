@@ -6,7 +6,7 @@ KcImPlot1d::KcImPlot1d(const std::string_view& name)
     : KvImWindow(name)
     , KvPlot(nullptr)
 {
-
+    minSize_[0] = 240, minSize_[1] = 120;
 }
 
 

@@ -253,6 +253,12 @@
     <ClCompile Include="src\imapp\KcImPlottable.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KcImPropertySheet.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\imgui\misc\cpp\imgui_stdlib.cpp">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -605,6 +611,12 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KcDataMono.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcImPropertySheet.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\imgui\misc\cpp\imgui_stdlib.h">
+      <Filter>3rdparty\imgui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

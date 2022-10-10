@@ -3,6 +3,14 @@
 #include "KvAction.h"
 
 
+KcImActionPanel::KcImActionPanel(const std::string_view& name)
+	: KvImWindow(name)
+{
+	minSize_[0] = 120, minSize_[1] = 240;
+}
+
+
+
 void KcImActionPanel::addAction(const std::string_view& groupName, action_ptr act)
 {
 	groupMaps_[std::string(groupName)].push_back(act);

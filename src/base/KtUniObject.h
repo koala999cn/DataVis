@@ -22,6 +22,7 @@ public:
 	operator ID_TYPE() const { return id(); }
 
 	const std::string& name() const { return name_; }
+	std::string& name() { return name_; }
 
 	template<typename T>
 	T as() { return dynamic_cast<T>(this); }

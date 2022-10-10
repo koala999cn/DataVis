@@ -1,5 +1,7 @@
 #include "KvNode.h"
 #include "KuStrUtil.h"
+#include "imgui.h"
+#include "misc/cpp/imgui_stdlib.h"
 
 
 KcPortNode::KcPortNode(KeType type, std::weak_ptr<KvBlockNode> parent, unsigned index)
@@ -16,4 +18,10 @@ std::string KcPortNode::portName_(KeType type, unsigned index)
 {
 	return type == k_in ? "in" + KuStrUtil::toString(index)
 		: "out" + KuStrUtil::toString(index);
+}
+
+
+void KvBlockNode::showProperySet()
+{
+	ImGui::InputText("Name", &name());
 }

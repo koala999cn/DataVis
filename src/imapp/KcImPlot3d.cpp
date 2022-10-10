@@ -8,7 +8,7 @@ KcImPlot3d::KcImPlot3d(const std::string_view& name)
     , KvImWindow(name)
     , trackball_(orient_)
 {
-
+    minSize_[0] = 240, minSize_[1] = 240;
 }
 
 

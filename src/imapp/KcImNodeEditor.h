@@ -26,6 +26,8 @@ public:
 
     void eraseLink(int fromId, int toId);
 
+    KvBlockNode* selectedNode() const;
+
     // pipeline÷ß≥÷
 
     enum KeStatus

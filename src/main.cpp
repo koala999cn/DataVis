@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include "imapp/KcImNodeEditor.h"
 #include "imapp/KcImActionPanel.h"
+#include "imapp/KcImPropertySheet.h"
 #include "imapp/KcActionNewTextData.h"
 #include "imapp/KtActionInsertNode.h"
 #include "imapp/KgImWindowManager.h"
@@ -29,6 +30,7 @@ int main_(int, char**)
 
     auto editor = app.windowManager().registerStatic<KcImNodeEditor>("Node Editor");
     auto panel = app.windowManager().registerStatic<KcImActionPanel>("Action Panel");
+    auto sheet = app.windowManager().registerStatic<KcImPropertySheet>("Property Sheet");
 
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));

@@ -7,7 +7,7 @@
 KcImNodeEditor::KcImNodeEditor(const std::string_view& name)
     : KvImWindow(name)
 {
-
+    minSize_[0] = 240, minSize_[1] = 120;
 }
 
 
@@ -314,6 +314,18 @@ void KcImNodeEditor::eraseLink(int fromId, int toId)
     fromNode->parent().lock()->onDelLink(fromNode.get(), toNode.get());
     toNode->parent().lock()->onDelLink(fromNode.get(), toNode.get());
     graph_.eraseEdge(fromIdx, toIdx);
+}
+
+
+KvBlockNode* KcImNodeEditor::selectedNode() const
+{
+    auto numNodes = ImNodes::NumSelectedNodes();
+    if (numNodes != 1)
+        return nullptr;
+
+    int nodeId;
+    ImNodes::GetSelectedNodes(&nodeId);
+    return graph_.vertexAt(nodeId2Index_(nodeId))->as<KvBlockNode*>();
 }
 
 

@@ -18,6 +18,7 @@ public:
 	// 缺省输出端口数为1
 	unsigned outPorts() const override { return 1; }
 
+	void showProperySet() override;
 
 	virtual bool isStream() const = 0;
 

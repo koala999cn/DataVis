@@ -49,6 +49,8 @@ public:
 	// 当this节点的所有输入端口均已接收数据之后，调用该方法产生输出
 	// 该方法后，this节点的所有输出端口须全部ready
 	virtual void output() = 0;
+
+	virtual void showProperySet();
 };
 
 
