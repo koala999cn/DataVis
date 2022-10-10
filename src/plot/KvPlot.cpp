@@ -25,3 +25,9 @@ void KvPlot::update()
 	for (int idx = 0; idx < plottableCount(); idx++)
 		plottable(idx)->draw(paint_.get());
 }
+
+
+void KvPlot::removeAllPlottables()
+{
+	plottables_.clear();
+}

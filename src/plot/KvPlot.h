@@ -34,6 +34,8 @@ public:
 	// 接管plot的控制权
 	void addPlottable(KvPlottable* plot);
 
+	void removeAllPlottables();
+
 protected:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理

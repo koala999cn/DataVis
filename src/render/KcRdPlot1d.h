@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "KvDataRender.h"
 #include <memory>
+#include <unordered_map>
+
 
 class KcImPlot1d;
 
@@ -33,5 +35,6 @@ public:
 private:
 	KeType type_;
 	std::shared_ptr<KcImPlot1d> plot1d_;
+	std::unordered_map<int, unsigned> portId2Idx_; // 端口id向plottable序号的映射
 };
 
