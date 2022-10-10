@@ -5,9 +5,15 @@
 
 namespace kPrivate
 {
+	struct KpGetterHelper_
+	{
+		KvDiscreted* disc;
+		kIndex channel;
+	};
+
 	static ImPlotPoint discGetter(int i, void* data) {
-		KvDiscreted* disc = (KvDiscreted*)data;
-		auto pt = disc->pointAt(i, 0);
+		KpGetterHelper_* helper = (KpGetterHelper_*)data;
+		auto pt = helper->disc->pointAt(i, helper->channel);
 		return ImPlotPoint(pt[0], pt[1]);
 	}
 }
@@ -15,9 +21,16 @@ namespace kPrivate
 
 void KcImPlottable::draw(KvPaint*) const
 {
+	using namespace kPrivate;
+
 	auto d = data();
-	if (d->isDiscreted()) {
+	if (d && d->isDiscreted()) {
 		auto disc = std::dynamic_pointer_cast<KvDiscreted>(d);
-		ImPlot::PlotLineG(name().c_str(), kPrivate::discGetter, disc.get(), disc->size());
+		KpGetterHelper_ helper;
+		helper.disc = disc.get();
+		for (kIndex ch = 0; ch < disc->channels(); ch++) {
+			helper.channel = ch;
+			ImPlot::PlotLineG(name().c_str(), kPrivate::discGetter, &helper, disc->size());
+		}
 	}
 }

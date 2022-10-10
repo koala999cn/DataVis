@@ -23,7 +23,8 @@ public:
 	KcRdPlot1d();
 	virtual ~KcRdPlot1d();
 
-	bool onStartPipeline() final;
+	// 根据输入构造plottables
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
 	void onInput(KcPortNode* outPort, unsigned inPort) final;
 

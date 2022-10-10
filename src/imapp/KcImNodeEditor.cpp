@@ -2,6 +2,7 @@
 #include "imnodes/imnodes.h"
 #include <assert.h>
 #include "kgl/core/KtBfsIter.h"
+#include "kgl/util/inverse.h"
 
 
 KcImNodeEditor::KcImNodeEditor(const std::string_view& name)
@@ -185,6 +186,7 @@ unsigned KcImNodeEditor::nodeIndex_(const node_ptr& node) const
 
 unsigned KcImNodeEditor::nodeId2Index_(int id) const
 {
+    // TODO: 可使用二分法搜索
     for (unsigned v = 0; v < graph_.order(); v++)
         if (id == graph_.vertexAt(v)->id())
             return v;
@@ -205,6 +207,21 @@ int KcImNodeEditor::linkId_(int fromId, int toId)
 std::pair<int, int> KcImNodeEditor::nodeId_(int linkId)
 {
     return { linkId >> 16, linkId & 0xff };
+}
+
+
+unsigned KcImNodeEditor::parentIndex_(unsigned v) const
+{
+    auto port = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(v));
+    assert(port);
+
+    if (port->type() == KcPortNode::k_in) {
+        return v - port->index() - 1;
+    }
+    else {
+        auto pnode = port->parent();
+        return v - port->index() - 1 - pnode.lock()->inPorts();
+    }
 }
 
 
@@ -255,10 +272,24 @@ void KcImNodeEditor::handleInput_()
 
 bool KcImNodeEditor::start()
 {
+    DigraphSx<bool> gR;
+    inverse(graph_, gR); // 求解graph_的逆，方便快速获取各顶点的入边
+
+    std::vector<std::pair<unsigned, KcPortNode*>> ins;
     for (unsigned v = 0; v < graph_.order(); v++) {
         auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
         assert(node);
-        if (!node->onStartPipeline()) {
+
+        ins.clear();
+        for (unsigned w = 0; w < node->inPorts(); w++) {
+            auto adj = KtAdjIter(gR, v + w + 1); // gR的出边等于graph_的入边
+            for (; !adj.isEnd(); ++adj) {
+                auto port = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(*adj));
+                ins.emplace_back(w, port.get());
+            }
+        }
+
+        if (!node->onStartPipeline(ins)) {
             stop();
             return false;
         }
@@ -267,6 +298,11 @@ bool KcImNodeEditor::start()
         v += node->inPorts();
         v += node->outPorts();
     }
+
+    frameIdx_ = 0;
+    status_ = k_busy;
+
+    return true;
 }
 
 
@@ -281,10 +317,12 @@ void KcImNodeEditor::stop()
         v += node->inPorts();
         v += node->outPorts();
     }
+
+    status_ = k_ready;
 }
 
 
-void KcImNodeEditor::stepFrame(int frameIdx)
+void KcImNodeEditor::stepFrame()
 {
     // 统计所有节点的入度
     std::vector<unsigned> indegs(graph_.order(), 0); 
@@ -296,24 +334,25 @@ void KcImNodeEditor::stepFrame(int frameIdx)
 
     std::vector<unsigned> q; // 待处理的block节点队列
 
-    // 初始化q为所有输入端口数为0的block节点
+    // 初始化q为所有block节点
     for (unsigned v = 0; v < graph_.order(); v++) {
         auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
         assert(node);
-        node->onNewFrame(frameIdx);
+        node->onNewFrame(frameIdx_);
 
-        if (node->inPorts() == 0)
-            q.push_back(v);
+        q.push_back(v);
 
         // 统计block节点的indegreee
         for (unsigned w = 1; w <= node->inPorts(); w++)
             indegs[v] += indegs[v + w];
 
+        // 跳过inport节点
+        v += node->inPorts();
+
         for (unsigned w = 1; w <= node->outPorts(); w++)
             assert(indegs[v + w] == 0);
 
-        // 跳过port节点
-        v += node->inPorts();
+        // 跳过outport节点
         v += node->outPorts();
     }
 
@@ -335,7 +374,7 @@ void KcImNodeEditor::stepFrame(int frameIdx)
             assert(node);
             node->output();
             for (unsigned portIdx = 0; portIdx < node->outPorts(); portIdx++) {
-                auto w = v + portIdx + 1;
+                auto w = v + node->inPorts() + portIdx + 1; // 输出端口的顶点序号
                 auto outPort = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(w));
                 assert(outPort && outPort->type() == KcPortNode::k_out);
 
@@ -345,8 +384,7 @@ void KcImNodeEditor::stepFrame(int frameIdx)
                     assert(inPort && inPort->type() == KcPortNode::k_in);
                     inPort->parent().lock()->onInput(outPort.get(), inPort->index());
 
-                    --indegs[*adj]; //
-                    不对，要找到inPort->parent()的index
+                    --indegs[parentIndex_(*adj)];
                 }
 
             }
@@ -358,10 +396,12 @@ void KcImNodeEditor::stepFrame(int frameIdx)
     for (unsigned v = 0; v < graph_.order(); v++) {
         auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
         assert(node);
-        node->onEndFrame(frameIdx);
+        node->onEndFrame(frameIdx_);
 
         // 跳过port节点
         v += node->inPorts();
         v += node->outPorts();
     }
+
+    ++frameIdx_;
 }

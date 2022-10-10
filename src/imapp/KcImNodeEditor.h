@@ -24,12 +24,21 @@ public:
 
 
     // pipeline支持
+
+    enum KeStatus
+    {
+        k_ready,
+        k_busy,
+        k_paused
+    };
     
     bool start();
 
     void stop();
 
-    void stepFrame(int frameIdx);
+    void stepFrame();
+
+    int status() const { return status_; }
 
 private:
     void updateImpl_() override;
@@ -50,8 +59,15 @@ private:
     // link id --> node id pair
     static std::pair<int, int> nodeId_(int linkId);
 
+    // 返回端口节点的父节点的顶点序号
+    // @v: 端口节点的顶点序号
+    unsigned parentIndex_(unsigned v) const;
+
     void handleInput_();
 
 private:
     node_graph graph_;
+
+    unsigned frameIdx_{ 0 };
+    int status_{ k_ready };
 };

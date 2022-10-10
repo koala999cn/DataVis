@@ -33,13 +33,30 @@ int main_(int, char**)
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
 
-    app.listenPerFrame([]() {
+    app.listenPerFrame([&editor]() -> bool {
+
         if (ImGui::BeginMainMenuBar()) {
+
             KsImApp::singleton().windowManager().showMenu("View");
+
+            if (ImGui::BeginMenu("Pileline")) {
+
+                if (ImGui::MenuItem("Start")) 
+                    editor->start();
+
+                if (ImGui::MenuItem("Stop"))
+                    editor->stop();
+
+                ImGui::EndMenu();
+            }
+            
             ImGui::EndMainMenuBar();
         }
 
         KsImApp::singleton().windowManager().update();
+
+        if (editor->status() == KcImNodeEditor::k_busy)
+            editor->stepFrame();
 
         return true;
         });

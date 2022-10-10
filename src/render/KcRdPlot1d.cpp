@@ -39,7 +39,7 @@ void KcRdPlot1d::onInput(KcPortNode* outPort, unsigned inPort)
 }
 
 
-bool KcRdPlot1d::onStartPipeline()
+bool KcRdPlot1d::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
 	plot1d_->setVisible(true);
 	return true;

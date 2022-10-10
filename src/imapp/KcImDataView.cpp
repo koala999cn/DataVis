@@ -113,7 +113,7 @@ void KcImDataView::updateImpl_()
         close();
 
         // 生成数据
-        odata_ = makeData_(rowMajor_ ? KuMatrixUtil::transpose(idata_) : idata_, dataType_);
+        odata_ = makeData_(rowMajor_ ? idata_ : KuMatrixUtil::transpose(idata_), dataType_);
     }
     ImGui::SetItemDefaultFocus();
 
