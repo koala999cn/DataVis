@@ -34,10 +34,13 @@ public:
 
 	template<typename U>
 	explicit KtArray(const KtArray<U, SIZE>& other) 
-	    : KtArray(other.cbegin()) { }
+	    : KtArray(other.data()) { }
 
 	// 从元素值构造
 	template<typename... ARGS,
 		std::enable_if_t<sizeof...(ARGS) == SIZE, bool> = true> // 加个enable_if, 否则上个构造多数情况下不会被调用
 	KtArray(ARGS... args) : super_{ static_cast<T>(args)... } {}
+
+	operator const T* () const { return data(); }
+	operator T* () { return data(); }
 };
