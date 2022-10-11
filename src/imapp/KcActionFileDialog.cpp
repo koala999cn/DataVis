@@ -8,7 +8,7 @@ KcActionFileDialog::KcActionFileDialog(KeType type, const std::string_view& titl
 	const std::string_view& filter, const std::string_view& dir)
 	: KvAction(title)
 {
-	key_ = KuStrUtil::toString(reinterpret_cast<int>(this));
+	key_ = "_filedialog_" + KuStrUtil::toString(id());
 	type_ = type;
 	filter_ = filter;
 	dir_ = dir;
