@@ -1,6 +1,6 @@
 ﻿#include "KcRdPlot1d.h"
 #include "imapp/KcImPlot1d.h"
-#include "imapp/KcImPlottable.h"
+#include "imapp/KcImPlottable1d.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
 
@@ -15,14 +15,14 @@ KcRdPlot1d::KcRdPlot1d()
 std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KvDataProvider* prov)
 {
 	if (prov->channels() == 1) 
-		return { new KcImPlottable(prov->name()) };
+		return { new KcImPlottable1d(prov->name()) };
 
 	std::vector<KvPlottable*> plts;
 	plts.resize(prov->channels());
 
 	for (kIndex ch = 0; ch < prov->channels(); ch++) {
 		std::string name = prov->name() + " - ch" + KuStrUtil::toString(ch);
-		plts[ch] = new KcImPlottable(name);
+		plts[ch] = new KcImPlottable1d(name);
 	}
 
 	return plts;

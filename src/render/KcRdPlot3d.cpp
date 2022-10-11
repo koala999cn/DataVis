@@ -1,5 +1,6 @@
 #include "KcRdPlot3d.h"
 #include "imapp/KcImPlot3d.h"
+#include "imapp/KcImPlottable3d.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
 #include "imgui.h"
@@ -14,7 +15,7 @@ KcRdPlot3d::KcRdPlot3d()
 
 std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KvDataProvider* prov)
 {
-	return {};
+	return { new KcImPlottable3d(prov->name()) };
 }
 
 
@@ -46,10 +47,11 @@ void KcRdPlot3d::showProperySet()
 	
 	auto lower = plot3d->coordSystem().lower();
 	auto upper = plot3d->coordSystem().upper();
-	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), (upper.x() - lower.x()) * 0.1))
+	auto speed = (upper - lower) * 0.1;
+	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), speed.x()))
 		plot3d->coordSystem().setExtents(lower, upper);
-	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), (upper.y() - lower.y()) * 0.1))
+	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y()))
 		plot3d->coordSystem().setExtents(lower, upper);
-	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), (upper.z() - lower.z()) * 0.1))
+	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z()))
 		plot3d->coordSystem().setExtents(lower, upper);
 }

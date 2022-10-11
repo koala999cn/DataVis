@@ -2,7 +2,7 @@
 #include "plot/KvPlottable.h"
 
 
-class KcImPlottable : public KvPlottable
+class KcImPlottable1d : public KvPlottable
 {
 public:
 

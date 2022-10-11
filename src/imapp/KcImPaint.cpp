@@ -13,14 +13,28 @@ void KcImPaint::setColor(const color_t& clr)
 }
 
 
-void KcImPaint::setLineWidth(double width)
+void KcImPaint::setPointSize(float size)
 {
-	lineWidth_ = static_cast<decltype(lineWidth_)>(width);
+	pointSize_ = size;
+}
+
+
+void KcImPaint::setLineWidth(float width)
+{
+	lineWidth_ = width;
+}
+
+
+void KcImPaint::drawPoint(const point3& pos)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+	drawList->AddCircleFilled(world2Pos_(pos), pointSize_, color_());
 }
 
 
 void KcImPaint::drawLine(const point3& from, const point3& to)
 {
+	// TODO: ²Ã¼ô
 	auto drawList = ImGui::GetWindowDrawList();
 	drawList->AddLine(world2Pos_(from), world2Pos_(to), color_(), lineWidth_);
 }

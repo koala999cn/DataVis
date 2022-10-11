@@ -12,7 +12,11 @@ public:
 
 	virtual void setColor(const color_t& clr) = 0;
 
-	virtual void setLineWidth(double width) = 0;
+	virtual void setPointSize(float size) = 0;
+
+	virtual void setLineWidth(float width) = 0;
+
+	virtual void drawPoint(const point3& pos) = 0;
 
 	virtual void drawLine(const point3& from, const point3& to) = 0;
 

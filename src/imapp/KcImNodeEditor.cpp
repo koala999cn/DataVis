@@ -410,7 +410,7 @@ void KcImNodeEditor::stepFrame()
     }
 
     bool deadloop = false; 
-    while (!deadloop) {
+    while (!deadloop && !q.empty()) {
         deadloop = true;
 
         for (auto iter = q.begin(); iter != q.end(); ) {

@@ -14,7 +14,11 @@ public:
 
 	void setColor(const color_t& clr) override;
 
-	void setLineWidth(double width) override;
+	void setPointSize(float size) override;
+
+	void setLineWidth(float width) override;
+
+	void drawPoint(const point3& pos) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
@@ -31,4 +35,5 @@ private:
 	camera_type& camera_;
 	color_t clr_{ 0, 0, 0, 0 };
 	float lineWidth_{ 1 };
+	float pointSize_{ 2 };
 };

@@ -1,4 +1,4 @@
-#include "KcImPlottable.h"
+#include "KcImPlottable1d.h"
 #include "implot/implot.h"
 #include "KvDiscreted.h"
 
@@ -19,7 +19,7 @@ namespace kPrivate
 }
 
 
-void KcImPlottable::draw(KvPaint*) const
+void KcImPlottable1d::draw(KvPaint*) const
 {
 	using namespace kPrivate;
 
