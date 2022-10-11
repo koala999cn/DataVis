@@ -12,8 +12,12 @@ KcImPlot1d::KcImPlot1d(const std::string_view& name)
 
 void KcImPlot1d::updateImpl_()
 {
+    ImPlot::PushStyleColor(ImPlotCol_PlotBg, (const ImVec4&)background());
+
     if (ImPlot::BeginPlot("##")) {
         KvPlot::update();
         ImPlot::EndPlot();
     }
+
+    ImPlot::PopStyleColor();
 }

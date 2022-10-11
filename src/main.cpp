@@ -11,6 +11,7 @@
 #include "imapp/KcModuleImFileDialog.h"
 #include "imapp/KcModuleImPlot.h"
 #include "render/KcRdPlot1d.h"
+#include "render/KcRdPlot3d.h"
 
 
 int main_(int, char**)
@@ -34,6 +35,7 @@ int main_(int, char**)
 
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
+    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot3d>>("Plot3d"));
 
     app.listenPerFrame([&editor]() -> bool {
 

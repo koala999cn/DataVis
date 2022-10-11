@@ -1,5 +1,5 @@
-﻿#include "KcRdPlot1d.h"
-#include "imapp/KcImPlot1d.h"
+#include "KcRdPlot3d.h"
+#include "imapp/KcImPlot3d.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KcImPlottable.h"
@@ -9,26 +9,26 @@
 #include "imgui.h"
 
 
-KcRdPlot1d::KcRdPlot1d()
-	: KvDataRender("plot1d")
+KcRdPlot3d::KcRdPlot3d()
+	: KvDataRender("plot3d")
 {
-	plot1d_ = std::make_shared<KcImPlot1d>("Plot1d");
-	plot1d_->setVisible(false);
-	KsImApp::singleton().windowManager().registerDynamic(plot1d_);
+	plot3d_ = std::make_shared<KcImPlot3d>("Plot3d");
+	plot3d_->setVisible(false);
+	KsImApp::singleton().windowManager().registerDynamic(plot3d_);
 }
 
 
-KcRdPlot1d::~KcRdPlot1d()
+KcRdPlot3d::~KcRdPlot3d()
 {
-	KsImApp::singleton().windowManager().releaseDynamic(plot1d_);
-	plot1d_ = nullptr;
+	KsImApp::singleton().windowManager().releaseDynamic(plot3d_);
+	plot3d_ = nullptr;
 }
 
 
-void KcRdPlot1d::onInput(KcPortNode* outPort, unsigned inPort)
+void KcRdPlot3d::onInput(KcPortNode* outPort, unsigned inPort)
 {
 	assert(inPort == 0);
-    
+
 	auto pnode = outPort->parent().lock();
 	assert(pnode);
 
@@ -56,7 +56,7 @@ void KcRdPlot1d::onInput(KcPortNode* outPort, unsigned inPort)
 }
 
 
-bool KcRdPlot1d::onNewLink(KcPortNode* from, KcPortNode* to)
+bool KcRdPlot3d::onNewLink(KcPortNode* from, KcPortNode* to)
 {
 	assert(to->parent().lock().get() == this && to->index() == 0);
 
@@ -68,14 +68,14 @@ bool KcRdPlot1d::onNewLink(KcPortNode* from, KcPortNode* to)
 
 	if (prov->channels() == 1) {
 		auto plt = new KcImPlottable(pnode->name());
-		plot1d_->addPlottable(plt);
+		plot3d_->addPlottable(plt);
 		port2Plts_.insert(std::make_pair(from->id(), plt));
 	}
 	else {
 		for (kIndex ch = 0; ch < prov->channels(); ch++) {
 			std::string name = pnode->name() + " - ch" + KuStrUtil::toString(ch);
 			auto plt = new KcImPlottable(name);
-			plot1d_->addPlottable(plt);
+			plot3d_->addPlottable(plt);
 			port2Plts_.insert(std::make_pair(from->id(), plt));
 		}
 	}
@@ -84,7 +84,7 @@ bool KcRdPlot1d::onNewLink(KcPortNode* from, KcPortNode* to)
 }
 
 
-void KcRdPlot1d::onDelLink(KcPortNode* from, KcPortNode* to)
+void KcRdPlot3d::onDelLink(KcPortNode* from, KcPortNode* to)
 {
 	assert(to->parent().lock().get() == this && to->index() == 0);
 
@@ -98,22 +98,51 @@ void KcRdPlot1d::onDelLink(KcPortNode* from, KcPortNode* to)
 	assert(r.first != r.second);
 
 	for (auto i = r.first; i != r.second; i++)
-		plot1d_->removePlottable(i->second);
+		plot3d_->removePlottable(i->second);
 
 	port2Plts_.erase(from->id());
 }
 
 
-bool KcRdPlot1d::onStartPipeline()
+bool KcRdPlot3d::onStartPipeline()
 {
-	plot1d_->setVisible(true);
+	plot3d_->setVisible(true);
 	return true;
 }
 
 
-void KcRdPlot1d::showProperySet()
+void KcRdPlot3d::showProperySet()
 {
 	super_::showProperySet();
 
-	ImGui::ColorEdit4("Background", (float*)&plot1d_->background().r());
+	ImGui::ColorEdit4("Background", (float*)&plot3d_->background().r());
+
+	ImGui::Checkbox("Ortho", &plot3d_->ortho());
+
+	ImGui::Checkbox("Isometric", &plot3d_->isometric());
+	
+	ImGui::DragFloat("Zoom", &plot3d_->zoom(), 0.1, 0.2, 5);
+
+	ImGui::DragFloat3("Scale", &plot3d_->scale().x(), 0.1, 0.2, 2);
+
+	ImGui::DragFloat3("Shift", &plot3d_->shift().x());
+
+	auto& orient = plot3d_->orient();
+	mat3f<> rot;
+	orient.toRotateMatrix(rot);
+	point3f angle;
+	rot.toEulerAngleXYZ(angle);
+	if (ImGui::DragFloat3("Rotation", &angle.x())) {
+		rot.fromEulerAngleXYZ(angle);
+		orient = quatf(rot);
+	}
+	
+	auto lower = plot3d_->coordSystem().lower();
+	auto upper = plot3d_->coordSystem().upper();
+	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), (upper.x() - lower.x()) * 0.1))
+		plot3d_->coordSystem().setExtents(lower, upper);
+	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), (upper.y() - lower.y()) * 0.1))
+		plot3d_->coordSystem().setExtents(lower, upper);
+	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), (upper.z() - lower.z()) * 0.1))
+		plot3d_->coordSystem().setExtents(lower, upper);
 }

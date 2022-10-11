@@ -17,7 +17,7 @@ void KcImPlot3d::updateImpl_()
     // 设置窗口背景为plot的背景色
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(bkclr_.r(), bkclr_.g(), bkclr_.b(), bkclr_.a()));
 
-    if (ImGui::BeginChild("##plot3d_internal", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove)) {
+    if (ImGui::BeginChild("##", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove)) {
 
         // 更新摄像机的视图
         auto pos = ImGui::GetWindowPos();
@@ -48,7 +48,7 @@ void KcImPlot3d::autoProject_()
     auto zoom = zoom_;
     auto scale = scale_;
     auto shift = shift_;
-    if (!isIsometric()) {
+    if (isometric_) {
         zoom *= 2 * radius / sqrt(3.);
         scale /= (upper - lower);
     }

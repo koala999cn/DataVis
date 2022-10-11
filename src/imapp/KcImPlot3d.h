@@ -19,13 +19,6 @@ public:
 		return KvImWindow::visible();
 	}
 
-	color4f background() const override {
-		return bkclr_;
-	}
-	void setBackground(const color4f& clr) override {
-		bkclr_ = clr;
-	}
-
 	mat4 viewMatrix() const override {
 		return camera_.viewMatrix();
 	}
@@ -51,7 +44,6 @@ private:
 
 private:
 	KtCamera<float> camera_;
-	color4f bkclr_{ 1, 1, 1, 1 };
-
+	
 	KtTrackballController<float> trackball_; // ÓÃÓÚ²Ù¿Øorient_
 };

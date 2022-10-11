@@ -25,15 +25,25 @@ public:
 
 	void fitData() override;
 
-	bool isOrtho() const { return ortho_; }
-	void setOrtho(bool b) { ortho_ = b; }
+	bool ortho() const { return ortho_; }
+	bool& ortho() { return ortho_; }
 
-	bool isIsometric() const { return isometric_; }
-	void setIsometric(bool b) { isometric_ = b; }
+	bool isometric() const { return isometric_; }
+	bool& isometric() { return isometric_; }
 
-	KcCoordSystem& coordSystem() {
-		return *coord_.get();
-	}
+	float zoom() const { return zoom_; }
+	float& zoom() { return zoom_; }
+
+	const point3& scale() const { return scale_; }
+	point3& scale() { return scale_; }
+
+	const point3& shift() const { return shift_; }
+	point3& shift() { return shift_; }
+
+	const quatf& orient() const { return orient_; }
+	quatf& orient() { return orient_; }
+
+	KcCoordSystem& coordSystem() { return *coord_.get(); }
 
 protected:
 	virtual void autoProject_() = 0;

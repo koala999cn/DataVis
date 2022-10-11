@@ -69,7 +69,7 @@ public:
 	}
 
 	mat3& operator=(const mat3& rhs) {
-		std::copy(std::cbegin(rhs.m_), std::cend(rhs.m_), m_);
+		std::copy(std::cbegin(rhs), std::cend(rhs), super_::begin());
 		return *this;
 	}
 

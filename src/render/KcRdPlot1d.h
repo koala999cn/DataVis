@@ -3,13 +3,14 @@
 #include <memory>
 #include <map>
 
-
 class KcImPlot1d;
 class KvPlottable;
 
 class KcRdPlot1d : public KvDataRender
 {
 public:
+
+	using super_ = KvDataRender;
 
 	KcRdPlot1d();
 	virtual ~KcRdPlot1d();
@@ -25,9 +26,11 @@ public:
 
 	void output() final {}
 
+	void showProperySet() final;
+
 private:
 	std::shared_ptr<KcImPlot1d> plot1d_;
-	std::multimap<int, KvPlottable*> port2Plts_; // 端口id向plottable序列的映射（每个通道对应1个plottable）
-	                                             // 1个端口可能有多个通道，为此可能映射到多个plottable
+	std::multimap<int, KvPlottable*> port2Plts_; // 端口id向plottable序列的映射
+	                                             // 1个端口可能有多个通道，为此可能映射到多个plottable（每个通道对应1个plottable）
 };
 

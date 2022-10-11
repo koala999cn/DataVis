@@ -259,6 +259,9 @@
     <ClCompile Include="3rdparty\imgui\misc\cpp\imgui_stdlib.cpp">
       <Filter>3rdparty\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\KcRdPlot3d.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -617,6 +620,9 @@
     </ClInclude>
     <ClInclude Include="3rdparty\imgui\misc\cpp\imgui_stdlib.h">
       <Filter>3rdparty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdPlot3d.h">
+      <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

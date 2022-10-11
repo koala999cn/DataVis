@@ -17,20 +17,9 @@ public:
 		return KvImWindow::visible();
 	}
 
-	color4f background() const override {
-		return bkclr_;
-	}
-	void setBackground(const color4f& clr) override {
-		bkclr_ = clr;
-	}
-
 	void fitData() override {}
 
 private:
 
 	void updateImpl_() override;
-
-private:
-
-	color4f bkclr_{ 1, 1, 1, 1 };
 };
