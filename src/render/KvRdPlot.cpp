@@ -126,4 +126,6 @@ void KvRdPlot::showProperySet()
 	super_::showProperySet();
 
 	ImGui::ColorEdit4("Background", (float*)&plot_->background().r());
+
+	ImGui::Checkbox("Auto Fit", &plot_->autoFit());
 }

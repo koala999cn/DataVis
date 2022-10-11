@@ -6,14 +6,14 @@
 // 根据屏幕2d坐标变化操纵3d空间的方位角
 // 基于四元数实现
 
-template<typename REAL>
+template<typename KREAL>
 class KtTrackballController
 {
-    using point2 = KtPoint<REAL, 2>;
-    using point3 = KtPoint<REAL, 3>;
-	using vec3 = KtVector3<REAL>;
-    using vec4 = KtVector4<REAL>;
-	using quat = KtQuaternion<REAL>;
+    using point2 = KtPoint<KREAL, 2>;
+    using point3 = KtPoint<KREAL, 3>;
+	using vec3 = KtVector3<KREAL>;
+    using vec4 = KtVector4<KREAL>;
+	using quat = KtQuaternion<KREAL>;
 
 public:
 
@@ -30,7 +30,7 @@ public:
     }
 
 	// 核心算法，根据新的屏幕坐标操纵Trackball，更新方位角
-	void steer(REAL dx, REAL dy);
+	void steer(KREAL dx, KREAL dy);
 
 private:
 
@@ -43,15 +43,15 @@ private:
     // trackball的参数：支点与半径
     point2 pivot_{ 0, 0 };
     point2 radius_{ 1, 1 };
-    REAL rotateSpeed_{ 0.1 };
+    KREAL rotateSpeed_{ 0.1 };
 
     point2 lastPos_; // 追踪鼠标位置
     vec3 lastPos3d_; // mousePos_在trackball的投影坐标
 };
 
 
-template<typename REAL>
-void KtTrackballController<REAL>::steer(REAL dx, REAL dy)
+template<typename KREAL>
+void KtTrackballController<KREAL>::steer(KREAL dx, KREAL dy)
 {
     auto curPos = lastPos_ + point2(dx, dy) * rotateSpeed_;
     auto curPos3d = project_(curPos);
@@ -64,8 +64,8 @@ void KtTrackballController<REAL>::steer(REAL dx, REAL dy)
 }
 
 
-template<typename REAL>
-KtVector3<REAL> KtTrackballController<REAL>::project_(const point2& pt) const
+template<typename KREAL>
+KtVector3<KREAL> KtTrackballController<KREAL>::project_(const point2& pt) const
 {
     // 将pt归一化
     auto npt = pt - pivot_;
@@ -76,8 +76,8 @@ KtVector3<REAL> KtTrackballController<REAL>::project_(const point2& pt) const
     // 若sqrt(x*x+y*y) <= r/sqrt(2), z = sqrt(r*r-x*x-y*y)
     // 否则, z = r*r/2/sqrt(x*x+y*y)
     // 在归一化情况下，r=1
-    REAL len2 = npt.squaredLength();
-    REAL z = len2 <= 0.5 ? std::sqrt(1 - len2) : 0.5 / std::sqrt(len2);
+    KREAL len2 = npt.squaredLength();
+    KREAL z = len2 <= 0.5 ? std::sqrt(1 - len2) : 0.5 / std::sqrt(len2);
     return vec3(npt.x(), npt.y(), z).getNormalize();
 }
 

@@ -22,8 +22,8 @@ public:
 	color4f background() const { return bkclr_; }
 	color4f& background() { return bkclr_; }
 
-	bool isAutoFit() const { return autoFit_; }
-	void setAutoFit(bool b) { autoFit_ = b; }
+	bool autoFit() const { return autoFit_; }
+	bool& autoFit() { return autoFit_; }
 
 	unsigned plottableCount() const {
 		return plottables_.size();

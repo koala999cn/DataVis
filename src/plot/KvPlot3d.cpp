@@ -28,6 +28,8 @@ void KvPlot3d::fitData()
 	for (auto& p : plottables_)
 		box.merge(p->boundingBox());
 
-	if(!box.isNull())
-	    coord_->setExtents(box.lower(), box.upper());
+	if (!box.isNull())
+		coord_->setExtents(box.lower(), box.upper());
+	else
+		coord_->setExtents({ 0, 0, 0 }, { 1, 1, 1 });
 }
