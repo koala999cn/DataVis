@@ -2,6 +2,13 @@
 #include "KsImApp.h"
 #include "KgImWindowManager.h"
 #include "KcImNodeEditor.h"
+#include "imgui.h"
+
+
+int KcImPropertySheet::flags() const
+{
+	return ImGuiWindowFlags_NoBringToFrontOnFocus;
+}
 
 
 void KcImPropertySheet::updateImpl_()

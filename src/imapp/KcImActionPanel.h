@@ -17,6 +17,8 @@ public:
 
     void addAction(const std::string_view& groupName, action_ptr act);
 
+    int flags() const override;
+
 private:
     void updateImpl_() override;
 
