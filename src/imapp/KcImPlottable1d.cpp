@@ -19,7 +19,7 @@ namespace kPrivate
 }
 
 
-void KcImPlottable1d::draw(KvPaint*) const
+void KcImPlottable1d::draw(KvPaint3d*) const
 {
 	using namespace kPrivate;
 

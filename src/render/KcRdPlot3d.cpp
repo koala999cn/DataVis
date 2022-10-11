@@ -29,29 +29,36 @@ void KcRdPlot3d::showProperySet()
 
 	ImGui::Checkbox("Isometric", &plot3d->isometric());
 	
-	ImGui::DragFloat("Zoom", &plot3d->zoom(), 0.1, 0.2, 5);
+	float zoom = plot3d->zoom();
+	if (ImGui::DragFloat("Zoom", &zoom, 0.1, 0.2, 5))
+		plot3d->zoom() = zoom;
 
-	ImGui::DragFloat3("Scale", &plot3d->scale().x(), 0.1, 0.2, 2);
+	point3f pt(plot3d->scale().data());
+	if (ImGui::DragFloat3("Scale", pt.data(), 0.1, 0.2, 2))
+		plot3d->scale() = point3d(pt.data());
 
-	ImGui::DragFloat3("Shift", &plot3d->shift().x());
+	pt = point3f(plot3d->shift().data());
+	if (ImGui::DragFloat3("Shift", pt.data()))
+		plot3d->shift() = point3d(pt.data());;
 
 	auto& orient = plot3d->orient();
-	mat3f<> rot;
+	mat3d<> rot;
 	orient.toRotateMatrix(rot);
-	point3f angle;
+	point3d angle;
 	rot.toEulerAngleXYZ(angle);
-	if (ImGui::DragFloat3("Rotation", &angle.x())) {
-		rot.fromEulerAngleXYZ(angle);
-		orient = quatf(rot);
+	point3f anglef(angle.data());
+	if (ImGui::DragFloat3("Rotation", anglef.data())) {
+		rot.fromEulerAngleXYZ(point3d(anglef.data()));
+		orient = quatd(rot);
 	}
 	
-	auto lower = plot3d->coordSystem().lower();
-	auto upper = plot3d->coordSystem().upper();
+	auto lower = point3f(plot3d->coordSystem().lower().data());
+	auto upper = point3f(plot3d->coordSystem().upper().data());
 	auto speed = (upper - lower) * 0.1;
 	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), speed.x()))
-		plot3d->coordSystem().setExtents(lower, upper);
+		plot3d->coordSystem().setExtents(point3d(lower.data()), point3d(upper.data()));
 	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y()))
-		plot3d->coordSystem().setExtents(lower, upper);
+		plot3d->coordSystem().setExtents(point3d(lower.data()), point3d(upper.data()));
 	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z()))
-		plot3d->coordSystem().setExtents(lower, upper);
+		plot3d->coordSystem().setExtents(point3d(lower.data()), point3d(upper.data()));
 }

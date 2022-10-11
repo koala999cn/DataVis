@@ -84,7 +84,7 @@ public:
 
 	aabb_type boundingBox() const override;
 
-	void draw(KvPaint*) const override;
+	void draw(KvPaint3d*) const override;
 
 	// grid相关成员方法
 /*

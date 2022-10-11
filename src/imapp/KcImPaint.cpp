@@ -13,13 +13,13 @@ void KcImPaint::setColor(const color_t& clr)
 }
 
 
-void KcImPaint::setPointSize(float size)
+void KcImPaint::setPointSize(double size)
 {
 	pointSize_ = size;
 }
 
 
-void KcImPaint::setLineWidth(float width)
+void KcImPaint::setLineWidth(double width)
 {
 	lineWidth_ = width;
 }
@@ -51,5 +51,5 @@ void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 ImVec2 KcImPaint::world2Pos_(const point3& pt) const
 {
 	auto pos = camera_.worldToScreen(pt);
-	return { pos.x(), pos.y() };
+	return ImVec2(pos.x(), pos.y());
 }

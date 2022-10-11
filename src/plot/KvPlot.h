@@ -4,13 +4,13 @@
 #include "KvPlottable.h"
 #include "KtColor.h"
 
-class KvPaint; // 用来执行具体的plot绘制
+class KvPaint3d; // 用来执行具体的plot绘制
 
 class KvPlot
 {
 public:
 
-	KvPlot(std::shared_ptr<KvPaint> paint);
+	KvPlot(std::shared_ptr<KvPaint3d> paint);
 
 	virtual void setVisible(bool b) = 0;
 	virtual bool visible() const = 0;
@@ -41,7 +41,7 @@ public:
 	void removeAllPlottables();
 
 protected:
-	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
+	std::shared_ptr<KvPaint3d> paint_; // 由用户创建并传入
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理
 
 	color4f bkclr_{ 1, 1, 1, 1 };

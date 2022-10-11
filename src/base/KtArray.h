@@ -21,15 +21,15 @@ public:
 	}
 
 	// 所有元素都填充val值
-	template<typename U>
+	template<typename U, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
 	explicit KtArray(const U& val) {
 		super_::fill(T(val));
 	}
 
 	// 从迭代器构造，方便类型转换
-	template<typename ITER, typename = decltype(*ITER)>
-	explicit KtArray(ITER iter) {
-		std::copy(iter, iter + SIZE, super_::begin());
+	template<typename U, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
+	explicit KtArray(const U* data) {
+		std::copy(data, data + SIZE, super_::begin());
 	}
 
 	template<typename U>

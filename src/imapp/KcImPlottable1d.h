@@ -20,7 +20,7 @@ public:
 
 	using KvPlottable::KvPlottable;
 
-	void draw(KvPaint*) const override;
+	void draw(KvPaint3d*) const override;
 
 	int type() const { return type_; }
 	int& type() { return type_; }

@@ -1,12 +1,12 @@
 #pragma once
 #include "KtAABB.h"
 
-class KvPaint;
+class KvPaint3d;
 
 class KvRenderable
 {
 public:
-	using float_type = float;
+	using float_type = double;
 	using aabb_type = KtAABB<float_type>;
 	using point3 = KtPoint<float_type, 3>;
 	using vec3 = point3;
@@ -17,7 +17,7 @@ public:
 
 	virtual bool visible() const { return visible_; }
 
-	virtual void draw(KvPaint*) const = 0;
+	virtual void draw(KvPaint3d*) const = 0;
 
 	virtual aabb_type boundingBox() const = 0;
 

@@ -268,6 +268,9 @@
     <ClCompile Include="src\imapp\KcImPlottable3d.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KvPaint3d.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -582,7 +585,7 @@
     <ClInclude Include="src\imapp\KcImPlot3d.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KvPaint.h">
+    <ClInclude Include="src\plot\KvPaint3d.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtTrackballController.h">

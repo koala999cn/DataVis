@@ -1,7 +1,7 @@
 #include "KvPlot3d.h"
 
 
-KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint)
+KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint3d> paint)
 	: KvPlot(paint)
 {
 	coord_ = std::make_unique<KcCoordSystem>();

@@ -1,7 +1,7 @@
 #include "KvPlot.h"
 
 
-KvPlot::KvPlot(std::shared_ptr<KvPaint> paint)
+KvPlot::KvPlot(std::shared_ptr<KvPaint3d> paint)
 	: paint_(paint)
 {
 

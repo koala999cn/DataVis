@@ -168,6 +168,7 @@
     <ClCompile Include="src\plot\KcCoordSystem.cpp" />
     <ClCompile Include="src\plot\KcGridPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
+    <ClCompile Include="src\plot\KvPaint3d.cpp" />
     <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvPlot3d.cpp" />
     <ClCompile Include="src\plot\KvTicker.cpp" />
@@ -281,7 +282,7 @@
     <ClInclude Include="src\plot\KcLinearTicker.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
-    <ClInclude Include="src\plot\KvPaint.h" />
+    <ClInclude Include="src\plot\KvPaint3d.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\plot\KvPlottable1d.h" />
     <ClInclude Include="src\plot\KvTicker.h" />

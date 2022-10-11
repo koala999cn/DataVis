@@ -1,12 +1,12 @@
 #pragma once
-#include "plot/KvPaint.h"
+#include "plot/KvPaint3d.h"
 #include "KtCamera.h"
 #include "imgui.h"
 
 
-class KcImPaint : public KvPaint
+class KcImPaint : public KvPaint3d
 {
-	using camera_type = KtCamera<float>;
+	using camera_type = KtCamera<float_type>;
 	
 public:
 
@@ -14,9 +14,9 @@ public:
 
 	void setColor(const color_t& clr) override;
 
-	void setPointSize(float size) override;
+	void setPointSize(float_type size) override;
 
-	void setLineWidth(float width) override;
+	void setLineWidth(float_type width) override;
 
 	void drawPoint(const point3& pos) override;
 
@@ -34,6 +34,6 @@ private:
 private:
 	camera_type& camera_;
 	color_t clr_{ 0, 0, 0, 0 };
-	float lineWidth_{ 1 };
-	float pointSize_{ 2 };
+	float_type lineWidth_{ 1 };
+	float_type pointSize_{ 2 };
 };
