@@ -30,9 +30,9 @@ void KcImPlot3d::updateImpl_()
 
         // »æÖÆ3dÊý¾ÝÍ¼
         KvPlot3d::update();
-
-        ImGui::EndChild();
     }
+
+    ImGui::EndChild();
 
     ImGui::PopStyleColor();
 }
@@ -48,9 +48,13 @@ void KcImPlot3d::autoProject_()
     auto zoom = zoom_;
     auto scale = scale_;
     auto shift = shift_;
-    if (isometric_) {
+    if (!isometric_) {
         zoom *= 2 * radius / sqrt(3.);
-        scale /= (upper - lower);
+        auto factor = upper - lower;
+        for (unsigned i = 0; i < 3; i++)
+            if (factor.at(i) == 0)
+                factor.at(i) = 1;
+        scale /= factor;
     }
     scale *= zoom;
 
