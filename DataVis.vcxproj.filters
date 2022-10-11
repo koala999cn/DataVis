@@ -262,6 +262,9 @@
     <ClCompile Include="src\render\KcRdPlot3d.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\KvRdPlot.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -622,6 +625,9 @@
       <Filter>3rdparty\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\render\KcRdPlot3d.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KvRdPlot.h">
       <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
