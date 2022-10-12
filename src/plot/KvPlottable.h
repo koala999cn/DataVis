@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include "KvData.h"
+#include "KtColor.h"
 
 
 class KvPlottable : public KvRenderable
@@ -19,29 +20,29 @@ public:
 	data_ptr data() const { return data_; }
 	data_ptr& data() { return data_; }
 
-	aabb_type boundingBox() const override {
-
-		if (data_ == nullptr)
-			return aabb_type(); // null
-
-		point3 lower, upper;
-
-		auto r0 = data_->range(0);
-		auto r1 = data_->range(1);
-
-		lower.x() = r0.low(), upper.x() = r0.high();
-		lower.y() = r1.low(), upper.y() = r1.high();
-
-		if (data_->dim() > 1) {
-			auto r2 = data_->range(2);
-			lower.z() = r2.low(), upper.z() = r2.high();
-		}
-		else {
-			lower.z() = upper.z() = 0;
-		}
-
-		return { lower, upper };
+	bool empty() const {
+		return !data_ || data_->size() == 0;
 	}
+
+	aabb_type boundingBox() const override;
+
+	// 返回-1表示需要连续色带
+	virtual unsigned majorColorsNeeded() const = 0;
+
+	// 返回false表示不需要辅助色
+	virtual bool minorColorNeeded() const = 0;
+
+	// 主色彩的个数，一般等于majorColorNeeded。
+	// 在连续色彩情况下，返回主控制色的个数
+	virtual unsigned majorColors() const {
+		return majorColorsNeeded();
+	}
+
+	virtual const color4f& majorColor(unsigned idx) const = 0;
+	virtual color4f& majorColor(unsigned idx) = 0;
+
+	virtual const color4f & minorColor() const = 0;
+	virtual color4f& minorColor() = 0;
 
 private:
 	std::string name_;

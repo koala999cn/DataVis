@@ -271,6 +271,12 @@
     <ClCompile Include="src\plot\KvPaint3d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KvPlottable.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcGraph3d.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -450,10 +456,7 @@
     <ClInclude Include="src\base\KtAABB.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcGraph.h">
-      <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KvPlottable1d.h">
+    <ClInclude Include="src\plot\KcGraph3d.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtMatrix3.h">
@@ -638,6 +641,9 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcImPlottable3d.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KpContext.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
