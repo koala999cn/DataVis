@@ -60,15 +60,15 @@ public:
 
 	aabb_type boundingBox() const override;
 
-	void draw(KvPaint3d*) const override;
+	void draw(KvPaint*) const override;
 
 private:
 
 	// 绘制从axis0轴到axis1轴的主grid
-	static void drawMajors_(KvPaint3d*, axis_ptr axis0, axis_ptr axis1);
+	static void drawMajors_(KvPaint*, axis_ptr axis0, axis_ptr axis1);
 
 	// 绘制从axis0轴到axis1轴的副grid
-	static void drawMinors_(KvPaint3d*, axis_ptr axis0, axis_ptr axis1);
+	static void drawMinors_(KvPaint*, axis_ptr axis0, axis_ptr axis1);
 
 private:
 	axis_ptr horz_[2], vert_[2]; // 构成grid平面的4根坐标轴，水平2根、垂直2根

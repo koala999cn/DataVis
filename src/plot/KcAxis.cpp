@@ -1,7 +1,7 @@
 #include "KcAxis.h"
 #include <assert.h>
 #include "KcLinearTicker.h"
-#include "KvPaint3d.h"
+#include "KvPaint.h"
 
 
 KcAxis::KcAxis() 
@@ -93,7 +93,7 @@ KcAxis::aabb_type KcAxis::boundingBox() const
 }
 
 
-void KcAxis::draw(KvPaint3d* paint) const
+void KcAxis::draw(KvPaint* paint) const
 {
 	assert(visible());
 
@@ -111,7 +111,7 @@ void KcAxis::draw(KvPaint3d* paint) const
 }
 
 
-void KcAxis::drawTicks_(KvPaint3d* paint) const
+void KcAxis::drawTicks_(KvPaint* paint) const
 {
 	assert(showTick());
 
@@ -169,7 +169,7 @@ void KcAxis::drawTicks_(KvPaint3d* paint) const
 }
 
 
-void KcAxis::drawTick_(KvPaint3d* paint, const vec3& anchor, double length) const
+void KcAxis::drawTick_(KvPaint* paint, const vec3& anchor, double length) const
 {
 	auto d = tickOrient() * length;
 	paint->drawLine(tickShowBothSide() ? anchor - d : anchor, anchor + d);

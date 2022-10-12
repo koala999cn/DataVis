@@ -1,8 +1,8 @@
 #pragma once
-#include "plot/KvPlottable.h"
+#include "plot/KvGraph.h"
 
 
-class KcImPlottable1d : public KvPlottable
+class KcImGraph2d : public KvGraph
 {
 public:
 
@@ -18,13 +18,7 @@ public:
 		k_type_count
 	};
 
-	using KvPlottable::KvPlottable;
+	using KvGraph::KvGraph;
 
-	void draw(KvPaint3d*) const override;
-
-	int type() const { return type_; }
-	int& type() { return type_; }
-
-private:
-	int type_{ k_line };
+	void draw(KvPaint*) const final;
 };

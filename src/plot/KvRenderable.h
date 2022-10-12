@@ -1,7 +1,7 @@
 #pragma once
 #include "KtAABB.h"
 
-class KvPaint3d;
+class KvPaint;
 
 class KvRenderable
 {
@@ -17,7 +17,7 @@ public:
 
 	virtual bool visible() const { return visible_; }
 
-	virtual void draw(KvPaint3d*) const = 0;
+	virtual void draw(KvPaint*) const = 0;
 
 	virtual aabb_type boundingBox() const = 0;
 

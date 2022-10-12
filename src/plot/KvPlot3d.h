@@ -13,7 +13,7 @@ public:
 	using point3 = typename KvRenderable::point3;
 	using quat = KtQuaternion<float_type>;
 
-	KvPlot3d(std::shared_ptr<KvPaint3d> paint);
+	KvPlot3d(std::shared_ptr<KvPaint> paint);
 
 	/// ³éÏó½Ó¿Ú
 

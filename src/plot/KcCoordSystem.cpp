@@ -1,7 +1,7 @@
 #include "KcCoordSystem.h"
 #include "KcAxis.h"
 #include "KcGridPlane.h"
-#include "KvPaint3d.h"
+#include "KvPaint.h"
 #include <assert.h>
 
 
@@ -157,7 +157,7 @@ void KcCoordSystem::zoom(double factor)
 }
 
 
-void KcCoordSystem::draw(KvPaint3d* paint) const
+void KcCoordSystem::draw(KvPaint* paint) const
 {
 	if (visible()) {
 		for (unsigned i = 0; i < std::size(axes_); i++) {

@@ -1,7 +1,7 @@
 #include "KcGridPlane.h"
 #include <assert.h>
 #include "KcAxis.h"
-#include "KvPaint3d.h"
+#include "KvPaint.h"
 
 
 KcGridPlane::KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
@@ -30,7 +30,7 @@ KcGridPlane::aabb_type KcGridPlane::boundingBox() const
 }
 
 
-void KcGridPlane::draw(KvPaint3d* paint) const
+void KcGridPlane::draw(KvPaint* paint) const
 {
 	assert(visible());
 	//paint->apply(majorLine_);
@@ -45,7 +45,7 @@ void KcGridPlane::draw(KvPaint3d* paint) const
 }
 
 
-void KcGridPlane::drawMajors_(KvPaint3d* paint, axis_ptr axis0, axis_ptr axis1)
+void KcGridPlane::drawMajors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 {
 	auto tic0 = axis0->ticker();
 	auto tic1 = axis1->ticker();
@@ -61,7 +61,7 @@ void KcGridPlane::drawMajors_(KvPaint3d* paint, axis_ptr axis0, axis_ptr axis1)
 }
 
 
-void KcGridPlane::drawMinors_(KvPaint3d* paint, axis_ptr axis0, axis_ptr axis1)
+void KcGridPlane::drawMinors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 {
 	auto tic0 = axis0->ticker();
 	auto tic1 = axis1->ticker();

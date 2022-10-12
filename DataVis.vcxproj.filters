@@ -250,7 +250,7 @@
     <ClCompile Include="src\plot\KvPlot.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcImPlottable1d.cpp">
+    <ClCompile Include="src\imapp\KcImGraph2d.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="src\imapp\KcImPropertySheet.cpp">
@@ -265,10 +265,7 @@
     <ClCompile Include="src\render\KvRdPlot.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcImPlottable3d.cpp">
-      <Filter>imapp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\plot\KvPaint3d.cpp">
+    <ClCompile Include="src\plot\KvPaint.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KvPlottable.cpp">
@@ -588,7 +585,7 @@
     <ClInclude Include="src\imapp\KcImPlot3d.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KvPaint3d.h">
+    <ClInclude Include="src\plot\KvPaint.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtTrackballController.h">
@@ -621,7 +618,7 @@
     <ClInclude Include="src\plot\KvPlot.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcImPlottable1d.h">
+    <ClInclude Include="src\imapp\KcImGraph2d.h">
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KcDataMono.h">
@@ -639,10 +636,10 @@
     <ClInclude Include="src\render\KvRdPlot.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcImPlottable3d.h">
-      <Filter>imapp</Filter>
-    </ClInclude>
     <ClInclude Include="src\plot\KpContext.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvGraph.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

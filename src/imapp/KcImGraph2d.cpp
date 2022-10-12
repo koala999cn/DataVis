@@ -1,4 +1,4 @@
-#include "KcImPlottable1d.h"
+#include "KcImGraph2d.h"
 #include "implot/implot.h"
 #include "KvDiscreted.h"
 
@@ -19,7 +19,7 @@ namespace kPrivate
 }
 
 
-void KcImPlottable1d::draw(KvPaint3d*) const
+void KcImGraph2d::draw(KvPaint*) const
 {
 	using namespace kPrivate;
 
@@ -30,25 +30,7 @@ void KcImPlottable1d::draw(KvPaint3d*) const
 		helper.disc = disc.get();
 		for (kIndex ch = 0; ch < disc->channels(); ch++) {
 			helper.channel = ch;
-
-			switch (type_)
-			{
-			case k_line:
-				ImPlot::PlotLineG(name().c_str(), kPrivate::discGetter, &helper, disc->size());
-				break;
-
-			case k_scatter:
-				ImPlot::PlotScatterG(name().c_str(), kPrivate::discGetter, &helper, disc->size());
-				break;
-
-			case k_bars:
-				ImPlot::PlotBarsG(name().c_str(), kPrivate::discGetter, &helper, disc->size(), 0.67);
-				break;
-
-			default:
-				break;
-			}
-			
+			ImPlot::PlotLineG(name().c_str(), kPrivate::discGetter, &helper, disc->size());
 		}
 	}
 }

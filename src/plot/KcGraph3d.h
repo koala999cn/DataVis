@@ -1,29 +1,17 @@
 #pragma once
-#include "KvPlottable.h"
+#include "KvGraph.h"
 #include "KpContext.h"
 
-// 3dœﬂÕº
+// 3d’€œﬂÕº
 
-class KcGraph3d : public KvPlottable
+class KcGraph3d : public KvGraph
 {
-	using super_ = KvPlottable;
+	using super_ = KvGraph;
 
 public:
 
 	using super_::super_;
 
-	void draw(KvPaint3d*) const override;
+	void draw(KvPaint*) const override;
 
-	unsigned majorColorsNeeded() const override;
-
-	bool minorColorNeeded() const override;
-
-	const color4f& majorColor(unsigned idx) const override;
-	color4f& majorColor(unsigned idx) override;
-
-	const color4f& minorColor() const override;
-	color4f& minorColor() override;
-
-private:
-	KpLineContext cxt_;
 };

@@ -147,8 +147,7 @@
     <ClCompile Include="src\imapp\KcImPaint.cpp" />
     <ClCompile Include="src\imapp\KcImPlot1d.cpp" />
     <ClCompile Include="src\imapp\KcImPlot3d.cpp" />
-    <ClCompile Include="src\imapp\KcImPlottable1d.cpp" />
-    <ClCompile Include="src\imapp\KcImPlottable3d.cpp" />
+    <ClCompile Include="src\imapp\KcImGraph2d.cpp" />
     <ClCompile Include="src\imapp\KcImPropertySheet.cpp" />
     <ClCompile Include="src\imapp\KcImTextCleanWindow.cpp" />
     <ClCompile Include="src\imapp\KcModuleImFileDialog.cpp" />
@@ -169,7 +168,7 @@
     <ClCompile Include="src\plot\KcGraph3d.cpp" />
     <ClCompile Include="src\plot\KcGridPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
-    <ClCompile Include="src\plot\KvPaint3d.cpp" />
+    <ClCompile Include="src\plot\KvPaint.cpp" />
     <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvPlot3d.cpp" />
     <ClCompile Include="src\plot\KvPlottable.cpp" />
@@ -261,8 +260,7 @@
     <ClInclude Include="src\imapp\KcImPaint.h" />
     <ClInclude Include="src\imapp\KcImPlot1d.h" />
     <ClInclude Include="src\imapp\KcImPlot3d.h" />
-    <ClInclude Include="src\imapp\KcImPlottable1d.h" />
-    <ClInclude Include="src\imapp\KcImPlottable3d.h" />
+    <ClInclude Include="src\imapp\KcImGraph2d.h" />
     <ClInclude Include="src\imapp\KcImPropertySheet.h" />
     <ClInclude Include="src\imapp\KcImTextCleanWindow.h" />
     <ClInclude Include="src\imapp\KcModuleImFileDialog.h" />
@@ -285,7 +283,8 @@
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph3d.h" />
     <ClInclude Include="src\plot\KpContext.h" />
-    <ClInclude Include="src\plot\KvPaint3d.h" />
+    <ClInclude Include="src\plot\KvGraph.h" />
+    <ClInclude Include="src\plot\KvPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\plot\KvTicker.h" />
     <ClInclude Include="src\plot\KcCoordSystem.h" />

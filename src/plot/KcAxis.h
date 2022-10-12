@@ -139,11 +139,11 @@ public:
 
 	aabb_type boundingBox() const override;
 
-	void draw(KvPaint3d*) const override;
+	void draw(KvPaint*) const override;
 
 private:
-	void drawTicks_(KvPaint3d*) const; // 绘制所有刻度
-	void drawTick_(KvPaint3d*, const vec3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
+	void drawTicks_(KvPaint*) const; // 绘制所有刻度
+	void drawTick_(KvPaint*, const vec3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
 	static int labelAlignment_(const vec3& orient); // 根据tick的orientation判定label的alignment
 
 private:

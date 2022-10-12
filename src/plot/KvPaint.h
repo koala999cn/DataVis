@@ -22,7 +22,7 @@ enum KeAlignment
 
 // 一个简单的3d绘制接口
 
-class KvPaint3d
+class KvPaint
 {
 public:
 	using color_t = color4f;
