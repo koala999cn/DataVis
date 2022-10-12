@@ -147,14 +147,22 @@ public:
         return factorial(x) * std::exp(1/(12*x+2/(5*x+53/(42*x))));
     }
 
+    // 线性插值
+    static KREAL lerp(KREAL xmin, KREAL xmax, double x/*[0, 1]*/) {
+        return xmin + (xmax - xmin) * x;
+    } 
+
+    // 重映射：将x从[x0, x1]区间映射到[y0, y1]区间
+    static KREAL remap(KREAL x, KREAL x0, KREAL x1, KREAL y0, KREAL y1)
+    {
+        return y0 + (x - x0) * (y1 - y0) / (x1 - x0);
+    }
+
     /*************** VECTOR ALGORITHM *****************/
 
     static void assign(KREAL x[], unsigned n, KREAL val);
     static void zeros(KREAL x[], unsigned n) { assign(x, n, 0); }
     static void ones(KREAL x[], unsigned n) { assign(x, n, 1); }
-
-    static KREAL lerp(KREAL xmin, KREAL xmax, double x/*[0, 1]*/) { 
-        return xmin + (xmax-xmin) * x; } // 线性插值
 
     static KREAL quantile(const KREAL x[], unsigned n, KREAL factor);
 
