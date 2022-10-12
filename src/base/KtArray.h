@@ -29,11 +29,12 @@ public:
 	// 从迭代器构造，方便类型转换
 	template<typename U, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
 	explicit KtArray(const U* data) {
-		std::copy(data, data + SIZE, super_::begin());
+		for (unsigned i = 0; i < SIZE; i++)
+			at(i) = static_cast<T>(*data++);
 	}
 
 	template<typename U>
-	explicit KtArray(const KtArray<U, SIZE>& other) 
+	KtArray(const KtArray<U, SIZE>& other) 
 	    : KtArray(other.data()) { }
 
 	// 从元素值构造

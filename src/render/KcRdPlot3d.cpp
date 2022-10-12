@@ -56,9 +56,9 @@ void KcRdPlot3d::showProperySet()
 	auto upper = point3f(plot3d->coordSystem().upper());
 	auto speed = (upper - lower) * 0.1;
 	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), speed.x()))
-		plot3d->coordSystem().setExtents(point3d(lower), point3d(upper));
+		plot3d->coordSystem().setExtents(lower, upper);
 	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y()))
-		plot3d->coordSystem().setExtents(point3d(lower), point3d(upper));
+		plot3d->coordSystem().setExtents(lower, upper);
 	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z()))
-		plot3d->coordSystem().setExtents(point3d(lower), point3d(upper));
+		plot3d->coordSystem().setExtents(lower, upper);
 }

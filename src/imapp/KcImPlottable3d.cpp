@@ -3,7 +3,6 @@
 #include "KvDiscreted.h"
 
 
-
 void KcImPlottable3d::draw(KvPaint3d* paint) const
 {
 	auto d = data();
@@ -13,14 +12,9 @@ void KcImPlottable3d::draw(KvPaint3d* paint) const
 		if (disc->empty())
 			return;
 
-		
-		auto from = disc->pointAt(0, 0);
-		from.resize(3);
-		if (disc->dim() == 1)
-			from[2] = 0;
-
-		auto getter = [&disc](unsigned i) -> KvPaint3d::point3 {
-			auto pt = disc->pointAt(i, 0);
+		unsigned ch(0);
+		auto getter = [&disc, &ch](unsigned i) -> KvPaint3d::point3 {
+			auto pt = disc->pointAt(i, ch);
 			pt.resize(3);
 			if (disc->dim() == 1)
 				pt[2] = 0;
@@ -28,6 +22,7 @@ void KcImPlottable3d::draw(KvPaint3d* paint) const
 			return { pt[0], pt[1], pt[2] };
 		};
 
-		paint->drawLineStrip(getter, disc->size());
+		for(; ch < disc->channels(); ch++)
+		    paint->drawPoints(getter, disc->size());
 	}
 }
