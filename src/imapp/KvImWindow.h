@@ -21,6 +21,8 @@ public:
     
     virtual int flags() const; // ImGuiWindowFlags
 
+    virtual std::string label() const;
+
     virtual void update(); // 绘制窗口部件
 
 protected:

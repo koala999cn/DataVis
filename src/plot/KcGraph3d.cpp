@@ -5,6 +5,8 @@
 
 void KcGraph3d::draw(KvPaint* paint) const
 {
+	paint->setColor(majorColor(0));
+
 	auto d = data();
 	if (d && d->isDiscreted()) {
 

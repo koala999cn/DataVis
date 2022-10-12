@@ -33,6 +33,12 @@ int KvImWindow::flags() const
 }
 
 
+std::string KvImWindow::label() const
+{
+    return name() + "##" + KuStrUtil::toString(id());
+}
+
+
 void KvImWindow::update()
 {
     ImGui::SetNextWindowSizeConstraints(
@@ -40,9 +46,7 @@ void KvImWindow::update()
         ImVec2{ maxSize_[0], maxSize_[1] }
     );
 
-    auto label = name();
-    label += "##" + KuStrUtil::toString(id());
-    if (ImGui::Begin(label.c_str(), &visible_, flags()))
+    if (ImGui::Begin(label().c_str(), &visible_, flags()))
         updateImpl_();
 
     ImGui::End();

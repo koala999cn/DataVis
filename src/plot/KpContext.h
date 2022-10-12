@@ -20,6 +20,10 @@ public:
 	int type;
 	float width;
 	color4f color;
+
+	KpLineContext() : type(k_line_solid), width(1), color(0, 0, 0, 1) {
+
+	}
 };
 
 

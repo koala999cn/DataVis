@@ -42,6 +42,6 @@ public:
 		return cxt_.color; // just make compiler happy
 	}
 
-private:
+protected:
 	KpLineContext cxt_;
 };

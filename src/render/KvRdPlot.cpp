@@ -128,4 +128,21 @@ void KvRdPlot::showProperySet()
 	ImGui::ColorEdit4("Background", (float*)&plot_->background().r());
 
 	ImGui::Checkbox("Auto Fit", &plot_->autoFit());
+
+	if (plot_->plottableCount() > 0) {
+
+		if (ImGui::TreeNode("Plottable(s)")) {
+			for (unsigned ch = 0; ch < plot_->plottableCount(); ch++) {
+				auto plt = plot_->plottable(ch);
+
+				if (ImGui::TreeNode(plt->name().c_str())) {
+					ImGui::ColorEdit4("Major Color", &plt->majorColor(0).r());
+					ImGui::TreePop();
+				}
+			}
+
+			ImGui::TreePop();
+		}
+
+	}
 }
