@@ -180,21 +180,21 @@ int KcAxis::labelAlignment_(const vec3& orient)
 {
 	int align(0);
 
-/*	if (orient.x() > 0)
-		align |= vl::AlignLeft;
+	if (orient.x() > 0)
+		align |= k_align_left;
 	else if (orient.x() < 0)
-		align |= vl::AlignRight;
+		align |= k_align_right;
 
 	if (orient.y() > 0 || orient.z() < 0 )
-		align |= vl::AlignBottom;
+		align |= k_align_bottom;
 	else if (orient.y() < 0 || orient.z() > 0)
-		align |= vl::AlignTop;
+		align |= k_align_top;
 
-	if ((align & (vl::AlignLeft | vl::AlignRight)) == 0)
-		align |= vl::AlignHCenter;
+	//if ((align & (vl::AlignLeft | vl::AlignRight)) == 0)
+	//	align |= vl::AlignHCenter;
 
-	if ((align & (vl::AlignBottom | vl::AlignTop)) == 0)
-		align |= vl::AlignVCenter;*/
+	//if ((align & (vl::AlignBottom | vl::AlignTop)) == 0)
+	//	align |= vl::AlignVCenter;
 
 	return align;
 }
