@@ -7,15 +7,16 @@
 class KcAxis;
 class KcGridPlane;
 
-// 坐标系实现类，由12根坐标轴和6个平面构成
+// 三维坐标系实现，由12根坐标轴和6个平面构成
 // 默认X轴向右，Y轴向上，Z轴向外
 
-class KcCoordSystem : public KvRenderable
+class KcCoord3d : public KvRenderable
 {
 public:
+	using point3 = KtPoint<float_type, 3>;
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using grid_plane_ptr = std::shared_ptr<KcGridPlane>;
-	using KvRenderable::aabb_type;
+	
 
 	// 12根坐标轴的id，用于索引axes_
 	enum KeAxis
@@ -60,8 +61,8 @@ public:
 
 public:
 
-	KcCoordSystem();
-	KcCoordSystem(const point3& lower, const point3& upper);
+	KcCoord3d();
+	KcCoord3d(const point3& lower, const point3& upper);
 
 	void setExtents(const point3& lower, const point3& upper);
 
@@ -82,68 +83,9 @@ public:
 	// factor=0时，坐标系收缩到中心点
 	void zoom(double factor);
 
-	aabb_type boundingBox() const override;
-
 	void draw(KvPaint*) const override;
 
-	// grid相关成员方法
-/*
-	bool gridVisible(KeGrid id) const {
-		return grids_[id].visible_;
-	}
-	void setGridVisible(KeGrid id, bool b) {
-		grids_[id].visible_ = b;
-	}
-
-	vec4 gridColor(KeGrid id) const {
-		return grids_[id].color_;
-	}
-	void setGridColor(KeGrid id, const vec4& color) {
-		grids_[id].color_ = color;
-	}
-
-	int gridStyle(KeGrid id) const {
-		return grids_[id].style_;
-	}
-	void setGridStyle(KeGrid id, int style) {
-		grids_[id].style_ = style;
-	}
-
-	int gridWidth(KeGrid id) const {
-		return grids_[id].width_;
-	}
-	void setGridWidth(KeGrid id, double width) {
-		grids_[id].width_ = width;
-	}
-
-	bool subgridVisible(KeGrid id) const {
-		return subgrids_[id].visible_;
-	}
-	void setSubgridVisible(KeGrid id, bool b) {
-		subgrids_[id].visible_ = b;
-	}
-
-	vec4 subgridColor(KeGrid id) const {
-		return subgrids_[id].color_;
-	}
-	void setSubgridColor(KeGrid id, const vec4& color) {
-		subgrids_[id].color_ = color;
-	}
-
-	int subgridStyle(KeGrid id) const {
-		return subgrids_[id].style_;
-	}
-	void setSubgridStyle(KeGrid id, int style) {
-		subgrids_[id].style_ = style;
-	}
-
-	int subgridWidth(KeGrid id) const {
-		return subgrids_[id].width_;
-	}
-	void setSubgridWidth(KeGrid id, double width) {
-		subgrids_[id].width_ = width;
-	}
-*/
+	aabb_type boundingBox() const override;
 
 private:
 	axis_ptr axes_[12];

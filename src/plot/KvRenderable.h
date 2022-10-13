@@ -9,8 +9,6 @@ class KvRenderable
 public:
 	using float_type = double;
 	using aabb_type = KtAABB<float_type>;
-	using point3 = KtPoint<float_type, 3>;
-	using vec3 = point3;
 
 	KvRenderable(const std::string_view& name) 
 		: name_(name), visible_(true) {}

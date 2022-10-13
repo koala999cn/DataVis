@@ -10,6 +10,7 @@ class KcGridPlane : public KvRenderable
 {
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using KvRenderable::aabb_type;
+	using point3 = KtPoint<float_type, 3>;
 
 public:
 	KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);

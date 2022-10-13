@@ -28,7 +28,7 @@ class KvPaint
 public:
 	using color_t = color4f;
 	using float_type = typename KvRenderable::float_type;
-	using point3 = typename KvRenderable::point3;
+	using point3 = KtPoint<float_type, 3>;
 	using point_getter = std::function<point3(unsigned)>;
 
 	virtual void setColor(const color_t& clr) = 0;

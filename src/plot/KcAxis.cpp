@@ -34,39 +34,39 @@ void KcAxis::setTickOrient(KeTickOrient to)
 	switch (to)
 	{
 	case k_x:
-		setTickOrient(vec3(1, 0, 0), false);
+		setTickOrient(vec3::unitX(), false);
 		break;
 
 	case k_neg_x:
-		setTickOrient(vec3(-1, 0, 0), false);
+		setTickOrient(-vec3::unitX(), false);
 		break;
 
 	case k_bi_x:
-		setTickOrient(vec3(1, 0, 0), true);
+		setTickOrient(vec3::unitX(), true);
 		break;
 
 	case k_y:
-		setTickOrient(vec3(0, 1, 0), false);
+		setTickOrient(vec3::unitY(), false);
 		break;
 
 	case k_neg_y:
-		setTickOrient(vec3(0, -1, 0), false);
+		setTickOrient(-vec3::unitY(), false);
 		break;
 
 	case k_bi_y:
-		setTickOrient(vec3(0, 1, 0), true);
+		setTickOrient(vec3::unitY(), true);
 		break;
 
 	case k_z:
-		setTickOrient(vec3(0, 0, 1), false);
+		setTickOrient(vec3::unitZ(), false);
 		break;
 
 	case k_neg_z:
-		setTickOrient(vec3(0, 0, -1), false);
+		setTickOrient(-vec3::unitZ(), false);
 		break;
 
 	case k_bi_z:
-		setTickOrient(vec3(0, 0, 1), true);
+		setTickOrient(vec3::unitZ(), true);
 		break;
 
 	default:
@@ -132,7 +132,7 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		paint->setColor(tickColor());
 		paint->setLineWidth(tickWidth());
 
-		std::vector<vec3> labelAchors;
+		std::vector<point3> labelAchors;
 		if (showLabel())
 			labelAchors.resize(ticks.size());
 
@@ -170,7 +170,7 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 }
 
 
-void KcAxis::drawTick_(KvPaint* paint, const vec3& anchor, double length) const
+void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length) const
 {
 	auto d = tickOrient() * length;
 	paint->drawLine(tickShowBothSide() ? anchor - d : anchor, anchor + d);
@@ -201,7 +201,7 @@ int KcAxis::labelAlignment_(const vec3& orient)
 }
 
 
-KcAxis::vec3 KcAxis::tickPos(double val) const
+KcAxis::point3 KcAxis::tickPos(double val) const
 {
 	auto ratio = (val - lower()) / length();
 	return start() + (end() - start()) * ratio; // TODO: lerp

@@ -4,7 +4,7 @@
 KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint)
 	: KvPlot(paint)
 {
-	coord_ = std::make_unique<KcCoordSystem>();
+	coord_ = std::make_unique<KcCoord3d>();
 }
 
 
@@ -23,7 +23,7 @@ void KvPlot3d::update()
 
 void KvPlot3d::fitData()
 {
-	typename KvRenderable::aabb_type box;
+	aabb_type box;
 	for (auto& p : plottables_)
 		box.merge(p->boundingBox());
 

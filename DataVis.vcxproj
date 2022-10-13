@@ -164,7 +164,7 @@
     <ClCompile Include="src\imapp\KvNode.cpp" />
     <ClCompile Include="src\imapp\KcActionSequence.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
-    <ClCompile Include="src\plot\KcCoordSystem.cpp" />
+    <ClCompile Include="src\plot\KcCoord3d.cpp" />
     <ClCompile Include="src\plot\KcGraph3d.cpp" />
     <ClCompile Include="src\plot\KcGridPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
@@ -279,6 +279,7 @@
     <ClInclude Include="src\imapp\KsImApp.h" />
     <ClInclude Include="src\imapp\KvModule.h" />
     <ClInclude Include="src\imapp\KvNode.h" />
+    <ClInclude Include="src\plot\KcCoord2d.h" />
     <ClInclude Include="src\plot\KcGridPlane.h" />
     <ClInclude Include="src\plot\KcLinearTicker.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
@@ -288,9 +289,10 @@
     <ClInclude Include="src\plot\KvGraph.h" />
     <ClInclude Include="src\plot\KvPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
+    <ClInclude Include="src\plot\KvPlot2d.h" />
     <ClInclude Include="src\plot\KvScatter.h" />
     <ClInclude Include="src\plot\KvTicker.h" />
-    <ClInclude Include="src\plot\KcCoordSystem.h" />
+    <ClInclude Include="src\plot\KcCoord3d.h" />
     <ClInclude Include="src\plot\KvPlot3d.h" />
     <ClInclude Include="src\plot\KvPlottable.h" />
     <ClInclude Include="src\plot\KvRenderable.h" />

@@ -4,12 +4,14 @@
 #include <memory>
 #include "KvData.h"
 #include "KtColor.h"
+#include "KtAABB.h"
 
 
 class KvPlottable : public KvRenderable
 {
 public:
 	using data_ptr = std::shared_ptr<KvData>;
+	using point3 = KtPoint<float_type, 3>;
 
 	using KvRenderable::KvRenderable;
 

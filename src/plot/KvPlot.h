@@ -6,6 +6,8 @@
 
 class KvPaint; // 用来执行具体的plot绘制
 
+// plot的最底层抽象接口
+
 class KvPlot
 {
 public:

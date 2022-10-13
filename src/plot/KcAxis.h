@@ -5,6 +5,7 @@
 #include "KvRenderable.h"
 #include "KvTicker.h"
 #include "KtColor.h"
+#include "KtVector3.h"
 
 
 // 坐标轴（单轴）实现
@@ -14,7 +15,8 @@ class KcAxis : public KvRenderable
 {
 public:
 
-	using KvRenderable::aabb_type;
+	using point3 = KtPoint<float_type, 3>;
+	using vec3 = KtVector3<float_type>;
 
 	enum KeTickOrient
 	{
@@ -26,13 +28,13 @@ public:
 
 	KcAxis();
 
-	const vec3& start() const { return start_; }
-	void setStart(const vec3& v) { start_ = v; }
-	void setStart(double x, double y, double z) { start_ = vec3(x, y, z); }
+	const point3& start() const { return start_; }
+	void setStart(const point3& v) { start_ = v; }
+	void setStart(double x, double y, double z) { start_ = point3(x, y, z); }
 
-	const vec3& end() const { return end_; }
-	void setEnd(const vec3& v) { end_ = v; }
-	void setEnd(double x, double y, double z) { end_ = vec3(x, y, z); }
+	const point3& end() const { return end_; }
+	void setEnd(const point3& v) { end_ = v; }
+	void setEnd(double x, double y, double z) { end_ = point3(x, y, z); }
 
 	const vec3& tickOrient() const { return tickOrient_; }
 
@@ -134,16 +136,14 @@ public:
 	void setTicker(std::shared_ptr<KvTicker> tic);
 
 	// 根据tick的数值，返回tick在坐标轴上的的3维坐标
-	vec3 tickPos(double val) const;
-
-
+	point3 tickPos(double val) const;
 	aabb_type boundingBox() const override;
 
 	void draw(KvPaint*) const override;
 
 private:
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度
-	void drawTick_(KvPaint*, const vec3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
+	void drawTick_(KvPaint*, const point3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
 	static int labelAlignment_(const vec3& orient); // 根据tick的orientation判定label的alignment
 
 private:
@@ -165,7 +165,7 @@ private:
 
 	//QFont labelFont_, titleFont_;
 
-	vec3 start_, end_;
+	point3 start_, end_;
 	vec3 tickOrient_;
 	bool tickShowBothSide_;
 

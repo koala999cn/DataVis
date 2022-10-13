@@ -217,7 +217,7 @@
     <ClCompile Include="src\plot\KvPlot3d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcCoordSystem.cpp">
+    <ClCompile Include="src\plot\KcCoord3d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KcAxis.cpp">
@@ -420,7 +420,7 @@
     <ClInclude Include="src\plot\KcAxis.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcCoordSystem.h">
+    <ClInclude Include="src\plot\KcCoord3d.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KvPlottable.h">
@@ -649,6 +649,12 @@
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KvScatter.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvPlot2d.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcCoord2d.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

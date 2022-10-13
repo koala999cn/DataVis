@@ -1,18 +1,18 @@
-#include "KcCoordSystem.h"
+#include "KcCoord3d.h"
 #include "KcAxis.h"
 #include "KcGridPlane.h"
 #include "KvPaint.h"
 #include <assert.h>
 
 
-KcCoordSystem::KcCoordSystem()
-	: KcCoordSystem(point3(0), point3(10))
+KcCoord3d::KcCoord3d()
+	: KcCoord3d(point3(0), point3(10))
 {
 
 }
 
 
-KcCoordSystem::KcCoordSystem(const point3& lower, const point3& upper)
+KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 	: KvRenderable("CoordSystem")
 {
 	// 初始化12根坐标轴
@@ -80,7 +80,7 @@ KcCoordSystem::KcCoordSystem(const point3& lower, const point3& upper)
  *  p3         x3    p4
  *    
  */
-void KcCoordSystem::setExtents(const point3& lower, const point3& upper)
+void KcCoord3d::setExtents(const point3& lower, const point3& upper)
 {
 	// p0 = lower, p7 = upper
 	auto p1 = point3{ lower.x(), upper.y(), lower.z() };
@@ -119,37 +119,37 @@ void KcCoordSystem::setExtents(const point3& lower, const point3& upper)
 }
 
 
-KcCoordSystem::point3 KcCoordSystem::lower() const
+KcCoord3d::point3 KcCoord3d::lower() const
 {
 	return { axes_[k_x0]->lower(), axes_[k_y0]->lower(), axes_[k_z0]->lower() };
 }
 
 
-KcCoordSystem::point3 KcCoordSystem::upper() const
+KcCoord3d::point3 KcCoord3d::upper() const
 {
 	return { axes_[k_x0]->upper(), axes_[k_y0]->upper(), axes_[k_z0]->upper() };
 }
 
 
-KcCoordSystem::point3 KcCoordSystem::center() const
-{
-	return (lower() + upper()) / 2;
-}
-
-
-double KcCoordSystem::diag() const
-{
-	return (upper() - lower()).abs();
-}
-
-
-KcCoordSystem::aabb_type KcCoordSystem::boundingBox() const
+KcCoord3d::aabb_type KcCoord3d::boundingBox() const
 {
 	return { lower(), upper() };
 }
 
 
-void KcCoordSystem::zoom(double factor)
+KcCoord3d::point3 KcCoord3d::center() const
+{
+	return (lower() + upper()) / 2;
+}
+
+
+double KcCoord3d::diag() const
+{
+	return (upper() - lower()).abs();
+}
+
+
+void KcCoord3d::zoom(double factor)
 {
 	auto c = center();
 	auto delta = (upper() - lower()) * factor * 0.5;
@@ -159,7 +159,7 @@ void KcCoordSystem::zoom(double factor)
 }
 
 
-void KcCoordSystem::draw(KvPaint* paint) const
+void KcCoord3d::draw(KvPaint* paint) const
 {
 	if (visible()) {
 		for (unsigned i = 0; i < std::size(axes_); i++) {

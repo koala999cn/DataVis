@@ -1,18 +1,22 @@
 #pragma once
 #include "KvPlot.h"
-#include "KcCoordSystem.h"
+#include "KcCoord3d.h"
 #include "KtMatrix4.h"
 #include "KvRenderable.h"
 
+
+// 三维plot的抽象类
 
 class KvPlot3d : public KvPlot
 {
 public:
 	using float_type = typename KvRenderable::float_type;
+	using aabb_type = KtAABB<float_type>;
 	using mat4 = KtMatrix4<float_type>;
-	using point3 = typename KvRenderable::point3;
+	using point3 = KtPoint<float_type, 3>;
+	using vec3 = point3;
 	using quat = KtQuaternion<float_type>;
-
+	
 	KvPlot3d(std::shared_ptr<KvPaint> paint);
 
 	/// 抽象接口
@@ -22,6 +26,8 @@ public:
 
 	virtual mat4 projMatrix() const = 0;
 	virtual void setProjMatrix(const mat4&) = 0;
+
+	//virtual aabb_type boundingBox() const = 0;
 
 	void update() override;
 
@@ -45,13 +51,13 @@ public:
 	const quat& orient() const { return orient_; }
 	quat& orient() { return orient_; }
 
-	KcCoordSystem& coordSystem() { return *coord_.get(); }
+	KcCoord3d& coordSystem() { return *coord_.get(); }
 
 protected:
 	virtual void autoProject_() = 0;
 	
 protected:
-	std::unique_ptr<KcCoordSystem> coord_; // 内置创建并管理
+	std::unique_ptr<KcCoord3d> coord_; // 内置创建并管理
 	
 	bool ortho_{ true }; // 正交投影 vs. 透视投影
 	
