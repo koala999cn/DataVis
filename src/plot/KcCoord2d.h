@@ -1,6 +1,6 @@
 #pragma once
 #include "KvRenderable.h"
-#include <vector>
+#include <list>
 #include <memory>
 #include "KtPoint.h"
 
@@ -13,13 +13,16 @@ class KcCoord2d : public KvRenderable
 public:
 	using float_type = typename KvRenderable::float_type;
 	using point2 = KtPoint<float_type, 2>;
+	using axis_ptr = std::shared_ptr<KcAxis>;
+	using aixs_list = std::list<axis_ptr>;
 
 	enum KeAxis 
 	{
 		k_left,
 		k_right,
 		k_top,
-		k_bottom
+		k_bottom,
+		k_custom
 	};
 
 	KcCoord2d();
@@ -30,17 +33,14 @@ public:
 	point2 lower() const; // the lower conner
 	point2 upper() const; // the upper conner
 
-	axis_ptr& axis(KeAxis id) { return axes_[id]; }
-	axis_ptr axis(KeAxis id) const { return axes_[id]; }
+	aixs_list& axes(KeAxis id) { return axes_[id]; }
 
-	// 以坐标系AABB的中心点为基准，对各坐标轴的extent/range进行等比例缩放
-	// 即坐标系缩放前后，AABB的中心点保持不变
-	// factor=1时，坐标系不缩放
-	// factor=0时，坐标系收缩到中心点
-	void zoom(double factor);
+	// 实现基类的接口
 
 	void draw(KvPaint*) const override;
 
+	aabb_type boundingBox() const override;
+
 private:
-	axis_ptr axes_[4];
+	aixs_list axes_[5];
 };

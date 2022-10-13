@@ -42,15 +42,10 @@ public:
 	void setEnd(double x, double y, double z) { end_ = point3(x, y, z); }
 
 	const vec3& tickOrient() const { return tickOrient_; }
-
-	void setTickOrient(const vec3& v, bool bothSide) { 
-		tickOrient_ = v; 
-		tickShowBothSide_ = bothSide;
-	}
-
-	void setTickOrient(KeTickOrient orient);
+	vec3& tickOrient() { return tickOrient_; }
 
 	bool tickShowBothSide() const { return tickShowBothSide_; }
+	bool& tickShowBothSide() { return tickShowBothSide_; }
 
 	/// range 
 
@@ -130,6 +125,17 @@ public:
 	aabb_type boundingBox() const override;
 
 	void draw(KvPaint*) const override;
+
+
+	// 帮助函数，待删除
+
+	void setTickOrient(const vec3& v, bool bothSide) {
+		tickOrient_ = v;
+		tickShowBothSide_ = bothSide;
+	}
+
+	void setTickOrient(KeTickOrient orient);
+
 
 private:
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度

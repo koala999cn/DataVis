@@ -164,6 +164,7 @@
     <ClCompile Include="src\imapp\KvNode.cpp" />
     <ClCompile Include="src\imapp\KcActionSequence.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
+    <ClCompile Include="src\plot\KcCoord2d.cpp" />
     <ClCompile Include="src\plot\KcCoord3d.cpp" />
     <ClCompile Include="src\plot\KcGraph3d.cpp" />
     <ClCompile Include="src\plot\KcGridPlane.cpp" />

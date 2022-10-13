@@ -6,14 +6,14 @@
 
 
 KcCoord3d::KcCoord3d()
-	: KcCoord3d(point3(0), point3(10))
+	: KcCoord3d(point3(0), point3(1))
 {
 
 }
 
 
 KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
-	: KvRenderable("CoordSystem")
+	: KvRenderable("CoordSystem3d")
 {
 	// 初始化12根坐标轴
 	for (unsigned i = 0; i < std::size(axes_); i++)
