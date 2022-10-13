@@ -6,6 +6,7 @@
 #include "KvTicker.h"
 #include "KtColor.h"
 #include "KtVector3.h"
+#include "KpContext.h"
 
 
 // 坐标轴（单轴）实现
@@ -25,6 +26,10 @@ public:
 		k_z, k_neg_z, k_bi_z
 	};
 
+	struct KpTickContext : public KpLineContext
+	{
+		double length;
+	};
 
 	KcAxis();
 
@@ -87,20 +92,14 @@ public:
 	const std::vector<std::string>& labels() const { return labels_; }
 	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
 
-	double baselineWidth() const { return baselineWidth_; }
-	void setBaselineWidth(double width) { baselineWidth_ = width; }
+	const KpLineContext& baselineContext() const { return baselineCxt_; }
+	KpLineContext& baselineContext() { return baselineCxt_; }
 
-	// major ticks
-	double tickWidth() const { return tickWidth_; }
-	void setTickWidth(double width) { tickWidth_ = width; }
-	double tickLength() const { return tickLength_; }
-	void setTickLength(double len) { tickLength_ = len; }
+	const KpTickContext& tickContext() const { return tickCxt_; }
+	KpTickContext& tickContext() { return tickCxt_; }
 
-	// minor ticks
-	double subtickWidth() const { return subtickWidth_; }
-	void setSubtickWidth(double width) { subtickWidth_ = width; }
-	double subtickLength() const { return subtickLength_; }
-	void setSubtickLength(double len) { subtickLength_ = len; }
+	const KpTickContext& subtickContext() const { return subtickCxt_; }
+	KpTickContext& subtickContext() { return subtickCxt_; }
 
 	// tick长度以rlen为参考值取百分数
 	// 如，设tick为5，rlen为300，则绘制tick的实际长度为300*5%，即15
@@ -109,20 +108,11 @@ public:
 
 	/// colors
 
-	color4f baselineColor() const { return baselineColor_; }
-	void setBaselineColor(color4f clr) { baselineColor_ = clr; }
-
-	color4f tickColor() const { return tickColor_; }
-	void setTickColor(color4f clr) { tickColor_ = clr; }
-
-	color4f subtickColor() const { return subtickColor_; }
-	void setSubtickColor(color4f clr) { subtickColor_ = clr; }
+	color4f titleColor() const { return titleColor_; }
+	void setTitleColor(color4f clr) { titleColor_ = clr; }
 
 	color4f labelColor() const { return labelColor_; }
 	void setLabelColor(color4f clr) { labelColor_ = clr; }
-
-	color4f titleColor() const { return titleColor_; }
-	void setTitleColor(color4f clr) { titleColor_ = clr; }
 
 	/// fonts
 
@@ -152,16 +142,13 @@ private:
 	double lower_, upper_; // range
 	bool showBaseline_, showTick_, showSubtick_, showTitle_, showLabel_;
 
-	double baselineWidth_;
-	double tickWidth_, tickLength_;
-	double subtickWidth_, subtickLength_;
+	KpLineContext baselineCxt_;
+	KpTickContext tickCxt_, subtickCxt_;
+
 	double labelPadding_; // 刻度label距离刻度线的距离
 	mutable double refLength_; // 标准参考长度. tickLength_, subtickLength_, labelPadding_均为其相对值
 	                           // 一般取AABB的对角线长度
-
-	color4f baselineColor_;
-	color4f tickColor_, subtickColor_;
-	color4f labelColor_, titleColor_;
+	color4f labelColor_{ 0, 0, 0, 1 }, titleColor_{ 0, 0, 0, 1 };
 
 	//QFont labelFont_, titleFont_;
 

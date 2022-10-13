@@ -277,6 +277,9 @@
     <ClCompile Include="src\plot\KcScatter3d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KvPlottable3d.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -655,6 +658,9 @@
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcCoord2d.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvPlottable3d.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

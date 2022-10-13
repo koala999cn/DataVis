@@ -8,6 +8,7 @@
 #include "imapp/KgImWindowManager.h"
 #include "imgui.h"
 #include "KuStrUtil.h"
+#include "misc/cpp/imgui_stdlib.h"
 
 
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
@@ -49,7 +50,7 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 	auto numPlts = std::distance(r.first, r.second);
 	
 	if (data->channels() == 1 || numPlts == 1) {
-		r.first->second->data() = data;
+		r.first->second->setData(data);
 	}
 	else {
 		assert(data->channels() == numPlts);
@@ -60,7 +61,7 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 
 		for (auto i = r.first; i != r.second; i++) {
 			assert(i->first == outPort->id());
-			i->second->data() = std::make_shared<KcDataMono>(disc, ch++);
+			i->second->setData(std::make_shared<KcDataMono>(disc, ch++));
 		}
 	}
 }
@@ -126,7 +127,7 @@ void KvRdPlot::showProperySet()
 	ImGui::SameLine();
 	super_::showProperySet();
 
-	ImGui::ColorEdit4("Background", (float*)&plot_->background().r());
+	ImGui::ColorEdit4("Background", plot_->background());
 
 	ImGui::Checkbox("Auto Fit", &plot_->autoFit());
 
@@ -134,14 +135,22 @@ void KvRdPlot::showProperySet()
 
 		if (ImGui::TreeNodeEx("Plottable(s)", ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_CollapsingHeader)) {
 			for (unsigned ch = 0; ch < plot_->plottableCount(); ch++) {
+				ImGui::Indent();
+
 				auto plt = plot_->plottable(ch);
 				std::string label = "##Plottable" + KuStrUtil::toString(ch);
 				ImGui::Checkbox(label.c_str(), &plt->visible());
 				ImGui::SameLine();
-				if (ImGui::TreeNodeEx(plt->name().c_str(), ImGuiTreeNodeFlags_FramePadding)) {
-					ImGui::ColorEdit4("Major Color", &plt->majorColor(0).r());
-					ImGui::TreePop();
+				ImGui::InputText("##", &plt->name());
+					
+				for (unsigned i = 0; i < plt->majorColors(); i++) {
+					ImGui::SameLine();
+					std::string label = "##" + KuStrUtil::toString(i);
+					ImGui::ColorEdit4(label.c_str(), plt->majorColor(i),
+						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 				}
+
+				ImGui::Unindent();
 			}
 
 			//ImGui::TreePop();

@@ -11,15 +11,14 @@ KcAxis::KcAxis()
 
 	showAll();
 
-	baselineWidth_ = 0.8;
-	tickWidth_ = 0.6, tickLength_ = 1;
-	subtickWidth_ = 0.4, subtickLength_ = 0.6;
+	baselineCxt_.width = 0.8;
+	tickCxt_.width = 0.6;
+	tickCxt_.length = 1;
+	subtickCxt_.width = 0.4;
+	subtickCxt_.length = 0.6;
+
 	labelPadding_ = 0.2;
 	refLength_ = 0;
-
-	baselineColor_ = color4f(0, 0, 0, 1);
-	tickColor_ = subtickColor_ = color4f(0, 0, 0, 1);
-	labelColor_ = titleColor_ = color4f(0, 0, 0, 1);
 
 	//labelFont_, titleFont_; // TODO:
 
@@ -100,9 +99,7 @@ void KcAxis::draw(KvPaint* paint) const
 
 	// draw baseline
 	if (showBaseline()) {
-		auto clr = baselineColor();
-		paint->setColor(clr);
-		paint->setLineWidth(baselineWidth()); // TODO: dock后，线的宽度会改变
+		paint->apply(baselineCxt_);
 		paint->drawLine(start(), end()); // 物理坐标
 	}
 
@@ -128,9 +125,8 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 	auto ticks = tic->getTicks(ticLower, ticUpper);
 	if (!ticks.empty()) {
 
-		double tickLen = tickLength() * refLength_ / 100; // tick的长度取相对值
-		paint->setColor(tickColor());
-		paint->setLineWidth(tickWidth());
+		paint->apply(tickCxt_);
+		double tickLen = tickCxt_.length * refLength_ / 100; // tick的长度取相对值
 
 		std::vector<point3> labelAchors;
 		if (showLabel())
@@ -159,9 +155,8 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		auto subticks = tic->getSubticks(ticks);
 		if (!subticks.empty()) {
 
-			double subtickLen = subtickLength() * refLength_ / 100; // subtick的长度取相对值
-			paint->setColor(subtickColor());
-			paint->setLineWidth(subtickWidth());
+			paint->apply(subtickCxt_);
+			double subtickLen = subtickCxt_.length * refLength_ / 100; // subtick的长度取相对值
 
 			for (unsigned i = 0; i < subticks.size(); i++) 
 				drawTick_(paint, tickPos(subticks[i]), subtickLen);

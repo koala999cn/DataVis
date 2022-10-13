@@ -16,7 +16,7 @@ KcRdPlot3d::KcRdPlot3d()
 
 std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KvDataProvider* prov)
 {
-	return { new KcScatter3d(prov->name()) };
+	return { new KcGraph3d(prov->name()) };
 }
 
 

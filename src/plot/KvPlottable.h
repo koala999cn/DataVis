@@ -16,7 +16,10 @@ public:
 	using KvRenderable::KvRenderable;
 
 	data_ptr data() const { return data_; }
-	data_ptr& data() { return data_; }
+	void setData(data_ptr d) { 
+		data_ = d; 
+		majorColors_.resize(d->channels());
+	}
 
 	bool empty() const {
 		return !data_ || data_->size() == 0;
@@ -25,23 +28,31 @@ public:
 	aabb_type boundingBox() const override;
 
 	// 返回-1表示需要连续色带
-	virtual unsigned majorColorsNeeded() const = 0;
+	virtual unsigned majorColorsNeeded() const { 
+		return !shareColor() && data() ? data()->channels() : 1; 
+	}
 
 	// 返回false表示不需要辅助色
-	virtual bool minorColorNeeded() const = 0;
+	virtual bool minorColorNeeded() const { return 0; }
 
 	// 主色彩的个数，一般等于majorColorNeeded。
 	// 在连续色彩情况下，返回主控制色的个数
-	virtual unsigned majorColors() const {
-		return majorColorsNeeded();
-	}
+	virtual unsigned majorColors() const { return majorColors_.size(); }
 
-	virtual const color4f& majorColor(unsigned idx) const = 0;
-	virtual color4f& majorColor(unsigned idx) = 0;
+	virtual const color4f& majorColor(unsigned idx) const {	return majorColors_[idx]; }
+	virtual color4f& majorColor(unsigned idx) { return majorColors_[idx]; }
 
-	virtual const color4f & minorColor() const = 0;
-	virtual color4f& minorColor() = 0;
+	virtual const color4f& minorColor() const { return minorColor_; }
+	virtual color4f& minorColor() { return minorColor_; }
+
+	bool shareColor() const { return shareColor_; }
+	bool& shareColor() { return shareColor_; }
 
 private:
+
 	data_ptr data_;
+	bool shareColor_{ false }; // 多通道数据是否共用调色板
+
+	std::vector<color4f> majorColors_{ color4f(0, 0, 0, 1) };
+	color4f minorColor_;
 };

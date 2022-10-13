@@ -173,6 +173,7 @@
     <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvPlot3d.cpp" />
     <ClCompile Include="src\plot\KvPlottable.cpp" />
+    <ClCompile Include="src\plot\KvPlottable3d.cpp" />
     <ClCompile Include="src\plot\KvTicker.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -290,6 +291,7 @@
     <ClInclude Include="src\plot\KvPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\plot\KvPlot2d.h" />
+    <ClInclude Include="src\plot\KvPlottable3d.h" />
     <ClInclude Include="src\plot\KvScatter.h" />
     <ClInclude Include="src\plot\KvTicker.h" />
     <ClInclude Include="src\plot\KcCoord3d.h" />

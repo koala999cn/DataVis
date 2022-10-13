@@ -1,28 +1,28 @@
 #pragma once
-#include "KtPoint.h"
+#include "KtArray.h"
 
 
 template<typename T, int DIM>
-class KtColor : protected KtPoint<T, DIM>
+class KtColor : public KtArray<T, DIM>
 {
 private:
 	static_assert(DIM == 3 || DIM == 4);
-	using super_ = KtPoint<T, DIM>;
+	using super_ = KtArray<T, DIM>;
 
 public:
 	using super_::super_;
 
-	const T& r() const { return super_::x(); }
-	T& r() { return super_::x(); }
+	const T& r() const { return super_::at(0); }
+	T& r() { return super_::at(0); }
 
-	const T& g() const { return super_::y(); }
-	T& g() { return super_::y(); }
+	const T& g() const { return super_::at(1); }
+	T& g() { return super_::at(1); }
 
-	const T& b() const { return super_::z(); }
-	T& b() { return super_::z(); }
+	const T& b() const { return super_::at(2); }
+	T& b() { return super_::at(2); }
 
-	const T& a() const { return super_::w(); }
-	T& a() { return super_::w(); }
+	const T& a() const { return super_::at(3); }
+	T& a() { return super_::at(3); }
 
 	template<std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 	bool isValid() const {

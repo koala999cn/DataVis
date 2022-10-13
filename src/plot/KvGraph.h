@@ -15,7 +15,7 @@ public:
 	using super_::super_;
 
 	unsigned majorColorsNeeded() const override {
-		return 1;
+		return !shareColor() && data() ? data()->channels() : 1;
 	}
 
 	bool minorColorNeeded() const override {
@@ -23,13 +23,11 @@ public:
 	}
 
 	const color4f& majorColor(unsigned idx) const override {
-		assert(idx == 0);
-		return lineCxt_.color;
+		return majorColors_[idx];
 	}
 
 	color4f& majorColor(unsigned idx) override {
-		assert(idx == 0);
-		return lineCxt_.color;
+		return majorColors_[idx];
 	}
 
 	const color4f& minorColor() const override {
@@ -44,4 +42,5 @@ public:
 
 protected:
 	KpLineContext lineCxt_;
+	std::vector<color4f> majorColors_;
 };
