@@ -11,11 +11,7 @@ class KvPlottable : public KvRenderable
 public:
 	using data_ptr = std::shared_ptr<KvData>;
 
-	KvPlottable() = default;
-	KvPlottable(const std::string& name) : name_(name) {}
-
-	const std::string& name() const { return name_; }
-	void setName(const std::string& name) { name_ = name; }
+	using KvRenderable::KvRenderable;
 
 	data_ptr data() const { return data_; }
 	data_ptr& data() { return data_; }
@@ -45,6 +41,5 @@ public:
 	virtual color4f& minorColor() = 0;
 
 private:
-	std::string name_;
 	data_ptr data_;
 };

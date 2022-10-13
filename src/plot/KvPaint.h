@@ -2,6 +2,7 @@
 #include "KtColor.h"
 #include <functional>
 #include "KvRenderable.h"
+#include "KpContext.h"
 
 
 enum KeAlignment
@@ -53,6 +54,13 @@ public:
 	void drawLineLoop(point_getter fn, unsigned count);
 
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
+
+
+	// Ò»Ð©±ã½Ýº¯Êý
+
+	void apply(const KpLineContext& cxt);
+
+	void apply(const KpScatterContext& cxt);
 
 private:
 

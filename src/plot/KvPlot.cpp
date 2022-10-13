@@ -23,7 +23,8 @@ void KvPlot::addPlottable(KvPlottable* plot)
 void KvPlot::update()
 {
 	for (int idx = 0; idx < plottableCount(); idx++)
-		plottable(idx)->draw(paint_.get());
+		if (plottable(idx)->visible())
+		    plottable(idx)->draw(paint_.get());
 }
 
 

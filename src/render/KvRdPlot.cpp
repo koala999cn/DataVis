@@ -7,6 +7,7 @@
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
 #include "imgui.h"
+#include "KuStrUtil.h"
 
 
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
@@ -119,7 +120,7 @@ bool KvRdPlot::onStartPipeline()
 void KvRdPlot::showProperySet()
 {
 	bool vis = plot_->visible();
-	if (ImGui::Checkbox("##", &vis))
+	if (ImGui::Checkbox("##Plot", &vis))
 		plot_->setVisible(vis);
 
 	ImGui::SameLine();
@@ -131,17 +132,19 @@ void KvRdPlot::showProperySet()
 
 	if (plot_->plottableCount() > 0) {
 
-		if (ImGui::TreeNode("Plottable(s)")) {
+		if (ImGui::TreeNodeEx("Plottable(s)", ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_CollapsingHeader)) {
 			for (unsigned ch = 0; ch < plot_->plottableCount(); ch++) {
 				auto plt = plot_->plottable(ch);
-
-				if (ImGui::TreeNode(plt->name().c_str())) {
+				std::string label = "##Plottable" + KuStrUtil::toString(ch);
+				ImGui::Checkbox(label.c_str(), &plt->visible());
+				ImGui::SameLine();
+				if (ImGui::TreeNodeEx(plt->name().c_str(), ImGuiTreeNodeFlags_FramePadding)) {
 					ImGui::ColorEdit4("Major Color", &plt->majorColor(0).r());
 					ImGui::TreePop();
 				}
 			}
 
-			ImGui::TreePop();
+			//ImGui::TreePop();
 		}
 
 	}

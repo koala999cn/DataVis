@@ -48,8 +48,12 @@ public:
 
 	enum KeType
 	{
-		k_line_point
+		k_scatter_point
 	};
+
+	KpScatterContext() : type(k_scatter_point), size(3), color(0, 0, 0, 1) {
+
+	}
 
 	int type;
 	float size;

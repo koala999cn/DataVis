@@ -7,5 +7,3 @@
 7. binary data loader
 8. 基于json的对象属性sheet
 9. AudioPlayer不能二次渲染
-
-imgui: rangedrag 遇到[0, 0]时拖不动

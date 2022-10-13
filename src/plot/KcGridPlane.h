@@ -2,6 +2,7 @@
 #include "KvRenderable.h"
 #include <memory>
 #include "KtColor.h"
+#include "KpContext.h"
 
 class KcAxis;
 
@@ -14,49 +15,13 @@ public:
 	KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);
 
 	bool minorVisible() const { return minorVisible_; }
-	void setMinorVisible(bool b) { minorVisible_ = b; }
+	bool& minorVisible() { return minorVisible_; }
 
-/*	color4f majorColor() const {
-		return majorLine_.color;
-	}
-	void setMajorColor(const color4f& color) {
-		majorLine_.color = color;
-	}
+	const KpLineContext& majorLine() const { return majorLineCxt_; }
+	KpLineContext& majorLine() { return majorLineCxt_; }
 
-	int majorStyle() const {
-		return majorLine_.style;
-	}
-	void setMajorStyle(int style) {
-		majorLine_.style = style;
-	}
-
-	double majorWidth() const {
-		return majorLine_.width;
-	}
-	void setMajorWidth(double width) {
-		majorLine_.width = width;
-	}
-
-	color4f minorColor() const {
-		return minorLine_.color;
-	}
-	void setMinorColor(const color4f& color) {
-		minorLine_.color = color;
-	}
-
-	int minorStyle() const {
-		return minorLine_.style;
-	}
-	void setMinorStyle(int style) {
-		minorLine_.style = style;
-	}
-
-	double minorWidth() const {
-		return minorLine_.width;
-	}
-	void setMinorWidth(double width) {
-		minorLine_.width = width;
-	}*/
+	const KpLineContext& minorLine() const { return minorLineCxt_; }
+	KpLineContext& minorLine() { return minorLineCxt_; }
 
 	aabb_type boundingBox() const override;
 
@@ -73,5 +38,5 @@ private:
 private:
 	axis_ptr horz_[2], vert_[2]; // 构成grid平面的4根坐标轴，水平2根、垂直2根
 	bool minorVisible_;
-	//KpLine majorLine_, minorLine_;
+	KpLineContext majorLineCxt_, minorLineCxt_;
 };

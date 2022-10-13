@@ -168,6 +168,7 @@
     <ClCompile Include="src\plot\KcGraph3d.cpp" />
     <ClCompile Include="src\plot\KcGridPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
+    <ClCompile Include="src\plot\KcScatter3d.cpp" />
     <ClCompile Include="src\plot\KvPaint.cpp" />
     <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvPlot3d.cpp" />
@@ -282,10 +283,12 @@
     <ClInclude Include="src\plot\KcLinearTicker.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph3d.h" />
+    <ClInclude Include="src\plot\KcScatter3d.h" />
     <ClInclude Include="src\plot\KpContext.h" />
     <ClInclude Include="src\plot\KvGraph.h" />
     <ClInclude Include="src\plot\KvPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
+    <ClInclude Include="src\plot\KvScatter.h" />
     <ClInclude Include="src\plot\KvTicker.h" />
     <ClInclude Include="src\plot\KcCoordSystem.h" />
     <ClInclude Include="src\plot\KvPlot3d.h" />
@@ -295,7 +298,7 @@
     <ClInclude Include="src\provider.h" />
     <ClInclude Include="src\prov\KcPvData.h" />
     <ClInclude Include="src\prov\KvDataProvider.h" />
-    <ClInclude Include="src\render.h" />
+    <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\dsp\KtContinuedExpr.h" />
     <ClInclude Include="src\dsp\KcSampled1d.h" />
     <ClInclude Include="src\dsp\kDsp.h" />

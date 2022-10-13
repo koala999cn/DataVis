@@ -5,17 +5,20 @@
 
 
 KcGridPlane::KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
+	: KvRenderable("GridPlane")
 {
 	horz_[0] = h0, horz_[1] = h1;
 	vert_[0] = v0, vert_[1] = v1;
 
 	minorVisible_ = false;
-	/*majorLine_.style = KglPaint::LineStipple_Solid;
-	majorLine_.width = 0.6;
-	majorLine_.color = color4f(0.3);
-	minorLine_.style = KglPaint::LineStipple_Dash;
-	minorLine_.width = 0.4;
-	minorLine_.color = color4f(0.3);*/
+
+	majorLineCxt_.type = KpLineContext::k_line_solid;
+	majorLineCxt_.width = 0.6;
+	majorLineCxt_.color = color4f(0.3);
+
+	minorLineCxt_.type = KpLineContext::k_line_dash;
+	minorLineCxt_.width = 0.4;
+	minorLineCxt_.color = color4f(0.3);
 }
 
 
@@ -33,12 +36,12 @@ KcGridPlane::aabb_type KcGridPlane::boundingBox() const
 void KcGridPlane::draw(KvPaint* paint) const
 {
 	assert(visible());
-	//paint->apply(majorLine_);
+	paint->apply(majorLineCxt_);
 	drawMajors_(paint, horz_[0], horz_[1]);
 	drawMajors_(paint, vert_[0], vert_[1]);
 
 	if (minorVisible()) {
-		//paint->apply(minorLine_);
+		paint->apply(minorLineCxt_);
 		drawMinors_(paint, horz_[0], horz_[1]);
 		drawMinors_(paint, vert_[0], vert_[1]);
 	}

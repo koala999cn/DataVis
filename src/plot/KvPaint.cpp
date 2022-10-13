@@ -43,3 +43,17 @@ void KvPaint::drawLineLoop(point_getter fn, unsigned count)
 	if (count > 2)
 		drawLine(fn(count - 1), fn(0));
 }
+
+
+void KvPaint::apply(const KpLineContext& cxt)
+{
+	setColor(cxt.color);
+	setLineWidth(cxt.width);
+}
+
+
+void KvPaint::apply(const KpScatterContext& cxt)
+{
+	setColor(cxt.color);
+	setPointSize(cxt.size);
+}

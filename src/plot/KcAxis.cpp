@@ -5,6 +5,7 @@
 
 
 KcAxis::KcAxis() 
+	: KvRenderable("Axis")
 {
 	lower_ = upper_ = 0;
 

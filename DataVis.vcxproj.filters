@@ -274,6 +274,9 @@
     <ClCompile Include="src\plot\KcGraph3d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcScatter3d.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -408,7 +411,7 @@
     <ClInclude Include="src\dsp\KmBins.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\render.h" />
+    <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\provider.h" />
     <ClInclude Include="src\operator.h" />
     <ClInclude Include="src\dsp\KuMatrixUtil.h">
@@ -640,6 +643,12 @@
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KvGraph.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcScatter3d.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvScatter.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

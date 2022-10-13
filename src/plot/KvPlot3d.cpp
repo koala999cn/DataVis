@@ -17,8 +17,7 @@ void KvPlot3d::update()
 
 	coordSystem().draw(paint_.get());
 
-	for (int idx = 0; idx < plottableCount(); idx++)
-		plottable(idx)->draw(paint_.get());
+	KvPlot::update(); // draw the plottables
 }
 
 

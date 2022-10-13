@@ -1,11 +1,10 @@
-#include "KcGraph3d.h"
+#include "KcScatter3d.h"
 #include "plot/KvPaint.h"
 #include "KvDiscreted.h"
 
-
-void KcGraph3d::draw(KvPaint* paint) const
+void KcScatter3d::draw(KvPaint* paint) const
 {
-	paint->apply(lineCxt_);
+	paint->apply(scatCxt_);
 
 	auto d = data();
 	if (d && d->isDiscreted()) {
@@ -25,6 +24,6 @@ void KcGraph3d::draw(KvPaint* paint) const
 		};
 
 		for (; ch < disc->channels(); ch++)
-			paint->drawLineStrip(getter, disc->size());
+			paint->drawPoints(getter, disc->size());
 	}
 }

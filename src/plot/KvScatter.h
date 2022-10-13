@@ -4,9 +4,9 @@
 #include <assert.h>
 
 
-// 折线图的基类
+// 散点图的基类
 
-class KvGraph : public KvPlottable
+class KvScatter : public KvPlottable
 {
 	using super_ = KvPlottable;
 
@@ -19,29 +19,29 @@ public:
 	}
 
 	bool minorColorNeeded() const override {
-		return false;
+		return true;
 	}
 
 	const color4f& majorColor(unsigned idx) const override {
 		assert(idx == 0);
-		return lineCxt_.color;
+		return scatCxt_.color;
 	}
 
 	color4f& majorColor(unsigned idx) override {
 		assert(idx == 0);
-		return lineCxt_.color;
+		return scatCxt_.color;
 	}
 
 	const color4f& minorColor() const override {
 		assert(false); // we'll never reach here
-		return lineCxt_.color; // just make compiler happy
+		return scatCxt_.color; // just make compiler happy
 	}
 
 	color4f& minorColor() override {
 		assert(false); // we'll never reach here
-		return lineCxt_.color; // just make compiler happy
+		return scatCxt_.color; // just make compiler happy
 	}
 
 protected:
-	KpLineContext lineCxt_;
+	KpScatterContext scatCxt_;
 };

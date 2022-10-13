@@ -1,6 +1,7 @@
 #include "KcRdPlot3d.h"
 #include "imapp/KcImPlot3d.h"
 #include "plot/KcGraph3d.h"
+#include "plot/KcScatter3d.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
 #include "imgui.h"
@@ -15,7 +16,7 @@ KcRdPlot3d::KcRdPlot3d()
 
 std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KvDataProvider* prov)
 {
-	return { new KcGraph3d(prov->name()) };
+	return { new KcScatter3d(prov->name()) };
 }
 
 
@@ -30,11 +31,11 @@ void KcRdPlot3d::showProperySet()
 	ImGui::Checkbox("Isometric", &plot3d->isometric());
 	
 	float zoom = plot3d->zoom();
-	if (ImGui::DragFloat("Zoom", &zoom, 0.1, 0.2, 5))
+	if (ImGui::DragFloat("Zoom", &zoom, 0.1, 0.1, 10))
 		plot3d->zoom() = zoom;
 
 	point3f pt(plot3d->scale());
-	if (ImGui::DragFloat3("Scale", pt, 0.1, 0.2, 2))
+	if (ImGui::DragFloat3("Scale", pt, 0.1, 0.1, 10))
 		plot3d->scale() = point3d(pt);
 
 	pt = point3f(plot3d->shift());
@@ -55,10 +56,20 @@ void KcRdPlot3d::showProperySet()
 	auto lower = point3f(plot3d->coordSystem().lower());
 	auto upper = point3f(plot3d->coordSystem().upper());
 	auto speed = (upper - lower) * 0.1;
+	for (unsigned i = 0; i < speed.size(); i++)
+		if (speed.at(i) == 0)
+			speed.at(i) = 1;
+
+	bool extendsChanged(false);
 	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), speed.x()))
+		extendsChanged = true;
+	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y())) 
+		extendsChanged = true;
+	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z())) 
+		extendsChanged = true;
+
+	if (extendsChanged) {
 		plot3d->coordSystem().setExtents(lower, upper);
-	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y()))
-		plot3d->coordSystem().setExtents(lower, upper);
-	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z()))
-		plot3d->coordSystem().setExtents(lower, upper);
+		plot3d->autoFit() = false;
+	}
 }

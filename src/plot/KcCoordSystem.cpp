@@ -13,6 +13,7 @@ KcCoordSystem::KcCoordSystem()
 
 
 KcCoordSystem::KcCoordSystem(const point3& lower, const point3& upper)
+	: KvRenderable("CoordSystem")
 {
 	// 初始化12根坐标轴
 	for (unsigned i = 0; i < std::size(axes_); i++)
@@ -60,13 +61,13 @@ KcCoordSystem::KcCoordSystem(const point3& lower, const point3& upper)
 		axes_[k_x0], axes_[k_x3], axes_[k_z0], axes_[k_z1]);
 
 	for (unsigned i = 0; i < std::size(planes_); i++) {
-		planes_[i]->setVisible(false);
-		planes_[i]->setMinorVisible(false);
+		planes_[i]->visible() = false;
+		planes_[i]->minorVisible() = false;
 	}
 
-	planes_[k_xy_back]->setVisible(true);
-	planes_[k_yz_left]->setVisible(true);
-	planes_[k_xz_floor]->setVisible(true);
+	planes_[k_xy_back]->visible() = true;
+	planes_[k_yz_left]->visible() = true;
+	planes_[k_xz_floor]->visible() = true;
 }
 
 
@@ -153,7 +154,8 @@ void KcCoordSystem::zoom(double factor)
 	auto c = center();
 	auto delta = (upper() - lower()) * factor * 0.5;
 	setExtents(c - delta, c + delta);
-	//assert(center() == c);
+
+	assert(c.isApproxEqual(center()));
 }
 
 
