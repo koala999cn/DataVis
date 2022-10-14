@@ -40,10 +40,10 @@ void KcImPlot3d::updateImpl_()
 
 void KcImPlot3d::autoProject_()
 {
-    auto lower = coordSystem().lower();
-    auto upper = coordSystem().upper();
+    auto lower = coord().lower();
+    auto upper = coord().upper();
     auto center = lower + (upper - lower) / 2;
-    double radius = coordSystem().diag() / 2;
+    double radius = coord().diag() / 2;
 
     auto zoom = zoom_;
     auto scale = scale_;
@@ -82,7 +82,7 @@ void KcImPlot3d::handleMouseInput_()
     // 处理鼠标drag事件，转动trackball，更新摄像机方位角
     if (ImGui::IsMouseClicked(0)) {
         auto mousePos = ImGui::GetMousePos();
-        auto pivot = camera_.worldToScreen(coordSystem().center());
+        auto pivot = camera_.worldToScreen(coord().center());
         auto sz = ImGui::GetWindowSize();
         trackball_.reset({ mousePos.x, mousePos.y }, pivot, { sz.x / 2, sz.y / 2 });
     }
@@ -102,7 +102,7 @@ void KcImPlot3d::handleMouseInput_()
             factor = 1.5f;
 
         if (io.KeyCtrl) // 当同时按下CTRL键时，仅缩放坐标系range
-            coordSystem().zoom(factor);
+            coord().zoom(factor);
         else // 否则缩放plot
            zoom_ *= factor;
     }
@@ -113,7 +113,7 @@ void KcImPlot3d::handleMouseInput_()
         auto dx = d.x / sz.x;
         auto dy = -d.y / sz.y; // 屏幕的y轴坐标与视图的y轴坐标反向，此处取-d.y
 
-        auto box = coordSystem().boundingBox();
+        auto box = coord().boundingBox();
         auto delta = box.size() * point3(dx, dy, 0);
         shift_ += delta * 0.1f;
     }

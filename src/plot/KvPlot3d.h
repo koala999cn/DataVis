@@ -51,7 +51,7 @@ public:
 	const quat& orient() const { return orient_; }
 	quat& orient() { return orient_; }
 
-	KcCoord3d& coordSystem() { return *coord_.get(); }
+	KcCoord3d& coord() { return *coord_.get(); }
 
 protected:
 	virtual void autoProject_() = 0;

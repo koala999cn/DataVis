@@ -1,19 +1,20 @@
 #pragma once
 #include <array>
+#include "KtuMath.h"
 
 
-// std::array的增强版，提供了多种类型的构造函数
+// std::array的增强版，提供了多种类型的构造函数，以及元素序列的比较函数
 
 template<typename T, int SIZE>
 class KtArray : public std::array<T, SIZE>
 {
 	using super_ = std::array<T, SIZE>;
+	using kMath = KtuMath<T>;
 
 public:
 
 	using super_::super_;
 	using super_::data;
-	using super_::size;
 
 	// 零构造 std::array实现没？
 	KtArray() : super_{ 0 } {
@@ -42,6 +43,61 @@ public:
 		std::enable_if_t<sizeof...(ARGS) == SIZE, bool> = true> // 加个enable_if, 否则上个构造多数情况下不会被调用
 	KtArray(ARGS... args) : super_{ static_cast<T>(args)... } {}
 
+	constexpr static unsigned size() { return SIZE; }
+
 	operator const T* () const { return data(); }
 	operator T* () { return data(); }
+
+	// return ture when this[i] < rhs[i] for all i
+	bool ltAll(const KtArray& rhs) const {
+		for (unsigned i = 0; i < size(); i++)
+			if (at(i) >= rhs.at(i))
+				return false;
+		return true;
+	}
+
+	// return ture when this[i] > rhs[i] for all i
+	bool gtAll(const KtArray& rhs) const {
+		for (unsigned i = 0; i < size(); i++)
+			if (at(i) <= rhs.at(i))
+				return false;
+		return true;
+	}
+
+	// return ture when this[i] <= rhs[i] for all i
+	bool leAll(const KtArray& rhs) const {
+		for (unsigned i = 0; i < size(); i++)
+			if (at(i) > rhs.at(i))
+				return false;
+		return true;
+	}
+
+	// return ture when this[i] >= rhs[i] for all i
+	bool geAll(const KtArray& rhs) const {
+		for (unsigned i = 0; i < size(); i++)
+			if (at(i) < rhs.at(i))
+				return false;
+		return true;
+	}
+
+	static const KtArray& zero() {
+		static KtArray o;
+		return o;
+	}
+
+	static KtArray ceil(const KtArray& pt1, const KtArray& pt2) {
+		KtArray pt;
+		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
+			return std::max(x, y);
+			});
+		return pt;
+	}
+
+	static KtArray floor(const KtArray& pt1, const KtArray& pt2) {
+		KtArray pt;
+		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
+			return std::min(x, y);
+			});
+		return pt;
+	}
 };

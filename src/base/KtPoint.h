@@ -182,28 +182,6 @@ public:
 	T distance(const KtPoint& rhs) const {
 		return std::sqrt(squaredDistance(rhs));
 	}
-
-
-	static const KtPoint& zero() {
-		static KtPoint o;
-		return o;
-	}
-
-	static KtPoint ceil(const KtPoint& pt1, const KtPoint& pt2) {
-		KtPoint pt;
-		kMath::forEach(pt1.data(), pt2.data(), pt.data(), DIM, [](T x, T y) {
-			return std::max(x, y);
-			});
-		return pt;
-	}
-
-	static KtPoint floor(const KtPoint& pt1, const KtPoint& pt2) {
-		KtPoint pt;
-		kMath::forEach(pt1.data(), pt2.data(), pt.data(), DIM, [](T x, T y) {
-			return std::min(x, y);
-			});
-		return pt;
-	}
 };
 
 

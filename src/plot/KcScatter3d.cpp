@@ -14,7 +14,7 @@ void KcScatter3d::draw(KvPaint* paint) const
 			return;
 
 		unsigned ch(0);
-		auto getter = [&disc, &ch](unsigned i) -> KvPaint::point3 {
+		auto getter = [&disc, &ch](unsigned i) -> KvPaint::point {
 			auto pt = disc->pointAt(i, ch);
 			pt.resize(3);
 			if (disc->dim() == 1)

@@ -3,17 +3,17 @@
 #include <assert.h>
 
 
-/** A 3D box aligned with the x/y/z axes.
+/** A axes aligned bounding box.
 @remarks
-This class represents a simple box which is aligned with the
+This class represents a simple 2d/3d box which is aligned with the
 axes. Internally it only stores 2 points as the extremeties of
-the box, one which is the minima of all 3 axes, and the rhs
-which is the maxima of all 3 axes. 
+the box, one which is the minima of all 2/3 axes, and the other
+which is the maxima of all 2/3 axes. 
 */
-template<class T>
+template<typename T, int DIM = 3>
 class KtAABB
 {
-	using point = KtPoint<T, 3>;
+	using point = KtPoint<T, DIM>;
 	using kMath = KtuMath<T>;
 
 public:
@@ -28,7 +28,7 @@ public:
 	 |/    |/
 	 6-----7
 	*/
-	enum KeBoxCorner
+	enum KeCorner
 	{
 		k_far_left_bottom,
 		k_far_left_top,
@@ -48,9 +48,6 @@ public:
 
 	KtAABB(const point& lower, const point& upper)
 		: lower_(lower), upper_(upper) {}
-
-	KtAABB(T mx, T my, T mz, T Mx, T My, T Mz)
-		: lower_(mx, my, mz), upper_(Mx, My, Mz) {}
 
 
 	KtAABB& operator=(const KtAABB& rhs) {
@@ -84,26 +81,21 @@ public:
 	/** Sets both minimum and maximum extents at once.
 	*/
 	void setExtents(const point& lower, const point& upper) {
-		assert(lower.x() <= upper.x() && lower.y() <= upper.y() && lower.z() <= upper.z());
+		assert(lower.leAll(upper));
 		lower_ = lower, upper_ = upper;
 	}
 
-	void setExtents(T mx, T my, T mz, T Mx, T My, T Mz) {
-		assert(mx <= Mx && my <= My && mz <= Mz);
-		lower_ = { mx, my, mz };
-		upper_ = { Mx, My, Mz };
-	}
 
 	/** gets the position of one of the corners
 	*/
-	point corner(KeBoxCorner id) const;
+	point corner(KeCorner id) const;
 
-	/** Returns an array of 8 corner points, useful for
+	/** Returns an array of 4/8 corner points, useful for
 	collision vs. non-aligned objects.
 	*/
 	std::vector<point> allCorners() const {
-		std::vector<point> pts(8);
-		for (int i = 0; i < 8; i++)
+		std::vector<point> pts(4 * (DIM - 1));
+		for (int i = 0; i < pts.size(); i++)
 			pts[i] = corner(KeBoxCorner(i));
 		return pts;
 	}
@@ -122,8 +114,14 @@ public:
 	/// Calculate the volume of this box
 	T volume() const {
 		auto sz = size();
-		return sz.x() * sz.y() * sz.z();
+		return kMath::product(sz.data(), sz.size());
 	}
+
+	T width() const { return upper_.x() - lower_.x(); }
+
+	T height() const { return upper_.y() - lower_.y(); }
+
+	T depth() const { return upper_.z() - lower_.z(); }
 
 	/** Sets the box to a 'null' value i.e. not a box.
 	*/
@@ -198,11 +196,11 @@ public:
 	bool isIntersects(const KtAABB& rhs) const;
 
 private:
-	KtPoint<T, 3> lower_, upper_;
+	KtPoint<T, DIM> lower_, upper_;
 };
 
-template<class T>
-KtPoint<T, 3> KtAABB<T>::corner(KeBoxCorner id) const 
+template<typename T, int DIM>
+KtPoint<T, DIM> KtAABB<T, DIM>::corner(KeCorner id) const
 {
 	if (isNull())
 		return point(0);
@@ -213,22 +211,22 @@ KtPoint<T, 3> KtAABB<T>::corner(KeBoxCorner id) const
 		return lower_;
 
 	case k_far_left_top:
-		return { lower_.x(), upper_.y(), lower_.z() };
+		return DIM == 3 ? { lower_.x(), upper_.y(), lower_.z() } : { lower_.x(), upper_.y() };
 
 	case k_far_right_top:
-		return { upper_.x(), upper_.y(), lower_.z() };
+		return DIM == 3 ? { upper_.x(), upper_.y(), lower_.z() } : { upper_.x(), upper_.y() };
 
 	case k_far_right_bottom:
-		return { upper_.x(), lower_.y(), lower_.z() };
+		return DIM == 3 ? { upper_.x(), lower_.y(), lower_.z() } : { upper_.x(), lower_.y() };
 
 	case k_near_right_bottom:
-		return { upper_.x(), lower_.y(), upper_.z() };
+		return DIM == 3 ? { upper_.x(), lower_.y(), upper_.z() } : { upper_.x(), lower_.y() };
 
 	case k_near_left_bottom:
-		return { lower_.x(), lower_.y(), upper_.z() };
+		return DIM == 3 ? { lower_.x(), lower_.y(), upper_.z() } : { lower_.x(), lower_.y() };
 
 	case k_near_left_top:
-		return { lower_.x(), upper_.y(), upper_.z() };
+		return DIM == 3 ? { lower_.x(), upper_.y(), upper_.z() } : { lower_.x(), upper_.y() };
 
 	case k_near_right_top:
 		return upper_;
@@ -240,21 +238,20 @@ KtPoint<T, 3> KtAABB<T>::corner(KeBoxCorner id) const
 	return { 0 }; // make compiler happy
 }
 
-template<class T>
-bool KtAABB<T>::contains(const point& v) const 
+
+template<typename T, int DIM>
+bool KtAABB<T, DIM>::contains(const point& v) const
 {
 	if (isNull())
 		return false;
 	else if (isInf())
 		return true;
 
-	return lower_.x() <= v.x() && v.x() <= upper_.x()
-		&& lower_.y() <= v.y() && v.y() <= upper_.y()
-		&& lower_.z() <= v.z() && v.z() <= upper_.z();
+	return v.geAll(lower) && v.leAll(upper);
 }
 
-template<class T>
-bool KtAABB<T>::contains(const KtAABB& rhs) const 
+template<typename T, int DIM>
+bool KtAABB<T, DIM>::contains(const KtAABB& rhs) const
 {
 	if (isInf() || rhs.isNull())
 		return true;
@@ -262,16 +259,11 @@ bool KtAABB<T>::contains(const KtAABB& rhs) const
 	if (isNull())
 		return false;
 
-	return lower_.x() <= rhs.lower_.x()
-		&& lower_.y() <= rhs.lower_.y()
-		&& lower_.z() <= rhs.lower_.z()
-		&& rhs.upper_.x() <= upper_.x()
-		&& rhs.upper_.y() <= upper_.y()
-		&& rhs.upper_.z() <= upper_.z();
+	return lower_.leAll(rhs.lower()) && upper_.geAll(rhs.upper()); 
 }
 
-template<class T>
-KtAABB<T>& KtAABB<T>::merge(const point& pt)
+template<typename T, int DIM>
+KtAABB<T, DIM>& KtAABB<T, DIM>::merge(const point& pt)
 {
 	if (isNull()) // if null, use this point
 		setExtents(pt, pt);
@@ -284,8 +276,8 @@ KtAABB<T>& KtAABB<T>::merge(const point& pt)
 	return *this;
 }
 
-template<class T>
-KtAABB<T>& KtAABB<T>::merge(const KtAABB& rhs)
+template<typename T, int DIM>
+KtAABB<T, DIM>& KtAABB<T, DIM>::merge(const KtAABB& rhs)
 {
 	// Do nothing if rhs null, or this is infinite
 	if (rhs.isNull() || isInf())
@@ -306,8 +298,8 @@ KtAABB<T>& KtAABB<T>::merge(const KtAABB& rhs)
 	return *this;
 }
 
-template<class T>
-KtAABB<T> KtAABB<T>::intersection(const KtAABB& rhs) const
+template<typename T, int DIM>
+KtAABB<T, DIM> KtAABB<T, DIM>::intersection(const KtAABB& rhs) const
 {
 	if (isNull() || rhs.isNull())
 		return KtAABB();
@@ -320,38 +312,14 @@ KtAABB<T> KtAABB<T>::intersection(const KtAABB& rhs) const
 	auto upper = point::floor(upper_, rhs.upper_);
 
 	// Check intersection isn't null
-	if (lower.x() < upper.x() && lower.y() < upper.y() && lower.z() < upper.z())
+	if (lower.leAll(upper))
 		return KtAABB(lower, upper);
 
 	return KtAABB();
 }
 
-template<class T>
-bool KtAABB<T>::isIntersects(const KtAABB& rhs) const
+template<typename T, int DIM>
+bool KtAABB<T, DIM>::isIntersects(const KtAABB& rhs) const
 {
-	// Early-fail for nulls
-	if (isNull() || rhs.isNull())
-		return false;
-
-	// Early-success for infinites
-	if (isInf() || rhs.isInf())
-		return true;
-
-	// Use up to 6 separating planes
-	if (upper_.x() < rhs.lower_.x())
-		return false;
-	if (upper_.y() < rhs.lower_.y())
-		return false;
-	if (upper_.z() < rhs.lower_.z())
-		return false;
-
-	if (lower_.x() > rhs.upper_.x())
-		return false;
-	if (lower_.y() > rhs.upper_.y())
-		return false;
-	if (lower_.z() > rhs.upper_.z())
-		return false;
-
-	// otherwise, must be intersecting
-	return true;
+	return !intersection(rhs).isNull();
 }

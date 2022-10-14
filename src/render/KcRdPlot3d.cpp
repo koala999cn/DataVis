@@ -53,8 +53,8 @@ void KcRdPlot3d::showProperySet()
 		orient = quatd(rot);
 	}
 	
-	auto lower = point3f(plot3d->coordSystem().lower());
-	auto upper = point3f(plot3d->coordSystem().upper());
+	auto lower = point3f(plot3d->coord().lower());
+	auto upper = point3f(plot3d->coord().upper());
 	auto speed = (upper - lower) * 0.1;
 	for (unsigned i = 0; i < speed.size(); i++)
 		if (speed.at(i) == 0)
@@ -69,7 +69,7 @@ void KcRdPlot3d::showProperySet()
 		extendsChanged = true;
 
 	if (extendsChanged) {
-		plot3d->coordSystem().setExtents(lower, upper);
+		plot3d->coord().setExtents(lower, upper);
 		plot3d->autoFit() = false;
 	}
 }

@@ -15,7 +15,7 @@ void KvPlot3d::update()
 
 	autoProject_();
 
-	coordSystem().draw(paint_.get());
+	coord().draw(paint_.get());
 
 	KvPlot::update(); // draw the plottables
 }

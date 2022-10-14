@@ -244,7 +244,7 @@
     <ClCompile Include="src\render\KcRdPlot1d.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcImPlot1d.cpp">
+    <ClCompile Include="src\imapp\KcImPlot2d.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KvPlot.cpp">
@@ -281,6 +281,9 @@
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KcCoord2d.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KvPlot2d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
@@ -621,7 +624,7 @@
     <ClInclude Include="src\imapp\KtActionInsertNode.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcImPlot1d.h">
+    <ClInclude Include="src\imapp\KcImPlot2d.h">
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KvPlot.h">

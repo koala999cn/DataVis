@@ -18,7 +18,7 @@ public:
 	data_ptr data() const { return data_; }
 	void setData(data_ptr d) { 
 		data_ = d; 
-		majorColors_.resize(d->channels());
+		majorColors_.resize(d->channels(), color4f{ 0, 0, 0, 1 });
 	}
 
 	bool empty() const {

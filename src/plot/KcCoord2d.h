@@ -33,7 +33,7 @@ public:
 	point2 lower() const; // the lower conner
 	point2 upper() const; // the upper conner
 
-	aixs_list& axes(KeAxis id) { return axes_[id]; }
+	aixs_list& axes(KeAxis kind) { return axes_[kind]; }
 
 	// 实现基类的接口
 

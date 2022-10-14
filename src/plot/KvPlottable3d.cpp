@@ -15,20 +15,20 @@ void KvPlottable3d::draw(KvPaint* paint) const
 
 		if (disc->dim() > 1) {
 			unsigned ch(0);
-			auto getter = [&disc, &ch](unsigned i) -> KvPaint::point3 {
+			auto getter = [&disc, &ch](unsigned i) -> KvPaint::point {
 				auto pt = disc->pointAt(i, ch);
 				return { pt[0], pt[1], pt[2] };
 			};
 
 			for (; ch < disc->channels(); ch++) {
-					drawImpl_(paint, getter, majorColor(shareColor() ? 0 : ch));
+				drawImpl_(paint, getter, majorColor(shareColor() ? 0 : ch));
 			}
 		}
 		else {
 			auto defaultZ = defaultZ_;
 
 			unsigned ch(0);
-			auto getter = [&disc, &ch, &defaultZ](unsigned i) -> KvPaint::point3 {
+			auto getter = [&disc, &ch, &defaultZ](unsigned i) -> KvPaint::point {
 				auto pt = disc->pointAt(i, ch);
 				return { pt[0], pt[1], defaultZ };
 			};
