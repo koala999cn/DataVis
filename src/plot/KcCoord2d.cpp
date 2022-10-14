@@ -71,7 +71,14 @@ KcCoord2d::point2 KcCoord2d::upper() const
 
 void KcCoord2d::draw(KvPaint* paint) const
 {
-
+	if (visible()) {
+		for (unsigned i = 0; i < std::size(axes_); i++) {
+			auto axislist = axes_[i];
+			for (auto axis : axislist)
+				if (axis && axis->visible())
+					axis->draw(paint);
+		}
+	}
 }
 
 

@@ -201,3 +201,10 @@ KcAxis::point3 KcAxis::tickPos(double val) const
 	auto ratio = (val - lower()) / length();
 	return start() + (end() - start()) * ratio; // TODO: lerp
 }
+
+
+KcAxis::point2 KcAxis::calcSize() const
+{
+	point2 sz;
+
+}

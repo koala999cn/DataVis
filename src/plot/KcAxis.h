@@ -15,7 +15,7 @@
 class KcAxis : public KvRenderable
 {
 public:
-
+	using point2 = KtPoint<float_type, 2>;
 	using point3 = KtPoint<float_type, 3>;
 	using vec3 = KtVector3<float_type>;
 
@@ -136,6 +136,8 @@ public:
 
 	void setTickOrient(KeTickOrient orient);
 
+	// 返回当前axis在屏幕坐标所占的尺寸（像素大小）
+	point2 calcSize() const;
 
 private:
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度
@@ -151,9 +153,13 @@ private:
 	KpLineContext baselineCxt_;
 	KpTickContext tickCxt_, subtickCxt_;
 
-	double labelPadding_; // 刻度label距离刻度线的距离
+	double tickPadding_{ 2 };
+	double labelPadding_{ 2 }; // 刻度label距离刻度线的距离
+	double titlePadding_{ 2 };
+
 	mutable double refLength_; // 标准参考长度. tickLength_, subtickLength_, labelPadding_均为其相对值
 	                           // 一般取AABB的对角线长度
+
 	color4f labelColor_{ 0, 0, 0, 1 }, titleColor_{ 0, 0, 0, 1 };
 
 	//QFont labelFont_, titleFont_;
