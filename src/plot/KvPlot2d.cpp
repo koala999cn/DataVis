@@ -22,7 +22,7 @@ void KvPlot2d::update()
 
 void KvPlot2d::fitData()
 {
-	KtAABB<float_type> box;
+	KtAABB<float_t> box;
 	for (auto& p : plottables_)
 		box.merge(p->boundingBox());
 

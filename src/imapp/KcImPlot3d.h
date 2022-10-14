@@ -43,7 +43,7 @@ private:
 	void handleMouseInput_();
 
 private:
-	KtCamera<float_type> camera_;
+	KtCamera<float_t> camera_;
 	
-	KtTrackballController<float_type> trackball_; // 用于操控orient_
+	KtTrackballController<float_t> trackball_; // 用于操控orient_
 };

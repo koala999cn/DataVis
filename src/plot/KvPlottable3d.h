@@ -17,6 +17,6 @@ protected:
 	virtual void drawImpl_(KvPaint*, point_getter, const color4f&) const = 0;
 
 private:
-	float_type defaultZ_{ 0 }; // 二维数据的z轴将被置为该值
-	float_type stepZ_{ 1 }; // 多通道二维数据的z轴偏移。若须将多通道数据显示在一个z平面，置该值为0
+	float_t defaultZ_{ 0 }; // 二维数据的z轴将被置为该值
+	float_t stepZ_{ 1 }; // 多通道二维数据的z轴偏移。若须将多通道数据显示在一个z平面，置该值为0
 };

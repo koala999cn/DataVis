@@ -1,6 +1,7 @@
 #include "KcImPlot2d.h"
 #include "implot/implot.h"
 #include "KcImPaint.h"
+#include "plot/KcAxis.h"
 
 
 KcImPlot2d::KcImPlot2d(const std::string_view& name)
@@ -21,7 +22,7 @@ void KcImPlot2d::updateImpl_()
         // 更新摄像机的视图
         auto pos = ImGui::GetWindowPos();
         auto sz = ImGui::GetWindowSize();
-        camera_.setViewport(pos.x, pos.y, sz.x, sz.y);
+        paint_->setViewport({ { pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y } });
 
         auto lower = coord().lower();
         auto upper = coord().upper();

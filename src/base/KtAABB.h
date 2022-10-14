@@ -174,11 +174,21 @@ public:
 	bool contains(const KtAABB& rhs) const;
 
 	/** Scales the AABB by the vector given. */
-	void scale(const point& v) {
+	KtAABB& scale(const point& v) {
 		// NB assumes centered on origin
 		lower_ *= v, upper_ *= v;
+		return *this;
 	}
 
+	KtAABB& shrink(const point& lw, const point& up) {
+		lower_ += lw, upper_ -= up;
+		return *this;
+	}
+
+	KtAABB& expand(const point& lw, const point& up) {
+		lower_ -= lw, upper_ += up;
+		return *this;
+	}
 
 	/** Merges the passed in box into the current box. The result is the
 	box which encompasses both.

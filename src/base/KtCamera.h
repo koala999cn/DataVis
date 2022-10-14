@@ -3,18 +3,20 @@
 #include "KtVector4.h"
 #include "KtMatrix4.h"
 #include "KtQuaternion.h"
+#include "KtAABB.h"
+
 
 template<typename KREAL, bool ROW_MAJOR = true>
 class KtCamera
 {
+public:
 	using point2 = KtPoint<KREAL, 2>;
 	using vec3 = KtVector3<KREAL>;
 	using vec4 = KtVector4<KREAL>;
 	using mat3 = KtMatrix3<KREAL, ROW_MAJOR>;
 	using mat4 = KtMatrix4<KREAL, ROW_MAJOR>;
 	using quat = KtQuaternion<KREAL>;
-
-public:
+	using rect = KtAABB<KREAL, 2>;
 
 	KtCamera();
 
@@ -34,9 +36,8 @@ public:
 	const mat4& projMatrix() const { return projMatrix_; }
 	mat4& projMatrix() { return projMatrix_; }
 
-	void setViewport(KREAL x, KREAL y, KREAL width, KREAL height) {
-		x_ = x, y_ = y, w_ = width, h_ = height;
-	}
+	const rect& viewport() const { return vp_; }
+	rect& viewport() { return vp_; }
 
 	vec3 getCameraPos() const;
 	quat getCameraOrient() const;
@@ -70,16 +71,16 @@ public:
 	// 综上：y(scr) = y0 + h - y(vp) + y0 = 2 * y0 + h - y(vp)
 	point2 switchViewportAndScreen(const point2& pt) const {
 
-		return { pt.x(), 2 * y_ + h_ - pt.y() };
+		return { pt.x(), 2 * vp_.lower().y() + vp_.height() - pt.y() };
 	}
 
-	KREAL width() const { return w_; }
-	KREAL height() const { return h_; }
+	KREAL width() const { return vp_.width() }
+	KREAL height() const { return vp_.height(); }
 
 protected:
 
 	// Viewing window. 
-	KREAL x_{ 0 }, y_{ 0 }, w_{ 1 }, h_{ 1 };
+	rect vp_;
 
 	// view matrix
 	mat4 viewMatrix_; // viewMatrix_ * 物理坐标系vec4 = 摄像机坐标系vec4
@@ -224,8 +225,8 @@ bool KtCamera<KREAL, ROW_MAJOR>::project(const vec4& in, vec4& out) const
 	out.z() = out.z() * 0.5f + 0.5f;
 
 	// map to viewport
-	out.x() = out.x() * w_ + x_;
-	out.y() = out.y() * h_ + y_;
+	out.x() = out.x() * vp_.width() + vp_.lower().x();
+	out.y() = out.y() * vp_.height() + vp_.lower().y();
 	return true;
 }
 
@@ -236,8 +237,8 @@ bool KtCamera<KREAL, ROW_MAJOR>::unproject(const vec3& in, vec4& out) const
 	vec4 v(in);
 
 	// map from viewport to [0, 1]
-	v.x() = (v.x() - x_) / w_;
-	v.y() = (v.y() - y_) / h_;
+	v.x() = (v.x() - vp_.lower().x()) / vp_.width();
+	v.y() = (v.y() - vp_.lower().y()) / vp_.height();
 
 	// map to range [-1, +1]
 	v.x() = v.x() * 2.0f - 1.0f;

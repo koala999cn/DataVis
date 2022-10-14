@@ -1,7 +1,7 @@
 #include "KvPaint.h"
 
 
-void KvPaint::drawPoints(const point pts[], unsigned count)
+void KvPaint::drawPoints(const point3 pts[], unsigned count)
 {
 	for (unsigned i = 0; i < count; i++)
 		drawPoint(pts[i]);
@@ -15,7 +15,7 @@ void KvPaint::drawPoints(point_getter fn, unsigned count)
 }
 
 
-void KvPaint::drawLineStrip(const point pts[], unsigned count)
+void KvPaint::drawLineStrip(const point3 pts[], unsigned count)
 {
 	for (unsigned i = 1; i < count; i++)
 		drawLine(pts[i - 1], pts[i]);
@@ -29,7 +29,7 @@ void KvPaint::drawLineStrip(point_getter fn, unsigned count)
 }
 
 
-void KvPaint::drawLineLoop(const point pts[], unsigned count)
+void KvPaint::drawLineLoop(const point3 pts[], unsigned count)
 {
 	drawLineStrip(pts, count);
 	if (count  > 2)

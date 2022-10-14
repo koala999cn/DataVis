@@ -23,5 +23,5 @@ private:
 	void updateImpl_() override;
 
 private:
-	KtCamera<float_type> camera_;
+	KtCamera<float_t> camera_;
 };

@@ -11,18 +11,19 @@ class KcAxis;
 class KcCoord2d : public KvRenderable
 {
 public:
-	using float_type = typename KvRenderable::float_type;
-	using point2 = KtPoint<float_type, 2>;
+	using float_t = typename KvRenderable::float_t;
+	using point2 = KtPoint<float_t, 2>;
 	using axis_ptr = std::shared_ptr<KcAxis>;
-	using aixs_list = std::list<axis_ptr>;
+	using axis_list = std::list<axis_ptr>;
 
-	enum KeAxis 
+	enum KeAxisType
 	{
 		k_left,
 		k_right,
 		k_top,
 		k_bottom,
-		k_custom
+		k_custom,
+		k_type_count
 	};
 
 	KcCoord2d();
@@ -33,7 +34,7 @@ public:
 	point2 lower() const; // the lower conner
 	point2 upper() const; // the upper conner
 
-	aixs_list& axes(KeAxis kind) { return axes_[kind]; }
+	axis_list& axes(KeAxisType type) { return axes_[type]; }
 
 	// 实现基类的接口
 
@@ -42,5 +43,5 @@ public:
 	aabb_type boundingBox() const override;
 
 private:
-	aixs_list axes_[5];
+	axis_list axes_[k_type_count];
 };

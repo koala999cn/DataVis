@@ -15,9 +15,9 @@
 class KcAxis : public KvRenderable
 {
 public:
-	using point2 = KtPoint<float_type, 2>;
-	using point3 = KtPoint<float_type, 3>;
-	using vec3 = KtVector3<float_type>;
+	using point2 = KtPoint<float_t, 2>;
+	using point3 = KtPoint<float_t, 3>;
+	using vec3 = KtVector3<float_t>;
 
 	enum KeTickOrient
 	{
@@ -137,7 +137,7 @@ public:
 	void setTickOrient(KeTickOrient orient);
 
 	// 返回当前axis在屏幕坐标所占的尺寸（像素大小）
-	point2 calcSize() const;
+	point2 calcSize(KvPaint* paint) const;
 
 private:
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度

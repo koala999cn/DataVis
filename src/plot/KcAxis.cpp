@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "KcLinearTicker.h"
 #include "KvPaint.h"
+#include "KtuMath.h"
 
 
 KcAxis::KcAxis() 
@@ -13,12 +14,9 @@ KcAxis::KcAxis()
 
 	baselineCxt_.width = 0.8;
 	tickCxt_.width = 0.6;
-	tickCxt_.length = 1;
+	tickCxt_.length = 5;
 	subtickCxt_.width = 0.4;
-	subtickCxt_.length = 0.6;
-
-	labelPadding_ = 0.2;
-	refLength_ = 0;
+	subtickCxt_.length = 3;
 
 	//labelFont_, titleFont_; // TODO:
 
@@ -113,9 +111,6 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 {
 	assert(showTick());
 
-	if (refLength_ == 0)
-		refLength_ = length();
-
 	auto tic = ticker();
 	auto ticLower = lower();
 	auto ticUpper = upper();
@@ -123,30 +118,37 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 
 	// major
 	auto ticks = tic->getTicks(ticLower, ticUpper);
-	if (!ticks.empty()) {
+	if (ticks.empty())
+		return;
 
-		paint->apply(tickCxt_);
-		double tickLen = tickCxt_.length * refLength_ / 100; // tick的长度取相对值
+	// 计算屏幕坐标1个像素尺度，相当于世界坐标多少个单位长度
 
-		std::vector<point3> labelAchors;
+	assert(KtuMath<float_t>::almostEqual(tickOrient().length(), 1));
+	auto pt0 = paint->project(point3(0));
+	auto pt1 = paint->project(tickOrient());
+
+	float_t lengthPerPixel = 1 / (pt1 - pt0).length();
+
+	paint->apply(tickCxt_);
+
+	std::vector<point3> labelAchors;
+	if (showLabel())
+		labelAchors.resize(ticks.size());
+
+	for (unsigned i = 0; i < ticks.size(); i++) {
+		auto anchor = tickPos(ticks[i]);
+		drawTick_(paint, anchor, tickCxt_.length * lengthPerPixel);
+
 		if (showLabel())
-			labelAchors.resize(ticks.size());
+			labelAchors[i] = anchor + tickOrient() * (tickCxt_.length + tickPadding_) * lengthPerPixel;
+	}
 
+	if (showLabel()) {
+		// TODO: paint->setFont();
+		paint->setColor(labelColor());
 		for (unsigned i = 0; i < ticks.size(); i++) {
-			auto anchor = tickPos(ticks[i]);
-			drawTick_(paint, anchor, tickLen);
-
-			if (showLabel())
-				labelAchors[i] = anchor + tickOrient() * (tickLen + labelPadding_);
-		}
-
-		if (showLabel()) {
-			// TODO: paint->setFont();
-			paint->setColor(labelColor());
-			for (unsigned i = 0; i < ticks.size(); i++) {
-				auto label = i < labels_.size() ? labels_[i] : tic->label(ticks[i]);
-				paint->drawText(labelAchors[i], label.c_str(), labelAlignment_(tickOrient_));
-			}
+			auto label = i < labels_.size() ? labels_[i] : tic->label(ticks[i]);
+			paint->drawText(labelAchors[i], label.c_str(), labelAlignment_(tickOrient_));
 		}
 	}
 
@@ -156,7 +158,7 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		if (!subticks.empty()) {
 
 			paint->apply(subtickCxt_);
-			double subtickLen = subtickCxt_.length * refLength_ / 100; // subtick的长度取相对值
+			double subtickLen = subtickCxt_.length * lengthPerPixel; 
 
 			for (unsigned i = 0; i < subticks.size(); i++) 
 				drawTick_(paint, tickPos(subticks[i]), subtickLen);
@@ -203,8 +205,50 @@ KcAxis::point3 KcAxis::tickPos(double val) const
 }
 
 
-KcAxis::point2 KcAxis::calcSize() const
+KcAxis::point2 KcAxis::calcSize(KvPaint* paint) const
 {
-	point2 sz;
+	point2 sz(0);
+	if (!visible())
+		return sz;
 
+	vec3 dir = end() - start(); // 坐标轴的方向矢量
+	auto angle = dir.angle(tickOrient_); // 坐标轴与tick之间的夹角
+	
+	auto horz = dir.perpendicular();
+	
+	float_t margins(0);
+	if (showTick()) {
+		auto ticklen = tickCxt_.length;
+		if (showSubtick() && subtickCxt_.length > ticklen)
+			ticklen = subtickCxt_.length;
+
+		margins = tickOrient_.projectedTo(horz).abs() * ticklen;
+		margins += tickPadding_;
+	}
+
+	if (showLabel()) {
+
+		KtAABB<float_t, 2> rect(point2(0), point2(0));
+
+		auto tic = ticker();
+		auto ticLower = lower();
+		auto ticUpper = upper();
+		tic->autoRange(ticLower, ticUpper);
+
+		auto ticks = tic->getTicks(ticLower, ticUpper);
+		for (unsigned i = 0; i < ticks.size(); i++) {
+			auto label = i < labels_.size() ? labels_[i] : tic->label(ticks[i]);
+			rect.merge(paint->textSize(label.c_str()));
+		}
+
+		margins += rect.width();
+		margins += labelPadding_;
+	}
+
+	if (showTitle()) {
+		margins += paint->textSize(title_.c_str()).x();
+		margins += titlePadding_;
+	}
+
+	return { margins, 0 };
 }

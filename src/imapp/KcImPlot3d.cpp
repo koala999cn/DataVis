@@ -22,10 +22,10 @@ void KcImPlot3d::updateImpl_()
         // 更新摄像机的视图
         auto pos = ImGui::GetWindowPos();
         auto sz = ImGui::GetWindowSize();
-        camera_.setViewport(pos.x, pos.y, sz.x, sz.y);
+        paint_->setViewport({ { pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y } });
 
         // 处理鼠标事件
-        if (ImGui::IsMouseHoveringRect(pos, { pos.x + sz.x, pos.y + sz.y }))
+        if (ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(pos, { pos.x + sz.x, pos.y + sz.y }))
             handleMouseInput_();
 
         // 绘制3d数据图

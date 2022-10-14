@@ -13,7 +13,7 @@ class KcGridPlane;
 class KcCoord3d : public KvRenderable
 {
 public:
-	using point3 = KtPoint<float_type, 3>;
+	using point3 = KtPoint<float_t, 3>;
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using grid_plane_ptr = std::shared_ptr<KcGridPlane>;
 	

@@ -15,7 +15,7 @@ void KvPlottable3d::draw(KvPaint* paint) const
 
 		if (disc->dim() > 1) {
 			unsigned ch(0);
-			auto getter = [&disc, &ch](unsigned i) -> KvPaint::point {
+			auto getter = [&disc, &ch](unsigned i) -> KvPaint::point3 {
 				auto pt = disc->pointAt(i, ch);
 				return { pt[0], pt[1], pt[2] };
 			};
@@ -28,7 +28,7 @@ void KvPlottable3d::draw(KvPaint* paint) const
 			auto defaultZ = defaultZ_;
 
 			unsigned ch(0);
-			auto getter = [&disc, &ch, &defaultZ](unsigned i) -> KvPaint::point {
+			auto getter = [&disc, &ch, &defaultZ](unsigned i) -> KvPaint::point3 {
 				auto pt = disc->pointAt(i, ch);
 				return { pt[0], pt[1], defaultZ };
 			};

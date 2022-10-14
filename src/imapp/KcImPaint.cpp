@@ -7,6 +7,24 @@ KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
 }
 
 
+KcImPaint::rect KcImPaint::viewport() const
+{
+	return camera_.viewport();
+}
+
+
+void KcImPaint::setViewport(const rect& vp)
+{
+	camera_.viewport() = vp;
+}
+
+
+KcImPaint::point2 KcImPaint::project(const point3& worldPt) const
+{
+	return camera_.worldToScreen(worldPt);
+}
+
+
 void KcImPaint::setColor(const color_t& clr)
 {
 	clr_ = clr;
@@ -25,14 +43,14 @@ void KcImPaint::setLineWidth(double width)
 }
 
 
-void KcImPaint::drawPoint(const point& pos)
+void KcImPaint::drawPoint(const point3& pos)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	drawList->AddCircleFilled(world2Pos_(pos), pointSize_ * 0.5, color_());
 }
 
 
-void KcImPaint::drawLine(const point& from, const point& to)
+void KcImPaint::drawLine(const point3& from, const point3& to)
 {
 	// TODO: ²Ã¼ô
 	auto drawList = ImGui::GetWindowDrawList();
@@ -40,7 +58,7 @@ void KcImPaint::drawLine(const point& from, const point& to)
 }
 
 
-void KcImPaint::drawText(const point& anchor, const char* text, int align)
+void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 
@@ -68,7 +86,14 @@ void KcImPaint::drawText(const point& anchor, const char* text, int align)
 }
 
 
-ImVec2 KcImPaint::world2Pos_(const point& pt) const
+KcImPaint::point2 KcImPaint::textSize(const char* text) const
+{
+	auto sz = ImGui::CalcTextSize(text);
+	return { sz.x, sz.y };
+}
+
+
+ImVec2 KcImPaint::world2Pos_(const point3& pt) const
 {
 	auto pos = camera_.worldToScreen(pt);
 	return ImVec2(pos.x(), pos.y());

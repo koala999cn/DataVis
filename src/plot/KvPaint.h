@@ -27,9 +27,17 @@ class KvPaint
 {
 public:
 	using color_t = color4f;
-	using float_type = typename KvRenderable::float_type;
-	using point = KtPoint<float_type, 3>;
-	using point_getter = std::function<point(unsigned)>;
+	using float_t = typename KvRenderable::float_t;
+	using point2 = KtPoint<float_t, 2>;
+	using point3 = KtPoint<float_t, 3>;
+	using rect = KtAABB<float_t, 2>;
+	using point_getter = std::function<point3(unsigned)>;
+
+	virtual rect viewport() const = 0;
+	virtual void setViewport(const rect& vp) = 0;
+
+	// project world point to screen point
+	virtual point2 project(const point3& worldPt) const = 0;
 
 	virtual void setColor(const color_t& clr) = 0;
 
@@ -37,31 +45,31 @@ public:
 
 	virtual void setLineWidth(double width) = 0;
 
-	virtual void drawPoint(const point& pt) = 0;
+	virtual void drawPoint(const point3& pt) = 0;
 
-	virtual void drawPoints(const point pts[], unsigned count);
+	virtual void drawPoints(const point3 pts[], unsigned count);
 
 	void drawPoints(point_getter fn, unsigned count);
 
-	virtual void drawLine(const point& from, const point& to) = 0;
+	virtual void drawLine(const point3& from, const point3& to) = 0;
 
-	virtual void drawLineStrip(const point pts[], unsigned count);
+	virtual void drawLineStrip(const point3 pts[], unsigned count);
 
 	void drawLineStrip(point_getter fn, unsigned count);
 
-	virtual void drawLineLoop(const point pts[], unsigned count);
+	virtual void drawLineLoop(const point3 pts[], unsigned count);
 
 	void drawLineLoop(point_getter fn, unsigned count);
 
-	virtual void drawText(const point& anchor, const char* text, int align) = 0;
+	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
 
+	// 一些尺寸计算函数
+
+	virtual point2 textSize(const char* text) const = 0;
 
 	// 一些便捷函数
 
 	void apply(const KpLineContext& cxt);
 
 	void apply(const KpScatterContext& cxt);
-
-private:
-
 };

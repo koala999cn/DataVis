@@ -9,7 +9,7 @@
 class KvPlot2d : public KvPlot
 {
 public:
-	using float_type = typename KvRenderable::float_type;
+	using float_t = typename KvRenderable::float_t;
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using point2 = point2d;
 

@@ -10,12 +10,12 @@
 class KvPlot3d : public KvPlot
 {
 public:
-	using float_type = typename KvRenderable::float_type;
-	using aabb_type = KtAABB<float_type>;
-	using mat4 = KtMatrix4<float_type>;
-	using point3 = KtPoint<float_type, 3>;
+	using float_t = typename KvRenderable::float_t;
+	using aabb_type = KtAABB<float_t>;
+	using mat4 = KtMatrix4<float_t>;
+	using point3 = KtPoint<float_t, 3>;
 	using vec3 = point3;
-	using quat = KtQuaternion<float_type>;
+	using quat = KtQuaternion<float_t>;
 	
 	KvPlot3d(std::shared_ptr<KvPaint> paint);
 
@@ -39,8 +39,8 @@ public:
 	bool isometric() const { return isometric_; }
 	bool& isometric() { return isometric_; }
 
-	float_type zoom() const { return zoom_; }
-	float_type& zoom() { return zoom_; }
+	float_t zoom() const { return zoom_; }
+	float_t& zoom() { return zoom_; }
 
 	const point3& scale() const { return scale_; }
 	point3& scale() { return scale_; }
@@ -62,7 +62,7 @@ protected:
 	bool ortho_{ true }; // 正交投影 vs. 透视投影
 	
 	// 以下参数用于调整摄像机modelview矩阵
-	float_type zoom_{ 1 };
+	float_t zoom_{ 1 };
 	point3 scale_{ 1, 1, 1 }; 
 	point3 shift_{ 0, 0, 0 };
 	quat orient_{ 0, 0, 0, 1 }; // 摄像机的方位

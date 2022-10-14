@@ -115,11 +115,17 @@ public:
 	}
 
 	bool isNan() const {
-		return std::isnan(x()) || std::isnan(y()) || std::isnan(z());
+		for (unsigned i = 0; i < size(); i++)
+			if (std::isnan(at(i)))
+				return true;
+		return false;
 	}
 
 	bool isInf() const {
-		return std::isinf(x()) || std::isinf(y()) || std::isinf(z());
+		for (unsigned i = 0; i < size(); i++)
+			if (std::isinf(at(i)))
+				return true;
+		return false;
 	}
 
 	bool isDefined() const {

@@ -11,7 +11,6 @@ class KvPaint; // 用来执行具体的plot绘制
 class KvPlot
 {
 public:
-
 	KvPlot(std::shared_ptr<KvPaint> paint);
 
 	virtual void setVisible(bool b) = 0;

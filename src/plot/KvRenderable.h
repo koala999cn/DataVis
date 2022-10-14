@@ -7,8 +7,8 @@ class KvPaint;
 class KvRenderable
 {
 public:
-	using float_type = double;
-	using aabb_type = KtAABB<float_type>;
+	using float_t = double;
+	using aabb_type = KtAABB<float_t>;
 
 	KvRenderable(const std::string_view& name) 
 		: name_(name), visible_(true) {}
