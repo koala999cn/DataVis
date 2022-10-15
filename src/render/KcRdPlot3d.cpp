@@ -1,7 +1,7 @@
 #include "KcRdPlot3d.h"
 #include "imapp/KcImPlot3d.h"
-#include "plot/KcGraph3d.h"
-#include "plot/KcScatter3d.h"
+#include "plot/KcGraph.h"
+#include "plot/KcScatter.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
 #include "imgui.h"
@@ -16,7 +16,7 @@ KcRdPlot3d::KcRdPlot3d()
 
 std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KvDataProvider* prov)
 {
-	return { new KcGraph3d(prov->name()) };
+	return { new KcGraph(prov->name()) };
 }
 
 

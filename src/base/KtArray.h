@@ -80,6 +80,14 @@ public:
 		return true;
 	}
 
+	void makeCeil(const KtArray& pt) {
+		*this = ceil(*this, pt);
+	}
+
+	void makeFloor(const KtArray& pt) {
+		*this = floor(*this, pt);
+	}
+
 	static const KtArray& zero() {
 		static KtArray o;
 		return o;

@@ -1,9 +1,9 @@
-#include "KvPlottable3d.h"
+#include "KvPlottable1d.h"
 #include "KvDiscreted.h"
 #include "KvPaint.h"
 
 
-void KvPlottable3d::draw(KvPaint* paint) const
+void KvPlottable1d::draw(KvPaint* paint) const
 {
 	auto d = data();
 

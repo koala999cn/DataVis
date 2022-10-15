@@ -18,12 +18,12 @@ public:
 
 	enum KeAxisType
 	{
-		k_left,
-		k_right,
-		k_top,
-		k_bottom,
-		k_custom,
-		k_type_count
+		k_axis_left,
+		k_axis_right,
+		k_axis_top,
+		k_axis_bottom,
+		k_axis_custom,
+		k_axis_type_count
 	};
 
 	KcCoord2d();
@@ -43,5 +43,5 @@ public:
 	aabb_type boundingBox() const override;
 
 private:
-	axis_list axes_[k_type_count];
+	axis_list axes_[k_axis_type_count];
 };

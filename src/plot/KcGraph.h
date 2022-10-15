@@ -1,12 +1,12 @@
 #pragma once
-#include "KvPlottable3d.h"
+#include "KvPlottable1d.h"
 #include "KpContext.h"
 
-// 3d’€œﬂÕº
+// ’€œﬂÕº
 
-class KcGraph3d : public KvPlottable3d
+class KcGraph : public KvPlottable1d
 {
-	using super_ = KvPlottable3d;
+	using super_ = KvPlottable1d;
 	using super_::point_getter;
 
 public:

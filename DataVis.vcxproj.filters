@@ -250,9 +250,6 @@
     <ClCompile Include="src\plot\KvPlot.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcImGraph2d.cpp">
-      <Filter>imapp</Filter>
-    </ClCompile>
     <ClCompile Include="src\imapp\KcImPropertySheet.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
@@ -271,13 +268,13 @@
     <ClCompile Include="src\plot\KvPlottable.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcGraph3d.cpp">
+    <ClCompile Include="src\plot\KcGraph.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcScatter3d.cpp">
+    <ClCompile Include="src\plot\KcScatter.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KvPlottable3d.cpp">
+    <ClCompile Include="src\plot\KvPlottable1d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KcCoord2d.cpp">
@@ -465,7 +462,7 @@
     <ClInclude Include="src\base\KtAABB.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcGraph3d.h">
+    <ClInclude Include="src\plot\KcGraph.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtMatrix3.h">
@@ -630,9 +627,6 @@
     <ClInclude Include="src\plot\KvPlot.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcImGraph2d.h">
-      <Filter>imapp</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KcDataMono.h">
       <Filter>dsp</Filter>
     </ClInclude>
@@ -651,13 +645,7 @@
     <ClInclude Include="src\plot\KpContext.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KvGraph.h">
-      <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KcScatter3d.h">
-      <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KvScatter.h">
+    <ClInclude Include="src\plot\KcScatter.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KvPlot2d.h">
@@ -666,7 +654,7 @@
     <ClInclude Include="src\plot\KcCoord2d.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KvPlottable3d.h">
+    <ClInclude Include="src\plot\KvPlottable1d.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KtColor.h">

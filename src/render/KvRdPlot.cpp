@@ -141,14 +141,18 @@ void KvRdPlot::showProperySet()
 				std::string label = "##Plottable" + KuStrUtil::toString(ch);
 				ImGui::Checkbox(label.c_str(), &plt->visible());
 				ImGui::SameLine();
+
+				ImGui::PushID(plt);
 				ImGui::InputText("##", &plt->name());
-					
+				
 				for (unsigned i = 0; i < plt->majorColors(); i++) {
 					ImGui::SameLine();
 					std::string label = "##" + KuStrUtil::toString(i);
 					ImGui::ColorEdit4(label.c_str(), plt->majorColor(i),
 						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 				}
+
+				ImGui::PopID();
 
 				ImGui::Unindent();
 			}
