@@ -204,6 +204,7 @@
     <ClInclude Include="src\base\KtCamera.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
+    <ClInclude Include="src\base\KtLine.h" />
     <ClInclude Include="src\base\KtMatrix3.h" />
     <ClInclude Include="src\base\KtMatrix4.h" />
     <ClInclude Include="src\base\KtObservable.h" />
@@ -289,6 +290,8 @@
     <ClInclude Include="src\plot\KcGraph3d.h" />
     <ClInclude Include="src\plot\KcScatter3d.h" />
     <ClInclude Include="src\plot\KpContext.h" />
+    <ClInclude Include="src\plot\KtColor.h" />
+    <ClInclude Include="src\plot\KtMargins.h" />
     <ClInclude Include="src\plot\KvGraph.h" />
     <ClInclude Include="src\plot\KvPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />

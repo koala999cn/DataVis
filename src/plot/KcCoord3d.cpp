@@ -21,27 +21,27 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 
 	setExtents(lower, upper);
 
-	axes_[k_x0]->setTickOrient(KcAxis::k_neg_y);
-	axes_[k_x1]->setTickOrient(KcAxis::k_y);
-	axes_[k_x2]->setTickOrient(KcAxis::k_y);
-	axes_[k_x3]->setTickOrient(KcAxis::k_neg_y);
+	axes_[k_x0]->tickOrient() = axes_[k_x0]->labelOrient() = -KcAxis::vec3::unitY();
+	axes_[k_x1]->tickOrient() = axes_[k_x1]->labelOrient() = KcAxis::vec3::unitY();
+	axes_[k_x2]->tickOrient() = axes_[k_x2]->labelOrient() = KcAxis::vec3::unitY();
+	axes_[k_x3]->tickOrient() = axes_[k_x3]->labelOrient() = -KcAxis::vec3::unitY();
 
-	axes_[k_y0]->setTickOrient(KcAxis::k_neg_x);
-	axes_[k_y1]->setTickOrient(KcAxis::k_x);
-	axes_[k_y2]->setTickOrient(KcAxis::k_x);
-	axes_[k_y3]->setTickOrient(KcAxis::k_neg_x);
+	axes_[k_y0]->tickOrient() = axes_[k_y0]->labelOrient() = -KcAxis::vec3::unitX();
+	axes_[k_y1]->tickOrient() = axes_[k_y1]->labelOrient() = KcAxis::vec3::unitX();
+	axes_[k_y2]->tickOrient() = axes_[k_y2]->labelOrient() = KcAxis::vec3::unitX();
+	axes_[k_y3]->tickOrient() = axes_[k_y3]->labelOrient() = -KcAxis::vec3::unitX();
 
-	axes_[k_z0]->setTickOrient(KcAxis::k_neg_x);
-	axes_[k_z1]->setTickOrient(KcAxis::k_x);
-	axes_[k_z2]->setTickOrient(KcAxis::k_x);
-	axes_[k_z3]->setTickOrient(KcAxis::k_neg_x);
+	axes_[k_z0]->tickOrient() = axes_[k_z0]->labelOrient() = -KcAxis::vec3::unitX();
+	axes_[k_z1]->tickOrient() = axes_[k_z1]->labelOrient() = KcAxis::vec3::unitX();
+	axes_[k_z2]->tickOrient() = axes_[k_z2]->labelOrient() = KcAxis::vec3::unitX();
+	axes_[k_z3]->tickOrient() = axes_[k_z3]->labelOrient() = -KcAxis::vec3::unitX();
 
 	for(unsigned i = 0; i < std::size(axes_); i++)
-	    axes_[i]->setShowTick(false), axes_[i]->setShowLabel(false);
+	    axes_[i]->showTick() = false, axes_[i]->showLabel() = false;
 
-	axes_[k_x3]->setShowTick(true), axes_[k_x3]->setShowLabel(true);
-	axes_[k_y3]->setShowTick(true), axes_[k_y3]->setShowLabel(true);
-	axes_[k_z1]->setShowTick(true), axes_[k_z1]->setShowLabel(true);
+	axes_[k_x3]->showTick() = true, axes_[k_x3]->showLabel() = true;
+	axes_[k_y3]->showTick() = true, axes_[k_y3]->showLabel() = true;
+	axes_[k_z1]->showTick() = true, axes_[k_z1]->showLabel() = true;
 
 
 	// 初始化6个grid平面
@@ -91,31 +91,31 @@ void KcCoord3d::setExtents(const point3& lower, const point3& upper)
 	auto p6 = point3{ upper.x(), upper.y(), lower.z() };
 
 	axes_[k_x0]->setRange(lower.x(), upper.x());
-	axes_[k_x0]->setStart(lower); axes_[k_x0]->setEnd(p5);
+	axes_[k_x0]->setExtend(lower, p5);
 	axes_[k_x1]->setRange(lower.x(), upper.x());
-	axes_[k_x1]->setStart(p1); axes_[k_x1]->setEnd(p6);
+	axes_[k_x1]->setExtend(p1, p6);
 	axes_[k_x2]->setRange(lower.x(), upper.x());
-	axes_[k_x2]->setStart(p2); axes_[k_x2]->setEnd(upper);
+	axes_[k_x2]->setExtend(p2, upper);
 	axes_[k_x3]->setRange(lower.x(), upper.x());
-	axes_[k_x3]->setStart(p3); axes_[k_x3]->setEnd(p4);
+	axes_[k_x3]->setExtend(p3, p4);
 
 	axes_[k_y0]->setRange(lower.y(), upper.y());
-	axes_[k_y0]->setStart(lower); axes_[k_y0]->setEnd(p1);
+	axes_[k_y0]->setExtend(lower, p1);
 	axes_[k_y1]->setRange(lower.y(), upper.y());
-	axes_[k_y1]->setStart(p5); axes_[k_y1]->setEnd(p6);
+	axes_[k_y1]->setExtend(p5, p6);
 	axes_[k_y2]->setRange(lower.y(), upper.y());
-	axes_[k_y2]->setStart(p4); axes_[k_y2]->setEnd(upper);
+	axes_[k_y2]->setExtend(p4, upper);
 	axes_[k_y3]->setRange(lower.y(), upper.y());
-	axes_[k_y3]->setStart(p3); axes_[k_y3]->setEnd(p2);
+	axes_[k_y3]->setExtend(p3, p2);
 
 	axes_[k_z0]->setRange(lower.z(), upper.z());
-	axes_[k_z0]->setStart(lower); axes_[k_z0]->setEnd(p3);
+	axes_[k_z0]->setExtend(lower, p3);
 	axes_[k_z1]->setRange(lower.z(), upper.z());
-	axes_[k_z1]->setStart(p5); axes_[k_z1]->setEnd(p4);
+	axes_[k_z1]->setExtend(p5, p4);
 	axes_[k_z2]->setRange(lower.z(), upper.z());
-	axes_[k_z2]->setStart(p6); axes_[k_z2]->setEnd(upper);
+	axes_[k_z2]->setExtend(p6, upper);
 	axes_[k_z3]->setRange(lower.z(), upper.z());
-	axes_[k_z3]->setStart(p1); axes_[k_z3]->setEnd(p2);
+	axes_[k_z3]->setExtend(p1, p2);
 }
 
 
@@ -162,21 +162,13 @@ void KcCoord3d::zoom(double factor)
 void KcCoord3d::draw(KvPaint* paint) const
 {
 	if (visible()) {
-		for (unsigned i = 0; i < std::size(axes_); i++) {
-			auto axis = axes_[i];
-			auto rlen = diag();
-			if (axis && axis->visible()) {
-				axis->setRefLength(rlen);
-				axis->draw(paint);
-			}
-		}
+		for (unsigned i = 0; i < std::size(axes_); i++) 
+			if (axes_[i] && axes_[i]->visible())
+				axes_[i]->draw(paint);
 
-		for (unsigned i = 0; i < std::size(planes_); i++) {
-			auto& plane = planes_[i];
-			if (plane && plane->visible()) {
-				plane->draw(paint);
-			}
-		}
+		for (unsigned i = 0; i < std::size(planes_); i++)
+			if (planes_[i] && planes_[i]->visible()) 
+				planes_[i]->draw(paint);
 	}
 }
 

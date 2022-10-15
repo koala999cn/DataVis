@@ -62,27 +62,9 @@ void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 
-	auto pos = world2Pos_(anchor);
+	auto r = textRect(project(anchor), text, align);
 
-	// 根据align调整pos
-	auto szText = ImGui::CalcTextSize(text);
-
-	if (align & k_align_bottom)
-		pos.y -= szText.y;
-	else if (align & k_align_top)
-		pos.y;
-	else // k_align_venter
-		pos.y -= szText.y * 0.5;
-
-	if (align & k_align_left)
-		pos.x;
-	else if (align & k_align_right)
-		pos.x -= szText.x;
-	else // k_align_center
-		pos.x -= szText.x * 0.5;
-
-
-	drawList->AddText(pos, color_(), text);
+	drawList->AddText(ImVec2(r.lower().x(), r.lower().y()), color_(), text);
 }
 
 

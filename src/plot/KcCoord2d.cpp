@@ -19,16 +19,25 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 
 	setExtents(lower, upper);
 
-	axes_[k_left].front()->setTickOrient(KcAxis::k_neg_x);
-	axes_[k_right].front()->setTickOrient(KcAxis::k_x);
-	axes_[k_bottom].front()->setTickOrient(KcAxis::k_neg_y);
-	axes_[k_top].front()->setTickOrient(KcAxis::k_y);
+	axes_[k_left].front()->tickOrient() = 
+		axes_[k_left].front()->labelOrient() = -KcAxis::vec3::unitX();
+	axes_[k_right].front()->tickOrient() =
+		axes_[k_right].front()->labelOrient() = KcAxis::vec3::unitX();
+	axes_[k_bottom].front()->tickOrient() =
+		axes_[k_bottom].front()->labelOrient() = -KcAxis::vec3::unitY();
+	axes_[k_top].front()->tickOrient() =
+		axes_[k_top].front()->labelOrient() = KcAxis::vec3::unitY();
+
+	//axes_[k_left].front()->tickOrient() = KcAxis::vec3::unitX();
+	//axes_[k_right].front()->tickOrient() = -KcAxis::vec3::unitX();
+	//axes_[k_bottom].front()->tickOrient() = KcAxis::vec3::unitY();
+	//axes_[k_top].front()->tickOrient() = -KcAxis::vec3::unitY();
 
 	for (unsigned i = 0; i < 4; i++)
-		axes_[i].front()->setShowTick(true), axes_[i].front()->setShowLabel(true);
+		axes_[i].front()->showTick() = true, axes_[i].front()->showLabel() = true;
 
-	axes_[k_right].front()->visible() = false;
-	axes_[k_top].front()->visible() = false;
+	//axes_[k_right].front()->visible() = false;
+	//axes_[k_top].front()->visible() = false;
 }
 
 
@@ -74,13 +83,18 @@ void KcCoord2d::draw(KvPaint* paint) const
 {
 	if (visible()) {
 
-		auto l = axes_[KcCoord2d::k_left].front()->calcSize(paint).x();
-		auto r = axes_[KcCoord2d::k_right].front()->calcSize(paint).x();
-		auto t = axes_[KcCoord2d::k_top].front()->calcSize(paint).x();
-		auto b = axes_[KcCoord2d::k_bottom].front()->calcSize(paint).x();
+		auto l = axes_[KcCoord2d::k_left].front()->calcMargins(paint);
+		auto r = axes_[KcCoord2d::k_right].front()->calcMargins(paint);
+		auto t = axes_[KcCoord2d::k_top].front()->calcMargins(paint);
+		auto b = axes_[KcCoord2d::k_bottom].front()->calcMargins(paint);
 
-		auto vp = paint->viewport(); // save the old viewport
-		paint->setViewport(paint->viewport().shrink({ l, t }, { r, b }));
+		l = l.ceil(l, r);
+		t = t.ceil(t, b);
+		l = l.ceil(l, t);
+
+		auto oldVp = paint->viewport(); // save the old viewport
+		auto newVp = paint->viewport().shrink({ l.left(), l.top() }, { l.right(), l.bottom() });
+		paint->setViewport(newVp);
 
 		for (unsigned i = 0; i < std::size(axes_); i++) {
 			auto axislist = axes_[i];
@@ -89,12 +103,12 @@ void KcCoord2d::draw(KvPaint* paint) const
 					axis->draw(paint);
 		}
 
-		paint->viewport() = vp; // restore the old viewport
+		paint->viewport() = oldVp; // restore the old viewport
 	}
 }
 
 
 KcCoord2d::aabb_type KcCoord2d::boundingBox() const
 {
-	return { {0, 0, 0}, {1, 1, 1} };
+	return { { 0, 0, 0 }, { 1, 1, 1 } };
 }

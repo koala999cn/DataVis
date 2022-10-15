@@ -45,6 +45,29 @@ void KvPaint::drawLineLoop(point_getter fn, unsigned count)
 }
 
 
+KvPaint::rect KvPaint::textRect(const point2& pos, const char* text, int align) const
+{
+	auto lower = pos;
+	auto szText = textSize(text);
+
+	if (align & k_align_bottom)
+		lower.y() -= szText.y();
+	else if (align & k_align_top)
+		lower.y();
+	else // k_align_venter
+		lower.y() -= szText.y() * 0.5;
+
+	if (align & k_align_left)
+		lower.x();
+	else if (align & k_align_right)
+		lower.x() -= szText.x();
+	else // k_align_center
+		lower.x() -= szText.x() * 0.5;
+
+	return { lower, lower + szText };
+}
+
+
 void KvPaint::apply(const KpLineContext& cxt)
 {
 	setColor(cxt.color);

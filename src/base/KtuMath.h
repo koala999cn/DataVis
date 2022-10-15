@@ -286,6 +286,20 @@ public:
 
     /*************** SEARCH ALGORITHM *****************/
 
+    static KREAL min(KREAL x, KREAL y, KREAL z) {
+        return std::min(std::min(x, y), z);
+    }
+    static KREAL max(KREAL x, KREAL y, KREAL z) {
+        return std::max(std::max(x, y), z);
+    }
+
+    static KREAL min(KREAL x, KREAL y, KREAL z, KREAL w) {
+        return std::min(min(x, y, z), w);
+    }
+    static KREAL max(KREAL x, KREAL y, KREAL z, KREAL w) {
+        return std::max(max(x, y, z), w);
+    }
+
     static KREAL min(const KREAL x[], unsigned n);
     static KREAL max(const KREAL x[], unsigned n);
     static std::pair<KREAL, KREAL> minmax(const KREAL x[], unsigned n);

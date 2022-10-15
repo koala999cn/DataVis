@@ -669,5 +669,14 @@
     <ClInclude Include="src\plot\KvPlottable3d.h">
       <Filter>plot</Filter>
     </ClInclude>
+    <ClInclude Include="src\plot\KtColor.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KtMargins.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtLine.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

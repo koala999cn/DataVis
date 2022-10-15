@@ -69,6 +69,10 @@ public:
 
 	// 一些便捷函数
 
+	// 以pos为锚点，以align为对齐方式，计算绘制text的矩形空间
+	// 所用参数均为屏幕空间坐标
+	rect textRect(const point2& pos, const char* text, int align) const;
+
 	void apply(const KpLineContext& cxt);
 
 	void apply(const KpScatterContext& cxt);

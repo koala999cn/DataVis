@@ -6,6 +6,7 @@
 #include "KvTicker.h"
 #include "KtColor.h"
 #include "KtVector3.h"
+#include "KtMargins.h"
 #include "KpContext.h"
 
 
@@ -41,39 +42,48 @@ public:
 	void setEnd(const point3& v) { end_ = v; }
 	void setEnd(double x, double y, double z) { end_ = point3(x, y, z); }
 
+	void setExtend(const point3& st, const point3& ed) {
+		start_ = st, end_ = ed;
+	}
+
 	const vec3& tickOrient() const { return tickOrient_; }
 	vec3& tickOrient() { return tickOrient_; }
 
-	bool tickShowBothSide() const { return tickShowBothSide_; }
-	bool& tickShowBothSide() { return tickShowBothSide_; }
+	const vec3& labelOrient() const { return labelOrient_; }
+	vec3& labelOrient() { return labelOrient_; }
+
+	bool tickBothSide() const { return tickBothSide_; }
+	bool& tickBothSide() { return tickBothSide_; }
 
 	/// range 
 
 	double lower() const { return lower_; }
+	double& lower() { return lower_; }
 	double upper() const { return upper_; }
-	std::pair<double, double> range() const { return { lower_, upper_ }; }
-	void setLower(double lower) { lower_ = lower; }
-	void setUpper(double upper) { upper_ = upper; }
-	void setRange(double lower, double upper) { lower_ = lower, upper_ = upper; }
+	double& upper() { return upper_; }
+
+	void setRange(double l, double u) {
+		lower_ = l, upper_ = u;
+	}
 
 	double length() const {
 		return upper_ - lower_; // == (end - start).length ? 
 	}
 
 	bool showBaseline() const { return showBaseline_; }
-	void setShowBaseline(bool b) { showBaseline_ = b; }
+	bool& showBaseline() { return showBaseline_; }
 
 	bool showTick() const { return showTick_; }
-	void setShowTick(bool b) { showTick_ = b; }
+	bool& showTick() { return showTick_; }
 
 	bool showSubtick() const { return showSubtick_; }
-	void setShowSubtick(bool b) { showSubtick_ = b; }
+	bool& showSubtick() { return showSubtick_; }
 
 	bool showTitle() const { return showTitle_; }
-	void setShowTitle(bool b) { showTitle_ = b; }
+	bool& showTitle() { return showTitle_; }
 
 	bool showLabel() const { return showLabel_; }
-	void setShowLabel(bool b) { showLabel_ = b; }
+	bool& showLabel() { return showLabel_; }
 
 	void showAll() {
 		showBaseline_ = true;
@@ -82,7 +92,7 @@ public:
 	}
 
 	const std::string& title() const { return title_; }
-	void setTitle(const std::string& title) { title_ = title; }
+	std::string& title() { return title_; }
 
 	const std::vector<std::string>& labels() const { return labels_; }
 	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
@@ -96,18 +106,13 @@ public:
 	const KpTickContext& subtickContext() const { return subtickCxt_; }
 	KpTickContext& subtickContext() { return subtickCxt_; }
 
-	// tick长度以rlen为参考值取百分数
-	// 如，设tick为5，rlen为300，则绘制tick的实际长度为300*5%，即15
-	// rlen通常置为坐标系aabb的对角线长度
-	void setRefLength(double rlen) { refLength_ = rlen; }
-
 	/// colors
 
-	color4f titleColor() const { return titleColor_; }
-	void setTitleColor(color4f clr) { titleColor_ = clr; }
+	const color4f& titleColor() const { return titleColor_; }
+	color4f& titleColor() { return titleColor_; }
 
-	color4f labelColor() const { return labelColor_; }
-	void setLabelColor(color4f clr) { labelColor_ = clr; }
+	const color4f& labelColor() const { return labelColor_; }
+	color4f& labelColor() { return labelColor_; }
 
 	/// fonts
 
@@ -120,29 +125,25 @@ public:
 	std::shared_ptr<KvTicker> ticker() const;
 	void setTicker(std::shared_ptr<KvTicker> tic);
 
-	// 根据tick的数值，返回tick在坐标轴上的的3维坐标
-	point3 tickPos(double val) const;
 	aabb_type boundingBox() const override;
 
 	void draw(KvPaint*) const override;
 
-
-	// 帮助函数，待删除
-
-	void setTickOrient(const vec3& v, bool bothSide) {
-		tickOrient_ = v;
-		tickShowBothSide_ = bothSide;
-	}
-
-	void setTickOrient(KeTickOrient orient);
+	// 根据tick的数值，返回tick在坐标轴上的的3维坐标（世界坐标）
+	point3 tickPos(double val) const;
 
 	// 返回当前axis在屏幕坐标所占的尺寸（像素大小）
-	point2 calcSize(KvPaint* paint) const;
+	KtMargins<float_t> calcMargins(KvPaint* paint) const;
+
+
 
 private:
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度
 	void drawTick_(KvPaint*, const point3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
-	static int labelAlignment_(const vec3& orient); // 根据tick的orientation判定label的alignment
+	
+	int labelAlignment_() const; // 根据label的orientation判定label的alignment
+	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
+	aabb_type textBox_(KvPaint*, const point3& anchor, const std::string& text) const;
 
 private:
 	std::string title_;
@@ -153,12 +154,8 @@ private:
 	KpLineContext baselineCxt_;
 	KpTickContext tickCxt_, subtickCxt_;
 
-	double tickPadding_{ 2 };
-	double labelPadding_{ 2 }; // 刻度label距离刻度线的距离
+	double labelPadding_{ 2 }; 
 	double titlePadding_{ 2 };
-
-	mutable double refLength_; // 标准参考长度. tickLength_, subtickLength_, labelPadding_均为其相对值
-	                           // 一般取AABB的对角线长度
 
 	color4f labelColor_{ 0, 0, 0, 1 }, titleColor_{ 0, 0, 0, 1 };
 
@@ -166,7 +163,8 @@ private:
 
 	point3 start_, end_;
 	vec3 tickOrient_;
-	bool tickShowBothSide_;
+	vec3 labelOrient_;
+	bool tickBothSide_{ false };
 
 	std::shared_ptr<KvTicker> ticker_;
 };
