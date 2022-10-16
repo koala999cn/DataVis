@@ -41,6 +41,10 @@ public:
 	static bool endWith(const char* str, const char* with, bool nocase = false);
 	static bool endWith(const std::string& str, const std::string& with, bool nocase = false);
 
+	// 提取str的[from, to]部分
+	// 如果to等于0，则提取到最后部分
+	// 如果to小于0.则提取到end-to部分
+	static std::string mid(const std::string& str, int from, int to = 0);
 
 	// 查找str中的第一个ch的指针，未找到返回nullptr
 	static const char* findFirstOf(const char* str, char ch);
@@ -254,7 +258,7 @@ public:
 
 
 private:
-	KuStrUtil() {}
-	~KuStrUtil() {}
+	KuStrUtil() = default;
+	~KuStrUtil() = default;
 };
 

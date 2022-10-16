@@ -22,9 +22,6 @@
     <Filter Include="audio">
       <UniqueIdentifier>{935b133f-f696-4b69-98fb-9386c7a1946a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="theme">
-      <UniqueIdentifier>{eae69fc4-1091-4517-ac16-1b12905729cd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="plot">
       <UniqueIdentifier>{8a43f5cc-ba62-4f8b-a6c3-aee1ef50082b}</UniqueIdentifier>
     </Filter>
@@ -281,6 +278,18 @@
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KvPlot2d.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KsThemeManager.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KuThemeParser.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KvThemedPlot.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KuColorUtil.cpp">
       <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
@@ -665,6 +674,18 @@
     </ClInclude>
     <ClInclude Include="src\base\KtLine.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KsThemeManager.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KuThemeParser.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvThemedPlot.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KuColorUtil.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

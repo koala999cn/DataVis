@@ -5,58 +5,47 @@
 // 一些绘制元素的上下文属性
 
 
-class KpLineContext
+class KpPen
 {
 public:
 
-	enum KeType
+	enum KeStyle
 	{
-		k_line_none,
-		k_line_solid,
-		k_line_dash,
-		k_line_dot
+		k_none,
+		k_solid,
+		k_dash,
+		k_dot,
+		k_dash_dot,
+		k_dash_dot_dot
 	};
 
-	int type;
-	float width;
-	color4f color;
-
-	KpLineContext() : type(k_line_solid), width(1), color(0, 0, 0, 1) {
-
-	}
+	int style{ k_solid };
+	float width{ 1 };
+	color4f color{ 0, 0, 0, 1 };
 };
 
 
-class KpFillContext
+class KpBrush
 {
 public:
 
-	enum KeType
+	enum KeStyle
 	{
-		k_fill_none,
-		k_fill_solid
+		k_none,
+		k_solid
 	};
 
-	int type;
-	color4f color;
+	int style{ k_solid };
+	color4f color{ 0, 0, 0, 1 };
 };
 
 
-class KpScatterContext
+class KpFont
 {
 public:
-
-	enum KeType
-	{
-		k_scatter_point
-	};
-
-	KpScatterContext() : type(k_scatter_point), size(3), color(0, 0, 0, 1) {
-
-	}
-
-	int type;
-	float size;
-	color4f color;
-	KpLineContext stroke;
+	std::string family;
+	double size{ 13 };
+	bool bold{ false };
+	bool italic{ false };
+	bool underline{ false };
 };

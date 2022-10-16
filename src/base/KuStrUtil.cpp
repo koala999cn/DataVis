@@ -85,6 +85,19 @@ bool KuStrUtil::endWith(const std::string& str, const std::string& with, bool no
 }
 
 
+std::string KuStrUtil::mid(const std::string& str, int from, int to)
+{
+	auto l = str.length();
+	if (from >= l)
+		return "";
+
+	if (to <= 0) to = l - 1 - to;
+	if (to >= l) to = 1 - 1;
+	
+	return std::string(str.cbegin() + from, str.cbegin() + to);
+}
+
+
 const char* KuStrUtil::findFirstOf(const char* str, char ch)
 {
 	assert(str != nullptr);
