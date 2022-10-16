@@ -11,6 +11,7 @@ class KtCamera
 {
 public:
 	using point2 = KtPoint<KREAL, 2>;
+	using point3 = KtPoint<KREAL, 3>;
 	using vec3 = KtVector3<KREAL>;
 	using vec4 = KtVector4<KREAL>;
 	using mat3 = KtMatrix3<KREAL, ROW_MAJOR>;
@@ -26,9 +27,25 @@ public:
 	// 按frustum参数更新projMatrix_
 	void projectFrustum(KREAL left, KREAL right, KREAL bottom, KREAL top, KREAL znear, KREAL zfar);
 
+	void projectFrustum(const point2& lower, const point2& upper, KREAL znear, KREAL zfar) {
+		projectFrustum(lower.x(), upper.x(), lower.y(), upper.y(), znear, zfar);
+	}
+
+	void projectFrustum(const point3& lower, const point3& upper) {
+		projectFrustum(lower.x(), upper.x(), lower.y(), upper.y(), lower.z(), upper.z());
+	}
+
 	void projectPerspective(KREAL fovyInDegree = 45, KREAL aspectRatio = 4.f/3.f, KREAL znear = 100, KREAL zfar = 10000);
 
 	void projectOrtho(KREAL left, KREAL right, KREAL bottom, KREAL top, KREAL znear, KREAL zfar);
+
+	void projectOrtho(const point2& lower, const point2& upper, KREAL znear, KREAL zfar) {
+		projectOrtho(lower.x(), upper.x(), lower.y(), upper.y(), znear, zfar);
+	}
+
+	void projectOrtho(const point3& lower, const point3& upper) {
+		projectOrtho(lower.x(), upper.x(), lower.y(), upper.y(), lower.z(), upper.z());
+	}
 
 	const mat4& viewMatrix() const { return viewMatrix_; }
 	mat4& viewMatrix() { return viewMatrix_; }

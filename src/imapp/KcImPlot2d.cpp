@@ -8,7 +8,7 @@ KcImPlot2d::KcImPlot2d(const std::string_view& name)
     : KvImWindow(name)
     , KvPlot2d(std::make_shared<KcImPaint>(camera_))
 {
-    minSize_[0] = 240, minSize_[1] = 120;
+    minSize_[0] = 180, minSize_[1] = 180;
 }
 
 
@@ -22,12 +22,14 @@ void KcImPlot2d::updateImpl_()
         // 更新摄像机的视图
         auto pos = ImGui::GetWindowPos();
         auto sz = ImGui::GetWindowSize();
-        paint_->setViewport({ { pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y } });
+        paint_->setViewport({ { pos.x + margins_.left(), pos.y + margins_.bottom() },
+            { pos.x + sz.x - margins_.right(), pos.y + sz.y - margins_.top() } }
+        );
 
         auto lower = coord().lower();
         auto upper = coord().upper();
 
-        camera_.projectOrtho(lower.x(), upper.x(), lower.y(), upper.y(), -1, 1);
+        camera_.projectOrtho(lower, upper, -1, 1);
 
         // 绘制3d数据图
         KvPlot2d::update();

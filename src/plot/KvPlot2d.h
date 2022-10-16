@@ -2,6 +2,7 @@
 #include "KvPlot.h"
 #include "KcCoord2d.h"
 #include "KvRenderable.h"
+#include "KtMargins.h"
 
 
 // 二维plot的抽象类
@@ -21,6 +22,10 @@ public:
 
 	KcCoord2d& coord() { return *coord_.get(); }
 
+	const KtMargins<float_t>& margins() const { return margins_; }
+	KtMargins<float_t>& margins() { return margins_; }
+
 protected:
 	std::unique_ptr<KcCoord2d> coord_; // 内置创建并管理
+	KtMargins<float_t> margins_{ 15, 15, 15, 15 };
 };
