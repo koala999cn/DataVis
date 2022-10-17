@@ -37,7 +37,7 @@ public:
 
 	static bool tryColor(const jobject& jobj, const std::string& name, color4f& color);
 
-	static bool tryMargins(const jobject& jobj, const std::string& name, KtMargins<double>& margins);
+	static bool tryMargins(const jobject& jobj, const std::string& name, KtMargins<float>& margins);
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -62,6 +62,6 @@ public:
 
 	static std::vector<color4f> color_value_list(const jobject& jar);
 
-	static bool margins_value(const jvalue& jval, KtMargins<double>& margin);
+	static bool margins_value(const jvalue& jval, KtMargins<float>& margin);
 
 };

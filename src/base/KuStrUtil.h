@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
 #include <sstream>
@@ -44,7 +45,7 @@ public:
 	// 提取str的[from, to]部分
 	// 如果to等于0，则提取到最后部分
 	// 如果to小于0.则提取到end-to部分
-	static std::string mid(const std::string& str, int from, int to = 0);
+	static std::string_view substr(const std::string_view& str, int from, int to = 0);
 
 	// 查找str中的第一个ch的指针，未找到返回nullptr
 	static const char* findFirstOf(const char* str, char ch);
@@ -110,7 +111,7 @@ public:
 	// std::string版本的空白字符裁剪
 	static void trim(std::string& str, const char* spaces = k_spaceChars);
 
-    static std::vector<std::string> split(const std::string& full, const std::string& delims, bool skipEempty = true);
+    static std::vector<std::string_view> split(const std::string_view& full, const std::string& delims, bool skipEempty = true);
 
 	static std::vector<std::string> splitRegex(const std::string& full, const std::string& regex, bool skipEempty = true);
 

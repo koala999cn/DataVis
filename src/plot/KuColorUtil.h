@@ -26,5 +26,5 @@ public:
 	// Convert hsl to rgb, alpha value gets passed straight through
 	// h, s, l values are assumed to be in interval [0, 1]
 	// http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
-	static color4f hslToRgb(float h, float s, float l, float a);
+	static color4f hslToRgb(float h, float s, float l, float a = 1);
 };

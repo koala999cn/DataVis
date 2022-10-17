@@ -292,6 +292,9 @@
     <ClCompile Include="src\plot\KuColorUtil.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\base\KuLex.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -685,6 +688,12 @@
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KuColorUtil.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuLex.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KgColorGradient.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

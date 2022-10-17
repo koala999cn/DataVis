@@ -4,8 +4,9 @@
 
 void KcScatter::drawImpl_(KvPaint* paint, point_getter getter, const color4f& majorColor) const
 {
-	auto cxt = scatCxt_;
+	auto cxt = scatBrush_;
 	cxt.color = majorColor;
 	paint->apply(cxt);
+	paint->setPointSize(size_);
 	paint->drawPoints(getter, data()->size());
 }

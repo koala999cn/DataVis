@@ -68,15 +68,14 @@ KvPaint::rect KvPaint::textRect(const point2& pos, const char* text, int align) 
 }
 
 
-void KvPaint::apply(const KpLineContext& cxt)
+void KvPaint::apply(const KpPen& cxt)
 {
 	setColor(cxt.color);
 	setLineWidth(cxt.width);
 }
 
 
-void KvPaint::apply(const KpScatterContext& cxt)
+void KvPaint::apply(const KpBrush& cxt)
 {
 	setColor(cxt.color);
-	setPointSize(cxt.size);
 }

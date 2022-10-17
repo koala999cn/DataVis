@@ -17,5 +17,7 @@ public:
 	void drawImpl_(KvPaint*, point_getter, const color4f&) const override;
 
 protected:
-	KpScatterContext scatCxt_;
+	KpPen scatPen_;
+	KpBrush scatBrush_;
+	float size_;
 };

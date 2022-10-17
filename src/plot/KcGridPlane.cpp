@@ -12,11 +12,11 @@ KcGridPlane::KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
 
 	minorVisible_ = false;
 
-	majorLineCxt_.type = KpLineContext::k_line_solid;
+	majorLineCxt_.style = KpPen::k_solid;
 	majorLineCxt_.width = 0.6;
 	majorLineCxt_.color = color4f(0.3);
 
-	minorLineCxt_.type = KpLineContext::k_line_dash;
+	minorLineCxt_.style = KpPen::k_dash;
 	minorLineCxt_.width = 0.4;
 	minorLineCxt_.color = color4f(0.3);
 }

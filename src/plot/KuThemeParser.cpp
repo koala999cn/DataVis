@@ -1,5 +1,5 @@
 #include "KuThemeParser.h"
-#include "KuStrUtil.h"
+#include "KuColorUtil.h"
 
 
 bool KuThemeParser::isNull(const jvalue& jval)
@@ -21,7 +21,7 @@ bool KuThemeParser::isNull(const jvalue& jval)
 void KuThemeParser::fill_value(const jvalue& jval, KpBrush& brush)
 {
 	if (isNull(jval)) {
-		brush.style = KpBrush::k_solid;
+		brush.style = KpBrush::k_none;
 	}
 	else if (jval.is_string()) {
 		color4f color;
@@ -55,10 +55,8 @@ void KuThemeParser::line_value(const jvalue& jval, KpPen& pen)
 {
 	if (isNull(jval)) {
 		pen.style = KpPen::k_none; 
-		return;
 	}
-	
-	if (jval.is_string()) {
+	else if (jval.is_string()) {
 		auto str = jval.get<std::string>();
 		if (!line_style(str, pen))  // 先尝试解析line-style
 			// 失败则尝试解析line-color
@@ -124,7 +122,7 @@ void KuThemeParser::text_value(const jvalue& jval, KpFont& font)
 void KuThemeParser::color_value(const jvalue& jval, color4f& color)
 {
 	if (isNull(jval))
-		color = color4f("transparent");
+		color = color4f(0);
 	else if (jval.is_string())
 		color_value(jval.get<std::string>(), color);
 	else if (jval.is_object())
@@ -148,7 +146,7 @@ std::vector<color4f> KuThemeParser::color_value_list(const jobject& jar)
 }
 
 
-bool KuThemeParser::margins_value(const jvalue& jval, KtMargins<double>& margin)
+bool KuThemeParser::margins_value(const jvalue& jval, KtMargins<float>& margin)
 {
 	if (isNull(jval)) {
 		margin = KtMargins<double>(0, 0, 0, 0);
@@ -266,7 +264,7 @@ bool KuThemeParser::tryColor(const jobject& jobj, const std::string& name, color
 }
 
 
-bool KuThemeParser::tryMargins(const jobject& jobj, const std::string& name, KtMargins<double>& margins)
+bool KuThemeParser::tryMargins(const jobject& jobj, const std::string& name, KtMargins<float>& margins)
 {
 	if (jobj.contains(name)) 
 		return margins_value(jobj[name], margins);
@@ -277,33 +275,7 @@ bool KuThemeParser::tryMargins(const jobject& jobj, const std::string& name, KtM
 
 bool KuThemeParser::color_value(const std::string& str, color4f& color)
 {
-	
-	// 扩展支持rgb()格式, 如: rgb(198, 120, 65)
-	if (KuStrUtil::beginWith(str, "rgb(", true) && KuStrUtil::endWith(str, ")")) {
-		
-		auto s = KuStrUtil::mid(str, 4, -1);
-
-		auto rgb = KuStrUtil::split(s, ",");
-		if (rgb.size() != 3 || rgb.size() != 4)
-			return false;
-
-		color.r() = KuStrUtil::toFloat(rgb[0].c_str()) / 255;
-		color.g() = KuStrUtil::toFloat(rgb[1].c_str()) / 255;
-		color.b() = KuStrUtil::toFloat(rgb[2].c_str()) / 255;
-		color.a() = rgb.size() == 4 ? KuStrUtil::toFloat(rgb[3].c_str()) / 255 : 1;	
-	}
-	else {
-		// color4f支持的颜色字符格式：
-		//  - #RGB(each of R, G, and B is a single hex digit)
-		//	- #RRGGBB
-		//	- #AARRGGBB(Since 5.2)
-		//	- #RRRGGGBBB
-		//	- #RRRRGGGGBBBB
-		//	- transparent, representing the absence of a color
-		//  - A list of SVG color keyword names provided by the World Wide Web Consortium.
-		color.setNamedColor(str);
-	}
-
+	color = KuColorUtil::parseColor(str);
 	return color.isValid();
 }
 

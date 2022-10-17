@@ -16,5 +16,5 @@ public:
 	void drawImpl_(KvPaint*, point_getter, const color4f&) const override;
 
 private:
-	KpLineContext lineCxt_;
+	KpPen lineCxt_;
 };

@@ -27,7 +27,7 @@ public:
 		k_z, k_neg_z, k_bi_z
 	};
 
-	struct KpTickContext : public KpLineContext
+	struct KpTickContext : public KpPen
 	{
 		double length;
 	};
@@ -97,8 +97,8 @@ public:
 	const std::vector<std::string>& labels() const { return labels_; }
 	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
 
-	const KpLineContext& baselineContext() const { return baselineCxt_; }
-	KpLineContext& baselineContext() { return baselineCxt_; }
+	const KpPen& baselineContext() const { return baselineCxt_; }
+	KpPen& baselineContext() { return baselineCxt_; }
 
 	const KpTickContext& tickContext() const { return tickCxt_; }
 	KpTickContext& tickContext() { return tickCxt_; }
@@ -151,7 +151,7 @@ private:
 	double lower_, upper_; // range
 	bool showBaseline_, showTick_, showSubtick_, showTitle_, showLabel_;
 
-	KpLineContext baselineCxt_;
+	KpPen baselineCxt_;
 	KpTickContext tickCxt_, subtickCxt_;
 
 	double labelPadding_{ 2 }; 

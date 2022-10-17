@@ -317,15 +317,15 @@ void KsThemeManager::applyCanvas_(const jvalue& jval, KvThemedPlot* plot) const
 			applyLine_(KvThemedPlot::k_line_all, jval.at(3), plot);
 
 		if (sz > 4)
-			applyLine_(KvThemedPlot::k_grid_line_all, jval.jval(4), plot);
+			applyLine_(KvThemedPlot::k_grid_line_all, jval.at(4), plot);
 	}
 }
 
 
 void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 {
-	std::vector<QColor> majors;
-	std::vector<QColor> minors; // 用于outlining
+	std::vector<color4f> majors;
+	std::vector<color4f> minors; // 用于outlining
 
 	if (jval.is_array()) {
 		majors = KuThemeParser::color_value_list(jval);
@@ -338,7 +338,7 @@ void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 			if (jobj["minor"].is_array())
 				minors = KuThemeParser::color_value_list(jobj["minor"]);
 			else if (jobj["minor"].is_string()) {
-				QColor color;
+				color4f color;
 				if (KuThemeParser::color_value(jobj["minor"].get<std::string>(), color))
 					minors.push_back(color);
 			}
@@ -349,7 +349,7 @@ void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 		return;
 
 	if (minors.empty())
-		minors.push_back(QColor("NA"));
+		minors.push_back(color4f(0));
 
 	for (unsigned i = 0; i < plot->numPlots(); i++) {
 		// TODO: 插值，连续色等
@@ -367,7 +367,7 @@ void KsThemeManager::tryBkgnd_(int level, const jobject& jobj, KvThemedPlot* plo
 
 void KsThemeManager::applyFill_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
-	QBrush brush = plot->fill(level);
+	KpBrush brush = plot->fill(level);
 	KuThemeParser::fill_value(jval, brush);
 	plot->applyFill(level, brush);
 }
@@ -379,8 +379,8 @@ int KsThemeManager::tryVisible_(int level, const jvalue& jval, KvThemedPlot* plo
 		plot->applyVisible(level, false);
 		return -1;
 	}
-	else if (jval.isBool()) {
-		bool b = jval.toBool();
+	else if (jval.is_boolean()) {
+		bool b = jval.get<bool>();
 		plot->applyVisible(level, b);
 		return b ? 1 : -1;
 	}
@@ -607,8 +607,8 @@ void KsThemeManager::applyLine_(int level, const jvalue& jval, KvThemedPlot* plo
 {
 	tryVisible_(level, jval, plot);
 
-	plot->applyLine(level, [&jval, level](const QPen& pen) {
-		QPen newPen(pen);
+	plot->applyLine(level, [&jval, level](const KpPen& pen) {
+		KpPen newPen(pen);
 		KuThemeParser::line_value(jval, newPen);
 		return newPen;
 		});
@@ -619,8 +619,8 @@ void KsThemeManager::applyText_(int level, const jvalue& jval, KvThemedPlot* plo
 {
 	tryVisible_(level, jval, plot);
 
-	plot->applyText(level, [&jval](const QFont& font) {
-		QFont newFont(font);
+	plot->applyText(level, [&jval](const KpFont& font) {
+		KpFont newFont(font);
 		KuThemeParser::text_value(jval, newFont);
 		return newFont;
 		});
@@ -629,8 +629,8 @@ void KsThemeManager::applyText_(int level, const jvalue& jval, KvThemedPlot* plo
 
 void KsThemeManager::applyTextColor_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
-	plot->applyTextColor(level, [&jval](const QColor& color) {
-		QColor newColor(color);
+	plot->applyTextColor(level, [&jval](const color4f& color) {
+		color4f newColor(color);
 		KuThemeParser::color_value(jval, newColor);
 		return newColor;
 		});

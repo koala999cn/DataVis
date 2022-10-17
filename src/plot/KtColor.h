@@ -32,7 +32,7 @@ public:
 	// 返回无效的color对象
 	template<std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 	static KtColor invalid() {
-		return { -1 };
+		return { -1, -1, -1, -1 };
 	}
 };
 

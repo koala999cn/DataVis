@@ -117,6 +117,7 @@
     <ClCompile Include="3rdparty\implot\implot.cpp" />
     <ClCompile Include="3rdparty\implot\implot_items.cpp" />
     <ClCompile Include="src\base\KuFileUtil.cpp" />
+    <ClCompile Include="src\base\KuLex.cpp" />
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
     <ClCompile Include="src\dsp\KcSampled2d.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="src\base\KtVector3.h" />
     <ClInclude Include="src\base\KtVector4.h" />
     <ClInclude Include="src\base\KuFileUtil.h" />
+    <ClInclude Include="src\base\KuLex.h" />
     <ClInclude Include="src\base\KuPathUtil.h" />
     <ClInclude Include="src\base\KuStrUtil.h" />
     <ClInclude Include="src\base\KtUniObject.h" />
@@ -290,6 +292,7 @@
     <ClInclude Include="src\plot\KcLinearTicker.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
+    <ClInclude Include="src\plot\KgColorGradient.h" />
     <ClInclude Include="src\plot\KpContext.h" />
     <ClInclude Include="src\plot\KsThemeManager.h" />
     <ClInclude Include="src\plot\KtColor.h" />

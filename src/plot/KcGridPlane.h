@@ -18,11 +18,11 @@ public:
 	bool minorVisible() const { return minorVisible_; }
 	bool& minorVisible() { return minorVisible_; }
 
-	const KpLineContext& majorLine() const { return majorLineCxt_; }
-	KpLineContext& majorLine() { return majorLineCxt_; }
+	const KpPen& majorLine() const { return majorLineCxt_; }
+	KpPen& majorLine() { return majorLineCxt_; }
 
-	const KpLineContext& minorLine() const { return minorLineCxt_; }
-	KpLineContext& minorLine() { return minorLineCxt_; }
+	const KpPen& minorLine() const { return minorLineCxt_; }
+	KpPen& minorLine() { return minorLineCxt_; }
 
 	aabb_type boundingBox() const override;
 
@@ -39,5 +39,5 @@ private:
 private:
 	axis_ptr horz_[2], vert_[2]; // 构成grid平面的4根坐标轴，水平2根、垂直2根
 	bool minorVisible_;
-	KpLineContext majorLineCxt_, minorLineCxt_;
+	KpPen majorLineCxt_, minorLineCxt_;
 };

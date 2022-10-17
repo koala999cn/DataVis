@@ -1,11 +1,7 @@
 #pragma once
 #include <functional>
-#include <QMargins>
-#include <QBrush>
-
-class QPen;
-class QColor;
-class QFont;
+#include "KpContext.h"
+#include "KtMargins.h"
 
 
 // 一个可应用主题的plotting接口
@@ -145,36 +141,39 @@ public:
 
 	virtual ~KvThemedPlot() {}
 
-	// 填充(QBrush)
-	virtual QBrush fill(int level) const = 0;
-	virtual void applyFill(int level, const QBrush&) = 0;
+	// 填充(KpBrush)
+	virtual KpBrush fill(int level) const = 0;
+	virtual void applyFill(int level, const KpBrush&) = 0;
 
-	// 边框(QPen)
-	virtual QPen border(int level) const = 0;
-	virtual void applyBorder(int level, const QPen&) = 0;
+	// 边框(KpPen)
+	virtual KpPen border(int level) const = 0;
+	virtual void applyBorder(int level, const KpPen&) = 0;
 
-	// 留白（QMargins）
-	virtual QMargins margins(int level) const = 0;
-	virtual void applyMargins(int level, const QMargins&) = 0;
+	// 留白（KtMargins<float>）
+	virtual KtMargins<float> margins(int level) const = 0;
+	virtual void applyMargins(int level, const KtMargins<float>&) = 0;
 
 	// 可见性(bool)
 	virtual bool visible(int level) const = 0;
 	virtual void applyVisible(int level, bool b) = 0;
 
 	// 线条
-	virtual void applyLine(int level, std::function<QPen(const QPen&)> op) = 0;
+	virtual void applyLine(int level, std::function<KpPen(const KpPen&)> op) = 0;
 
 	// 字体
-	virtual void applyText(int level, std::function<QFont(const QFont&)> op) = 0;
+	virtual void applyText(int level, std::function<KpFont(const KpFont&)> op) = 0;
 
 	// 文字颜色
-	virtual void applyTextColor(int level, std::function<QColor(const QColor&)> op) = 0;
+	virtual void applyTextColor(int level, std::function<color4f(const color4f&)> op) = 0;
 
 	// 坐标轴刻度
 	virtual void setTickLength(int level, KeTickSide side, int len) = 0;
 
-	virtual unsigned numPlots() const = 0;
-	virtual void applyPalette(unsigned plotIdx, const QColor& major, const QColor& minor) = 0;
+	virtual unsigned plottableCount() const = 0;
+	virtual unsigned majorColorsNeeded() const = 0;
+	virtual bool minorColorNeeded() const = 0;
+	virtual void applyMajorColor(unsigned plottableIdx, const std::vector<color4f>& majors) = 0;
+	virtual void applyMinorColor(unsigned plottableIdx, const color4f& minor) = 0;
 
 
 	// legend相关操作

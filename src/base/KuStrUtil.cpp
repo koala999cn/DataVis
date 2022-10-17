@@ -85,16 +85,15 @@ bool KuStrUtil::endWith(const std::string& str, const std::string& with, bool no
 }
 
 
-std::string KuStrUtil::mid(const std::string& str, int from, int to)
+std::string_view KuStrUtil::substr(const std::string_view& str, int from, int to)
 {
 	auto l = str.length();
-	if (from >= l)
-		return "";
 
 	if (to <= 0) to = l - 1 - to;
-	if (to >= l) to = 1 - 1;
+	assert(from >= 0 && from < l);
+	assert(to >= 0 && to <= from);
 	
-	return std::string(str.cbegin() + from, str.cbegin() + to);
+	return std::string_view(str.data() + from, to - from + 1);
 }
 
 
@@ -282,15 +281,15 @@ void KuStrUtil::trim(std::string& str, const char* spaces)
 }
 
 
-std::vector<std::string> KuStrUtil::split(const std::string& full, const std::string& delims, bool skipEempty)
+std::vector<std::string_view> KuStrUtil::split(const std::string_view& full, const std::string& delims, bool skipEempty)
 {
-    std::vector<std::string> tokens;
+    std::vector<std::string_view> tokens;
 	size_t start = 0, found = 0, end = full.size();
 	while (found != std::string::npos) {
 		found = full.find_first_of(delims, start);
 		// start != end condition is for when the delimiter is at the end
         if (!skipEempty || (found != start && start != end))
-			tokens.push_back(full.substr(start, found - start));
+			tokens.push_back(substr(full, start, found - start));
 		start = found + 1;
 	}
 

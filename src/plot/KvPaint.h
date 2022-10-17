@@ -73,7 +73,9 @@ public:
 	// 所用参数均为屏幕空间坐标
 	rect textRect(const point2& pos, const char* text, int align) const;
 
-	void apply(const KpLineContext& cxt);
+	void apply(const KpPen& cxt);
 
-	void apply(const KpScatterContext& cxt);
+	void apply(const KpBrush& cxt);
+
+	void apply(const KpFont& cxt);
 };
