@@ -2,6 +2,7 @@
 #include "KuPathUtil.h"
 #include "KuThemeParser.h"
 #include "KvThemedPlot.h"
+#include "KtGradient.h"
 #include <fstream>
 #include <assert.h>
 
@@ -336,7 +337,7 @@ void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 			majors = KuThemeParser::color_value_list(jobj["major"]);
 		if (jobj.contains("minor")) {
 			if (jobj["minor"].is_array())
-				minors = KuThemeParser::color_value_list(jobj["minor"]);
+				minors = KuThemeParser::color_value_list(jobj["minor"]); // TODO: 调整minor只支持单色
 			else if (jobj["minor"].is_string()) {
 				color4f color;
 				if (KuThemeParser::color_value(jobj["minor"].get<std::string>(), color))
@@ -351,9 +352,41 @@ void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 	if (minors.empty())
 		minors.push_back(color4f(0));
 
-	for (unsigned i = 0; i < plot->numPlots(); i++) {
-		// TODO: 插值，连续色等
-		plot->applyPalette(i, majors[i % majors.size()], minors[0]); 
+	// 统计该plot需要多少个主色调
+	unsigned majorsNeeded(0);
+	for (unsigned i = 0; i < plot->plottableCount(); i++) {
+		auto n = plot->majorColorsNeeded(i);
+		if (n != -1) // 只统计离散色
+			majorsNeeded += n;
+	}
+
+	// 分配颜色
+	unsigned idx(0);
+	KtGradient<float, color4f> grad;
+
+	if (majorsNeeded > majors.size()) 
+		for (unsigned i = 0; i < majors.size(); i++)
+			grad.setAt(i, majors[i]);
+
+	for (unsigned i = 0; i < plot->plottableCount(); i++) {
+		auto n = plot->majorColorsNeeded(i);
+		if (n == -1) // 对于连续色，将全部主色都分配给它
+			plot->applyMajorColors(i, majors);
+		else {
+			std::vector<color4f> clrs(n);
+			if (majorsNeeded > majors.size()) { // 调色板颜色不足，使用gradient插值取色
+				for (unsigned j = 0; j < n; j++)
+					clrs[n] = grad.getAt(KtuMath<float>::remap(idx++, 0, majorsNeeded - 1, 0, majors.size() - 1));
+			}
+			else { // 调色板颜色足够，按顺序分配
+				for (unsigned j = 0; j < n; j++)
+					clrs[n] = majors[idx++];
+			}
+			plot->applyMajorColors(i, clrs);
+		}
+
+		if (plot->minorColorNeeded(i))
+			plot->applyMinorColor(i, minors.front());
 	}
 }
 

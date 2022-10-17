@@ -693,7 +693,7 @@
     <ClInclude Include="src\base\KuLex.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KgColorGradient.h">
+    <ClInclude Include="src\plot\KtGradient.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

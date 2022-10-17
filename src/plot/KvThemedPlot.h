@@ -170,9 +170,9 @@ public:
 	virtual void setTickLength(int level, KeTickSide side, int len) = 0;
 
 	virtual unsigned plottableCount() const = 0;
-	virtual unsigned majorColorsNeeded() const = 0;
-	virtual bool minorColorNeeded() const = 0;
-	virtual void applyMajorColor(unsigned plottableIdx, const std::vector<color4f>& majors) = 0;
+	virtual unsigned majorColorsNeeded(unsigned plottableIdx) const = 0;
+	virtual bool minorColorNeeded(unsigned plottableIdx) const = 0;
+	virtual void applyMajorColors(unsigned plottableIdx, const std::vector<color4f>& majors) = 0;
 	virtual void applyMinorColor(unsigned plottableIdx, const color4f& minor) = 0;
 
 

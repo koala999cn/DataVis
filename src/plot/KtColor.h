@@ -1,13 +1,13 @@
 #pragma once
-#include "KtArray.h"
+#include "KtPoint.h"
 
 
 template<typename T, int DIM>
-class KtColor : public KtArray<T, DIM>
+class KtColor : public KtPoint<T, DIM>
 {
 private:
 	static_assert(DIM == 3 || DIM == 4);
-	using super_ = KtArray<T, DIM>;
+	using super_ = KtPoint<T, DIM>;
 
 public:
 	using super_::super_;
