@@ -33,30 +33,14 @@ public:
 	// 6个可以绘制grid的平面
 	enum KeGrid
 	{
-		/*
-		k_back_h, k_y0_y1 = k_back_h,
-		k_back_v, k_x0_x1 = k_back_v,
-
-		k_front_h, k_y2_y3 = k_front_h,
-		k_front_v, k_x2_x3 = k_front_v,*/
-
 		k_xy_back,
-		//k_x0_y0 = k_back, k_x0_y1 = k_back, k_x1_y0 = k_back, k_x1_y1 = k_back,
-
 		k_xy_front, 
-		//k_x2_y2 = k_front, k_x2_y3 = k_front, k_x3_y2 = k_front, k_x3_y3 = k_front,
 
 		k_yz_left, 
-		//k_y0_z0 = k_left, k_y0_z3 = k_left, k_y3_z0 = k_left, k_y3_z3 = k_left,
-
 		k_yz_right,
-		//k_y1_z1 = k_right, k_y1_z2 = k_right, k_y2_z1 = k_right, k_y2_z2 = k_right,
 
 		k_xz_ceil,
-		//k_x1_z2 = k_ceil, k_x1_z3 = k_ceil, k_x2_z2 = k_ceil, k_x2_z3 = k_ceil,
-
 		k_xz_floor,
-		//k_x0_z0 = k_floor, k_x0_z1 = k_floor, k_x3_z0 = k_floor, k_x3_z1 = k_floor
 	};
 
 public:
@@ -70,9 +54,6 @@ public:
 	point3 upper() const; // the upper conner
 
 	point3 center() const; // the center point
-
-	// 返回aabb的对角线长度
-	double diag() const;
 
 	axis_ptr& axis(KeAxis id) { return axes_[id]; }
 	axis_ptr axis(KeAxis id) const { return axes_[id]; }

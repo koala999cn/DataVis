@@ -26,7 +26,7 @@ public:
 
 	template<std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 	bool isValid() const {
-		return *this == invalid();
+		return *this != invalid();
 	}
 
 	// 返回无效的color对象

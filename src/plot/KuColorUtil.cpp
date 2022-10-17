@@ -210,24 +210,24 @@ color4f KuColorUtil::parseColor(const std::string_view& str)
 		switch (str.size())
 		{
 		case 4: // #rgb
-			clr.r() = kPrivate::hexValue(str[1], str[1]);
-			clr.g() = kPrivate::hexValue(str[2], str[2]);
-			clr.b() = kPrivate::hexValue(str[3], str[3]);
+			clr.r() = kPrivate::hexValue(str[1], str[1]) / 255.f;
+			clr.g() = kPrivate::hexValue(str[2], str[2]) / 255.f;
+			clr.b() = kPrivate::hexValue(str[3], str[3]) / 255.f;
 			clr.a() = 1;
 			break;
 
 		case 7: // #rrggbb
-			clr.r() = kPrivate::hexValue(str[1], str[2]);
-			clr.g() = kPrivate::hexValue(str[3], str[4]);
-			clr.b() = kPrivate::hexValue(str[5], str[6]);
+			clr.r() = kPrivate::hexValue(str[1], str[2]) / 255.f;
+			clr.g() = kPrivate::hexValue(str[3], str[4]) / 255.f;
+			clr.b() = kPrivate::hexValue(str[5], str[6]) / 255.f;
 			clr.a() = 1;
 			break;
 			
 		case 9: // #rrggbbaa
-			clr.r() = kPrivate::hexValue(str[1], str[2]);
-			clr.g() = kPrivate::hexValue(str[3], str[4]);
-			clr.b() = kPrivate::hexValue(str[5], str[6]);
-			clr.a() = kPrivate::hexValue(str[7], str[8]);
+			clr.r() = kPrivate::hexValue(str[1], str[2]) / 255.f;
+			clr.g() = kPrivate::hexValue(str[3], str[4]) / 255.f;
+			clr.b() = kPrivate::hexValue(str[5], str[6]) / 255.f;
+			clr.a() = kPrivate::hexValue(str[7], str[8]) / 255.f;
 			break;
 
 		default:

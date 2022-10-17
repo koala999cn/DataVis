@@ -143,12 +143,6 @@ KcCoord3d::point3 KcCoord3d::center() const
 }
 
 
-double KcCoord3d::diag() const
-{
-	return (upper() - lower()).abs();
-}
-
-
 void KcCoord3d::zoom(double factor)
 {
 	auto c = center();

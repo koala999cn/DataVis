@@ -42,8 +42,12 @@ public:
 	virtual const color4f& majorColor(unsigned idx) const {	return majorColors_[idx]; }
 	virtual color4f& majorColor(unsigned idx) { return majorColors_[idx]; }
 
+	virtual void setMajorColors(const std::vector<color4f>& majors) { majorColors_ = majors; }
+
 	virtual const color4f& minorColor() const { return minorColor_; }
 	virtual color4f& minorColor() { return minorColor_; }
+
+	virtual void setMinorColor(const color4f& minor) { minorColor_ = minor; }
 
 	bool shareColor() const { return shareColor_; }
 	bool& shareColor() { return shareColor_; }

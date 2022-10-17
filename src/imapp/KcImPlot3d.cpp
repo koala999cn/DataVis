@@ -15,7 +15,7 @@ KcImPlot3d::KcImPlot3d(const std::string_view& name)
 void KcImPlot3d::updateImpl_()
 {
     // 设置窗口背景为plot的背景色
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(bkclr_.r(), bkclr_.g(), bkclr_.b(), bkclr_.a()));
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, (const ImVec4&)bkgnd_.color); // TODO: check the style
 
     if (ImGui::BeginChild("##", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove)) {
 
@@ -43,7 +43,7 @@ void KcImPlot3d::autoProject_()
     auto lower = coord().lower();
     auto upper = coord().upper();
     auto center = lower + (upper - lower) / 2;
-    double radius = coord().diag() / 2;
+    double radius = (upper - lower).length() / 2;
 
     auto zoom = zoom_;
     auto scale = scale_;

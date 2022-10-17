@@ -9,6 +9,8 @@
 #include "imgui.h"
 #include "KuStrUtil.h"
 #include "misc/cpp/imgui_stdlib.h"
+#include "plot/KsThemeManager.h"
+#include "plot/KcThemedPlotImpl_.h"
 
 
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
@@ -125,9 +127,11 @@ void KvRdPlot::showProperySet()
 		plot_->setVisible(vis);
 
 	ImGui::SameLine();
-	super_::showProperySet();
+	super_::showProperySet(); // show the name property
 
-	ImGui::ColorEdit4("Background", plot_->background());
+	showThemeProperty_();
+
+	ImGui::ColorEdit4("Background", plot_->background().color);
 
 	ImGui::Checkbox("Auto Fit", &plot_->autoFit());
 
@@ -161,4 +165,95 @@ void KvRdPlot::showProperySet()
 		}
 
 	}
+}
+
+
+void KvRdPlot::showThemeProperty_()
+{
+	// 加载theme
+	KsThemeManager::singleton().load("themes/*.json"); // TODO: 移动KsThemeManager构造函数中去
+
+	KcThemedPlotImpl_ tp(*plot_);
+
+	auto themes = KsThemeManager::singleton().listThemes();
+	if (!themes.empty()) {
+
+		auto iter = std::find(themes.cbegin(), themes.cend(), themeName_);
+		if (iter == themes.cend()) {
+			themeName_ = themes.front();
+			KsThemeManager::singleton().applyTheme(themeName_, &tp);
+		}
+
+		if (ImGui::BeginCombo("Theme", themeName_.c_str())) {
+			for (iter = themes.cbegin(); iter != themes.cend(); iter++)
+				if (ImGui::Selectable(iter->c_str(), *iter == themeName_)) {
+					themeName_ = *iter;
+					KsThemeManager::singleton().applyTheme(themeName_, &tp);
+				}
+
+			ImGui::EndCombo();
+		}
+	}
+
+	auto canvas = KsThemeManager::singleton().listCanvas();
+	if (!canvas.empty()) {
+
+		auto iter = std::find(canvas.cbegin(), canvas.cend(), canvasName_);
+		if (iter == canvas.cend()) {
+			canvasName_ = canvas.front();
+			KsThemeManager::singleton().applyTheme(canvasName_, &tp);
+		}
+
+		if (ImGui::BeginCombo("Canvas", canvasName_.c_str())) {
+			for (iter = canvas.cbegin(); iter != canvas.cend(); iter++)
+				if (ImGui::Selectable(iter->c_str(), *iter == canvasName_)) {
+					canvasName_ = *iter;
+					KsThemeManager::singleton().applyCanvas(canvasName_, &tp);
+				}
+
+			ImGui::EndCombo();
+		}
+	}
+
+	auto layouts = KsThemeManager::singleton().listLayouts();
+	if (!layouts.empty()) {
+
+		auto iter = std::find(layouts.cbegin(), layouts.cend(), layoutName_);
+		if (iter == layouts.cend()) {
+			layoutName_ = layouts.front();
+			KsThemeManager::singleton().applyTheme(layoutName_, &tp);
+		}
+
+		if (ImGui::BeginCombo("Layout", layoutName_.c_str())) {
+			for (iter = layouts.cbegin(); iter != layouts.cend(); iter++)
+				if (ImGui::Selectable(iter->c_str(), *iter == layoutName_)) {
+					layoutName_ = *iter;
+					KsThemeManager::singleton().applyLayout(layoutName_, &tp);
+				}
+
+			ImGui::EndCombo();
+		}
+	}
+
+	auto palettes = KsThemeManager::singleton().listPalettes();
+	if (!palettes.empty()) {
+
+		auto iter = std::find(palettes.cbegin(), palettes.cend(), paletteName_);
+		if (iter == palettes.cend()) {
+			paletteName_ = palettes.front();
+			KsThemeManager::singleton().applyTheme(paletteName_, &tp);
+		}
+
+		if (ImGui::BeginCombo("Palette", paletteName_.c_str())) {
+			for (iter = palettes.cbegin(); iter != palettes.cend(); iter++)
+				if (ImGui::Selectable(iter->c_str(), *iter == paletteName_)) {
+					paletteName_ = *iter;
+					KsThemeManager::singleton().applyPalette(paletteName_, &tp);
+				}
+
+			ImGui::EndCombo();
+		}
+	}
+
+	ImGui::Separator();
 }

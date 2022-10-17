@@ -1,7 +1,6 @@
 #pragma once
 #include "KvRenderable.h"
 #include <memory>
-#include "KtColor.h"
 #include "KpContext.h"
 
 class KcAxis;
@@ -24,6 +23,9 @@ public:
 	const KpPen& minorLine() const { return minorLineCxt_; }
 	KpPen& minorLine() { return minorLineCxt_; }
 
+	const KpBrush& background() const { return bkgnd_; }
+	KpBrush& background() { return bkgnd_; }
+
 	aabb_type boundingBox() const override;
 
 	void draw(KvPaint*) const override;
@@ -40,4 +42,5 @@ private:
 	axis_ptr horz_[2], vert_[2]; // 构成grid平面的4根坐标轴，水平2根、垂直2根
 	bool minorVisible_;
 	KpPen majorLineCxt_, minorLineCxt_;
+	KpBrush bkgnd_;
 };

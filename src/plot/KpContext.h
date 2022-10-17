@@ -23,6 +23,11 @@ public:
 	int style{ k_solid };
 	float width{ 1 };
 	color4f color{ 0, 0, 0, 1 };
+
+	static const KpPen& null() {
+		static KpPen nullPen{ k_none, 0, color4f(0) };
+		return nullPen;
+	}
 };
 
 
@@ -37,7 +42,12 @@ public:
 	};
 
 	int style{ k_solid };
-	color4f color{ 0, 0, 0, 1 };
+	color4f color{ 1, 1, 1, 1 };
+
+	static const KpBrush& null() {
+		static KpBrush nullBrush{ k_none, color4f(0) };
+		return nullBrush;
+	}
 };
 
 

@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 #include "KvPlottable.h"
-#include "KtColor.h"
+#include "KpContext.h"
 
 class KvPaint; // 用来执行具体的plot绘制
 
@@ -20,15 +20,13 @@ public:
 
 	virtual void update(); // 更新绘图
 
-	color4f background() const { return bkclr_; }
-	color4f& background() { return bkclr_; }
+	const KpBrush& background() const { return bkgnd_; }
+	KpBrush& background() { return bkgnd_; }
 
 	bool autoFit() const { return autoFit_; }
 	bool& autoFit() { return autoFit_; }
 
-	unsigned plottableCount() const {
-		return plottables_.size();
-	}
+	unsigned plottableCount() const { return plottables_.size(); }
 
 	KvPlottable* plottable(unsigned idx);
 
@@ -45,7 +43,7 @@ protected:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理
 
-	color4f bkclr_{ 1, 1, 1, 1 };
+	KpBrush bkgnd_;
 
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
 };

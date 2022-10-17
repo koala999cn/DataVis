@@ -37,9 +37,12 @@ protected:
 	// 一个数据源可以创建多个KvPlottable
 	virtual std::vector<KvPlottable*> createPlottable_(KvDataProvider* prov) = 0;
 
+	void showThemeProperty_();
 
 protected:
 	std::shared_ptr<KvPlot> plot_;
 	std::multimap<int, KvPlottable*> port2Plts_; // 端口id向plottable序列的映射
 												 // 1个端口可能有多个通道，为此可能映射到多个plottable（每个通道对应1个plottable）
+	
+	std::string themeName_, canvasName_, layoutName_, paletteName_;
 };

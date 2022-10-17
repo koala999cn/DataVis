@@ -15,7 +15,7 @@ KcImPlot2d::KcImPlot2d(const std::string_view& name)
 void KcImPlot2d::updateImpl_()
 {
     // 设置窗口背景为plot的背景色
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, (const ImVec4&)bkclr_);
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, (const ImVec4&)bkgnd_.color);
 
     if (ImGui::BeginChild("##", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove)) {
 

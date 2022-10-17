@@ -170,6 +170,7 @@
     <ClCompile Include="src\plot\KcGridPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
     <ClCompile Include="src\plot\KcScatter.cpp" />
+    <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp" />
     <ClCompile Include="src\plot\KsThemeManager.cpp" />
     <ClCompile Include="src\plot\KuColorUtil.cpp" />
     <ClCompile Include="src\plot\KuThemeParser.cpp" />
@@ -292,6 +293,7 @@
     <ClInclude Include="src\plot\KcLinearTicker.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
+    <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
     <ClInclude Include="src\plot\KtGradient.h" />
     <ClInclude Include="src\plot\KpContext.h" />
     <ClInclude Include="src\plot\KsThemeManager.h" />
