@@ -61,6 +61,8 @@ public:
 
 	void drawLineLoop(point_getter fn, unsigned count);
 
+	virtual void fillRect(const point3& lower, const point3& upper) = 0;
+
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
 
 	// 一些尺寸计算函数

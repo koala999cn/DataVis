@@ -27,6 +27,8 @@ public:
 
 	void drawLine(const point3& from, const point3& to) override;
 
+	void fillRect(const point3& lower, const point3& upper) override;
+
 	void drawText(const point3& anchor, const char* text, int align) override;
 
 	point2 textSize(const char* text) const override;

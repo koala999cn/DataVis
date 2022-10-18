@@ -17,7 +17,7 @@ public:
 	using vec3 = point3;
 	using quat = KtQuaternion<float_t>;
 	
-	KvPlot3d(std::shared_ptr<KvPaint> paint);
+	KvPlot3d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
 
 	/// 抽象接口
 
@@ -26,12 +26,6 @@ public:
 
 	virtual mat4 projMatrix() const = 0;
 	virtual void setProjMatrix(const mat4&) = 0;
-
-	//virtual aabb_type boundingBox() const = 0;
-
-	void update() override;
-
-	void fitData() override;
 
 	bool ortho() const { return ortho_; }
 	bool& ortho() { return ortho_; }
@@ -51,14 +45,11 @@ public:
 	const quat& orient() const { return orient_; }
 	quat& orient() { return orient_; }
 
-	KcCoord3d& coord() { return *coord_.get(); }
+protected:
+	void autoProject_() override;
+	
+protected:
 
-protected:
-	virtual void autoProject_() = 0;
-	
-protected:
-	std::unique_ptr<KcCoord3d> coord_; // 内置创建并管理
-	
 	bool ortho_{ true }; // 正交投影 vs. 透视投影
 	
 	// 以下参数用于调整摄像机modelview矩阵

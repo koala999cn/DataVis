@@ -2,11 +2,12 @@
 #include "implot/implot.h"
 #include "KcImPaint.h"
 #include "plot/KcAxis.h"
+#include "plot/KcCoord3d.h"
 
 
 KcImPlot2d::KcImPlot2d(const std::string_view& name)
     : KvImWindow(name)
-    , KvPlot2d(std::make_shared<KcImPaint>(camera_))
+    , KvPlot2d(std::make_shared<KcImPaint>(camera_), std::make_shared<KcCoord3d>())
 {
     minSize_[0] = 180, minSize_[1] = 180;
 }
@@ -29,7 +30,7 @@ void KcImPlot2d::updateImpl_()
         auto lower = coord().lower();
         auto upper = coord().upper();
 
-        camera_.projectOrtho(lower, upper, -1, 1);
+        camera_.projMatrix() = KtMatrix4<float_t>::projectOrtho(lower, upper);
 
         // »æÖÆ3dÊý¾ÝÍ¼
         KvPlot2d::update();

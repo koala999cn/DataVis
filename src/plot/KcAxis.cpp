@@ -53,14 +53,14 @@ void KcAxis::draw(KvPaint* paint) const
 	}
 
 	// draw ticks
-	if (showTick())
+	if (showTick() || showLabel())
 		drawTicks_(paint);
 }
 
 
 void KcAxis::drawTicks_(KvPaint* paint) const
 {
-	assert(showTick());
+	assert(showTick() || showLabel());
 
 	auto tic = ticker();
 	auto ticLower = lower();
@@ -90,7 +90,9 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 
 	for (unsigned i = 0; i < ticks.size(); i++) {
 		auto anchor = tickPos(ticks[i]);
-		drawTick_(paint, anchor, tickCxt_.length * tickLenPerPixel);
+
+		if (showTick())
+		    drawTick_(paint, anchor, tickCxt_.length * tickLenPerPixel);
 
 		if (showLabel()) {
 			labelAchors[i] = anchor + labelOrient_ * labelPadding_ * labelPaddingPerPixel;

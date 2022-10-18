@@ -220,7 +220,7 @@
     <ClCompile Include="src\plot\KcAxis.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcGridPlane.cpp">
+    <ClCompile Include="src\plot\KcCoordPlane.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\imapp\KcImPaint.cpp">
@@ -296,6 +296,9 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KvCoord.cpp">
       <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
@@ -465,7 +468,7 @@
     <ClInclude Include="src\plot\KcLinearTicker.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcGridPlane.h">
+    <ClInclude Include="src\plot\KcCoordPlane.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtMultiArray.h">
@@ -700,6 +703,9 @@
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvCoord.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

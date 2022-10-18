@@ -58,6 +58,13 @@ void KcImPaint::drawLine(const point3& from, const point3& to)
 }
 
 
+void KcImPaint::fillRect(const point3& lower, const point3& upper)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+	drawList->AddRectFilled(world2Pos_(lower), world2Pos_(upper), color_());
+}
+
+
 void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 {
 	auto drawList = ImGui::GetWindowDrawList();

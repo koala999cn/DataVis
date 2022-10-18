@@ -10,10 +10,7 @@
 
       "disc": "no axis & no girds & no legned & no margins",
 
-      "axis": {
-        "visible": false,
-        "margins": null
-      },
+      "axis": null,
 
       "grid": null,
 
@@ -47,12 +44,12 @@
         },
         "right": null,
         "top": null,
-        "margins": [ 15, 15, 15, 15 ]
+        "margins": null
       },
 
       "grid": null,
 
-      "margins": null
+      "margins": [ 15, 15, 15, 15 ]
     },
 
     {

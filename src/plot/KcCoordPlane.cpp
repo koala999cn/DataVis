@@ -1,10 +1,10 @@
-#include "KcGridPlane.h"
+#include "KcCoordPlane.h"
 #include <assert.h>
 #include "KcAxis.h"
 #include "KvPaint.h"
 
 
-KcGridPlane::KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
+KcCoordPlane::KcCoordPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
 	: KvRenderable("GridPlane")
 {
 	horz_[0] = h0, horz_[1] = h1;
@@ -22,7 +22,7 @@ KcGridPlane::KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
 }
 
 
-KcGridPlane::aabb_type KcGridPlane::boundingBox() const
+KcCoordPlane::aabb_type KcCoordPlane::boundingBox() const
 {
 	auto box1 = aabb_type{ point3::floor(horz_[0]->start(), horz_[1]->start()),
 		point3::ceil(horz_[0]->end(), horz_[1]->end()) };
@@ -33,9 +33,14 @@ KcGridPlane::aabb_type KcGridPlane::boundingBox() const
 }
 
 
-void KcGridPlane::draw(KvPaint* paint) const
+void KcCoordPlane::draw(KvPaint* paint) const
 {
 	assert(visible());
+
+	auto box = boundingBox();
+	paint->apply(background());
+	paint->fillRect(box.lower(), box.upper());
+
 	paint->apply(majorLineCxt_);
 	drawMajors_(paint, horz_[0], horz_[1]);
 	drawMajors_(paint, vert_[0], vert_[1]);
@@ -48,7 +53,7 @@ void KcGridPlane::draw(KvPaint* paint) const
 }
 
 
-void KcGridPlane::drawMajors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
+void KcCoordPlane::drawMajors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 {
 	auto tic0 = axis0->ticker();
 	auto tic1 = axis1->ticker();
@@ -64,7 +69,7 @@ void KcGridPlane::drawMajors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 }
 
 
-void KcGridPlane::drawMinors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
+void KcCoordPlane::drawMinors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 {
 	auto tic0 = axis0->ticker();
 	auto tic1 = axis1->ticker();

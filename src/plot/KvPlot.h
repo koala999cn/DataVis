@@ -5,18 +5,19 @@
 #include "KpContext.h"
 
 class KvPaint; // 用来执行具体的plot绘制
+class KvCoord;
 
 // plot的最底层抽象接口
 
 class KvPlot
 {
 public:
-	KvPlot(std::shared_ptr<KvPaint> paint);
+	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
 
 	virtual void setVisible(bool b) = 0;
 	virtual bool visible() const = 0;
 
-	virtual void fitData() = 0;
+	virtual void fitData();
 
 	virtual void update(); // 更新绘图
 
@@ -25,6 +26,8 @@ public:
 
 	bool autoFit() const { return autoFit_; }
 	bool& autoFit() { return autoFit_; }
+
+	KvCoord& coord() { return *coord_.get(); }
 
 	unsigned plottableCount() const { return plottables_.size(); }
 
@@ -40,7 +43,11 @@ public:
 	void removeAllPlottables();
 
 protected:
+	virtual void autoProject_() = 0;
+
+protected:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
+	std::shared_ptr<KvCoord> coord_; // 由用户创建并传入
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理
 
 	KpBrush bkgnd_;

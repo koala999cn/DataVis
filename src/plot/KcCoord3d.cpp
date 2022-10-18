@@ -1,6 +1,6 @@
 #include "KcCoord3d.h"
 #include "KcAxis.h"
-#include "KcGridPlane.h"
+#include "KcCoordPlane.h"
 #include "KvPaint.h"
 #include <assert.h>
 
@@ -13,7 +13,7 @@ KcCoord3d::KcCoord3d()
 
 
 KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
-	: KvRenderable("CoordSystem3d")
+	: KvCoord("CoordSystem3d")
 {
 	// 初始化12根坐标轴
 	for (unsigned i = 0; i < std::size(axes_); i++)
@@ -45,19 +45,19 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 
 
 	// 初始化6个grid平面
-	planes_[k_xy_back] = std::make_shared<KcGridPlane>(
+	planes_[k_xy_back] = std::make_shared<KcCoordPlane>(
 		axes_[k_x0], axes_[k_x1], axes_[k_y0], axes_[k_y1]);
-	planes_[k_xy_front] = std::make_shared<KcGridPlane>(
+	planes_[k_xy_front] = std::make_shared<KcCoordPlane>(
 		axes_[k_x2], axes_[k_x3], axes_[k_y2], axes_[k_y3]);
 
-	planes_[k_yz_left] = std::make_shared<KcGridPlane>(
+	planes_[k_yz_left] = std::make_shared<KcCoordPlane>(
 		axes_[k_y0], axes_[k_y3], axes_[k_z0], axes_[k_z3]);
-	planes_[k_yz_right] = std::make_shared<KcGridPlane>(
+	planes_[k_yz_right] = std::make_shared<KcCoordPlane>(
 		axes_[k_y1], axes_[k_y2], axes_[k_z1], axes_[k_z2]);
 
-	planes_[k_xz_ceil] = std::make_shared<KcGridPlane>(
+	planes_[k_xz_ceil] = std::make_shared<KcCoordPlane>(
 		axes_[k_x1], axes_[k_x2], axes_[k_z2], axes_[k_z3]);
-	planes_[k_xz_floor] = std::make_shared<KcGridPlane>(
+	planes_[k_xz_floor] = std::make_shared<KcCoordPlane>(
 		axes_[k_x0], axes_[k_x3], axes_[k_z0], axes_[k_z1]);
 
 	for (unsigned i = 0; i < std::size(planes_); i++) {
@@ -137,32 +137,17 @@ KcCoord3d::aabb_type KcCoord3d::boundingBox() const
 }
 
 
-KcCoord3d::point3 KcCoord3d::center() const
+void KcCoord3d::forAxis(std::function<bool(KcAxis& axis)> fn) const
 {
-	return (lower() + upper()) / 2;
+	for (unsigned i = 0; i < std::size(axes_); i++)
+		if (!fn(*axes_[i]))
+			break;
 }
 
 
-void KcCoord3d::zoom(double factor)
+void KcCoord3d::forPlane(std::function<bool(KcCoordPlane& plane)> fn) const
 {
-	auto c = center();
-	auto delta = (upper() - lower()) * factor * 0.5;
-	setExtents(c - delta, c + delta);
-
-	assert(c.isApproxEqual(center()));
+	for (unsigned i = 0; i < std::size(planes_); i++)
+		if (!fn(*planes_[i]))
+			break;
 }
-
-
-void KcCoord3d::draw(KvPaint* paint) const
-{
-	if (visible()) {
-		for (unsigned i = 0; i < std::size(axes_); i++) 
-			if (axes_[i] && axes_[i]->visible())
-				axes_[i]->draw(paint);
-
-		for (unsigned i = 0; i < std::size(planes_); i++)
-			if (planes_[i] && planes_[i]->visible()) 
-				planes_[i]->draw(paint);
-	}
-}
-

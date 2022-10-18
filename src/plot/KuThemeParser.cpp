@@ -63,7 +63,7 @@ void KuThemeParser::line_value(const jvalue& jval, KpPen& pen)
 			if(line_color(str, pen) && pen.style == KpPen::k_none)
 				pen.style = KpPen::k_solid;
 	}
-	else if (jval.is_number_float()) {
+	else if (jval.is_number()) {
 		auto w = jval.get<double>();
 		pen.width = w;
 	}
@@ -92,7 +92,7 @@ void KuThemeParser::text_value(const jvalue& jval, KpFont& font)
 	if (isNull(jval) || jval.is_string()) {
 		; // do nothing
 	}
-	else if (jval.is_number_float()) {
+	else if (jval.is_number()) {
 		auto w = jval.get<double>();
 		font.size = w;
 	}
@@ -154,7 +154,7 @@ bool KuThemeParser::margins_value(const jvalue& jval, KtMargins<float>& margin)
 	else if (jval.is_array()) {
 		std::vector<int> ints; ints.reserve(4);
 		for (auto iter = jval.cbegin(); iter != jval.cend(); iter++) {
-			if (iter->is_number_float())
+			if (iter->is_number())
 				ints.push_back(iter->get<double>());
 		}
 
@@ -202,7 +202,7 @@ bool KuThemeParser::tryInt(const jobject& jobj, const std::string& name, int& va
 
 bool KuThemeParser::tryDouble(const jobject& jobj, const std::string& name, double& val)
 {
-	if (jobj.contains(name) && jobj[name].is_number_float()) {
+	if (jobj.contains(name) && jobj[name].is_number()) {
 		val = jobj[name].get<double>();
 		return true;
 	}

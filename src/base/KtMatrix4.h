@@ -38,6 +38,8 @@ template<class KReal, bool ROW_MAJOR = true>
 class KtMatrix4 : public KtArray<KReal, 16>
 {
 	using super_ = KtArray<KReal, 16>;
+	using point2 = KtPoint<KReal, 2>;
+	using point3 = KtPoint<KReal, 3>;
 	using vec3 = KtVector3<KReal>;
 	using vec4 = KtVector4<KReal>;
 	using mat3 = KtMatrix3<KReal, ROW_MAJOR>;
@@ -128,6 +130,35 @@ public:
 			0, 0, 0, 1
 		};
 	}
+
+	/// 构造视图和透视矩阵
+
+	// 摄像机位于eye点，上方朝向up，看向at点，按此更新viewMatrix
+	static mat4 lookAt(const vec3& eye, const vec3& at, const vec3& up);
+
+	// 按frustum参数更新projMatrix_
+	static mat4 projectFrustum(KReal left, KReal right, KReal bottom, KReal top, KReal znear, KReal zfar);
+
+	static mat4 projectFrustum(const point2& lower, const point2& upper, KReal znear, KReal zfar) {
+		return projectFrustum(lower.x(), upper.x(), lower.y(), upper.y(), znear, zfar);
+	}
+
+	static mat4 projectFrustum(const point3& lower, const point3& upper) {
+		return projectFrustum(lower.x(), upper.x(), lower.y(), upper.y(), lower.z(), upper.z());
+	}
+
+	static mat4 projectPerspective(KReal fovyInDegree = 45, KReal aspectRatio = 4.f / 3.f, KReal znear = 100, KReal zfar = 10000);
+
+	static mat4 projectOrtho(KReal left, KReal right, KReal bottom, KReal top, KReal znear, KReal zfar);
+
+	static mat4 projectOrtho(const point2& lower, const point2& upper, KReal znear, KReal zfar) {
+		return projectOrtho(lower.x(), upper.x(), lower.y(), upper.y(), znear, zfar);
+	}
+
+	static mat4 projectOrtho(const point3& lower, const point3& upper) {
+		return projectOrtho(lower.x(), upper.x(), lower.y(), upper.y(), lower.z(), upper.z());
+	}
+
 
 	// 运算
 	mat4 operator*(const mat4& rhs) const;
@@ -426,8 +457,8 @@ KtVector4<KReal> KtMatrix4<KReal, ROW_MAJOR>::operator*(const vec3& v) const
 	};
 }
 
-template<typename KReal, bool ROW_MAJOR>
-KtMatrix4<KReal, ROW_MAJOR>& KtMatrix4<KReal, ROW_MAJOR>::inverse()
+template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>&
+KtMatrix4<KReal, ROW_MAJOR>::inverse()
 {
 	KReal _00 = m00(), _01 = m01(), _02 = m02(), _03 = m03();
 	KReal _10 = m10(), _11 = m11(), _12 = m12(), _13 = m13();
@@ -485,12 +516,123 @@ KtMatrix4<KReal, ROW_MAJOR>& KtMatrix4<KReal, ROW_MAJOR>::inverse()
 	return *this;
 }
 
-template<typename KReal, bool ROW_MAJOR>
-KtMatrix4<KReal, ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>::getInverse() const
+template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
+KtMatrix4<KReal, ROW_MAJOR>::getInverse() const
 {
 	mat4 m(*this);
 	m.inverse();
 	return m;
+}
+
+
+template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
+KtMatrix4<KReal, ROW_MAJOR>::lookAt(const vec3& eye, const vec3& at, const vec3& up)
+{
+	vec3 zaxis = (eye - at).normalize(); // 摄像机坐标系与物理坐标系的z轴是相反的，所以此处取反向
+	vec3 xaxis = up.cross(zaxis).normalize();
+	vec3 yaxis = zaxis.cross(xaxis);
+
+	// look at view
+
+	// 最后1列为eye在摄像机坐标轴的投影取反
+	// 摄像机在物理坐标系的(a, b, c)点，相当于物理坐标系原点在摄像机坐标系的(-a, -b, -c)点
+	return {
+	   xaxis.x(), xaxis.y(), xaxis.z(), -xaxis.dot(eye),
+	   yaxis.x(), yaxis.y(), yaxis.z(), -yaxis.dot(eye),
+	   zaxis.x(), zaxis.y(), zaxis.z(), -zaxis.dot(eye),
+			   0,         0,         0,               1
+	};
+}
+
+
+template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
+KtMatrix4<KReal, ROW_MAJOR>::projectFrustum(KReal left, KReal right, KReal bottom, KReal top, KReal znear, KReal zfar)
+{
+	// NB: This creates 'uniform' perspective projection matrix,
+	// which depth range [-1,1]
+	// 即，假设相机位于零点，则将znear映射到-1, zfar映射到+1
+	// 
+	// right-handed rules
+	//
+	// [ x   0   a   0  ]
+	// [ 0   y   b   0  ]
+	// [ 0   0   c   d ]
+	// [ 0   0   -1  0  ]
+	//
+	// left-handed rules
+	//
+	// [ x   0   a   0  ]
+	// [ 0   y   b   0  ]
+	// [ 0   0   -c  d  ]
+	// [ 0   0   1   0  ]
+	//
+	// x = 2 * near / (right - left)
+	// y = 2 * near / (top - bottom)
+	// a = (right + left) / (right - left)
+	// b = (top + bottom) / (top - bottom)
+	// c = - (far + near) / (far - near)
+	// d = - 2 * (far * near) / (far - near)
+
+	if (znear <= 0 || zfar <= 0 || znear == zfar || left == right || top == bottom)
+		return mat4::zero();
+
+	auto x = (2 * znear) / (right - left);
+	auto y = (2 * znear) / (top - bottom);
+	auto a = (right + left) / (right - left);
+	auto b = (top + bottom) / (top - bottom);
+	auto c = -(zfar + znear) / (zfar - znear);
+	auto d = -(2 * zfar * znear) / (zfar - znear);
+
+	return {
+		x,    0,    a,    0,
+		0,    y,    b,    0,
+		0,    0,    c,    d,
+		0,    0,   -1,    0
+	};
+}
+
+
+template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
+KtMatrix4<KReal, ROW_MAJOR>::projectPerspective(KReal fovyInDegree, KReal aspectRatio, KReal znear, KReal zfar)
+{
+	KReal ymax, xmax;
+	ymax = znear * std::tan(fovyInDegree * KtuMath<KReal>::pi / 180);
+	xmax = ymax * aspectRatio;
+	return projectFrustum(-xmax, xmax, -ymax, ymax, znear, zfar);
+}
+
+
+template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
+KtMatrix4<KReal, ROW_MAJOR>::projectOrtho(KReal left, KReal right, KReal bottom, KReal top, KReal znear, KReal zfar)
+{
+	// NB: This creates 'uniform' orthographic projection matrix,
+	// which depth range [-1, +1], right-handed rules
+	//
+	// [ A   0   0   C  ]
+	// [ 0   B   0   D  ]
+	// [ 0   0   q   qn ]
+	// [ 0   0   0   1  ]
+	//
+	// A = 2 / (right - left)
+	// B = 2 / (top - bottom)
+	// C = - (right + left) / (right - left)
+	// D = - (top + bottom) / (top - bottom)
+	// q = - 2 / (far - near)
+	// qn = - (far + near) / (far - near)
+
+	auto A = 2 / (right - left);
+	auto B = 2 / (top - bottom);
+	auto C = -(right + left) / (right - left);
+	auto D = -(top + bottom) / (top - bottom);
+	auto q = -2 / (zfar - znear);
+	auto qn = -(zfar + znear) / (zfar - znear);
+
+	return {
+		A, 0, 0, C,
+		0, B, 0, D,
+		0, 0, q, qn,
+		0, 0, 0, 1
+	};
 }
 
 template<bool ROW_MAJOR = true>

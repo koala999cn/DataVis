@@ -1,21 +1,17 @@
 #pragma once
-#include "KvRenderable.h"
+#include "KvCoord.h"
 #include <vector>
 #include <memory>
-#include "KtPoint.h"
 
-class KcAxis;
-class KcGridPlane;
 
 // 三维坐标系实现，由12根坐标轴和6个平面构成
 // 默认X轴向右，Y轴向上，Z轴向外
 
-class KcCoord3d : public KvRenderable
+class KcCoord3d : public KvCoord
 {
 public:
-	using point3 = KtPoint<float_t, 3>;
 	using axis_ptr = std::shared_ptr<KcAxis>;
-	using grid_plane_ptr = std::shared_ptr<KcGridPlane>;
+	using grid_plane_ptr = std::shared_ptr<KcCoordPlane>;
 	
 
 	// 12根坐标轴的id，用于索引axes_
@@ -48,12 +44,16 @@ public:
 	KcCoord3d();
 	KcCoord3d(const point3& lower, const point3& upper);
 
-	void setExtents(const point3& lower, const point3& upper);
+	void setExtents(const point3& lower, const point3& upper) override;
 
-	point3 lower() const; // the lower conner
-	point3 upper() const; // the upper conner
+	point3 lower() const override;
+	point3 upper() const override;
 
-	point3 center() const; // the center point
+	aabb_type boundingBox() const override;
+
+	void forAxis(std::function<bool(KcAxis& axis)>) const override;
+
+	void forPlane(std::function<bool(KcCoordPlane& plane)>) const override;
 
 	axis_ptr& axis(KeAxis id) { return axes_[id]; }
 	axis_ptr axis(KeAxis id) const { return axes_[id]; }
@@ -63,10 +63,6 @@ public:
 	// factor=1时，坐标系不缩放
 	// factor=0时，坐标系收缩到中心点
 	void zoom(double factor);
-
-	void draw(KvPaint*) const override;
-
-	aabb_type boundingBox() const override;
 
 private:
 	axis_ptr axes_[12];

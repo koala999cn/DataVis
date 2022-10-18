@@ -1,34 +1,51 @@
 #include "KvPlot3d.h"
 
 
-KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint)
-	: KvPlot(paint)
+KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
+	: KvPlot(paint, coord)
 {
 	coord_ = std::make_unique<KcCoord3d>();
 }
 
 
-void KvPlot3d::update()
+void KvPlot3d::autoProject_()
 {
-	if (autoFit_ && !plottables_.empty()) 
-		fitData();
+    auto lower = coord().lower();
+    auto upper = coord().upper();
+    auto center = lower + (upper - lower) / 2;
+    double radius = (upper - lower).length() / 2;
 
-	autoProject_();
+    auto zoom = zoom_;
+    auto scale = scale_;
+    auto shift = shift_;
+    if (!isometric_) {
+        zoom *= 2 * radius / sqrt(3.);
+        auto factor = upper - lower;
+        for (unsigned i = 0; i < 3; i++)
+            if (factor.at(i) == 0)
+                factor.at(i) = 1;
+        scale /= factor;
+    }
+    scale *= zoom;
 
-	coord().draw(paint_.get());
+    // 先平移至AABB中心点，再缩放，再旋转，最后处理用户设定的平移
+    mat4 viewMat = mat4::buildTanslation(shift)
+        * mat4::buildRotation(orient_)
+        * mat4::buildScale(scale)
+        * mat4::buildTanslation(-center);
 
-	KvPlot::update(); // draw the plottables
-}
+    if (radius == 0)
+        radius = 1;
 
+    mat4 projMat;
+    if (ortho_)
+        projMat = mat4::projectOrtho(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
+    else
+        projMat = mat4::projectFrustum(-radius, +radius, -radius, +radius, 5 * radius, 400 * radius);
 
-void KvPlot3d::fitData()
-{
-	aabb_type box;
-	for (auto& p : plottables_)
-		box.merge(p->boundingBox());
+    // 调整z轴位置，给near/far平面留出足够空间
+    viewMat = mat4::buildTanslation({ 0, 0, -7 * radius }) * viewMat;
 
-	if (!box.isNull())
-		coord_->setExtents(box.lower(), box.upper());
-	else
-		coord_->setExtents({ 0, 0, 0 }, { 1, 1, 1 });
+    setViewMatrix(viewMat);
+    setProjMatrix(projMat);
 }

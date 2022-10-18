@@ -14,18 +14,14 @@ public:
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using point2 = point2d;
 
-	KvPlot2d(std::shared_ptr<KvPaint> paint);
-
-	void update() override;
-
-	void fitData() override;
-
-	KcCoord2d& coord() { return *coord_.get(); }
+	KvPlot2d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
 
 	const KtMargins<float_t>& margins() const { return margins_; }
 	KtMargins<float_t>& margins() { return margins_; }
 
 protected:
-	std::unique_ptr<KcCoord2d> coord_; // 内置创建并管理
+	void autoProject_() override;
+
+protected:
 	KtMargins<float_t> margins_{ 15, 15, 15, 15 };
 };

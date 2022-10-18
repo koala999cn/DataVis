@@ -1,5 +1,8 @@
 #include "KcThemedPlotImpl_.h"
-#include "KvPlot.h"
+#include "KvPlot2d.h"
+#include "KvCoord.h"
+#include "KcCoordPlane.h"
+#include "KcAxis.h"
 
 
 KcThemedPlotImpl_::KcThemedPlotImpl_(KvPlot& plot)
@@ -11,9 +14,17 @@ KcThemedPlotImpl_::KcThemedPlotImpl_(KvPlot& plot)
 
 KpBrush KcThemedPlotImpl_::fill(int level) const
 {
-	//if (level == k_plot)
+	if (level == k_plot)
 		return plot_.background();
-	//else if (level == k_axis)
+	else if (level == k_axis) {
+		auto& coord = plot_.coord();
+		KpBrush bkgnd;
+		coord.forPlane([&bkgnd](KcCoordPlane& plane) {
+			bkgnd = plane.background();
+			return false;
+			});
+		return bkgnd;
+	}
 	//	return qcp_->axisRect()->backgroundBrush();
 	//else if (level == k_legend)
 	//	return qcp_->legend->brush();
@@ -26,7 +37,15 @@ KpBrush KcThemedPlotImpl_::fill(int level) const
 
 void KcThemedPlotImpl_::applyFill(int level, const KpBrush& b)
 {
-	plot_.background() = b;
+	if (level == k_plot)
+		plot_.background() = b;
+	else if (level == k_axis) {
+		auto& coord = plot_.coord();
+		coord.forPlane([&b](KcCoordPlane& plane) {
+			plane.background() = b;
+			return true;
+			});
+	}
 }
 
 
@@ -44,13 +63,24 @@ void KcThemedPlotImpl_::applyBorder(int level, const KpPen&)
 
 KtMargins<float> KcThemedPlotImpl_::margins(int level) const
 {
+	if (level == k_plot) {
+		auto plot2d = dynamic_cast<KvPlot2d*>(&plot_);
+		if (plot2d)
+			return plot2d->margins();
+	}
+
 	return KtMargins<float>();
 }
 
 
-void KcThemedPlotImpl_::applyMargins(int level, const KtMargins<float>&)
+void KcThemedPlotImpl_::applyMargins(int level, const KtMargins<float>& margins)
 {
-
+	if (level == k_plot) {
+		auto plot2d = dynamic_cast<KvPlot2d*>(&plot_);
+		if (plot2d)
+			plot2d->margins() = margins;
+	}
+	
 }
 
 
@@ -62,7 +92,34 @@ bool KcThemedPlotImpl_::visible(int level) const
 
 void KcThemedPlotImpl_::applyVisible(int level, bool b)
 {
+	if (level & k_axis) {
+		plot_.coord().forAxis([level, b](KcAxis& axis) {
+			if (level & k_axis_tick_major)
+				axis.showTick() = b;
+			
+			if (level & k_axis_tick_minor)
+				axis.showSubtick() = b;
 
+			if (level & k_axis_label)
+				axis.showLabel() = b;
+
+			if (level & k_axis_title)
+				axis.showTitle() = b;
+
+			return true;
+			});
+	}
+	else if (level & k_grid) {
+		plot_.coord().forPlane([level, b](KcCoordPlane& plane) {
+			if (level & k_grid_major)
+				plane.visible() = b;
+			
+			if (level & k_grid_minor)
+				plane.minorVisible() = b;
+
+			return true;
+			});
+	}
 }
 
 

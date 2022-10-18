@@ -167,13 +167,14 @@
     <ClCompile Include="src\plot\KcCoord2d.cpp" />
     <ClCompile Include="src\plot\KcCoord3d.cpp" />
     <ClCompile Include="src\plot\KcGraph.cpp" />
-    <ClCompile Include="src\plot\KcGridPlane.cpp" />
+    <ClCompile Include="src\plot\KcCoordPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
     <ClCompile Include="src\plot\KcScatter.cpp" />
     <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp" />
     <ClCompile Include="src\plot\KsThemeManager.cpp" />
     <ClCompile Include="src\plot\KuColorUtil.cpp" />
     <ClCompile Include="src\plot\KuThemeParser.cpp" />
+    <ClCompile Include="src\plot\KvCoord.cpp" />
     <ClCompile Include="src\plot\KvPaint.cpp" />
     <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvPlot2d.cpp" />
@@ -289,7 +290,7 @@
     <ClInclude Include="src\imapp\KvModule.h" />
     <ClInclude Include="src\imapp\KvNode.h" />
     <ClInclude Include="src\plot\KcCoord2d.h" />
-    <ClInclude Include="src\plot\KcGridPlane.h" />
+    <ClInclude Include="src\plot\KcCoordPlane.h" />
     <ClInclude Include="src\plot\KcLinearTicker.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
@@ -301,6 +302,7 @@
     <ClInclude Include="src\plot\KtMargins.h" />
     <ClInclude Include="src\plot\KuColorUtil.h" />
     <ClInclude Include="src\plot\KuThemeParser.h" />
+    <ClInclude Include="src\plot\KvCoord.h" />
     <ClInclude Include="src\plot\KvPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\plot\KvPlot2d.h" />

@@ -5,14 +5,14 @@
 
 class KcAxis;
 
-class KcGridPlane : public KvRenderable
+class KcCoordPlane : public KvRenderable
 {
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using KvRenderable::aabb_type;
 	using point3 = KtPoint<float_t, 3>;
 
 public:
-	KcGridPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);
+	KcCoordPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);
 
 	bool minorVisible() const { return minorVisible_; }
 	bool& minorVisible() { return minorVisible_; }

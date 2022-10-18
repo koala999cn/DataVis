@@ -37,8 +37,6 @@ private:
 
 	void updateImpl_() override;
 
-	void autoProject_() override;
-
 	// 响应鼠标事件，实现旋转、平移、缩放变换
 	void handleMouseInput_();
 
