@@ -45,6 +45,8 @@ public:
 
 	virtual void setLineWidth(double width) = 0;
 
+	virtual void setLineStyle(int style) = 0;
+
 	virtual void drawPoint(const point3& pt) = 0;
 
 	virtual void drawPoints(const point3 pts[], unsigned count);

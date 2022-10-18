@@ -82,10 +82,10 @@ public:
 
 		k_axis_all				= k_axis_text | k_axis_line_all,
 
-		k_grid_major_all		= k_axis_xy | k_grid_major,
-		k_grid_minor_all		= k_axis_xy | k_grid_minor,
-		k_grid_zeroline_all		= k_axis_xy | k_grid_zeroline,
-		k_grid_line_all			= k_axis_xy | k_grid_line,
+		k_grid_major_all		= k_grid_xy | k_grid_major,
+		k_grid_minor_all		= k_grid_xy | k_grid_minor,
+		k_grid_zeroline_all		= k_grid_xy | k_grid_zeroline,
+		k_grid_line_all			= k_grid_xy | k_grid_line,
 		k_grid_all				= k_grid_line_all,
 
 		k_legend_title			= k_legend | k_title,

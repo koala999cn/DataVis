@@ -37,9 +37,9 @@ KpBrush KcThemedPlotImpl_::fill(int level) const
 
 void KcThemedPlotImpl_::applyFill(int level, const KpBrush& b)
 {
-	if (level == k_plot)
+	if (level & k_plot)
 		plot_.background() = b;
-	else if (level == k_axis) {
+	else if (level & k_axis) {
 		auto& coord = plot_.coord();
 		coord.forPlane([&b](KcCoordPlane& plane) {
 			plane.background() = b;
@@ -93,23 +93,28 @@ bool KcThemedPlotImpl_::visible(int level) const
 void KcThemedPlotImpl_::applyVisible(int level, bool b)
 {
 	if (level & k_axis) {
-		plot_.coord().forAxis([level, b](KcAxis& axis) {
+		forAxis_(level, [level, b](KcAxis& axis) {
+
+			if (level & k_axis_baseline)
+			    axis.showBaseline() = b;
+
 			if (level & k_axis_tick_major)
 				axis.showTick() = b;
 			
 			if (level & k_axis_tick_minor)
 				axis.showSubtick() = b;
 
-			if (level & k_axis_label)
+			if (level & k_label)
 				axis.showLabel() = b;
 
-			if (level & k_axis_title)
+			if (level & k_title)
 				axis.showTitle() = b;
 
 			return true;
 			});
 	}
-	else if (level & k_grid) {
+	
+	if (level & k_grid) {
 		plot_.coord().forPlane([level, b](KcCoordPlane& plane) {
 			if (level & k_grid_major)
 				plane.visible() = b;
@@ -224,3 +229,25 @@ void KcThemedPlotImpl_::setLegendSpacing(int xspacing, int yspacing)
 
 }
 
+
+void KcThemedPlotImpl_::forAxis_(int level, std::function<bool(KcAxis&)> op)
+{
+	if (level & k_axis) {
+
+		plot_.coord().forAxis([level, op](KcAxis& axis) {
+			if (axis.type() == KcAxis::k_near_left && !(level & k_left))
+				return true;
+
+			if (axis.type() == KcAxis::k_near_right && !(level & k_right))
+				return true;
+
+			if (axis.type() == KcAxis::k_near_top && !(level & k_top))
+				return true;
+
+			if (axis.type() == KcAxis::k_near_bottom && !(level & k_bottom))
+				return true;
+
+			return op(axis);
+			});
+	}
+}

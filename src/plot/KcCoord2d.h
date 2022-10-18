@@ -17,16 +17,6 @@ public:
 	using axis_list = std::list<axis_ptr>;
 	using grid_plane_ptr = std::shared_ptr<KcCoordPlane>;
 
-	enum KeAxisType
-	{
-		k_axis_left,
-		k_axis_right,
-		k_axis_top,
-		k_axis_bottom,
-		k_axis_custom,
-		k_axis_type_count
-	};
-
 	KcCoord2d();
 	KcCoord2d(const point2& lower, const point2& upper);
 
@@ -39,13 +29,13 @@ public:
 
 	void forPlane(std::function<bool(KcCoordPlane& plane)>) const override;
 
-	axis_list& axes(KeAxisType type) { return axes_[type]; }
+	axis_list& axes(int type) { return axes_[type]; }
 
 	// 实现基类的接口
 
 	void draw(KvPaint*) const override;
 
 private:
-	axis_list axes_[k_axis_type_count];
+	axis_list axes_[4];
 	grid_plane_ptr plane_;
 };

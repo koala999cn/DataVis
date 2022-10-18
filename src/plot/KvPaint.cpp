@@ -72,6 +72,7 @@ void KvPaint::apply(const KpPen& cxt)
 {
 	setColor(cxt.color);
 	setLineWidth(cxt.width);
+	setLineStyle(cxt.style);
 }
 
 

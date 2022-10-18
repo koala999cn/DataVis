@@ -15,29 +15,29 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 	: KvCoord("CoordSystem2d")
 {
 	for (unsigned i = 0; i < 4; i++)
-		axes_[i].push_back(std::make_shared<KcAxis>());
+		axes_[i].push_back(std::make_shared<KcAxis>(KcAxis::KeAxisType(i)));
 
 	setExtents({ lower.x(), lower.y(), -1 }, { upper.x(), upper.y(), 1 });
 
-	axes_[k_axis_left].front()->tickOrient() =
-		axes_[k_axis_left].front()->labelOrient() = -KcAxis::vec3::unitX();
-	axes_[k_axis_right].front()->tickOrient() =
-		axes_[k_axis_right].front()->labelOrient() = KcAxis::vec3::unitX();
-	axes_[k_axis_bottom].front()->tickOrient() =
-		axes_[k_axis_bottom].front()->labelOrient() = -KcAxis::vec3::unitY();
-	axes_[k_axis_top].front()->tickOrient() =
-		axes_[k_axis_top].front()->labelOrient() = KcAxis::vec3::unitY();
+	axes_[KcAxis::k_near_left].front()->tickOrient() =
+		axes_[KcAxis::k_near_left].front()->labelOrient() = -KcAxis::vec3::unitX();
+	axes_[KcAxis::k_near_right].front()->tickOrient() =
+		axes_[KcAxis::k_near_right].front()->labelOrient() = KcAxis::vec3::unitX();
+	axes_[KcAxis::k_near_bottom].front()->tickOrient() =
+		axes_[KcAxis::k_near_bottom].front()->labelOrient() = -KcAxis::vec3::unitY();
+	axes_[KcAxis::k_near_top].front()->tickOrient() =
+		axes_[KcAxis::k_near_top].front()->labelOrient() = KcAxis::vec3::unitY();
 
 	for (unsigned i = 0; i < 4; i++)
 		axes_[i].front()->showTick() = true, axes_[i].front()->showLabel() = true;
 
-	axes_[k_axis_right].front()->visible() = false;
-	axes_[k_axis_top].front()->visible() = false;
+	axes_[KcAxis::k_near_right].front()->visible() = false;
+	axes_[KcAxis::k_near_top].front()->visible() = false;
 
-	plane_ = std::make_shared<KcCoordPlane>(axes_[k_axis_left].front(), 
-		axes_[k_axis_right].front(), 
-		axes_[k_axis_bottom].front(), 
-		axes_[k_axis_top].front());
+	plane_ = std::make_shared<KcCoordPlane>(KcCoordPlane::k_front, axes_[KcAxis::k_near_left].front(),
+		axes_[KcAxis::k_near_right].front(),
+		axes_[KcAxis::k_near_bottom].front(),
+		axes_[KcAxis::k_near_top].front());
 }
 
 
@@ -49,25 +49,25 @@ void KcCoord2d::setExtents(const point3& lower, const point3& upper)
 	point3 bottomRight(upper.x(), lower.y(), 0);
 	point3 topLeft(lower.x(), upper.y(), 0);
 
-	axes_[k_axis_bottom].front()->setRange(lower.x(), upper.x());
-	axes_[k_axis_bottom].front()->setExtend(bottomLeft, bottomRight);
+	axes_[KcAxis::k_near_bottom].front()->setRange(lower.x(), upper.x());
+	axes_[KcAxis::k_near_bottom].front()->setExtend(bottomLeft, bottomRight);
 
-	axes_[k_axis_top].front()->setRange(lower.x(), upper.x());
-	axes_[k_axis_top].front()->setExtend(topLeft, topRight);
+	axes_[KcAxis::k_near_top].front()->setRange(lower.x(), upper.x());
+	axes_[KcAxis::k_near_top].front()->setExtend(topLeft, topRight);
 
-	axes_[k_axis_left].front()->setRange(lower.y(), upper.y());
-	axes_[k_axis_left].front()->setExtend(bottomLeft, topLeft);
+	axes_[KcAxis::k_near_left].front()->setRange(lower.y(), upper.y());
+	axes_[KcAxis::k_near_left].front()->setExtend(bottomLeft, topLeft);
 
-	axes_[k_axis_right].front()->setRange(lower.y(), upper.y());
-	axes_[k_axis_right].front()->setExtend(bottomRight, topRight);
+	axes_[KcAxis::k_near_right].front()->setRange(lower.y(), upper.y());
+	axes_[KcAxis::k_near_right].front()->setExtend(bottomRight, topRight);
 }
 
 
 KcCoord2d::point3 KcCoord2d::lower() const
 {
 	return { 
-		axes_[k_axis_bottom].front()->lower(), 
-		axes_[k_axis_left].front()->lower(),
+		axes_[KcAxis::k_near_bottom].front()->lower(), 
+		axes_[KcAxis::k_near_left].front()->lower(),
 		-1
 	};
 }
@@ -76,8 +76,8 @@ KcCoord2d::point3 KcCoord2d::lower() const
 KcCoord2d::point3 KcCoord2d::upper() const
 {
 	return { 
-		axes_[k_axis_bottom].front()->upper(), 
-		axes_[k_axis_left].front()->upper(),
+		axes_[KcAxis::k_near_bottom].front()->upper(), 
+		axes_[KcAxis::k_near_left].front()->upper(),
 		1
 	};
 }
@@ -102,10 +102,10 @@ void KcCoord2d::draw(KvPaint* paint) const
 {
 	if (visible()) {
 
-		auto l = axes_[k_axis_left].front()->calcMargins(paint);
-		auto r = axes_[k_axis_right].front()->calcMargins(paint);
-		auto t = axes_[k_axis_top].front()->calcMargins(paint);
-		auto b = axes_[k_axis_bottom].front()->calcMargins(paint);
+		auto l = axes_[KcAxis::k_near_left].front()->calcMargins(paint);
+		auto r = axes_[KcAxis::k_near_right].front()->calcMargins(paint);
+		auto t = axes_[KcAxis::k_near_top].front()->calcMargins(paint);
+		auto b = axes_[KcAxis::k_near_bottom].front()->calcMargins(paint);
 
 		l.makeCeil(r); l.makeCeil(b); l.makeCeil(t);
 

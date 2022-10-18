@@ -12,7 +12,26 @@ class KcCoordPlane : public KvRenderable
 	using point3 = KtPoint<float_t, 3>;
 
 public:
-	KcCoordPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);
+
+	// 3d坐标系中的6个坐标平面
+	enum KePlaneType
+	{
+		// x-y plane
+		k_back,
+		k_front,
+
+		// y-z plane
+		k_left,
+		k_right,
+
+		// x-z plane
+		k_ceil,
+		k_floor,
+	};
+
+	KcCoordPlane(KePlaneType type, axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);
+
+	KePlaneType type() const { return type_; }
 
 	bool minorVisible() const { return minorVisible_; }
 	bool& minorVisible() { return minorVisible_; }
@@ -39,6 +58,7 @@ private:
 	static void drawMinors_(KvPaint*, axis_ptr axis0, axis_ptr axis1);
 
 private:
+	KePlaneType type_;
 	axis_ptr horz_[2], vert_[2]; // 构成grid平面的4根坐标轴，水平2根、垂直2根
 	bool minorVisible_;
 	KpPen majorLineCxt_, minorLineCxt_;

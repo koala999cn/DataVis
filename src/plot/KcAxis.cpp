@@ -6,8 +6,9 @@
 #include "KtLine.h"
 
 
-KcAxis::KcAxis() 
+KcAxis::KcAxis(KeAxisType type)
 	: KvRenderable("Axis")
+	, type_(type)
 {
 	lower_ = upper_ = 0;
 
@@ -97,7 +98,7 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		if (showLabel()) {
 			labelAchors[i] = anchor + labelOrient_ * labelPadding_ * labelPaddingPerPixel;
 
-			if (sameSide)
+			if (sameSide && showTick())
 				labelAchors[i] += tickOrient_ * tickCxt_.length * tickLenPerPixel;
 		}
 	}

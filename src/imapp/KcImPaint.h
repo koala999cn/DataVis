@@ -23,6 +23,8 @@ public:
 
 	void setLineWidth(float_t width) override;
 
+	void setLineStyle(int style) override;
+
 	void drawPoint(const point3& pos) override;
 
 	void drawLine(const point3& from, const point3& to) override;
@@ -40,9 +42,14 @@ private:
 		return ImColor(clr_.r(), clr_.g(), clr_.b(), clr_.a());
 	}
 
+	void drawLineDot_(const ImVec2& from, const ImVec2& to);
+
+	void round_(ImVec2& pt);
+
 private:
 	camera_type& camera_;
 	color_t clr_{ 0, 0, 0, 1 };
 	float_t lineWidth_{ 1 };
+	int lineStyle_{ 0 };
 	float_t pointSize_{ 2 };
 };

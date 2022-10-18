@@ -29,6 +29,10 @@ public:
 		return (upper() + lower()) / 2;
 	}
 
+	// 以坐标系AABB的中心点为基准，对各坐标轴的extent/range进行等比例缩放
+	// 即坐标系缩放前后，AABB的中心点保持不变
+	// factor=1时，坐标系不缩放
+	// factor=0时，坐标系收缩到中心点
 	void zoom(float_t factor);
 
 	// 轮询坐标轴

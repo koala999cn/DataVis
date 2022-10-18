@@ -7,15 +7,15 @@ void KvCoord::draw(KvPaint* paint) const
 {
 	if (visible()) {
 
-		forAxis([paint](KcAxis& axis) {
-			if (axis.visible())
-				axis.draw(paint);
-			return true;
-			});
-
 		forPlane([paint](KcCoordPlane& plane) {
 			if (plane.visible())
 				plane.draw(paint);
+			return true;
+			});
+
+		forAxis([paint](KcAxis& axis) {
+			if (axis.visible())
+				axis.draw(paint);
 			return true;
 			});
 	}

@@ -20,6 +20,25 @@ public:
 	using point3 = KtPoint<float_t, 3>;
 	using vec3 = KtVector3<float_t>;
 
+	// 3d坐标系中的12根坐标轴
+	enum KeAxisType
+	{
+		k_near_left,
+		k_near_right,
+		k_near_bottom,
+		k_near_top,
+
+		k_far_left,
+		k_far_right,
+		k_far_bottom,
+		k_far_top,
+
+		k_floor_left,
+		k_floor_right,
+		k_ceil_left,
+		k_ceil_right,
+	};
+
 	enum KeTickOrient
 	{
 		k_x, k_neg_x, k_bi_x,
@@ -32,7 +51,9 @@ public:
 		double length;
 	};
 
-	KcAxis();
+	KcAxis(KeAxisType type);
+
+	KeAxisType type() const { return type_; }
 
 	const point3& start() const { return start_; }
 	void setStart(const point3& v) { start_ = v; }
@@ -146,6 +167,7 @@ private:
 	aabb_type textBox_(KvPaint*, const point3& anchor, const std::string& text) const;
 
 private:
+	KeAxisType type_;
 	std::string title_;
 	std::vector<std::string> labels_; // tick labels
 	double lower_, upper_; // range

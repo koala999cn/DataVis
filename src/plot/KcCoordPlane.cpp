@@ -4,8 +4,9 @@
 #include "KvPaint.h"
 
 
-KcCoordPlane::KcCoordPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
+KcCoordPlane::KcCoordPlane(KePlaneType type, axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
 	: KvRenderable("GridPlane")
+	, type_(type)
 {
 	horz_[0] = h0, horz_[1] = h1;
 	vert_[0] = v0, vert_[1] = v1;
@@ -13,12 +14,12 @@ KcCoordPlane::KcCoordPlane(axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1)
 	minorVisible_ = false;
 
 	majorLineCxt_.style = KpPen::k_solid;
-	majorLineCxt_.width = 0.6;
-	majorLineCxt_.color = color4f(0.3);
+	majorLineCxt_.width = 0.7;
+	majorLineCxt_.color = color4f(0.5);
 
 	minorLineCxt_.style = KpPen::k_dash;
-	minorLineCxt_.width = 0.4;
-	minorLineCxt_.color = color4f(0.3);
+	minorLineCxt_.width = 0.5;
+	minorLineCxt_.color = color4f(0.5);
 }
 
 
@@ -38,14 +39,18 @@ void KcCoordPlane::draw(KvPaint* paint) const
 	assert(visible());
 
 	auto box = boundingBox();
-	paint->apply(background());
-	paint->fillRect(box.lower(), box.upper());
+	if (bkgnd_.style != KpBrush::k_none) {
+		paint->apply(background());
+		paint->fillRect(box.lower(), box.upper());
+	}
 
-	paint->apply(majorLineCxt_);
-	drawMajors_(paint, horz_[0], horz_[1]);
-	drawMajors_(paint, vert_[0], vert_[1]);
+	if (majorLineCxt_.style != KpPen::k_none) {
+		paint->apply(majorLineCxt_);
+		drawMajors_(paint, horz_[0], horz_[1]);
+		drawMajors_(paint, vert_[0], vert_[1]);
+	}
 
-	if (minorVisible()) {
+	if (minorVisible() && minorLineCxt_.style != KpPen::k_none) {
 		paint->apply(minorLineCxt_);
 		drawMinors_(paint, horz_[0], horz_[1]);
 		drawMinors_(paint, vert_[0], vert_[1]);

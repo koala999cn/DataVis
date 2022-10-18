@@ -179,37 +179,22 @@ void KvRdPlot::showThemeProperty_()
 	if (!themes.empty()) {
 
 		auto iter = std::find(themes.cbegin(), themes.cend(), themeName_);
-		if (iter == themes.cend()) {
-			themeName_ = themes.front();
-			KsThemeManager::singleton().applyTheme(themeName_, &tp);
-		}
+		//if (iter == themes.cend()) {
+		//	themeName_ = themes.front();
+		//	KsThemeManager::singleton().applyTheme(themeName_, &tp);
+		//}
 
-		if (ImGui::BeginCombo("Theme", themeName_.c_str())) {
-			for (iter = themes.cbegin(); iter != themes.cend(); iter++)
+		
+		if (ImGui::BeginCombo("Theme", themeName_.c_str(), ImGuiComboFlags_HeightLarge)) {
+			for (iter = themes.cbegin(); iter != themes.cend(); iter++) {
 				if (ImGui::Selectable(iter->c_str(), *iter == themeName_)) {
 					themeName_ = *iter;
-					KsThemeManager::singleton().applyTheme(themeName_, &tp);
+					applyTheme_(themeName_, &tp);
 				}
 
-			ImGui::EndCombo();
-		}
-	}
-
-	auto canvas = KsThemeManager::singleton().listCanvas();
-	if (!canvas.empty()) {
-
-		auto iter = std::find(canvas.cbegin(), canvas.cend(), canvasName_);
-		if (iter == canvas.cend()) {
-			canvasName_ = canvas.front();
-			KsThemeManager::singleton().applyTheme(canvasName_, &tp);
-		}
-
-		if (ImGui::BeginCombo("Canvas", canvasName_.c_str())) {
-			for (iter = canvas.cbegin(); iter != canvas.cend(); iter++)
-				if (ImGui::Selectable(iter->c_str(), *iter == canvasName_)) {
-					canvasName_ = *iter;
-					KsThemeManager::singleton().applyCanvas(canvasName_, &tp);
-				}
+				if (*iter == themeName_)
+					ImGui::SetItemDefaultFocus();
+			}
 
 			ImGui::EndCombo();
 		}
@@ -219,12 +204,12 @@ void KvRdPlot::showThemeProperty_()
 	if (!layouts.empty()) {
 
 		auto iter = std::find(layouts.cbegin(), layouts.cend(), layoutName_);
-		if (iter == layouts.cend()) {
-			layoutName_ = layouts.front();
-			KsThemeManager::singleton().applyTheme(layoutName_, &tp);
-		}
+		//if (iter == layouts.cend()) {
+		//	layoutName_ = layouts.front();
+		//	KsThemeManager::singleton().applyTheme(layoutName_, &tp);
+		//}
 
-		if (ImGui::BeginCombo("Layout", layoutName_.c_str())) {
+		if (ImGui::BeginCombo("Layout", layoutName_.c_str(), ImGuiComboFlags_HeightLarge)) {
 			for (iter = layouts.cbegin(); iter != layouts.cend(); iter++)
 				if (ImGui::Selectable(iter->c_str(), *iter == layoutName_)) {
 					layoutName_ = *iter;
@@ -235,25 +220,62 @@ void KvRdPlot::showThemeProperty_()
 		}
 	}
 
-	auto palettes = KsThemeManager::singleton().listPalettes();
-	if (!palettes.empty()) {
+	auto canvas = KsThemeManager::singleton().listCanvas();
+	if (!canvas.empty()) {
 
-		auto iter = std::find(palettes.cbegin(), palettes.cend(), paletteName_);
-		if (iter == palettes.cend()) {
-			paletteName_ = palettes.front();
-			KsThemeManager::singleton().applyTheme(paletteName_, &tp);
-		}
+		auto iter = std::find(canvas.cbegin(), canvas.cend(), canvasName_);
+		//if (iter == canvas.cend()) {
+		//	canvasName_ = canvas.front();
+		//	KsThemeManager::singleton().applyTheme(canvasName_, &tp);
+		//}
 
-		if (ImGui::BeginCombo("Palette", paletteName_.c_str())) {
-			for (iter = palettes.cbegin(); iter != palettes.cend(); iter++)
-				if (ImGui::Selectable(iter->c_str(), *iter == paletteName_)) {
-					paletteName_ = *iter;
-					KsThemeManager::singleton().applyPalette(paletteName_, &tp);
+		if (ImGui::BeginCombo("Canvas", canvasName_.c_str(), ImGuiComboFlags_HeightLarge)) {
+			for (iter = canvas.cbegin(); iter != canvas.cend(); iter++)
+				if (ImGui::Selectable(iter->c_str(), *iter == canvasName_)) {
+					canvasName_ = *iter;
+					KsThemeManager::singleton().applyCanvas(canvasName_, &tp);
 				}
 
 			ImGui::EndCombo();
 		}
 	}
 
+	auto palettes = KsThemeManager::singleton().listPalettes();
+	if (!palettes.empty()) {
+
+		auto iter = std::find(palettes.cbegin(), palettes.cend(), paletteName_);
+		//if (iter == palettes.cend()) {
+		//	paletteName_ = palettes.front();
+		//	KsThemeManager::singleton().applyTheme(paletteName_, &tp);
+		//}
+
+		if (ImGui::BeginCombo("Palette", paletteName_.c_str(), ImGuiComboFlags_HeightLarge)) {
+			if (ImGui::TreeNodeEx("Group")) {
+				for (iter = palettes.cbegin(); iter != palettes.cend(); iter++)
+					if (ImGui::Selectable(iter->c_str(), *iter == paletteName_)) {
+						paletteName_ = *iter;
+						KsThemeManager::singleton().applyPalette(paletteName_, &tp);
+					}
+
+				ImGui::TreePop();
+			}
+
+			ImGui::EndCombo();
+		}
+	}
+
 	ImGui::Separator();
+}
+
+
+void KvRdPlot::applyTheme_(const std::string& name, KvThemedPlot* plot)
+{
+	themeName_ = name;
+
+	auto& themeMgr = KsThemeManager::singleton();
+	canvasName_ = themeMgr.canvasName(name);
+	layoutName_ = themeMgr.layoutName(name);
+	paletteName_ = themeMgr.paletteName(name);
+
+	themeMgr.applyTheme(name, plot);
 }

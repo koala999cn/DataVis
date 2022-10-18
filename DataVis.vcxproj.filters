@@ -301,6 +301,9 @@
     <ClCompile Include="src\plot\KvCoord.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\imguix.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -707,6 +710,9 @@
     </ClInclude>
     <ClInclude Include="src\plot\KvCoord.h">
       <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\imguix.h">
+      <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

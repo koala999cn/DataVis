@@ -8,6 +8,7 @@
 class KvPlot;
 class KvPlottable;
 class KvDataProvider;
+class KvThemedPlot;
 
 class KvRdPlot : public KvDataRender
 {
@@ -38,6 +39,9 @@ protected:
 	virtual std::vector<KvPlottable*> createPlottable_(KvDataProvider* prov) = 0;
 
 	void showThemeProperty_();
+
+	// 在应用theme的时候，同步包含的canvas, layout, palette等主题选项
+	void applyTheme_(const std::string& name, KvThemedPlot* plot);
 
 protected:
 	std::shared_ptr<KvPlot> plot_;

@@ -2,6 +2,7 @@
 #include "KvThemedPlot.h"
 
 class KvPlot;
+class KcAxis;
 
 // 一个对KvPlot接口施加theme的实现
 
@@ -49,6 +50,11 @@ public:
 	std::pair<int, int> legendSpacing() override;
 	void setLegendSpacing(int xspacing, int yspacing) override;
 
+
+private:
+
+	// 根据level过滤axis
+	void forAxis_(int level, std::function<bool(KcAxis&)> op);
 
 private:
 	KvPlot& plot_;

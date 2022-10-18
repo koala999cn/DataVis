@@ -506,6 +506,9 @@ void KsThemeManager::applyAxis_(int level, const jvalue& jval, KvThemedPlot* plo
 
 void KsThemeManager::applyTick_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
+	assert(level & KvThemedPlot::k_axis_tick);
+	assert(!(level & KvThemedPlot::k_text));
+
 	tryVisible_(level, jval, plot);
 
 	if (!jval.is_object())
@@ -558,6 +561,8 @@ void KsThemeManager::tryGrid_(const jobject& jobj, KvThemedPlot* plot)
 
 void KsThemeManager::applyGrid_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
+	assert(level & KvThemedPlot::k_grid);
+
 	tryVisible_(level, jval, plot); 
 
 	if (!jval.is_object())
@@ -576,7 +581,7 @@ void KsThemeManager::applyGrid_(int level, const jvalue& jval, KvThemedPlot* plo
 		{ "minor", KvThemedPlot::k_grid_minor },
 		{ "zeroline", KvThemedPlot::k_grid_zeroline }
 	};
-	for (unsigned i = 0; i < sizeof(prop) / sizeof(prop[0]); i++) 
+	for (unsigned i = 0; i < std::size(prop); i++) 
 		trySpecialProp_(level, jobj, prop[i].first, prop[i].second,
 			[plot](int newLevel, const jvalue& jval) {
 				applyLine_(newLevel, jval, plot);

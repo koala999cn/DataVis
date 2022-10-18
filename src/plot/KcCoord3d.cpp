@@ -17,57 +17,78 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 {
 	// 初始化12根坐标轴
 	for (unsigned i = 0; i < std::size(axes_); i++)
-		axes_[i].reset(new KcAxis);
+		axes_[i].reset(new KcAxis(KcAxis::KeAxisType(i)));
 
 	setExtents(lower, upper);
 
-	axes_[k_x0]->tickOrient() = axes_[k_x0]->labelOrient() = -KcAxis::vec3::unitY();
-	axes_[k_x1]->tickOrient() = axes_[k_x1]->labelOrient() = KcAxis::vec3::unitY();
-	axes_[k_x2]->tickOrient() = axes_[k_x2]->labelOrient() = KcAxis::vec3::unitY();
-	axes_[k_x3]->tickOrient() = axes_[k_x3]->labelOrient() = -KcAxis::vec3::unitY();
+	axes_[KcAxis::k_far_bottom]->tickOrient() = 
+		axes_[KcAxis::k_far_bottom]->labelOrient() = -KcAxis::vec3::unitY();
+	axes_[KcAxis::k_far_top]->tickOrient() = 
+		axes_[KcAxis::k_far_top]->labelOrient() = KcAxis::vec3::unitY();
+	axes_[KcAxis::k_near_top]->tickOrient() = 
+		axes_[KcAxis::k_near_top]->labelOrient() = KcAxis::vec3::unitY();
+	axes_[KcAxis::k_near_bottom]->tickOrient() = 
+		axes_[KcAxis::k_near_bottom]->labelOrient() = -KcAxis::vec3::unitY();
 
-	axes_[k_y0]->tickOrient() = axes_[k_y0]->labelOrient() = -KcAxis::vec3::unitX();
-	axes_[k_y1]->tickOrient() = axes_[k_y1]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[k_y2]->tickOrient() = axes_[k_y2]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[k_y3]->tickOrient() = axes_[k_y3]->labelOrient() = -KcAxis::vec3::unitX();
+	axes_[KcAxis::k_far_left]->tickOrient() = 
+		axes_[KcAxis::k_far_left]->labelOrient() = -KcAxis::vec3::unitX();
+	axes_[KcAxis::k_far_right]->tickOrient() = 
+		axes_[KcAxis::k_far_right]->labelOrient() = KcAxis::vec3::unitX();
+	axes_[KcAxis::k_near_right]->tickOrient() = 
+		axes_[KcAxis::k_near_right]->labelOrient() = KcAxis::vec3::unitX();
+	axes_[KcAxis::k_near_left]->tickOrient() = 
+		axes_[KcAxis::k_near_left]->labelOrient() = -KcAxis::vec3::unitX();
 
-	axes_[k_z0]->tickOrient() = axes_[k_z0]->labelOrient() = -KcAxis::vec3::unitX();
-	axes_[k_z1]->tickOrient() = axes_[k_z1]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[k_z2]->tickOrient() = axes_[k_z2]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[k_z3]->tickOrient() = axes_[k_z3]->labelOrient() = -KcAxis::vec3::unitX();
+	axes_[KcAxis::k_floor_left]->tickOrient() =
+		axes_[KcAxis::k_floor_left]->labelOrient() = -KcAxis::vec3::unitX();
+	axes_[KcAxis::k_floor_right]->tickOrient() = 
+		axes_[KcAxis::k_floor_right]->labelOrient() = KcAxis::vec3::unitX();
+	axes_[KcAxis::k_ceil_right]->tickOrient() = 
+		axes_[KcAxis::k_ceil_right]->labelOrient() = KcAxis::vec3::unitX();
+	axes_[KcAxis::k_ceil_left]->tickOrient() = 
+		axes_[KcAxis::k_ceil_left]->labelOrient() = -KcAxis::vec3::unitX();
 
 	for(unsigned i = 0; i < std::size(axes_); i++)
 	    axes_[i]->showTick() = false, axes_[i]->showLabel() = false;
 
-	axes_[k_x3]->showTick() = true, axes_[k_x3]->showLabel() = true;
-	axes_[k_y3]->showTick() = true, axes_[k_y3]->showLabel() = true;
-	axes_[k_z1]->showTick() = true, axes_[k_z1]->showLabel() = true;
+	axes_[KcAxis::k_near_bottom]->showTick() = true, axes_[KcAxis::k_near_bottom]->showLabel() = true;
+	axes_[KcAxis::k_near_left]->showTick() = true, axes_[KcAxis::k_near_left]->showLabel() = true;
+	axes_[KcAxis::k_floor_right]->showTick() = true, axes_[KcAxis::k_floor_right]->showLabel() = true;
 
 
 	// 初始化6个grid平面
-	planes_[k_xy_back] = std::make_shared<KcCoordPlane>(
-		axes_[k_x0], axes_[k_x1], axes_[k_y0], axes_[k_y1]);
-	planes_[k_xy_front] = std::make_shared<KcCoordPlane>(
-		axes_[k_x2], axes_[k_x3], axes_[k_y2], axes_[k_y3]);
+	planes_[KcCoordPlane::k_back] = std::make_shared<KcCoordPlane>(KcCoordPlane::k_back,
+		axes_[KcAxis::k_far_bottom], axes_[KcAxis::k_far_top], 
+		axes_[KcAxis::k_far_left], axes_[KcAxis::k_far_right]);
 
-	planes_[k_yz_left] = std::make_shared<KcCoordPlane>(
-		axes_[k_y0], axes_[k_y3], axes_[k_z0], axes_[k_z3]);
-	planes_[k_yz_right] = std::make_shared<KcCoordPlane>(
-		axes_[k_y1], axes_[k_y2], axes_[k_z1], axes_[k_z2]);
+	planes_[KcCoordPlane::k_front] = std::make_shared<KcCoordPlane>(KcCoordPlane::k_front,
+		axes_[KcAxis::k_near_bottom], axes_[KcAxis::k_near_top], 
+		axes_[KcAxis::k_near_left], axes_[KcAxis::k_near_right]);
 
-	planes_[k_xz_ceil] = std::make_shared<KcCoordPlane>(
-		axes_[k_x1], axes_[k_x2], axes_[k_z2], axes_[k_z3]);
-	planes_[k_xz_floor] = std::make_shared<KcCoordPlane>(
-		axes_[k_x0], axes_[k_x3], axes_[k_z0], axes_[k_z1]);
+	planes_[KcCoordPlane::k_left] = std::make_shared<KcCoordPlane>(KcCoordPlane::k_left,
+		axes_[KcAxis::k_far_left], axes_[KcAxis::k_near_left],
+		axes_[KcAxis::k_floor_left], axes_[KcAxis::k_ceil_left]);
+
+	planes_[KcCoordPlane::k_right] = std::make_shared<KcCoordPlane>(KcCoordPlane::k_right,
+		axes_[KcAxis::k_far_right], axes_[KcAxis::k_near_right],
+		axes_[KcAxis::k_floor_right], axes_[KcAxis::k_ceil_right]);
+
+	planes_[KcCoordPlane::k_ceil] = std::make_shared<KcCoordPlane>(KcCoordPlane::k_ceil,
+		axes_[KcAxis::k_far_top], axes_[KcAxis::k_near_top],
+		axes_[KcAxis::k_ceil_left], axes_[KcAxis::k_ceil_right]);
+
+	planes_[KcCoordPlane::k_floor] = std::make_shared<KcCoordPlane>(KcCoordPlane::k_floor,
+		axes_[KcAxis::k_far_bottom], axes_[KcAxis::k_near_bottom],
+		axes_[KcAxis::k_floor_left], axes_[KcAxis::k_floor_right]);
 
 	for (unsigned i = 0; i < std::size(planes_); i++) {
 		planes_[i]->visible() = false;
 		planes_[i]->minorVisible() = false;
 	}
 
-	planes_[k_xy_back]->visible() = true;
-	planes_[k_yz_left]->visible() = true;
-	planes_[k_xz_floor]->visible() = true;
+	planes_[KcCoordPlane::k_back]->visible() = true;
+	planes_[KcCoordPlane::k_left]->visible() = true;
+	planes_[KcCoordPlane::k_floor]->visible() = true;
 }
 
 
@@ -90,44 +111,50 @@ void KcCoord3d::setExtents(const point3& lower, const point3& upper)
 	auto p5 = point3{ upper.x(), lower.y(), lower.z() };
 	auto p6 = point3{ upper.x(), upper.y(), lower.z() };
 
-	axes_[k_x0]->setRange(lower.x(), upper.x());
-	axes_[k_x0]->setExtend(lower, p5);
-	axes_[k_x1]->setRange(lower.x(), upper.x());
-	axes_[k_x1]->setExtend(p1, p6);
-	axes_[k_x2]->setRange(lower.x(), upper.x());
-	axes_[k_x2]->setExtend(p2, upper);
-	axes_[k_x3]->setRange(lower.x(), upper.x());
-	axes_[k_x3]->setExtend(p3, p4);
+	axes_[KcAxis::k_far_bottom]->setRange(lower.x(), upper.x());
+	axes_[KcAxis::k_far_bottom]->setExtend(lower, p5);
+	axes_[KcAxis::k_far_top]->setRange(lower.x(), upper.x());
+	axes_[KcAxis::k_far_top]->setExtend(p1, p6);
+	axes_[KcAxis::k_near_top]->setRange(lower.x(), upper.x());
+	axes_[KcAxis::k_near_top]->setExtend(p2, upper);
+	axes_[KcAxis::k_near_bottom]->setRange(lower.x(), upper.x());
+	axes_[KcAxis::k_near_bottom]->setExtend(p3, p4);
 
-	axes_[k_y0]->setRange(lower.y(), upper.y());
-	axes_[k_y0]->setExtend(lower, p1);
-	axes_[k_y1]->setRange(lower.y(), upper.y());
-	axes_[k_y1]->setExtend(p5, p6);
-	axes_[k_y2]->setRange(lower.y(), upper.y());
-	axes_[k_y2]->setExtend(p4, upper);
-	axes_[k_y3]->setRange(lower.y(), upper.y());
-	axes_[k_y3]->setExtend(p3, p2);
+	axes_[KcAxis::k_far_left]->setRange(lower.y(), upper.y());
+	axes_[KcAxis::k_far_left]->setExtend(lower, p1);
+	axes_[KcAxis::k_far_right]->setRange(lower.y(), upper.y());
+	axes_[KcAxis::k_far_right]->setExtend(p5, p6);
+	axes_[KcAxis::k_near_right]->setRange(lower.y(), upper.y());
+	axes_[KcAxis::k_near_right]->setExtend(p4, upper);
+	axes_[KcAxis::k_near_left]->setRange(lower.y(), upper.y());
+	axes_[KcAxis::k_near_left]->setExtend(p3, p2);
 
-	axes_[k_z0]->setRange(lower.z(), upper.z());
-	axes_[k_z0]->setExtend(lower, p3);
-	axes_[k_z1]->setRange(lower.z(), upper.z());
-	axes_[k_z1]->setExtend(p5, p4);
-	axes_[k_z2]->setRange(lower.z(), upper.z());
-	axes_[k_z2]->setExtend(p6, upper);
-	axes_[k_z3]->setRange(lower.z(), upper.z());
-	axes_[k_z3]->setExtend(p1, p2);
+	axes_[KcAxis::k_floor_left]->setRange(lower.z(), upper.z());
+	axes_[KcAxis::k_floor_left]->setExtend(lower, p3);
+	axes_[KcAxis::k_floor_right]->setRange(lower.z(), upper.z());
+	axes_[KcAxis::k_floor_right]->setExtend(p5, p4);
+	axes_[KcAxis::k_ceil_right]->setRange(lower.z(), upper.z());
+	axes_[KcAxis::k_ceil_right]->setExtend(p6, upper);
+	axes_[KcAxis::k_ceil_left]->setRange(lower.z(), upper.z());
+	axes_[KcAxis::k_ceil_left]->setExtend(p1, p2);
 }
 
 
 KcCoord3d::point3 KcCoord3d::lower() const
 {
-	return { axes_[k_x0]->lower(), axes_[k_y0]->lower(), axes_[k_z0]->lower() };
+	return { axes_[KcAxis::k_far_bottom]->lower(), 
+		axes_[KcAxis::k_far_left]->lower(), 
+		axes_[KcAxis::k_floor_left]->lower() 
+	};
 }
 
 
 KcCoord3d::point3 KcCoord3d::upper() const
 {
-	return { axes_[k_x0]->upper(), axes_[k_y0]->upper(), axes_[k_z0]->upper() };
+	return { axes_[KcAxis::k_far_bottom]->upper(), 
+		axes_[KcAxis::k_far_left]->upper(), 
+		axes_[KcAxis::k_floor_left]->upper() 
+	};
 }
 
 
