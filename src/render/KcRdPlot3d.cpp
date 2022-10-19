@@ -30,26 +30,24 @@ void KcRdPlot3d::showProperySet()
 
 	ImGui::Checkbox("Isometric", &plot3d->isometric());
 	
-	float zoom = plot3d->zoom();
-	if (ImGui::DragFloat("Zoom", &zoom, 0.1, 0.1, 10))
-		plot3d->zoom() = zoom;
-
-	point3f pt(plot3d->scale());
-	if (ImGui::DragFloat3("Scale", pt, 0.1, 0.1, 10))
-		plot3d->scale() = point3d(pt);
-
-	pt = point3f(plot3d->shift());
-	if (ImGui::DragFloat3("Shift", pt))
-		plot3d->shift() = point3d(pt);;
+	double minVal(0.1), maxVal(10);
+	static const char* format = "%.3f";
+	ImGui::DragScalar("Zoom", ImGuiDataType_Double, &plot3d->zoom(), 0.01, &minVal, &maxVal, format);
+	ImGui::DragScalarN("Scale", ImGuiDataType_Double, plot3d->scale(), 3, 0.01, &minVal, &maxVal, format);
+	ImGui::DragScalarN("Shift", ImGuiDataType_Double, plot3d->shift(), 3, 
+		plot_->coord().boundingBox().width() * 0.01, 0, 0, format);
 
 	auto& orient = plot3d->orient();
 	mat3d<> rot;
 	orient.toRotateMatrix(rot);
 	point3d angle;
 	rot.toEulerAngleXYZ(angle);
-	point3f anglef(angle);
-	if (ImGui::DragFloat3("Rotation", anglef)) {
-		rot.fromEulerAngleXYZ(point3d(anglef));
+	angle *= 180 / KtuMath<double>::pi;
+	minVal = -180;
+	maxVal = 180;
+	if(ImGui::DragScalarN("Rotation", ImGuiDataType_Double, angle, 3, 0.5, &minVal, &maxVal, "%.1fdeg")) {
+		angle *= KtuMath<double>::pi / 180;
+		rot.fromEulerAngleXYZ(angle);
 		orient = quatd(rot);
 	}
 	

@@ -49,11 +49,11 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 		axes_[KcAxis::k_ceil_left]->labelOrient() = -KcAxis::vec3::unitX();
 
 	for(unsigned i = 0; i < std::size(axes_); i++)
-	    axes_[i]->showTick() = false, axes_[i]->showLabel() = false;
+	    axes_[i]->visible() = false;
 
-	axes_[KcAxis::k_near_bottom]->showTick() = true, axes_[KcAxis::k_near_bottom]->showLabel() = true;
-	axes_[KcAxis::k_near_left]->showTick() = true, axes_[KcAxis::k_near_left]->showLabel() = true;
-	axes_[KcAxis::k_floor_right]->showTick() = true, axes_[KcAxis::k_floor_right]->showLabel() = true;
+	axes_[KcAxis::k_near_bottom]->visible() = true;
+	axes_[KcAxis::k_near_left]->visible() = true;
+	axes_[KcAxis::k_floor_right]->visible() = true;
 
 
 	// 初始化6个grid平面
