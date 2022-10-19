@@ -65,6 +65,8 @@ public:
 
 	virtual void fillRect(const point3& lower, const point3& upper) = 0;
 
+	virtual void fillQuad(const point3& pt0, const point3& pt1, const point3& pt2, const point3& pt3) = 0;
+
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
 
 	// 一些尺寸计算函数

@@ -584,6 +584,7 @@ void KsThemeManager::applyGrid_(int level, const jvalue& jval, KvThemedPlot* plo
 	for (unsigned i = 0; i < std::size(prop); i++) 
 		trySpecialProp_(level, jobj, prop[i].first, prop[i].second,
 			[plot](int newLevel, const jvalue& jval) {
+				assert(newLevel & KvThemedPlot::k_grid);
 				applyLine_(newLevel, jval, plot);
 			}
 	    );
@@ -636,7 +637,8 @@ void KsThemeManager::trySpecialProp_(int level, const jobject& jobj, const char*
 	std::function<void(int, const jvalue&)> op)
 {
 	auto newLevel = KvThemedPlot::enterLevel(level, propId);
-	if (jobj.contains(propName) && newLevel)
+	assert(newLevel);
+	if (jobj.contains(propName))
 		op(newLevel, jobj[propName]);
 }
 

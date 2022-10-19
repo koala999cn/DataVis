@@ -31,12 +31,14 @@ public:
 
 	void fillRect(const point3& lower, const point3& upper) override;
 
+	void fillQuad(const point3& pt0, const point3& pt1, const point3& pt2, const point3& pt3) override;
+
 	void drawText(const point3& anchor, const char* text, int align) override;
 
 	point2 textSize(const char* text) const override;
 
 private:
-	ImVec2 world2Pos_(const point3& pt) const;
+	ImVec2 world2Pos_(const point3& pt, bool round = false) const;
 
 	ImColor color_() const {
 		return ImColor(clr_.r(), clr_.g(), clr_.b(), clr_.a());
@@ -44,7 +46,9 @@ private:
 
 	void drawLineDot_(const ImVec2& from, const ImVec2& to);
 
-	void round_(ImVec2& pt);
+	// @pat: 直线绘制模板，长度为双数，格式为：绘制长度, 留白长度, 绘制长度, 留白长度...
+	void drawLinePattern_(const ImVec2& from, const ImVec2& to, const std::vector<int>& pat);
+
 
 private:
 	camera_type& camera_;

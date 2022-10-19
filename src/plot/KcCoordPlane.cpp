@@ -38,10 +38,9 @@ void KcCoordPlane::draw(KvPaint* paint) const
 {
 	assert(visible());
 
-	auto box = boundingBox();
 	if (bkgnd_.style != KpBrush::k_none) {
 		paint->apply(background());
-		paint->fillRect(box.lower(), box.upper());
+		paint->fillQuad(horz_[0]->start(), horz_[0]->end(), horz_[1]->end(), horz_[1]->start());
 	}
 
 	if (majorLineCxt_.style != KpPen::k_none) {

@@ -49,6 +49,13 @@ public:
 	struct KpTickContext : public KpPen
 	{
 		double length;
+
+		KpPen& operator=(const KpPen& pen) {
+			style = pen.style;
+			width = pen.width;
+			color = pen.color;
+			return *this;
+		}
 	};
 
 	KcAxis(KeAxisType type);

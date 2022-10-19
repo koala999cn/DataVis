@@ -130,7 +130,27 @@ void KcThemedPlotImpl_::applyVisible(int level, bool b)
 
 void KcThemedPlotImpl_::applyLine(int level, std::function<KpPen(const KpPen&)> op)
 {
+	if (level & k_axis) {
+		plot_.coord().forAxis([level, op](KcAxis& axis) {
+			if (level & k_axis_baseline)
+				axis.baselineContext() = op(axis.baselineContext());
+			if (level & k_axis_tick_major)
+				axis.tickContext() = op(axis.tickContext());
+			if (level & k_axis_tick_minor)
+				axis.subtickContext() = op(axis.subtickContext());
+			return true;
+			});
+	}
 
+	if (level & k_grid) {
+		plot_.coord().forPlane([level, op](KcCoordPlane& plane) {
+			if (level & k_grid_major)
+				plane.majorLine() = op(plane.majorLine());
+			if (level & k_grid_major)
+				plane.minorLine() = op(plane.minorLine());
+			return true;
+			});
+	}
 }
 
 
