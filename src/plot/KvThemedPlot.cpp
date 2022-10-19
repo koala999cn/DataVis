@@ -3,8 +3,11 @@
 
 int KvThemedPlot::enterLevel(int curLevel, int into)
 {
-	if (into & k_xy)
-		curLevel &= ~k_xy;
+	if (into & k_all_axis)
+		curLevel &= ~k_all_axis;
+
+	if (into & k_all_plane)
+		curLevel &= ~k_all_plane;
 
 	if (into & k_element)
 		curLevel &= ~k_element;

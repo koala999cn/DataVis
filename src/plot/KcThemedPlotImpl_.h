@@ -3,6 +3,7 @@
 
 class KvPlot;
 class KcAxis;
+class KcCoordPlane;
 
 // 一个对KvPlot接口施加theme的实现
 
@@ -55,6 +56,9 @@ private:
 
 	// 根据level过滤axis
 	void forAxis_(int level, std::function<bool(KcAxis&)> op);
+
+	// 根据level过滤plane
+	void forPlane_(int level, std::function<bool(KcCoordPlane&)> op);
 
 private:
 	KvPlot& plot_;

@@ -500,7 +500,7 @@ void KsThemeManager::applyAxis_(int level, const jvalue& jval, KvThemedPlot* plo
 
 
 	/// 然后处理特化属性
-	trySpecials_(level, jobj, plot, applyAxis_);
+	tryAxisSpecials_(level, jobj, plot, applyAxis_);
 }
 
 
@@ -545,7 +545,7 @@ void KsThemeManager::applyTick_(int level, const jvalue& jval, KvThemedPlot* plo
 		});
 
 	/// 处理特化属性
-	trySpecials_(level, jobj, plot, applyTick_);
+	tryAxisSpecials_(level, jobj, plot, applyTick_);
 }
 
 
@@ -591,7 +591,7 @@ void KsThemeManager::applyGrid_(int level, const jvalue& jval, KvThemedPlot* plo
 
 
 	/// 3. 处理特化属性(x, y, left, ...)
-	trySpecials_(level, jobj, plot, applyGrid_);
+	tryGridSpecials_(level, jobj, plot, applyGrid_);
 }
 
 
@@ -612,19 +612,29 @@ void KsThemeManager::tryLegend_(const jobject& jobj, KvThemedPlot* plot)
 }
 
 
-void KsThemeManager::trySpecials_(int level, const jobject& jobj, KvThemedPlot* plot,
+void KsThemeManager::tryAxisSpecials_(int level, const jobject& jobj, KvThemedPlot* plot,
 	std::function<void(int, const jvalue&, KvThemedPlot*)> op)
 {
 	static const std::pair<const char*, int> special[] = {
-		{ "x", KvThemedPlot::k_x },
-		{ "y", KvThemedPlot::k_y },
 		{ "left", KvThemedPlot::k_left },
 		{ "top", KvThemedPlot::k_top },
 		{ "right", KvThemedPlot::k_right },
-		{ "bottom", KvThemedPlot::k_bottom }
+		{ "bottom", KvThemedPlot::k_bottom },
+		{ "near-left", KvThemedPlot::k_near_left },
+		{ "near-top", KvThemedPlot::k_near_top },
+		{ "near-right", KvThemedPlot::k_near_right },
+		{ "near-bottom", KvThemedPlot::k_near_bottom },
+		{ "far-left", KvThemedPlot::k_far_left },
+		{ "far-top", KvThemedPlot::k_far_top },
+		{ "far-right", KvThemedPlot::k_far_right },
+		{ "far-bottom", KvThemedPlot::k_far_bottom },
+		{ "floor-left", KvThemedPlot::k_floor_left },
+		{ "floor-right", KvThemedPlot::k_floor_right },
+		{ "ceil-left", KvThemedPlot::k_ceil_left },
+		{ "ceil-right", KvThemedPlot::k_ceil_right }
 	};
 
-	for (unsigned i = 0; i < sizeof(special) / sizeof(special[0]); i++)
+	for (unsigned i = 0; i < std::size(special); i++)
 		trySpecialProp_(level, jobj, special[i].first, special[i].second, 
 			[plot, op](int newLevel, const jvalue& jval) {
 				op(newLevel, jval, plot);
@@ -633,12 +643,32 @@ void KsThemeManager::trySpecials_(int level, const jobject& jobj, KvThemedPlot* 
 }
 
 
+void KsThemeManager::tryGridSpecials_(int level, const jobject& jobj, KvThemedPlot* plot,
+	std::function<void(int, const jvalue&, KvThemedPlot*)> op)
+{
+	static const std::pair<const char*, int> special[] = {
+		{ "front", KvThemedPlot::k_plane_front },
+		{ "back", KvThemedPlot::k_plane_back },
+		{ "left", KvThemedPlot::k_plane_left },
+		{ "right", KvThemedPlot::k_plane_right },
+		{ "floor", KvThemedPlot::k_plane_floor },
+		{ "ceil", KvThemedPlot::k_plane_ceil }
+	};
+
+	for (unsigned i = 0; i < std::size(special); i++)
+		trySpecialProp_(level, jobj, special[i].first, special[i].second,
+			[plot, op](int newLevel, const jvalue& jval) {
+				op(newLevel, jval, plot);
+			}
+	);
+}
+
+
 void KsThemeManager::trySpecialProp_(int level, const jobject& jobj, const char* propName, int propId,
 	std::function<void(int, const jvalue&)> op)
 {
 	auto newLevel = KvThemedPlot::enterLevel(level, propId);
-	assert(newLevel);
-	if (jobj.contains(propName))
+	if (newLevel && jobj.contains(propName))
 		op(newLevel, jobj[propName]);
 }
 

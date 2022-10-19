@@ -20,7 +20,7 @@
     },
 
     {
-      "name": "clean",
+      "name": "frame",
 
       "disc": "no ticks & no grids",
 
@@ -33,17 +33,34 @@
         "title": { "face": "bold" },
 
         "left": {
+          "visible":  true,
           "baseline": true,
           "label": true,
           "tick": null
         },
         "bottom": {
+          "visible": true,
           "baseline": true,
           "label": true,
           "tick": null
         },
+        "floor-right": {
+          "visible": true,
+          "baseline": true,
+          "label": true,
+          "tick": null
+        },
+
         "right": null,
         "top": null,
+        "far-left": null,
+        "far-right": null,
+        "far-bottom": null,
+        "far-top": null,
+        "floor-left": null,
+        "ceil-left": null,
+        "ceil-right": null,
+
         "margins": null
       },
 
@@ -53,11 +70,29 @@
     },
 
     {
+      "name": "box",
+
+      "base": "frame",
+
+      "axis": {
+        "right": { "label": null },
+        "top": { "label": null },
+        "far-left": { "label": null },
+        "far-right": { "label": null },
+        "far-bottom": { "label": null },
+        "far-top": { "label": null },
+        "floor-left": { "label": null },
+        "ceil-left": { "label": null },
+        "ceil-right": { "label": null }
+      }
+    },
+
+    {
       "name": "scientific",
 
       "disc": "dashed gridline & dotted sub-gridline & no ticks",
 
-      "base": "clean",
+      "base": "frame",
 
       "title": {
         "face": "bold",
@@ -74,9 +109,9 @@
           "visible": true,
           "style": "dot"
         },
-         
+
         "zeroline": null
-        }
+      }
     },
 
     {
@@ -94,7 +129,7 @@
 
       "disc": "solid gridline & no ticks & no sub-gridline",
 
-      "base": "clear",
+      "base": "frame",
 
       "grid": {
         "major": "solid"

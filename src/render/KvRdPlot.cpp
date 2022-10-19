@@ -170,9 +170,6 @@ void KvRdPlot::showProperySet()
 
 void KvRdPlot::showThemeProperty_()
 {
-	// 加载theme
-	KsThemeManager::singleton().load("themes/*.json"); // TODO: 移动KsThemeManager构造函数中去
-
 	KcThemedPlotImpl_ tp(*plot_);
 
 	auto themes = KsThemeManager::singleton().listThemes();

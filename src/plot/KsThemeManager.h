@@ -81,7 +81,10 @@ protected:
 	static void tryMargins_(int level, const jobject& jobj, KvThemedPlot* plot);
 	static void tryLegend_(const jobject& jobj, KvThemedPlot* plot);
 
-	static void trySpecials_(int level, const jobject& jobj, KvThemedPlot* plot,
+	static void tryAxisSpecials_(int level, const jobject& jobj, KvThemedPlot* plot,
+		std::function<void(int, const jvalue&, KvThemedPlot*)> op);
+
+	static void tryGridSpecials_(int level, const jobject& jobj, KvThemedPlot* plot,
 		std::function<void(int, const jvalue&, KvThemedPlot*)> op);
 
 	// 检测jobj是否包含属性propName，若包含则调用enterLevel(level, propId)进入下一level，并回调op

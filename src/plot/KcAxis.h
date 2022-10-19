@@ -37,6 +37,11 @@ public:
 		k_floor_right,
 		k_ceil_left,
 		k_ceil_right,
+
+		k_left = k_near_left,
+		k_right = k_near_right,
+		k_bottom = k_near_bottom,
+		k_top = k_near_top
 	};
 
 	enum KeTickOrient

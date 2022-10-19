@@ -96,11 +96,11 @@ void KcThemedPlotImpl_::applyVisible(int level, bool b)
 		forAxis_(level, [level, b](KcAxis& axis) {
 
 			if (level & k_axis_baseline)
-			    axis.showBaseline() = b;
+				axis.showBaseline() = b;
 
 			if (level & k_axis_tick_major)
 				axis.showTick() = b;
-			
+
 			if (level & k_axis_tick_minor)
 				axis.showSubtick() = b;
 
@@ -260,22 +260,45 @@ void KcThemedPlotImpl_::setLegendSpacing(int xspacing, int yspacing)
 
 void KcThemedPlotImpl_::forAxis_(int level, std::function<bool(KcAxis&)> op)
 {
-	if (level & k_axis) {
+	static constexpr int typeMap[] = {
+		k_near_left,
+		k_near_right,
+		k_near_bottom,
+		k_near_top,
+		k_far_left,
+		k_far_right,
+		k_far_bottom,
+		k_far_top,
+		k_floor_left,
+		k_floor_right,
+		k_ceil_left,
+		k_ceil_right 
+    };
 
-		plot_.coord().forAxis([level, op](KcAxis& axis) {
-			if (axis.type() == KcAxis::k_near_left && !(level & k_left))
-				return true;
+	plot_.coord().forAxis([level, op](KcAxis& axis) {
+		if (!(level & typeMap[axis.type()]))
+			return true; // 类型不匹配，跳过该axis
 
-			if (axis.type() == KcAxis::k_near_right && !(level & k_right))
-				return true;
+		return op(axis);
+		});
+}
 
-			if (axis.type() == KcAxis::k_near_top && !(level & k_top))
-				return true;
 
-			if (axis.type() == KcAxis::k_near_bottom && !(level & k_bottom))
-				return true;
+void KcThemedPlotImpl_::forPlane_(int level, std::function<bool(KcCoordPlane&)> op)
+{
+	static constexpr int typeMap[] = {
+		k_plane_back,
+		k_plane_front,
+		k_plane_left,
+		k_plane_right,
+		k_plane_ceil,
+		k_plane_floor
+	};
 
-			return op(axis);
-			});
-	}
+	plot_.coord().forPlane([level, op](KcCoordPlane& plane) {
+		if (!(level & typeMap[plane.type()]))
+			return true; // 类型不匹配，跳过该plane
+
+		return op(plane);
+		});
 }
