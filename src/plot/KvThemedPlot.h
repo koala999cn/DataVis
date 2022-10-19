@@ -39,7 +39,7 @@ public:
 		k_ceil_left = 0x4000,
 		k_ceil_right = 0x8000,
 
-		k_all_axis = k_axis | 0xfff0,
+		k_all_axis = 0xfff0,
 
 		k_plane_front = 0x10000,
 		k_plane_back = 0x20000,
@@ -48,7 +48,7 @@ public:
 		k_plane_floor = 0x100000,
 		k_plane_ceil = 0x200000,
 
-		k_all_plane = k_grid | 0x3f0000,
+		k_all_plane = 0x3f0000,
 
 		///  Ù–‘
 
@@ -97,10 +97,10 @@ public:
 
 		k_axis_all				= k_axis_text | k_axis_line_all,
 
-		k_grid_major_all		= k_all_plane | k_grid_major,
-		k_grid_minor_all		= k_all_plane | k_grid_minor,
-		k_grid_zeroline_all		= k_all_plane | k_grid_zeroline,
-		k_grid_line_all			= k_all_plane | k_grid_line,
+		k_grid_major_all		= k_grid | k_all_plane | k_grid_major,
+		k_grid_minor_all		= k_grid | k_all_plane | k_grid_minor,
+		k_grid_zeroline_all		= k_grid | k_all_plane | k_grid_zeroline,
+		k_grid_line_all			= k_grid | k_all_plane | k_grid_line,
 		k_grid_all				= k_grid_line_all,
 
 		k_legend_title			= k_legend | k_title,

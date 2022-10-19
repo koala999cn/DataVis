@@ -95,27 +95,33 @@ void KcThemedPlotImpl_::applyVisible(int level, bool b)
 	if (level & k_axis) {
 		forAxis_(level, [level, b](KcAxis& axis) {
 
-			if (level & k_axis_baseline)
-				axis.showBaseline() = b;
+			int all_axis_elements = k_axis_line | k_axis_text;
+		
+			if ((level & all_axis_elements) == all_axis_elements) {
+				axis.visible() = b;
+			}
+			else {
+				if (level & k_axis_baseline)
+					axis.showBaseline() = b;
 
-			if (level & k_axis_tick_major)
-				axis.showTick() = b;
+				if (level & k_axis_tick_major)
+					axis.showTick() = b;
 
-			if (level & k_axis_tick_minor)
-				axis.showSubtick() = b;
+				if (level & k_axis_tick_minor)
+					axis.showSubtick() = b;
 
-			if (level & k_label)
-				axis.showLabel() = b;
+				if (level & k_label)
+					axis.showLabel() = b;
 
-			if (level & k_title)
-				axis.showTitle() = b;
-
+				if (level & k_title)
+					axis.showTitle() = b;
+			}
 			return true;
 			});
 	}
 	
 	if (level & k_grid) {
-		plot_.coord().forPlane([level, b](KcCoordPlane& plane) {
+		forPlane_(level, [level, b](KcCoordPlane& plane) {
 			if (level & k_grid_major)
 				plane.visible() = b;
 			
@@ -131,7 +137,7 @@ void KcThemedPlotImpl_::applyVisible(int level, bool b)
 void KcThemedPlotImpl_::applyLine(int level, std::function<KpPen(const KpPen&)> op)
 {
 	if (level & k_axis) {
-		plot_.coord().forAxis([level, op](KcAxis& axis) {
+		forAxis_(level, [level, op](KcAxis& axis) {
 			if (level & k_axis_baseline)
 				axis.baselineContext() = op(axis.baselineContext());
 			if (level & k_axis_tick_major)
@@ -143,7 +149,7 @@ void KcThemedPlotImpl_::applyLine(int level, std::function<KpPen(const KpPen&)> 
 	}
 
 	if (level & k_grid) {
-		plot_.coord().forPlane([level, op](KcCoordPlane& plane) {
+		forPlane_(level, [level, op](KcCoordPlane& plane) {
 			if (level & k_grid_major)
 				plane.majorLine() = op(plane.majorLine());
 			if (level & k_grid_minor)
@@ -163,7 +169,7 @@ void KcThemedPlotImpl_::applyText(int level, std::function<KpFont(const KpFont&)
 void KcThemedPlotImpl_::applyTextColor(int level, std::function<color4f(const color4f&)> op)
 {
 	if (level & k_axis) {
-		plot_.coord().forAxis([level, op](KcAxis& axis) {
+		forAxis_(level, [level, op](KcAxis& axis) {
 			if (level & k_label)
 				axis.labelColor() = op(axis.labelColor());
 			if (level & k_title)

@@ -22,7 +22,7 @@
     {
       "name": "frame",
 
-      "disc": "no ticks & no grids",
+      "disc": "basic axes & no grids",
 
       "title": {
         "face": "bold",
@@ -30,36 +30,25 @@
       },
 
       "axis": {
+        "visible": false,
+
         "title": { "face": "bold" },
 
         "left": {
-          "visible":  true,
+          "visible": true,
           "baseline": true,
-          "label": true,
-          "tick": null
+          "label": true
         },
         "bottom": {
           "visible": true,
           "baseline": true,
-          "label": true,
-          "tick": null
+          "label": true
         },
         "floor-right": {
           "visible": true,
           "baseline": true,
-          "label": true,
-          "tick": null
+          "label": true
         },
-
-        "right": null,
-        "top": null,
-        "far-left": null,
-        "far-right": null,
-        "far-bottom": null,
-        "far-top": null,
-        "floor-left": null,
-        "ceil-left": null,
-        "ceil-right": null,
 
         "margins": null
       },
@@ -75,15 +64,60 @@
       "base": "frame",
 
       "axis": {
-        "right": { "label": null },
-        "top": { "label": null },
-        "far-left": { "label": null },
-        "far-right": { "label": null },
-        "far-bottom": { "label": null },
-        "far-top": { "label": null },
-        "floor-left": { "label": null },
-        "ceil-left": { "label": null },
-        "ceil-right": { "label": null }
+        "right": {
+          "visible": true,
+          "baseline": true,
+          "label": null,
+          "tick": null
+        },
+        "top": {
+          "visible": true,
+          "baseline": true,
+          "label": null,
+          "tick": null
+        },
+        "far-left": {
+          "visible": true,
+          "baseline": true,
+          "label": null,
+          "tick": null
+        },
+        "far-right": {
+          "visible": true,
+          "baseline": true,
+          "label": null,
+          "tick": null
+        },
+        "far-bottom": {
+          "visible": true,
+          "baseline": true,
+          "label": null,
+          "tick": null
+        },
+        "far-top": {
+          "visible": true,
+          "baseline": true,
+          "label": null,
+          "tick": null
+        },
+        "floor-left": {
+          "visible": true,
+          "baseline": true,
+          "label": null,
+          "tick": null
+        },
+        "ceil-left": {
+          "visible": true,
+          "baseline": true,
+          "label": null,
+          "tick": null
+        },
+        "ceil-right": {
+          "visible": true,
+          "baseline": true,
+          "label": null,
+          "tick": null
+        }
       }
     },
 
@@ -100,6 +134,7 @@
       },
 
       "grid": {
+
         "major": {
           "visible": true,
           "style": "dash"
@@ -110,29 +145,28 @@
           "style": "dot"
         },
 
-        "zeroline": null
+        "zeroline": null,
+
+        "back": true,
+        "left": true,
+        "floor": true,
+        "front": false,
+        "right": false,
+        "ceil": false
       }
     },
 
-    {
-      "name": "clear",
-
-      "disc": "dashed gridline & no ticks & no sub-gridline",
-
-      "base": "scientific",
-
-      "grid": { "minor": null }
-    },
 
     {
       "name": "plain",
 
       "disc": "solid gridline & no ticks & no sub-gridline",
 
-      "base": "frame",
+      "base": "scientific",
 
       "grid": {
-        "major": "solid"
+        "major": "solid",
+        "minor": null
       }
     }
   ]
