@@ -146,7 +146,7 @@ void KcThemedPlotImpl_::applyLine(int level, std::function<KpPen(const KpPen&)> 
 		plot_.coord().forPlane([level, op](KcCoordPlane& plane) {
 			if (level & k_grid_major)
 				plane.majorLine() = op(plane.majorLine());
-			if (level & k_grid_major)
+			if (level & k_grid_minor)
 				plane.minorLine() = op(plane.minorLine());
 			return true;
 			});
@@ -162,7 +162,15 @@ void KcThemedPlotImpl_::applyText(int level, std::function<KpFont(const KpFont&)
 
 void KcThemedPlotImpl_::applyTextColor(int level, std::function<color4f(const color4f&)> op)
 {
-
+	if (level & k_axis) {
+		plot_.coord().forAxis([level, op](KcAxis& axis) {
+			if (level & k_label)
+				axis.labelColor() = op(axis.labelColor());
+			if (level & k_title)
+				axis.titleColor() = op(axis.titleColor());
+			return true;
+			});
+	}
 }
 
 
