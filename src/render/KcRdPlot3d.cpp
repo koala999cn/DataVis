@@ -50,24 +50,4 @@ void KcRdPlot3d::showProperySet()
 		rot.fromEulerAngleXYZ(angle);
 		orient = quatd(rot);
 	}
-	
-	auto lower = point3f(plot3d->coord().lower());
-	auto upper = point3f(plot3d->coord().upper());
-	auto speed = (upper - lower) * 0.1;
-	for (unsigned i = 0; i < speed.size(); i++)
-		if (speed.at(i) == 0)
-			speed.at(i) = 1;
-
-	bool extendsChanged(false);
-	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), speed.x()))
-		extendsChanged = true;
-	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y())) 
-		extendsChanged = true;
-	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z())) 
-		extendsChanged = true;
-
-	if (extendsChanged) {
-		plot3d->coord().setExtents(lower, upper);
-		plot3d->autoFit() = false;
-	}
 }

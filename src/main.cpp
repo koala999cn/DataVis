@@ -10,6 +10,7 @@
 #include "imapp/KcModuleImNode.h"
 #include "imapp/KcModuleImFileDialog.h"
 #include "imapp/KcModuleImPlot.h"
+#include "prov/KcPvAudioInput.h"
 #include "render/KcRdPlot1d.h"
 #include "render/KcRdPlot3d.h"
 #include "plot/KsThemeManager.h"
@@ -35,6 +36,7 @@ int main_(int, char**)
     auto sheet = app.windowManager().registerStatic<KcImPropertySheet>("Property Sheet");
 
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
+    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot3d>>("Plot3d"));
 

@@ -3,7 +3,7 @@
 
 KvPlottable::aabb_type KvPlottable::boundingBox() const
 {
-	if (data_ == nullptr)
+	if (data_ == nullptr || data_->size() == 0)
 		return aabb_type(); // null aabb
 
 	point3 lower, upper;

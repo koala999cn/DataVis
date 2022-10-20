@@ -11,6 +11,7 @@
 #include "misc/cpp/imgui_stdlib.h"
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
+#include "plot/KvCoord.h"
 
 
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
@@ -164,6 +165,26 @@ void KvRdPlot::showProperySet()
 			//ImGui::TreePop();
 		}
 
+	}
+
+	auto lower = point3f(plot_->coord().lower());
+	auto upper = point3f(plot_->coord().upper());
+	auto speed = (upper - lower) * 0.1;
+	for (unsigned i = 0; i < speed.size(); i++)
+		if (speed.at(i) == 0)
+			speed.at(i) = 1;
+
+	bool extendsChanged(false);
+	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), speed.x()))
+		extendsChanged = true;
+	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y()))
+		extendsChanged = true;
+	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z()))
+		extendsChanged = true;
+
+	if (extendsChanged) {
+		plot_->coord().setExtents(lower, upper);
+		plot_->autoFit() = false;
 	}
 }
 

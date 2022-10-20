@@ -32,7 +32,9 @@ public:
     }
 
     void clear() override {
-        array_.resize(0); super_::clear();
+        auto shape = array_.shape();
+        shape[0] = 0;
+        array_.resizeAndPreserve(shape); super_::clear();
     }
 
     void resize(kIndex shape[], kIndex chs = 0) override {

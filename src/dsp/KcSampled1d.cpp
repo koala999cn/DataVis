@@ -14,7 +14,7 @@ void KcSampled1d::pushBack(const kReal* v, kIndex N)
 
 void KcSampled1d::pushBack(const KcSampled1d& d, kIndex pos, kIndex nx)
 {
-    assert(step(0) == d.step(0) && channels() == d.channels());
+    assert(KtuMath<kReal>::almostEqual(step(0), d.step(0)) && channels() == d.channels());
     if (nx <= 0) nx = d.size() - pos;
     assert(pos + nx <= d.size());
     
