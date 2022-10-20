@@ -96,7 +96,7 @@ public:
 
 
     // 删除前rows行
-    //void popFront(kIndex rows);
+    void popFront(kIndex rows);
 
     // 移除第0轴数值小于x的rows
     //void cutBefore(kReal x);
@@ -135,7 +135,7 @@ void KtSampledArray<DIM>::setChannel(kIndex idx[], kIndex channel, const kReal* 
     }
 }
 
-#if 0
+
 template<int DIM>
 void KtSampledArray<DIM>::popFront(kIndex rows)
 {
@@ -147,6 +147,7 @@ void KtSampledArray<DIM>::popFront(kIndex rows)
 }
 
 
+#if 0
 template<int DIM>
 void KtSampledArray<DIM>::cutBefore(kReal x)
 {

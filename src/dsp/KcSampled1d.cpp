@@ -31,7 +31,30 @@ void KcSampled1d::extract(kIndex idx, kReal* buf, kIndex N) const
 }
 
 
-void KcSampled1d::shiftLeftTo(kReal xlow)
+void KcSampled1d::shift(const KcSampled1d& d, kIndex capacity)
+{
+    assert(step(0) == d.step(0));
+    assert(channels() == d.channels());
+
+    if (capacity == 0)
+        capacity = size();
+
+    if (d.size() >= capacity) {
+        clear();
+        pushBack(d, d.size() - capacity);
+    }
+    else {
+        if (d.size() + size() > capacity) {
+            auto x0 = samp_[0].x0();
+            popFront(d.size() + size() - capacity);
+            alignX0(x0); // 保持x0不变
+        }
+        pushBack(d);
+    }
+}
+
+
+void KcSampled1d::alignX0(kReal xlow)
 {
     samp_[0].shiftLeftTo(xlow);
 }

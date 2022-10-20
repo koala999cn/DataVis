@@ -63,10 +63,10 @@ int main_(int, char**)
             ImGui::EndMainMenuBar();
         }
 
-        KsImApp::singleton().windowManager().update();
-
         if (editor->status() == KcImNodeEditor::k_busy)
             editor->stepFrame();
+
+        KsImApp::singleton().windowManager().update();
 
         return true;
         });

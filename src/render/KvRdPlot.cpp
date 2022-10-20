@@ -6,6 +6,7 @@
 #include "imapp/KvImWindow.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
+#include "KcImNodeEditor.h"
 #include "imgui.h"
 #include "KuStrUtil.h"
 #include "misc/cpp/imgui_stdlib.h"
@@ -13,6 +14,7 @@
 #include "plot/KcThemedPlotImpl_.h"
 #include "plot/KvCoord.h"
 #include "KvNode.h"
+#include "KcSampled1d.h"
 
 
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
@@ -53,6 +55,22 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 	auto data = prov->fetchData(outPort->index());
 	auto numPlts = std::distance(r.first, r.second);
 	
+	if (prov->isStream()) { // shifting the data
+		auto samp = std::dynamic_pointer_cast<KcSampled1d>(streamData_[outPort]);
+		assert(samp);
+
+		auto input = std::dynamic_pointer_cast<KcSampled1d>(data);
+		assert(input);
+		
+		auto xrange = plot_->coord().upper().x() - plot_->coord().lower().x();
+		if (xrange == 0)
+			samp->clear();
+		else 
+		    samp->shift(*input, xrange / samp->step(0));
+
+		data = samp;
+	}
+
 	if (data->channels() == 1 || numPlts == 1) {
 		r.first->second->setData(data);
 	}
@@ -82,16 +100,8 @@ bool KvRdPlot::onNewLink(KcPortNode* from, KcPortNode* to)
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
 	assert(prov);
 
-	auto plts = createPlottable_(prov.get());
-	if (plts.empty())
-		return false;
-
-	for (auto plt : plts) {
-		plot_->addPlottable(plt);
-		port2Plts_.insert(std::make_pair(from->id(), plt));
-	}
-
-	return true;
+	auto editor = KsImApp::singleton().windowManager().getStatic<KcImNodeEditor>();
+	return editor->status() != KcImNodeEditor::k_busy; // 运行时不接受新的链接
 }
 
 
@@ -112,33 +122,63 @@ void KvRdPlot::onDelLink(KcPortNode* from, KcPortNode* to)
 		plot_->removePlottable(i->second);
 
 	port2Plts_.erase(from->id());
+
+	if (prov->isStream())
+		streamData_.erase(from);
 }
 
 
 bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+	plot_->removeAllPlottables();
+	port2Plts_.clear(); 
+	streamData_.clear();
+
 	if (!ins.empty()) {
-		// 根据输入配置plot的坐标系
+		// 根据输入配置plot
+
 		typename KvCoord::point3 
 			lower(std::numeric_limits<typename KvCoord::float_t>::max()), 
 			upper(std::numeric_limits<typename KvCoord::float_t>::lowest());
+
 		for (unsigned i = 0; i < ins.size(); i++) {
-			auto node = ins[i].second->parent().lock();
+			auto port = ins[i].second;
+			auto node = port->parent().lock();
 			if (!node) continue;
 
 			auto prov = dynamic_cast<KvDataProvider*>(node.get());
 			assert(prov);
-			for (unsigned i = 0; i < std::min<unsigned>(prov->dim() + 1, 3); i++) {
-				auto r = prov->range(i);
-				if (lower[i] > r.low())
-					lower[i] = r.low();
-				if (upper[i] < r.high())
-					upper[i] = r.high();
+			for (unsigned j = 0; j < std::min<unsigned>(prov->dim() + 1, 3); j++) {
+				auto r = prov->range(j);
+				if (lower[j] > r.low())
+					lower[j] = r.low();
+				if (upper[j] < r.high())
+					upper[j] = r.high();
 			}
 
 			if (lower.z() == std::numeric_limits<typename KvCoord::float_t>::max()) // 输入全是二维数据
 				lower.z() = upper.z() = 0; 
+
+			auto plts = createPlottable_(prov);
+			if (plts.empty())
+				return false;
+
+			for (auto plt : plts) {
+				plot_->addPlottable(plt);
+				port2Plts_.insert(std::make_pair(port->id(), plt));
+			}
+
+			if (prov->isStream()) {
+				if (prov->dim() == 1)
+					streamData_[port] = std::make_shared<KcSampled1d>(prov->step(0), prov->channels());
+				else {
+					assert(false); // TODO:
+				}
+			}
 		}
+		
+		// TODO: update theme
+
 
 		plot_->coord().setExtents(lower, upper);
 		plot_->autoFit() = false;

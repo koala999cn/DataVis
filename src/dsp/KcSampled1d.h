@@ -38,12 +38,15 @@ public:
     // @frames: 0表示从pos往后的所有帧
     void pushBack(const KcSampled1d& d, kIndex pos = 0, kIndex frames = 0);
 
+    // 向this压入数据d，保持数据总量等于capacity
+    // 若capacity = 0，则保持当前数据总量不变
+    void shift(const KcSampled1d& d, kIndex capacity = 0);
 
     // 从第idx个采样点开始，提取frames帧的数据到buf
     void extract(kIndex idx, kReal* buf, kIndex frames) const;
 
-
-    void shiftLeftTo(kReal xlow);
+    // 对齐采样时间到xlow，保持数据不变
+    void alignX0(kReal xlow);
 
 /*
 public:
