@@ -21,7 +21,7 @@ public:
 
 	kIndex size(kIndex) const final;
 
-	bool onStartPipeline() final;
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>&) final;
 
 	void onStopPipeline() final;
 

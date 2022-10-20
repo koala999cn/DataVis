@@ -7,6 +7,13 @@ class KcSampled1d : public KtSampledArray<1>
 public:
     using super_ = KtSampledArray<1>;
 
+    using super_::super_;
+
+    KcSampled1d(kReal dx, kIndex channels = 1) {
+        resize(0, channels);
+        reset(0, 0, dx);
+    }
+
     void resize(kIndex nx, kIndex channels) {
         super_::resize(&nx, channels);
     }

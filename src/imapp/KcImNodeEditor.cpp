@@ -2,6 +2,7 @@
 #include "imnodes/imnodes.h"
 #include <assert.h>
 #include "kgl/core/KtBfsIter.h"
+#include "kgl/util/inverse.h"
 
 
 KcImNodeEditor::KcImNodeEditor(const std::string_view& name)
@@ -155,7 +156,7 @@ void KcImNodeEditor::insertNode(const std::shared_ptr<KvBlockNode>& node)
         graph_.addVertex(std::make_shared<KcPortNode>(KcPortNode::k_out, node, i));
 
     if (status_ == k_busy) {
-        node->onStartPipeline(); // 补一个流水线启动的回调
+        // TODO: node->onStartPipeline(); // 补一个流水线启动的回调
         
         // TODO: 检测错误
     }
@@ -338,16 +339,29 @@ KvBlockNode* KcImNodeEditor::selectedNode() const
 
 bool KcImNodeEditor::start()
 {
+    DigraphSx<bool> gR;
+    inverse(graph_, gR); // 求解graph_的逆，方便快速获取各顶点的入边
+
+    std::vector<std::pair<unsigned, KcPortNode*>> ins;
     for (unsigned v = 0; v < graph_.order(); v++) {
         auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
         assert(node);
 
-        if (!node->onStartPipeline()) {
+        ins.clear();
+        for (unsigned w = 0; w < node->inPorts(); w++) {
+            auto adj = KtAdjIter(gR, v + w + 1); // gR的出边等于graph_的入边
+            for (; !adj.isEnd(); ++adj) {
+                auto port = std::dynamic_pointer_cast<KcPortNode>(graph_.vertexAt(*adj));
+                assert(port);
+                ins.emplace_back(w, port.get());
+            }
+        }
+
+        if (!node->onStartPipeline(ins)) {
             stop();
             return false;
         }
 
-        // 跳过port节点
         v += node->inPorts();
         v += node->outPorts();
     }

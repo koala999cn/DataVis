@@ -61,8 +61,10 @@ KcPvAudioInput::~KcPvAudioInput()
 }
 
 
-bool KcPvAudioInput::onStartPipeline()
+bool KcPvAudioInput::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+	assert(ins.empty());
+
 	auto device = (KcAudioDevice*)dptr_;
 	if (device->opened())
 		device->close(); // TODO: 若参数一致，则不关闭
@@ -82,9 +84,7 @@ bool KcPvAudioInput::onStartPipeline()
 		return false;
 
 	device->pushBack(std::make_shared<kPrivate::KcAudioStreamObserver>(this));
-	data_ = std::make_shared<KcSampled1d>();
-	data_->resizeChannel(channels_);
-	data_->reset(0, 0, samp.dx(), samp.x0ref());
+	data_ = std::make_shared<KcSampled1d>(samp.dx(), channels_);
 	return device->start();
 }
 

@@ -36,7 +36,9 @@ public:
 
 	// 以下虚拟接口用来处理流水线操作
 
-	virtual bool onStartPipeline() { return true; }
+	// @ins: 各pair元素表示：<当前节点的输入端口序号, 链接该端口的输出端口指针>
+	virtual bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) { 
+		return true; }
 
 	virtual void onStopPipeline() {}
 

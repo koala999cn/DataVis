@@ -16,7 +16,7 @@ public:
 	using super_ = KvSampled;
 
 	KtSampled() : samp_() {}
-
+	KtSampled(const KtSampled& other) : samp_(other.samp_) {}
 
 	// 实现基类接口
 	kIndex dim() const override {

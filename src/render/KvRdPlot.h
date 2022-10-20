@@ -24,7 +24,7 @@ public:
 
 	void onDelLink(KcPortNode* from, KcPortNode* to) override;
 
-	bool onStartPipeline() override;
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) override;
 
 	void onInput(KcPortNode* outPort, unsigned inPort) override;
 

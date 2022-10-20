@@ -12,6 +12,7 @@
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
 #include "plot/KvCoord.h"
+#include "KvNode.h"
 
 
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
@@ -114,9 +115,36 @@ void KvRdPlot::onDelLink(KcPortNode* from, KcPortNode* to)
 }
 
 
-bool KvRdPlot::onStartPipeline()
+bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
-	plot_->setVisible(true);
+	if (!ins.empty()) {
+		// 根据输入配置plot的坐标系
+		typename KvCoord::point3 
+			lower(std::numeric_limits<typename KvCoord::float_t>::max()), 
+			upper(std::numeric_limits<typename KvCoord::float_t>::lowest());
+		for (unsigned i = 0; i < ins.size(); i++) {
+			auto node = ins[i].second->parent().lock();
+			if (!node) continue;
+
+			auto prov = dynamic_cast<KvDataProvider*>(node.get());
+			assert(prov);
+			for (unsigned i = 0; i < std::min<unsigned>(prov->dim() + 1, 3); i++) {
+				auto r = prov->range(i);
+				if (lower[i] > r.low())
+					lower[i] = r.low();
+				if (upper[i] < r.high())
+					upper[i] = r.high();
+			}
+
+			if (lower.z() == std::numeric_limits<typename KvCoord::float_t>::max()) // 输入全是二维数据
+				lower.z() = upper.z() = 0; 
+		}
+
+		plot_->coord().setExtents(lower, upper);
+		plot_->autoFit() = false;
+		plot_->setVisible(true);
+	}
+
 	return true;
 }
 

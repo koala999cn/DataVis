@@ -14,6 +14,8 @@ public:
 
     KtSampledArray() = default;
 
+    KtSampledArray(const KtSampledArray& other)
+        : array_(other.array_), super_(other) {}
 
     /// 重载基类接口
 
