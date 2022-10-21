@@ -45,6 +45,17 @@ void KvPaint::drawLineLoop(point_getter fn, unsigned count)
 }
 
 
+void KvPaint::drawRect(const point3& lower, const point3& upper)
+{
+	point3 pts[4];
+	pts[0] = lower, pts[2] = upper;
+	pts[1] = { lower.x(), upper.y(), lower.z() };
+	pts[3] = { upper.x(), lower.x(), upper.z() };
+
+	drawLineLoop(pts, 4);
+}
+
+
 KvPaint::rect KvPaint::textRect(const point2& pos, const char* text, int align) const
 {
 	auto lower = pos;

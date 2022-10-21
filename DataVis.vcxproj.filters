@@ -40,9 +40,6 @@
     <Filter Include="3rdparty\imFileDialog">
       <UniqueIdentifier>{3ce5a1f3-ec03-4789-9bf1-b55abfac78dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="3rdparty\implot">
-      <UniqueIdentifier>{314d7329-2ade-4611-8dc7-ec78c60c94c3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KcSampled1d.cpp">
@@ -229,15 +226,6 @@
     <ClCompile Include="src\imapp\KcImPlot3d.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="3rdparty\implot\implot.cpp">
-      <Filter>3rdparty\implot</Filter>
-    </ClCompile>
-    <ClCompile Include="3rdparty\implot\implot_items.cpp">
-      <Filter>3rdparty\implot</Filter>
-    </ClCompile>
-    <ClCompile Include="src\imapp\KcModuleImPlot.cpp">
-      <Filter>imapp</Filter>
-    </ClCompile>
     <ClCompile Include="src\render\KcRdPlot1d.cpp">
       <Filter>render</Filter>
     </ClCompile>
@@ -309,6 +297,9 @@
     </ClCompile>
     <ClCompile Include="src\audio\KcAudioDevice.cpp">
       <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcBars2.cpp">
+      <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -630,15 +621,6 @@
     <ClInclude Include="src\imapp\KcImPaint.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="3rdparty\implot\implot.h">
-      <Filter>3rdparty\implot</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\implot\implot_internal.h">
-      <Filter>3rdparty\implot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\imapp\KcModuleImPlot.h">
-      <Filter>imapp</Filter>
-    </ClInclude>
     <ClInclude Include="src\render\KvDataRender.h">
       <Filter>render</Filter>
     </ClInclude>
@@ -725,6 +707,9 @@
     </ClInclude>
     <ClInclude Include="src\audio\KcAudioDevice.h">
       <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcBars2d.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

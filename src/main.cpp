@@ -9,7 +9,6 @@
 #include "imapp/KcModuleImGuiGlfw.h"
 #include "imapp/KcModuleImNode.h"
 #include "imapp/KcModuleImFileDialog.h"
-#include "imapp/KcModuleImPlot.h"
 #include "prov/KcPvAudioInput.h"
 #include "render/KcRdPlot1d.h"
 #include "render/KcRdPlot3d.h"
@@ -23,10 +22,8 @@ int main_(int, char**)
     auto imgui = app.registerModule<KcModuleImGuiGlfw>(1024, 768, "DataVis");
     auto imnode = app.registerModule<KcModuleImNode>();
     auto imfiledialog = app.registerModule<KcModuleImFileDialog>();
-    auto implot = app.registerModule<KcModuleImPlot>();
     app.setDependent(imnode, imgui);
     app.setDependent(imfiledialog, imgui);
-    app.setDependent(implot, imgui);
 
     if (!app.initialize())
         return 1;

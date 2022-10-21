@@ -15,3 +15,4 @@
 | [ImFileDialog](https://github.com/dfranx/ImFileDialog) | 文件对话框 | 已内嵌 |
 | [stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h) | ImFileDialog依赖 | 已内嵌 |
 | [glad](https://github.com/Dav1dde/glad) | ImFileDialog依赖 | 单独编译 |
+| [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 已内嵌 |

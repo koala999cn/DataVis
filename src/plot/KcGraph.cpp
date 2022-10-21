@@ -1,5 +1,5 @@
 #include "KcGraph.h"
-#include "plot/KvPaint.h"
+#include "KvPaint.h"
 
 
 void KcGraph::drawImpl_(KvPaint* paint, point_getter getter, const color4f& majorColor) const

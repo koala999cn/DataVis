@@ -1,6 +1,7 @@
 ﻿#include "KcRdPlot1d.h"
 #include "imapp/KcImPlot2d.h"
 #include "plot/KcGraph.h"
+#include "plot/KcBars2d.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
 
@@ -15,14 +16,14 @@ KcRdPlot1d::KcRdPlot1d()
 std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KvDataProvider* prov)
 {
 	if (prov->channels() == 1) 
-		return { new KcGraph(prov->name()) };
+		return { new KcBars2d(prov->name()) };
 
 	std::vector<KvPlottable*> plts;
 	plts.resize(prov->channels());
 
 	for (kIndex ch = 0; ch < prov->channels(); ch++) {
 		std::string name = prov->name() + " - ch" + KuStrUtil::toString(ch);
-		plts[ch] = new KcGraph(name);
+		plts[ch] = new KcBars2d(name);
 	}
 
 	return plts;
