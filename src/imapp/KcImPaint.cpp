@@ -59,18 +59,40 @@ void KcImPaint::drawPoint(const point3& pos)
 }
 
 
-void KcImPaint::drawLine(const point3& from, const point3& to)
+void KcImPaint::drawLine_(const ImVec2& pt0, const ImVec2& pt1)
 {
-	// TODO: ²Ã¼ô
-	auto drawList = ImGui::GetWindowDrawList();
-	auto pt0 = world2Pos_(from, true), pt1 = world2Pos_(to, true);		
-
 	if (lineStyle_ == KpPen::k_solid)
-		drawList->AddLine(pt0, pt1, color_(), lineWidth_);
+		ImGui::GetWindowDrawList()->AddLine(pt0, pt1, color_(), lineWidth_);
 	else if (lineStyle_ == KpPen::k_dash)
 		drawLinePattern_(pt0, pt1, { 6, 6 });
 	else if (lineStyle_ == KpPen::k_dot)
 		drawLinePattern_(pt0, pt1, { 2, 6 });
+}
+
+
+void KcImPaint::drawLine(const point3& from, const point3& to)
+{
+	drawLine_(world2Pos_(from, true), world2Pos_(to, true));
+}
+
+
+void KcImPaint::drawLineStrip(point_getter fn, unsigned count)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+
+	if (lineStyle_ == KpPen::k_solid) {
+		for (unsigned i = 1; i < count; i++)
+			drawList->PathLineTo(world2Pos_(fn(i), true));
+		drawList->PathStroke(color_(), 0, lineWidth_);
+	}
+	else {
+		ImVec2 pt0 = world2Pos_(fn(0), true);
+		for (unsigned i = 1; i < count; i++) {
+			auto pt1 = world2Pos_(fn(i), true);
+			drawLine_(pt0, pt1);
+			pt1 = pt0;
+		}
+	}
 }
 
 

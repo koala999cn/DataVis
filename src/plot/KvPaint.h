@@ -51,17 +51,17 @@ public:
 
 	virtual void drawPoints(const point3 pts[], unsigned count);
 
-	void drawPoints(point_getter fn, unsigned count);
+	virtual void drawPoints(point_getter fn, unsigned count);
 
 	virtual void drawLine(const point3& from, const point3& to) = 0;
 
 	virtual void drawLineStrip(const point3 pts[], unsigned count);
 
-	void drawLineStrip(point_getter fn, unsigned count);
+	virtual void drawLineStrip(point_getter fn, unsigned count);
 
 	virtual void drawLineLoop(const point3 pts[], unsigned count);
 
-	void drawLineLoop(point_getter fn, unsigned count);
+	virtual void drawLineLoop(point_getter fn, unsigned count);
 
 	virtual void fillRect(const point3& lower, const point3& upper) = 0;
 

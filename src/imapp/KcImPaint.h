@@ -29,6 +29,8 @@ public:
 
 	void drawLine(const point3& from, const point3& to) override;
 
+	void drawLineStrip(point_getter fn, unsigned count) override;
+
 	void fillRect(const point3& lower, const point3& upper) override;
 
 	void fillQuad(const point3& pt0, const point3& pt1, const point3& pt2, const point3& pt3) override;
@@ -43,6 +45,8 @@ private:
 	ImColor color_() const {
 		return ImColor(clr_.r(), clr_.g(), clr_.b(), clr_.a());
 	}
+
+	void drawLine_(const ImVec2& from, const ImVec2& to);
 
 	void drawLineDot_(const ImVec2& from, const ImVec2& to);
 
