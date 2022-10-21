@@ -14,18 +14,21 @@ public:
 
 	using super_::super_;
 
-	float barWidthRatio() const { return barWidthRatio_; }
-	float& barWidthRatio() { return barWidthRatio_; }
+	float_t barWidthRatio() const { return barWidthRatio_; }
+	float_t& barWidthRatio() { return barWidthRatio_; }
+
+	aabb_type boundingBox() const;
 
 protected:
 
 	void drawImpl_(KvPaint*, point_getter, const color4f&) const override;
 
 	// 返回单个bar的宽度（世界坐标）
-	float barWidth_() const; 
+	float_t barWidth_() const;
 
 protected:
 	KpPen border_;
 	KpBrush fill_;
-	float barWidthRatio_{ 0.5 };
+	float_t barWidthRatio_{ 0.5 };
+	float_t baseLine_{ 0 }; // bar的底线
 };

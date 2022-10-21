@@ -131,6 +131,7 @@ void KvRdPlot::onDelLink(KcPortNode* from, KcPortNode* to)
 bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
 	plot_->removeAllPlottables();
+	plot_->autoFit() = true;
 	port2Plts_.clear(); 
 	streamData_.clear();
 
@@ -174,6 +175,8 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 				else {
 					assert(false); // TODO:
 				}
+
+				plot_->autoFit() = false;
 			}
 		}
 		
@@ -181,7 +184,6 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 
 
 		plot_->coord().setExtents(lower, upper);
-		plot_->autoFit() = false;
 		plot_->setVisible(true);
 	}
 

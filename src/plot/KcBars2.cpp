@@ -30,10 +30,26 @@ void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, const color4f& maj
 	}
 }
 
-float KcBars2d::barWidth_() const
+KcBars2d::float_t KcBars2d::barWidth_() const
 {
 	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
 	return disc->step(0) != 0 ? 
 		disc->step(0) * barWidthRatio_ : 
 		boundingBox().width() / disc->size() * barWidthRatio_;
+}
+
+
+KcBars2d::aabb_type KcBars2d::boundingBox() const
+{
+	auto aabb = super_::boundingBox();
+	if (aabb.lower().y() > baseLine_)
+		aabb.lower().y() = baseLine_;
+	if (aabb.upper().y() < baseLine_)
+		aabb.upper().y() = baseLine_;
+
+	auto w = barWidth_();
+	aabb.lower().x() -= w;
+	aabb.upper().x() += w;
+
+	return aabb;
 }
