@@ -266,15 +266,8 @@ void KvRdPlot::showThemeProperty_()
 	auto themes = KsThemeManager::singleton().listThemes();
 	if (!themes.empty()) {
 
-		auto iter = std::find(themes.cbegin(), themes.cend(), themeName_);
-		//if (iter == themes.cend()) {
-		//	themeName_ = themes.front();
-		//	KsThemeManager::singleton().applyTheme(themeName_, &tp);
-		//}
-
-		
 		if (ImGui::BeginCombo("Theme", themeName_.c_str(), ImGuiComboFlags_HeightLarge)) {
-			for (iter = themes.cbegin(); iter != themes.cend(); iter++) {
+			for (auto iter = themes.cbegin(); iter != themes.cend(); iter++) {
 				if (ImGui::Selectable(iter->c_str(), *iter == themeName_)) {
 					themeName_ = *iter;
 					applyTheme_(themeName_, &tp);
@@ -291,18 +284,16 @@ void KvRdPlot::showThemeProperty_()
 	auto layouts = KsThemeManager::singleton().listLayouts();
 	if (!layouts.empty()) {
 
-		auto iter = std::find(layouts.cbegin(), layouts.cend(), layoutName_);
-		//if (iter == layouts.cend()) {
-		//	layoutName_ = layouts.front();
-		//	KsThemeManager::singleton().applyTheme(layoutName_, &tp);
-		//}
-
 		if (ImGui::BeginCombo("Layout", layoutName_.c_str(), ImGuiComboFlags_HeightLarge)) {
-			for (iter = layouts.cbegin(); iter != layouts.cend(); iter++)
+			for (auto iter = layouts.cbegin(); iter != layouts.cend(); iter++) {
 				if (ImGui::Selectable(iter->c_str(), *iter == layoutName_)) {
 					layoutName_ = *iter;
 					KsThemeManager::singleton().applyLayout(layoutName_, &tp);
 				}
+
+				if (*iter == layoutName_)
+					ImGui::SetItemDefaultFocus();
+			}
 
 			ImGui::EndCombo();
 		}
@@ -311,18 +302,29 @@ void KvRdPlot::showThemeProperty_()
 	auto canvas = KsThemeManager::singleton().listCanvas();
 	if (!canvas.empty()) {
 
-		auto iter = std::find(canvas.cbegin(), canvas.cend(), canvasName_);
-		//if (iter == canvas.cend()) {
-		//	canvasName_ = canvas.front();
-		//	KsThemeManager::singleton().applyTheme(canvasName_, &tp);
-		//}
-
 		if (ImGui::BeginCombo("Canvas", canvasName_.c_str(), ImGuiComboFlags_HeightLarge)) {
-			for (iter = canvas.cbegin(); iter != canvas.cend(); iter++)
+			for (auto iter = canvas.cbegin(); iter != canvas.cend(); iter++) {
 				if (ImGui::Selectable(iter->c_str(), *iter == canvasName_)) {
 					canvasName_ = *iter;
 					KsThemeManager::singleton().applyCanvas(canvasName_, &tp);
 				}
+
+				if (*iter == canvasName_)
+					ImGui::SetItemDefaultFocus();
+
+				// 绘制色带
+				ImGui::SameLine();
+				auto canvas = KsThemeManager::singleton().getCanvas(*iter);
+				auto minp = ImGui::GetCursorScreenPos();
+				float h = ImGui::GetTextLineHeight();
+				ImGui::Dummy(ImVec2(canvas.size() * (h + 1), h));
+				for (unsigned i = 0; i < canvas.size(); i++) {
+					auto maxp = ImVec2{ minp.x + h, minp.y + h };
+					ImGui::GetWindowDrawList()->AddRectFilled(
+						minp, maxp, ImColor((ImVec4&)canvas[i]));
+					minp.x += h + 1;
+				}
+			}
 
 			ImGui::EndCombo();
 		}
@@ -331,19 +333,31 @@ void KvRdPlot::showThemeProperty_()
 	auto palettes = KsThemeManager::singleton().listPalettes();
 	if (!palettes.empty()) {
 
-		auto iter = std::find(palettes.cbegin(), palettes.cend(), paletteName_);
-		//if (iter == palettes.cend()) {
-		//	paletteName_ = palettes.front();
-		//	KsThemeManager::singleton().applyTheme(paletteName_, &tp);
-		//}
-
 		if (ImGui::BeginCombo("Palette", paletteName_.c_str(), ImGuiComboFlags_HeightLarge)) {
 			if (ImGui::TreeNodeEx("Group")) {
-				for (iter = palettes.cbegin(); iter != palettes.cend(); iter++)
+				for (auto iter = palettes.cbegin(); iter != palettes.cend(); iter++) {
 					if (ImGui::Selectable(iter->c_str(), *iter == paletteName_)) {
 						paletteName_ = *iter;
 						KsThemeManager::singleton().applyPalette(paletteName_, &tp);
 					}
+
+					if (*iter == paletteName_)
+						ImGui::SetItemDefaultFocus();
+
+					// 绘制色带
+					ImGui::SameLine();
+					std::vector<color4f> majors, minors;
+					KsThemeManager::singleton().getPalette(*iter, majors, minors);
+					auto minp = ImGui::GetCursorScreenPos();
+					float h = ImGui::GetTextLineHeight();
+					ImGui::Dummy(ImVec2(majors.size() * (h+1), h));
+					for (unsigned i = 0; i < majors.size(); i++) {
+						auto maxp = ImVec2{ minp.x + h, minp.y + h };
+						ImGui::GetWindowDrawList()->AddRectFilled(
+							minp, maxp, ImColor((ImVec4&)majors[i]));
+						minp.x += h + 1;
+					}
+				}
 
 				ImGui::TreePop();
 			}

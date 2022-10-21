@@ -283,6 +283,43 @@ void KsThemeManager::applyLayout_(const jobject& jobj, KvThemedPlot* plot, bool 
 }
 
 
+KsThemeManager::colorlist KsThemeManager::parseCanvas_(const jvalue& jval)
+{
+	colorlist cl(5, color4f(0));
+
+	if (jval.is_object()) {
+		auto& jobj = jval;
+		static const char* names[] = {
+			"background", "axis-rect", "text", "line", "gridline"
+		};
+
+		color4f clr;
+		for(unsigned i = 0; i < std::size(names); i++)
+			if (KuThemeParser::tryColor(jobj, names[i], clr))
+				cl[i] = clr;
+	}
+	else if (jval.is_array()) {
+		color4f clr;
+		for (unsigned i = 0; i < jval.size(); i++) {
+			if (jval.at(i).is_string() &&
+				KuThemeParser::color_value(jval.at(i).get<std::string>(), clr))
+				cl[i] = clr;
+		}
+	}
+
+	return cl;
+}
+
+
+KsThemeManager::colorlist KsThemeManager::getCanvas(const std::string& name)
+{
+	if (!canvas_.count(name))
+		return {};
+
+	return parseCanvas_(canvas_[name]);
+}
+
+
 void KsThemeManager::applyCanvas_(const jvalue& jval, KvThemedPlot* plot) const
 {
 	if (jval.is_object()) {
@@ -323,17 +360,14 @@ void KsThemeManager::applyCanvas_(const jvalue& jval, KvThemedPlot* plot) const
 }
 
 
-void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
+void KsThemeManager::parsePalette_(const jvalue& jval, colorlist& majors, colorlist& minors)
 {
-	std::vector<color4f> majors;
-	std::vector<color4f> minors; // 用于outlining
-
 	if (jval.is_array()) {
 		majors = KuThemeParser::color_value_list(jval);
 	}
 	else if (jval.is_object()) {
 		auto jobj = jval;
-		if(jobj.contains("major") && jobj["major"].is_array())
+		if (jobj.contains("major") && jobj["major"].is_array())
 			majors = KuThemeParser::color_value_list(jobj["major"]);
 		if (jobj.contains("minor")) {
 			if (jobj["minor"].is_array())
@@ -345,6 +379,25 @@ void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 			}
 		}
 	}
+}
+
+
+bool KsThemeManager::getPalette(const std::string& name, colorlist& majors, colorlist& minors)
+{
+	if (!palettes_.count(name))
+		return false;
+
+	parsePalette_(palettes_.at(name), majors, minors);
+	return true;
+}
+
+
+void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
+{
+	std::vector<color4f> majors;
+	std::vector<color4f> minors; // 用于outlining
+
+	parsePalette_(jval, majors, minors);
 
 	if (majors.empty())
 		return;

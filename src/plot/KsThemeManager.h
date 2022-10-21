@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "KtSingleton.h"
+#include "KtColor.h"
 #include "nlohmann/json.hpp"
 
 class KvThemedPlot;
@@ -16,6 +17,7 @@ public:
 	using jobject = nlohmann::json;
 	using jvalue = jobject;
 	using stringlist = std::vector<std::string>;
+	using colorlist = std::vector<color4f>;
 	using singleton_type = KtSingleton<KsThemeManager, false, true>;
 	friend singleton_type;
 
@@ -46,6 +48,12 @@ public:
 
 	// 返回主题theme引用的palette名字，空字符串表示无引用
 	std::string paletteName(const std::string& theme);
+
+	// 获取canvas的色带
+	colorlist getCanvas(const std::string& name);
+
+	// 获取palette的色带
+	bool getPalette(const std::string& name, colorlist& majors, colorlist& minors);
 
 protected:
 
@@ -98,6 +106,8 @@ protected:
 	static void applyText_(int level, const jvalue& jval, KvThemedPlot* plot);
 	static void applyTextColor_(int level, const jvalue& jval, KvThemedPlot* plot);
 
+	static colorlist parseCanvas_(const jvalue& jval);
+	static void parsePalette_(const jvalue& jval, colorlist& majors, colorlist& minors);
 
 private:
 
