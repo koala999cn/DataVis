@@ -39,9 +39,12 @@ void KcImNodeEditor::updateImpl_()
     // 在右下角显示缩略图
     ImNodes::MiniMap(0.2, ImNodesMiniMapLocation_BottomRight);
 
+    bool focused = ImGui::IsWindowFocused();
+
     ImNodes::EndNodeEditor();
 
-    handleInput_();
+    if (focused)
+        handleInput_();
 }
 
 
@@ -256,6 +259,9 @@ void KcImNodeEditor::handleInput_()
     if (ImNodes::IsLinkCreated(&fromId, &toId))
         insertLink(fromId, toId);
 
+
+    if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+        return;
 
     // 响应delete按键，删除选中的节点或边
 
