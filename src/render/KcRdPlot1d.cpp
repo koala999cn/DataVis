@@ -4,6 +4,7 @@
 #include "plot/KcBars2d.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
+#include "imgui.h"
 
 
 KcRdPlot1d::KcRdPlot1d()
@@ -27,4 +28,14 @@ std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KvDataProvider* prov)
 	}
 
 	return plts;
+}
+
+
+void KcRdPlot1d::showProperySet() 
+{
+	super_::showProperySet();
+
+	ImGui::Separator();
+
+
 }

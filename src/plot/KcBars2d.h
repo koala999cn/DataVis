@@ -14,10 +14,18 @@ public:
 
 	using super_::super_;
 
+	float barWidthRatio() const { return barWidthRatio_; }
+	float& barWidthRatio() { return barWidthRatio_; }
+
+protected:
+
 	void drawImpl_(KvPaint*, point_getter, const color4f&) const override;
+
+	// 返回单个bar的宽度（世界坐标）
+	float barWidth_() const; 
 
 protected:
 	KpPen border_;
 	KpBrush fill_;
-	float width_{ 6 };
+	float barWidthRatio_{ 0.5 };
 };

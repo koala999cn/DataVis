@@ -10,6 +10,8 @@ public:
 
 	KcRdPlot1d();
 
+	void showProperySet() override;
+
 private:
 
 	std::vector<KvPlottable*> createPlottable_(KvDataProvider* prov) final;

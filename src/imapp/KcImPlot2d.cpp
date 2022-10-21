@@ -1,5 +1,4 @@
 #include "KcImPlot2d.h"
-#include "implot/implot.h"
 #include "KcImPaint.h"
 #include "plot/KcAxis.h"
 #include "plot/KcCoord3d.h"

@@ -736,7 +736,7 @@ void BeginCanvasInteraction(ImNodesEditorContext& editor)
         editor.ClickInteraction.Type = ImNodesClickInteractionType_Panning;
     }
     else if (GImNodes->LeftMouseClicked 
-        && ImGui::IsWindowFocused() && ImGui::IsWindowAppearing())
+        && false) // just disable BoxSelection. FIXME. 
     {
         editor.ClickInteraction.Type = ImNodesClickInteractionType_BoxSelection;
         editor.ClickInteraction.BoxSelector.Rect.Min =
