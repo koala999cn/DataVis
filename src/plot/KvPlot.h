@@ -31,14 +31,17 @@ public:
 
 	unsigned plottableCount() const { return plottables_.size(); }
 
-	KvPlottable* plottable(unsigned idx);
+	KvPlottable* plottableAt(unsigned idx);
 
 	// 接管plot的控制权
-	void addPlottable(KvPlottable* plot);
+	void addPlottable(KvPlottable* plt);
 
-	void removePlottable(KvPlottable* plot);
+	// 当前在idx位置的plottable对象将被释放
+	void setPlottableAt(unsigned idx, KvPlottable* plt);
 
-	void removePlottable(unsigned idx);
+	void removePlottable(KvPlottable* plt);
+
+	void removePlottableAt(unsigned idx);
 
 	void removeAllPlottables();
 

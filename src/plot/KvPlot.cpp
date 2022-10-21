@@ -10,15 +10,46 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
 }
 
 
-KvPlottable* KvPlot::plottable(unsigned idx)
+KvPlottable* KvPlot::plottableAt(unsigned idx)
 {
+	assert(idx < plottableCount());
 	return plottables_[idx].get();
 }
 
 
-void KvPlot::addPlottable(KvPlottable* plot)
+void KvPlot::addPlottable(KvPlottable* plt)
 {
-	plottables_.emplace_back(plot);
+	plottables_.emplace_back(plt);
+}
+
+
+
+void KvPlot::removePlottable(KvPlottable* plt)
+{
+	for (auto iter = plottables_.cbegin(); iter != plottables_.cend(); iter++)
+		if (iter->get() == plt) {
+			plottables_.erase(iter);
+			break;
+		}
+}
+
+
+void KvPlot::setPlottableAt(unsigned idx, KvPlottable* plt)
+{
+	assert(idx < plottableCount());
+	return plottables_[idx].reset(plt);
+}
+
+
+void KvPlot::removePlottableAt(unsigned idx)
+{
+	plottables_.erase(plottables_.begin() + idx);
+}
+
+
+void KvPlot::removeAllPlottables()
+{
+	plottables_.clear();
 }
 
 
@@ -32,30 +63,8 @@ void KvPlot::update()
 	coord().draw(paint_.get());
 
 	for (int idx = 0; idx < plottableCount(); idx++)
-		if (plottable(idx)->visible())
-		    plottable(idx)->draw(paint_.get());
-}
-
-
-void KvPlot::removePlottable(KvPlottable* plot)
-{
-	for (auto iter = plottables_.cbegin(); iter != plottables_.cend(); iter++)
-		if (iter->get() == plot) {
-			plottables_.erase(iter);
-			break;
-		}
-}
-
-
-void KvPlot::removePlottable(unsigned idx)
-{
-	plottables_.erase(plottables_.begin() + idx);
-}
-
-
-void KvPlot::removeAllPlottables()
-{
-	plottables_.clear();
+		if (plottableAt(idx)->visible())
+		    plottableAt(idx)->draw(paint_.get());
 }
 
 

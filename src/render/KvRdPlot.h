@@ -2,7 +2,6 @@
 #include "KvDataRender.h"
 #include <memory>
 #include <map>
-#include <vector>
 
 
 class KvPlot;
@@ -43,6 +42,25 @@ protected:
 	// 在应用theme的时候，同步包含的canvas, layout, palette等主题选项
 	void applyTheme_(const std::string& name, KvThemedPlot* plot);
 
+	// 创建plottable的帮助函数，对外提供splitChannels_无关的接口
+	// 用户在createPlottable_接口实现中可调用
+	template<typename PLT_TYPE>
+	std::vector<KvPlottable*> createPlts_(KvDataProvider* prov) {
+		if (prov->channels() == 1)
+			return { new PLT_TYPE(prov->name()) };
+
+		std::vector<KvPlottable*> plts;
+		plts.resize(prov->channels());
+
+		for (kIndex ch = 0; ch < prov->channels(); ch++) {
+			std::string name = prov->name() + " - ch" + KuStrUtil::toString(ch);
+			plts[ch] = new PLT_TYPE(name);
+		}
+
+		return plts;
+	}
+
+
 protected:
 	std::shared_ptr<KvPlot> plot_;
 	std::multimap<int, KvPlottable*> port2Plts_; // 端口id向plottable序列的映射
@@ -52,4 +70,6 @@ protected:
 	std::map<KcPortNode*, std::shared_ptr<KvData>> streamData_;
 
 	std::string themeName_, canvasName_, layoutName_, paletteName_;
+
+	bool splitChannels_{ false }; // 多通道数据是创建1个还是多个plt？ 
 };

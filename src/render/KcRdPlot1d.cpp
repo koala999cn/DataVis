@@ -1,6 +1,7 @@
 ﻿#include "KcRdPlot1d.h"
 #include "imapp/KcImPlot2d.h"
 #include "plot/KcGraph.h"
+#include "plot/KcScatter.h"
 #include "plot/KcBars2d.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
@@ -16,18 +17,13 @@ KcRdPlot1d::KcRdPlot1d()
 
 std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KvDataProvider* prov)
 {
-	if (prov->channels() == 1) 
-		return { new KcBars2d(prov->name()) };
-
-	std::vector<KvPlottable*> plts;
-	plts.resize(prov->channels());
-
-	for (kIndex ch = 0; ch < prov->channels(); ch++) {
-		std::string name = prov->name() + " - ch" + KuStrUtil::toString(ch);
-		plts[ch] = new KcBars2d(name);
-	}
-
-	return plts;
+	// 根据prov自动选择图类型
+	if (prov->isScattered())
+		return createPlts_<KcScatter>(prov);
+	else if(prov->isSeries())
+		return createPlts_<KcBars2d>(prov);
+	else // if (prov->isContinued() || prov->isSampled())
+		return createPlts_<KcGraph>(prov);
 }
 
 

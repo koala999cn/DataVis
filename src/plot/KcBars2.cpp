@@ -33,9 +33,11 @@ void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, const color4f& maj
 KcBars2d::float_t KcBars2d::barWidth_() const
 {
 	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
+	assert(disc->size() != 0);
+
 	return disc->step(0) != 0 ? 
 		disc->step(0) * barWidthRatio_ : 
-		boundingBox().width() / disc->size() * barWidthRatio_;
+		disc->range(0).length() / disc->size() * barWidthRatio_;
 }
 
 

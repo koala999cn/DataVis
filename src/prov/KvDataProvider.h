@@ -58,6 +58,11 @@ public:
 		return isDiscreted() && step(0) == KvDiscreted::k_nonuniform_step;
 	}
 
+	// 是否序列数据
+	bool isSeries() const {
+		return isDiscreted() && step(0) == 1;
+	}
+
 	bool isSampled() const {
 		return isDiscreted() && step(0) != KvDiscreted::k_nonuniform_step;
 	}

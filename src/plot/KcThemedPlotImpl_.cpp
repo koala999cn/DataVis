@@ -194,25 +194,25 @@ unsigned KcThemedPlotImpl_::plottableCount() const
 
 unsigned KcThemedPlotImpl_::majorColorsNeeded(unsigned idx) const
 {
-    return plot_.plottable(idx)->majorColorsNeeded();
+    return plot_.plottableAt(idx)->majorColorsNeeded();
 }
 
 
 bool KcThemedPlotImpl_::minorColorNeeded(unsigned idx) const
 {
-    return plot_.plottable(idx)->minorColorNeeded();
+    return plot_.plottableAt(idx)->minorColorNeeded();
 }
 
 
 void KcThemedPlotImpl_::applyMajorColors(unsigned idx, const std::vector<color4f>& majors)
 {
-    plot_.plottable(idx)->setMajorColors(majors);
+    plot_.plottableAt(idx)->setMajorColors(majors);
 }
 
 
 void KcThemedPlotImpl_::applyMinorColor(unsigned idx, const color4f& minor)
 {
-    plot_.plottable(idx)->setMinorColor(minor);
+    plot_.plottableAt(idx)->setMinorColor(minor);
 }
 
 

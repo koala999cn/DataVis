@@ -212,7 +212,7 @@ void KvRdPlot::showProperySet()
 			for (unsigned ch = 0; ch < plot_->plottableCount(); ch++) {
 				ImGui::Indent();
 
-				auto plt = plot_->plottable(ch);
+				auto plt = plot_->plottableAt(ch);
 				std::string label = "##Plottable" + KuStrUtil::toString(ch);
 				ImGui::Checkbox(label.c_str(), &plt->visible());
 				ImGui::SameLine();
