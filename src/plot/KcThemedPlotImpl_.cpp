@@ -95,19 +95,17 @@ void KcThemedPlotImpl_::applyVisible(int level, bool b)
 	if (level & k_axis) {
 		forAxis_(level, [level, b](KcAxis& axis) {
 
-			int all_axis_elements = k_axis_line | k_axis_text;
-		
-			if ((level & all_axis_elements) == all_axis_elements) {
+			if ((level & k_axis_all) == k_axis_all) {
 				axis.visible() = b;
 			}
 			else {
-				if (level & k_axis_baseline)
+				if (level & k_baseline)
 					axis.showBaseline() = b;
 
-				if (level & k_axis_tick_major)
+				if (level & k_majorline)
 					axis.showTick() = b;
 
-				if (level & k_axis_tick_minor)
+				if (level & k_minorline)
 					axis.showSubtick() = b;
 
 				if (level & k_label)
@@ -122,11 +120,17 @@ void KcThemedPlotImpl_::applyVisible(int level, bool b)
 	
 	if (level & k_grid) {
 		forPlane_(level, [level, b](KcCoordPlane& plane) {
-			if (level & k_grid_major)
+
+			if ((level & k_grid_all) == k_grid_all) {
 				plane.visible() = b;
-			
-			if (level & k_grid_minor)
-				plane.minorVisible() = b;
+			}
+			else {
+				if (level & k_majorline)
+					plane.majorVisible() = b;
+
+				if (level & k_minorline)
+					plane.minorVisible() = b;
+			}
 
 			return true;
 			});
@@ -138,11 +142,11 @@ void KcThemedPlotImpl_::applyLine(int level, std::function<KpPen(const KpPen&)> 
 {
 	if (level & k_axis) {
 		forAxis_(level, [level, op](KcAxis& axis) {
-			if (level & k_axis_baseline)
+			if (level & k_baseline)
 				axis.baselineContext() = op(axis.baselineContext());
-			if (level & k_axis_tick_major)
+			if (level & k_majorline)
 				axis.tickContext() = op(axis.tickContext());
-			if (level & k_axis_tick_minor)
+			if (level & k_minorline)
 				axis.subtickContext() = op(axis.subtickContext());
 			return true;
 			});
@@ -150,9 +154,9 @@ void KcThemedPlotImpl_::applyLine(int level, std::function<KpPen(const KpPen&)> 
 
 	if (level & k_grid) {
 		forPlane_(level, [level, op](KcCoordPlane& plane) {
-			if (level & k_grid_major)
+			if (level & k_majorline)
 				plane.majorLine() = op(plane.majorLine());
-			if (level & k_grid_minor)
+			if (level & k_minorline)
 				plane.minorLine() = op(plane.minorLine());
 			return true;
 			});

@@ -331,13 +331,13 @@ void KsThemeManager::applyCanvas_(const jvalue& jval, KvThemedPlot* plot) const
 			applyFill_(KvThemedPlot::k_axis, jobj["axis-rect"], plot);
 
 		if (jobj.contains("text"))
-			applyTextColor_(KvThemedPlot::k_text_all, jobj["text"], plot);
+			applyTextColor_(KvThemedPlot::k_all_text, jobj["text"], plot);
 
 		if (jobj.contains("line"))
-			applyLine_(KvThemedPlot::k_line_all, jobj["line"], plot);
+			applyLine_(KvThemedPlot::k_all_line, jobj["line"], plot);
 
 		if (jobj.contains("gridline"))
-			applyLine_(KvThemedPlot::k_grid_line_all, jobj["gridline"], plot); 
+			applyLine_(KvThemedPlot::k_all_grid_line, jobj["gridline"], plot);
 	}
 	else if (jval.is_array()) {
 		auto sz = jval.size();
@@ -349,13 +349,13 @@ void KsThemeManager::applyCanvas_(const jvalue& jval, KvThemedPlot* plot) const
 			applyFill_(KvThemedPlot::k_axis, jval.at(1), plot);
 
 		if (sz > 2)
-			applyText_(KvThemedPlot::k_text_all, jval.at(2), plot);
+			applyText_(KvThemedPlot::k_all_text, jval.at(2), plot);
 
 		if (sz > 3)
-			applyLine_(KvThemedPlot::k_line_all, jval.at(3), plot);
+			applyLine_(KvThemedPlot::k_all_line, jval.at(3), plot);
 
 		if (sz > 4)
-			applyLine_(KvThemedPlot::k_grid_line_all, jval.at(4), plot);
+			applyLine_(KvThemedPlot::k_all_grid_line, jval.at(4), plot);
 	}
 }
 
@@ -459,26 +459,21 @@ void KsThemeManager::applyFill_(int level, const jvalue& jval, KvThemedPlot* plo
 }
 
 
-int KsThemeManager::tryVisible_(int level, const jvalue& jval, KvThemedPlot* plot)
+void KsThemeManager::tryVisible_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
 	if (KuThemeParser::isNull(jval)) {
 		plot->applyVisible(level, false);
-		return -1;
 	}
 	else if (jval.is_boolean()) {
 		bool b = jval.get<bool>();
 		plot->applyVisible(level, b);
-		return b ? 1 : -1;
 	}
 	else if (jval.is_object()) {
 		bool b(true);
 		if (KuThemeParser::tryBool(jval, "visible", b)) {
 			plot->applyVisible(level, b);
-			return b ? 1 : -1;
 		}
 	}
-
-	return 0;
 }
 
 
@@ -523,7 +518,7 @@ void KsThemeManager::tryAxis_(const jobject& jobj, KvThemedPlot* plot)
 	}
 
 	// 解析每个方向(left, top, right, bottom)坐标轴的属性
-	applyAxis_(KvThemedPlot::k_axis_all, axis, plot);
+	applyAxis_(KvThemedPlot::k_all_axis_all, axis, plot);
 }
 
 
@@ -541,7 +536,7 @@ void KsThemeManager::applyAxis_(int level, const jvalue& jval, KvThemedPlot* plo
 	/// 首先处理公用属性
 	tryLevel_(level, jobj, plot);
 
-	trySpecialProp_(level, jobj, "baseline", KvThemedPlot::k_axis_baseline,
+	trySpecialProp_(level, jobj, "baseline", KvThemedPlot::k_baseline,
 		[plot](int newLevel, const jvalue& jval) {
 			applyLine_(newLevel, jval, plot);
 		});
@@ -587,12 +582,12 @@ void KsThemeManager::applyTick_(int level, const jvalue& jval, KvThemedPlot* plo
 		plot->setTickLength(level, side, len);
 
 
-	trySpecialProp_(level, jobj, "major", KvThemedPlot::k_axis_tick_major, 
+	trySpecialProp_(level, jobj, "major", KvThemedPlot::k_majorline, 
 		[plot](int newLevel, const jvalue& jval) {
 			applyTick_(newLevel, jval, plot);
 		});
 
-	trySpecialProp_(level, jobj, "minor", KvThemedPlot::k_axis_tick_minor,
+	trySpecialProp_(level, jobj, "minor", KvThemedPlot::k_minorline,
 		[plot](int newLevel, const jvalue& jval) {
 			applyTick_(newLevel, jval, plot);
 		});
@@ -608,7 +603,7 @@ void KsThemeManager::tryGrid_(const jobject& jobj, KvThemedPlot* plot)
 
 	auto grid = jobj["grid"];
 
-	applyGrid_(KvThemedPlot::k_grid_all, grid, plot);
+	applyGrid_(KvThemedPlot::k_all_grid_all, grid, plot);
 }
 
 

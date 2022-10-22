@@ -33,6 +33,9 @@ public:
 
 	KePlaneType type() const { return type_; }
 
+	bool majorVisible() const { return majorVisible_; }
+	bool& majorVisible() { return majorVisible_; }
+
 	bool minorVisible() const { return minorVisible_; }
 	bool& minorVisible() { return minorVisible_; }
 
@@ -60,7 +63,7 @@ private:
 private:
 	KePlaneType type_;
 	axis_ptr horz_[2], vert_[2]; // 构成grid平面的4根坐标轴，水平2根、垂直2根
-	bool minorVisible_;
+	bool majorVisible_{ false }, minorVisible_{ false };
 	KpPen majorLineCxt_, minorLineCxt_;
 	KpBrush bkgnd_;
 };

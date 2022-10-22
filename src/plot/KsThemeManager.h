@@ -69,10 +69,7 @@ protected:
 	void applyCanvas_(const jvalue& jval, KvThemedPlot* plot) const;
 	void applyPalette_(const jvalue& jval, KvThemedPlot* plot) const;
 
-	// 返回0表示为检测未调用applyVisible
-	// 返回1表示调用了applyVisible(level, true)
-	// 返回-1表示调用了applyVisible(level, false)
-	static int tryVisible_(int level, const jvalue& jval, KvThemedPlot* plot);
+	static void tryVisible_(int level, const jvalue& jval, KvThemedPlot* plot);
 
 	// 解析全局属性，目前包括line，text，title，label
 	static void tryLevel_(int level, const jobject& jobj, KvThemedPlot* plot);

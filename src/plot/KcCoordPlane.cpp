@@ -43,7 +43,7 @@ void KcCoordPlane::draw(KvPaint* paint) const
 		paint->fillQuad(horz_[0]->start(), horz_[0]->end(), horz_[1]->end(), horz_[1]->start());
 	}
 
-	if (majorLineCxt_.style != KpPen::k_none) {
+	if (majorVisible() && majorLineCxt_.style != KpPen::k_none) {
 		paint->apply(majorLineCxt_);
 		drawMajors_(paint, horz_[0], horz_[1]);
 		drawMajors_(paint, vert_[0], vert_[1]);

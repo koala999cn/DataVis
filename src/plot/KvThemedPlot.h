@@ -39,7 +39,7 @@ public:
 		k_ceil_left = 0x4000,
 		k_ceil_right = 0x8000,
 
-		k_all_axis = 0xfff0,
+		k_all_axis_direction = 0xfff0,
 
 		k_plane_front = 0x10000,
 		k_plane_back = 0x20000,
@@ -48,7 +48,7 @@ public:
 		k_plane_floor = 0x100000,
 		k_plane_ceil = 0x200000,
 
-		k_all_plane = 0x3f0000,
+		k_all_plane_direction = 0x3f0000,
 
 		/// ÊôÐÔ
 
@@ -56,18 +56,10 @@ public:
 		k_label				= 0x02000000,
 		k_text				= k_title | k_label,
 		
-		k_axis_baseline		= 0x04000000,
-		k_axis_tick_major	= 0x08000000,
-		k_axis_tick_minor	= 0x10000000,
-		k_axis_tick			= k_axis_tick_major | k_axis_tick_minor,
-		k_axis_line			= k_axis_baseline | k_axis_tick,
-		
-		k_grid_major		= 0x20000000,
-		k_grid_minor		= 0x40000000,
-		k_grid_zeroline		= 0x80000000,
-		k_grid_line			= k_grid_major | k_grid_minor | k_grid_zeroline,
-
-		k_line				= k_axis_line | k_grid_line,
+		k_baseline			= 0x04000000,
+		k_majorline			= 0x08000000,
+		k_minorline			= 0x10000000,
+		k_line				= k_baseline | k_majorline | k_minorline,
 
 		/// ×éºÏ
 
@@ -81,40 +73,38 @@ public:
 		k_axis_label			= k_axis | k_label,
 		k_axis_text				= k_axis | k_text,
 
-		k_axis_title_left		= k_left | k_axis_title,
-		k_axis_label_left		= k_left | k_axis_label,
-		k_axis_text_left		= k_left | k_axis_text,
+		k_axis_baseline		    = k_axis | k_baseline,
+		k_axis_major_tick		= k_axis | k_majorline,
+		k_axis_minor_tick		= k_axis | k_minorline,
+		k_axis_tick				= k_axis_major_tick | k_axis_minor_tick,
+		k_axis_line				= k_axis | k_line,
 
-		k_axis_title_all		= k_all_axis | k_axis_title,
-		k_axis_label_all		= k_all_axis | k_axis_label,
-		k_axis_text_all			= k_all_axis | k_axis_text,
+		k_axis_all				= k_axis_text | k_axis_line,
 
-		k_axis_baseline_all		= k_all_axis | k_axis_baseline,
-		k_axis_tick_major_all	= k_all_axis | k_axis_tick_major,
-		k_axis_tick_minor_all	= k_all_axis | k_axis_tick_minor,
-		k_axis_tick_all			= k_axis_tick_major_all | k_axis_tick_minor_all,
-		k_axis_line_all			= k_axis_baseline_all | k_axis_tick_all,
+		k_all_axis_text			= k_all_axis_direction | k_axis_text,
+		k_all_axis_line			= k_all_axis_direction | k_axis_line,
 
-		k_axis_all				= k_axis_text | k_axis_line_all,
+		k_all_axis_all			= k_all_axis_text | k_all_axis_line,
 
-		k_grid_major_all		= k_grid | k_all_plane | k_grid_major,
-		k_grid_minor_all		= k_grid | k_all_plane | k_grid_minor,
-		k_grid_zeroline_all		= k_grid | k_all_plane | k_grid_zeroline,
-		k_grid_line_all			= k_grid | k_all_plane | k_grid_line,
-		k_grid_all				= k_grid_line_all,
+		k_grid_zeroline			= k_grid | k_baseline,
+		k_grid_major			= k_grid | k_majorline,
+		k_grid_minor			= k_grid | k_minorline,
+
+		k_grid_line				= k_grid | k_line,
+		k_grid_all				= k_grid_line,
+
+		k_all_grid_line			= k_all_plane_direction | k_grid_line,
+		k_all_grid_all			= k_all_plane_direction | k_grid_all,
 
 		k_legend_title			= k_legend | k_title,
 		k_legend_label			= k_legend | k_label,
 		k_legend_text			= k_legend | k_text,
 		k_legend_all			= k_legend_text,
 
+		k_all_line				= k_all_axis_line | k_all_grid_line,
+		k_all_text				= k_all_axis_text | k_legend_text | k_plot_text,
 
-		k_line_all				= k_axis_line_all | k_grid_line_all,
-		k_title_all				= k_axis_title_all | k_legend_title | k_plot_title,
-		k_label_all				= k_axis_label_all | k_legend_label | k_plot_label,
-		k_text_all				= k_axis_text_all | k_legend_text | k_plot_text,
-
-		k_all					= k_line_all | k_text_all
+		k_all					= k_all_line | k_all_text
 	};
 	
 	enum KeTickSide
