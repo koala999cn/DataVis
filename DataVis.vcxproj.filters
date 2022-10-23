@@ -13,9 +13,6 @@
     <Filter Include="prov">
       <UniqueIdentifier>{3d5191d1-d907-41e4-aed6-0f635364f63d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="gui">
-      <UniqueIdentifier>{d4abcb2d-cbe5-4338-9d25-181f5c7e50c5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="base">
       <UniqueIdentifier>{33228e2a-3d79-4539-bc42-f98876ee3f3b}</UniqueIdentifier>
     </Filter>

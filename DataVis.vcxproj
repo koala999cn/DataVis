@@ -58,7 +58,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glad.lib;glfw3.lib;smarcd.lib;exprtkXd.lib;rtaudiod.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
   </ItemDefinitionGroup>
@@ -67,14 +67,14 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
-      <PreprocessorDefinitions>QCUSTOMPLOT_USE_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <Version>0.1</Version>
-      <AdditionalDependencies>OpenXLSX.lib;exprtkX.lib;sndfile.lib;rtaudio.lib;smarc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glad.lib;glfw3.lib;rtaudio.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">

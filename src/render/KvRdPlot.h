@@ -61,13 +61,14 @@ protected:
 		return plts;
 	}
 
+	void updateTheme_();
 
 protected:
 	std::shared_ptr<KvPlot> plot_;
 	std::multimap<int, KvPlottable*> port2Plts_; // 端口id向plottable序列的映射
 												 // 1个端口可能有多个通道，为此可能映射到多个plottable（每个通道对应1个plottable）
 	
-	// 对于stream输入，创建1个数据副本
+	// 对于stream输入，创建1个数据副本. 因为输入数据是动态的，绘图的时候会出现抖动
 	std::map<KcPortNode*, std::shared_ptr<KvData>> streamData_;
 
 	std::string themeName_, canvasName_, layoutName_, paletteName_;

@@ -180,8 +180,8 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 			}
 		}
 		
-		// TODO: update theme
-
+		// update theme
+		updateTheme_();
 
 		plot_->coord().setExtents(lower, upper);
 		plot_->setVisible(true);
@@ -373,4 +373,13 @@ void KvRdPlot::onDoubleClicked()
 {
 	if (plot_)
 		plot_->setVisible(true);
+}
+
+
+void KvRdPlot::updateTheme_()
+{
+	if (!themeName_.empty()) {
+		KcThemedPlotImpl_ tp(*plot_);
+		applyTheme_(themeName_, &tp); // TODO: 这种方式不能完全复现
+	}
 }
