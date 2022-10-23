@@ -16,3 +16,4 @@
 | [stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h) | ImFileDialog依赖 | 已内嵌 |
 | [glad](https://github.com/Dav1dde/glad) | ImFileDialog依赖 | 单独编译 |
 | [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 已内嵌 |
+| [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/) | AudioInput支持 | 单独编译 |
