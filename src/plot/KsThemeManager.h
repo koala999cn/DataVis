@@ -1,6 +1,6 @@
 #pragma once
 #include <map>
-#include <string>
+#include <string_view>
 #include <vector>
 #include "KtSingleton.h"
 #include "KtColor.h"
@@ -18,6 +18,7 @@ public:
 	using jvalue = jobject;
 	using stringlist = std::vector<std::string>;
 	using colorlist = std::vector<color4f>;
+	using theme_type = std::map<std::string, jobject>[4];
 	using singleton_type = KtSingleton<KsThemeManager, false, true>;
 	friend singleton_type;
 
@@ -26,46 +27,47 @@ public:
 	}
 
 	// @path: theme文件路径，可以是正则表达式，如"theme\*.json"，但不能是目录
-	bool load(const char* path);
+	bool load(const std::string_view& path);
 
 	// 返回已加载的各类主题元素列表
-	stringlist listGroups() const; // 主题类别
-	stringlist listThemes() const; // 主题方案
-	stringlist listCanvas() const; // 底布方案
-	stringlist listPalettes() const; // 配色方案
-	stringlist listLayouts() const; // 布局方案
+	stringlist listGroups() const; // 分组列表，不包含全局分组
+	stringlist listThemes(const std::string& group) const; // 主题方案
+	stringlist listCanvas(const std::string& group) const; // 底布方案
+	stringlist listPalettes(const std::string& group) const; // 配色方案
+	stringlist listLayouts(const std::string& group) const; // 布局方案
 
-	void applyTheme(const std::string& name, KvThemedPlot* plot) const;
-	void applyLayout(const std::string& name, KvThemedPlot* plot) const;
-	void applyCanvas(const std::string& name, KvThemedPlot* plot) const;
-	void applyPalette(const std::string& name, KvThemedPlot* plot) const;
+	void applyTheme(const std::string& group, const std::string& name, KvThemedPlot* plot) const;
+	void applyLayout(const std::string& group, const std::string& name, KvThemedPlot* plot) const;
+	void applyCanvas(const std::string& group, const std::string& name, KvThemedPlot* plot) const;
+	void applyPalette(const std::string& group, const std::string& name, KvThemedPlot* plot) const;
 
-	// 返回主题theme引用的canvas名字，空字符串表示无引用
-	std::string canvasName(const std::string& theme);
+	// 返回主题group::theme引用的canvas名字，空字符串表示无引用
+	std::string canvasName(const std::string& group, const std::string& theme);
 
 	// 返回主题theme引用的layout名字，空字符串表示无引用
-	std::string layoutName(const std::string& theme);
+	std::string layoutName(const std::string& group, const std::string& theme);
 
 	// 返回主题theme引用的palette名字，空字符串表示无引用
-	std::string paletteName(const std::string& theme);
+	std::string paletteName(const std::string& group, const std::string& theme);
 
 	// 获取canvas的色带
-	colorlist getCanvas(const std::string& name);
+	colorlist getCanvas(const std::string& group, const std::string& name);
 
 	// 获取palette的色带
-	bool getPalette(const std::string& name, colorlist& majors, colorlist& minors);
+	bool getPalette(const std::string& group, const std::string& name, colorlist& majors, colorlist& minors);
 
 protected:
 
 	void tryLoad_(const jobject& jobj);
+	void tryLoad_(theme_type& theme, const jobject& jobj);
 	void tryObjectOrArray_(const jvalue& jval, std::function<void(const jobject&)> fn);
 	void tryList_(const jobject& jobj, std::function<void(const std::string& key, const jvalue&)> fn);
 
-	void tryCanvas_(const jobject& jobj, KvThemedPlot* plot) const;
-	void tryPalette_(const jobject& jobj, KvThemedPlot* plot) const;
-	void tryLayout_(const jobject& jobj, KvThemedPlot* plot) const;
+	void tryCanvas_(const std::string& group, const jobject& jobj, KvThemedPlot* plot) const;
+	void tryPalette_(const std::string& group, const jobject& jobj, KvThemedPlot* plot) const;
+	void tryLayout_(const std::string& group, const jobject& jobj, KvThemedPlot* plot) const;
 
-	void applyLayout_(const jobject& jobj, KvThemedPlot* plot, bool inTheme) const; // TODO: 是否需要inTheme
+	void applyLayout_(const std::string& group, const jobject& jobj, KvThemedPlot* plot, bool inTheme) const; // TODO: 是否需要inTheme
 	void applyCanvas_(const jvalue& jval, KvThemedPlot* plot) const;
 	void applyPalette_(const jvalue& jval, KvThemedPlot* plot) const;
 
@@ -108,23 +110,28 @@ protected:
 
 private:
 
-	void removeInvalidThemes_();
-
-private:
 	enum
 	{
 		k_theme,
+		k_layout,
 		k_canvas,
-		k_palette,
-		k_layout
+		k_palette
 	};
 
+	void removeInvalidThemes_();
 
-	std::map<std::string, std::pair<int, std::string>> groups_; // int表示类型，取值k_theme, k_canvas, k_palette, k_layout
-	std::map<std::string, jobject> themes_;
-	std::map<std::string, jvalue> canvas_;
-	std::map<std::string, jvalue> palettes_;
-	std::map<std::string, jobject> layouts_;
+	bool isEmpty_(const theme_type& theme);
+
+	stringlist listNames_(int type, const std::string& groupName) const;
+
+	static stringlist listNames_(const std::map<std::string, jobject>& m);
+
+	const jobject& themeAt_(int type, const std::string& group, const std::string& name) const;
+
+private:
+	
+	theme_type global_; // 全局主题(未分组)
+	std::map<std::string, theme_type> grouped_; // 分组主题
 
 private:
 	KsThemeManager() = default;

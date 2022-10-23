@@ -7,14 +7,13 @@
 #include <assert.h>
 
 
-bool KsThemeManager::load(const char* path)
+bool KsThemeManager::load(const std::string_view& path)
 {
-	themes_.clear();
-	canvas_.clear();
-	palettes_.clear();
-	layouts_.clear();
+	for (unsigned i = 0; i < 4; i++)
+		global_[i].clear();
+	grouped_.clear();
 
-	auto files = KuPathUtil::getFiles(path, false, true);
+	auto files = KuPathUtil::getFiles(path.data(), false, true);
 	for (auto fileName : files) {
 		nlohmann::json;
 		std::ifstream ifs(fileName);
@@ -32,57 +31,48 @@ bool KsThemeManager::load(const char* path)
 
 	removeInvalidThemes_();
 
-	return !themes_.empty();
+	return !grouped_.empty() || !isEmpty_(global_);
+
 }
 
 
 void KsThemeManager::tryLoad_(const jobject& jobj)
 {
-	if (jobj.contains("theme"))
-		tryObjectOrArray_(jobj["theme"], [this](const jobject& jobj) {
+	if (jobj.contains("group") && jobj["group"].is_string()) {
+		auto groupName = jobj["group"].get<std::string>();
+		tryLoad_(grouped_[groupName], jobj);
+		if (isEmpty_(grouped_[groupName]))
+			grouped_.erase(groupName);
+	}
+	else {
+		tryLoad_(global_, jobj);
+	}
+}
+
+
+void KsThemeManager::tryLoad_(theme_type& theme, const jobject& jobj)
+{
+	static const char* themeName[] = {
+		"theme", "layout", "canvas", "palette"
+	};
+
+	static const char* themeListName[] = {
+		"theme-list", "layout-list", "canvas-list", "palette-list"
+	};
+
+	for (unsigned i = 0; i < 4; i++) {
+		if (jobj.contains(themeName[i]))
+			tryObjectOrArray_(jobj[themeName[i]], [&theme, i](const jobject& jobj) {
 			if (jobj.contains("name") && jobj["name"].is_string()) // 忽略未命名的主题
-				themes_.emplace(std::move(jobj["name"].get<std::string>()), jobj);
-			});
+				theme[i][jobj["name"].get<std::string>()] = jobj;
+				});
 
-	if (jobj.contains("theme-list") && jobj["theme-list"].is_object())
-		tryList_(jobj["theme-list"], [this](const std::string& key, const jvalue& jval) {
-		    if(jval.is_object())
-		        themes_.emplace(key, jval);
-			});
-
-	if (jobj.contains("canvas"))
-		tryObjectOrArray_(jobj["canvas"], [this](const jobject& jobj) {
-			if (jobj.contains("name") && jobj["name"].is_string()) 
-				canvas_.emplace(jobj["name"].get<std::string>(), jobj);
-			});
-
-	if (jobj.contains("canvas-list") && jobj["canvas-list"].is_object())
-		tryList_(jobj["canvas-list"], [this](const std::string& key, const jvalue& jval) {
-		    canvas_.emplace(key, jval);
-			});
-
-	if (jobj.contains("palette"))
-		tryObjectOrArray_(jobj["palette"], [this](const jobject& jobj) {
-		    if (jobj.contains("name") && jobj["name"].is_string())
-			    palettes_.emplace(jobj["name"].get<std::string>(), jobj);
-			});
-
-	if (jobj.contains("palette-list") && jobj["palette-list"].is_object())
-		tryList_(jobj["palette-list"], [this](const std::string& key, const jvalue& jval) {
-		    palettes_.emplace(key, jval);
-			});
-
-	if (jobj.contains("layout"))
-		tryObjectOrArray_(jobj["layout"], [this](const jobject& jobj) {
-		    if (jobj.contains("name") && jobj["name"].is_string())
-			    layouts_.emplace(jobj["name"].get<std::string>(), jobj);
-			});
-
-	if (jobj.contains("layout-list") && jobj["layout-list"].is_object())
-		tryList_(jobj["layout-list"], [this](const std::string& key, const jvalue& jval) {
-		    if(jval.is_object())
-		        layouts_.emplace(key, jval);
-			});
+		if (jobj.contains(themeListName[i]) && jobj[themeListName[i]].is_object())
+			tryList_(jobj[themeListName[i]], [&theme, i](const std::string& key, const jvalue& jval) {
+			if (jval.is_object())
+				theme[i].emplace(key, jval);
+				});
+	}
 }
 
 
@@ -111,167 +101,175 @@ void KsThemeManager::removeInvalidThemes_()
 }
 
 
-KsThemeManager::stringlist KsThemeManager::listThemes() const
+bool KsThemeManager::isEmpty_(const theme_type& theme)
+{
+	for (unsigned i = 0; i < 4; i++)
+		if (!theme[i].empty())
+			return false;
+	return true;
+}
+
+
+KsThemeManager::stringlist KsThemeManager::listNames_(const std::map<std::string, jobject>& m)
 {
 	stringlist list;
-	for (auto i : themes_)
+	for (auto i : m)
 		list.push_back(i.first);
-
 	return list;
 }
 
 
-KsThemeManager::stringlist KsThemeManager::listCanvas() const
+KsThemeManager::stringlist KsThemeManager::listNames_(int type, const std::string& groupName) const
 {
-	stringlist list;
-	for (auto i : canvas_)
-		list.push_back(i.first);
-
-	return list;
-}
-
-
-KsThemeManager::stringlist KsThemeManager::listPalettes() const
-{
-	stringlist list;
-	for (auto i : palettes_)
-		list.push_back(i.first);
-
-	return list;
-}
-
-
-KsThemeManager::stringlist KsThemeManager::listLayouts() const
-{
-	stringlist list;
-	for (auto i : layouts_)
-		list.push_back(i.first);
-
-	return list;
-}
-
-
-std::string KsThemeManager::canvasName(const std::string& theme)
-{
-	if (themes_.count(theme) > 0) {
-		auto jobj = themes_[theme];
-		if (jobj.contains("canvas") && jobj["canvas"].is_string())
-			return jobj["canvas"].get<std::string>();
+	if (groupName.empty()) {
+		return listNames_(global_[type]);
 	}
+	else {
+		auto iter = grouped_.find(groupName);
+		if (iter != grouped_.cend())
+			return listNames_(iter->second[type]);
+	}
+
+	return {};
+}
+
+
+KsThemeManager::stringlist KsThemeManager::listThemes(const std::string& group) const
+{
+	return listNames_(k_theme, group);
+}
+
+
+KsThemeManager::stringlist KsThemeManager::listCanvas(const std::string& group) const
+{
+	return listNames_(k_canvas, group);
+}
+
+
+KsThemeManager::stringlist KsThemeManager::listPalettes(const std::string& group) const
+{
+	return listNames_(k_palette, group);
+}
+
+
+KsThemeManager::stringlist KsThemeManager::listLayouts(const std::string& group) const
+{
+	return listNames_(k_layout, group);
+}
+
+
+const KsThemeManager::jobject& KsThemeManager::themeAt_(int type, const std::string& group, const std::string& name) const
+{
+	if (group.empty())
+		return global_[type].at(name);
+	else
+		return grouped_.at(group)[type].at(name);
+}
+
+
+std::string KsThemeManager::canvasName(const std::string& group, const std::string& theme)
+{
+	auto& jobj = themeAt_(k_theme, group, theme);
+	if (jobj.contains("canvas") && jobj["canvas"].is_string())
+		return jobj["canvas"].get<std::string>();
 
 	return "";
 }
 
 
-std::string KsThemeManager::layoutName(const std::string& theme)
+std::string KsThemeManager::layoutName(const std::string& group, const std::string& theme)
 {
-	if (themes_.count(theme) > 0) {
-		auto jobj = themes_[theme];
-		if (jobj.contains("layout") && jobj["layout"].is_string())
-			return jobj["layout"].get<std::string>();
-	}
+	auto& jobj = themeAt_(k_theme, group, theme);
+	if (jobj.contains("layout") && jobj["layout"].is_string())
+		return jobj["layout"].get<std::string>();
 
 	return "";
 }
 
 
-std::string KsThemeManager::paletteName(const std::string& theme)
+std::string KsThemeManager::paletteName(const std::string& group, const std::string& theme)
 {
-	if (themes_.count(theme) > 0) {
-		auto jobj = themes_[theme];
-		if (jobj.contains("palette") && jobj["palette"].is_string())
-			return jobj["palette"].get<std::string>();
-	}
+	auto& jobj = themeAt_(k_theme, group, theme);
+	if (jobj.contains("palette") && jobj["palette"].is_string())
+		return jobj["palette"].get<std::string>();
 
 	return "";
 }
 
 
-void KsThemeManager::applyTheme(const std::string& name, KvThemedPlot* plot) const
+void KsThemeManager::applyTheme(const std::string& group, const std::string& name, KvThemedPlot* plot) const
 {
-	if (!themes_.count(name))
-		return;
-
-	auto& jobj = themes_.at(name);
+	auto& jobj = themeAt_(k_theme, group, name);
 
 	if (jobj.contains("base") && jobj["base"].is_string())
-		applyTheme(jobj["base"].get<std::string>(), plot);
+		applyTheme(group, jobj["base"].get<std::string>(), plot);
 
-	tryCanvas_(jobj, plot);
-	tryPalette_(jobj, plot);
-	tryLayout_(jobj, plot);
-	applyLayout_(jobj, plot, true); // open 'inTheme' flag to disable "base" property
+	tryCanvas_(group, jobj, plot);
+	tryPalette_(group, jobj, plot);
+	tryLayout_(group, jobj, plot);
+	applyLayout_(group, jobj, plot, true); // open 'inTheme' flag to disable "base" property
 }
 
 
-void KsThemeManager::applyLayout(const std::string& name, KvThemedPlot* plot) const
+void KsThemeManager::applyLayout(const std::string& group, const std::string& name, KvThemedPlot* plot) const
 {
-	if (!layouts_.count(name))
-		return;
-
-	applyLayout_(layouts_.at(name), plot, false);
+	applyLayout_(group, themeAt_(k_layout, group, name), plot, false);
 }
 
 
-void KsThemeManager::applyCanvas(const std::string& name, KvThemedPlot* plot) const
+void KsThemeManager::applyCanvas(const std::string& group, const std::string& name, KvThemedPlot* plot) const
 {
-	if (!canvas_.count(name))
-		return;
-
-	applyCanvas_(canvas_.at(name), plot);
+	applyCanvas_(themeAt_(k_canvas, group, name), plot);
 }
 
 
-void KsThemeManager::applyPalette(const std::string& name, KvThemedPlot* plot) const
+void KsThemeManager::applyPalette(const std::string& group, const std::string& name, KvThemedPlot* plot) const
 {
-	if (!palettes_.count(name))
-		return;
-
-	applyPalette_(palettes_.at(name), plot);
+	applyPalette_(themeAt_(k_palette, group, name), plot);
 }
 
 
-void KsThemeManager::tryCanvas_(const jobject& jobj, KvThemedPlot* plot) const
+void KsThemeManager::tryCanvas_(const std::string& group, const jobject& jobj, KvThemedPlot* plot) const
 {
 	if (jobj.contains("canvas")) {
 		auto canvas = jobj["canvas"];
 		if (canvas.is_string())
-			applyCanvas(canvas.get<std::string>(), plot);
+			applyCanvas(group, canvas.get<std::string>(), plot);
 		else 
 			applyCanvas_(canvas, plot);
 	}
 }
 
 
-void KsThemeManager::tryPalette_(const jobject& jobj, KvThemedPlot* plot) const
+void KsThemeManager::tryPalette_(const std::string& group, const jobject& jobj, KvThemedPlot* plot) const
 {
 	if (jobj.contains("palette")) {
 		auto palette = jobj["palette"];
 		if (palette.is_string())
-			applyPalette(palette.get<std::string>(), plot);
+			applyPalette(group, palette.get<std::string>(), plot);
 		else 
 			applyPalette_(palette, plot);
 	}
 }
 
 
-void KsThemeManager::tryLayout_(const jobject& jobj, KvThemedPlot* plot) const
+void KsThemeManager::tryLayout_(const std::string& group, const jobject& jobj, KvThemedPlot* plot) const
 {
 	if (jobj.contains("layout")) {
 		auto layout = jobj["layout"];
 		if (layout.is_string())
-			applyLayout(layout.get<std::string>(), plot);
+			applyLayout(group, layout.get<std::string>(), plot);
 		else if (layout.is_object())
-			applyLayout_(layout, plot, false);
+			applyLayout_(group, layout, plot, false);
 	}
 }
 
 
-void KsThemeManager::applyLayout_(const jobject& jobj, KvThemedPlot* plot, bool inTheme) const
+void KsThemeManager::applyLayout_(const std::string& group, const jobject& jobj, KvThemedPlot* plot, bool inTheme) const
 {
 	if (!inTheme) { // try base
 		if (jobj.contains("base") && jobj["base"].is_string())
-			applyLayout(jobj["base"].get<std::string>(), plot);
+			applyLayout(group, jobj["base"].get<std::string>(), plot);
 	}
 
 	tryLevel_(KvThemedPlot::k_all, jobj, plot);
@@ -311,12 +309,9 @@ KsThemeManager::colorlist KsThemeManager::parseCanvas_(const jvalue& jval)
 }
 
 
-KsThemeManager::colorlist KsThemeManager::getCanvas(const std::string& name)
+KsThemeManager::colorlist KsThemeManager::getCanvas(const std::string& group, const std::string& name)
 {
-	if (!canvas_.count(name))
-		return {};
-
-	return parseCanvas_(canvas_[name]);
+	return parseCanvas_(themeAt_(k_canvas, group, name));
 }
 
 
@@ -382,12 +377,9 @@ void KsThemeManager::parsePalette_(const jvalue& jval, colorlist& majors, colorl
 }
 
 
-bool KsThemeManager::getPalette(const std::string& name, colorlist& majors, colorlist& minors)
+bool KsThemeManager::getPalette(const std::string& group, const std::string& name, colorlist& majors, colorlist& minors)
 {
-	if (!palettes_.count(name))
-		return false;
-
-	parsePalette_(palettes_.at(name), majors, minors);
+	parsePalette_(themeAt_(k_palette, group, name), majors, minors);
 	return true;
 }
 
