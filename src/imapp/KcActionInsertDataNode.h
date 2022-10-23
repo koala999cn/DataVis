@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-class KcImDataView;
+class KcImDataMaker;
 class KvData;
 
 class KcActionInsertDataNode : public KvAction
@@ -18,7 +18,7 @@ public:
 	void update() override;
 
 private:
-	std::unique_ptr<KcImDataView> dataView_;
+	std::unique_ptr<KcImDataMaker> dataMaker_;
 	const std::string& filepath_;
 	const matrixd& idata_;
 	std::shared_ptr<KvData> odata_;

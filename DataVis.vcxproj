@@ -133,6 +133,7 @@
     <ClCompile Include="src\dsp\KgWindowing.cpp" />
     <ClCompile Include="src\dsp\KmBins.cpp" />
     <ClCompile Include="src\dsp\KpExprtkHelper_.cpp" />
+    <ClCompile Include="src\dsp\KuDataUtil.cpp" />
     <ClCompile Include="src\dsp\KuExtrapolate.cpp" />
     <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
     <ClCompile Include="src\dsp\KuInterp1d.cpp" />
@@ -143,8 +144,8 @@
     <ClCompile Include="src\imapp\KcActionInsertDataNode.cpp" />
     <ClCompile Include="src\imapp\KcActionTextLoadAndClean.cpp" />
     <ClCompile Include="src\imapp\KcActionNewTextData.cpp" />
-    <ClCompile Include="src\imapp\KcActionFileDialog.cpp" />
-    <ClCompile Include="src\imapp\KcImDataView.cpp" />
+    <ClCompile Include="src\imapp\KcActionShowFileDialog.cpp" />
+    <ClCompile Include="src\imapp\KcImDataMaker.cpp" />
     <ClCompile Include="src\imapp\KcImPaint.cpp" />
     <ClCompile Include="src\imapp\KcImPlot2d.cpp" />
     <ClCompile Include="src\imapp\KcImPlot3d.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="src\dsp\functions.h" />
     <ClInclude Include="src\dsp\KtSampler.h" />
     <ClInclude Include="src\dsp\KtScattered.h" />
+    <ClInclude Include="src\dsp\KuDataUtil.h" />
     <ClInclude Include="src\dsp\KuMatrixUtil.h" />
     <ClInclude Include="src\dsp\KuExtrapolate.h" />
     <ClInclude Include="src\dsp\KuFreqUnit.h" />
@@ -267,9 +269,9 @@
     <ClInclude Include="src\imapp\KcActionInsertDataNode.h" />
     <ClInclude Include="src\imapp\KcActionTextLoadAndClean.h" />
     <ClInclude Include="src\imapp\KcActionNewTextData.h" />
-    <ClInclude Include="src\imapp\KcActionFileDialog.h" />
+    <ClInclude Include="src\imapp\KcActionShowFileDialog.h" />
     <ClInclude Include="src\imapp\KcActionSequence.h" />
-    <ClInclude Include="src\imapp\KcImDataView.h" />
+    <ClInclude Include="src\imapp\KcImDataMaker.h" />
     <ClInclude Include="src\imapp\KcImPaint.h" />
     <ClInclude Include="src\imapp\KcImPlot2d.h" />
     <ClInclude Include="src\imapp\KcImPlot3d.h" />

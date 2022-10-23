@@ -1,5 +1,5 @@
 #include "KcActionNewTextData.h"
-#include "KcActionFileDialog.h"
+#include "KcActionShowFileDialog.h"
 #include "KcActionTextLoadAndClean.h"
 #include "KcActionInsertDataNode.h"
 
@@ -7,8 +7,8 @@
 KcActionNewTextData::KcActionNewTextData()
 	: KcActionSequence("Text Data", "insert a provider node loading data from text file")
 {
-	auto fileDialog = std::make_shared<KcActionFileDialog>(
-		KcActionFileDialog::KeType::k_open,
+	auto fileDialog = std::make_shared<KcActionShowFileDialog>(
+		KcActionShowFileDialog::KeType::k_open,
 		"Select text data file",
 		"text file (*.txt;*.cvs){.txt,.cvs},.*");
 

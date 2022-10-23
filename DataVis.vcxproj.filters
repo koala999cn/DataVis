@@ -172,7 +172,7 @@
     <ClCompile Include="src\imapp\KcActionSequence.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcActionFileDialog.cpp">
+    <ClCompile Include="src\imapp\KcActionShowFileDialog.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="src\imapp\KcActionTextLoadAndClean.cpp">
@@ -196,7 +196,7 @@
     <ClCompile Include="src\imapp\KcModuleImFileDialog.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcImDataView.cpp">
+    <ClCompile Include="src\imapp\KcImDataMaker.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="src\imapp\KcActionInsertDataNode.cpp">
@@ -300,6 +300,9 @@
     </ClCompile>
     <ClCompile Include="src\plot\KcBars2.cpp">
       <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KuDataUtil.cpp">
+      <Filter>dsp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -555,7 +558,7 @@
     <ClInclude Include="src\imapp\KcActionSequence.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcActionFileDialog.h">
+    <ClInclude Include="src\imapp\KcActionShowFileDialog.h">
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcActionTextLoadAndClean.h">
@@ -582,7 +585,7 @@
     <ClInclude Include="src\imapp\KcModuleImFileDialog.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcImDataView.h">
+    <ClInclude Include="src\imapp\KcImDataMaker.h">
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcActionInsertDataNode.h">
@@ -710,6 +713,9 @@
     </ClInclude>
     <ClInclude Include="src\plot\KcBars2d.h">
       <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuDataUtil.h">
+      <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

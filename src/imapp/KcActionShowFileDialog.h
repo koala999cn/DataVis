@@ -3,7 +3,7 @@
 #include <filesystem>
 
 
-class KcActionFileDialog : public KvAction
+class KcActionShowFileDialog : public KvAction
 {
 public:
 
@@ -15,7 +15,7 @@ public:
 
 	// @filter: File filter. syntax: Name1{ .ext1,.ext2 }, Name2{ .ext3,.ext4 }, .*
 	// 若empty, 使用dir模式，否则file模式
-	KcActionFileDialog(KeType type, const std::string_view& title, 
+	KcActionShowFileDialog(KeType type, const std::string_view& title,
 		const std::string_view& filter, const std::string_view& dir = "");
 
 	bool trigger() override;

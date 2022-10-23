@@ -81,9 +81,11 @@ void KcImPaint::drawLineStrip(point_getter fn, unsigned count)
 	auto drawList = ImGui::GetWindowDrawList();
 
 	if (lineStyle_ == KpPen::k_solid) {
+		// TODO: 点数太大（~44k）时会crack
+		// 去除drawList->Flags的ImDrawListFlags_AntiAliasedLines标记可正常云心，但很慢
 		for (unsigned i = 1; i < count; i++)
 			drawList->PathLineTo(world2Pos_(fn(i), true));
-		drawList->PathStroke(color_(), 0, lineWidth_);
+		drawList->PathStroke(color_(), 0, lineWidth_); 
 	}
 	else {
 		ImVec2 pt0 = world2Pos_(fn(0), true);

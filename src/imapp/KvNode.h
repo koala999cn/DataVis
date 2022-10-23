@@ -53,6 +53,9 @@ public:
 	virtual void output() = 0;
 
 	virtual void showProperySet();
+
+	// 用户双击了该node
+	virtual void onDoubleClicked() {}
 };
 
 

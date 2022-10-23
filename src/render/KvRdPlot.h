@@ -31,6 +31,7 @@ public:
 
 	void showProperySet() override;
 
+	void onDoubleClicked() override;
 
 protected:
 

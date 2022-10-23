@@ -67,7 +67,7 @@ public:
 	void releaseAll(); // 释放所有窗口实例，可在程序退出时调用. 析构函数也会自动调用该方法。
 
 private:
-	void setVisible_(bool b);
+	void setVisibleAll_(bool b);
 
 private:
 

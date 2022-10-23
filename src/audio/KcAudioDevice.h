@@ -195,6 +195,6 @@ private:
     unsigned inChannels_;
     unsigned outChannels_;
     unsigned frameSamples_;
-    std::string error_;
+    mutable std::string error_;
 };
 

@@ -147,12 +147,12 @@ void KgImWindowManager::update()
 	}
 	releaseQueue_.clear();
 
-	for (auto& w : statics_)
-		if(w->visible())
-			w->update();
-
 	for (auto& w : dynamics_)
 		if (w->visible())
+			w->update();
+
+	for (auto& w : statics_)
+		if(w->visible())
 			w->update();
 
 	if (showDemo_)
@@ -168,7 +168,7 @@ void KgImWindowManager::update()
 }
 
 
-void KgImWindowManager::setVisible_(bool b)
+void KgImWindowManager::setVisibleAll_(bool b)
 {
 	for (auto& w : statics_)
 		w->setVisible(b);
@@ -190,13 +190,13 @@ void KgImWindowManager::setVisible_(bool b)
 
 void KgImWindowManager::showAll()
 {
-	setVisible_(true);
+	setVisibleAll_(true);
 }
 
 
 void KgImWindowManager::closeAll()
 {
-	setVisible_(false);
+	setVisibleAll_(false);
 }
 
 

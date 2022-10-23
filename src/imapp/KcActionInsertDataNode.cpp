@@ -1,5 +1,5 @@
 #include "KcActionInsertDataNode.h"
-#include "KcImDataView.h"
+#include "KcImDataMaker.h"
 #include <assert.h>
 #include "KsImApp.h"
 #include "KgImWindowManager.h"
@@ -20,14 +20,14 @@ KcActionInsertDataNode::KcActionInsertDataNode(const std::string& filepath, cons
 bool KcActionInsertDataNode::trigger()
 {
     // 创建数据窗口
-    dataView_ = std::make_unique<KcImDataView>(filepath_, idata_, odata_);
-    if (dataView_ == nullptr) {
+    dataMaker_ = std::make_unique<KcImDataMaker>(filepath_, idata_, odata_);
+    if (dataMaker_ == nullptr) {
         state_ = KeState::k_failed;
         return false;
     }
 
-    if(dataView_->visible())
-        dataView_->open();
+    if(dataMaker_->visible())
+        dataMaker_->open();
 
     state_ = KeState::k_triggered;
     return true;
@@ -36,12 +36,12 @@ bool KcActionInsertDataNode::trigger()
 
 void KcActionInsertDataNode::update()
 {
-    assert(dataView_ != nullptr);
+    assert(dataMaker_ != nullptr);
 
-    if (dataView_->opened())
-        dataView_->update();
+    if (dataMaker_->opened())
+        dataMaker_->update();
     else {
-        assert(!dataView_->opened());
+        assert(!dataMaker_->opened());
         if (odata_) {
             state_ = KeState::k_done;
             auto node = std::make_shared<KcPvData>(KuPathUtil::fileName(filepath_), odata_);
@@ -50,6 +50,6 @@ void KcActionInsertDataNode::update()
         else {
             state_ = KeState::k_cancelled;
         }
-        dataView_ = nullptr;
+        dataMaker_ = nullptr;
     }
 }

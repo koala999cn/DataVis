@@ -46,12 +46,15 @@ int main_(int, char**)
 
             KsImApp::singleton().windowManager().showMenu("View");
 
+            auto editor = KsImApp::singleton().windowManager().getStatic<KcImNodeEditor>();
+            bool busy = editor->status() == KcImNodeEditor::k_busy;
+
             if (ImGui::BeginMenu("Pileline")) {
 
-                if (ImGui::MenuItem("Start")) 
+                if (ImGui::MenuItem("Start", nullptr, nullptr, !busy))
                     editor->start();
 
-                if (ImGui::MenuItem("Stop"))
+                if (ImGui::MenuItem("Stop", nullptr, nullptr, busy))
                     editor->stop();
 
                 ImGui::EndMenu();

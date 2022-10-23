@@ -1,10 +1,10 @@
-#include "KcActionFileDialog.h"
+#include "KcActionShowFileDialog.h"
 #include <assert.h>
 #include "ImFileDialog/ImFileDialog.h"
 #include "KuStrUtil.h"
 
 
-KcActionFileDialog::KcActionFileDialog(KeType type, const std::string_view& title,
+KcActionShowFileDialog::KcActionShowFileDialog(KeType type, const std::string_view& title,
 	const std::string_view& filter, const std::string_view& dir)
 	: KvAction(title)
 {
@@ -15,7 +15,7 @@ KcActionFileDialog::KcActionFileDialog(KeType type, const std::string_view& titl
 }
 
 
-bool KcActionFileDialog::trigger()
+bool KcActionShowFileDialog::trigger()
 {
 	bool res{};
 
@@ -33,7 +33,7 @@ bool KcActionFileDialog::trigger()
 }
 
 
-void KcActionFileDialog::update()
+void KcActionShowFileDialog::update()
 {
 	assert(triggered());
 

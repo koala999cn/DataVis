@@ -18,6 +18,7 @@ bool KvImWindow::visible() const
 void KvImWindow::setVisible(bool b)
 {
     visible_ = b;
+    ImGui::SetWindowFocus(label().c_str());
 }
 
 

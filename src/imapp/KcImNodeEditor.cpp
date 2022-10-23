@@ -68,7 +68,7 @@ void KcImNodeEditor::drawNodes_() const
         IM_COL32(45, 194, 126, 255),
         IM_COL32(45, 126, 194, 255)
     };
-
+  
     for (unsigned v = 0; v < graph_.order(); v++) {
 
         auto node = std::dynamic_pointer_cast<KvBlockNode>(graph_.vertexAt(v));
@@ -92,6 +92,7 @@ void KcImNodeEditor::drawNodes_() const
         float maxInputWidth(0);
 
         // 端口节点的index必然与bolck节点连续
+        ImGui::BeginGroup();    // Inputs
         for (unsigned i = 0; i < node->inPorts(); i++) {
             auto& port = graph_.vertexAt(++v);
 
@@ -103,11 +104,14 @@ void KcImNodeEditor::drawNodes_() const
             ImGui::Text(port->name().c_str());
             ImNodes::EndInputAttribute();
         }
+        ImGui::EndGroup();
+
+        ImGui::SameLine();
 
         if (node->inPorts() > 0)
             ImGui::Spacing();
 
-
+        ImGui::BeginGroup();    // Outputs
         for (unsigned i = 0; i < node->outPorts(); i++) {
             auto& port = graph_.vertexAt(++v);
             ImNodes::BeginOutputAttribute(port->id());
@@ -122,6 +126,7 @@ void KcImNodeEditor::drawNodes_() const
             ImGui::Text(port->name().c_str());
             ImNodes::EndOutputAttribute();
         }
+        ImGui::EndGroup();
 
         ImNodes::EndNode();
 
@@ -286,6 +291,14 @@ void KcImNodeEditor::handleInput_()
             eraseNode(nodeId);
         ImNodes::ClearNodeSelection();
     }
+
+    if (numNodes == 1 && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+        int nodeId;
+        ImNodes::GetSelectedNodes(&nodeId);
+        auto node = graph_.vertexAt(nodeId2Index_(nodeId));
+        auto block = std::dynamic_pointer_cast<KvBlockNode>(node);
+        block->onDoubleClicked();
+    }
 }
 
 
@@ -397,6 +410,9 @@ void KcImNodeEditor::stop()
 
 void KcImNodeEditor::stepFrame()
 {
+    if (graph_.isEmpty())
+        return;
+
     // 统计所有节点的入度
     std::vector<unsigned> indegs(graph_.order(), 0); 
     KtBfsIter<const node_graph, true, true> iter(graph_, 0);

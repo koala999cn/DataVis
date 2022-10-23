@@ -87,9 +87,22 @@ unsigned KcAudioDevice::count() const
 
 KcAudioDevice::KpDeviceInfo KcAudioDevice::info(unsigned device) const
 {
-    RtAudio::DeviceInfo rtinfo = RTAudio_->getDeviceInfo(device);
-
+    RtAudio::DeviceInfo rtinfo;
     KpDeviceInfo di;
+
+    try {
+        rtinfo = RTAudio_->getDeviceInfo(device);
+    }
+    catch (RtAudioError& err) {
+        error_ = err.getMessage();
+        di.name = "null device";
+        di.inputChannels = 0;
+        di.outputChannels = 0;
+        di.duplexChannels = 0;
+        return di;
+    }
+
+    
     di.name = rtinfo.name;
     di.inputChannels = rtinfo.inputChannels;
     di.outputChannels = rtinfo.outputChannels;

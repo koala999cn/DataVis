@@ -7,7 +7,7 @@
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
 #include "KcImNodeEditor.h"
-#include "imgui.h"
+#include "imguix.h"
 #include "KuStrUtil.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "plot/KsThemeManager.h"
@@ -315,15 +315,8 @@ void KvRdPlot::showThemeProperty_()
 				// »æÖÆÉ«´ø
 				ImGui::SameLine();
 				auto canvas = KsThemeManager::singleton().getCanvas(*iter);
-				auto minp = ImGui::GetCursorScreenPos();
-				float h = ImGui::GetTextLineHeight();
-				ImGui::Dummy(ImVec2(canvas.size() * (h + 1), h));
-				for (unsigned i = 0; i < canvas.size(); i++) {
-					auto maxp = ImVec2{ minp.x + h, minp.y + h };
-					ImGui::GetWindowDrawList()->AddRectFilled(
-						minp, maxp, ImColor((ImVec4&)canvas[i]));
-					minp.x += h + 1;
-				}
+				ImGuiX::drawColorBar(canvas, ImGui::GetCursorScreenPos(), 
+					{ ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() }, 1);
 			}
 
 			ImGui::EndCombo();
@@ -348,15 +341,8 @@ void KvRdPlot::showThemeProperty_()
 					ImGui::SameLine();
 					std::vector<color4f> majors, minors;
 					KsThemeManager::singleton().getPalette(*iter, majors, minors);
-					auto minp = ImGui::GetCursorScreenPos();
-					float h = ImGui::GetTextLineHeight();
-					ImGui::Dummy(ImVec2(majors.size() * (h+1), h));
-					for (unsigned i = 0; i < majors.size(); i++) {
-						auto maxp = ImVec2{ minp.x + h, minp.y + h };
-						ImGui::GetWindowDrawList()->AddRectFilled(
-							minp, maxp, ImColor((ImVec4&)majors[i]));
-						minp.x += h + 1;
-					}
+					ImGuiX::drawColorBar(majors, ImGui::GetCursorScreenPos(),
+						{ 6, ImGui::GetTextLineHeight() }, 2);
 				}
 
 				ImGui::TreePop();
@@ -380,4 +366,11 @@ void KvRdPlot::applyTheme_(const std::string& name, KvThemedPlot* plot)
 	paletteName_ = themeMgr.paletteName(name);
 
 	themeMgr.applyTheme(name, plot);
+}
+
+
+void KvRdPlot::onDoubleClicked()
+{
+	if (plot_)
+		plot_->setVisible(true);
 }
