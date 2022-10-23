@@ -304,6 +304,9 @@
     <ClCompile Include="src\dsp\KuDataUtil.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KcImDataView.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -716,6 +719,9 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KuDataUtil.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcImDataView.h">
+      <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

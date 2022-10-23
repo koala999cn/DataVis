@@ -46,16 +46,18 @@ public:
 	
 	template<typename T, typename... ARGS>
 	std::shared_ptr<T> registerDynamic(ARGS... args) {
-		auto w = std::make_shared<T>(std::forward(args)...);
+		auto w = std::make_shared<T>(std::forward<ARGS>(args)...);
 		registerDynamic(w);
 		return w;
 	}
 
-	void releaseStatic(window_ptr inst);
-	void releaseStatic(const std::string_view& name);
+	//void releaseStatic(window_ptr inst);
+	//void releaseStatic(const std::string_view& label);
+	//void releaseStatic(int id);
 
 	void releaseDynamic(window_ptr inst);
-
+	void releaseDynamic(const std::string_view& label);
+	void releaseDynamic(int id);
 
 	void showMenu(const std::string_view& menuName);
 

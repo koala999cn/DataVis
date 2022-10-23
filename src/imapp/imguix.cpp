@@ -1,6 +1,8 @@
 #include "imguix.h"
 #include "KuStrUtil.h"
 #include "KuDataUtil.h"
+#include "KvDiscreted.h"
+#include "KcSampled2d.h"
 
 
 namespace kPrivate
@@ -106,13 +108,68 @@ namespace ImGuiX
     }
 
 
-    void showDataTabel(const KvData& data)
+    void showDataTable(const KvData& data)
     {
-
+        if (data.isDiscreted()) {
+            auto& disc = (const KvDiscreted&)data;
+            if (disc.isScattered()) {
+                showDataTable(disc.dim() == 1 ? 
+                    KuDataUtil::k_scattered_1d : KuDataUtil::k_scattered_2d, 
+                    disc.size(),
+                    disc.channels() * (disc.dim() + 1),
+                    [&disc](unsigned r, unsigned c) {
+                        auto ch = c / (disc.dim() + 1);
+                        auto idx = c % (disc.dim() + 1);
+                        return disc.pointAt(r, ch).at(idx);
+                    });
+            }
+            else if (disc.isSampled()) {
+                if (disc.dim() == 1) {
+                    if (disc.step(0) == 1) { // series 
+                        showDataTable(KuDataUtil::k_series, disc.size(), disc.channels(),
+                            [&disc](unsigned r, unsigned c) {
+                                return disc.pointAt(r, c).at(1);
+                            });
+                    }
+                    else { // sampled1d
+                        showDataTable(KuDataUtil::k_sampled_1d, disc.size(), disc.channels() + 1,
+                            [&disc](unsigned r, unsigned c) {
+                                if (c == 0)
+                                    return disc.pointAt(r, 0).at(0);
+                                else
+                                    return disc.valueAt(r, c - 1);
+                            });
+                    }
+                }
+                else if (disc.dim() == 2) {
+                    auto samp2d = (const KcSampled2d&)disc;
+                    if (disc.step(0) == 1 && disc.step(1) == 1) { // matrix
+                        showDataTable(KuDataUtil::k_matrix, disc.size(0), disc.size(1),
+                            [&samp2d](unsigned r, unsigned c) {
+                                return samp2d.value(r, c, 0);
+                            });
+                    }
+                    else { // sampled2d
+                        showDataTable(KuDataUtil::k_sampled_2d, disc.size(0) + 1, disc.size(1) + 1,
+                            [&samp2d](unsigned r, unsigned c) -> double {
+                                if (r == 0 && c == 0)
+                                    return std::numeric_limits<double>::quiet_NaN();
+                                else if (r == 0)
+                                    return samp2d.sampling(1).indexToX(c - 1);
+                                else if (c == 0)
+                                    return samp2d.sampling(0).indexToX(r - 1);
+                                else 
+                                    return samp2d.value(r - 1, c - 1, 0);
+                            });
+                    }
+                }
+                
+            }
+        }
     }
 
 
-    void showDataTabel(int type, const matrixd& data, bool rowMajor)
+    void showDataTable(int type, const matrixd& data, bool rowMajor)
     {
         if (data.empty())
             return;

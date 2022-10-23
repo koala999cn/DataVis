@@ -1,8 +1,9 @@
 ﻿#pragma once
 #include "KvNode.h"
+#include "KvData.h"
 #include <memory>
-#include "KvDiscreted.h"
 
+class KvImWindow;
 
 // 数据源的抽象类
 
@@ -11,6 +12,8 @@ class KvDataProvider : public KvBlockNode
 public:
 
 	using KvBlockNode::KvBlockNode;
+	
+	virtual ~KvDataProvider();
 
 	// 数据源没有输入端口
 	unsigned inPorts() const override { return 0; }
@@ -46,34 +49,28 @@ public:
 		return c;
 	}
 
-	bool isContinued() const {
-		return size(0) == KvData::k_inf_size;
-	}
+	bool isContinued() const;
 
-	bool isDiscreted() const {
-		return size(0) != KvData::k_inf_size;
-	}
+	bool isDiscreted() const;
 
-	bool isScattered() const {
-		return isDiscreted() && step(0) == KvDiscreted::k_nonuniform_step;
-	}
+	bool isScattered() const;
 
-	// 是否序列数据
-	bool isSeries() const {
-		return isDiscreted() && step(0) == 1;
-	}
+	bool isSeries() const; // 是否序列数据
 
-	bool isSampled() const {
-		return isDiscreted() && step(0) != KvDiscreted::k_nonuniform_step;
-	}
-
+	bool isSampled() const;
 
 	void onInput(KcPortNode* outPort, unsigned inPort) override;
 
-	//默认所有数据都已就绪，需要逐帧准备数据的可以重载该方法
+	// 默认所有数据都已就绪，需要逐帧准备数据的可以重载该方法
 	void output() override {}
+
+	// 处理鼠标左键双击：弹出数据窗口，显示当前各端口的输出
+	void onDoubleClicked() override;
 
 	// 抓取第outPort个输出端口的数据
 	virtual std::shared_ptr<KvData> fetchData(kIndex outPort) = 0;
+
+private:
+	std::shared_ptr<KvImWindow> win_; // 挂接的ImWindow
 };
 

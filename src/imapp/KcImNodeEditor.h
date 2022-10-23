@@ -26,7 +26,9 @@ public:
 
     void eraseLink(int fromId, int toId);
 
-    KvBlockNode* selectedNode() const;
+    node_ptr getNode(int id) const;
+
+    node_ptr getSelectedNode() const;
 
     // pipeline÷ß≥÷
 

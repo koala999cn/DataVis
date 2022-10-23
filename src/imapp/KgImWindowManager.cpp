@@ -38,32 +38,71 @@ KgImWindowManager::window_ptr KgImWindowManager::getStatic(const std::string_vie
 	return {};
 }
 
-
+/*
 void KgImWindowManager::releaseStatic(window_ptr inst)
 {
 	auto iter = statics_.begin();
 	for (; iter != statics_.end(); iter++)
 		if (*iter == inst) {
 			statics_.erase(iter);
-			break;
+			return true;
 		}
+
+	return false;
 }
 
 
-void KgImWindowManager::releaseStatic(const std::string_view& name)
+void KgImWindowManager::releaseStatic(const std::string_view& label)
 {
 	auto iter = statics_.begin();
 	for (; iter != statics_.end(); iter++)
-		if ((*iter)->name() == name) {
+		if ((*iter)->label() == label) {
 			statics_.erase(iter);
-			break;
+			return true;
 		}
+
+	return false;
 }
 
+
+void KgImWindowManager::releaseStatic(int id)
+{
+	auto iter = statics_.begin();
+	for (; iter != statics_.end(); iter++)
+		if ((*iter)->id() == id) {
+			statics_.erase(iter);
+			return true;
+		}
+
+	return false;
+}
+*/
 
 void KgImWindowManager::releaseDynamic(window_ptr inst)
 {
 	releaseQueue_.push_back(inst);
+}
+
+
+void KgImWindowManager::releaseDynamic(const std::string_view& label)
+{
+	auto iter = dynamics_.begin();
+	for (; iter != dynamics_.end(); iter++)
+		if ((*iter)->label() == label) {
+			releaseQueue_.push_back(*iter);
+			break;
+		}
+}
+
+
+void KgImWindowManager::releaseDynamic(int id)
+{
+	auto iter = dynamics_.begin();
+	for (; iter != dynamics_.end(); iter++)
+		if ((*iter)->id() == id) {
+			releaseQueue_.push_back(*iter);
+			break;
+		}
 }
 
 

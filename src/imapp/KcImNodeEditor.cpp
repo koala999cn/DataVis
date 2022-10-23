@@ -339,20 +339,24 @@ void KcImNodeEditor::eraseLink(int fromId, int toId)
 }
 
 
-KvBlockNode* KcImNodeEditor::selectedNode() const
+KcImNodeEditor::node_ptr KcImNodeEditor::getNode(int id) const
+{
+    auto v = nodeId2Index_(id);
+    assert(v != -1); 
+    return graph_.vertexAt(v);
+}
+
+
+KcImNodeEditor::node_ptr KcImNodeEditor::getSelectedNode() const
 {
     auto numNodes = ImNodes::NumSelectedNodes();
     if (numNodes != 1)
         return nullptr;
 
     int nodeId;
-    ImNodes::GetSelectedNodes(&nodeId); 
+    ImNodes::GetSelectedNodes(&nodeId);
 
-    // 用户删除一个选中的node之后，该node的id对于ImNodes可能仍然有效，ImNodes后台并不会及时更新
-    // 此时需要通过判断nodeId2Index_的返回值来确认node的可用性
-    auto v = nodeId2Index_(nodeId);
-    assert(v != -1); // 已在删除node的同时，清除选择状态，此处断言v有效
-    return v == -1 ? nullptr : graph_.vertexAt(v)->as<KvBlockNode*>();
+    return getNode(nodeId);
 }
 
 

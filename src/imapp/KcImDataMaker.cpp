@@ -62,5 +62,5 @@ void KcImDataMaker::updateImpl_()
         odata_ = nullptr; // 标记为取消状态
     }
 
-    ImGuiX::showDataTabel(dataType_, idata_, rowMajor_);
+    ImGuiX::showDataTable(dataType_, idata_, rowMajor_);
 }

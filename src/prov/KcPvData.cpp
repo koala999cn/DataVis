@@ -1,4 +1,5 @@
 ﻿#include "KcPvData.h"
+#include "KvDiscreted.h"
 
 
 KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
