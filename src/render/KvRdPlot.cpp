@@ -209,17 +209,22 @@ void KvRdPlot::showProperySet()
 	if (plot_->plottableCount() > 0) {
 
 		if (ImGui::TreeNodeEx("Plottable(s)", ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_CollapsingHeader)) {
-			for (unsigned ch = 0; ch < plot_->plottableCount(); ch++) {
-				ImGui::Indent();
+			
+			for (unsigned idx = 0; idx < plot_->plottableCount(); idx++) {
 
-				auto plt = plot_->plottableAt(ch);
-				std::string label = "##Plottable" + KuStrUtil::toString(ch);
-				ImGui::Checkbox(label.c_str(), &plt->visible());
-				ImGui::SameLine();
-
+				auto plt = plot_->plottableAt(idx);
 				ImGui::PushID(plt);
-				ImGui::InputText("##", &plt->name());
+		
+				std::string label = "##Plottable" + KuStrUtil::toString(idx);
+				ImGui::Checkbox(label.c_str(), &plt->visible());
 				
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0, 0 });
+				ImGui::SameLine();
+				bool show = ImGui::TreeNode("##");
+				ImGui::PopStyleVar();
+
+				ImGui::SameLine();			
+				ImGui::InputText("##", &plt->name());
 				for (unsigned i = 0; i < plt->majorColors(); i++) {
 					ImGui::SameLine();
 					std::string label = "##" + KuStrUtil::toString(i);
@@ -227,9 +232,12 @@ void KvRdPlot::showProperySet()
 						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 				}
 
-				ImGui::PopID();
+				if (show) {
+					showPlottableProperty_(idx);
+					ImGui::TreePop();
+				}
 
-				ImGui::Unindent();
+				ImGui::PopID();		
 			}
 
 			//ImGui::TreePop();

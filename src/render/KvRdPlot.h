@@ -40,6 +40,8 @@ protected:
 	// 一个数据源可以创建多个KvPlottable
 	virtual std::vector<KvPlottable*> createPlottable_(KvDataProvider* prov) = 0;
 
+	virtual void showPlottableProperty_(unsigned idx) {};
+
 	void showThemeProperty_();
 
 	// 创建plottable的帮助函数，对外提供splitChannels_无关的接口
