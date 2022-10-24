@@ -261,111 +261,103 @@ void KvRdPlot::showProperySet()
 
 void KvRdPlot::showThemeProperty_()
 {
-	KcThemedPlotImpl_ tp(*plot_);
+	auto& themeMgr = KsThemeManager::singleton();
+	if (themeMgr.empty())
+		return;
 
-	auto themes = KsThemeManager::singleton().listThemes();
-	if (!themes.empty()) {
+	auto groups = themeMgr.listGroups();
+	groups.insert(groups.cbegin(), ""); // insert the global group
+	static const char* labels[] = { "Theme", "Layout", "Canvas", "Palette" };
 
-		if (ImGui::BeginCombo("Theme", themeName_.c_str(), ImGuiComboFlags_HeightLarge)) {
-			for (auto iter = themes.cbegin(); iter != themes.cend(); iter++) {
-				if (ImGui::Selectable(iter->c_str(), *iter == themeName_)) {
-					themeName_ = *iter;
-					applyTheme_(themeName_, &tp);
+	for (int i = 0; i < 4; i++) {
+		if (themeMgr.isEmpty(i))
+			continue;
+
+		if (!ImGui::BeginCombo(labels[i], curTheme_[i].second.c_str(), ImGuiComboFlags_HeightLarge))
+			continue;
+
+		for (unsigned g = 0; g < groups.size(); g++) {
+
+			auto names = themeMgr.listNames(i, groups[g]);
+			if (names.empty())
+				continue;
+
+			if (!groups[g].empty() && !ImGui::TreeNodeEx(groups[g].c_str()))
+			    continue;
+		
+			for (auto& name : names) {
+				if (ImGui::Selectable(name.c_str(), name == curTheme_[i].second && groups[g] == curTheme_[i].first)) {
+					curTheme_[i].second = name;
+					curTheme_[i].first = groups[g];
+					onThemeChanged(i);
 				}
 
-				if (*iter == themeName_)
-					ImGui::SetItemDefaultFocus();
-			}
-
-			ImGui::EndCombo();
-		}
-	}
-
-	auto layouts = KsThemeManager::singleton().listLayouts();
-	if (!layouts.empty()) {
-
-		if (ImGui::BeginCombo("Layout", layoutName_.c_str(), ImGuiComboFlags_HeightLarge)) {
-			for (auto iter = layouts.cbegin(); iter != layouts.cend(); iter++) {
-				if (ImGui::Selectable(iter->c_str(), *iter == layoutName_)) {
-					layoutName_ = *iter;
-					KsThemeManager::singleton().applyLayout(layoutName_, &tp);
-				}
-
-				if (*iter == layoutName_)
-					ImGui::SetItemDefaultFocus();
-			}
-
-			ImGui::EndCombo();
-		}
-	}
-
-	auto canvas = KsThemeManager::singleton().listCanvas();
-	if (!canvas.empty()) {
-
-		if (ImGui::BeginCombo("Canvas", canvasName_.c_str(), ImGuiComboFlags_HeightLarge)) {
-			for (auto iter = canvas.cbegin(); iter != canvas.cend(); iter++) {
-				if (ImGui::Selectable(iter->c_str(), *iter == canvasName_)) {
-					canvasName_ = *iter;
-					KsThemeManager::singleton().applyCanvas(canvasName_, &tp);
-				}
-
-				if (*iter == canvasName_)
+				if (name == curTheme_[i].second && groups[g] == curTheme_[i].first)
 					ImGui::SetItemDefaultFocus();
 
 				// 绘制色带
-				ImGui::SameLine();
-				auto canvas = KsThemeManager::singleton().getCanvas(*iter);
-				ImGuiX::drawColorBar(canvas, ImGui::GetCursorScreenPos(), 
-					{ ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() }, 1);
-			}
-
-			ImGui::EndCombo();
-		}
-	}
-
-	auto palettes = KsThemeManager::singleton().listPalettes();
-	if (!palettes.empty()) {
-
-		if (ImGui::BeginCombo("Palette", paletteName_.c_str(), ImGuiComboFlags_HeightLarge)) {
-			if (ImGui::TreeNodeEx("Group")) {
-				for (auto iter = palettes.cbegin(); iter != palettes.cend(); iter++) {
-					if (ImGui::Selectable(iter->c_str(), *iter == paletteName_)) {
-						paletteName_ = *iter;
-						KsThemeManager::singleton().applyPalette(paletteName_, &tp);
-					}
-
-					if (*iter == paletteName_)
-						ImGui::SetItemDefaultFocus();
-
-					// 绘制色带
+				if (i == KsThemeManager::k_canvas) {
+					ImGui::SameLine();
+					auto canvas = KsThemeManager::singleton().getCanvas(groups[g], name);
+					ImGuiX::drawColorBar(canvas, ImGui::GetCursorScreenPos(),
+						{ ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() }, 1);
+				}
+				else if (i == KsThemeManager::k_palette) {
 					ImGui::SameLine();
 					std::vector<color4f> majors, minors;
-					KsThemeManager::singleton().getPalette(*iter, majors, minors);
+					KsThemeManager::singleton().getPalette(groups[g], name, majors, minors);
 					ImGuiX::drawColorBar(majors, ImGui::GetCursorScreenPos(),
 						{ 6, ImGui::GetTextLineHeight() }, 2);
 				}
-
-				ImGui::TreePop();
 			}
 
-			ImGui::EndCombo();
+			if (!groups[g].empty())
+				ImGui::TreePop();
 		}
+
+		ImGui::EndCombo();
 	}
 
 	ImGui::Separator();
 }
 
 
-void KvRdPlot::applyTheme_(const std::string& name, KvThemedPlot* plot)
+void KvRdPlot::onThemeChanged(int type)
 {
-	themeName_ = name;
-
 	auto& themeMgr = KsThemeManager::singleton();
-	canvasName_ = themeMgr.canvasName(name);
-	layoutName_ = themeMgr.layoutName(name);
-	paletteName_ = themeMgr.paletteName(name);
+	KcThemedPlotImpl_ tp(*plot_);
 
-	themeMgr.applyTheme(name, plot);
+	switch (type)
+	{
+	case KsThemeManager::k_theme:
+		themeMgr.applyTheme(curTheme_[type].first, curTheme_[type].second, &tp);
+
+		// 同步包含的canvas, layout, palette等主题选项
+		curTheme_[KsThemeManager::k_canvas].second = themeMgr.canvasName(curTheme_[type].first, curTheme_[type].second);
+		curTheme_[KsThemeManager::k_layout].second = themeMgr.layoutName(curTheme_[type].first, curTheme_[type].second);
+		curTheme_[KsThemeManager::k_palette].second = themeMgr.paletteName(curTheme_[type].first, curTheme_[type].second);
+
+		// TODO: adjust the group name
+		curTheme_[KsThemeManager::k_canvas].first = curTheme_[KsThemeManager::k_layout].first =
+			curTheme_[KsThemeManager::k_palette].first = curTheme_[type].first;
+		break;
+
+	case KsThemeManager::k_layout:
+		themeMgr.applyLayout(curTheme_[type].first, curTheme_[type].second, &tp);
+		break;
+
+	case KsThemeManager::k_canvas:
+		themeMgr.applyCanvas(curTheme_[type].first, curTheme_[type].second, &tp);
+		break;
+
+	case KsThemeManager::k_palette:
+		themeMgr.applyPalette(curTheme_[type].first, curTheme_[type].second, &tp);
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 }
 
 
@@ -378,8 +370,11 @@ void KvRdPlot::onDoubleClicked()
 
 void KvRdPlot::updateTheme_()
 {
-	if (!themeName_.empty()) {
+	if (!curTheme_[KsThemeManager::k_theme].second.empty()) {
 		KcThemedPlotImpl_ tp(*plot_);
-		applyTheme_(themeName_, &tp); // TODO: 这种方式不能完全复现
+
+		// TODO: 这种方式不能完全复现
+		KsThemeManager::singleton().applyTheme(
+			curTheme_[KsThemeManager::k_theme].first, curTheme_[KsThemeManager::k_theme].second, &tp);
 	}
 }

@@ -26,6 +26,14 @@ public:
 		return *singleton_type::instance();
 	}
 
+	enum
+	{
+		k_theme,
+		k_layout,
+		k_canvas,
+		k_palette
+	};
+
 	// @path: theme文件路径，可以是正则表达式，如"theme\*.json"，但不能是目录
 	bool load(const std::string_view& path);
 
@@ -55,6 +63,17 @@ public:
 
 	// 获取palette的色带
 	bool getPalette(const std::string& group, const std::string& name, colorlist& majors, colorlist& minors);
+
+	bool empty() const;
+
+	bool hasTheme() const;
+	bool hasLayout() const;
+	bool hasCanvas() const;
+	bool hasPalette() const;
+
+	bool isEmpty(int themeType) const;
+
+	stringlist listNames(int themeType, const std::string& groupName) const;;
 
 protected:
 
@@ -110,21 +129,9 @@ protected:
 
 private:
 
-	enum
-	{
-		k_theme,
-		k_layout,
-		k_canvas,
-		k_palette
-	};
-
 	void removeInvalidThemes_();
 
-	bool isEmpty_(const theme_type& theme);
-
-	stringlist listNames_(int type, const std::string& groupName) const;
-
-	static stringlist listNames_(const std::map<std::string, jobject>& m);
+	static bool isEmpty_(const theme_type& theme);
 
 	const jobject& themeAt_(int type, const std::string& group, const std::string& name) const;
 

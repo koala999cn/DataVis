@@ -33,15 +33,14 @@ public:
 
 	void onDoubleClicked() override;
 
+	virtual void onThemeChanged(int type);
+
 protected:
 
 	// 一个数据源可以创建多个KvPlottable
 	virtual std::vector<KvPlottable*> createPlottable_(KvDataProvider* prov) = 0;
 
 	void showThemeProperty_();
-
-	// 在应用theme的时候，同步包含的canvas, layout, palette等主题选项
-	void applyTheme_(const std::string& name, KvThemedPlot* plot);
 
 	// 创建plottable的帮助函数，对外提供splitChannels_无关的接口
 	// 用户在createPlottable_接口实现中可调用
@@ -71,7 +70,7 @@ protected:
 	// 对于stream输入，创建1个数据副本. 因为输入数据是动态的，绘图的时候会出现抖动
 	std::map<KcPortNode*, std::shared_ptr<KvData>> streamData_;
 
-	std::string themeName_, canvasName_, layoutName_, paletteName_;
+	std::pair<std::string, std::string> curTheme_[4];
 
 	bool splitChannels_{ false }; // 多通道数据是创建1个还是多个plt？ 
 };

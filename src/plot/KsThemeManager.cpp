@@ -7,6 +7,17 @@
 #include <assert.h>
 
 
+template<typename MAP>
+std::vector<typename MAP::key_type> map_keys(const MAP& m)
+{
+	std::vector<typename MAP::key_type> keys;
+	for (auto& i : m)
+		keys.push_back(i.first);
+
+	return keys;
+}
+
+
 bool KsThemeManager::load(const std::string_view& path)
 {
 	for (unsigned i = 0; i < 4; i++)
@@ -31,8 +42,38 @@ bool KsThemeManager::load(const std::string_view& path)
 
 	removeInvalidThemes_();
 
-	return !grouped_.empty() || !isEmpty_(global_);
+	return !empty();
 
+}
+
+
+bool KsThemeManager::empty() const
+{
+	return grouped_.empty() && isEmpty_(global_);
+}
+
+
+bool KsThemeManager::hasTheme() const
+{
+	return !isEmpty(k_theme);
+}
+
+
+bool KsThemeManager::hasLayout() const
+{
+	return !isEmpty(k_layout);
+}
+
+
+bool KsThemeManager::hasCanvas() const
+{
+	return !isEmpty(k_canvas);
+}
+
+
+bool KsThemeManager::hasPalette() const
+{
+	return !isEmpty(k_palette);
 }
 
 
@@ -110,51 +151,61 @@ bool KsThemeManager::isEmpty_(const theme_type& theme)
 }
 
 
-KsThemeManager::stringlist KsThemeManager::listNames_(const std::map<std::string, jobject>& m)
+bool KsThemeManager::isEmpty(int themeType) const
 {
-	stringlist list;
-	for (auto i : m)
-		list.push_back(i.first);
-	return list;
+	if (!global_[themeType].empty())
+		return false;
+
+	for (auto& i : grouped_)
+		if (!i.second[themeType].empty())
+			return false;
+
+	return true;
 }
 
 
-KsThemeManager::stringlist KsThemeManager::listNames_(int type, const std::string& groupName) const
+KsThemeManager::stringlist KsThemeManager::listNames(int type, const std::string& groupName) const
 {
 	if (groupName.empty()) {
-		return listNames_(global_[type]);
+		return map_keys(global_[type]);
 	}
 	else {
 		auto iter = grouped_.find(groupName);
 		if (iter != grouped_.cend())
-			return listNames_(iter->second[type]);
+			return map_keys(iter->second[type]);
 	}
 
 	return {};
 }
 
 
+KsThemeManager::stringlist KsThemeManager::listGroups() const
+{
+	return map_keys(grouped_);
+}
+
+
 KsThemeManager::stringlist KsThemeManager::listThemes(const std::string& group) const
 {
-	return listNames_(k_theme, group);
+	return listNames(k_theme, group);
 }
 
 
 KsThemeManager::stringlist KsThemeManager::listCanvas(const std::string& group) const
 {
-	return listNames_(k_canvas, group);
+	return listNames(k_canvas, group);
 }
 
 
 KsThemeManager::stringlist KsThemeManager::listPalettes(const std::string& group) const
 {
-	return listNames_(k_palette, group);
+	return listNames(k_palette, group);
 }
 
 
 KsThemeManager::stringlist KsThemeManager::listLayouts(const std::string& group) const
 {
-	return listNames_(k_layout, group);
+	return listNames(k_layout, group);
 }
 
 
