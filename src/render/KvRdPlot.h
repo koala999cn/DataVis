@@ -56,11 +56,17 @@ protected:
 
 	////////////////////////////////////////////////////
 
-	virtual void showPlottableSpecificProperty_(unsigned idx) {};
+	void showPlotProperty_();
+
+	void showThemeProperty_();
+
+	void showCoordProperty_();
+
+	void showPlottableProperty_();
 
 	void showPlottableTypeProperty_(unsigned idx);
 
-	void showThemeProperty_();
+	virtual void showPlottableSpecificProperty_(unsigned idx) {};
 
 	// 创建plottable的帮助函数，对外提供splitChannels_无关的接口
 	// 用户在createPlottable_接口实现中可调用
@@ -93,4 +99,7 @@ protected:
 	std::pair<std::string, std::string> curTheme_[4];
 
 	bool splitChannels_{ false }; // 多通道数据是创建1个还是多个plt？ 
+
+private:
+	const std::string plotType_; 
 };

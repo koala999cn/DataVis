@@ -17,6 +17,9 @@ public:
 	virtual void setVisible(bool b) = 0;
 	virtual bool visible() const = 0;
 
+	virtual std::string title() const = 0;
+	virtual std::string& title() = 0;
+
 	virtual void fitData();
 
 	virtual void update(); // ¸üÐÂ»æÍ¼

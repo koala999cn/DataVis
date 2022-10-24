@@ -19,6 +19,14 @@ public:
 		return KvImWindow::visible();
 	}
 
+	std::string title() const override {
+		return KvImWindow::name();
+	}
+
+	std::string& title() override {
+		return KvImWindow::name();
+	}
+
 	mat4 viewMatrix() const override {
 		return camera_.viewMatrix();
 	}

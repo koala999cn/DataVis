@@ -20,6 +20,7 @@
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
 	: KvDataRender(name)
 	, plot_(plot)
+	, plotType_(name)
 {
 	plot_->setVisible(false);
 
@@ -193,80 +194,34 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 
 void KvRdPlot::showProperySet()
 {
-	bool vis = plot_->visible();
-	if (ImGui::Checkbox("##Plot", &vis))
-		plot_->setVisible(vis);
-
-	ImGui::SameLine();
 	super_::showProperySet(); // show the name property
+	ImGui::Separator();
+
+	showPlotProperty_();
+	ImGui::Separator();
 
 	showThemeProperty_();
+	ImGui::Separator();
 
-	ImGui::ColorEdit4("Background", plot_->background().color);
+	showCoordProperty_();
+	ImGui::Separator();
 
-	ImGui::Checkbox("Auto Fit", &plot_->autoFit());
+	showPlottableProperty_();
+}
 
-	if (plot_->plottableCount() > 0) {
 
-		if (ImGui::TreeNodeEx("Plottable(s)", ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_CollapsingHeader)) {
-			
-			for (unsigned idx = 0; idx < plot_->plottableCount(); idx++) {
+void KvRdPlot::showPlotProperty_()
+{
+	if (ImGui::CollapsingHeader(plotType_.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		bool vis = plot_->visible();
+		if (ImGuiX::prefixCheckbox("##Plot", &vis))
+			plot_->setVisible(vis);
+		ImGui::InputText("Title", &plot_->title());
+		ImGui::PopItemWidth(); // match for prefixCheckbox
 
-				auto plt = plot_->plottableAt(idx);
-				
-		
-				std::string label = "##Plottable" + KuStrUtil::toString(idx);
-				ImGui::Checkbox(label.c_str(), &plt->visible());
-				
-				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0, 0 });
-				ImGui::SameLine();
-				label = "##Node" + KuStrUtil::toString(idx);
-				bool show = ImGui::TreeNode(label.c_str());
-				ImGui::PopStyleVar();
+		ImGui::ColorEdit4("Background", plot_->background().color);
 
-				ImGui::SameLine();		
-				ImGui::PushID(plt);
-				ImGui::InputText("##", &plt->name());
-				ImGui::PopID();
-
-				for (unsigned i = 0; i < plt->majorColors(); i++) {
-					ImGui::SameLine();
-					ImGui::PushID(plt + 1 + i);
-					ImGui::ColorEdit4("##", plt->majorColor(i),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-					ImGui::PopID();
-				}		
-
-				if (show) {
-					showPlottableTypeProperty_(idx);
-					showPlottableSpecificProperty_(idx);
-					ImGui::TreePop();
-				}	
-			}
-
-			//ImGui::TreePop();
-		}
-
-	}
-
-	auto lower = point3f(plot_->coord().lower());
-	auto upper = point3f(plot_->coord().upper());
-	auto speed = (upper - lower) * 0.1;
-	for (unsigned i = 0; i < speed.size(); i++)
-		if (speed.at(i) == 0)
-			speed.at(i) = 1;
-
-	bool extendsChanged(false);
-	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), speed.x()))
-		extendsChanged = true;
-	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y()))
-		extendsChanged = true;
-	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z()))
-		extendsChanged = true;
-
-	if (extendsChanged) {
-		plot_->coord().setExtents(lower, upper);
-		plot_->autoFit() = false;
+		ImGui::Checkbox("Auto Fit", &plot_->autoFit());
 	}
 }
 
@@ -275,6 +230,9 @@ void KvRdPlot::showThemeProperty_()
 {
 	auto& themeMgr = KsThemeManager::singleton();
 	if (themeMgr.empty())
+		return;
+
+	if (!ImGui::CollapsingHeader("Design", ImGuiTreeNodeFlags_DefaultOpen))
 		return;
 
 	auto groups = themeMgr.listGroups();
@@ -329,8 +287,76 @@ void KvRdPlot::showThemeProperty_()
 
 		ImGui::EndCombo();
 	}
+}
 
-	ImGui::Separator();
+
+void KvRdPlot::showCoordProperty_()
+{
+	if (!ImGui::CollapsingHeader(plot_->coord().name().c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		return;
+
+	auto lower = point3f(plot_->coord().lower());
+	auto upper = point3f(plot_->coord().upper());
+	auto speed = (upper - lower) * 0.1;
+	for (unsigned i = 0; i < speed.size(); i++)
+		if (speed.at(i) == 0)
+			speed.at(i) = 1;
+
+	bool extendsChanged(false);
+	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), speed.x()))
+		extendsChanged = true;
+	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y()))
+		extendsChanged = true;
+	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z()))
+		extendsChanged = true;
+
+	if (extendsChanged) {
+		plot_->coord().setExtents(lower, upper);
+		plot_->autoFit() = false;
+	}
+}
+
+
+void KvRdPlot::showPlottableProperty_()
+{
+	if (plot_->plottableCount() > 0) {
+
+		if (!ImGui::CollapsingHeader("Plottable(s)", ImGuiTreeNodeFlags_DefaultOpen))
+			return;
+
+		for (unsigned idx = 0; idx < plot_->plottableCount(); idx++) {
+
+			auto plt = plot_->plottableAt(idx);
+
+			std::string label = "##Plottable" + KuStrUtil::toString(idx);
+			ImGui::Checkbox(label.c_str(), &plt->visible());
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0, 0 });
+			ImGui::SameLine();
+			label = "##Node" + KuStrUtil::toString(idx);
+			bool show = ImGui::TreeNode(label.c_str());
+			ImGui::PopStyleVar();
+
+			ImGui::SameLine();
+			ImGui::PushID(plt);
+			ImGui::InputText("##", &plt->name());
+			ImGui::PopID();
+
+			for (unsigned i = 0; i < plt->majorColors(); i++) {
+				ImGui::SameLine();
+				ImGui::PushID(plt + 1 + i);
+				ImGui::ColorEdit4("##", plt->majorColor(i),
+					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+				ImGui::PopID();
+			}
+
+			if (show) {
+				showPlottableTypeProperty_(idx);
+				showPlottableSpecificProperty_(idx);
+				ImGui::TreePop();
+			}
+		}
+	}
 }
 
 

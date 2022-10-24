@@ -44,4 +44,6 @@ namespace ImGuiX
 
 	// @type: the type of data, see KuDataUtil::KeDataType for detail
 	void showDataTable(int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn);
+
+	bool prefixCheckbox(const char* label, bool* v);
 }

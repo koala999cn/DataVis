@@ -225,4 +225,18 @@ namespace ImGuiX
             ImGui::EndTable();
         }
     }
+
+
+    bool prefixCheckbox(const char* label, bool* v)
+    {
+        auto w = ImGui::CalcItemWidth();
+
+        bool res = ImGui::Checkbox(label, v);
+
+        ImGui::PushItemWidth(w - ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x);
+        ImGui::SameLine();
+
+        return res;
+    }
+
 }

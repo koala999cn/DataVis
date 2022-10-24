@@ -18,6 +18,13 @@ public:
 		return KvImWindow::visible();
 	}
 
+	std::string title() const override {
+		return KvImWindow::name();
+	}
+
+	std::string& title() override {
+		return KvImWindow::name();
+	}
 
 private:
 	void updateImpl_() override;
