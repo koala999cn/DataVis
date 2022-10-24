@@ -69,19 +69,26 @@ void KcRdPlot1d::showPlottableProperty_(unsigned idx)
     if (ImGui::BeginCombo("Type", type >= 0 ? pltTypes[type] : nullptr)) {
         for (int i = 0; i < std::size(pltTypes); i++)
 			if (ImGui::Selectable(pltTypes[i], i == type)) {
-				auto plt = createPlottable_(i, plot_->plottableAt(idx)->name());
+				auto oldPlt = plot_->plottableAt(idx);
+				auto newPlt = createPlottable_(i, oldPlt->name());
 
 				// clone the theme
-				std::vector<color4f> majorColors(plot_->plottableAt(idx)->majorColors());
+				std::vector<color4f> majorColors(oldPlt->majorColors());
 				for (unsigned c = 0; c < majorColors.size(); c++)
-					majorColors[c]= plot_->plottableAt(idx)->majorColor(c);
-				plt->setMajorColors(majorColors);
-				plt->setMinorColor(plot_->plottableAt(idx)->minorColor());
+					majorColors[c]= oldPlt->majorColor(c);
+				newPlt->setMajorColors(majorColors);
+				newPlt->setMinorColor(oldPlt->minorColor());
 
 				// clone the data
-				plt->setData(plot_->plottableAt(idx)->data());
+				newPlt->setData(oldPlt->data());
 
-				plot_->setPlottableAt(idx, plt);
+				// 同步port2Plts_
+				for (auto& i : port2Plts_)
+					if (i.second == oldPlt) {
+						i.second = newPlt;  break;
+					}
+
+				plot_->setPlottableAt(idx, newPlt);
 			}
 
         ImGui::EndCombo();

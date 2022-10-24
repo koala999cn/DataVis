@@ -213,31 +213,34 @@ void KvRdPlot::showProperySet()
 			for (unsigned idx = 0; idx < plot_->plottableCount(); idx++) {
 
 				auto plt = plot_->plottableAt(idx);
-				ImGui::PushID(plt);
+				
 		
 				std::string label = "##Plottable" + KuStrUtil::toString(idx);
 				ImGui::Checkbox(label.c_str(), &plt->visible());
 				
 				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0, 0 });
 				ImGui::SameLine();
-				bool show = ImGui::TreeNode("##");
+				label = "##Node" + KuStrUtil::toString(idx);
+				bool show = ImGui::TreeNode(label.c_str());
 				ImGui::PopStyleVar();
 
-				ImGui::SameLine();			
+				ImGui::SameLine();		
+				ImGui::PushID(plt);
 				ImGui::InputText("##", &plt->name());
+				ImGui::PopID();
+
 				for (unsigned i = 0; i < plt->majorColors(); i++) {
 					ImGui::SameLine();
-					std::string label = "##" + KuStrUtil::toString(i);
-					ImGui::ColorEdit4(label.c_str(), plt->majorColor(i),
+					ImGui::PushID(plt + 1 + i);
+					ImGui::ColorEdit4("##", plt->majorColor(i),
 						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-				}
+					ImGui::PopID();
+				}		
 
 				if (show) {
 					showPlottableProperty_(idx);
 					ImGui::TreePop();
-				}
-
-				ImGui::PopID();		
+				}	
 			}
 
 			//ImGui::TreePop();
