@@ -27,7 +27,13 @@ std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KvDataProvider* prov)
 }
 
 
-int KcRdPlot1d::plottableType_(KvPlottable* plt)
+unsigned KcRdPlot1d::supportPlottableTypes_() const
+{
+	return 3;
+}
+
+
+int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 {
 	if (dynamic_cast<KcGraph*>(plt))
 		return 0;
@@ -40,9 +46,19 @@ int KcRdPlot1d::plottableType_(KvPlottable* plt)
 }
 
 
-KvPlottable* KcRdPlot1d::createPlottable_(int type, const std::string& name)
+const char* KcRdPlot1d::plottableTypeStr_(int iType) const
 {
-	switch (type)
+	static const char* pltTypes[] = {
+		"graph", "scatter", "bar"
+	};
+
+	return pltTypes[iType];
+}
+
+
+KvPlottable* KcRdPlot1d::newPlottable_(int iType, const std::string& name)
+{
+	switch (iType)
 	{
 	case 0:
 		return new KcGraph(name);
@@ -55,43 +71,4 @@ KvPlottable* KcRdPlot1d::createPlottable_(int type, const std::string& name)
 	}
 
 	return nullptr;
-}
-
-
-void KcRdPlot1d::showPlottableProperty_(unsigned idx)
-{
-    static const char* pltTypes[] = {
-		"graph", "scatter", "bar"
-    };
-
-	int type = plottableType_(plot_->plottableAt(idx));
-
-    if (ImGui::BeginCombo("Type", type >= 0 ? pltTypes[type] : nullptr)) {
-        for (int i = 0; i < std::size(pltTypes); i++)
-			if (ImGui::Selectable(pltTypes[i], i == type)) {
-				auto oldPlt = plot_->plottableAt(idx);
-				auto newPlt = createPlottable_(i, oldPlt->name());
-
-				// clone the theme
-				std::vector<color4f> majorColors(oldPlt->majorColors());
-				for (unsigned c = 0; c < majorColors.size(); c++)
-					majorColors[c]= oldPlt->majorColor(c);
-				newPlt->setMajorColors(majorColors);
-				newPlt->setMinorColor(oldPlt->minorColor());
-
-				// clone the data
-				newPlt->setData(oldPlt->data());
-
-				// 同步port2Plts_
-				for (auto& i : port2Plts_)
-					if (i.second == oldPlt) {
-						i.second = newPlt;  break;
-					}
-
-				plot_->setPlottableAt(idx, newPlt);
-			}
-
-        ImGui::EndCombo();
-    }
-
 }

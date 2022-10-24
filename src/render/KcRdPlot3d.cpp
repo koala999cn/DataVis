@@ -58,3 +58,47 @@ void KcRdPlot3d::showProperySet()
 		orient = quatd(rot);
 	}
 }
+
+
+unsigned KcRdPlot3d::supportPlottableTypes_() const
+{
+	return 2;
+}
+
+
+int KcRdPlot3d::plottableType_(KvPlottable* plt) const
+{
+	if (dynamic_cast<KcGraph*>(plt))
+		return 0;
+	else if (dynamic_cast<KcScatter*>(plt))
+		return 1;
+
+	return -1;
+}
+
+
+const char* KcRdPlot3d::plottableTypeStr_(int iType) const
+{
+	assert(iType < 2);
+
+	static const char* pltTypes[] = {
+		"graph", "scatter"
+	};
+
+	return pltTypes[iType];
+}
+
+
+KvPlottable* KcRdPlot3d::newPlottable_(int iType, const std::string& name)
+{
+	switch (iType)
+	{
+	case 0:
+		return new KcGraph(name);
+
+	case 1:
+		return new KcScatter(name);
+	}
+
+	return nullptr;
+}

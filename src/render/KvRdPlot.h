@@ -40,7 +40,25 @@ protected:
 	// 一个数据源可以创建多个KvPlottable
 	virtual std::vector<KvPlottable*> createPlottable_(KvDataProvider* prov) = 0;
 
-	virtual void showPlottableProperty_(unsigned idx) {};
+	/// plottable类型相关接口
+
+	// 返回支持的plottable类型数
+	virtual unsigned supportPlottableTypes_() const = 0;
+
+	// 返回plt的类型
+	virtual int plottableType_(KvPlottable* plt) const = 0;
+
+	// 返回第iType类型的字符串
+	virtual const char* plottableTypeStr_(int iType) const = 0;
+
+	// 创建第iType类型的plottable
+	virtual KvPlottable* newPlottable_(int iType, const std::string& name) = 0;
+
+	////////////////////////////////////////////////////
+
+	virtual void showPlottableSpecificProperty_(unsigned idx) {};
+
+	void showPlottableTypeProperty_(unsigned idx);
 
 	void showThemeProperty_();
 

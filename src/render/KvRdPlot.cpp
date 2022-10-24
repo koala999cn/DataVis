@@ -238,7 +238,8 @@ void KvRdPlot::showProperySet()
 				}		
 
 				if (show) {
-					showPlottableProperty_(idx);
+					showPlottableTypeProperty_(idx);
+					showPlottableSpecificProperty_(idx);
 					ImGui::TreePop();
 				}	
 			}
@@ -330,6 +331,40 @@ void KvRdPlot::showThemeProperty_()
 	}
 
 	ImGui::Separator();
+}
+
+
+void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
+{
+	int type = plottableType_(plot_->plottableAt(idx));
+
+	if (ImGui::BeginCombo("Type", plottableTypeStr_(type))) {
+		for (int i = 0; i < supportPlottableTypes_(); i++)
+			if (ImGui::Selectable(plottableTypeStr_(i), i == type)) {
+				auto oldPlt = plot_->plottableAt(idx);
+				auto newPlt = newPlottable_(i, oldPlt->name());
+
+				// clone the theme
+				std::vector<color4f> majorColors(oldPlt->majorColors());
+				for (unsigned c = 0; c < majorColors.size(); c++)
+					majorColors[c] = oldPlt->majorColor(c);
+				newPlt->setMajorColors(majorColors);
+				newPlt->setMinorColor(oldPlt->minorColor());
+
+				// clone the data
+				newPlt->setData(oldPlt->data());
+
+				// Í¬²½port2Plts_
+				for (auto& i : port2Plts_)
+					if (i.second == oldPlt) {
+						i.second = newPlt;  break;
+					}
+
+				plot_->setPlottableAt(idx, newPlt);
+			}
+
+		ImGui::EndCombo();
+	}
 }
 
 
