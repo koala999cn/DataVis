@@ -1,11 +1,35 @@
 # DataVis
 
-尝试入坑imgui，很多底层代码需要重构，目前很不成熟，请下载v0.3.1分支代码。当前，已搭建完成基于imgui的程序主体框架，暂时长这样：
+## 介绍
+
+主要用于流数据的实时分析与显示。重点专注于两方面：一是数据可视化，通过内置主题提供专业化的绘图功能；二是流分析，通过pipeline组合各种功能模块，对各类动态数据提供在线分析和结果演示。
+界面如下：
 
 ![screenshot](screenshots/main.png) 
 
+## 新特性
 
-# 依赖库
+v0.4版对底层代码作了较大重构，主要有3方面：
+
+- 使用ImGui作为界面库，不再依赖Qt
+
+- 使用节点编辑器构造拓扑结构，不再使用树形组件
+
+- 统一2d/3d绘图接口并内置实现，不再依赖外部库
+
+目前，暂未完全重构0.3版的功能，主要缺失operator和部分provider，下步将尽快恢复。
+
+## 使用
+
+主要分3步：
+
+一是构造pipeline，通过ActionPanel新增provider和renderer节点，在NodeEditor中建立拓扑链接；
+
+二是配置pipelein，在property sheet中进行参数设定，部分参数可也后期调整；
+
+三是运行pipeline，点击主菜单pipeline的start选项。
+
+## 依赖库
 
 | 库名称 | 作用 | 编译 |
 |---|---|---|
@@ -17,3 +41,7 @@
 | [glad](https://github.com/Dav1dde/glad) | ImFileDialog依赖 | 单独编译 |
 | [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 已内嵌 |
 | [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/) | AudioInput支持 | 单独编译 |
+
+## 编译
+
+编译器使用VC2019，预编译的64位依赖库可在[附件页面下载](https://gitee.com/koala999/data-vis/attach_files)。
