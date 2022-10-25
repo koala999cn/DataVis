@@ -26,6 +26,8 @@ public:
 		return KvImWindow::name();
 	}
 
+	std::string label() const override;
+
 private:
 	void updateImpl_() override;
 

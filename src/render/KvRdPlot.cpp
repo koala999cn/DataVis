@@ -17,6 +17,20 @@
 #include "KcSampled1d.h"
 
 
+namespace kPrivate
+{
+	bool TreePush(const char* label)
+	{
+		return ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_FramePadding);
+	}
+
+	void TreePop()
+	{
+		ImGui::TreePop();
+	}
+}
+
+
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
 	: KvDataRender(name)
 	, plot_(plot)
@@ -212,7 +226,7 @@ void KvRdPlot::showProperySet()
 
 void KvRdPlot::showPlotProperty_()
 {
-	if (ImGui::CollapsingHeader(plotType_.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+	if (kPrivate::TreePush(plotType_.c_str())) {
 		bool vis = plot_->visible();
 		if (ImGuiX::prefixCheckbox("##Plot", &vis))
 			plot_->setVisible(vis);
@@ -222,6 +236,8 @@ void KvRdPlot::showPlotProperty_()
 		ImGui::ColorEdit4("Background", plot_->background().color);
 
 		ImGui::Checkbox("Auto Fit", &plot_->autoFit());
+
+		kPrivate::TreePop();
 	}
 }
 
@@ -232,7 +248,7 @@ void KvRdPlot::showThemeProperty_()
 	if (themeMgr.empty())
 		return;
 
-	if (!ImGui::CollapsingHeader("Design", ImGuiTreeNodeFlags_DefaultOpen))
+	if (!kPrivate::TreePush("Design"))
 		return;
 
 	auto groups = themeMgr.listGroups();
@@ -287,12 +303,14 @@ void KvRdPlot::showThemeProperty_()
 
 		ImGui::EndCombo();
 	}
+
+	kPrivate::TreePop();
 }
 
 
 void KvRdPlot::showCoordProperty_()
 {
-	if (!ImGui::CollapsingHeader(plot_->coord().name().c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+	if (!kPrivate::TreePush("Axes"))
 		return;
 
 	auto lower = point3f(plot_->coord().lower());
@@ -303,17 +321,19 @@ void KvRdPlot::showCoordProperty_()
 			speed.at(i) = 1;
 
 	bool extendsChanged(false);
-	if (ImGui::DragFloatRange2("X-Axis", &lower.x(), &upper.x(), speed.x()))
+	if (ImGui::DragFloatRange2("X", &lower.x(), &upper.x(), speed.x()))
 		extendsChanged = true;
-	if (ImGui::DragFloatRange2("Y-Axis", &lower.y(), &upper.y(), speed.y()))
+	if (ImGui::DragFloatRange2("Y", &lower.y(), &upper.y(), speed.y()))
 		extendsChanged = true;
-	if (ImGui::DragFloatRange2("Z-Axis", &lower.z(), &upper.z(), speed.z()))
+	if (ImGui::DragFloatRange2("Z", &lower.z(), &upper.z(), speed.z()))
 		extendsChanged = true;
 
 	if (extendsChanged) {
 		plot_->coord().setExtents(lower, upper);
 		plot_->autoFit() = false;
 	}
+
+	kPrivate::TreePop();
 }
 
 
@@ -321,7 +341,7 @@ void KvRdPlot::showPlottableProperty_()
 {
 	if (plot_->plottableCount() > 0) {
 
-		if (!ImGui::CollapsingHeader("Plottable(s)", ImGuiTreeNodeFlags_DefaultOpen))
+		if (!kPrivate::TreePush("Plottable(s)"))
 			return;
 
 		for (unsigned idx = 0; idx < plot_->plottableCount(); idx++) {
@@ -356,6 +376,8 @@ void KvRdPlot::showPlottableProperty_()
 				ImGui::TreePop();
 			}
 		}
+
+		kPrivate::TreePop();
 	}
 }
 

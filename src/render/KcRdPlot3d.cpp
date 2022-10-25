@@ -7,6 +7,14 @@
 #include "imgui.h"
 
 
+namespace kPrivate
+{
+	bool TreePush(const char* label);
+
+	void TreePop();
+}
+
+
 KcRdPlot3d::KcRdPlot3d()
 	: super_("Plot3d", std::make_shared<KcImPlot3d>("Plot3d"))
 {
@@ -30,6 +38,9 @@ std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KvDataProvider* prov)
 void KcRdPlot3d::showProperySet()
 {
 	super_::showProperySet();
+
+	if (!kPrivate::TreePush("Projection"))
+		return;
 
 	auto plot3d = std::dynamic_pointer_cast<KvPlot3d>(plot_);
 
@@ -57,6 +68,8 @@ void KcRdPlot3d::showProperySet()
 		rot.fromEulerAngleXYZ(angle);
 		orient = quatd(rot);
 	}
+
+	kPrivate::TreePop();
 }
 
 

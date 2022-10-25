@@ -30,10 +30,11 @@ std::vector<int> KuDataUtil::validTypes(const matrixd& mat, bool colMajor)
 
     if (cols > 1) {
 
+        if (cols % 3 == 0)
+            types.insert(types.begin(), k_scattered_2d);
+
         if (cols % 2 == 0)
             types.insert(types.begin(), k_scattered_1d);
-        else if (cols % 3 == 0)
-            types.insert(types.begin(), k_scattered_2d);
 
         bool evenRow = KuMatrixUtil::isEvenlySpaced(mat[0]);
         bool evenCol = KuMatrixUtil::isEvenlySpaced(KuMatrixUtil::extractColumn(mat, 0));

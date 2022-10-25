@@ -2,6 +2,7 @@
 #include "KcImPaint.h"
 #include "imgui.h"
 #include "plot/KcCoord2d.h"
+#include "KuStrUtil.h"
 
 
 KcImPlot3d::KcImPlot3d(const std::string_view& name)
@@ -79,4 +80,11 @@ void KcImPlot3d::handleMouseInput_()
         auto delta = box.size() * point3(dx, dy, 0);
         shift_ += delta * 0.1f;
     }
+}
+
+
+std::string KcImPlot3d::label() const
+{
+    // Using "###" to display a changing title but keep a static identifier
+    return name() + "###" + KuStrUtil::toString(id());
 }

@@ -40,34 +40,6 @@ protected:
 	// 一个数据源可以创建多个KvPlottable
 	virtual std::vector<KvPlottable*> createPlottable_(KvDataProvider* prov) = 0;
 
-	/// plottable类型相关接口
-
-	// 返回支持的plottable类型数
-	virtual unsigned supportPlottableTypes_() const = 0;
-
-	// 返回plt的类型
-	virtual int plottableType_(KvPlottable* plt) const = 0;
-
-	// 返回第iType类型的字符串
-	virtual const char* plottableTypeStr_(int iType) const = 0;
-
-	// 创建第iType类型的plottable
-	virtual KvPlottable* newPlottable_(int iType, const std::string& name) = 0;
-
-	////////////////////////////////////////////////////
-
-	void showPlotProperty_();
-
-	void showThemeProperty_();
-
-	void showCoordProperty_();
-
-	void showPlottableProperty_();
-
-	void showPlottableTypeProperty_(unsigned idx);
-
-	virtual void showPlottableSpecificProperty_(unsigned idx) {};
-
 	// 创建plottable的帮助函数，对外提供splitChannels_无关的接口
 	// 用户在createPlottable_接口实现中可调用
 	template<typename PLT_TYPE>
@@ -85,6 +57,41 @@ protected:
 
 		return plts;
 	}
+
+
+	/// 属性显示的子接口
+
+	virtual void showPlotProperty_();
+
+	virtual void showThemeProperty_();
+
+	virtual void showCoordProperty_();
+
+	virtual void showPlottableProperty_();
+
+	    void showPlottableTypeProperty_(unsigned idx);
+
+	    virtual void showPlottableSpecificProperty_(unsigned idx) {};
+
+	////////////////////////////////////////////////////
+
+
+	/// plottable类型转换相关接口，由showPlottableTypeProperty_方法调用
+
+	// 返回支持的plottable类型数
+	virtual unsigned supportPlottableTypes_() const = 0;
+
+	// 返回plt的类型
+	virtual int plottableType_(KvPlottable* plt) const = 0;
+
+	// 返回第iType类型的字符串
+	virtual const char* plottableTypeStr_(int iType) const = 0;
+
+	// 创建第iType类型的plottable
+	virtual KvPlottable* newPlottable_(int iType, const std::string& name) = 0;
+
+	////////////////////////////////////////////////////
+
 
 	void updateTheme_();
 

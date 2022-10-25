@@ -27,6 +27,8 @@ public:
 		return KvImWindow::name();
 	}
 
+	std::string label() const override;
+
 	mat4 viewMatrix() const override {
 		return camera_.viewMatrix();
 	}
