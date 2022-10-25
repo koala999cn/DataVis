@@ -27,7 +27,7 @@ namespace kPrivate
 }
 
 
-KcImTextCleanWindow::KcImTextCleanWindow(const std::string& source, const matrix<std::string>& rawData, matrix<double>& cleanData)
+KcImTextCleanWindow::KcImTextCleanWindow(const std::string& source, const matrix<std::string_view>& rawData, matrix<double>& cleanData)
     : KvImModalWindow(KuPathUtil::fileName(source))
     , source_(source)
     , rawData_(rawData)
@@ -106,7 +106,7 @@ void KcImTextCleanWindow::updateImpl_()
 
     /// draw the table
 
-    //showTable_();
+    showTable_();
 }
 
 
@@ -177,17 +177,17 @@ void KcImTextCleanWindow::clean_()
             if (tok.empty()) {
                 if (emptyMode_ == k_empty_skip)
                     continue;
-                data.push_back(emptyValue_(tok));
+                data.push_back(emptyValue_());
             }
             else if (KuStrUtil::isFloat(tok)) {
-                data.push_back(KuStrUtil::toDouble(tok.c_str()));
+                data.push_back(KuStrUtil::toDouble(std::string(tok).c_str()));
             }
             else { // illegal tokens
                 assert(illegalMode_ != k_illegal_fail);
 
                 if (skipIllegal_())
                     continue;
-                data.push_back(illegalValue_(tok));
+                data.push_back(illegalValue_());
             }
         }
 
@@ -202,17 +202,17 @@ void KcImTextCleanWindow::clean_()
 }
 
 
-double KcImTextCleanWindow::emptyValue_(const std::string& tok) const
+double KcImTextCleanWindow::emptyValue_() const
 {
     return emptyMode_ == kPrivate::k_empty_as_zero ? 0 : KtuMath<double>::nan;
 }
 
 
-double KcImTextCleanWindow::illegalValue_(const std::string& tok) const
+double KcImTextCleanWindow::illegalValue_() const
 {
     return illegalMode_ == kPrivate::k_illegal_as_zero ? 0
         : illegalMode_ == kPrivate::k_illegal_as_nan ?
-        KtuMath<double>::nan : emptyValue_(tok);
+        KtuMath<double>::nan : emptyValue_();
 }
 
 
@@ -258,7 +258,8 @@ void KcImTextCleanWindow::showTable_() const
                     if (illegalToken) // 突出显示非法子串
                         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
 
-                    ImGui::Text(tok.c_str()); // 打印内容
+                    // 打印内容
+                    ImGui::TextUnformatted(tok.data(), tok.data() + tok.size());
 
                     if (illegalToken)
                         ImGui::PopStyleColor();

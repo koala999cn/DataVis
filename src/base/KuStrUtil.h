@@ -27,8 +27,7 @@ public:
 
 
 	// 是否为浮点数
-	static bool isFloat(const char* str);
-    static bool isFloat(const std::string& str) { return isFloat(str.c_str()); }
+	static bool isFloat(const std::string_view& sv);
 
 
 	// str是否以with开头
@@ -111,6 +110,8 @@ public:
 	// std::string版本的空白字符裁剪
 	static void trim(std::string& str, const char* spaces = k_spaceChars);
 
+	static std::string_view trim(const std::string_view& sv, const char* spaces = k_spaceChars);
+
     static std::vector<std::string_view> split(const std::string_view& full, const std::string& delims, bool skipEempty = true);
 
 	static std::vector<std::string> splitRegex(const std::string& full, const std::string& regex, bool skipEempty = true);
@@ -168,20 +169,26 @@ public:
 	// 不带错误检测的版本
 	template<typename T, typename CHAR = char>
 	static T toValue(const CHAR* str) {
-		std::basic_istringstream<CHAR> stream(str);
+		std::basic_istringstream<CHAR> strm(str);
 		T val;
-		stream >> val;
+		strm >> val;
 		return val;
 	}
 
 	template<typename CHAR = char>
-	static int toInt(const CHAR* str) { return toValue<int, CHAR>(str); }
+	static int toInt(const CHAR* str) {
+		return toValue<int, CHAR>(str); 
+	}
 
 	template<typename CHAR = char>
-	static float toFloat(const CHAR* str) { return toValue<float, CHAR>(str); }
+	static float toFloat(const CHAR* str) {
+		return toValue<float, CHAR>(str); 
+	}
 
 	template<typename CHAR = char>
-	static double toDouble(const CHAR* str) { return toValue<double, CHAR>(str); }
+	static double toDouble(const CHAR* str) {
+		return toValue<double, CHAR>(str); 
+	}
 
 
 	// 对矢量和矩阵的格式化，可用于调试输出

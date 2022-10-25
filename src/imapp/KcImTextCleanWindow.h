@@ -15,7 +15,7 @@ public:
     // @source: 数据来源，用来获取title
     // @rawData: 待清洗的原始数据
     // @cleanData: 返回数据清洗结果
-    KcImTextCleanWindow(const std::string& source, const matrix<std::string>& rawData, matrix<double>& cleanData);
+    KcImTextCleanWindow(const std::string& source, const matrix<std::string_view>& rawData, matrix<double>& cleanData);
 
     //const char* type() const override { return "ImTextCleanWindow"; }
 
@@ -32,16 +32,16 @@ private:
     void clean_();
 
     // 返回empty字串的取值
-    double emptyValue_(const std::string& tok) const;
+    double emptyValue_() const;
 
     // 返回非法字串的取值
-    double illegalValue_(const std::string& tok) const;
+    double illegalValue_() const;
 
     void showTable_() const;
 
 private:
     const std::string& source_;
-    const matrix<std::string>& rawData_; // 原始数据
+    const matrix<std::string_view>& rawData_; // 原始数据
     matrix<double>& cleanData_; // 清洗后的数据
 
     // 解析text文件时的配置项

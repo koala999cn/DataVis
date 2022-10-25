@@ -2,6 +2,7 @@
 #include "KvAction.h"
 #include <memory>
 #include <vector>
+#include <string_view>
 
 class KcImTextCleanWindow;
 
@@ -21,7 +22,8 @@ private:
 
 private:
 	const std::string& filepath_;  // 数据文件路径
+	std::string text_; // 以字串格式暂存的文件内容
 	std::unique_ptr<KcImTextCleanWindow> cleanWindow_;
-	std::vector<std::vector<std::string>> rawData_; // 从filepath_读取的字符串矩阵
+	std::vector<std::vector<std::string_view>> rawData_; // 从filepath_读取的字符串矩阵
 	std::vector<std::vector<double>> cleanData_; // 清洗后的数据
 };

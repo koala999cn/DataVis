@@ -4,6 +4,7 @@
 #include <fstream>
 #include <assert.h>
 #include "KuStrUtil.h"
+#include "KuFileUtil.h"
 
 
 KcActionTextLoadAndClean::KcActionTextLoadAndClean(const std::string& filepath)
@@ -61,13 +62,17 @@ bool KcActionTextLoadAndClean::loadData_()
 
     rawData_.clear();
 
-    std::ifstream ifs(filepath_);
-    std::string line;
-    while (std::getline(ifs, line)) {
-        if (line.empty())
+    text_ = KuFileUtil::readAsString(filepath_);
+    auto lines = KuStrUtil::split(text_, "\n");
+
+    for (auto& line : lines) {
+        if (line[0] == '\0')
             continue;
 
-        auto tokens = KuStrUtil::splitRegex(line, rexpDelim, false);
+        if (line.back() == '\r')
+            line.remove_suffix(1);
+
+        auto tokens = KuStrUtil::split(line, " \t", false);
         if (tokens.empty())
             continue; // always skip empty line
 

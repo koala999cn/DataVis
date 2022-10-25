@@ -36,9 +36,10 @@ void KuStrUtil::toLower(std::string& str)
 }
 
 
-bool KuStrUtil::isFloat(const char* str)
+bool KuStrUtil::isFloat(const std::string_view& sv)
 {
-	return std::regex_match(str, std::regex("^[-+]?[0-9]*\\.?[0-9]+((e|E)[-+]?[0-9]*)?$"));
+	return std::regex_match(sv.cbegin(), sv.cend(), 
+		std::regex("^[-+]?[0-9]*\\.?[0-9]+((e|E)[-+]?[0-9]*)?$"));
 }
 
 
@@ -87,13 +88,13 @@ bool KuStrUtil::endWith(const std::string& str, const std::string& with, bool no
 
 std::string_view KuStrUtil::substr(const std::string_view& str, int from, int to)
 {
+	assert(false);
 	auto l = str.length();
 
-	if (to <= 0) to = l - 1 - to;
-	assert(from >= 0 && from < l);
-	assert(to >= 0 && to <= from);
+	if (to <= 0) to = l - to;
+	assert(from >= 0 && from <= to && to <= l);
 	
-	return std::string_view(str.data() + from, to - from + 1);
+	return std::string_view(str.data() + from, to - from);
 }
 
 
@@ -281,17 +282,35 @@ void KuStrUtil::trim(std::string& str, const char* spaces)
 }
 
 
+std::string_view trim(const std::string_view& sv, const char* spaces)
+{
+	std::string_view v = sv;
+	v.remove_prefix(std::min(v.find_first_not_of(spaces), v.size()));
+
+	auto trim_pos = v.find_last_not_of(spaces);
+	if (trim_pos != v.npos)
+		v.remove_suffix(v.size() - trim_pos);
+
+	return v;
+}
+
+
 std::vector<std::string_view> KuStrUtil::split(const std::string_view& full, const std::string& delims, bool skipEempty)
 {
     std::vector<std::string_view> tokens;
 	size_t start = 0, found = 0, end = full.size();
-	while (found != std::string::npos) {
-		found = full.find_first_of(delims, start);
-		// start != end condition is for when the delimiter is at the end
-        if (!skipEempty || (found != start && start != end))
-			tokens.push_back(substr(full, start, found - start));
+	while ((found = full.find_first_of(delims, start)) != std::string::npos) {
+		if (found != start)
+			tokens.push_back(full.substr(start, found - start));
+		else if (!skipEempty)
+			tokens.push_back("");
 		start = found + 1;
 	}
+
+	if (start != full.size())
+		tokens.push_back(full.substr(start));
+	else if (!skipEempty)
+		tokens.push_back("");
 
     return tokens;
 }
