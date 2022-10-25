@@ -107,6 +107,4 @@ protected:
 
 	bool splitChannels_{ false }; // 多通道数据是创建1个还是多个plt？ 
 
-private:
-	const std::string plotType_; 
 };

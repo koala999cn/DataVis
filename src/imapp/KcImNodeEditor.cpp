@@ -362,6 +362,9 @@ KcImNodeEditor::node_ptr KcImNodeEditor::getSelectedNode() const
 
 bool KcImNodeEditor::start()
 {
+    if (graph_.isEmpty())
+        return false;
+
     DigraphSx<bool> gR;
     inverse(graph_, gR); // 求解graph_的逆，方便快速获取各顶点的入边
 

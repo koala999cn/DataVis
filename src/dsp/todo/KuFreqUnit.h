@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <math.h>
+#include <cmath>
 
 
 // 频域类一些常用单位的换算
@@ -174,22 +174,22 @@ public:
 
 	// Convert decibels to amplitude.
 	static double decibelsToAmplitude(double decibels) {
-		return ::pow(10, decibels / 20.0);
+		return std::pow(10, decibels / 20.0);
 	}
 
 	// Convert amplitude to decibels.
 	static double amplitudeToDecibels(double amplitude) {
-		return 20 * ::log10(amplitude);
+		return 20 * std::log10(amplitude);
 	}
 
 	// Convert decibels to power.
 	static double decibelsToPower(double decibels) {
-		return ::pow(10, decibels / 10.0);
+		return std::pow(10, decibels / 10.0);
 	}
 
 	// Convert power to decibels.
 	static double powerToDecibels(double power) {
-		return 10 * ::log10(power);
+		return 10 * std::log10(power);
 	}
 
 

@@ -34,7 +34,6 @@ namespace kPrivate
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
 	: KvDataRender(name)
 	, plot_(plot)
-	, plotType_(name)
 {
 	plot_->setVisible(false);
 
@@ -226,7 +225,7 @@ void KvRdPlot::showProperySet()
 
 void KvRdPlot::showPlotProperty_()
 {
-	if (kPrivate::TreePush(plotType_.c_str())) {
+	if (kPrivate::TreePush("Plot")) {
 		bool vis = plot_->visible();
 		if (ImGuiX::prefixCheckbox("##Plot", &vis))
 			plot_->setVisible(vis);

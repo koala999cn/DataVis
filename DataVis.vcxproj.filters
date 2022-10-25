@@ -51,24 +51,6 @@
     <ClCompile Include="src\dsp\KgMultiply.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KgRdft.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KgSpectrogram.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KgSpectrum.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KgWindowing.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KuFreqUnit.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KuWindowFactory.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KpExprtkHelper_.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
@@ -77,21 +59,6 @@
     </ClCompile>
     <ClCompile Include="src\base\KuStrUtil.cpp">
       <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KuInterp1d.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KuExtrapolate.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KcInterpolater.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KgResampler.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KvContinued.cpp">
-      <Filter>dsp</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KvDiscreted.cpp">
       <Filter>dsp</Filter>
@@ -301,9 +268,6 @@
     <ClCompile Include="src\imapp\KcImDataView.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KgFbank.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -313,21 +277,6 @@
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtSampledArray.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KtInterval.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KgWindowing.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KgSpectrum.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KgSpectrogram.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KgRdft.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgMultiply.h">
@@ -343,12 +292,6 @@
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KcSampled1d.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KuFreqUnit.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KuWindowFactory.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtSampled.h">
@@ -384,46 +327,16 @@
     <ClInclude Include="src\base\KuStrUtil.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\functions.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KuExtrapolate.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KuInterp1d.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KcInterpolater.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KvDiscreted.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KvContinued.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KvFilter.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KtFIR.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KtFraming.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KtResampling.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KgResampler.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtuMath.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgRand.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KvExcitor.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\excitors.h">
@@ -716,9 +629,6 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcImDataView.h">
       <Filter>imapp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KgFbank.h">
-      <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
