@@ -1,10 +1,84 @@
 ﻿#include "KcOpSpectrum.h"
-#include "KgSpectrum.h"
+//#include "KgSpectrum.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
 #include <assert.h>
 
 
+KcOpSpectrum::KcOpSpectrum()
+	: KvDataOperator("Spectrum")
+{
+	
+}
+
+
+bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
+{
+	if (ins.empty())
+		return false;
+
+	assert(ins.size() == 1 && ins.front().first == 0);
+
+	auto port = ins.front().second;
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
+	if (prov == nullptr)
+		return false; // we'll never touch here
+
+	assert(prov->isSampled() && prov->dim() == 1);
+
+	KgSpectrum::KpOptions opts;
+	opts.sampleRate = 1.0 / prov->step(prov->dim() - 1);
+	opts.frameSize = prov->size(prov->dim() - 1);
+	opts.type = KgSpectrum::KeType(0);
+	opts.norm = KgSpectrum::KeNormMode(0);
+	opts.roundToPower2 = false;
+
+	spec_ = std::make_unique<KgSpectrum>(opts);
+	if (spec_ == nullptr)
+		return false;
+
+	// 准备output对象
+	assert(outputs_.size() == 1);
+	KtSampling<double> samp;
+	samp.resetn(spec_->odim(), 0, opts.sampleRate / 2, 0.5);
+	auto out = std::make_shared<KcSampled1d>();
+	out->reset(0, 0, samp.dx(), 0.5);
+	out->resize(spec_->odim(), prov->channels());
+	outputs_.front() = out;
+
+	return true;
+}
+
+
+void KcOpSpectrum::output()
+{
+	assert(spec_);
+	assert(inputs_.size() == 1 && inputs_.front());
+	assert(spec_->idim() == inputs_.front()->size());
+	assert(inputs_.front()->isDiscreted());
+
+	auto in = std::dynamic_pointer_cast<KcSampled1d>(inputs_.front());
+	auto out = std::dynamic_pointer_cast<KcSampled1d>(outputs_.front());
+	assert(in && out);
+
+	if (in->channels() == 1) {
+		spec_->process(in->data(), out->data());
+	}
+	else {
+		std::vector<kReal> in_(in->size());
+		std::vector<kReal> out_(out->size());
+		for (kIndex c = 0; c < in->channels(); c++) {
+			for (kIndex i = 0; i < in->size(); i++)
+				in_[i] = in->value(i, c);
+
+			spec_->process(in_.data(), out_.data());
+			out->setChannel(nullptr, c, out_.data());
+		}
+	}
+}
+
+
+#if 0
 KcOpSpectrum::KcOpSpectrum(KvDataProvider* prov)
 	: KvDataOperator("spectrum", prov) 
 {
@@ -223,3 +297,4 @@ std::shared_ptr<KvData> KcOpSpectrum::process2d_(std::shared_ptr<KvData> data)
 
 	return res;
 }
+#endif

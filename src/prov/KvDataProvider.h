@@ -65,7 +65,7 @@ public:
 	void onDoubleClicked() override;
 
 	// 抓取第outPort个输出端口的数据
-	virtual std::shared_ptr<KvData> fetchData(kIndex outPort) = 0;
+	virtual std::shared_ptr<KvData> fetchData(kIndex outPort) const = 0;
 
 private:
 	std::shared_ptr<KvImWindow> win_; // 挂接的ImWindow

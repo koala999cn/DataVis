@@ -27,7 +27,7 @@ public:
 
 	void output() final;
 
-	std::shared_ptr<KvData> fetchData(kIndex outPort) final;
+	std::shared_ptr<KvData> fetchData(kIndex outPort) const final;
 
 	void showProperySet() override;
 

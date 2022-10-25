@@ -23,7 +23,7 @@ public:
 
 	kIndex size(kIndex axis) const final;
 
-	std::shared_ptr<KvData> fetchData(kIndex outPort) final;
+	std::shared_ptr<KvData> fetchData(kIndex outPort) const final;
 
 private:
 	std::shared_ptr<KvData> data_;

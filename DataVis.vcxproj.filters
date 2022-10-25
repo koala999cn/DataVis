@@ -268,6 +268,18 @@
     <ClCompile Include="src\imapp\KcImDataView.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KvDataOperator.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
+    <ClCompile Include="src\op\KcOpSpectrum.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgSpectrum.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgRdft.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -629,6 +641,18 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcImDataView.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KvDataOperator.h">
+      <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpSpectrum.h">
+      <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgSpectrum.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgRdft.h">
+      <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

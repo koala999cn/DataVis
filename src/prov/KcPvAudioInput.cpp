@@ -109,7 +109,7 @@ void KcPvAudioInput::output()
 }
 
 
-std::shared_ptr<KvData> KcPvAudioInput::fetchData(kIndex outPort)
+std::shared_ptr<KvData> KcPvAudioInput::fetchData(kIndex outPort) const
 {
 	assert(outPort == 0);
 	return data_;

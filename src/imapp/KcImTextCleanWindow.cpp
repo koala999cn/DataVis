@@ -106,7 +106,7 @@ void KcImTextCleanWindow::updateImpl_()
 
     /// draw the table
 
-    showTable_();
+    //showTable_();
 }
 
 

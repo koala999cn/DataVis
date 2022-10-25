@@ -26,6 +26,7 @@ public:
 		k_norm_kaldi // 用int16最大值作归一化(兼容kaldi)，非规范操作，慎用
 	};
 
+	// @frameSize: 输入数据的长度
 	struct KpOptions
 	{
 		unsigned frameSize;
@@ -36,8 +37,7 @@ public:
 		bool roundToPower2;
 	};
 
-	// @frameSize: 输入数据的长度
-	KgSpectrum() = default;
+	KgSpectrum() = delete;
 	KgSpectrum(KgSpectrum&& spec) noexcept;
 	KgSpectrum(const KpOptions& opts);
 	~KgSpectrum();

@@ -41,7 +41,7 @@ kIndex KcPvData::size(kIndex axis) const
 }
 
 
-std::shared_ptr<KvData> KcPvData::fetchData(kIndex outPort)
+std::shared_ptr<KvData> KcPvData::fetchData(kIndex outPort) const
 {
 	assert(outPort == 0);
 	return data_;
@@ -55,28 +55,3 @@ namespace kPrivate
 		k_range
 	};
 }
-
-
-/*
-bool KcPvData::getOption(KeObjectOption opt) const
-{
-	assert(opt == k_show);
-
-	return kAppEventHub->isDocked(this);
-}
-
-
-void KcPvData::setOption(KeObjectOption opt, bool on)
-{
-	assert(opt == k_show);
-
-	if (on) {
-		auto dv = new QtDataView;
-		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data_);
-		dv->fill(*disc);
-		kAppEventHub->showDock(this, dv);
-	}
-	else
-		kAppEventHub->closeDock(this);
-}
-*/
