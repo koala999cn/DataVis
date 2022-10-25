@@ -1,35 +1,25 @@
-Ôªø#pragma once
+#pragma once
+#include "KtFeatPipeline.h"
+#include "KgSpectrum.h"
 
-class KcSampled1d;
-class KcSampled2d;
 
-
-class KgSpectrogram
+class KgSpectrogram : public KtFeatPipeline<KgSpectrum>
 {
 public:
+	using super_ = KtFeatPipeline<KgSpectrum>;
 
-	enum KeType
+	struct KpOptions : public KgPreprocess::KpOptions
 	{
-		k_power, // |FFT|^2
-		k_log, // log(|FFT|^2)
-		k_db, // 10*log10(|FFT|^2)
-		k_mag // |FFT|
+		// »ÙKgPreprocess::useEnergy∑«k_use_energy_none, ‘Ú”√–≈∫≈ƒ‹¡øÃÊªªs0
+
+		KgSpectrum::KeType type;
+		KgSpectrum::KeNormMode norm;
+		bool roundToPower2;
+		double energyFloor; // µ±energy–°”⁄∏√÷µ ±£¨”√∏√÷µÃÊ¥˙–≈∫≈energy÷µ£¨”Înorm∏ﬂ∂»œ‡πÿ
 	};
 
-	KgSpectrogram() : type_(k_power), useEnergy_(true) {}
-
-	int type() const { return type_; }
-	void setType(int type) { type_ = type; }
-
-	bool useEnergy() const { return useEnergy_; }
-	void setUseEnergy(bool b) { useEnergy_ = b; }
-
-	void process(const KcSampled1d& in, KcSampled2d& out);
+	KgSpectrogram(const KpOptions& opts);
 
 private:
-	int type_;
-
-	// if true (default), the zeroth spectrogram component is set to the frame energy.
-	bool useEnergy_;
+	double energyFloor_;
 };
-

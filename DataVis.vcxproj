@@ -120,7 +120,7 @@
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
     <ClCompile Include="src\dsp\KcSampled2d.cpp" />
-    <ClCompile Include="src\dsp\KgFilterBank.cpp" />
+    <ClCompile Include="src\dsp\KgFbank.cpp" />
     <ClCompile Include="src\dsp\KgHist.cpp" />
     <ClCompile Include="src\dsp\KcInterpolater.cpp" />
     <ClCompile Include="src\dsp\KgHistC.cpp" />
@@ -233,7 +233,7 @@
     <ClInclude Include="src\dsp\excitors.h" />
     <ClInclude Include="src\dsp\KcDataMono.h" />
     <ClInclude Include="src\dsp\KcSampled2d.h" />
-    <ClInclude Include="src\dsp\KgFilterBank.h" />
+    <ClInclude Include="src\dsp\KgFbank.h" />
     <ClInclude Include="src\dsp\KgHist.h" />
     <ClInclude Include="src\dsp\KcInterpolater.h" />
     <ClInclude Include="src\dsp\KgHistC.h" />

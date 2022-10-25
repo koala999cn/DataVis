@@ -1,69 +1,64 @@
 #include "KgDct.h"
-#include <assert.h>
 #include "KtuMath.h"
 
 
-KgDct::KgDct(unsigned inSize, unsigned outSize, bool htkCompat) :
-    inSize_(inSize),
-    outSize_(outSize),
-    htkCompat_(htkCompat)
+KgDct::KgDct(unsigned idim, unsigned odim, bool norm)
+	: idim_(idim)
+	, odim_(odim)
+	, norm_(norm)
+	, cosinTable_(nullptr)
 {
-    if (outSize_ == 0)
-        outSize_ = inSize_;
-
-    prepareDctMatrix_();
+	initCosinTable_();
 }
 
 
-void KgDct::forward(const kReal in[/*inSize*/], kReal out[/*outSize*/]) const
+KgDct::~KgDct()
 {
-    for(unsigned k = 0; k < outSize_; k++) {
-        out[k] = 0;
-        for(unsigned j = 0; j < inSize_; j++)
-            out[k] += in[j] * cosTable_[k][j];
-    }
+    delete cosinTable_;
 }
 
-void KgDct::backward(const kReal in[/*inSize*/], kReal out[/*outSize*/]) const
+
+void KgDct::forward(const double* in, double* out) const
 {
-    if(!htkCompat_) {
-        kReal factor = 2.0 / inSize_;
-        for(unsigned j = 0; j < inSize_; j++) {
-            out[j] = in[0] * cosTable_[0][j] / 2;
-            for(unsigned k = 1; k < outSize_; k++)
-                out[j] += in[k] * cosTable_[k][j];
-            out[j] *= factor;
-        }
-    }
-    else {
-        for (unsigned j = 0; j < inSize_; j++) {
-            out[j] = 0;
-            for (unsigned k = 0; k < outSize_; k++)
-                out[j] += in[k] * cosTable_[k][j];
-        }
-    }
+	// TODO: 使用矩阵运算
+	for(unsigned k = 0; k < odim(); k++) {
+		out[k] = 0;
+		for(unsigned j = 0; j < idim(); j++)
+			out[k] += in[j] * (*this)(k, j);
+	}
 }
 
-void KgDct::prepareDctMatrix_()
+
+void KgDct::backward(const double* in, double* out) const
 {
-    assert(inSize_ > 0 && outSize_ > 0);
+	double factor = 2.0 / idim(); // TODO: 
 
-    //generate cosin table
-    cosTable_.resize(outSize_, std::vector<kReal>(inSize_));
+	for(unsigned j = 0; j < idim(); j++) {
+		out[j] = 0.5 * in[0] * (*this)(0, j);
+		for(unsigned k = 1; k < odim(); k++)
+			out[j] += in[k] * (*this)(k, j);
+		out[j] *= factor;
+	}
+}
 
-    for (unsigned k = 0; k < outSize_; k++)
-        for (unsigned j = 0; j < inSize_; j++)
-            cosTable_[k][j] = std::cos(KtuMath<kReal>::pi * k * (j + 0.5) / inSize_);
 
+void KgDct::initCosinTable_()
+{
+	//generate cosin table
+	cosinTable_ = new double[idim() * odim()]; // if dim is too big, this will crash
 
-    if(htkCompat_) { // normalize cos-table
-        kReal normalizer = std::sqrt(static_cast<kReal>(1) / inSize_);  // normalizer for X_0.
-        for (unsigned j = 0; j < inSize_; j++)
-            cosTable_[0][j] *= normalizer;
+	for (unsigned k = 0; k < odim(); k++)
+		for (unsigned j = 0; j < idim(); j++)
+			(*this)(k, j) = cos(KtuMath<double>::pi * k * (j + 0.5) / idim());
 
-        normalizer *= std::sqrt(static_cast<kReal>(2));  // normalizer for other elements.
-        for (unsigned k = 1; k < outSize_; k++)
-            for (unsigned j = 0; j < inSize_; j++)
-                cosTable_[k][j] *= normalizer;
-    }
+	if (norm_) {
+		double norm = sqrt(1.0 / idim());  // normalizer for X_0.
+		for (unsigned j = 0; j < idim(); j++)
+			(*this)(0, j) *= norm;  // TODO: 其实(0, j) == 1
+
+		norm = sqrt(2.0 / idim());  // normalizer for other elements.
+		for (unsigned k = 1; k < odim(); k++)
+			for (unsigned j = 0; j < idim(); j++)
+				(*this)(k, j) *= norm;
+	}
 }

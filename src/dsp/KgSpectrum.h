@@ -1,52 +1,70 @@
 ﻿#pragma once
-#include <memory>
-#include "kDsp.h"
+#include <vector>
+
 
 /// 频谱分析功能类
-
-class KcSampled1d;
-class KvData;
 
 class KgSpectrum
 {
 public:
 
+	// 支持的频谱类型
 	enum KeType
 	{
-		k_power, // |FFT|^2
-		k_log,   // log(|FFT|^2)
+		k_power, // |FFT|^2, praat模式
+		k_log,   // log(|FFT|^2), kaldi模式
 		k_db,    // 10*log10(|FFT|^2)
 		k_mag    // |FFT|
 	};
 
-	KgSpectrum();
+	// 频谱归一化模式
+	enum KeNormMode
+	{
+		k_norm_none, // 不作归一化，节省计算量
+		k_norm_default, // 用时域信号长度N作归一化(KgRdft可控参数)
+		k_norm_praat, // 用采样频率F作归一化(兼容praat)
+		k_norm_kaldi // 用int16最大值作归一化(兼容kaldi)，非规范操作，慎用
+	};
+
+	struct KpOptions
+	{
+		unsigned frameSize;
+		double sampleRate;
+
+		KeType type; 
+		KeNormMode norm; 
+		bool roundToPower2;
+	};
+
+	// @frameSize: 输入数据的长度
+	KgSpectrum() = default;
+	KgSpectrum(KgSpectrum&& spec) noexcept;
+	KgSpectrum(const KpOptions& opts);
 	~KgSpectrum();
 
-	// 重置为采样频率为1/dt、数量为count的时域数据执行fft操作
-	void reset(kReal dt, kIndex count);
+	// 返回输入输出的规格
+	unsigned idim() const;
+	unsigned odim() const;
 
-	void porcess(const KvData& samp, KcSampled1d& spec) const;
+	void process(const double* in, double* out) const;
 
+	const KpOptions& options() const { return opts_; }
 
-	// 处理单通道规范化数据
-	// samp.size == rdft_.sizeT(), spec.size == rdft_.sizeF()
-	void porcess(kReal* data/*inout*/) const;
+	// 对功率谱数据data进行归一化和类型转换
+	void fixPower(double* spec, unsigned c, bool hasNormDefault = true) const;
 
-	int type() const { return type_; }
-	void setType(int type) { type_ = type; }
+	/// 帮助函数
 
-	kReal floor() const { return floor_; }
-	void setFloor(kReal f) { floor_ = f; }
+	// 计算谱输出维度
+	static unsigned odim(unsigned frameSize, bool roundToPower2);
 
-	kReal df() const { return df_; }
-	kReal nyqiustFreq() const { return nyquistFreq_; }
-	unsigned sizeInTime() const;
-	unsigned sizeInFreq() const;
+	static const char* type2Str(KeType type);
+	static KeType str2Type(const char* str);
+
+	static const char* norm2Str(KeNormMode norm);
+	static KeNormMode str2Norm(const char* str);
 
 private:
 	void* rdft_;
-	kReal df_;
-	kReal nyquistFreq_;
-	int type_; // 频谱类型
-	kReal floor_; // 频谱底值，type_为k_log或k_db时有效
+	KpOptions opts_;
 };

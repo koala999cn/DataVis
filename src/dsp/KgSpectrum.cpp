@@ -1,17 +1,24 @@
 ﻿#include "KgSpectrum.h"
 #include "KgRdft.h"
-#include "KcSampled1d.h"
 #include "KtuMath.h"
+#include "base/KtuBitwise.h"
 
 
-KgSpectrum::KgSpectrum()
-	: df_(1)
-	, nyquistFreq_(0)
-	, type_(k_power)
-	, floor_(1e-12f) // TODO: 重新设置
-	, rdft_(nullptr)
+KgSpectrum::KgSpectrum(const KpOptions& opts)
+	: opts_(opts)
 {
+	auto fftsize = opts.frameSize;
+	if (opts.roundToPower2)
+		fftsize = KtuBitwise<unsigned>::ceilPower2(fftsize);
 
+	rdft_ = new KgRdft(fftsize, false, k_norm_default == opts.norm);
+}
+
+
+KgSpectrum::KgSpectrum(KgSpectrum&& spec) noexcept
+	: opts_(spec.opts_)
+{
+	std::swap(rdft_, spec.rdft_);
 }
 
 
@@ -21,81 +28,127 @@ KgSpectrum::~KgSpectrum()
 }
 
 
-void KgSpectrum::reset(kReal dt, kIndex count)
+unsigned KgSpectrum::idim() const
 {
-	if (!rdft_ || count != sizeInTime()) {
-		if (rdft_) delete (KgRdft*)rdft_;
-		rdft_ = new KgRdft(count, false, true/*频谱乘以规一系数*/);
+	return opts_.frameSize;
+}
+
+
+unsigned KgSpectrum::odim() const
+{
+	return ((KgRdft*)rdft_)->odim();
+}
+
+
+void KgSpectrum::process(const double* in, double* out) const
+{
+	auto rdft = ((KgRdft*)rdft_);
+
+	// 此处传入的in是原始尺寸，根据需要roundToPower2，以作为fft的输入
+	std::vector<double> buf(in, in + idim());
+	if (idim() != rdft->idim()) { // roundToPower2
+		buf.resize(rdft->idim());
+		std::fill(buf.begin() + idim(), buf.end(), 0);
 	}
 
+	rdft->forward(buf.data());
+	rdft->powerSpectrum(buf.data()); // 功率谱
+	fixPower(buf.data(), odim(), true);
+	std::copy(buf.data(), buf.data() + odim(), out);
+}
 
-	if (nyquistFreq_ != 1 / dt / 2) {
-		nyquistFreq_ = 1 / dt / 2;
-		KtSampling<kReal> samp;
-		samp.resetn(sizeInFreq(), 0, nyquistFreq_, 0);
-		df_ = samp.dx();
-		// 此处没有采用df = 1/T的计算公式，主要原因有2：
-		// 一是此处采用dt*count获取的T值不准确，大多数时候比真实的T值大1个dt；
-		// 二是由此根据df推导出的频域range比nyquist频率大1-2个df。
-		// 例如：当采样点为偶数N，频率采样点为N/2+1，此时计算的F' = df * (N/2+1) = F + 2*df 
+
+void KgSpectrum::fixPower(double* spec, unsigned c, bool hasNormDefault) const
+{
+	using kMath = KtuMath<double>;
+	constexpr double int16_max = std::numeric_limits<std::int16_t>::max();
+
+	// 谱归一化
+	if (opts_.norm == k_norm_praat)
+		kMath::scale(spec, c, 1. / (opts_.sampleRate * opts_.sampleRate));
+	else if (opts_.norm == k_norm_kaldi)
+		kMath::scale(spec, c, int16_max * int16_max);
+	else if (opts_.norm == k_norm_default && !hasNormDefault)
+		kMath::scale(spec, c, 1. / (double(((KgRdft*)rdft_)->idim()) * ((KgRdft*)rdft_)->idim()));
+
+	// 谱类型转换
+	if (opts_.type == k_mag) {
+		kMath::forEach(spec, c, [](double x) { return std::sqrt(x); });
+	}
+	else if (opts_.type == k_log) {
+		kMath::applyFloor(spec, c, std::numeric_limits<double>::epsilon());
+		kMath::applyLog(spec, c);
+	}
+	else if (opts_.type == k_db) {
+		kMath::applyFloor(spec, c, std::numeric_limits<double>::epsilon());
+		kMath::forEach(spec, c, [](double x) { return 10 * std::log10(x); });
 	}
 }
 
 
-unsigned KgSpectrum::sizeInTime() const
+unsigned KgSpectrum::odim(unsigned frameSize, bool roundToPower2)
 {
-	return rdft_ ? ((KgRdft*)rdft_)->sizeT() : 0;
+	if (roundToPower2)
+		frameSize = KtuBitwise<unsigned>::ceilPower2(frameSize);
+	return frameSize / 2 + 1;
 }
 
 
-unsigned KgSpectrum::sizeInFreq() const
+const char* KgSpectrum::type2Str(KeType type)
 {
-	return rdft_ ? ((KgRdft*)rdft_)->sizeF() : 0;
-}
-
-
-void KgSpectrum::porcess(const KvData& data, KcSampled1d& spec) const
-{
-	assert(rdft_ && sizeInTime() == data.size());
-	assert(data.isDiscreted());
-	const KvDiscreted& dis = (const KvDiscreted&)data;
-	assert(dis.isSampled());
-	const KvSampled& samp = (const KvSampled&)dis;
-
-	spec.reset(0, 0, df_, 0.5);
-	spec.resize(sizeInFreq(), samp.channels());
-
-	// TODO: 优化单通道的情况
-	std::vector<kReal> buf(samp.size());
-	for (kIndex c = 0; c < samp.channels(); c++) {
-		for (kIndex i = 0; i < samp.size(); i++)
-			buf[i] = samp.value(i, c);
-
-		porcess(buf.data());
-		spec.setChannel(nullptr, c, buf.data());
+	switch (type) {
+	case k_power:	return "power";
+	case k_log:		return "log";
+	case k_db:		return "db";
+	case k_mag:		return "mag";
+	default:		return "unknown";
 	}
 }
 
 
-void KgSpectrum::porcess(kReal* data) const
+KgSpectrum::KeType KgSpectrum::str2Type(const char* str)
 {
-	((KgRdft*)rdft_)->forward(data);
-	((KgRdft*)rdft_)->powerSpectrum(data); // 功率谱
+	if (0 == _stricmp(str, type2Str(k_power)))
+		return k_power;
 
-	// 转换为其他类型谱
-	auto c = sizeInFreq();
-	if (type_ == k_mag) {
-		for (unsigned n = 0; n < c; n++)
-			data[n] = sqrt(data[n]);
+	if (0 == _stricmp(str, type2Str(k_log)))
+		return k_log;
+
+	if (0 == _stricmp(str, type2Str(k_db)))
+		return k_db;
+
+	if (0 == _stricmp(str, type2Str(k_mag)))
+		return k_mag;
+
+	return k_power;
+}
+
+
+const char* KgSpectrum::norm2Str(KeNormMode norm)
+{
+	switch (norm) {
+	case k_norm_none:		return "none";
+	case k_norm_default:	return "default";
+	case k_norm_praat:		return "praat";
+	case k_norm_kaldi:		return "kaldi";
+	default:				return "unknown";
 	}
-	else if (type_ == k_log) {
-		KtuMath<kReal>::applyFloor(data, c, floor_);
-		KtuMath<kReal>::applyLog(data, c);
-	}
-	else if (type_ == k_db) {
-		for (unsigned n = 0; n < c; n++) {
-			data[n] = std::max(data[n], floor_);
-			data[n] = 10 * log10(data[n]);
-		}
-	}
+}
+
+
+KgSpectrum::KeNormMode KgSpectrum::str2Norm(const char* str)
+{
+	if (0 == _stricmp(str, norm2Str(k_norm_none)))
+		return k_norm_none;
+
+	if (0 == _stricmp(str, norm2Str(k_norm_default)))
+		return k_norm_default;
+
+	if (0 == _stricmp(str, norm2Str(k_norm_praat)))
+		return k_norm_praat;
+
+	if (0 == _stricmp(str, norm2Str(k_norm_kaldi)))
+		return k_norm_kaldi;
+
+	return k_norm_none;
 }

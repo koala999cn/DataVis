@@ -14,6 +14,8 @@ public:
 
 	using super_::super_;
 
+	// bar的宽度设置，取值[0, 1]
+	// 若取1，则bars之间无空隙；若取0.5，则bar的宽度与bars之间的空隙相同。
 	float_t barWidthRatio() const { return barWidthRatio_; }
 	float_t& barWidthRatio() { return barWidthRatio_; }
 
@@ -23,7 +25,7 @@ protected:
 
 	void drawImpl_(KvPaint*, point_getter, const color4f&) const override;
 
-	// 返回单个bar的宽度（世界坐标）
+	// 计算单个bar的宽度（世界坐标）
 	float_t barWidth_() const;
 
 protected:

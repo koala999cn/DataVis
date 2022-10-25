@@ -45,9 +45,6 @@
     <ClCompile Include="src\dsp\KcSampled2d.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KgFilterBank.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KgHist.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
@@ -304,6 +301,9 @@
     <ClCompile Include="src\imapp\KcImDataView.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\dsp\KgFbank.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -334,9 +334,6 @@
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgHist.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KgFilterBank.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\kDsp.h">
@@ -719,6 +716,9 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcImDataView.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgFbank.h">
+      <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
