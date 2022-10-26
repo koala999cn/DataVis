@@ -23,8 +23,8 @@ namespace kPrivate
 
         bool update(void*/*outputBuffer*/, void* inputBuffer, unsigned frames, double streamTime) override {
             auto data = std::make_shared<KcSampled1d>();
-			data->resizeChannel(stream_->channels());
-			data->reset(0, streamTime, stream_->step(0));
+			data->resizeChannel(stream_->channels(0));
+			data->reset(0, streamTime, stream_->step(0, 0));
             data->pushBack(static_cast<kReal*>(inputBuffer), frames);
 			stream_->enqueue(data);
             return true;
@@ -156,27 +156,28 @@ void KcPvAudioInput::showProperySet()
 	ImGui::EndDisabled();
 	ImGui::Separator();
 
-	ImGui::LabelText("Dim", "%d", dim());
+	ImGui::LabelText("Dim", "%d", dim(0));
 
-	ImGui::LabelText("Size", "%d", size(0));
+	ImGui::LabelText("Size", "%d", size(0, 0));
 
-	ImGui::LabelText("Step", "%g", step(0));
+	ImGui::LabelText("Step", "%g", step(0, 0));
 }
 
 
-kRange KcPvAudioInput::range(kIndex axis) const
+kRange KcPvAudioInput::range(kIndex outPort, kIndex axis) const
 {
 	return axis == 0 ? kRange{ 0, frameTime_ } : kRange{ -1, 1 };
 }
 
 
-kReal KcPvAudioInput::step(kIndex axis) const
+kReal KcPvAudioInput::step(kIndex outPort, kIndex axis) const
 {
-	return axis == 0 ? static_cast<kReal>(1) / sampleRate() : KvDiscreted::k_nonuniform_step;
+	return axis == 0 ? static_cast<kReal>(1) / sampleRate() : 
+		KvDiscreted::k_nonuniform_step;
 }
 
 
-kIndex KcPvAudioInput::size(kIndex) const
+kIndex KcPvAudioInput::size(kIndex outPort, kIndex) const
 {
 	KtSampling<kReal> samp(kReal(0), kReal(frameTime_), kReal(1) / sampleRate_, 0);
 	return samp.size(); // TODO: 使用open时的bufferFrames参数

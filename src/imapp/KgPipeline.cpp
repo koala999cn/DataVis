@@ -142,6 +142,22 @@ void KgPipeline::eraseLink(int fromId, int toId)
 }
 
 
+std::vector<KvNode*> KgPipeline::getInputs(int nodeId, unsigned portIdx) const
+{
+    auto v = nodeId2Index_(nodeId);
+    assert(v != -1);
+    auto vPort = v + 1 + portIdx; // portIdx输入端口的顶点序号
+    
+    // 搜集vPort的入边
+    auto inedges = graph_.inedges(vPort);
+    std::vector<KvNode*> nodes; 
+    nodes.reserve(inedges.size());
+    for (auto i : inedges)
+        nodes.push_back((graph_.vertexAt(i).get()));
+    return nodes;
+}
+
+
 bool KgPipeline::start()
 {
     if (graph_.isEmpty())

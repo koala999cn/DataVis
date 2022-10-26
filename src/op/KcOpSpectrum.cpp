@@ -2,6 +2,9 @@
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
 #include <assert.h>
+#include "imgui.h"
+#include "imapp/KsImApp.h"
+#include "imapp/KgPipeline.h"
 
 
 KcOpSpectrum::KcOpSpectrum()
@@ -11,36 +14,44 @@ KcOpSpectrum::KcOpSpectrum()
 }
 
 
-bool KcOpSpectrum::isStream() const
+bool KcOpSpectrum::isStream(kIndex outPort) const
 {
-	return inputs_.front() && inputs_.front()->dim() == 1 ? false : true;
+	assert(inputs_.size() == 1);
+	auto d = inputs_.front();
+	if (d == nullptr)
+		return false; // 暂时无输入连接
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	if (prov == nullptr)
+		return false; // 输入失效
+
+	return prov->dim(d->index()) > 1; // 输入若为高维数据，则该节点streaming
 }
 
-/*
-kRange KcOpSpectrum::range(kIndex axis) const
+
+kRange KcOpSpectrum::range(kIndex outPort, kIndex axis) const
 {
-	auto objp = dynamic_cast<const KvDataProvider*>(parent());
-	assert(objp != nullptr);
+	assert(inputs_.size() == 1);
+	auto d = inputs_.front();
+	if (d == nullptr)
+		return kRange(0, 1); // 暂时无输入连接
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	if (prov == nullptr)
+		return kRange(0, 1); // 输入失效
 
 	// 对信号的最高维进行变换，其他低维度保持原信号尺度不变
-	if (axis == objp->dim() - 1) {
-		return { 0, spec_->nyqiustFreq() };
-	}
-	else if (axis == objp->dim()) { // 频率幅值域
-		auto r = KvDataOperator::range(objp->dim());
-		auto mag = KtuMath<kReal>::absMax(r.low(), r.high());
-		mag = std::max(mag, spec_->floor());
-		if (spec_->type() == KgSpectrum::k_log)
-			mag = log(mag);
-		else if (spec_->type() == KgSpectrum::k_db)
-			mag = 10 * log10(mag);
+	if (axis == dim(outPort) - 1) 
+		return spec_ ? kRange{ 0, spec_->options().sampleRate / 2 } :
+		               kRange{ 0, 0.5 / prov->step(d->index(), axis) };
 
-		return { 0, mag };
-	}
-
-	return objp->range(axis);
+	auto r = prov->range(d->index(), axis);
+	if (axis == dim(outPort) && spec_) // 频率幅值域
+		return spec_->orange({ r.low(), r.high() }); 
+	
+	return r;
 }
-*/
+
 
 bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
@@ -50,31 +61,32 @@ bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortN
 	assert(ins.size() == 1 && ins.front().first == 0);
 
 	auto port = ins.front().second;
+	assert(port == inputs_.front());
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
 	if (prov == nullptr)
 		return false; // we'll never touch here
 
-	assert(prov->isSampled() && prov->dim() == 1);
+	assert(prov->isSampled(port->index()) && prov->dim(port->index()) == 1);
 
 	KgSpectrum::KpOptions opts;
-	opts.sampleRate = 1.0 / prov->step(prov->dim() - 1);
-	opts.frameSize = prov->size(prov->dim() - 1);
-	opts.type = KgSpectrum::KeType(0);
-	opts.norm = KgSpectrum::KeNormMode(0);
-	opts.roundToPower2 = false;
+	opts.sampleRate = 1.0 / prov->step(port->index(), prov->dim(port->index()) - 1);
+	opts.frameSize = prov->size(port->index(), prov->dim(port->index()) - 1);
+	opts.type = KgSpectrum::KeType(specType_);
+	opts.norm = KgSpectrum::KeNormMode(normMode_);
+	opts.roundToPower2 = roundToPower2_;
 
 	spec_ = std::make_unique<KgSpectrum>(opts);
 	if (spec_ == nullptr)
 		return false;
 
 	// 准备output对象
-	assert(outputs_.size() == 1);
+	assert(odata_.size() == 1);
 	KtSampling<double> samp;
 	samp.resetn(spec_->odim(), 0, opts.sampleRate / 2, 0.5);
 	auto out = std::make_shared<KcSampled1d>();
 	out->reset(0, 0, samp.dx(), 0.5);
-	out->resize(spec_->odim(), prov->channels());
-	outputs_.front() = out;
+	out->resize(spec_->odim(), prov->channels(port->index()));
+	odata_.front() = out;
 
 	return true;
 }
@@ -83,18 +95,18 @@ bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortN
 void KcOpSpectrum::output()
 {
 	assert(spec_);
-	assert(inputs_.size() == 1 && inputs_.front());
-	assert(inputs_.front()->isDiscreted());
+	assert(idata_.size() == 1 && idata_.front());
+	assert(idata_.front()->isDiscreted());
 	// assert(spec_->idim() == inputs_.front()->size()); 该断言不成立
 	
-	if (inputs_.front()->size() < spec_->idim())
+	if (idata_.front()->size() < spec_->idim())
 		return; 
 
-	auto in = std::dynamic_pointer_cast<KcSampled1d>(inputs_.front());
-	auto out = std::dynamic_pointer_cast<KcSampled1d>(outputs_.front());
+	auto in = std::dynamic_pointer_cast<KcSampled1d>(idata_.front());
+	auto out = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
 	assert(in && out);
 
-	unsigned offset = inputs_.front()->size() - spec_->idim();
+	unsigned offset = idata_.front()->size() - spec_->idim();
 
 	if (in->channels() == 1) {
 		spec_->process(in->data() + offset, out->data());
@@ -110,6 +122,36 @@ void KcOpSpectrum::output()
 			out->setChannel(nullptr, c, out_.data());
 		}
 	}
+}
+
+
+void KcOpSpectrum::showProperySet()
+{
+	KvDataOperator::showProperySet();
+	ImGui::Separator();
+
+	bool disable = KsImApp::singleton().pipeline().running();
+	ImGui::BeginDisabled(disable);
+
+	auto curType = KgSpectrum::type2Str(specType_);
+	if (ImGui::BeginCombo("Spectrum Type", curType)) {
+		for (unsigned i = 0; i < KgSpectrum::typeCount(); i++)
+			if (ImGui::Selectable(KgSpectrum::type2Str(i), i == specType_))
+				specType_ = i;
+		ImGui::EndCombo();
+	}
+
+	auto curNorm = KgSpectrum::norm2Str(normMode_);
+	if (ImGui::BeginCombo("Normalization", curNorm)) {
+		for (unsigned i = 0; i < KgSpectrum::normModeCount(); i++)
+			if (ImGui::Selectable(KgSpectrum::norm2Str(i), i == normMode_))
+				normMode_ = i;
+		ImGui::EndCombo();
+	}
+
+	ImGui::Checkbox("Round to Power of 2", &roundToPower2_);
+
+	ImGui::EndDisabled();
 }
 
 

@@ -11,17 +11,17 @@ public:
 
 	KcPvData(const std::string_view& name, std::shared_ptr<KvData> data);
 
-	bool isStream() const final { return false; }
+	bool isStream(kIndex outPort) const final { return false; }
 
-	kIndex dim() const final;
+	kIndex dim(kIndex outPort) const final;
 
-	kIndex channels() const final;
+	kIndex channels(kIndex outPort) const final;
 
-	kRange range(kIndex axis) const final;
+	kRange range(kIndex outPort, kIndex axis) const final;
 
-	kReal step(kIndex axis) const final;
+	kReal step(kIndex outPort, kIndex axis) const final;
 
-	kIndex size(kIndex axis) const final;
+	kIndex size(kIndex outPort, kIndex axis) const final;
 
 	std::shared_ptr<KvData> fetchData(kIndex outPort) const final;
 

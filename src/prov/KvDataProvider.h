@@ -39,38 +39,38 @@ public:
 
 	void showProperySet() override;
 
-	virtual bool isStream() const = 0;
+	virtual bool isStream(kIndex outPort) const = 0;
 
 	// 数据的维度
-	virtual kIndex dim() const = 0;
+	virtual kIndex dim(kIndex outPort) const = 0;
 
-	virtual kIndex channels() const { return 1; }
+	virtual kIndex channels(kIndex outPort) const { return 1; }
 
 	// 返回第axis轴的数据视图范围. 
-	virtual kRange range(kIndex axis) const = 0;
+	virtual kRange range(kIndex outPort, kIndex axis) const = 0;
 
 	// 返回第axis轴的步进，即dx, dy, dz...
 	// 返回=0表示步进未知，返回inf表示步进非均匀
-	virtual kReal step(kIndex axis) const = 0;
+	virtual kReal step(kIndex outPort, kIndex axis) const = 0;
 
-	virtual kIndex size(kIndex axis) const = 0;
+	virtual kIndex size(kIndex outPort, kIndex axis) const = 0;
 
-	kIndex size() const {
+	kIndex size(kIndex outPort) const {
 		kIndex c(1);
-		for (kIndex i = 0; i < dim(); i++)
-			c *= size(i);
+		for (kIndex i = 0; i < dim(outPort); i++)
+			c *= size(outPort, i);
 		return c;
 	}
 
-	bool isContinued() const;
+	bool isContinued(kIndex outPort) const;
 
-	bool isDiscreted() const;
+	bool isDiscreted(kIndex outPort) const;
 
-	bool isScattered() const;
+	bool isScattered(kIndex outPort) const;
 
-	bool isSeries() const; // 是否序列数据
+	bool isSeries(kIndex outPort) const; // 是否序列数据
 
-	bool isSampled() const;
+	bool isSampled(kIndex outPort) const;
 
 	void onInput(KcPortNode* outPort, unsigned inPort) override;
 

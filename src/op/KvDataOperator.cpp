@@ -15,54 +15,87 @@ namespace kPrivate
 }
 
 
-bool KvDataOperator::isStream() const
+bool KvDataOperator::isStream(kIndex outPort) const
 {
+	assert(!inputs_.empty() && inputs_.size() == inPorts());
+
+	bool streaming(false);
+	for (auto i : inputs_)
+		if (i) {
+			auto prov = std::dynamic_pointer_cast<KvDataProvider>(i->parent().lock());
+			if (prov && prov->isStream(i->index()))
+			    return true; // 有一个输入是stream，则返回true
+		}
+
 	return false;
 }
 
 
-kIndex KvDataOperator::dim() const
+kIndex KvDataOperator::dim(kIndex outPort) const
 {
-	assert(!outputs_.empty() && outputs_.size() == outPorts());
+	assert(!inputs_.empty() && inputs_.size() == inPorts());
 
-	auto d = kPrivate::first_non_null(outputs_);
-	return d ? d->dim() : 0;
+	auto d = kPrivate::first_non_null(inputs_);
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	return prov ? prov->dim(d->index()) : 0;
 }
 
 
-kIndex KvDataOperator::channels() const
+kIndex KvDataOperator::channels(kIndex outPort) const
 {
-	assert(!outputs_.empty() && outputs_.size() == outPorts());
+	assert(!inputs_.empty() && inputs_.size() == inPorts());
 
-	auto d = kPrivate::first_non_null(outputs_);
-	return d ? d->channels() : 0;
+	auto d = kPrivate::first_non_null(inputs_);
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	return prov ? prov->channels(d->index()) : 0;
 }
 
 
-kRange KvDataOperator::range(kIndex axis) const
+kRange KvDataOperator::range(kIndex outPort, kIndex axis) const
 {
-	assert(!outputs_.empty() && outputs_.size() == outPorts());
+	assert(!inputs_.empty() && inputs_.size() == inPorts());
 
-	auto d = kPrivate::first_non_null(outputs_);
-	return d ? d->range(axis) : kRange{ 0, 0 };
+	auto d = kPrivate::first_non_null(inputs_);
+	if (d == nullptr)
+		return kRange{ 0, 1 };
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+
+	return prov ? prov->range(d->index(), axis) : kRange{ 0, 1 };
 }
 
 
-kReal KvDataOperator::step(kIndex axis) const
+kReal KvDataOperator::step(kIndex outPort, kIndex axis) const
 {
-	assert(!outputs_.empty() && outputs_.size() == outPorts());
+	assert(!inputs_.empty() && inputs_.size() == inPorts());
 
-	auto d = std::dynamic_pointer_cast<KvDiscreted>(kPrivate::first_non_null(outputs_));
-	return d ? d->step(axis) : 0;
+	auto d = kPrivate::first_non_null(inputs_);
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+
+	return prov ? prov->step(d->index(), axis) : 0;
 }
 
 
-kIndex KvDataOperator::size(kIndex axis) const
+kIndex KvDataOperator::size(kIndex outPort, kIndex axis) const
 {
-	assert(!outputs_.empty() && outputs_.size() == outPorts());
+	assert(!inputs_.empty() && inputs_.size() == inPorts());
 
-	auto d = kPrivate::first_non_null(outputs_);
-	return d ? d->size() : 0;
+	auto d = kPrivate::first_non_null(inputs_);
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+
+	return prov ? prov->size(d->index(), axis) : 0;
 }
 
 
@@ -72,10 +105,11 @@ bool KvDataOperator::onNewLink(KcPortNode* from, KcPortNode* to)
 		assert(to->index() < inputs_.size());
 		
 		auto prov = std::dynamic_pointer_cast<KvDataProvider>(from->parent().lock());
-		if (prov == nullptr) 
-			return false; // 只允许provider节点接入
+		if (prov == nullptr  // 只允许provider节点接入
+			|| inputs_[to->index()]) // 每个输入端口只允许单个接入
+			return false; 
 
-		onInput(from, to->index());
+		inputs_[to->index()] = from;
 	}
 
 	return true;
@@ -86,9 +120,7 @@ void KvDataOperator::onDelLink(KcPortNode* from, KcPortNode* to)
 {
 	if (to->parent().lock().get() == this) { // 只处理输入连接
 		assert(to->index() < inputs_.size());
-
-		auto prov = std::dynamic_pointer_cast<KvDataProvider>(from->parent().lock());
-		assert(prov);
+		assert(from == inputs_[to->index()]);
 
 		inputs_[to->index()] = nullptr;
 	}
@@ -98,17 +130,18 @@ void KvDataOperator::onDelLink(KcPortNode* from, KcPortNode* to)
 void KvDataOperator::onInput(KcPortNode* outPort, unsigned inPort)
 {
 	assert(outPort && inPort < inputs_.size());
+	assert(inputs_[inPort] == outPort);
 
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(outPort->parent().lock());
 	assert(prov);
 
-	inputs_[inPort] = prov->fetchData(outPort->index());
+	idata_[inPort] = prov->fetchData(outPort->index());
 }
 
 
 std::shared_ptr<KvData> KvDataOperator::fetchData(kIndex outPort) const
 {
-	assert(outPort < outputs_.size());
+	assert(outPort < odata_.size());
 
-	return outputs_[outPort];
+	return odata_[outPort];
 }

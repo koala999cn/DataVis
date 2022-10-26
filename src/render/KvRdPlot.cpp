@@ -69,7 +69,7 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 	auto data = prov->fetchData(outPort->index());
 	auto numPlts = std::distance(r.first, r.second);
 	
-	if (prov->isStream()) { // shifting the data
+	if (prov->isStream(outPort->index())) { // shifting the data
 		auto samp = std::dynamic_pointer_cast<KcSampled1d>(streamData_[outPort]);
 		assert(samp);
 
@@ -135,7 +135,7 @@ void KvRdPlot::onDelLink(KcPortNode* from, KcPortNode* to)
 		port2Plts_.erase(from->id());
 	}
 
-	if (prov->isStream())
+	if (prov->isStream(from->index()))
 		streamData_.erase(from);
 }
 
@@ -161,8 +161,8 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 
 			auto prov = dynamic_cast<KvDataProvider*>(node.get());
 			assert(prov);
-			for (unsigned j = 0; j < std::min<unsigned>(prov->dim() + 1, 3); j++) {
-				auto r = prov->range(j);
+			for (unsigned j = 0; j < std::min<unsigned>(prov->dim(port->index()) + 1, 3); j++) {
+				auto r = prov->range(port->index(), j);
 				if (lower[j] > r.low())
 					lower[j] = r.low();
 				if (upper[j] < r.high())
@@ -172,7 +172,7 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 			if (lower.z() == std::numeric_limits<typename KvCoord::float_t>::max()) // 输入全是二维数据
 				lower.z() = upper.z() = 0; 
 
-			auto plts = createPlottable_(prov);
+			auto plts = createPlottable_(port);
 			if (plts.empty())
 				return false;
 
@@ -181,9 +181,10 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 				port2Plts_.insert(std::make_pair(port->id(), plt));
 			}
 
-			if (prov->isStream()) {
-				if (prov->dim() == 1)
-					streamData_[port] = std::make_shared<KcSampled1d>(prov->step(0), prov->channels());
+			if (prov->isStream(port->index())) {
+				if (prov->dim(port->index()) == 1)
+					streamData_[port] = std::make_shared<KcSampled1d>(
+						prov->step(port->index(), 0), prov->channels(port->index()));
 				else {
 					assert(false); // TODO:
 				}

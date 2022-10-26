@@ -24,22 +24,23 @@ public:
 
 	/// provider接口
 
-	bool isStream() const override;
+	bool isStream(kIndex outPort) const override;
 
-	kIndex dim() const override;
+	kIndex dim(kIndex outPort) const override;
 
-	kIndex channels() const override;
+	kIndex channels(kIndex outPort) const override;
 
-	kRange range(kIndex axis) const override;
+	kRange range(kIndex outPort, kIndex axis) const override;
 
-	kReal step(kIndex axis) const override;
+	kReal step(kIndex outPort, kIndex axis) const override;
 
-	kIndex size(kIndex axis) const override;
+	kIndex size(kIndex outPort, kIndex axis) const override;
 
 	std::shared_ptr<KvData> fetchData(kIndex outPort) const override;
 
 protected:
-	std::vector<std::shared_ptr<KvData>> inputs_{ inPorts() };
-	std::vector<std::shared_ptr<KvData>> outputs_{ outPorts() };
+	std::vector<std::shared_ptr<KvData>> idata_{ inPorts() };
+	std::vector<std::shared_ptr<KvData>> odata_{ outPorts() };
+	std::vector<KcPortNode*> inputs_{ inPorts() };
 };
 

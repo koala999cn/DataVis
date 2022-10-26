@@ -180,16 +180,15 @@ void KcImNodeEditor::handleInput_()
         return;
 
     auto& pipe = KsImApp::singleton().pipeline();
-    if (pipe.running()) return;
 
     int fromId, toId;
-    if (ImNodes::IsLinkCreated(&fromId, &toId))
+    if (!pipe.running() && ImNodes::IsLinkCreated(&fromId, &toId))
         pipe.insertLink(fromId, toId);
 
     // 响应delete按键，删除选中的节点或边
 
     auto numLinks = ImNodes::NumSelectedLinks();
-    if (numLinks > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete)) {
+    if (!pipe.running() && numLinks > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete)) {
         std::vector<int> links;
         links.resize(numLinks);
         ImNodes::GetSelectedLinks(links.data());
@@ -201,7 +200,7 @@ void KcImNodeEditor::handleInput_()
     }
 
     auto numNodes = ImNodes::NumSelectedNodes();
-    if (numNodes > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete)) {
+    if (!pipe.running() && numNodes > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete)) {
         std::vector<int> nodes;
         nodes.resize(numNodes);
         ImNodes::GetSelectedNodes(nodes.data());

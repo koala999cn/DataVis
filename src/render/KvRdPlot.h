@@ -38,19 +38,20 @@ public:
 protected:
 
 	// 一个数据源可以创建多个KvPlottable
-	virtual std::vector<KvPlottable*> createPlottable_(KvDataProvider* prov) = 0;
-
+	virtual std::vector<KvPlottable*> createPlottable_(KcPortNode* port) = 0;
+	
 	// 创建plottable的帮助函数，对外提供splitChannels_无关的接口
 	// 用户在createPlottable_接口实现中可调用
 	template<typename PLT_TYPE>
-	std::vector<KvPlottable*> createPlts_(KvDataProvider* prov) {
-		if (prov->channels() == 1)
+	std::vector<KvPlottable*> createPlts_(KcPortNode* port) {
+		auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
+		if (prov->channels(port->index()) == 1)
 			return { new PLT_TYPE(prov->name()) };
 
 		std::vector<KvPlottable*> plts;
-		plts.resize(prov->channels());
+		plts.resize(prov->channels(port->index()));
 
-		for (kIndex ch = 0; ch < prov->channels(); ch++) {
+		for (kIndex ch = 0; ch < prov->channels(port->index()); ch++) {
 			std::string name = prov->name() + " - ch" + KuStrUtil::toString(ch);
 			plts[ch] = new PLT_TYPE(name);
 		}

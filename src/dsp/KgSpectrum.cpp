@@ -53,7 +53,7 @@ void KgSpectrum::process(const double* in, double* out) const
 
 	rdft->forward(buf.data());
 	rdft->powerSpectrum(buf.data()); // 功率谱
-	fixPower(buf.data(), odim(), true);
+	fixPower(buf.data(), odim(), opts_.norm == k_norm_default);
 	std::copy(buf.data(), buf.data() + odim(), out);
 }
 
@@ -86,6 +86,20 @@ void KgSpectrum::fixPower(double* spec, unsigned c, bool hasNormDefault) const
 }
 
 
+std::pair<double, double> KgSpectrum::orange(const std::pair<double, double>& in) const
+{
+	// 假设原始信号的峰值为A，那么FFT的结果的每个点（除了第一个点直流分量之外）的模值就是A
+	// 的N / 2倍。而第一个点就是直流分量，它的模值就是直流分量的N倍。
+
+	auto N = idim();
+	double mag = KtuMath<double>::absMax(in.first, in.second);
+	mag *= N;
+	mag *= mag;
+	fixPower(&mag, 1, false);
+	return { 0, mag };
+}
+
+
 unsigned KgSpectrum::odim(unsigned frameSize, bool roundToPower2)
 {
 	if (roundToPower2)
@@ -94,7 +108,7 @@ unsigned KgSpectrum::odim(unsigned frameSize, bool roundToPower2)
 }
 
 
-const char* KgSpectrum::type2Str(KeType type)
+const char* KgSpectrum::type2Str(int type)
 {
 	switch (type) {
 	case k_power:	return "power";
@@ -124,9 +138,9 @@ KgSpectrum::KeType KgSpectrum::str2Type(const char* str)
 }
 
 
-const char* KgSpectrum::norm2Str(KeNormMode norm)
+const char* KgSpectrum::norm2Str(int normMode)
 {
-	switch (norm) {
+	switch (normMode) {
 	case k_norm_none:		return "none";
 	case k_norm_default:	return "default";
 	case k_norm_praat:		return "praat";

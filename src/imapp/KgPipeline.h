@@ -9,13 +9,15 @@
 class KgPipeline
 {
 public:
-    using node_ptr = std::shared_ptr<typename KvNode::super_>;
+    using node_ptr = std::shared_ptr<KvNode>;
 
     // 使用稀疏有向图存储node节点数据
     using node_graph = DigraphSx<bool, node_ptr>;
 
 
     /// 节点管理
+
+    const node_graph& graph() const { return graph_; }
 
     node_ptr getNode(int id) const;
 
@@ -27,7 +29,9 @@ public:
 
     void eraseLink(int fromId, int toId);
 
-    const node_graph& graph() const { return graph_; }
+    // 返回连接到nodeId第portIdx个输入端口的节点集合
+    // NOTE: 耗时计算
+    std::vector<KvNode*> getInputs(int nodeId, unsigned portIdx) const;
 
 
     /// 管线管理

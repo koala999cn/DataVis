@@ -17,31 +17,33 @@ KvDataProvider::~KvDataProvider()
 }
 
 
-bool KvDataProvider::isContinued() const
+bool KvDataProvider::isContinued(kIndex outPort) const
 {
-	return size(0) == KvData::k_inf_size;
+	return size(outPort, 0) == KvData::k_inf_size;
 }
 
 
-bool KvDataProvider::isDiscreted() const 
+bool KvDataProvider::isDiscreted(kIndex outPort) const
 {
-	return size(0) != KvData::k_inf_size;
+	return size(outPort, 0) != KvData::k_inf_size;
 }
 
 
-bool KvDataProvider::isScattered() const
+bool KvDataProvider::isScattered(kIndex outPort) const
 {
-	return isDiscreted() && step(0) == KvDiscreted::k_nonuniform_step;
+	return isDiscreted(outPort) && 
+		step(outPort, 0) == KvDiscreted::k_nonuniform_step;
 }
 
 
-bool KvDataProvider::isSeries() const {
-	return isDiscreted() && step(0) == 1;
+bool KvDataProvider::isSeries(kIndex outPort) const {
+	return isDiscreted(outPort) && step(outPort, 0) == 1;
 }
 
-bool KvDataProvider::isSampled() const 
+bool KvDataProvider::isSampled(kIndex outPort) const
 {
-	return isDiscreted() && step(0) != KvDiscreted::k_nonuniform_step;
+	return isDiscreted(outPort) && 
+		step(outPort, 0) != KvDiscreted::k_nonuniform_step;
 }
 
 
@@ -57,32 +59,39 @@ void KvDataProvider::showProperySet()
 {
 	KvBlockNode::showProperySet();
 
+	unsigned outPort = 0; // TODO: 多端口
+
 	// 类型
-	ImGui::LabelText("Type", isSampled() ? "sampled" : isContinued() ? "continued" : "scattered");
+	ImGui::LabelText("Type", isSampled(outPort) ? "sampled" : 
+		isContinued(outPort) ? "continued" : "scattered");
 
 	// 维度
-	ImGui::LabelText("Dim", "%d", dim());
+	ImGui::LabelText("Dim", "%d", dim(outPort));
 
 	// 通道数
-	ImGui::LabelText("Channels", "%d", channels());
+	ImGui::LabelText("Channels", "%d", channels(outPort));
 
 	// 数据数量
-	if (isDiscreted()) {
-		ImGui::LabelText("Size", "%d", size());
+	if (isDiscreted(outPort)) {
+		ImGui::LabelText("Size", "%d", size(outPort));
 		// TODO: tooltip: "number of data points per-channel"
 	}
 
 	// 采样间隔
-	if (isSampled()) {
-		ImGui::LabelText("Step", "%g", step(0));
-		ImGui::LabelText("SampleRate", "%g", 1.0 / step(0));
+	if (isSampled(outPort)) {
+		ImGui::LabelText("Step", "%g", step(outPort, 0));
+		ImGui::LabelText("SampleRate", "%g", 1.0 / step(outPort, 0));
 	}
 
+	// TODO: 多维度
+	// 
 	// key range
-	ImGui::LabelText("Key Range", "%g - %g", range(0).low(), range(0).high());
+	ImGui::LabelText("Key Range", "%g - %g", 
+		range(outPort, 0).low(), range(outPort, 0).high());
 
 	// value range
-	ImGui::LabelText("Value Range", "%g - %g", range(dim()).low(), range(dim()).high());
+	ImGui::LabelText("Value Range", "%g - %g", 
+		range(outPort, (outPort)).low(), range(outPort, dim(outPort)).high());
 }
 
 

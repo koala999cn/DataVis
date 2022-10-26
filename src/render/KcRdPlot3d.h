@@ -14,7 +14,7 @@ public:
 
 private:
 
-	std::vector<KvPlottable*> createPlottable_(KvDataProvider* prov) final;
+	std::vector<KvPlottable*> createPlottable_(KcPortNode* port) final;
 
 	unsigned supportPlottableTypes_() const final;
 

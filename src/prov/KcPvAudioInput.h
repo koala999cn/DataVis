@@ -9,17 +9,17 @@ public:
 	KcPvAudioInput();
 	virtual ~KcPvAudioInput();
 
-	bool isStream() const override { return true; }
+	bool isStream(kIndex outPort) const override { return true; }
 
-	kIndex dim() const final { return 1; };
+	kIndex dim(kIndex outPort) const final { return 1; };
 
-	kIndex channels() const override { return channels_; }
+	kIndex channels(kIndex outPort) const override { return channels_; }
 
-	kRange range(kIndex axis) const final;
+	kRange range(kIndex outPort, kIndex axis) const final;
 
-	kReal step(kIndex axis) const final;
+	kReal step(kIndex outPort, kIndex axis) const final;
 
-	kIndex size(kIndex) const final;
+	kIndex size(kIndex outPort, kIndex) const final;
 
 	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>&) final;
 

@@ -22,15 +22,17 @@ KcRdPlot3d::KcRdPlot3d()
 }
 
 
-std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KvDataProvider* prov)
+std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KcPortNode* port)
 {
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
+
 	// 根据prov自动选择图类型
-	if (prov->isScattered() || prov->isSeries())
-	return createPlts_<KcScatter>(prov);
-	else if (prov->isContinued() || prov->isSampled())
-		return createPlts_<KcGraph>(prov);
+	if (prov->isScattered(port->index()) || prov->isSeries(port->index()))
+	return createPlts_<KcScatter>(port);
+	else if (prov->isContinued(port->index()) || prov->isSampled(port->index()))
+		return createPlts_<KcGraph>(port);
 	else // TODO:
-		return createPlts_<KcScatter>(prov);
+		return createPlts_<KcScatter>(port);
 		
 }
 

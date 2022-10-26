@@ -9,32 +9,32 @@ KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 }
 
 
-kIndex KcPvData::dim() const
+kIndex KcPvData::dim(kIndex outPort) const
 {
 	return data_->dim();
 }
 
 
-kIndex KcPvData::channels() const
+kIndex KcPvData::channels(kIndex outPort) const
 {
 	return data_->channels();
 }
 
 
-kRange KcPvData::range(kIndex axis) const
+kRange KcPvData::range(kIndex outPort, kIndex axis) const
 {
 	return data_->range(axis);
 }
 
 
-kReal KcPvData::step(kIndex axis) const
+kReal KcPvData::step(kIndex outPort, kIndex axis) const
 {
 	auto dis = std::dynamic_pointer_cast<KvDiscreted>(data_);
 	return dis ? dis->step(axis) : 0;
 }
 
 
-kIndex KcPvData::size(kIndex axis) const
+kIndex KcPvData::size(kIndex outPort, kIndex axis) const
 {
 	auto dis = std::dynamic_pointer_cast<KvDiscreted>(data_);
 	return dis ? dis->size(axis) : KvData::k_inf_size;
