@@ -4,14 +4,16 @@
 #include <assert.h>
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
-#include "imapp/KgImWindowManager.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "KcModuleImGuiGlfw.h"
+#include "KgPipeline.h"
+#include "KgImWindowManager.h"
 
 
 KsImApp::KsImApp()
 {
     winMgr_ = std::make_unique<KgImWindowManager>();
+    pipeline_ = std::make_unique<KgPipeline>();
 }
 
 
@@ -35,6 +37,9 @@ void KsImApp::run()
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
+
+        if (pipeline_->running())
+            pipeline_->stepFrame();
 
         drawFrame_();
 
@@ -78,6 +83,9 @@ void KsImApp::drawFrame_()
         ImGui::EndFrame();
     }
     else { // Rendering 
+
+        winMgr_->update();
+
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);

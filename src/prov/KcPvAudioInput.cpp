@@ -5,6 +5,8 @@
 #include "imgui.h"
 #include "KuStrUtil.h"
 #include "readerwriterqueue/readerwriterqueue.h"
+#include "imapp/KsImApp.h"
+#include "imapp/KgPipeline.h"
 
 
 namespace kPrivate
@@ -120,9 +122,12 @@ void KcPvAudioInput::showProperySet()
 {
 	KvBlockNode::showProperySet();
 
+	bool disable = KsImApp::singleton().pipeline().running();
 	auto device = (KcAudioDevice*)dptr_;
-
 	auto info = device->info(deviceId_);
+
+	ImGui::BeginDisabled(disable);
+
 	if (ImGui::BeginCombo("Device", info.name.c_str())) {
 		for (unsigned i = 0; i < device->count(); i++) {
 			info = device->info(i);
@@ -148,6 +153,7 @@ void KcPvAudioInput::showProperySet()
 
 	ImGui::DragFloat("FrameTime", &frameTime_, 0.01, 0.01, 1.0);
 
+	ImGui::EndDisabled();
 	ImGui::Separator();
 
 	ImGui::LabelText("Dim", "%d", dim());

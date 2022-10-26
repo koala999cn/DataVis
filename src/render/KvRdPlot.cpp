@@ -6,7 +6,7 @@
 #include "imapp/KvImWindow.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
-#include "KcImNodeEditor.h"
+#include "imapp/KgPipeline.h"
 #include "imguix.h"
 #include "KuStrUtil.h"
 #include "misc/cpp/imgui_stdlib.h"
@@ -114,8 +114,7 @@ bool KvRdPlot::onNewLink(KcPortNode* from, KcPortNode* to)
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
 	assert(prov);
 
-	auto editor = KsImApp::singleton().windowManager().getStatic<KcImNodeEditor>();
-	return editor->status() != KcImNodeEditor::k_busy; // 运行时不接受新的链接
+	return !KsImApp::singleton().pipeline().running(); // 运行时不接受新的链接
 }
 
 
@@ -130,12 +129,11 @@ void KvRdPlot::onDelLink(KcPortNode* from, KcPortNode* to)
 	assert(prov);
 
 	auto r = port2Plts_.equal_range(from->id());
-	assert(r.first != r.second);
-
-	for (auto i = r.first; i != r.second; i++)
-		plot_->removePlottable(i->second);
-
-	port2Plts_.erase(from->id());
+	if (r.first != r.second) {
+		for (auto i = r.first; i != r.second; i++)
+			plot_->removePlottable(i->second);
+		port2Plts_.erase(from->id());
+	}
 
 	if (prov->isStream())
 		streamData_.erase(from);

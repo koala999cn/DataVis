@@ -72,7 +72,7 @@ bool KcActionTextLoadAndClean::loadData_()
         if (line.back() == '\r')
             line.remove_suffix(1);
 
-        auto tokens = KuStrUtil::split(line, " \t", false);
+        auto tokens = KuStrUtil::split(line, ", \t", false);
         if (tokens.empty())
             continue; // always skip empty line
 

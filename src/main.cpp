@@ -9,6 +9,7 @@
 #include "imapp/KcModuleImGuiGlfw.h"
 #include "imapp/KcModuleImNode.h"
 #include "imapp/KcModuleImFileDialog.h"
+#include "imapp/KgPipeline.h"
 #include "prov/KcPvAudioInput.h"
 #include "render/KcRdPlot1d.h"
 #include "render/KcRdPlot3d.h"
@@ -47,28 +48,21 @@ int main_(int, char**)
         if (ImGui::BeginMainMenuBar()) {
 
             KsImApp::singleton().windowManager().showMenu("View");
-
-            auto editor = KsImApp::singleton().windowManager().getStatic<KcImNodeEditor>();
-            bool busy = editor->status() == KcImNodeEditor::k_busy;
+            auto& pipe = KsImApp::singleton().pipeline();
 
             if (ImGui::BeginMenu("Pileline")) {
 
-                if (ImGui::MenuItem("Start", nullptr, nullptr, !busy))
-                    editor->start();
+                if (ImGui::MenuItem("Start", nullptr, nullptr, !pipe.running()))
+                    pipe.start();
 
-                if (ImGui::MenuItem("Stop", nullptr, nullptr, busy))
-                    editor->stop();
+                if (ImGui::MenuItem("Stop", nullptr, nullptr, pipe.running()))
+                    pipe.stop();
 
                 ImGui::EndMenu();
             }
             
             ImGui::EndMainMenuBar();
         }
-
-        if (editor->status() == KcImNodeEditor::k_busy)
-            editor->stepFrame();
-
-        KsImApp::singleton().windowManager().update();
 
         return true;
         });

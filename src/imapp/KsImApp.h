@@ -4,6 +4,7 @@
 #include <vector>
 #include "KgModuleManager.h"
 
+class KgPipeline;
 class KgImWindowManager;
 
 class KsImApp : public KgModuleManager
@@ -23,6 +24,10 @@ public:
 
 	KgImWindowManager& windowManager() {
 		return *winMgr_;
+	}
+
+	KgPipeline& pipeline() {
+		return *pipeline_;
 	}
 
 public:
@@ -65,4 +70,5 @@ private:
 	std::vector<finish_listener> lsFinish_;
 
 	std::unique_ptr<KgImWindowManager> winMgr_;
+    std::unique_ptr<KgPipeline> pipeline_;
 };

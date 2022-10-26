@@ -2,8 +2,7 @@
 #include "KcImDataMaker.h"
 #include <assert.h>
 #include "KsImApp.h"
-#include "KgImWindowManager.h"
-#include "KcImNodeEditor.h"
+#include "KgPipeline.h"
 #include "prov/KcPvData.h"
 #include "KuPathUtil.h"
 
@@ -45,7 +44,7 @@ void KcActionInsertDataNode::update()
         if (odata_) {
             state_ = KeState::k_done;
             auto node = std::make_shared<KcPvData>(KuPathUtil::fileName(filepath_), odata_);
-            KsImApp::singleton().windowManager().getStatic<KcImNodeEditor>()->insertNode(node);
+            KsImApp::singleton().pipeline().insertNode(node);
         }
         else {
             state_ = KeState::k_cancelled;

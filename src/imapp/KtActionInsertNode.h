@@ -1,7 +1,6 @@
 #pragma once
 #include "KvAction.h"
-#include "KgImWindowManager.h"
-#include "KcImNodeEditor.h"
+#include "KgPipeline.h"
 
 
 // 向node-editor直接插入新节点的辅助模板类
@@ -15,7 +14,7 @@ public:
 
 	bool trigger() override {
 		auto node = std::make_shared<T>();
-		KsImApp::singleton().windowManager().getStatic<KcImNodeEditor>()->insertNode(node);
+		KsImApp::singleton().pipeline().insertNode(node);
 		state_ = KeState::k_done;
 		return true;
 	}

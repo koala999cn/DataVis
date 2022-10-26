@@ -4,7 +4,7 @@
 #include "imapp/KcImDataView.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
-#include "imapp/KcImNodeEditor.h"
+#include "imapp/KgPipeline.h"
 #include "KvDiscreted.h"
 
 
@@ -93,7 +93,7 @@ void KvDataProvider::onDoubleClicked()
 	}
 	else {
 		// TODO: a easy way to get the shared_ptr of THIS
-		auto node = KsImApp::singleton().windowManager().getStatic<KcImNodeEditor>()->getNode(id());
+		auto node = KsImApp::singleton().pipeline().getNode(id());
 		auto prov = std::dynamic_pointer_cast<KvDataProvider>(node);
 		win_ = KsImApp::singleton().windowManager().registerDynamic<KcImDataView>(prov);
 	}

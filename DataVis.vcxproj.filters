@@ -280,6 +280,9 @@
     <ClCompile Include="src\dsp\KgRdft.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KgPipeline.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -653,6 +656,9 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KgRdft.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KgPipeline.h">
+      <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
