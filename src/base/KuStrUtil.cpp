@@ -86,18 +86,6 @@ bool KuStrUtil::endWith(const std::string& str, const std::string& with, bool no
 }
 
 
-std::string_view KuStrUtil::substr(const std::string_view& str, int from, int to)
-{
-	assert(false);
-	auto l = str.length();
-
-	if (to <= 0) to = l - to;
-	assert(from >= 0 && from <= to && to <= l);
-	
-	return std::string_view(str.data() + from, to - from);
-}
-
-
 const char* KuStrUtil::findFirstOf(const char* str, char ch)
 {
 	assert(str != nullptr);

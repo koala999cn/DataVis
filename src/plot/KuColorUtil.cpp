@@ -235,7 +235,8 @@ color4f KuColorUtil::parseColor(const std::string_view& str)
 		}
 	}
 	else if (KuStrUtil::beginWith(str.data(), "rgb(", true) && KuStrUtil::endWith(str.data(), ")")){
-		auto s = KuStrUtil::substr(str, 4, -1);
+		auto s = str.substr(4);
+		s.remove_suffix(1); // remove the tailing ')'
 		auto rgb = KuStrUtil::split(s, ",");
 		if (rgb.size() == 3) {
 			clr.r() = kPrivate::parseColorComponent(rgb[0], 255);
@@ -245,7 +246,8 @@ color4f KuColorUtil::parseColor(const std::string_view& str)
 		}
 	}
 	else if (KuStrUtil::beginWith(str.data(), "rgba(", true) && KuStrUtil::endWith(str.data(), ")")) {
-		auto s = KuStrUtil::substr(str, 5, -1);
+		auto s = str.substr(5);
+		s.remove_suffix(1); // remove the tailing ')'
 		auto rgb = KuStrUtil::split(s, ",");
 		if (rgb.size() == 4) {
 			clr.r() = kPrivate::parseColorComponent(rgb[0], 255);
@@ -255,7 +257,8 @@ color4f KuColorUtil::parseColor(const std::string_view& str)
 		}
 	}
 	else if (KuStrUtil::beginWith(str.data(), "hsl(", true) && KuStrUtil::endWith(str.data(), ")")) {
-		auto s = KuStrUtil::substr(str, 4, -1);
+		auto s = str.substr(4);
+		s.remove_suffix(1); // remove the tailing ')'
 		auto hsl = KuStrUtil::split(s, ",");
 		if (hsl.size() == 3) {
 			auto h = kPrivate::parseColorComponent(hsl[0], 360);
@@ -265,7 +268,8 @@ color4f KuColorUtil::parseColor(const std::string_view& str)
 		}
 	}
 	else if (KuStrUtil::beginWith(str.data(), "hsla(", true) && KuStrUtil::endWith(str.data(), ")")) {
-		auto s = KuStrUtil::substr(str, 5, -1);
+		auto s = str.substr(5);
+		s.remove_suffix(1); // remove the tailing ')'
 		auto hsl = KuStrUtil::split(s, ",");
 		if (hsl.size() == 3) {
 			auto h = kPrivate::parseColorComponent(hsl[0], 360);
