@@ -5,6 +5,22 @@
 
 class KvImWindow;
 
+
+// TODO: 数据规范构想
+
+union KpDataSpec
+{
+	int spec;
+
+	struct {
+		int stream : 1; // 是否流式数据
+		int type : 3;
+		int dim : 4; // 数据的维度，再高好像也没什么意义
+		int channels : 8; // 256通道??
+	};
+};
+
+
 // 数据源的抽象类
 
 class KvDataProvider : public KvBlockNode

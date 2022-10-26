@@ -57,7 +57,8 @@ public:
 
     // 更快速的实现
     kRange valueRange() const override {
-        return KtuMath<kReal>::minmax(array_.dataFirst(), array_.size());
+        return array_.size() == 0 ? kRange(0, 0)
+        : KtuMath<kReal>::minmax(array_.dataFirst(), array_.size());
     }
 
 

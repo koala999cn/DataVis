@@ -23,45 +23,45 @@ bool KvDataOperator::isStream() const
 
 kIndex KvDataOperator::dim() const
 {
-	assert(!inputs_.empty() && inputs_.size() == inPorts());
+	assert(!outputs_.empty() && outputs_.size() == outPorts());
 
-	auto d = kPrivate::first_non_null(inputs_);
+	auto d = kPrivate::first_non_null(outputs_);
 	return d ? d->dim() : 0;
 }
 
 
 kIndex KvDataOperator::channels() const
 {
-	assert(!inputs_.empty() && inputs_.size() == inPorts());
+	assert(!outputs_.empty() && outputs_.size() == outPorts());
 
-	auto d = kPrivate::first_non_null(inputs_);
+	auto d = kPrivate::first_non_null(outputs_);
 	return d ? d->channels() : 0;
 }
 
 
 kRange KvDataOperator::range(kIndex axis) const
 {
-	assert(!inputs_.empty() && inputs_.size() == inPorts());
+	assert(!outputs_.empty() && outputs_.size() == outPorts());
 
-	auto d = kPrivate::first_non_null(inputs_);
+	auto d = kPrivate::first_non_null(outputs_);
 	return d ? d->range(axis) : kRange{ 0, 0 };
 }
 
 
 kReal KvDataOperator::step(kIndex axis) const
 {
-	assert(!inputs_.empty() && inputs_.size() == inPorts());
+	assert(!outputs_.empty() && outputs_.size() == outPorts());
 
-	auto d = std::dynamic_pointer_cast<KvDiscreted>(kPrivate::first_non_null(inputs_));
+	auto d = std::dynamic_pointer_cast<KvDiscreted>(kPrivate::first_non_null(outputs_));
 	return d ? d->step(axis) : 0;
 }
 
 
 kIndex KvDataOperator::size(kIndex axis) const
 {
-	assert(!inputs_.empty() && inputs_.size() == inPorts());
+	assert(!outputs_.empty() && outputs_.size() == outPorts());
 
-	auto d = kPrivate::first_non_null(inputs_);
+	auto d = kPrivate::first_non_null(outputs_);
 	return d ? d->size() : 0;
 }
 

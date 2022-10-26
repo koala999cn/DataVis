@@ -1,5 +1,4 @@
 ﻿#include "KcOpSpectrum.h"
-//#include "KgSpectrum.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
 #include <assert.h>
@@ -11,6 +10,37 @@ KcOpSpectrum::KcOpSpectrum()
 	
 }
 
+
+bool KcOpSpectrum::isStream() const
+{
+	return inputs_.front() && inputs_.front()->dim() == 1 ? false : true;
+}
+
+/*
+kRange KcOpSpectrum::range(kIndex axis) const
+{
+	auto objp = dynamic_cast<const KvDataProvider*>(parent());
+	assert(objp != nullptr);
+
+	// 对信号的最高维进行变换，其他低维度保持原信号尺度不变
+	if (axis == objp->dim() - 1) {
+		return { 0, spec_->nyqiustFreq() };
+	}
+	else if (axis == objp->dim()) { // 频率幅值域
+		auto r = KvDataOperator::range(objp->dim());
+		auto mag = KtuMath<kReal>::absMax(r.low(), r.high());
+		mag = std::max(mag, spec_->floor());
+		if (spec_->type() == KgSpectrum::k_log)
+			mag = log(mag);
+		else if (spec_->type() == KgSpectrum::k_db)
+			mag = 10 * log10(mag);
+
+		return { 0, mag };
+	}
+
+	return objp->range(axis);
+}
+*/
 
 bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
@@ -54,22 +84,27 @@ void KcOpSpectrum::output()
 {
 	assert(spec_);
 	assert(inputs_.size() == 1 && inputs_.front());
-	assert(spec_->idim() == inputs_.front()->size());
 	assert(inputs_.front()->isDiscreted());
+	// assert(spec_->idim() == inputs_.front()->size()); 该断言不成立
+	
+	if (inputs_.front()->size() < spec_->idim())
+		return; 
 
 	auto in = std::dynamic_pointer_cast<KcSampled1d>(inputs_.front());
 	auto out = std::dynamic_pointer_cast<KcSampled1d>(outputs_.front());
 	assert(in && out);
 
+	unsigned offset = inputs_.front()->size() - spec_->idim();
+
 	if (in->channels() == 1) {
-		spec_->process(in->data(), out->data());
+		spec_->process(in->data() + offset, out->data());
 	}
 	else {
-		std::vector<kReal> in_(in->size());
-		std::vector<kReal> out_(out->size());
+		std::vector<kReal> in_(spec_->idim());
+		std::vector<kReal> out_(spec_->odim());
 		for (kIndex c = 0; c < in->channels(); c++) {
 			for (kIndex i = 0; i < in->size(); i++)
-				in_[i] = in->value(i, c);
+				in_[i] = in->value(i + offset, c);
 
 			spec_->process(in_.data(), out_.data());
 			out->setChannel(nullptr, c, out_.data());
@@ -176,71 +211,6 @@ void KcOpSpectrum::setPropertyImpl_(int id, const QVariant& newVal)
 		break;
 	}
 }
-
-
-kRange KcOpSpectrum::range(kIndex axis) const
-{
-	auto objp = dynamic_cast<const KvDataProvider*>(parent());
-	assert(objp != nullptr);
-
-	// 对信号的最高维进行变换，其他低维度保持原信号尺度不变
-	if (axis == objp->dim() - 1) {
-		return { 0, spec_->nyqiustFreq() };
-	}
-	else if (axis == objp->dim()) { // 频率幅值域
-		auto r = KvDataOperator::range(objp->dim());
-		auto mag = KtuMath<kReal>::absMax(r.low(), r.high());
-		mag = std::max(mag, spec_->floor());
-		if (spec_->type() == KgSpectrum::k_log)
-			mag = log(mag);
-		else if (spec_->type() == KgSpectrum::k_db)
-			mag = 10 * log10(mag);
-
-		return { 0, mag };
-	}
-	
-	return objp->range(axis);
-}
-
-
-kReal KcOpSpectrum::step(kIndex axis) const
-{
-	auto objp = dynamic_cast<const KvDataProvider*>(parent());
-	assert(objp != nullptr);
-
-	if (axis == objp->dim() - 1) {
-		return spec_->df();
-	}
-	else if (axis == objp->dim()) {
-		return KvDiscreted::k_nonuniform_step;
-	}
-
-	return objp->step(axis);
-}
-
-
-kIndex KcOpSpectrum::size(kIndex axis) const
-{
-	auto objp = dynamic_cast<const KvDataProvider*>(parent());
-	assert(objp != nullptr);
-
-	if (axis == objp->dim() - 1) 
-		return spec_->sizeInFreq();
-
-	return objp->size(axis);
-}
-
-
-bool KcOpSpectrum::isStream() const
-{
-	auto objp = dynamic_cast<const KvDataProvider*>(parent());
-
-	if (objp->dim() == 1)
-		return false; // key轴为频率轴，非时间轴，故非stream
-	else
-		return objp->isStream();
-}
-
 
 std::shared_ptr<KvData> KcOpSpectrum::processImpl_(std::shared_ptr<KvData> data)
 {

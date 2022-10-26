@@ -9,6 +9,10 @@ public:
 
 	KcOpSpectrum();
 
+	bool isStream() const override;
+
+	//kRange range(kIndex axis) const override;
+
 	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) override;
 
 	void output() override;
