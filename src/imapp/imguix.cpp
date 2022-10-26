@@ -192,7 +192,7 @@ namespace ImGuiX
 
     void showDataTable(int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn)
     {
-        auto headers = kPrivate::makeTableHeaders_(type, cols);
+        auto headers = kPrivate::makeTableHeaders_(type, std::min(cols, 66u)); // 66为2与3的公倍数
         headers.insert(headers.begin(), "NO.");
         auto fnShow = [&headers, &fn, cols](unsigned r, unsigned c) {
             if (c == 0) { // show the row-index

@@ -219,9 +219,7 @@ double KcImTextCleaner::illegalValue_() const
 
 void KcImTextCleaner::showTable_() const
 {
-    std::vector<std::string> headers(maxCols_ + 1);
-    if (headers.size() > 64)
-        headers.resize(64); // TODO:
+    std::vector<std::string> headers(std::min(maxCols_ + 1, 64));
     headers[0] = "NO.";
     for (unsigned i = 1; i < headers.size(); i++)
         headers[i] = KuStrUtil::toString(i);
