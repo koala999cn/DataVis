@@ -74,6 +74,9 @@ std::string KuFileUtil::readAsString(const std::string& path)
 	if (len > 0 && ifs) {
 		text.resize(len);
 		ifs.read(text.data(), len);
+		assert(text[len] == '\0');
+		auto pos = text.find_last_not_of('\0');
+		text.erase(pos + 1);
 	}
 	
 	return text;

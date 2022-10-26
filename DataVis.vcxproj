@@ -141,7 +141,7 @@
     <ClCompile Include="src\imapp\KcImPlot2d.cpp" />
     <ClCompile Include="src\imapp\KcImPlot3d.cpp" />
     <ClCompile Include="src\imapp\KcImPropertySheet.cpp" />
-    <ClCompile Include="src\imapp\KcImTextCleanWindow.cpp" />
+    <ClCompile Include="src\imapp\KcImTextCleaner.cpp" />
     <ClCompile Include="src\imapp\KcModuleImFileDialog.cpp" />
     <ClCompile Include="src\imapp\KcModuleImGuiGlfw.cpp" />
     <ClCompile Include="src\imapp\KcImNodeEditor.cpp" />
@@ -255,7 +255,7 @@
     <ClInclude Include="src\imapp\KcImPlot2d.h" />
     <ClInclude Include="src\imapp\KcImPlot3d.h" />
     <ClInclude Include="src\imapp\KcImPropertySheet.h" />
-    <ClInclude Include="src\imapp\KcImTextCleanWindow.h" />
+    <ClInclude Include="src\imapp\KcImTextCleaner.h" />
     <ClInclude Include="src\imapp\KcModuleImFileDialog.h" />
     <ClInclude Include="src\imapp\KcModuleImGuiGlfw.h" />
     <ClInclude Include="src\imapp\KcImNodeEditor.h" />

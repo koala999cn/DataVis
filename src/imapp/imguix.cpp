@@ -22,37 +22,42 @@ namespace kPrivate
         return name;
     }
 
-    void setupTableHeader_(int dataType, int cols)
+    std::vector<std::string> makeTableHeaders_(int dataType, int cols)
     {
+        std::vector<std::string> headers;
+        headers.reserve(cols);
+
         if (dataType == KuDataUtil::k_sampled_1d) {
-            ImGui::TableSetupColumn("time");
+            headers.push_back("time");
             std::string str("ch-");
             for (int c = 1; c < cols; c++)
-                ImGui::TableSetupColumn((str + KuStrUtil::toString(c)).c_str());
+                headers.push_back((str + KuStrUtil::toString(c)).c_str());
         }
         else if (dataType == KuDataUtil::k_scattered_1d) {
             for (int ch = 1; ch <= cols / 2; ch++) {
                 auto chIdx = KuStrUtil::toString(ch);
-                ImGui::TableSetupColumn(("X" + chIdx).c_str());
-                ImGui::TableSetupColumn(("Y" + chIdx).c_str());
+                headers.push_back(("X" + chIdx).c_str());
+                headers.push_back(("Y" + chIdx).c_str());
             }
         }
         else if (dataType == KuDataUtil::k_scattered_2d) {
             for (int ch = 1; ch <= cols / 3; ch++) {
                 auto chIdx = KuStrUtil::toString(ch);
-                ImGui::TableSetupColumn(("X" + chIdx).c_str());
-                ImGui::TableSetupColumn(("Y" + chIdx).c_str());
-                ImGui::TableSetupColumn(("Z" + chIdx).c_str());
+                headers.push_back(("X" + chIdx).c_str());
+                headers.push_back(("Y" + chIdx).c_str());
+                headers.push_back(("Z" + chIdx).c_str());
             }
         }
         else if (dataType == KuDataUtil::k_series) {
             for (int c = 0; c < cols; c++)
-                ImGui::TableSetupColumn(seriesName_(c).c_str());
+                headers.push_back(seriesName_(c).c_str());
         }
         else {
             for (int c = 1; c <= cols; c++)
-                ImGui::TableSetupColumn(KuStrUtil::toString(c).c_str());
+                headers.push_back(KuStrUtil::toString(c).c_str());
         }
+
+        return headers;
     }
 
 }
@@ -187,41 +192,57 @@ namespace ImGuiX
 
     void showDataTable(int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn)
     {
-        const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
+        auto headers = kPrivate::makeTableHeaders_(type, cols);
+        headers.insert(headers.begin(), "NO.");
+        auto fnShow = [&headers, &fn, cols](unsigned r, unsigned c) {
+            if (c == 0) { // show the row-index
+                ImGui::Text("%d", r + 1);
+            }
+            else {
+                ImGui::Text("%g", fn(r, c - 1));
+            }
+        };
+
+        showLargeTable(rows, cols + 1, fnShow, 1, 1, headers);
+    }
+
+
+    void showLargeTable(unsigned rows, unsigned cols, 
+        std::function<void(unsigned, unsigned)> fnShow, 
+        unsigned freezeCols, unsigned freeszRows,
+        const std::vector<std::string>& headers)
+    {
+        const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("ABC").x;
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
-        static ImGuiTableFlags flags =
+        const static ImGuiTableFlags flags =
             ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY |
             ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
             ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable;
-        static int freeze_cols = 1;
-        static int freeze_rows = 1;
 
-        if (cols >= 64)
-            cols = 63; // TODO: ImGui要求总列数不超过64，此处首列留给行序号
+        if (cols > 64)
+            cols = 64; // TODO: ImGui要求总列数不超过64
 
-        if (ImGui::BeginTable("RawData", cols + 1, flags)) {
+        if (ImGui::BeginTable("LargeTable", cols, flags)) {
 
-            ImGui::TableSetupScrollFreeze(freeze_cols, freeze_rows);
-            ImGui::TableSetupColumn("No.", ImGuiTableColumnFlags_NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
-            kPrivate::setupTableHeader_(type, cols);
-            ImGui::TableHeadersRow();
+            ImGui::TableSetupScrollFreeze(freezeCols, freeszRows);
 
-            for (int r = 0; r < rows; r++) {
+            if (!headers.empty()) {
+                for (unsigned c = 0; c < cols; c++)
+                    ImGui::TableSetupColumn(headers[c].c_str());
+                ImGui::TableHeadersRow();
+            }
 
-                ImGui::TableNextRow();
-                for (int c = 0; c <= cols; c++) {
-
-                    if (!ImGui::TableSetColumnIndex(c) && c > 0)
-                        continue;
-
-                    if (c == 0)
-                        ImGui::Text(KuStrUtil::toString(r + 1).c_str()); // 打印行号
-                    else {
-                        auto val = fn(r, c - 1);
-                        ImGui::Text(KuStrUtil::toString(val).c_str());
-                    }
+            ImGuiListClipper clipper;
+            clipper.Begin(rows);
+            while (clipper.Step()) {
+                for (int r = clipper.DisplayStart; r < clipper.DisplayEnd; r++) {
+                    ImGui::TableNextRow();
+                    for (int c = 0; c < cols; c++) 
+                        if (ImGui::TableSetColumnIndex(c))
+                            fnShow(r, c);
                 }
             }
+
             ImGui::EndTable();
         }
     }

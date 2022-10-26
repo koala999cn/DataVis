@@ -139,7 +139,7 @@
     <ClCompile Include="src\imapp\KcActionTextLoadAndClean.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
-    <ClCompile Include="src\imapp\KcImTextCleanWindow.cpp">
+    <ClCompile Include="src\imapp\KcImTextCleaner.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
     <ClCompile Include="src\imapp\KvImModalWindow.cpp">
@@ -486,7 +486,7 @@
     <ClInclude Include="src\imapp\KcActionTextLoadAndClean.h">
       <Filter>imapp</Filter>
     </ClInclude>
-    <ClInclude Include="src\imapp\KcImTextCleanWindow.h">
+    <ClInclude Include="src\imapp\KcImTextCleaner.h">
       <Filter>imapp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KvModule.h">

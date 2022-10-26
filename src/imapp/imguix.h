@@ -45,5 +45,10 @@ namespace ImGuiX
 	// @type: the type of data, see KuDataUtil::KeDataType for detail
 	void showDataTable(int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn);
 
+	// 显示巨型表格的通用函数
+	void showLargeTable(unsigned rows, unsigned cols, std::function<void(unsigned, unsigned)> fnShow, 
+		unsigned freezeCols = 1, unsigned freeszRows = 1, const std::vector<std::string>& headers = {});
+
+
 	bool prefixCheckbox(const char* label, bool* v);
 }

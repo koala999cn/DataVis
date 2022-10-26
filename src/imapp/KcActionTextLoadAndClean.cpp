@@ -1,5 +1,5 @@
 #include "KcActionTextLoadAndClean.h"
-#include "KcImTextCleanWindow.h"
+#include "KcImTextCleaner.h"
 #include <regex>
 #include <fstream>
 #include <assert.h>
@@ -28,7 +28,7 @@ bool KcActionTextLoadAndClean::trigger()
     }
     
     // 创建数据窗口
-    cleanWindow_ = std::make_unique<KcImTextCleanWindow>(filepath_, rawData_, cleanData_);
+    cleanWindow_ = std::make_unique<KcImTextCleaner>(filepath_, rawData_, cleanData_);
     if (cleanWindow_ == nullptr) {
         state_ = KeState::k_failed;
         return false;

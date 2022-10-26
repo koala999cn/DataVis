@@ -1,9 +1,9 @@
-#include "KcImTextCleanWindow.h"
+#include "KcImTextCleaner.h"
 #include "KuPathUtil.h"
 #include "imgui.h"
 #include "KuStrUtil.h"
 #include "KuMatrixUtil.h"
-
+#include "imguix.h"
 
 namespace kPrivate
 {
@@ -27,7 +27,7 @@ namespace kPrivate
 }
 
 
-KcImTextCleanWindow::KcImTextCleanWindow(const std::string& source, const matrix<std::string_view>& rawData, matrix<double>& cleanData)
+KcImTextCleaner::KcImTextCleaner(const std::string& source, const matrix<std::string_view>& rawData, matrix<double>& cleanData)
     : KvImModalWindow(KuPathUtil::fileName(source))
     , source_(source)
     , rawData_(rawData)
@@ -42,7 +42,7 @@ KcImTextCleanWindow::KcImTextCleanWindow(const std::string& source, const matrix
 }
 
 
-void KcImTextCleanWindow::updateImpl_()
+void KcImTextCleaner::updateImpl_()
 {
     assert(!rawData_.empty());
     assert(visible());
@@ -87,7 +87,7 @@ void KcImTextCleanWindow::updateImpl_()
     ImGui::BeginDisabled(parseFailed_);
     if (ImGui::Button("OK", ImVec2(99, 0))) {
         close();
-        //setVisible(false);
+        setVisible(false);
         clean_();
     }
     ImGui::SetItemDefaultFocus();
@@ -96,7 +96,7 @@ void KcImTextCleanWindow::updateImpl_()
     ImGui::SameLine();
     if (ImGui::Button("Cancel", ImVec2(99, 0))) {
         close();
-        //setVisible(false);
+        setVisible(false);
         cleanData_.clear();
     }
 
@@ -110,7 +110,7 @@ void KcImTextCleanWindow::updateImpl_()
 }
 
 
-void KcImTextCleanWindow::updateStats_()
+void KcImTextCleaner::updateStats_()
 {
     emptyLines_.clear();
     rows_ = rawData_.size();
@@ -121,6 +121,11 @@ void KcImTextCleanWindow::updateStats_()
     for (unsigned i = 0; i < rawData_.size(); i++) {
 
         int cols = rawData_[i].size();
+        if (cols < minCols_)
+            minCols_ = cols;
+        else if (cols > maxCols_)
+            maxCols_ = cols;
+
         for (unsigned j = 0; j < rawData_[i].size(); j++) {
             auto& tok = rawData_[i][j];
             if (tok.empty()) {
@@ -135,14 +140,10 @@ void KcImTextCleanWindow::updateStats_()
             }
         }
 
-        if (cols == 0) {
-            emptyLines_.insert(i);
-            rows_--; // 空行不计数
-        }
-        else if (cols < minCols_)
-            minCols_ = cols;
-        else if (cols > maxCols_)
-            maxCols_ = cols;
+        //if (cols == 0) {
+        //    emptyLines_.insert(i);
+        //    rows_--; // 空行不计数
+       // }
     }
 
     parseFailed_ = (minCols_ != maxCols_ && !forceAlign_) ||
@@ -150,7 +151,7 @@ void KcImTextCleanWindow::updateStats_()
 }
 
 
-bool KcImTextCleanWindow::skipIllegal_() const
+bool KcImTextCleaner::skipIllegal_() const
 {
     using namespace kPrivate;
     return illegalMode_ == k_illegal_ignore ||
@@ -158,7 +159,7 @@ bool KcImTextCleanWindow::skipIllegal_() const
 }
 
 
-void KcImTextCleanWindow::clean_()
+void KcImTextCleaner::clean_()
 {
     using namespace kPrivate;
 
@@ -202,13 +203,13 @@ void KcImTextCleanWindow::clean_()
 }
 
 
-double KcImTextCleanWindow::emptyValue_() const
+double KcImTextCleaner::emptyValue_() const
 {
     return emptyMode_ == kPrivate::k_empty_as_zero ? 0 : KtuMath<double>::nan;
 }
 
 
-double KcImTextCleanWindow::illegalValue_() const
+double KcImTextCleaner::illegalValue_() const
 {
     return illegalMode_ == kPrivate::k_illegal_as_zero ? 0
         : illegalMode_ == kPrivate::k_illegal_as_nan ?
@@ -216,58 +217,34 @@ double KcImTextCleanWindow::illegalValue_() const
 }
 
 
-void KcImTextCleanWindow::showTable_() const
+void KcImTextCleaner::showTable_() const
 {
-    const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
-    const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
-    static ImGuiTableFlags flags =
-        ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY |
-        ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
-        ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable /* |
-        ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable*/;
-    static int freeze_cols = 1;
-    static int freeze_rows = 1;
-
-    int cols = maxCols_;
-    if (cols >= 64)
-        cols = 63; // TODO: ImGui要求总列数不超过64，此处首列留给行序号
-
-    if (ImGui::BeginTable("RawData", cols + 1, flags)) {
-
-        ImGui::TableSetupScrollFreeze(freeze_cols, freeze_rows);
-        ImGui::TableSetupColumn("No.", ImGuiTableColumnFlags_NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
-        for (int c = 1; c <= cols; c++)
-            ImGui::TableSetupColumn(KuStrUtil::toString(c).c_str());
-        ImGui::TableHeadersRow();
-
-        for (int r = 0; r < rawData_.size(); r++) {
-            if (emptyLines_.find(r) != emptyLines_.end())
-                continue; // 跳过空行
-
-            ImGui::TableNextRow();
-            for (int c = 0; c <= cols; c++) {
-
-                if (!ImGui::TableSetColumnIndex(c) && c > 0)
-                    continue;
-
-                if (c == 0)
-                    ImGui::Text(KuStrUtil::toString(r + 1).c_str()); // 打印行号
-                else if (c <= rawData_[r].size()) {
-                    auto& tok = rawData_[r][c - 1];
-                    bool illegalToken = !KuStrUtil::isFloat(tok);
-                    if (illegalToken) // 突出显示非法子串
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
-
-                    // 打印内容
-                    ImGui::TextUnformatted(tok.data(), tok.data() + tok.size());
-
-                    if (illegalToken)
-                        ImGui::PopStyleColor();
-                }
-                else
-                    break; // next row
-            }
+    std::vector<std::string> headers(maxCols_ + 1);
+    if (headers.size() > 64)
+        headers.resize(64); // TODO:
+    headers[0] = "NO.";
+    for (unsigned i = 1; i < headers.size(); i++)
+        headers[i] = KuStrUtil::toString(i);
+        
+    auto fnShow = [&headers, this](unsigned r, unsigned c) {
+        if (c == 0) { // show the row-index
+            ImGui::Text("%d", r + 1);
         }
-        ImGui::EndTable();
-    }
+        else if (c <= rawData_[r].size()) {
+            auto& tok = rawData_[r][c - 1];
+            if (tok.empty())
+                ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "EMPTY");
+            else if (!KuStrUtil::isFloat(tok)) {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
+                ImGui::TextUnformatted(tok.data(), tok.data() + tok.size());
+                ImGui::PopStyleColor();
+            }
+            else
+                ImGui::TextUnformatted(tok.data(), tok.data() + tok.size());
+        }
+        else 
+            ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "---");
+    };
+    
+    ImGuiX::showLargeTable(rawData_.size(), maxCols_ + 1, fnShow, 1, 1, headers);
 }

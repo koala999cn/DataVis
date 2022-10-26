@@ -20,7 +20,7 @@ std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KvDataProvider* prov)
 	// 根据prov自动选择图类型
 	if (prov->isScattered())
 		return createPlts_<KcScatter>(prov);
-	else if(prov->isSeries())
+	else if(prov->isSeries() && prov->size() < 256)
 		return createPlts_<KcBars2d>(prov);
 	else // if (prov->isContinued() || prov->isSampled())
 		return createPlts_<KcGraph>(prov);
