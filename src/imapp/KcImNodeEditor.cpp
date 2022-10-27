@@ -181,6 +181,16 @@ void KcImNodeEditor::handleInput_()
 
     auto& pipe = KsImApp::singleton().pipeline();
 
+    // 管线start/stop的快捷键
+    if (ImGui::IsKeyReleased(ImGuiKey_Enter)) {
+        if (pipe.running())
+            pipe.stop();
+        else
+            pipe.start();
+    }
+
+
+    // 新建连接
     int fromId, toId;
     if (!pipe.running() && ImNodes::IsLinkCreated(&fromId, &toId))
         pipe.insertLink(fromId, toId);
@@ -209,6 +219,7 @@ void KcImNodeEditor::handleInput_()
         ImNodes::ClearNodeSelection();
     }
 
+    // 响应鼠标左键双击，调用选中node的onDoubleClicked接口方法
     if (numNodes == 1 && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
         int nodeId;
         ImNodes::GetSelectedNodes(&nodeId);
