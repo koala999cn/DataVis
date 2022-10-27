@@ -41,7 +41,7 @@ std::vector<int> KuDataUtil::validTypes(const matrixd& mat, bool colMajor)
         if (colMajor && evenCol || !colMajor && evenRow)
             types.insert(types.begin(), k_sampled_1d);
 
-        if (rows > 1 && evenRow && evenCol)
+        if (rows > 2 && cols > 2 && evenRow && evenCol)
             types.insert(types.begin(), k_sampled_2d);
     }
 

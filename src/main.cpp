@@ -11,6 +11,7 @@
 #include "imapp/KcModuleImFileDialog.h"
 #include "imapp/KgPipeline.h"
 #include "prov/KcPvAudioInput.h"
+#include "prov/KcPvExpr.h"
 #include "render/KcRdPlot1d.h"
 #include "render/KcRdPlot3d.h"
 #include "op/KcOpSpectrum.h"
@@ -35,6 +36,7 @@ int main_(int, char**)
     auto sheet = app.windowManager().registerStatic<KcImPropertySheet>("Property Sheet");
 
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
+    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExpr>>("Expression"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSpectrum>>("Spectrum"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));

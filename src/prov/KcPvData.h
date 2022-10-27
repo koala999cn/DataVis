@@ -25,6 +25,6 @@ public:
 
 	std::shared_ptr<KvData> fetchData(kIndex outPort) const final;
 
-private:
+protected:
 	std::shared_ptr<KvData> data_;
 };

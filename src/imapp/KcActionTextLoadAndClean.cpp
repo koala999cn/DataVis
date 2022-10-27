@@ -34,9 +34,6 @@ bool KcActionTextLoadAndClean::trigger()
         return false;
     }
 
-    if(cleanWindow_->visible())
-        cleanWindow_->open();
-
     state_ = KeState::k_triggered;
     return true;
 }

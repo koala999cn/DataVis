@@ -25,17 +25,19 @@ KvImModalWindow::~KvImModalWindow()
 
 void KvImModalWindow::update()
 {
-    assert(opened());
     assert(visible());
+
+    if (!opened())
+        open();
 
     // Always center this window when appearing
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-    if (ImGui::BeginPopupModal(name().c_str(), &visible_, flags())) {
+    if (ImGui::BeginPopupModal(label().c_str(), &visible_, flags())) {
         updateImpl_();
-        if (!visible())
-            close();
+        //if (!visible())
+        //   close();
         ImGui::EndPopup();
     }
 }
@@ -43,14 +45,14 @@ void KvImModalWindow::update()
 
 bool KvImModalWindow::opened() const
 {
-    return ImGui::IsPopupOpen(name().c_str());
+    return ImGui::IsPopupOpen(label().c_str());
 }
 
 
 void KvImModalWindow::open()
 {
     assert(!opened());
-    ImGui::OpenPopup(name().c_str());
+    ImGui::OpenPopup(label().c_str());
     assert(opened());
 }
 

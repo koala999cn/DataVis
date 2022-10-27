@@ -283,6 +283,15 @@
     <ClCompile Include="src\imapp\KgPipeline.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\prov\KcPvExpr.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KvContinued.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KcImExprEditor.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -658,6 +667,15 @@
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KgPipeline.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KcPvExpr.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KvContinued.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcImExprEditor.h">
       <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>

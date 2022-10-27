@@ -58,7 +58,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;exprtkXd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
   </ItemDefinitionGroup>
@@ -129,6 +129,7 @@
     <ClCompile Include="src\dsp\KmBins.cpp" />
     <ClCompile Include="src\dsp\KpExprtkHelper_.cpp" />
     <ClCompile Include="src\dsp\KuDataUtil.cpp" />
+    <ClCompile Include="src\dsp\KvContinued.cpp" />
     <ClCompile Include="src\dsp\KvDiscreted.cpp" />
     <ClCompile Include="src\imapp\imguix.cpp" />
     <ClCompile Include="src\imapp\KcActionInsertDataNode.cpp" />
@@ -137,6 +138,7 @@
     <ClCompile Include="src\imapp\KcActionShowFileDialog.cpp" />
     <ClCompile Include="src\imapp\KcImDataMaker.cpp" />
     <ClCompile Include="src\imapp\KcImDataView.cpp" />
+    <ClCompile Include="src\imapp\KcImExprEditor.cpp" />
     <ClCompile Include="src\imapp\KcImPaint.cpp" />
     <ClCompile Include="src\imapp\KcImPlot2d.cpp" />
     <ClCompile Include="src\imapp\KcImPlot3d.cpp" />
@@ -182,6 +184,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
+    <ClCompile Include="src\prov\KcPvExpr.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
     <ClCompile Include="src\render\KcRdPlot3d.cpp" />
@@ -242,6 +245,7 @@
     <ClInclude Include="src\dsp\KtScattered.h" />
     <ClInclude Include="src\dsp\KuDataUtil.h" />
     <ClInclude Include="src\dsp\KuMatrixUtil.h" />
+    <ClInclude Include="src\dsp\KvContinued.h" />
     <ClInclude Include="src\dsp\KvDiscreted.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\imapp\imguix.h" />
@@ -252,6 +256,7 @@
     <ClInclude Include="src\imapp\KcActionSequence.h" />
     <ClInclude Include="src\imapp\KcImDataMaker.h" />
     <ClInclude Include="src\imapp\KcImDataView.h" />
+    <ClInclude Include="src\imapp\KcImExprEditor.h" />
     <ClInclude Include="src\imapp\KcImPaint.h" />
     <ClInclude Include="src\imapp\KcImPlot2d.h" />
     <ClInclude Include="src\imapp\KcImPlot3d.h" />
@@ -304,6 +309,7 @@
     <ClInclude Include="src\provider.h" />
     <ClInclude Include="src\prov\KcPvAudioInput.h" />
     <ClInclude Include="src\prov\KcPvData.h" />
+    <ClInclude Include="src\prov\KcPvExpr.h" />
     <ClInclude Include="src\prov\KvDataProvider.h" />
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\dsp\KtContinuedExpr.h" />

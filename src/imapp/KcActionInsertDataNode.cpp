@@ -25,9 +25,6 @@ bool KcActionInsertDataNode::trigger()
         return false;
     }
 
-    if(dataMaker_->visible())
-        dataMaker_->open();
-
     state_ = KeState::k_triggered;
     return true;
 }
@@ -37,7 +34,7 @@ void KcActionInsertDataNode::update()
 {
     assert(dataMaker_ != nullptr);
 
-    if (dataMaker_->opened())
+    if (dataMaker_->visible())
         dataMaker_->update();
     else {
         assert(!dataMaker_->opened());
