@@ -1,6 +1,7 @@
 #include "KcBars2d.h"
 #include "KvPaint.h"
 #include "KvDiscreted.h"
+#include "KvContinued.h"
 
 
 void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, const color4f& majorColor) const
@@ -32,12 +33,18 @@ void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, co
 
 KcBars2d::float_t KcBars2d::barWidth_() const
 {
-	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
-	assert(disc->size() != 0);
+	if (data()->isDiscreted()) {
+		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
+		assert(disc->size() != 0);
 
-	return disc->step(0) != 0 ? 
-		disc->step(0) * barWidthRatio_ : 
-		disc->range(0).length() / disc->size() * barWidthRatio_;
+		return disc->step(0) != 0 ?
+			disc->step(0) * barWidthRatio_ :
+			disc->range(0).length() / disc->size() * barWidthRatio_;
+	}
+	else {
+		auto cont = std::dynamic_pointer_cast<KvContinued>(data());
+		return cont->range(0).length() / sampCount(0) * barWidthRatio_;
+	}
 }
 
 

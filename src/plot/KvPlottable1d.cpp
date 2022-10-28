@@ -8,8 +8,12 @@
 void KvPlottable1d::draw(KvPaint* paint) const
 {
 	auto d = data();
-	if (d == nullptr || d->size() == 0 || d->length(0) == 0)
+	if (d == nullptr || d->size() == 0)
 		return;
+
+	for (unsigned i = 0; i < d->dim(); i++)
+		if (d->length(i) == 0)
+			return;
 
 	if (d->isDiscreted()) {
 
@@ -43,9 +47,11 @@ void KvPlottable1d::draw(KvPaint* paint) const
 	}
 	else if (d->isContinued()) {
 
+		assert(d->dim() == 1);
+
 		auto cont = std::dynamic_pointer_cast<KvContinued>(d);
 		KtSampling<kReal> samp;
-		samp.resetn(1000, cont->range(0).low(), cont->range(0).high(), 0); // TODO: 暂时固定显示1000个点
+		samp.resetn(sampCount(0), cont->range(0).low(), cont->range(0).high(), 0);
 
 		unsigned ch(0);
 		auto defaultZ = defaultZ_;

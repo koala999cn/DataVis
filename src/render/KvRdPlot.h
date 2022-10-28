@@ -72,6 +72,8 @@ protected:
 
 	    void showPlottableTypeProperty_(unsigned idx);
 
+		void showPlottableSampCountProperty_(unsigned idx);
+
 	    virtual void showPlottableSpecificProperty_(unsigned idx) {};
 
 	////////////////////////////////////////////////////

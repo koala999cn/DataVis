@@ -370,6 +370,7 @@ void KvRdPlot::showPlottableProperty_()
 
 			if (show) {
 				showPlottableTypeProperty_(idx);
+				showPlottableSampCountProperty_(idx);
 				showPlottableSpecificProperty_(idx);
 				ImGui::TreePop();
 			}
@@ -410,6 +411,18 @@ void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 			}
 
 		ImGui::EndCombo();
+	}
+}
+
+
+void KvRdPlot::showPlottableSampCountProperty_(unsigned idx)
+{
+	auto data = plot_->plottableAt(idx)->data();
+	if (data->isContinued()) {
+		unsigned minCount(1), maxCount(std::pow(1024 * 1024, 1. / data->dim()));
+		ImGui::DragScalarN("Sampling Count", ImGuiDataType_U32,
+			&plot_->plottableAt(idx)->sampCount(0), data->dim(), 1,
+			&minCount, &maxCount);
 	}
 }
 

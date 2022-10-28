@@ -19,6 +19,9 @@ public:
 	void setData(data_ptr d) { 
 		data_ = d; 
 		majorColors_.resize(d->channels(), color4f{ 0, 0, 0, 1 });
+
+		if (d->isContinued() && d->dim() != sampCount_.size() ) 
+			sampCount_.assign(d->dim(), std::pow(1000., 1. / d->dim()));
 	}
 
 	bool empty() const {
@@ -52,6 +55,14 @@ public:
 	bool shareColor() const { return shareColor_; }
 	bool& shareColor() { return shareColor_; }
 
+	unsigned sampCount(unsigned dim) const {
+		return sampCount_[dim];
+	}
+
+	unsigned& sampCount(unsigned dim) {
+		return sampCount_[dim];
+	}
+
 private:
 
 	data_ptr data_;
@@ -59,4 +70,7 @@ private:
 
 	std::vector<color4f> majorColors_{ color4f(0, 0, 0, 1) };
 	color4f minorColor_;
+
+	// 各维度的采样点数目, 仅适用于连续数据
+	std::vector<unsigned> sampCount_{ std::vector<unsigned>({ 1000 }) }; 
 };
