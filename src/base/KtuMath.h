@@ -45,7 +45,7 @@ public:
     static void killDenormal(KREAL& x); 
 
     // 近似等于比较，一个绝对值版本，一个相对值版本
-    static bool almostEqual(KREAL x1, KREAL x2, KREAL tol = eps * 100);
+    static bool almostEqual(KREAL x1, KREAL x2, KREAL tol = 1e-7);
     static bool almostEqualRel(KREAL x1, KREAL x2, KREAL rel_tol = 0.001);
 
     static KREAL clampFloor(KREAL x, KREAL low) {
