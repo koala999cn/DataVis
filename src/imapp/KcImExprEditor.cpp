@@ -5,22 +5,35 @@
 
 KcImExprEditor::KcImExprEditor(std::string& expr)
     : expr_(expr)
-    , KvImModalWindow("ExpressionEditor")
+    , KvImModalWindow("Expression Editor")
 {
 
 }
 
 
+int KcImExprEditor::flags() const
+{
+    return ImGuiWindowFlags_NoSavedSettings;
+}
+
+
 void KcImExprEditor::updateImpl_()
 {
-    ImGui::InputText("Expression", &expr_);
+    ImGui::PushItemWidth(200);
+    ImGui::InputText("Formular", &expr_);
+    ImGui::PopItemWidth();
+    ImGui::Spacing();
     ImGui::Separator();
-    if (ImGui::Button("OK")) {
-        close();
+    ImGui::Spacing();
+
+    if (ImGui::Button("OK", ImVec2(99, 0))) {
+        setVisible(false);
+        close_();
     }
     ImGui::SameLine();
-    ImGui::Spacing();
-    if (ImGui::Button("Cancel"))
-        close();
+    if (ImGui::Button("Cancel", ImVec2(99, 0))) {
+        setVisible(false);
+        close_();
+    }
 }
 

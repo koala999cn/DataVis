@@ -7,7 +7,8 @@ KcImDataView::KcImDataView(std::shared_ptr<KvDataProvider> prov)
     : KvImWindow("DataView - " + prov->name())
     , prov_(prov)
 {
-
+    dynamic_ = true;
+    deleteOnClose_ = true;
 }
 
 

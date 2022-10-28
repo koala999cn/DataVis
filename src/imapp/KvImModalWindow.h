@@ -7,22 +7,22 @@ class KvImModalWindow : public KvImWindow
 {
 public:
 	KvImModalWindow(const std::string_view& name);
-	KvImModalWindow(std::string&& name);
 	virtual ~KvImModalWindow();
 
 	void update() override;
 
-	bool opened() const;
-
-	// 打开该模态popup，只有打开了popup的模态窗台才update
-	// 须由用户显示调用
-	void open();
 
 protected:
 
+	// 打开该模态popup，只有打开了popup的模态窗台才update
+	// 用户可显示调用，update方法也会在必要的时候调用该函数
+	void open_();
+
+	bool opened_() const;
+
 	// 关闭该模态popup
 	// 须在EndPopup之前调用，即由用户在updateImpl_实现中调用
-	void close();
+	void close_();
 };
 
 

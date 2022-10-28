@@ -29,7 +29,7 @@ void KvImWindow::toggleVisibility()
 
 int KvImWindow::flags() const
 {
-    return 0; //ImGuiWindowFlags_NoCollapse;
+    return 0; // TODO: deleteOnClose_ ? ImGuiWindowFlags_NoSavedSettings : 0;
 }
 
 

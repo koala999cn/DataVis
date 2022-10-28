@@ -14,7 +14,7 @@ KcImNodeEditor::KcImNodeEditor(const std::string_view& name)
 
 int KcImNodeEditor::flags() const
 {
-    return ImGuiWindowFlags_NoBringToFrontOnFocus; 
+    return KvImWindow::flags() | ImGuiWindowFlags_NoBringToFrontOnFocus;
     // TODO: 同时设置ImGuiWindowFlags_DockNodeHost，在窗口首次获得焦点时会出现断言失败
 }
 

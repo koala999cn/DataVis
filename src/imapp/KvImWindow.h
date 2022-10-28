@@ -17,13 +17,15 @@ public:
     void setVisible(bool b);
     void toggleVisibility();
 
-    //virtual const char* type() const { return "ImWindow"; } // 窗口类型的标识符，确保每类窗口返回值一致  
-    
     virtual int flags() const; // ImGuiWindowFlags
 
     virtual std::string label() const;
 
     virtual void update(); // 绘制窗口部件
+
+    bool deleteOnClose() const { return deleteOnClose_; }
+
+    bool dynamic() const { return dynamic_; }
 
 protected:
     virtual void updateImpl_() = 0;
@@ -33,5 +35,9 @@ protected:
 
     float minSize_[2]{ 120.0f, 120.0f };
     float maxSize_[2]{ 99999.0f, 99999.0f };
+
+    // 几个flag
+    bool deleteOnClose_{ false };
+    bool dynamic_{ false };
 };
 

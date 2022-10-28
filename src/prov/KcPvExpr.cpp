@@ -27,10 +27,10 @@ void KcPvExpr::showProperySet()
     auto sz = ImGui::GetItemRectSize();
     ImGui::Separator();
     if (ImGui::Button("E", ImVec2(sz.y, sz.y))) { // ±à¼­±í´ïÊ½×Ö·û´®
-        KsImApp::singleton().windowManager().registerDynamic<KcImExprEditor>(expr_);
+        KsImApp::singleton().windowManager().registerWindow<KcImExprEditor>(expr_);
     }
 
     ImGui::PushItemWidth(w - sz.y - ImGui::GetStyle().ItemSpacing.x);
     ImGui::SameLine();
-    ImGui::InputText("Expression", &expr_, ImGuiInputTextFlags_ReadOnly);
+    ImGui::InputText("Formular", &expr_, ImGuiInputTextFlags_ReadOnly);
 }

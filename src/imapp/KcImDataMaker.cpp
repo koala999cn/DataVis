@@ -49,7 +49,8 @@ void KcImDataMaker::updateImpl_()
 
 
     if (ImGui::Button("OK", ImVec2(99, 0))) {
-        close();
+        setVisible(false);
+        close_();
 
         // 生成数据
         odata_ = KuDataUtil::makeData(rowMajor_ ? idata_ : KuMatrixUtil::transpose(idata_), dataType_);
@@ -58,7 +59,8 @@ void KcImDataMaker::updateImpl_()
 
     ImGui::SameLine();
     if (ImGui::Button("Cancel", ImVec2(99, 0))) {
-        close();
+        setVisible(false);
+        close_();
         odata_ = nullptr; // 标记为取消状态
     }
 

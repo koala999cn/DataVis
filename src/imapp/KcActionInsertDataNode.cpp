@@ -37,7 +37,6 @@ void KcActionInsertDataNode::update()
     if (dataMaker_->visible())
         dataMaker_->update();
     else {
-        assert(!dataMaker_->opened());
         if (odata_) {
             state_ = KeState::k_done;
             auto node = std::make_shared<KcPvData>(KuPathUtil::fileName(filepath_), odata_);

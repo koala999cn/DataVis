@@ -46,7 +46,6 @@ void KcActionTextLoadAndClean::update()
     if (cleanWindow_->visible())
         cleanWindow_->update();
     else {
-        assert(!cleanWindow_->opened());
         state_ = cleanData_.empty() ? KeState::k_cancelled : KeState::k_done;  
         cleanWindow_ = nullptr;
     }

@@ -23,41 +23,29 @@ public:
 	KgImWindowManager();
 	~KgImWindowManager();
 
-	void registerStatic(window_ptr inst); 
 
+	void registerWindow(window_ptr inst); // 注册窗口到指定分组，分组名由参数group确定
+	
 	template<typename T, typename... ARGS>
-	std::shared_ptr<T> registerStatic(ARGS... args) {
+	std::shared_ptr<T> registerWindow(ARGS... args) {
 		auto w = std::make_shared<T>(std::forward<ARGS>(args)...);
-		registerStatic(w);
+		registerWindow(w);
 		return w;
 	}
 
-	window_ptr getStatic(const std::string_view& name);
+	window_ptr getWindow(const std::string_view& name);
 
-	template<typename T> std::shared_ptr<T> getStatic() {
-		for (auto& i : statics_)
+	template<typename T> std::shared_ptr<T> getWindow() {
+		for (auto& i : winlist_)
 			if (std::dynamic_pointer_cast<T>(i))
 				return std::dynamic_pointer_cast<T>(i);
 
 		return {};
 	}
 
-	void registerDynamic(window_ptr inst); // 注册窗口到指定分组，分组名由参数group确定
-	
-	template<typename T, typename... ARGS>
-	std::shared_ptr<T> registerDynamic(ARGS... args) {
-		auto w = std::make_shared<T>(std::forward<ARGS>(args)...);
-		registerDynamic(w);
-		return w;
-	}
-
-	//void releaseStatic(window_ptr inst);
-	//void releaseStatic(const std::string_view& label);
-	//void releaseStatic(int id);
-
-	void releaseDynamic(window_ptr inst);
-	void releaseDynamic(const std::string_view& label);
-	void releaseDynamic(int id);
+	void releaseWindow(window_ptr inst);
+	void releaseWindow(const std::string_view& label);
+	void releaseWindow(int id);
 
 	void showMenu(const std::string_view& menuName);
 
@@ -81,8 +69,7 @@ private:
 	bool showStackTool_{ false };
 	bool showAbout_{ false };
 
-	std::list<window_ptr> statics_;
-	std::list<window_ptr> dynamics_;
+	std::list<window_ptr> winlist_;
 	std::list<window_ptr> registerQueue_;
 	std::list<window_ptr> releaseQueue_;
 };

@@ -31,9 +31,9 @@ int main_(int, char**)
     if (!app.initialize())
         return 1;
 
-    auto editor = app.windowManager().registerStatic<KcImNodeEditor>("Node Editor");
-    auto panel = app.windowManager().registerStatic<KcImActionPanel>("Action Panel");
-    auto sheet = app.windowManager().registerStatic<KcImPropertySheet>("Property Sheet");
+    auto editor = app.windowManager().registerWindow<KcImNodeEditor>("Node Editor");
+    auto panel = app.windowManager().registerWindow<KcImActionPanel>("Action Panel");
+    auto sheet = app.windowManager().registerWindow<KcImPropertySheet>("Property Sheet");
 
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExpr>>("Expression"));

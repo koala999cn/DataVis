@@ -10,6 +10,7 @@ KcImPlot2d::KcImPlot2d(const std::string_view& name)
     , KvPlot2d(std::make_shared<KcImPaint>(camera_), std::make_shared<KcCoord3d>())
 {
     minSize_[0] = 180, minSize_[1] = 180;
+    dynamic_ = true;
 }
 
 

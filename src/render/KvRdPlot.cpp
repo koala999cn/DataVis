@@ -39,7 +39,7 @@ KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& 
 
 	auto imWindow = std::dynamic_pointer_cast<KvImWindow>(plot_);
 	if (imWindow)
-		KsImApp::singleton().windowManager().registerDynamic(imWindow);
+		KsImApp::singleton().windowManager().registerWindow(imWindow);
 }
 
 
@@ -47,7 +47,7 @@ KvRdPlot::~KvRdPlot()
 {
 	auto imWindow = std::dynamic_pointer_cast<KvImWindow>(plot_);
 	if (imWindow)
-		KsImApp::singleton().windowManager().releaseDynamic(imWindow);
+		KsImApp::singleton().windowManager().releaseWindow(imWindow);
 
 	plot_ = nullptr;
 }

@@ -16,78 +16,31 @@ KgImWindowManager::~KgImWindowManager()
 }
 
 
-void KgImWindowManager::registerStatic(window_ptr inst)
+void KgImWindowManager::registerWindow(window_ptr inst)
 {
-	assert(getStatic(inst->name()) == nullptr);
-	statics_.push_back(inst);
-}
-
-
-void KgImWindowManager::registerDynamic(window_ptr inst)
-{
+	assert(getWindow(inst->name()) == nullptr);
 	registerQueue_.push_back(inst);
 }
 
 
-KgImWindowManager::window_ptr KgImWindowManager::getStatic(const std::string_view& name)
+KgImWindowManager::window_ptr KgImWindowManager::getWindow(const std::string_view& name)
 {
-	for (auto& i : statics_)
+	for (auto& i : winlist_)
 		if (i->name() == name)
 			return i;
 
 	return {};
 }
 
-/*
-void KgImWindowManager::releaseStatic(window_ptr inst)
-{
-	auto iter = statics_.begin();
-	for (; iter != statics_.end(); iter++)
-		if (*iter == inst) {
-			statics_.erase(iter);
-			return true;
-		}
-
-	return false;
-}
-
-
-void KgImWindowManager::releaseStatic(const std::string_view& label)
-{
-	auto iter = statics_.begin();
-	for (; iter != statics_.end(); iter++)
-		if ((*iter)->label() == label) {
-			statics_.erase(iter);
-			return true;
-		}
-
-	return false;
-}
-
-
-void KgImWindowManager::releaseStatic(int id)
-{
-	auto iter = statics_.begin();
-	for (; iter != statics_.end(); iter++)
-		if ((*iter)->id() == id) {
-			statics_.erase(iter);
-			return true;
-		}
-
-	return false;
-}
-*/
-
-void KgImWindowManager::releaseDynamic(window_ptr inst)
+void KgImWindowManager::releaseWindow(window_ptr inst)
 {
 	releaseQueue_.push_back(inst);
 }
 
 
-void KgImWindowManager::releaseDynamic(const std::string_view& label)
+void KgImWindowManager::releaseWindow(const std::string_view& label)
 {
-	auto iter = dynamics_.begin();
-	for (; iter != dynamics_.end(); iter++)
+	for (auto iter = winlist_.begin(); iter != winlist_.end(); iter++)
 		if ((*iter)->label() == label) {
 			releaseQueue_.push_back(*iter);
 			break;
@@ -95,10 +48,9 @@ void KgImWindowManager::releaseDynamic(const std::string_view& label)
 }
 
 
-void KgImWindowManager::releaseDynamic(int id)
+void KgImWindowManager::releaseWindow(int id)
 {
-	auto iter = dynamics_.begin();
-	for (; iter != dynamics_.end(); iter++)
+	for (auto iter = winlist_.begin(); iter != winlist_.end(); iter++)
 		if ((*iter)->id() == id) {
 			releaseQueue_.push_back(*iter);
 			break;
@@ -126,10 +78,12 @@ void KgImWindowManager::showMenu(const std::string_view& menuName)
 		ImGui::Separator();
 
 		// 主视图
-		for (auto& w : statics_) {
-			bool selected = w->visible();
-			if (ImGui::MenuItem(w->name().data(), "", &selected))
-				w->setVisible(selected);
+		for (auto& w : winlist_) {
+			if (!w->dynamic()) { // 只显示非dynamic窗口
+				bool selected = w->visible();
+				if (ImGui::MenuItem(w->name().data(), "", &selected))
+					w->setVisible(selected);
+			}
 		}
 
 		ImGui::Separator();
@@ -146,20 +100,22 @@ void KgImWindowManager::showMenu(const std::string_view& menuName)
 
         ImGui::Separator();
 
-		if (!dynamics_.empty()) {
+		//if (!dynamics_.empty()) {
 
 			// 动态窗口
 			if (ImGui::BeginMenu("Windows")) {
-				for (auto& w : dynamics_) {
-					bool selected = w->visible();
-					if (ImGui::MenuItem(w->name().data(), "", &selected))
-						w->setVisible(selected);
+				for (auto& w : winlist_) {
+					if (w->dynamic()) {
+						bool selected = w->visible();
+						if (ImGui::MenuItem(w->name().data(), "", &selected))
+							w->setVisible(selected);
+					}
 				}
 				ImGui::EndMenu();
 			}
 
 			ImGui::Separator();
-		}
+		//}
 
         if (ImGui::MenuItem("Close All"))
             closeAll();
@@ -176,23 +132,22 @@ void KgImWindowManager::showMenu(const std::string_view& menuName)
 void KgImWindowManager::update()
 {
 	for(auto i = registerQueue_.begin(); i != registerQueue_.end(); i++)
-		dynamics_.push_back(*i);
+		winlist_.push_back(*i);
 	registerQueue_.clear();
 
 	for (auto i = releaseQueue_.begin(); i != releaseQueue_.end(); i++) {
-		auto pos = std::find(dynamics_.begin(), dynamics_.end(), *i);
-		if (pos != dynamics_.end())
-			dynamics_.erase(pos);
+		auto pos = std::find(winlist_.begin(), winlist_.end(), *i);
+		if (pos != winlist_.end())
+			winlist_.erase(pos);
 	}
 	releaseQueue_.clear();
 
-	for (auto& w : dynamics_)
+	for (auto& w : winlist_)
 		if (w->visible())
 			w->update();
+		else if (w->deleteOnClose())
+			releaseQueue_.push_back(w);
 
-	for (auto& w : statics_)
-		if(w->visible())
-			w->update();
 
 	if (showDemo_)
 		ImGui::ShowDemoWindow(&showDemo_);
@@ -209,12 +164,9 @@ void KgImWindowManager::update()
 
 void KgImWindowManager::setVisibleAll_(bool b)
 {
-	for (auto& w : statics_)
+	for (auto& w : winlist_)
 		w->setVisible(b);
 
-	for (auto& w : dynamics_)
-		w->setVisible(b);
-	if (!b) dynamics_.clear();
 
 	// 仅当关闭窗口的时候，作用到imgui内置窗口
 	if (!b) {
@@ -243,6 +195,5 @@ void KgImWindowManager::releaseAll()
 {
 	registerQueue_.clear();
 	releaseQueue_.clear();
-	dynamics_.clear();
-	statics_.clear();
+	winlist_.clear();
 }

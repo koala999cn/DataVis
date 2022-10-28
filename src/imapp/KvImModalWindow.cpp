@@ -6,20 +6,13 @@
 KvImModalWindow::KvImModalWindow(const std::string_view& _name)
     : KvImWindow(_name)
 {
-
-}
-
-
-KvImModalWindow::KvImModalWindow(std::string&& _name)
-    : KvImWindow(std::move(_name))
-{
-
+    deleteOnClose_ = true;
 }
 
 
 KvImModalWindow::~KvImModalWindow()
 {
-    assert(!opened());
+    assert(!opened_());
 }
 
 
@@ -27,8 +20,8 @@ void KvImModalWindow::update()
 {
     assert(visible());
 
-    if (!opened())
-        open();
+    if (!opened_())
+        open_();
 
     // Always center this window when appearing
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -36,31 +29,33 @@ void KvImModalWindow::update()
 
     if (ImGui::BeginPopupModal(label().c_str(), &visible_, flags())) {
         updateImpl_();
-        //if (!visible())
-        //   close();
+
+        if (!visible_)
+            close_();
+
         ImGui::EndPopup();
     }
 }
 
 
-bool KvImModalWindow::opened() const
+bool KvImModalWindow::opened_() const
 {
     return ImGui::IsPopupOpen(label().c_str());
 }
 
 
-void KvImModalWindow::open()
+void KvImModalWindow::open_()
 {
-    assert(!opened());
+    assert(!opened_());
     ImGui::OpenPopup(label().c_str());
-    assert(opened());
+    assert(opened_());
 }
 
 
-void KvImModalWindow::close()
+void KvImModalWindow::close_()
 {
     // 该断言不成立，因为当前环境为调用了BeginPopupModal之后，此时popup-stack有变化
-    //assert(opened()); 
+    //assert(opened_()); 
 
     ImGui::CloseCurrentPopup();
 }

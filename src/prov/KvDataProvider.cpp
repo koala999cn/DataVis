@@ -11,7 +11,7 @@
 KvDataProvider::~KvDataProvider()
 {
 	if (win_)
-		KsImApp::singleton().windowManager().releaseDynamic(win_);
+		KsImApp::singleton().windowManager().releaseWindow(win_);
 
 	win_ = nullptr;
 }
@@ -104,6 +104,6 @@ void KvDataProvider::onDoubleClicked()
 		// TODO: a easy way to get the shared_ptr of THIS
 		auto node = KsImApp::singleton().pipeline().getNode(id());
 		auto prov = std::dynamic_pointer_cast<KvDataProvider>(node);
-		win_ = KsImApp::singleton().windowManager().registerDynamic<KcImDataView>(prov);
+		win_ = KsImApp::singleton().windowManager().registerWindow<KcImDataView>(prov);
 	}
 }

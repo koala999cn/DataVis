@@ -20,7 +20,7 @@ void KcImActionPanel::addAction(const std::string_view& groupName, action_ptr ac
 
 int KcImActionPanel::flags() const
 {
-	return ImGuiWindowFlags_NoBringToFrontOnFocus;
+	return KvImWindow::flags() | ImGuiWindowFlags_NoBringToFrontOnFocus;
 }
 
 
