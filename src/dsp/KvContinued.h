@@ -19,6 +19,7 @@ public:
 	// @pt: 大小为dim，各元素分表表示对应坐标轴的坐标值
 	virtual kReal value(kReal pt[], kIndex channel) const = 0;
 
+	virtual void setRange(kIndex axis, kReal low, kReal high) = 0;
 
 	/// 几个helper函数
 

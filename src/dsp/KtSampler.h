@@ -15,7 +15,7 @@ public:
 	KtSampler(std::shared_ptr<KvContinued> cont)
 		: internal_(cont) {
 		for (kIndex i = 0; i < cont->dim(); i++)
-			super_::samp_[i].resetn(100, cont->range(i).low(), cont->range(i).high(), 0.5);
+			super_::samp_[i].resetn(100, cont->range(i).low(), cont->range(i).high(), 0);
 	}
 
 
@@ -29,6 +29,13 @@ public:
 			pt[i] = super_::indexToValue(i, idx[i]);
 
 		return internal_->value(pt, channel);
+	}
+
+	void resize(kIndex shape[], kIndex channels = 0) final {
+		for (kIndex i = 0; i < DIM; i++) {
+			auto& samp = super_::samp_[i];
+			samp.resetn(shape[i], samp.low(), samp.high(), samp.x0ref());
+		}
 	}
 
 	void reset(kIndex axis, kIndex nx, kReal xmin, kReal xmax, kReal x0_rel_offset = 0) {

@@ -19,8 +19,8 @@ kRange KvContinued::valueRange(kIndex channel) const
 
 	kReal omin = std::numeric_limits<kReal>::max();
 	kReal omax = std::numeric_limits<kReal>::lowest();
-	kReal tol(0.001); // 百分之一的误差
-	int maxIter(16), numIter(0);
+	kReal tol(0.001); // 千分之一的误差
+	int maxIter(6), numIter(0);
 
 	while (true) {
 		auto r = samp->valueRange(channel);
@@ -30,10 +30,12 @@ kRange KvContinued::valueRange(kIndex channel) const
 			numIter > maxIter)
 			return r;
 
-
-		omin = r.low(), omax = r.high();
-		for (kIndex i = 0; i < samp->dim(); i++)
-			samp->reset(i, samp->range(i).low(), samp->step(i), 0.5);
+		if (r.low() < omin) omin = r.low();
+		if (r.high() > omax) omax = r.high();
+		for (kIndex i = 0; i < samp->dim(); i++) {
+			kIndex shape = samp->size() * 2;
+			samp->resize(&shape);
+		}
 		++numIter;
 	}
 

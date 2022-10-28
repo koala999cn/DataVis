@@ -49,7 +49,7 @@ public:
 	}
 
 
-	void setRange(kIndex axis, kReal low, kReal high) {
+	void setRange(kIndex axis, kReal low, kReal high) override {
 		range_[axis] = { low, high };
 	}
 
