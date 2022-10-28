@@ -91,7 +91,7 @@ void KvDataProvider::showProperySet()
 
 	// value range
 	ImGui::LabelText("Value Range", "%g - %g", 
-		range(outPort, (outPort)).low(), range(outPort, dim(outPort)).high());
+		range(outPort, dim(outPort)).low(), range(outPort, dim(outPort)).high());
 }
 
 

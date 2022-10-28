@@ -7,6 +7,8 @@ class KvData;
 
 class KcPvData : public KvDataProvider
 {
+	using super_ = KvDataProvider;
+
 public:
 
 	KcPvData(const std::string_view& name, std::shared_ptr<KvData> data);
@@ -24,6 +26,8 @@ public:
 	kIndex size(kIndex outPort, kIndex axis) const final;
 
 	std::shared_ptr<KvData> fetchData(kIndex outPort) const final;
+
+	void showProperySet() override;
 
 protected:
 	std::shared_ptr<KvData> data_;

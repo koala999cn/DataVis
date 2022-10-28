@@ -20,12 +20,17 @@ void KvImModalWindow::update()
 {
     assert(visible());
 
-    if (!opened_())
-        openPopup_();
-
     // Always center this window when appearing
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+    ImGui::SetNextWindowSizeConstraints(
+        ImVec2{ minSize_[0], minSize_[1] },
+        ImVec2{ maxSize_[0], maxSize_[1] }
+    );
+
+    if (!opened_())
+        openPopup_();
 
     if (ImGui::BeginPopupModal(label().c_str(), &visible_, flags())) {
         updateImpl_();
@@ -63,4 +68,10 @@ void KvImModalWindow::onClose(bool clicked)
 {
     if (!clicked)
         closePopup_();
+}
+
+
+std::string KvImModalWindow::label() const
+{
+    return name();
 }

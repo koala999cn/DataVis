@@ -1,5 +1,7 @@
 ﻿#include "KcPvData.h"
 #include "KvDiscreted.h"
+#include "KvContinued.h"
+#include "imgui.h"
 
 
 KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
@@ -48,10 +50,26 @@ std::shared_ptr<KvData> KcPvData::fetchData(kIndex outPort) const
 }
 
 
-namespace kPrivate
+void KcPvData::showProperySet()
 {
-	enum KeDataProperty
-	{
-		k_range
-	};
+	super_::showProperySet();
+	
+	if (data_->isContinued()) {
+		auto cont = std::dynamic_pointer_cast<KvContinued>(data_);
+
+		ImGui::Separator();
+
+		if (ImGui::TreeNodeEx("Range", ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_DefaultOpen)) {
+			char label[] = { 'x', '\0'};
+			for (unsigned i = 0; i < data_->dim(); i++) {
+				auto r = data_->range(i);
+				float low = r.low(), high = r.high();
+				if (ImGui::DragFloatRange2(label, &low, &high))
+					cont->setRange(i, low, high);
+				label[0] += 1;
+			}
+
+			ImGui::TreePop();
+		}
+	}
 }

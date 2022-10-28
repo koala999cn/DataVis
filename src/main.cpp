@@ -36,7 +36,7 @@ int main_(int, char**)
     auto sheet = app.windowManager().registerWindow<KcImPropertySheet>("Property Sheet");
 
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
-    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExpr>>("Expression"));
+    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExpr>>("Math Expression"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSpectrum>>("Spectrum"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));

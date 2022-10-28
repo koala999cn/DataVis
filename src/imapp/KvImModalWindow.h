@@ -13,6 +13,8 @@ public:
 
 	void onClose(bool clicked) override;
 
+	std::string label() const override;
+
 private:
 
 	// 打开该模态popup，只有打开了popup的模态窗台才update

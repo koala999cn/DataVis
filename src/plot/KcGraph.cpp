@@ -8,12 +8,13 @@ void KcGraph::drawImpl_(KvPaint* paint, point_getter getter, const color4f& majo
 	cxt.color = majorColor;
 	paint->apply(cxt);
 
-	if (data()->size() > 4096) { // TODO：使用降采样算法
-		unsigned stride = data()->size() / 4096 + 1;
+	auto count = data()->isContinued() ? 300 : data()->size();
+	if (count > 4096) { // TODO：使用降采样算法
+		unsigned stride = count / 4096 + 1;
 		paint->drawLineStrip([&getter, stride](unsigned idx) {
-			return getter(stride * idx); }, data()->size() / stride);
+			return getter(stride * idx); }, count / stride);
 	}
 	else {
-		paint->drawLineStrip(getter, data()->size());
+		paint->drawLineStrip(getter, count);
 	}
 }
