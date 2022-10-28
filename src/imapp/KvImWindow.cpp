@@ -46,8 +46,13 @@ void KvImWindow::update()
         ImVec2{ maxSize_[0], maxSize_[1] }
     );
 
-    if (ImGui::Begin(label().c_str(), &visible_, flags()))
-        updateImpl_();
+    if (ImGui::Begin(label().c_str(), &visible_, flags())) {
+
+        if (!visible_) // 用户点击了标题栏的关闭按钮
+            onClose(true);
+        else 
+            updateImpl_();
+    }
 
     ImGui::End();
 }

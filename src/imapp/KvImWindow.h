@@ -17,6 +17,14 @@ public:
     void setVisible(bool b);
     void toggleVisibility();
 
+    void close() {
+        setVisible(false);
+        onClose(false);
+    }
+
+    // @clicked: 若为true，则表示该事件由用户点击关闭按钮触发
+    virtual void onClose(bool clicked) {}
+
     virtual int flags() const; // ImGuiWindowFlags
 
     virtual std::string label() const;

@@ -21,7 +21,7 @@ void KvImModalWindow::update()
     assert(visible());
 
     if (!opened_())
-        open_();
+        openPopup_();
 
     // Always center this window when appearing
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -29,11 +29,10 @@ void KvImModalWindow::update()
 
     if (ImGui::BeginPopupModal(label().c_str(), &visible_, flags())) {
         updateImpl_();
-
-        if (!visible_)
-            close_();
-
         ImGui::EndPopup();
+    }
+    else if (!visible_) {
+        onClose(true);
     }
 }
 
@@ -44,7 +43,7 @@ bool KvImModalWindow::opened_() const
 }
 
 
-void KvImModalWindow::open_()
+void KvImModalWindow::openPopup_()
 {
     assert(!opened_());
     ImGui::OpenPopup(label().c_str());
@@ -52,10 +51,16 @@ void KvImModalWindow::open_()
 }
 
 
-void KvImModalWindow::close_()
+void KvImModalWindow::closePopup_()
 {
     // 该断言不成立，因为当前环境为调用了BeginPopupModal之后，此时popup-stack有变化
-    //assert(opened_()); 
+    //if(opened_())
+        ImGui::CloseCurrentPopup();
+}
 
-    ImGui::CloseCurrentPopup();
+
+void KvImModalWindow::onClose(bool clicked)
+{
+    if (!clicked)
+        closePopup_();
 }

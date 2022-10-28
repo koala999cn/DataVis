@@ -11,18 +11,19 @@ public:
 
 	void update() override;
 
+	void onClose(bool clicked) override;
 
-protected:
+private:
 
 	// 打开该模态popup，只有打开了popup的模态窗台才update
 	// 用户可显示调用，update方法也会在必要的时候调用该函数
-	void open_();
+	void openPopup_();
 
 	bool opened_() const;
 
 	// 关闭该模态popup
 	// 须在EndPopup之前调用，即由用户在updateImpl_实现中调用
-	void close_();
+	void closePopup_();
 };
 
 

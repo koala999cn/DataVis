@@ -86,8 +86,7 @@ void KcImTextCleaner::updateImpl_()
 
     ImGui::BeginDisabled(parseFailed_);
     if (ImGui::Button("OK", ImVec2(99, 0))) {
-        setVisible(false);
-        close_();
+        close();
         clean_();
     }
     ImGui::SetItemDefaultFocus();
@@ -95,8 +94,7 @@ void KcImTextCleaner::updateImpl_()
 
     ImGui::SameLine();
     if (ImGui::Button("Cancel", ImVec2(99, 0))) {
-        setVisible(false);
-        close_();
+        close();
         cleanData_.clear();
     }
 

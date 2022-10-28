@@ -10,5 +10,5 @@ public:
 	void showProperySet() override;
 
 private:
-	std::string expr_;
+	std::string exprText_;
 };
