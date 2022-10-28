@@ -23,7 +23,7 @@ public:
 
 protected:
 
-	void drawImpl_(KvPaint*, point_getter, const color4f&) const override;
+	void drawImpl_(KvPaint*, point_getter, unsigned, const color4f&) const override;
 
 	// 计算单个bar的宽度（世界坐标）
 	float_t barWidth_() const;

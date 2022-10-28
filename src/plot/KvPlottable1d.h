@@ -17,7 +17,9 @@ public:
 protected:
 
 	using point_getter = typename KvPaint::point_getter;
-	virtual void drawImpl_(KvPaint*, point_getter, const color4f&) const = 0;
+
+	// 为了兼容连续数据，此处增加unsigned参数，表示数据count
+	virtual void drawImpl_(KvPaint*, point_getter, unsigned, const color4f&) const = 0;
 
 private:
 

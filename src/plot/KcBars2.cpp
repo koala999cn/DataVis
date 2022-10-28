@@ -3,13 +3,13 @@
 #include "KvDiscreted.h"
 
 
-void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, const color4f& majorColor) const
+void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, const color4f& majorColor) const
 {
 	auto barWidth = barWidth_();
 	bool drawFill = fill_.style != KpBrush::k_none && majorColor.a() != 0;
 	bool drawBorder = border_.style != KpPen::k_none && minorColor().a() != 0 && minorColor() != majorColor;
 
-	for (unsigned i = 0; i < data()->size(); i++) {
+	for (unsigned i = 0; i < count; i++) {
 		auto pt0 = getter(i);
 		pt0.x() -= barWidth * 0.5;
 		point3 pt1(pt0.x() + barWidth, 0, pt0.z());

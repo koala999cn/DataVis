@@ -13,7 +13,7 @@ public:
 
 	using super_::super_;
 
-	void drawImpl_(KvPaint*, point_getter, const color4f&) const override;
+	void drawImpl_(KvPaint*, point_getter, unsigned, const color4f&) const override;
 
 private:
 	KpPen lineCxt_;

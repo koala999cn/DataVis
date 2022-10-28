@@ -23,7 +23,7 @@ void KvPlottable1d::draw(KvPaint* paint) const
 			};
 
 			for (; ch < disc->channels(); ch++) {
-				drawImpl_(paint, getter, majorColor(shareColor() ? 0 : ch));
+				drawImpl_(paint, getter, disc->size(), majorColor(shareColor() ? 0 : ch));
 			}
 		}
 		else {
@@ -36,7 +36,7 @@ void KvPlottable1d::draw(KvPaint* paint) const
 			};
 
 			for (; ch < disc->channels(); ch++) {
-				drawImpl_(paint, getter, majorColor(shareColor() ? 0 : ch));
+				drawImpl_(paint, getter, disc->size(), majorColor(shareColor() ? 0 : ch));
 				defaultZ += stepZ_;
 			}
 		}
@@ -44,7 +44,7 @@ void KvPlottable1d::draw(KvPaint* paint) const
 	else if (d->isContinued()) {
 		auto cont = std::dynamic_pointer_cast<KvContinued>(d);
 		KtSampling<kReal> samp;
-		samp.resetn(300, cont->range(0).low(), cont->range(0).high(), 0.5); // TODO: 暂时固定显示1000个点
+		samp.resetn(3000, cont->range(0).low(), cont->range(0).high(), 0); // TODO: 暂时固定显示3000个点
 
 		unsigned ch(0);
 		auto defaultZ = defaultZ_;
@@ -55,7 +55,7 @@ void KvPlottable1d::draw(KvPaint* paint) const
 		};
 
 		for (; ch < cont->channels(); ch++) {
-			drawImpl_(paint, getter, majorColor(shareColor() ? 0 : ch));
+			drawImpl_(paint, getter, samp.size(), majorColor(shareColor() ? 0 : ch));
 			defaultZ += stepZ_;
 		}
 	}

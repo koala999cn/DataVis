@@ -14,7 +14,7 @@ public:
 
 	using super_::super_;
 
-	void drawImpl_(KvPaint*, point_getter, const color4f&) const override;
+	void drawImpl_(KvPaint*, point_getter, unsigned, const color4f&) const override;
 
 protected:
 	KpPen scatPen_;

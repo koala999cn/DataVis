@@ -8,12 +8,9 @@ template<typename FUN, unsigned DIM>
 class KtContinued : public KvContinued
 {
 public:
-	static inline const auto k_unknown_range = kRange{ 0, 0 };
-
 	KtContinued(FUN fun, kReal low, kReal high) // 单通道
 		: fun_{ fun } {
 		range_.fill(kRange{ low, high });
-		range_[DIM] = k_unknown_range;
 	} 
 
 	KtContinued(FUN fun) 
@@ -30,10 +27,22 @@ public:
 	kRange range(kIndex axis) const override {
 		assert(axis <= DIM);
 
-		if (axis < DIM)
-			return range_[axis];
-		
-		return range_[axis] == k_unknown_range ? valueRange() : range_[axis];
+		if (axis == DIM) {
+			if (valueRangeStatus_ == k_unknown) {
+				range_[axis] = valueRange();
+				valueRangeStatus_ = k_esimated;
+			}
+			else if (valueRangeStatus_ == k_expired) {
+				auto r = valueRange();
+				if (r.low() < range_[axis].low())
+					range_[axis].resetLow(r.low());
+				if (r.high() > range_[axis].high())
+					range_[axis].resetHigh(r.high());
+				valueRangeStatus_ = k_esimated;
+			}
+		}
+
+		return range_[axis];
 	}
 
 
@@ -51,9 +60,23 @@ public:
 
 	void setRange(kIndex axis, kReal low, kReal high) override {
 		range_[axis] = { low, high };
+		if (axis == DIM)
+			valueRangeStatus_ = k_specified;
+		else if (valueRangeStatus_ == k_esimated)
+			valueRangeStatus_ = k_expired;
 	}
 
 private:
 	std::vector<FUN> fun_; // size等于通道数
-	std::array<kRange, DIM + 1> range_; // range_[DIM]表示valueRange. NAN表示未设置
+	mutable std::array<kRange, DIM + 1> range_; // range_[DIM]表示valueRange.
+
+	enum KeValueRangeStatus
+	{
+		k_unknown, // 未设置，初始状态
+		k_specified, // 已指定，由用户调用setRange设置
+		k_esimated, // 估算值，由内部调用基类的valueRange估计
+		k_expired // 过期（用户重新设定了区域范围），需要重新估算
+	};
+
+	mutable int valueRangeStatus_{ k_unknown };
 };
