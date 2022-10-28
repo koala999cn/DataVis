@@ -6,6 +6,9 @@
 kRange KvContinued::valueRange(kIndex channel) const 
 {
 	if (size() == 0 || dim() > 3) return { 0, 0 };
+	for (kIndex i = 0; i < dim(); i++)
+		if (length(i) == 0)
+			return { 0, 0 };
 
 	KvSampled* samp = nullptr;
 	std::shared_ptr<KvContinued> cond;
