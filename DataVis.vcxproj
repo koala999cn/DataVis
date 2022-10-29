@@ -165,7 +165,7 @@
     <ClCompile Include="src\plot\KcCoord3d.cpp" />
     <ClCompile Include="src\plot\KcGraph.cpp" />
     <ClCompile Include="src\plot\KcCoordPlane.cpp" />
-    <ClCompile Include="src\plot\KcLinearTicker.cpp" />
+    <ClCompile Include="src\plot\KcLinearScaler.cpp" />
     <ClCompile Include="src\plot\KcScatter.cpp" />
     <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp" />
     <ClCompile Include="src\plot\KsThemeManager.cpp" />
@@ -179,7 +179,7 @@
     <ClCompile Include="src\plot\KvPlottable.cpp" />
     <ClCompile Include="src\plot\KvPlottable1d.cpp" />
     <ClCompile Include="src\plot\KvThemedPlot.cpp" />
-    <ClCompile Include="src\plot\KvTicker.cpp" />
+    <ClCompile Include="src\plot\KvScaler.cpp" />
     <ClCompile Include="src\dsp\KcSampled1d.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
@@ -282,7 +282,7 @@
     <ClInclude Include="src\plot\KcBars2d.h" />
     <ClInclude Include="src\plot\KcCoord2d.h" />
     <ClInclude Include="src\plot\KcCoordPlane.h" />
-    <ClInclude Include="src\plot\KcLinearTicker.h" />
+    <ClInclude Include="src\plot\KcLinearScaler.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
@@ -300,7 +300,7 @@
     <ClInclude Include="src\plot\KvPlottable1d.h" />
     <ClInclude Include="src\plot\KcScatter.h" />
     <ClInclude Include="src\plot\KvThemedPlot.h" />
-    <ClInclude Include="src\plot\KvTicker.h" />
+    <ClInclude Include="src\plot\KvScaler.h" />
     <ClInclude Include="src\plot\KcCoord3d.h" />
     <ClInclude Include="src\plot\KvPlot3d.h" />
     <ClInclude Include="src\plot\KvPlottable.h" />

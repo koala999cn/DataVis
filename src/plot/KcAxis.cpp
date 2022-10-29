@@ -1,6 +1,6 @@
 #include "KcAxis.h"
 #include <assert.h>
-#include "KcLinearTicker.h"
+#include "KcLinearScaler.h"
 #include "KvPaint.h"
 #include "KtuMath.h"
 #include "KtLine.h"
@@ -22,18 +22,18 @@ KcAxis::KcAxis(KeAxisType type)
 
 	//labelFont_, titleFont_; // TODO:
 
-	ticker_ = std::make_shared<KcLinearTicker>();
+	scaler_ = std::make_shared<KcLinearScaler>();
 }
 
-std::shared_ptr<KvTicker> KcAxis::ticker() const
+std::shared_ptr<KvScaler> KcAxis::scaler() const
 {
-	return ticker_;
+	return scaler_;
 }
 
 
-void KcAxis::setTicker(std::shared_ptr<KvTicker> tic)
+void KcAxis::setScaler(std::shared_ptr<KvScaler> scale)
 {
-	ticker_ = tic;
+	scaler_ = scale;
 }
 
 
@@ -63,15 +63,12 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 {
 	assert(showTick() || showLabel());
 
-	auto tic = ticker();
-	auto ticLower = lower();
-	auto ticUpper = upper();
-	tic->autoRange(ticLower, ticUpper);
+	if (length() == 0)
+		return; // TODO: draw or not draw ? draw what ??
 
-	// major
-	auto ticks = tic->getTicks(ticLower, ticUpper);
-	if (ticks.empty())
-		return;
+	auto scale = scaler();
+	scale->generate(lower(), upper(), showSubtick(), showLabel());
+	auto& ticks = scale->ticks();
 
 	assert(KtuMath<float_t>::almostEqual(tickOrient().length(), 1));
 	auto pt0 = paint->project(point3(0));
@@ -104,25 +101,25 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 	}
 
 	if (showLabel()) {
+
 		// TODO: paint->setFont();
 		paint->setColor(labelColor());
+		auto& labels = scale->labels();
 		for (unsigned i = 0; i < ticks.size(); i++) {
-			auto label = i < labels_.size() ? labels_[i] : tic->label(ticks[i]);
+			auto label = i < labels_.size() ? labels_[i] : labels[i];
 			paint->drawText(labelAchors[i], label.c_str(), labelAlignment_());
 		}
 	}
 
 	// minor
-	if (showSubtick()) {
-		auto subticks = tic->getSubticks(ticks);
-		if (!subticks.empty()) {
+	auto& subticks = scale->subticks();
+	if (showSubtick() && !subticks.empty()) {
+		
+		paint->apply(subtickCxt_);
+		double subtickLen = subtickCxt_.length * tickLenPerPixel;
 
-			paint->apply(subtickCxt_);
-			double subtickLen = subtickCxt_.length * tickLenPerPixel;
-
-			for (unsigned i = 0; i < subticks.size(); i++) 
-				drawTick_(paint, tickPos(subticks[i]), subtickLen);
-		}
+		for (unsigned i = 0; i < subticks.size(); i++) 
+			drawTick_(paint, tickPos(subticks[i]), subtickLen);
 	}
 }
 
@@ -163,26 +160,23 @@ KcAxis::point3 KcAxis::tickPos(double val) const
 // draw则在世界坐标系进行实际绘制，paint在执行绘制指令时负责坐标转换
 KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 {
-	if (!visible())
+	if (!visible() || length() == 0)
 		return { 0, 0, 0, 0 };
 
-	vec3 dir = (end() - start()).normalize(); // 坐标轴的方向矢量
-	point3 lowerPt(0), upperPt(lowerPt + dir * length()); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
-	aabb_type box(lowerPt, upperPt);
-
 	vec3 tickLen(0); // tick的长度矢量
-	
 	if (showTick())
 		tickLen = tickOrient_ * tickCxt_.length;
 
-	auto tic = ticker();
-	auto ticLower = lower();
-	auto ticUpper = upper();
-	tic->autoRange(ticLower, ticUpper);
-	auto ticks = tic->getTicks(ticLower, ticUpper);
+	auto scale = scaler();
+	scale->generate(lower(), upper(), false, showLabel());
+	auto& ticks = scale->ticks();
 
 	if (ticks.empty())
 		return { 0, 0, 0, 0 };
+
+	vec3 dir = (end() - start()).normalize(); // 坐标轴的方向矢量
+	point3 lowerPt(0), upperPt(lowerPt + dir * (ticks.back() - ticks.front())); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
+	aabb_type box(lowerPt, upperPt);
 
 	// 合并第一个和最后一个tick的box
 	{
@@ -198,6 +192,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 
 		// 判断label和tick是否在坐标轴的同侧
 		bool sameSide = tickAndLabelInSameSide_();
+		auto& labels = scale->labels();
 
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto pos = KtuMath<float_t>::remap(ticks[i], lower(), upper(), 0, length());
@@ -207,7 +202,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 
 			labelAchors += labelOrient_ * labelPadding_;
 
-			auto labelText = i < labels_.size() ? labels_[i] : tic->label(ticks[i]);
+			auto labelText = i < labels_.size() ? labels_[i] : labels[i];
 			box.merge(textBox_(paint, labelAchors, labelText));
 		}
 	}

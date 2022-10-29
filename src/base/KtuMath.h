@@ -96,9 +96,10 @@ public:
 
 
     // 返回最大的整数x，以使得pow(10, x) <= val
+    // 不等式两边取log10，有x <= log10(val)
     // @val: 必须大于0
-    static int mantissa(KREAL val) {
-        return static_cast<int>(std::floor(std::log10(val)));
+    static KREAL floorLog10(KREAL val) {
+        return std::floor(std::log10(val));
     }
 
     // x = log(a), y = log(b)
@@ -310,7 +311,7 @@ public:
     static std::pair<unsigned, unsigned> argMixMax(const KREAL x[], unsigned n);
 
     // 返回x中与val最接近的值
-    // 要求x已排序
+    // 要求x已升序排序
     static KREAL pickNearest(KREAL val, const KREAL x[], unsigned n);
 
     // x[i] = op(x[i])

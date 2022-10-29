@@ -59,13 +59,13 @@ void KcCoordPlane::draw(KvPaint* paint) const
 
 void KcCoordPlane::drawMajors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 {
-	auto tic0 = axis0->ticker();
-	auto tic1 = axis1->ticker();
+	auto scale0 = axis0->scaler();
+	auto scale1 = axis1->scaler();
 
-	assert(tic0->ticks() == tic1->ticks()); // TODO: 
+	assert(scale0->tickCount() == scale1->tickCount()); // TODO: 
 
 	auto vlen = axis1->start() - axis0->start();
-	auto ticks = tic0->getTicks(axis0->lower(), axis0->upper()); // TODO: 隐藏该函数
+	auto& ticks = scale0->ticks(); // TODO: 假定ticks已生成
 	for (auto t : ticks) {
 		auto pos = axis0->tickPos(t);
 		paint->drawLine(pos, pos + vlen);
@@ -75,14 +75,13 @@ void KcCoordPlane::drawMajors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 
 void KcCoordPlane::drawMinors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 {
-	auto tic0 = axis0->ticker();
-	auto tic1 = axis1->ticker();
+	auto scale0 = axis0->scaler();
+	auto scale1 = axis1->scaler();
 
-	assert(tic0->subticks() == tic1->subticks()); // TODO:
+	assert(scale0->subtickCount() == scale1->subtickCount()); // TODO:
 
 	auto vlen = axis1->start() - axis0->start();
-	auto ticks = tic0->getTicks(axis0->lower(), axis0->upper()); // TODO: 隐藏该函数
-	auto subticks = tic0->getSubticks(ticks);
+	auto& subticks = scale0->subticks();
 	for (auto t : subticks) {
 		auto pos = axis0->tickPos(t);
 		paint->drawLine(pos, pos + vlen);

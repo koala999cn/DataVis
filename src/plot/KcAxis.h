@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 #include "KvRenderable.h"
-#include "KvTicker.h"
+#include "KvScaler.h"
 #include "KtColor.h"
 #include "KtVector3.h"
 #include "KtMargins.h"
@@ -155,8 +155,8 @@ public:
 	//QFont titleFont() const { return titleFont_; }
 	//void setTitleFont(QFont font) { titleFont_ = font; }
 
-	std::shared_ptr<KvTicker> ticker() const;
-	void setTicker(std::shared_ptr<KvTicker> tic);
+	std::shared_ptr<KvScaler> scaler() const;
+	void setScaler(std::shared_ptr<KvScaler> scale);
 
 	aabb_type boundingBox() const override;
 
@@ -200,5 +200,5 @@ private:
 	vec3 labelOrient_;
 	bool tickBothSide_{ false };
 
-	std::shared_ptr<KvTicker> ticker_;
+	std::shared_ptr<KvScaler> scaler_;
 };
