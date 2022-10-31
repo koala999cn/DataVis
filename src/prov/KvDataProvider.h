@@ -106,7 +106,8 @@ public:
 
 	bool isSampled(kIndex outPort) const;
 
-
+	static std::string dataTypeStr(int spec);
+	
 private:
 	std::shared_ptr<KvImWindow> win_; // 挂接的ImWindow
 };

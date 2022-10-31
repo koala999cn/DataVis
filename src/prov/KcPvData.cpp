@@ -35,7 +35,7 @@ void KcPvData::updateSpec_()
 						sp.type = k_sampled;
 						break;
 					}
-				if (sp.type != k_unknown)
+				if (sp.type == k_unknown)
 					sp.type = k_array;
 			}
 		}

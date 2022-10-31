@@ -71,6 +71,33 @@ bool KvDataProvider::isSampled(kIndex outPort) const
 }
 
 
+std::string KvDataProvider::dataTypeStr(int spec)
+{
+	KpDataSpec sp(spec);
+
+	switch (sp.type)
+	{
+	case k_sampled:
+		return "sampled";
+
+	case k_scattered:
+		return "scattered";
+
+	case k_continued:
+		return "continued";
+
+	case k_array:
+		return sp.dim == 1 ? "series" : sp.dim == 2 ? "matrix" : "multi-array";
+
+	default:
+		assert(false);
+		break;
+	}
+
+	return "unknown";
+}
+
+
 void KvDataProvider::onInput(KcPortNode*, unsigned)
 {
 	// 对于数据提供者，断言该方法不会被调用
@@ -84,16 +111,20 @@ void KvDataProvider::showProperySet()
 	KvBlockNode::showProperySet();
 
 	unsigned outPort = 0; // TODO: 多端口
+	KpDataSpec sp(spec(outPort));
 
 	// 类型
-	ImGui::LabelText("Type", isSampled(outPort) ? "sampled" : 
-		isContinued(outPort) ? "continued" : "scattered");
+	ImGui::LabelText("Type", dataTypeStr(sp.spec).c_str());
 
 	// 维度
-	ImGui::LabelText("Dim", "%d", dim(outPort));
+	ImGui::LabelText("Dim", "%d", sp.dim);
 
 	// 通道数
-	ImGui::LabelText("Channels", "%d", channels(outPort));
+	ImGui::LabelText("Channels", "%d", sp.channels);
+
+	ImGui::LabelText("Streaming", sp.stream ? "true" : "false");
+
+	ImGui::LabelText("Dynamic", sp.dynamic ? "true" : "false");
 
 	// 数据数量
 	if (isDiscreted(outPort)) {
@@ -104,7 +135,7 @@ void KvDataProvider::showProperySet()
 	// 采样间隔
 	if (isSampled(outPort)) {
 		ImGui::LabelText("Step", "%g", step(outPort, 0));
-		ImGui::LabelText("SampleRate", "%g", 1.0 / step(outPort, 0));
+		ImGui::LabelText("Frequency", "%g", 1.0 / step(outPort, 0));
 	}
 
 	// TODO: 多维度
