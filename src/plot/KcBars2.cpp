@@ -56,9 +56,11 @@ KcBars2d::aabb_type KcBars2d::boundingBox() const
 	if (aabb.upper().y() < baseLine_)
 		aabb.upper().y() = baseLine_;
 
-	auto w = barWidth_();
-	aabb.lower().x() -= w;
-	aabb.upper().x() += w;
+	if (data()) {
+		auto w = barWidth_();
+		aabb.lower().x() -= w;
+		aabb.upper().x() += w;
+	}
 
 	return aabb;
 }

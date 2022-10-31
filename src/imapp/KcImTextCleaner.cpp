@@ -128,13 +128,13 @@ void KcImTextCleaner::updateStats_()
             auto& tok = rawData_[i][j];
             if (tok.empty()) {
                 emptyTokens_++;
-                if (emptyMode_ == kPrivate::k_empty_skip)
-                    cols--;
+                //if (emptyMode_ == kPrivate::k_empty_skip)
+                //    cols--;
             }
             else if (!KuStrUtil::isFloat(tok)) {
                 illegalTokens_++;
-                if (skipIllegal_())
-                    cols--;
+                //if (skipIllegal_())
+                //    cols--;
             }
         }
 
@@ -190,11 +190,15 @@ void KcImTextCleaner::clean_()
             }
         }
 
-        if (!data.empty()) {
-            assert(data.size() >= minCols_ && data.size() <= maxCols_);
-            data.resize(maxCols_, 0);
+        if (!data.empty())
             cleanData_.emplace_back(std::move(data));
-        }
+    }
+
+    auto cr = KuMatrixUtil::colsRange(cleanData_);
+    if (cr.first != cr.second) {
+        assert(forceAlign_);
+        for (auto& row : cleanData_)
+            row.resize(cr.second, 0);
     }
 
     assert(cleanData_.size() == rows_);
