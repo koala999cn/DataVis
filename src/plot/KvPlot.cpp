@@ -1,5 +1,6 @@
 #include "KvPlot.h"
 #include "KvCoord.h"
+#include "KvPaint.h"
 
 
 KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
@@ -62,9 +63,13 @@ void KvPlot::update()
 
 	coord().draw(paint_.get());
 
+	paint_->pushClipRect(paint_->viewport());
+
 	for (int idx = 0; idx < plottableCount(); idx++)
 		if (plottableAt(idx)->visible())
 		    plottableAt(idx)->draw(paint_.get());
+
+	paint_->popClipRect();
 }
 
 

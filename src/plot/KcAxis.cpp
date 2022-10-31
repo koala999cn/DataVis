@@ -175,7 +175,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 		return { 0, 0, 0, 0 };
 
 	vec3 dir = (end() - start()).normalize(); // 坐标轴的方向矢量
-	point3 lowerPt(0), upperPt(lowerPt + dir * (ticks.back() - ticks.front())); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
+	point3 lowerPt(0), upperPt(lowerPt + dir * (upper() - lower())); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
 	aabb_type box(lowerPt, upperPt);
 
 	// 合并第一个和最后一个tick的box

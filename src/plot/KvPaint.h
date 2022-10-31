@@ -36,6 +36,9 @@ public:
 	virtual rect viewport() const = 0;
 	virtual void setViewport(const rect& vp) = 0;
 
+	virtual void pushClipRect(const rect& cr) const = 0;
+	virtual void popClipRect() = 0;
+
 	// project world point to screen point
 	virtual point2 project(const point3& worldPt) const = 0;
 

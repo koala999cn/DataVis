@@ -15,6 +15,9 @@ public:
 	rect viewport() const override;
 	void setViewport(const rect& vp) override;
 
+	void pushClipRect(const rect& cr) const override;
+	void popClipRect() override;
+
 	point2 project(const point3& worldPt) const override;
 
 	void setColor(const color_t& clr) override;

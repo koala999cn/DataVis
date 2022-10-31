@@ -112,6 +112,7 @@ void KcCoord2d::draw(KvPaint* paint) const
 
 		auto oldVp = paint->viewport(); // save the old viewport
 		auto newVp = paint->viewport().shrink({ l.left(), l.top() }, { l.right(), l.bottom() });
+		newVp.intersection(oldVp); // 防止margins过大，超出原vp
 		paint->setViewport(newVp);
 
 		KvCoord::draw(paint);

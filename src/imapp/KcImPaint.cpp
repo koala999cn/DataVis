@@ -22,6 +22,19 @@ void KcImPaint::setViewport(const rect& vp)
 }
 
 
+void KcImPaint::pushClipRect(const rect& cr) const
+{
+	ImGui::GetWindowDrawList()->PushClipRect(
+		ImVec2(cr.lower().x(), cr.lower().y()), ImVec2(cr.upper().x(), cr.upper().y()));
+}
+
+
+void KcImPaint::popClipRect()
+{
+	ImGui::GetWindowDrawList()->PopClipRect();
+}
+
+
 KcImPaint::point2 KcImPaint::project(const point3& worldPt) const
 {
 	return camera_.worldToScreen(worldPt);
