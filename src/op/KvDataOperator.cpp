@@ -90,6 +90,9 @@ bool KvDataOperator::onNewLink(KcPortNode* from, KcPortNode* to)
 			|| inputs_[to->index()]) // 每个输入端口只允许单个接入
 			return false; 
 
+		if (!accept(prov->spec(from->index()), to->index()))
+			return false; // 不接受的数据规格
+
 		inputs_[to->index()] = from;
 	}
 

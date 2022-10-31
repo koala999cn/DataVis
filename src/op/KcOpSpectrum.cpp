@@ -148,6 +148,12 @@ void KcOpSpectrum::showProperySet()
 }
 
 
+bool KcOpSpectrum::accept(int dataSpec, unsigned inPort) const
+{
+	KpDataSpec sp(dataSpec);
+	return sp.type == k_sampled; // 只接受采样数据
+}
+
 #if 0
 
 std::shared_ptr<KvData> KcOpSpectrum::process2d_(std::shared_ptr<KvData> data)

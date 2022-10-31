@@ -7,29 +7,39 @@
 KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-	KpDataSpec sp;
-	sp.stream = false;
-	sp.dynamic = false;
-	sp.dim = data_->dim();
-	sp.channels = data_->channels();
+	updateSpec_();
+}
 
-	if (data_->size() == data_->k_inf_size)
-		sp.type = k_continued;
+
+void KcPvData::updateSpec_()
+{
+	if (data_ == nullptr)
+		spec_ = 0;
 	else {
-		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data_);
-		if (disc->step(0) == disc->k_nonuniform_step)
-			sp.type = k_scattered;
-		else {
-			sp.type = -1;
-			for (unsigned i = 0; i < sp.dim; i++)
-				if (disc->step(i) != 1)
-					sp.type = k_sampled;
-			if (sp.type != -1)
-				sp.type = k_array;
-		}
-	}
+		KpDataSpec sp;
+		sp.stream = false;
+		sp.dynamic = false;
+		sp.dim = data_->dim();
+		sp.channels = data_->channels();
 
-	spec_ = sp.spec;
+		if (data_->size() == data_->k_inf_size)
+			sp.type = k_continued;
+		else {
+			auto disc = std::dynamic_pointer_cast<KvDiscreted>(data_);
+			if (disc->step(0) == disc->k_nonuniform_step)
+				sp.type = k_scattered;
+			else {
+				sp.type = -1;
+				for (unsigned i = 0; i < sp.dim; i++)
+					if (disc->step(i) != 1)
+						sp.type = k_sampled;
+				if (sp.type != -1)
+					sp.type = k_array;
+			}
+		}
+
+		spec_ = sp.spec;
+	}
 }
 
 

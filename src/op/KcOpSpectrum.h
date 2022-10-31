@@ -21,6 +21,8 @@ public:
 
 	void showProperySet() final;
 
+	bool accept(int dataSpec, unsigned inPort) const final;
+
 private:
 	std::unique_ptr<KgSpectrum> spec_;
 	int specType_{ 0 }; // 谱类型

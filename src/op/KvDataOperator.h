@@ -34,6 +34,11 @@ public:
 
 	std::shared_ptr<KvData> fetchData(kIndex outPort) const override;
 
+	/// 自定义接口
+
+	// inPort输入端口是否接受dataSpec规格的数据 ？ 
+	virtual bool accept(int dataSpec, unsigned inPort) const = 0;
+
 protected:
 	std::vector<std::shared_ptr<KvData>> idata_{ inPorts() };
 	std::vector<std::shared_ptr<KvData>> odata_{ outPorts() };

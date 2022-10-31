@@ -15,6 +15,7 @@ KcPvExpr::KcPvExpr()
     exprk->compile(exprText_); // 构造默认的表达式
     assert(exprk->ok());
     data_ = std::make_shared<KtContinuedExpr<1>>(exprk);
+    updateSpec_();
 }
 
 
