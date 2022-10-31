@@ -49,10 +49,15 @@ KcPvAudioInput::KcPvAudioInput() : KvDataProvider("AudioInput")
 {
     dptr_ = new KcAudioDevice;
     deviceId_ = ((KcAudioDevice*)dptr_)->defaultInput();
-    channels_ = 1;
     sampleRate_ = ((KcAudioDevice*)dptr_)->preferredSampleRate(deviceId_);
     frameTime_ = 0.1;
 	queue_ = new kPrivate::data_queue;
+
+	spec_.stream = true;
+	spec_.dynamic = true;
+	spec_.type = k_sampled;
+	spec_.dim = 1;
+	spec_.channels = 1;
 }
 
 
@@ -60,6 +65,12 @@ KcPvAudioInput::~KcPvAudioInput()
 {
     delete (KcAudioDevice*)dptr_;
 	delete (kPrivate::data_queue*)queue_;
+}
+
+
+int KcPvAudioInput::spec(kIndex outPort) const
+{
+	return spec_.spec;
 }
 
 
@@ -75,7 +86,7 @@ bool KcPvAudioInput::onStartPipeline(const std::vector<std::pair<unsigned, KcPor
 
 	KcAudioDevice::KpStreamParameters iParam;
 	iParam.deviceId = deviceId_;
-	iParam.channels = channels_;
+	iParam.channels = spec_.channels;
 
 	KtSampling<kReal> samp(kReal(0), kReal(frameTime_), kReal(1) / sampleRate_, 0);
 	unsigned bufferFrames = samp.size(); // unsigned(sampleRate_ * frameTime_ + 0.5);
@@ -86,7 +97,7 @@ bool KcPvAudioInput::onStartPipeline(const std::vector<std::pair<unsigned, KcPor
 		return false;
 
 	device->pushBack(std::make_shared<kPrivate::KcAudioStreamObserver>(this));
-	data_ = std::make_shared<KcSampled1d>(samp.dx(), channels_);
+	data_ = std::make_shared<KcSampled1d>(samp.dx(), iParam.channels);
 	return device->start();
 }
 
@@ -139,8 +150,10 @@ void KcPvAudioInput::showProperySet()
 	}
 
 	info = device->info(deviceId_);
-	assert(channels_ <= info.inputChannels);
-	ImGui::SliderInt("Channles", &channels_, 1, info.inputChannels);
+	assert(spec_.channels <= info.inputChannels);
+	int channles = spec_.channels;
+	if (ImGui::SliderInt("Channles", &channles, 1, std::min<int>(info.inputChannels, 255)))
+		spec_.channels = channles;
 
 	auto rateStr = KuStrUtil::toString(sampleRate_);
 	if (ImGui::BeginCombo("SampleRate", rateStr.c_str())) {

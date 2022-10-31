@@ -14,18 +14,11 @@ KcOpSpectrum::KcOpSpectrum()
 }
 
 
-bool KcOpSpectrum::isStream(kIndex outPort) const
+int KcOpSpectrum::spec(kIndex outPort) const
 {
-	assert(inputs_.size() == 1);
-	auto d = inputs_.front();
-	if (d == nullptr)
-		return false; // 暂时无输入连接
-
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-	if (prov == nullptr)
-		return false; // 输入失效
-
-	return prov->dim(d->index()) > 1; // 输入若为高维数据，则该节点streaming
+	KpDataSpec sp(super_::spec(outPort));
+	sp.stream &= sp.dim > 1; // 输入若为高维数据，则该节点streaming
+	return sp.spec; 
 }
 
 

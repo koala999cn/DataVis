@@ -17,33 +17,57 @@ KvDataProvider::~KvDataProvider()
 }
 
 
+bool KvDataProvider::isStream(kIndex outPort) const
+{
+	return KpDataSpec(spec(outPort)).stream;
+}
+
+
+bool KvDataProvider::isDynamic(kIndex outPort) const
+{
+	return KpDataSpec(spec(outPort)).dynamic;
+}
+
+
+kIndex KvDataProvider::dim(kIndex outPort) const
+{
+	return KpDataSpec(spec(outPort)).dim;
+}
+
+
+kIndex KvDataProvider::channels(kIndex outPort) const
+{
+	return KpDataSpec(spec(outPort)).channels;
+}
+
+
 bool KvDataProvider::isContinued(kIndex outPort) const
 {
-	return size(outPort, 0) == KvData::k_inf_size;
+	return KpDataSpec(spec(outPort)).type == k_continued;
 }
 
 
 bool KvDataProvider::isDiscreted(kIndex outPort) const
 {
-	return size(outPort, 0) != KvData::k_inf_size;
+	return !isContinued(outPort);
 }
 
 
 bool KvDataProvider::isScattered(kIndex outPort) const
 {
-	return isDiscreted(outPort) && 
-		step(outPort, 0) == KvDiscreted::k_nonuniform_step;
+	return KpDataSpec(spec(outPort)).type == k_scattered;
 }
 
 
-bool KvDataProvider::isSeries(kIndex outPort) const {
-	return isDiscreted(outPort) && step(outPort, 0) == 1;
+bool KvDataProvider::isSeries(kIndex outPort) const 
+{
+	auto sp = KpDataSpec(spec(outPort));
+	return sp.type == k_array && sp.dim == 1;
 }
 
 bool KvDataProvider::isSampled(kIndex outPort) const
 {
-	return isDiscreted(outPort) && 
-		step(outPort, 0) != KvDiscreted::k_nonuniform_step;
+	return KpDataSpec(spec(outPort)).type == k_sampled;
 }
 
 

@@ -9,11 +9,7 @@ public:
 	KcPvAudioInput();
 	virtual ~KcPvAudioInput();
 
-	bool isStream(kIndex outPort) const override { return true; }
-
-	kIndex dim(kIndex outPort) const final { return 1; };
-
-	kIndex channels(kIndex outPort) const override { return channels_; }
+	int spec(kIndex outPort) const override;
 
 	kRange range(kIndex outPort, kIndex axis) const final;
 
@@ -39,7 +35,7 @@ public:
 private:
 	void* dptr_;
 	unsigned deviceId_;
-	int channels_;
+	KpDataSpec spec_;
 	unsigned sampleRate_;
 	float frameTime_;
 	void* queue_; // 缓存队列，暂存捕获的音频数据

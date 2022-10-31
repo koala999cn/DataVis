@@ -5,11 +5,13 @@
 
 class KcOpSpectrum : public KvDataOperator
 {
+	using super_ = KvDataOperator;
+
 public:
 
 	KcOpSpectrum();
 
-	bool isStream(kIndex outPort) const final;
+	int spec(kIndex outPort) const final;
 
 	kRange range(kIndex outPort, kIndex axis) const final;
 

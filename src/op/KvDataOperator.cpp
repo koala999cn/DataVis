@@ -15,45 +15,26 @@ namespace kPrivate
 }
 
 
-bool KvDataOperator::isStream(kIndex outPort) const
+int KvDataOperator::spec(kIndex outPort) const
 {
 	assert(!inputs_.empty() && inputs_.size() == inPorts());
 
-	bool streaming(false);
+	KpDataSpec sp;
+
 	for (auto i : inputs_)
 		if (i) {
 			auto prov = std::dynamic_pointer_cast<KvDataProvider>(i->parent().lock());
-			if (prov && prov->isStream(i->index()))
-			    return true; // 有一个输入是stream，则返回true
+			if (prov) {
+				KpDataSpec psp(prov->spec(i->index()));
+				sp.stream |= psp.stream;
+				sp.dynamic |= psp.dynamic;
+				sp.dim = std::max(sp.dim, psp.dim);
+				sp.channels = std::max(sp.channels, psp.channels);
+				sp.type = psp.type;
+			}
 		}
 
-	return false;
-}
-
-
-kIndex KvDataOperator::dim(kIndex outPort) const
-{
-	assert(!inputs_.empty() && inputs_.size() == inPorts());
-
-	auto d = kPrivate::first_non_null(inputs_);
-	if (d == nullptr)
-		return 0;
-
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-	return prov ? prov->dim(d->index()) : 0;
-}
-
-
-kIndex KvDataOperator::channels(kIndex outPort) const
-{
-	assert(!inputs_.empty() && inputs_.size() == inPorts());
-
-	auto d = kPrivate::first_non_null(inputs_);
-	if (d == nullptr)
-		return 0;
-
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-	return prov ? prov->channels(d->index()) : 0;
+	return sp.spec;
 }
 
 

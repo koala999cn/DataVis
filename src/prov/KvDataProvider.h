@@ -5,18 +5,32 @@
 
 class KvImWindow;
 
+// 支持的数据类型
+enum KeDataType
+{
+	k_unknown,
+	k_sampled,
+	k_scattered,
+	k_continued,
+	k_array
+};
 
-// TODO: 数据规范构想
 
+// 数据规范说明
 union KpDataSpec
 {
+	KpDataSpec() : spec(0) {}
+	KpDataSpec(int sp) : spec(sp) {}
+
 	int spec;
 
 	struct {
 		int stream : 1; // 是否流式数据
-		int type : 3;
-		int dim : 4; // 数据的维度，再高好像也没什么意义
+		int dynamic : 1; // 是否动态数据，即数据是否动态变化
+		int type : 6; // 数据类型: series, sample, sactter, continue, ..., see KeDataType
+		int dim : 8; // 数据的维度，再高好像也没什么意义
 		int channels : 8; // 256通道??
+		int reserve : 8;
 	};
 };
 
@@ -39,12 +53,17 @@ public:
 
 	void showProperySet() override;
 
-	virtual bool isStream(kIndex outPort) const = 0;
+	void onInput(KcPortNode* outPort, unsigned inPort) override;
 
-	// 数据的维度
-	virtual kIndex dim(kIndex outPort) const = 0;
+	// 默认所有数据都已就绪，需要逐帧准备数据的可以重载该方法
+	void output() override {}
 
-	virtual kIndex channels(kIndex outPort) const { return 1; }
+	// 处理鼠标左键双击：弹出数据窗口，显示当前各端口的输出
+	void onDoubleClicked() override;
+
+
+	// 返回第outPort个输出端口的数据规格
+	virtual int spec(kIndex outPort) const = 0;
 
 	// 返回第axis轴的数据视图范围. 
 	virtual kRange range(kIndex outPort, kIndex axis) const = 0;
@@ -54,6 +73,21 @@ public:
 	virtual kReal step(kIndex outPort, kIndex axis) const = 0;
 
 	virtual kIndex size(kIndex outPort, kIndex axis) const = 0;
+
+	// 抓取第outPort个输出端口的数据
+	virtual std::shared_ptr<KvData> fetchData(kIndex outPort) const = 0;
+
+
+	/// same helper functions
+
+	bool isStream(kIndex outPort) const;
+
+	bool isDynamic(kIndex outPort) const;
+
+	// 数据的维度
+	kIndex dim(kIndex outPort) const;
+
+	kIndex channels(kIndex outPort) const;
 
 	kIndex size(kIndex outPort) const {
 		kIndex c(1);
@@ -72,16 +106,6 @@ public:
 
 	bool isSampled(kIndex outPort) const;
 
-	void onInput(KcPortNode* outPort, unsigned inPort) override;
-
-	// 默认所有数据都已就绪，需要逐帧准备数据的可以重载该方法
-	void output() override {}
-
-	// 处理鼠标左键双击：弹出数据窗口，显示当前各端口的输出
-	void onDoubleClicked() override;
-
-	// 抓取第outPort个输出端口的数据
-	virtual std::shared_ptr<KvData> fetchData(kIndex outPort) const = 0;
 
 private:
 	std::shared_ptr<KvImWindow> win_; // 挂接的ImWindow

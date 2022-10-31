@@ -188,9 +188,10 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 				else {
 					assert(false); // TODO:
 				}
-
-				plot_->autoFit() = false;
 			}
+
+			// 如果有1个dynamic输入，则将autofit置false
+			plot_->autoFit() &= !prov->isDynamic(port->index());
 		}
 		
 		// update theme

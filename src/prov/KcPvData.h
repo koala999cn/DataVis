@@ -13,11 +13,7 @@ public:
 
 	KcPvData(const std::string_view& name, std::shared_ptr<KvData> data);
 
-	bool isStream(kIndex outPort) const final { return false; }
-
-	kIndex dim(kIndex outPort) const final;
-
-	kIndex channels(kIndex outPort) const final;
+	int spec(kIndex outPort) const override;
 
 	kRange range(kIndex outPort, kIndex axis) const final;
 
@@ -31,4 +27,5 @@ public:
 
 protected:
 	std::shared_ptr<KvData> data_;
+	int spec_;
 };

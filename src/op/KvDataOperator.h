@@ -24,11 +24,7 @@ public:
 
 	/// provider接口
 
-	bool isStream(kIndex outPort) const override;
-
-	kIndex dim(kIndex outPort) const override;
-
-	kIndex channels(kIndex outPort) const override;
+	int spec(kIndex outPort) const override;
 
 	kRange range(kIndex outPort, kIndex axis) const override;
 
