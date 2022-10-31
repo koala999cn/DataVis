@@ -29,11 +29,13 @@ void KcPvData::updateSpec_()
 			if (disc->step(0) == disc->k_nonuniform_step)
 				sp.type = k_scattered;
 			else {
-				sp.type = -1;
+				sp.type = k_unknown;
 				for (unsigned i = 0; i < sp.dim; i++)
-					if (disc->step(i) != 1)
+					if (disc->step(i) != 1) {
 						sp.type = k_sampled;
-				if (sp.type != -1)
+						break;
+					}
+				if (sp.type != k_unknown)
 					sp.type = k_array;
 			}
 		}
