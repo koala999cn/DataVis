@@ -25,14 +25,16 @@ kRange KvContinued::valueRange(kIndex channel) const
 	kReal tol(0.001); // 千分之一的误差
 	int maxIter(6), numIter(0);
 
-	while (true) {
+	while (numIter <= maxIter) {
 		auto r = samp->valueRange(channel);
 
 		if ((KtuMath<kReal>::almostEqualRel(omin, r.low(), tol) &&
-			KtuMath<kReal>::almostEqualRel(omax, r.high(), tol)) ||
-			numIter > maxIter)
-			return r;
-
+			KtuMath<kReal>::almostEqualRel(omax, r.high(), tol))) {
+			if (r.low() < omin) omin = r.low();
+			if (r.high() > omax) omax = r.high();
+			break;
+		}
+			
 		if (r.low() < omin) omin = r.low();
 		if (r.high() > omax) omax = r.high();
 
@@ -40,6 +42,8 @@ kRange KvContinued::valueRange(kIndex channel) const
 		for (kIndex i = 0; i < samp->dim(); i++) 
 			shape[i] = samp->size(i) * 2;
 		samp->resize(shape.data());
+		if (samp->size() > 1024 * 1024) // TODO: 满足实时性要求
+			break;
 
 		++numIter;
 	}

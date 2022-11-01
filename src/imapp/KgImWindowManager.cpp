@@ -18,7 +18,7 @@ KgImWindowManager::~KgImWindowManager()
 
 void KgImWindowManager::registerWindow(window_ptr inst)
 {
-	assert(getWindow(inst->name()) == nullptr);
+	// assert(getWindow(inst->name()) == nullptr);
 	registerQueue_.push_back(inst);
 }
 

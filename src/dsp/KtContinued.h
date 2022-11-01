@@ -28,16 +28,9 @@ public:
 		assert(axis <= DIM);
 
 		if (axis == DIM) {
-			if (valueRangeStatus_ == k_unknown) {
+			if (valueRangeStatus_ == k_unknown ||
+				valueRangeStatus_ == k_expired) {
 				range_[axis] = valueRange();
-				valueRangeStatus_ = k_esimated;
-			}
-			else if (valueRangeStatus_ == k_expired) {
-				auto r = valueRange();
-				if (r.low() < range_[axis].low())
-					range_[axis].resetLow(r.low());
-				if (r.high() > range_[axis].high())
-					range_[axis].resetHigh(r.high());
 				valueRangeStatus_ = k_esimated;
 			}
 		}

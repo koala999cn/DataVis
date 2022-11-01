@@ -38,9 +38,10 @@ void KcImDataMaker::updateImpl_()
     };
 
     if (ImGui::BeginCombo("Data type", supportTypes[dataType_].second)) {
-        for (int n = 0; n < typeList_.size(); n++)
+        for (int n = 0; n < typeList_.size(); n++) {
             if (ImGui::Selectable(supportTypes[typeList_[n]].second, typeList_[n] == dataType_))
                 dataType_ = typeList_[n];
+        }
 
         ImGui::EndCombo();
     }

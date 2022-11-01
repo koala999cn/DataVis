@@ -6,6 +6,15 @@
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KgPipeline.h"
 #include "KvDiscreted.h"
+#include "KuStrUtil.h"
+
+
+namespace kPrivate
+{
+	bool TreePush(const char* label);
+
+	void TreePop();
+}
 
 
 KvDataProvider::~KvDataProvider()
@@ -38,6 +47,19 @@ kIndex KvDataProvider::dim(kIndex outPort) const
 kIndex KvDataProvider::channels(kIndex outPort) const
 {
 	return KpDataSpec(spec(outPort)).channels;
+}
+
+
+kIndex KvDataProvider::size(kIndex outPort) const
+{
+	if (!isScattered(outPort)) {
+		kIndex c(1);
+		for (kIndex i = 0; i < dim(outPort); i++)
+			c *= size(outPort, i);
+		return c;
+	}
+	else
+		return size(outPort, 0);
 }
 
 
@@ -131,8 +153,22 @@ void KvDataProvider::showProperySet()
 
 	// 数据数量
 	if (isDiscreted(outPort)) {
-		ImGui::LabelText("Size", "%d", size(outPort));
-		// TODO: tooltip: "number of data points per-channel"
+		if (dim(outPort) == 1) {
+			ImGui::LabelText("Size", "%d", size(outPort));
+		}
+		else {
+			std::string label = "Size(total = ";
+			label += KuStrUtil::toString(size(outPort));
+			label += ")";
+			if (kPrivate::TreePush(label.c_str())) {
+				for (kIndex i = 0; i < dim(outPort); i++) {
+					std::string label("Dim");
+					label += KuStrUtil::toString(i + 1);
+					ImGui::LabelText(label.c_str(), "%d", size(outPort, i));
+				}
+				kPrivate::TreePop();
+			}
+		}
 	}
 
 	// 采样间隔
@@ -141,15 +177,21 @@ void KvDataProvider::showProperySet()
 		ImGui::LabelText("Frequency", "%g", 1.0 / step(outPort, 0));
 	}
 
-	// TODO: 多维度
-	// 
-	// key range
-	ImGui::LabelText("Key Range", "%g - %g", 
-		range(outPort, 0).low(), range(outPort, 0).high());
-
-	// value range
-	ImGui::LabelText("Value Range", "%g - %g", 
-		range(outPort, dim(outPort)).low(), range(outPort, dim(outPort)).high());
+	if (dim(outPort) == 1) {
+		ImGui::LabelText("Key Range", "%g - %g",
+			range(outPort, 0).low(), range(outPort, 0).high());
+		ImGui::LabelText("Value Range", "%g - %g",
+			range(outPort, dim(outPort)).low(), range(outPort, dim(outPort)).high());
+	}
+	else if (kPrivate::TreePush("Range")) {
+		for (kIndex i = 0; i <= dim(outPort); i++) {
+			std::string label("Dim");
+			label += KuStrUtil::toString(i + 1);
+			ImGui::LabelText(label.c_str(), "%g - %g", 
+				range(outPort, i).low(), range(outPort, i).high());
+		}
+		kPrivate::TreePop();
+	}
 }
 
 

@@ -82,7 +82,7 @@ void KcPvData::showProperySet()
 		ImGui::Separator();
 
 		if (ImGui::TreeNodeEx("Range", ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_DefaultOpen)) {
-			char label[] = { 'x', '\0'};
+			char label[] = { 'X', '\0'};
 			for (unsigned i = 0; i < data_->dim(); i++) {
 				auto r = data_->range(i);
 				float low = r.low(), high = r.high();

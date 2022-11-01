@@ -30,7 +30,7 @@ void KvImModalWindow::update()
         ImVec2{ maxSize_[0], maxSize_[1] }
     );
 
-    if (!opened_())
+    if (!opened_()) 
         openPopup_();
 
     if (ImGui::BeginPopupModal(label().c_str(), &visible_, flags())) {
@@ -39,7 +39,8 @@ void KvImModalWindow::update()
         // 在弹出模式窗口情况下，最下化主窗口再恢复，模式窗口会消失(如果不再open)；
         // 或显示在其他窗口后面(始终reopen)，而这时程序整体处于Modal状态，将不可用。
         // 参考https://github.com/ocornut/imgui/issues/1328
-        ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow()); // needs imgui_internal.h
+        // TODO: 使用这个方案，会导致combo无法正常弹出下拉框
+        // ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow()); // needs imgui_internal.h
 
         updateImpl_();
         ImGui::EndPopup();

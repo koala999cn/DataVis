@@ -89,12 +89,7 @@ public:
 
 	kIndex channels(kIndex outPort) const;
 
-	kIndex size(kIndex outPort) const {
-		kIndex c(1);
-		for (kIndex i = 0; i < dim(outPort); i++)
-			c *= size(outPort, i);
-		return c;
-	}
+	kIndex size(kIndex outPort) const;
 
 	bool isContinued(kIndex outPort) const;
 
