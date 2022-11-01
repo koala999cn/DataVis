@@ -119,7 +119,6 @@
     <ClCompile Include="src\base\KuLex.cpp" />
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
-    <ClCompile Include="src\dsp\KcSampled2d.cpp" />
     <ClCompile Include="src\dsp\KgHist.cpp" />
     <ClCompile Include="src\dsp\KgHistC.cpp" />
     <ClCompile Include="src\dsp\KgMultiply.cpp" />
@@ -157,6 +156,7 @@
     <ClCompile Include="src\imapp\KsImApp.cpp" />
     <ClCompile Include="src\imapp\KvNode.cpp" />
     <ClCompile Include="src\imapp\KcActionSequence.cpp" />
+    <ClCompile Include="src\op\KcOpFraming.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
     <ClCompile Include="src\op\KvDataOperator.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
@@ -180,7 +180,6 @@
     <ClCompile Include="src\plot\KvPlottable1d.cpp" />
     <ClCompile Include="src\plot\KvThemedPlot.cpp" />
     <ClCompile Include="src\plot\KvScaler.cpp" />
-    <ClCompile Include="src\dsp\KcSampled1d.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
@@ -277,6 +276,7 @@
     <ClInclude Include="src\imapp\KsImApp.h" />
     <ClInclude Include="src\imapp\KvModule.h" />
     <ClInclude Include="src\imapp\KvNode.h" />
+    <ClInclude Include="src\op\KcOpFraming.h" />
     <ClInclude Include="src\op\KcOpSpectrum.h" />
     <ClInclude Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\plot\KcBars2d.h" />

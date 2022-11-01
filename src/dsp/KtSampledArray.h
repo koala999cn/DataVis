@@ -34,9 +34,10 @@ public:
     }
 
     void clear() override {
+        super_::clear();
         auto shape = array_.shape();
         shape[0] = 0;
-        array_.resizeAndPreserve(shape); super_::clear();
+        array_.resizeAndPreserve(shape); 
     }
 
     void resize(kIndex shape[], kIndex chs = 0) override {
@@ -95,9 +96,25 @@ public:
     // @data: 设置的数据，长度等于size(DIM-1)
     void setChannel(kIndex idx[], kIndex channel, const kReal* data);
 
+    // 从d的pos位置开始，附加frames帧数据到this
+    // assert(d.step(0) == this->step(0) && d.channles() == this->channles())
+    // @rows: 0表示从pos往后的所有帧
+    void pushBack(const KtSampledArray& d, kIndex pos = 0, kIndex rows = 0);
+
+    // 增加frames帧数据，data的长度等于frames * channels()
+    void pushBack(const kReal* data, kIndex frames);
 
     // 删除前rows行
     void popFront(kIndex rows);
+
+    // 向this压入数据d，保持数据总行数等于totalRows
+    // 若totalRows = 0，则保持当前行数总量不变
+    void shift(const KtSampledArray& d, kIndex totalRows = 0);
+
+    // 从第idx帧开始，提取frames帧（行）的数据到buf
+    // @frames: 要提取的帧数，若等于0，表示提取idx之后的所有帧
+    void extract(kIndex idx, kReal* buf, kIndex frames = 0) const;
+
 
     // 移除第0轴数值小于x的rows
     //void cutBefore(kReal x);
@@ -138,6 +155,30 @@ void KtSampledArray<DIM>::setChannel(kIndex idx[], kIndex channel, const kReal* 
 
 
 template<int DIM>
+void KtSampledArray<DIM>::pushBack(const KtSampledArray& d, kIndex pos, kIndex rows)
+{
+    assert(step(0) == d.step(0) && channels() == d.channels());
+    if (rows <= 0 || rows > d.size(0) - pos)
+        rows = d.size(0) - pos;
+
+    pushBack(d.row(pos), rows);
+}
+
+
+template<int DIM>
+void KtSampledArray<DIM>::pushBack(const kReal* data, kIndex frames)
+{
+    auto shape = array_.extent();
+    shape[0] += frames;
+    kIndex dims[DIM];
+    std::copy(shape.begin(), shape.end(), dims);
+    resize(dims);
+
+    std::copy(data, data + stride(0) * frames, row(shape[0] - frames));
+}
+
+
+template<int DIM>
 void KtSampledArray<DIM>::popFront(kIndex rows)
 {
     std::copy(row(rows), array_.dataFirst() + array_.size(), array_.dataFirst());
@@ -145,6 +186,40 @@ void KtSampledArray<DIM>::popFront(kIndex rows)
     shape[0] -= rows;
     array_.resizeAndPreserve(shape);
     samp_[0].cutHead(rows);
+}
+
+
+template<int DIM>
+void KtSampledArray<DIM>::shift(const KtSampledArray& d, kIndex totalRows)
+{
+    assert(step(0) == d.step(0));
+    assert(channels() == d.channels());
+
+    if (totalRows == 0)
+        totalRows = size(0);
+
+    if (d.size(0) >= totalRows) {
+        clear();
+        pushBack(d, d.size(0) - totalRows);
+    }
+    else {
+        if (d.size(0) + size(0) > totalRows) {
+            auto x0 = samp_[0].x0();
+            popFront(d.size(0) + size(0) - totalRows);
+            alignX0(x0); // 保持x0不变
+        }
+        pushBack(d);
+    }
+}
+
+
+template<int DIM>
+void KtSampledArray<DIM>::extract(kIndex idx, kReal* buf, kIndex frames) const
+{
+    if (frames <= 0 || frames > size(0) - idx)
+        frames = size(0) - frames;
+
+    std::copy(row(idx), row(idx + frames), buf);
 }
 
 

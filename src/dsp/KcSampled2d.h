@@ -7,6 +7,12 @@ class KcSampled2d : public KtSampledArray<2>
 public:
     using super_ = KtSampledArray<2>;
 
+    KcSampled2d(kReal dx, kReal dy, kIndex channels = 1) {
+        resize(0, 0, channels);
+        reset(0, 0, dx);
+        reset(1, 0, dy);
+    }
+
     void resize(kIndex nx, kIndex ny, kIndex channels) {
         kIndex idx[2] = { nx, ny };
         super_::resize(idx, channels);
@@ -22,13 +28,5 @@ public:
         return value(idx, channel);
     }
 
-/*
-    void resize(kIndex nx, kIndex ny, kIndex channels) override;
-
-    void resize(const KvData2d& data) override;
-
-    kPoint3d value(kIndex ix, kIndex iy, kIndex channel = 0) const override;
-
-    void setChannel(kIndex row, const kReal* data, kIndex channel);*/
 };
 

@@ -21,7 +21,7 @@ public:
 
 	void showProperySet() final;
 
-	bool accept(int dataSpec, unsigned inPort) const final;
+	bool permitInput(int dataSpec, unsigned inPort) const final;
 
 private:
 	std::unique_ptr<KgSpectrum> spec_;

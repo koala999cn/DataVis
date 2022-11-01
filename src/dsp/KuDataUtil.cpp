@@ -67,10 +67,8 @@ std::shared_ptr<KvData> KuDataUtil::makeSeries(const matrixd& mat)
 
 std::shared_ptr<KvData> KuDataUtil::makeMatrix(const matrixd& mat)
 {
-    auto samp2d = std::make_shared<KcSampled2d>();
+    auto samp2d = std::make_shared<KcSampled2d>(1, 1);
     samp2d->resize(mat.size(), mat[0].size());
-    samp2d->reset(0, 0, 1);
-    samp2d->reset(1, 0, 1);
 
     for (kIndex idx = 0; samp2d->size(0); idx++)
         samp2d->setChannel(&idx, 0, mat[idx].data()); // 始终单通道
@@ -99,7 +97,7 @@ std::shared_ptr<KvData> KuDataUtil::makeSampled2d(const matrixd& mat)
     auto dx = mat[2][0] - mat[1][0];
     auto dy = mat[0][2] - mat[0][1];
 
-    auto samp2d = std::make_shared<KcSampled2d>();
+    auto samp2d = std::make_shared<KcSampled2d>(dx, dy);
     samp2d->resize(mat.size() - 1, mat[0].size() - 1);
     samp2d->reset(0, mat[1][0], dx);
     samp2d->reset(1, mat[0][1], dy);

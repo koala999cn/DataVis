@@ -98,6 +98,8 @@ protected:
 
 	void updateTheme_();
 
+	static void streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, double xrange);
+
 protected:
 	std::shared_ptr<KvPlot> plot_;
 	std::multimap<int, KvPlottable*> port2Plts_; // 端口id向plottable序列的映射

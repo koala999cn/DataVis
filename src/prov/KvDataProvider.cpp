@@ -89,6 +89,9 @@ std::string KvDataProvider::dataTypeStr(int spec)
 	case k_array:
 		return sp.dim == 1 ? "series" : sp.dim == 2 ? "matrix" : "multi-array";
 
+	case k_unknown:
+		break;
+
 	default:
 		assert(false);
 		break;

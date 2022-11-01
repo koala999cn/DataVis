@@ -15,6 +15,7 @@
 #include "plot/KvCoord.h"
 #include "KvNode.h"
 #include "KcSampled1d.h"
+#include "KcSampled2d.h"
 
 
 namespace kPrivate
@@ -70,19 +71,12 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 	auto numPlts = std::distance(r.first, r.second);
 	
 	if (prov->isStream(outPort->index())) { // shifting the data
-		auto samp = std::dynamic_pointer_cast<KcSampled1d>(streamData_[outPort]);
-		assert(samp);
 
-		auto input = std::dynamic_pointer_cast<KcSampled1d>(data);
-		assert(input);
-		
+		assert(prov->isSampled(outPort->index())); // TODO: other types
+
 		auto xrange = plot_->coord().upper().x() - plot_->coord().lower().x();
-		if (xrange == 0)
-			samp->clear();
-		else 
-		    samp->shift(*input, xrange / samp->step(0));
-
-		data = samp;
+		streaming_(streamData_[outPort], data, xrange);
+		data = streamData_[outPort];
 	}
 
 	if (data->channels() == 1 || numPlts == 1) {
@@ -184,9 +178,13 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 			if (prov->isStream(port->index())) {
 				if (prov->dim(port->index()) == 1)
 					streamData_[port] = std::make_shared<KcSampled1d>(
-						prov->step(port->index(), 0), prov->channels(port->index()));
-				else {
-					assert(false); // TODO:
+						prov->step(port->index(), 0), 
+						prov->channels(port->index()));
+				else if (prov->dim(port->index()) == 2) {
+					streamData_[port] = std::make_shared<KcSampled2d>(
+						prov->step(port->index(), 0), 
+						prov->step(port->index(), 2), 
+						prov->channels(port->index()));
 				}
 			}
 
@@ -482,5 +480,34 @@ void KvRdPlot::updateTheme_()
 		// TODO: 这种方式不能完全复现
 		KsThemeManager::singleton().applyTheme(
 			curTheme_[KsThemeManager::k_theme].first, curTheme_[KsThemeManager::k_theme].second, &tp);
+	}
+}
+
+
+namespace kPrivate
+{
+	template<int DIM>
+	static void streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, double xrange)
+	{
+		assert(curData->dim() == newData->dim() && curData->channels() == newData->channels());
+
+		auto samp = std::dynamic_pointer_cast<KtSampledArray<DIM>>(curData);
+		auto input = std::dynamic_pointer_cast<KtSampledArray<DIM>>(newData);
+		assert(samp && input);
+		if (xrange > 0)
+			samp->shift(*input, xrange / samp->step(0));
+		else
+			samp->clear();
+	}
+}
+
+void KvRdPlot::streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, double xrange)
+{
+	if (curData->dim() == 1) 
+		kPrivate::streaming_<1>(curData, newData, xrange);
+	else if (curData->dim() == 2) 
+		kPrivate::streaming_<2>(curData, newData, xrange);
+	else {
+		assert(false);
 	}
 }

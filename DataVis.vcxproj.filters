@@ -39,12 +39,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\dsp\KcSampled1d.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\dsp\KcSampled2d.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KgHist.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
@@ -291,6 +285,9 @@
     </ClCompile>
     <ClCompile Include="src\imapp\KcImExprEditor.cpp">
       <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\op\KcOpFraming.cpp">
+      <Filter>op</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -677,6 +674,9 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcImExprEditor.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpFraming.h">
+      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

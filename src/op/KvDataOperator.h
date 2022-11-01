@@ -22,6 +22,9 @@ public:
 
 	void onInput(KcPortNode* outPort, unsigned inPort) override;
 
+	// 作一些一致性检测工作
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) override;
+
 	/// provider接口
 
 	int spec(kIndex outPort) const override;
@@ -37,7 +40,7 @@ public:
 	/// 自定义接口
 
 	// inPort输入端口是否接受dataSpec规格的数据 ？ 
-	virtual bool accept(int dataSpec, unsigned inPort) const = 0;
+	virtual bool permitInput(int dataSpec, unsigned inPort) const = 0;
 
 protected:
 	std::vector<std::shared_ptr<KvData>> idata_{ inPorts() };

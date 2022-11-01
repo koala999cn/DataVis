@@ -70,12 +70,10 @@ public:
 		assert(size(axis) == samp_[axis].size());
 	}
 
-	/*
-	void reset(kIndex axis, const KtSampling<kReal>& samp) {
-		assert(axis >= 0 && axis < dim());
-		assert(samp.size() == super_::size());
-		samp_[axis] = samp;
-	}*/
+	// 对齐采样时间到xlow，保持数据不变
+	void alignX0(kReal xlow) {
+		samp_[0].shiftLeftTo(xlow);
+	}
 
 
 	// 帮助函数

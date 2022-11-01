@@ -90,7 +90,7 @@ bool KvDataOperator::onNewLink(KcPortNode* from, KcPortNode* to)
 			|| inputs_[to->index()]) // 每个输入端口只允许单个接入
 			return false; 
 
-		if (!accept(prov->spec(from->index()), to->index()))
+		if (!permitInput(prov->spec(from->index()), to->index()))
 			return false; // 不接受的数据规格
 
 		inputs_[to->index()] = from;
@@ -128,4 +128,25 @@ std::shared_ptr<KvData> KvDataOperator::fetchData(kIndex outPort) const
 	assert(outPort < odata_.size());
 
 	return odata_[outPort];
+}
+
+
+bool KvDataOperator::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
+{
+	if (ins.size() != inPorts())
+		return false; // 输入未全部连接，不启动
+
+	for (auto& i : ins) {
+		auto inPort = i.first;
+		auto inNode = i.second;
+		assert(inPort < inputs_.size() && inNode == inputs_[inPort]);
+
+		auto prov = std::dynamic_pointer_cast<KvDataProvider>(inNode->parent().lock());
+		if (prov == nullptr)
+			return false; // we'll never touch here
+
+		assert(permitInput(prov->spec(inNode->index()), inPort));
+	}
+
+	return true;
 }

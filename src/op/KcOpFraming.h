@@ -6,35 +6,34 @@
 
 class KcOpFraming : public KvDataOperator
 {
+	using super_ = KvDataOperator;
+
 public:
-	KcOpFraming(KvDataProvider* prov);
+	KcOpFraming();
 
-	kPropertySet propertySet() const override;
+	int spec(kIndex outPort) const final;
 
-	bool isStream() const override { return true; }
+	kRange range(kIndex outPort, kIndex axis) const final;
 
-	kIndex dim() const override;
+	kReal step(kIndex outPort, kIndex axis) const final;
 
-	kRange range(kIndex axis) const override;
+	kIndex size(kIndex outPort, kIndex axis) const final;
 
-	kReal step(kIndex axis) const override;
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
-	kIndex size(kIndex axis) const override;
+	void output() final;
 
-	unsigned ins() const final { return 1u; }
+	void showProperySet() final;
 
-	unsigned outs() const final { return 2u; }
+	bool permitInput(int dataSpec, unsigned inPort) const final;
 
 
 private:
-	void setPropertyImpl_(int id, const QVariant& newVal) override;
-
-	void preRender_() override;
-
-	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
 
 	kIndex frameSize() const;
 	kIndex shiftSize() const;
+
+	void makeFraming_();
 
 private:
 	std::unique_ptr<KtFraming<kReal>> framing_;
