@@ -48,22 +48,15 @@ kRange KcOpSpectrum::range(kIndex outPort, kIndex axis) const
 
 bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
-	if (ins.empty())
+	if (!super_::onStartPipeline(ins))
 		return false;
 
-	assert(ins.size() == 1 && ins.front().first == 0);
-
-	auto port = ins.front().second;
-	assert(port == inputs_.front());
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
-	if (prov == nullptr)
-		return false; // we'll never touch here
-
-	assert(prov->isSampled(port->index()) && prov->dim(port->index()) == 1);
+	auto node = ins.front().second;
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(node->parent().lock());
 
 	KgSpectrum::KpOptions opts;
-	opts.sampleRate = 1.0 / prov->step(port->index(), prov->dim(port->index()) - 1);
-	opts.frameSize = prov->size(port->index(), prov->dim(port->index()) - 1);
+	opts.sampleRate = 1.0 / prov->step(node->index(), prov->dim(node->index()) - 1);
+	opts.frameSize = prov->size(node->index(), prov->dim(node->index()) - 1);
 	opts.type = KgSpectrum::KeType(specType_);
 	opts.norm = KgSpectrum::KeNormMode(normMode_);
 	opts.roundToPower2 = roundToPower2_;
@@ -78,7 +71,7 @@ bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortN
 	samp.resetn(spec_->odim(), 0, opts.sampleRate / 2, 0.5);
 	auto out = std::make_shared<KcSampled1d>();
 	out->reset(0, 0, samp.dx(), 0.5);
-	out->resize(spec_->odim(), prov->channels(port->index()));
+	out->resize(spec_->odim(), prov->channels(node->index()));
 	odata_.front() = out;
 
 	return true;
@@ -148,10 +141,10 @@ void KcOpSpectrum::showProperySet()
 }
 
 
-bool KcOpSpectrum::accept(int dataSpec, unsigned inPort) const
+bool KcOpSpectrum::permitInput(int dataSpec, unsigned inPort) const
 {
 	KpDataSpec sp(dataSpec);
-	return sp.type == k_sampled; // 只接受采样数据
+	return sp.dim == 1 && sp.type == k_sampled; // 只接受采样数据
 }
 
 #if 0
