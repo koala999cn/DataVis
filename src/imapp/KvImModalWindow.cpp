@@ -1,5 +1,6 @@
 #include "KvImModalWindow.h"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include <assert.h>
 
 
@@ -33,6 +34,13 @@ void KvImModalWindow::update()
         openPopup_();
 
     if (ImGui::BeginPopupModal(label().c_str(), &visible_, flags())) {
+
+        // NOTE: 以下这行代码很重要！解决了ImGui显示Modal窗口的一个问题
+        // 在弹出模式窗口情况下，最下化主窗口再恢复，模式窗口会消失(如果不再open)；
+        // 或显示在其他窗口后面(始终reopen)，而这时程序整体处于Modal状态，将不可用。
+        // 参考https://github.com/ocornut/imgui/issues/1328
+        ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow()); // needs imgui_internal.h
+
         updateImpl_();
         ImGui::EndPopup();
     }
