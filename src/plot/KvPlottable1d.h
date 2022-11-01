@@ -23,6 +23,17 @@ protected:
 
 private:
 
+	// 一维数据(x, y)在x-y平面画线（使用缺省z值）
+	void draw1d_(KvPaint*) const;
+
+	// 二维数据(x, y, z)画瀑布线, 以x为流动轴
+	void draw2d_(KvPaint*) const;
+
+	// 二维数据(x, y, z)画3d线
+	void draw3d_(KvPaint*) const;
+
+private:
+
 	// 以下成员仅对二维数据有效
 
 	float_t defaultZ_{ 0 }; // 二维数据的z轴将被置为该值

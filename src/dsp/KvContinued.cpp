@@ -35,10 +35,12 @@ kRange KvContinued::valueRange(kIndex channel) const
 
 		if (r.low() < omin) omin = r.low();
 		if (r.high() > omax) omax = r.high();
-		for (kIndex i = 0; i < samp->dim(); i++) {
-			kIndex shape = samp->size() * 2;
-			samp->resize(&shape);
-		}
+
+		std::vector<kIndex> shape(samp->dim());
+		for (kIndex i = 0; i < samp->dim(); i++) 
+			shape[i] = samp->size(i) * 2;
+		samp->resize(shape.data());
+
 		++numIter;
 	}
 

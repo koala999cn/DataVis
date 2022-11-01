@@ -7,18 +7,18 @@
 KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-	updateSpec_();
+
 }
 
 
-void KcPvData::updateSpec_()
+int KcPvData::spec(kIndex outPort) const
 {
-	if (data_ == nullptr)
-		spec_ = 0;
-	else {
-		KpDataSpec sp;
-		sp.stream = false;
-		sp.dynamic = false;
+	KpDataSpec sp;
+	sp.stream = false;
+	sp.dynamic = false;
+
+	if (data_) {
+
 		sp.dim = data_->dim();
 		sp.channels = data_->channels();
 
@@ -39,15 +39,9 @@ void KcPvData::updateSpec_()
 					sp.type = k_array;
 			}
 		}
-
-		spec_ = sp.spec;
 	}
-}
 
-
-int KcPvData::spec(kIndex outPort) const
-{
-	return spec_;
+	return sp.spec;
 }
 
 

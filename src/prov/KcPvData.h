@@ -26,9 +26,5 @@ public:
 	void showProperySet() override;
 
 protected:
-	void updateSpec_(); // 根据data_更新spec_
-
-protected:
 	std::shared_ptr<KvData> data_;
-	int spec_{ 0 };
 };
