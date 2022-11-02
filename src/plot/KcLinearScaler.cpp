@@ -70,7 +70,10 @@ unsigned KcLinearScaler::autoRange_(double& lower, double& upper)
 
 double KcLinearScaler::getTickStep_(double lower, double upper) const
 {
-    double exactStep = (upper - lower) / (tickCount() + 1e-10); // the small addition is to prevent jitter on exact integers
+    if (tickCount() <= 1)
+        return upper - lower;
+
+    double exactStep = (upper - lower) / (tickCount() - 1);
 
     auto exp = KtuMath<double>::floorLog10(exactStep);
     auto mag = std::pow(10, exp);
