@@ -52,6 +52,11 @@ namespace kPrivate
             for (int c = 0; c < cols; c++)
                 headers.push_back(seriesName_(c).c_str());
         }
+        else if (dataType == KuDataUtil::k_sampled_2d) {
+            headers.push_back("dx");
+            for (int c = 1; c <= cols; c++)
+                headers.push_back(KuStrUtil::toString(c).c_str());
+        }
         else {
             for (int c = 1; c <= cols; c++)
                 headers.push_back(KuStrUtil::toString(c).c_str());
@@ -194,9 +199,17 @@ namespace ImGuiX
     {
         auto headers = kPrivate::makeTableHeaders_(type, std::min(cols, 66u)); // 66为2与3的公倍数
         headers.insert(headers.begin(), "NO.");
-        auto fnShow = [&headers, &fn, cols](unsigned r, unsigned c) {
+        auto fnShow = [&headers, &fn, cols, type](unsigned r, unsigned c) {
             if (c == 0) { // show the row-index
-                ImGui::Text("%d", r + 1);
+                if (type == KuDataUtil::k_sampled_2d) {
+                    if (r == 0)
+                        ImGui::Text("dy");
+                    else 
+                        ImGui::Text("%d", r);
+                }
+                else {
+                    ImGui::Text("%d", r + 1);
+                }
             }
             else {
                 ImGui::Text("%g", fn(r, c - 1));
