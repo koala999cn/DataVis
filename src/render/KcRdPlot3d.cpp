@@ -28,7 +28,7 @@ std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KcPortNode* port)
 
 	// 根据prov自动选择图类型
 	if (prov->isScattered(port->index()) || prov->isSeries(port->index()))
-	return createPlts_<KcScatter>(port);
+	    return createPlts_<KcScatter>(port);
 	else if (prov->isContinued(port->index()) || prov->isSampled(port->index()))
 		return createPlts_<KcGraph>(port);
 	else // TODO:

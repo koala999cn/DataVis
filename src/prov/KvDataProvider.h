@@ -1,9 +1,7 @@
 ﻿#pragma once
 #include "KvNode.h"
 #include "KvData.h"
-#include <memory>
 
-class KvImWindow;
 
 // 支持的数据类型
 enum KeDataType
@@ -104,6 +102,6 @@ public:
 	static std::string dataTypeStr(int spec);
 	
 private:
-	std::shared_ptr<KvImWindow> win_; // 挂接的ImWindow
+	int windowId_{ -1 }; // 挂接的ImWindow标识符
 };
 

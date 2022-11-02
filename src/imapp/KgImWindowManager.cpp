@@ -23,7 +23,17 @@ void KgImWindowManager::registerWindow(window_ptr inst)
 }
 
 
-KgImWindowManager::window_ptr KgImWindowManager::getWindow(const std::string_view& name)
+KgImWindowManager::window_ptr KgImWindowManager::getWindow(int id) const
+{
+	for (auto& i : winlist_)
+		if (i->id() == id)
+			return i;
+
+	return {};
+}
+
+
+KgImWindowManager::window_ptr KgImWindowManager::getWindow(const std::string_view& name) const
 {
 	for (auto& i : winlist_)
 		if (i->name() == name)

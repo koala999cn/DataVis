@@ -9,8 +9,7 @@
 
 KcOpFraming::KcOpFraming() 
 	: KvDataOperator("Framing")
-	, dx_(1)
-	, frameTime_(512 * dx_)
+	, frameTime_(0.01)
     , shiftTime_(frameTime_ / 2)
 {
 
@@ -35,10 +34,20 @@ bool KcOpFraming::permitInput(int dataSpec, unsigned inPort) const
 }
 
 
+kReal KcOpFraming::inputStep_() const
+{
+	auto in = inputs_.front();
+	if (in == nullptr)
+		return 1.0 / 8000.;
+
+	return super_::step(in->index(), 0);
+}
+
+
 kIndex KcOpFraming::frameSize() const
 {
 	KtSampling<kReal> samp;
-	samp.reset(0, frameTime_, dx_, 0);
+	samp.reset(0, frameTime_, inputStep_(), 0);
 	return samp.size();
 }
 
@@ -46,7 +55,7 @@ kIndex KcOpFraming::frameSize() const
 kIndex KcOpFraming::shiftSize() const
 {
 	KtSampling<kReal> samp;
-	samp.reset(0, shiftTime_, dx_, 0);
+	samp.reset(0, shiftTime_, inputStep_(), 0);
 	return samp.size();
 }
 
@@ -77,8 +86,14 @@ kIndex KcOpFraming::size(kIndex outPort, kIndex axis) const
 {
 	if (axis == 1)
 		return frameSize();
-	else if (axis == 0)
-		return framing_ ? framing_->outFrames(super_::size(outPort, 0), false) : 0;
+	else if (axis == 0) {
+		// framing_成员可能不是最新状态，这里重构一个临时对象
+		KtFraming<kReal> fram(frameSize(), channels(0), shiftSize());
+		KtSampling<kReal> samp;
+		auto r = range(0, 0);
+		samp.reset(r.low(), r.high(), inputStep_(), 0);
+		return fram.outFrames(samp.size(), false);
+	}
 
 	return super_::size(outPort, axis - 1);
 }
@@ -89,13 +104,13 @@ void KcOpFraming::makeFraming_()
 	assert(inputs_.size() == 1 && inputs_.front() != nullptr);
 	auto in = inputs_.front();
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(in->parent().lock());
-	if (!framing_ || dx_ != prov->step(in->index(), 0) ||
-		framing_->channels() != prov->channels(in->index()) ||
-		framing_->size() != frameSize() ||
-		framing_->shift() != shiftSize()) {
-		dx_ = prov->step(in->index(), 0);
+
+	if (framing_ == nullptr) {
 		framing_ = std::make_unique<KtFraming<kReal>>(
 			frameSize(), prov->channels(in->index()), shiftSize());
+	}
+	else {
+		framing_->reset(frameSize(), prov->channels(in->index()), shiftSize());
 	}
 }
 
@@ -118,24 +133,38 @@ void KcOpFraming::output()
 	assert(odata_.size() == 1);
 	assert(framing_);
 
+	assert(inputs_.size() == 1 && inputs_.front() != nullptr);
+	auto in = inputs_.front();
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(in->parent().lock());
+	if (!prov->isStream(0)) // 输入是否stream
+		framing_->reset(); // clear the buffer
+
 	auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(idata_.front());
-	assert(samp1d && dx_ == samp1d->step(0));
+	assert(samp1d);
 
 	auto out = std::dynamic_pointer_cast<KcSampled2d>(odata_.front());
-	auto frameNum = framing_->outFrames(samp1d->size(), true);
+	auto frameNum = framing_->outFrames(samp1d->size(0), true);
 	auto frameSize = this->frameSize();
-	kReal x0 = samp1d->sampling(0).low();
-	x0 -= framing_->buffered() * dx_;
 	out->resize(frameNum, frameSize, framing_->channels());
-	out->reset(0, x0 + frameTime_ / 2, shiftTime_);
-	out->reset(1, x0, dx_);
+
+	//kReal x0 = samp1d->sampling(0).low();
+	//x0 -= framing_->buffered() * inputStep_();
+	//out->reset(0, x0 + frameTime_ / 2, shiftTime_);
+	//out->reset(1, x0, inputStep_());
 
 	auto first = samp1d->data();
-	auto last = first + samp1d->size();
+	auto last = first + samp1d->count();
 	kIndex idx(0);
 	framing_->apply(first, last, [&out, &idx](const kReal* data) {
-		std::copy(data, data + out->size(1), out->row(idx++));
+		std::copy(data, data + out->size(1) * out->channels(), out->row(idx++));
 		});
+
+	// TODO: 使可配置
+	if (!prov->isStream(0)) {
+		framing_->flush([&out](const kReal* data) {
+			out->pushBack(data, 1);
+			});
+	}
 }
 
 
@@ -150,6 +179,8 @@ void KcOpFraming::showProperySet()
 	const double frameTimeMin = super_::step(0, 0);
 	ImGui::DragScalar("Frame Length(s)", ImGuiDataType_Double, &frameTime_,
 		frameTime_ * 0.01, &frameTimeMin);
+
+	ImGui::LabelText("Frame Size", "%d", frameSize());
 
 	ImGui::DragScalar("Frame Shift(s)", ImGuiDataType_Double, &shiftTime_,
 		shiftTime_ * 0.01, &frameTimeMin);

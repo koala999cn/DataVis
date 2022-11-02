@@ -33,11 +33,13 @@ private:
 	kIndex frameSize() const;
 	kIndex shiftSize() const;
 
+	// 获取输入的采样间隔，若无输入连接，则返回一个缺省值
+	kReal inputStep_() const;
+
 	void makeFraming_();
 
 private:
 	std::unique_ptr<KtFraming<kReal>> framing_;
-	kReal dx_;
 	kReal frameTime_; // 单帧时长
 	kReal shiftTime_; // 帧移时长
 };

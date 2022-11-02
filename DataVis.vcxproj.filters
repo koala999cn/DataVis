@@ -678,5 +678,8 @@
     <ClInclude Include="src\op\KcOpFraming.h">
       <Filter>op</Filter>
     </ClInclude>
+    <ClInclude Include="src\dsp\KtFraming.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

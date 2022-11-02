@@ -33,9 +33,11 @@ public:
 		return w;
 	}
 
-	window_ptr getWindow(const std::string_view& name);
+	window_ptr getWindow(int id) const;
 
-	template<typename T> std::shared_ptr<T> getWindow() {
+	window_ptr getWindow(const std::string_view& name) const;
+
+	template<typename T> std::shared_ptr<T> getWindow() const {
 		for (auto& i : winlist_)
 			if (std::dynamic_pointer_cast<T>(i))
 				return std::dynamic_pointer_cast<T>(i);

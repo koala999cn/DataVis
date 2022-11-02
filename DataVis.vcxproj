@@ -235,6 +235,7 @@
     <ClInclude Include="src\dsp\KgRdft.h" />
     <ClInclude Include="src\dsp\KgSpectrum.h" />
     <ClInclude Include="src\dsp\KmBins.h" />
+    <ClInclude Include="src\dsp\KtFraming.h" />
     <ClInclude Include="src\dsp\KtMultiArray.h" />
     <ClInclude Include="src\dsp\KtContinued.h" />
     <ClInclude Include="src\dsp\KtFIR.h" />

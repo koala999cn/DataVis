@@ -183,7 +183,7 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 				else if (prov->dim(port->index()) == 2) {
 					streamData_[port] = std::make_shared<KcSampled2d>(
 						prov->step(port->index(), 0), 
-						prov->step(port->index(), 2), 
+						prov->step(port->index(), 1), 
 						prov->channels(port->index()));
 				}
 			}
