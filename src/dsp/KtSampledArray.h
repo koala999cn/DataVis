@@ -194,13 +194,16 @@ void KtSampledArray<DIM>::shift(const KtSampledArray& d, kIndex totalRows)
 {
     assert(step(0) == d.step(0));
     assert(channels() == d.channels());
+    assert(stride(0) == d.stride(0));
+    for (unsigned i = 1; i < DIM; i++) 
+        assert(size(i) == d.size(i));
 
     if (totalRows == 0)
         totalRows = size(0);
 
     if (d.size(0) >= totalRows) {
         clear();
-        pushBack(d, d.size(0) - totalRows);
+        pushBack(d.row(d.size(0) - totalRows), totalRows);
     }
     else {
         if (d.size(0) + size(0) > totalRows) {
@@ -210,6 +213,8 @@ void KtSampledArray<DIM>::shift(const KtSampledArray& d, kIndex totalRows)
         }
         pushBack(d);
     }
+
+    assert(size(0) <= totalRows);
 }
 
 

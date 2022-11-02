@@ -50,7 +50,7 @@ kIndex KvDataProvider::channels(kIndex outPort) const
 }
 
 
-kIndex KvDataProvider::size(kIndex outPort) const
+kIndex KvDataProvider::total(kIndex outPort) const
 {
 	if (!isScattered(outPort)) {
 		kIndex c(1);
@@ -154,11 +154,11 @@ void KvDataProvider::showProperySet()
 	// 数据数量
 	if (isDiscreted(outPort)) {
 		if (dim(outPort) == 1) {
-			ImGui::LabelText("Size", "%d", size(outPort));
+			ImGui::LabelText("Size", "%d", size(outPort, 0));
 		}
 		else {
 			std::string label = "Size(total = ";
-			label += KuStrUtil::toString(size(outPort));
+			label += KuStrUtil::toString(total(outPort));
 			label += ")";
 			if (kPrivate::TreePush(label.c_str())) {
 				for (kIndex i = 0; i < dim(outPort); i++) {

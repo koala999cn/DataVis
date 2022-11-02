@@ -19,10 +19,8 @@ KcOpFraming::KcOpFraming()
 int KcOpFraming::spec(kIndex outPort) const
 {
 	KpDataSpec sp(super_::spec(outPort));
-	sp.type = k_sampled;
 	sp.dim = 2; // 比父数据多一个维度
 	sp.stream = true;
-	sp.dynamic = true;
 	return sp.spec;
 }
 
@@ -136,8 +134,8 @@ void KcOpFraming::output()
 	assert(inputs_.size() == 1 && inputs_.front() != nullptr);
 	auto in = inputs_.front();
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(in->parent().lock());
-	if (!prov->isStream(0)) // 输入是否stream
-		framing_->reset(); // clear the buffer
+//	if (!prov->isStream(0)) // 输入是否stream
+//		framing_->reset(); // clear the buffer
 
 	auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(idata_.front());
 	assert(samp1d);
@@ -160,11 +158,13 @@ void KcOpFraming::output()
 		});
 
 	// TODO: 使可配置
-	if (!prov->isStream(0)) {
-		framing_->flush([&out](const kReal* data) {
-			out->pushBack(data, 1);
-			});
-	}
+//	if (!prov->isStream(0)) {
+//		framing_->flush([&out](const kReal* data) {
+///			out->pushBack(data, 1);
+//			});
+//	}
+
+	odata_.front() = out;
 }
 
 

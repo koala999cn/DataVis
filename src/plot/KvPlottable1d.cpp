@@ -68,28 +68,31 @@ void KvPlottable1d::draw2d_(KvPaint* paint) const
 	auto d = data();
 	assert(d && d->dim() == 2);
 
-	auto samp2d = std::dynamic_pointer_cast<KvSampled>(d);
-	if (samp2d == nullptr) {
+	auto disc = std::dynamic_pointer_cast<KvDiscreted>(d);
+	if (disc == nullptr) {
 		auto cont = std::dynamic_pointer_cast<KvContinued>(d);
 		assert(cont);
 
 		auto samp = std::make_shared<KtSampler<2>>(cont);
 		samp->reset(0, sampCount(0), cont->range(0).low(), cont->range(0).high(), 0);
 		samp->reset(1, sampCount(1), cont->range(1).low(), cont->range(1).high(), 0);
-		samp2d = samp;
+		disc = samp;
 	}
+
+	assert(disc->isSampled());
 
 	// TODO: 暂时只处理第1个通道
 	kIndex idx[2];
-	auto getter = [&samp2d, &idx](unsigned i) -> KvPaint::point3 {
+	auto getter = [&disc, &idx](unsigned i) -> KvPaint::point3 {
 		idx[1] = i;
-		auto pt = samp2d->point(idx, 0);
+		auto n = idx[0] * disc->size(1) * disc->channels() + i;
+		auto pt = disc->pointAt(n, 0);
 		return { pt[0], pt[1], pt[2] };
 	};
 
-	for (kIndex ix = 0; ix < samp2d->size(0); ix++) {
+	for (kIndex ix = 0; ix < disc->size(0); ix++) {
 		idx[0] = ix;
-		drawImpl_(paint, getter, samp2d->size(1), majorColor(0));
+		drawImpl_(paint, getter, disc->size(1), majorColor(0));
 	}
 }
 

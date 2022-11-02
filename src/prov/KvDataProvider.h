@@ -87,7 +87,7 @@ public:
 
 	kIndex channels(kIndex outPort) const;
 
-	kIndex size(kIndex outPort) const;
+	kIndex total(kIndex outPort) const;
 
 	bool isContinued(kIndex outPort) const;
 
