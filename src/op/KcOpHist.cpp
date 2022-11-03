@@ -1,117 +1,111 @@
 ﻿#include "KcOpHist.h"
-#include "KtSampling.h"
 #include <vector>
+#include "imgui.h"
 #include "KcSampled1d.h"
-#include <QPointF>
 #include "KgHist.h"
 
 
-KcOpHist::KcOpHist(KvDataProvider* prov)
-    : KvDataOperator("hist", prov)
+KcOpHist::KcOpHist() : super_("Hist")
 {
-    assert(prov->dim() == 1);
-    auto xrange = prov->range(0);
+    bins_ = 9;
+    min_ = 0, max_ = 1;
+}
 
+
+int KcOpHist::spec(kIndex outPort) const
+{
+    KpDataSpec sp(super_::spec(outPort));
+    sp.stream = false;
+    sp.dim = 1;
+    sp.type = k_sampled;
+    return sp.spec;
+}
+
+
+kRange KcOpHist::range(kIndex outPort, kIndex axis) const
+{
+    if (axis == 0) 
+        return { min_, max_ };
+
+    return super_::range(outPort, axis);
+}
+
+
+kReal KcOpHist::step(kIndex outPort, kIndex axis) const
+{
+    if (axis == 0) 
+        return (max_ - min_) / bins_;
+
+    return super_::step(outPort, axis);
+}
+
+
+kIndex KcOpHist::size(kIndex outPort, kIndex axis) const
+{
+    if (axis == 0) 
+        return bins_;
+
+    return super_::step(outPort, axis);
+}
+
+
+bool KcOpHist::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
+{
     hist_ = std::make_unique<KgHist>();
-    hist_->resetLinear(9, xrange.low(), xrange.high()); // 缺省9个bin
+    hist_->resetLinear(bins_, min_, max_);
+
+    auto out = std::make_shared<KcSampled1d>(step(0, 0), channels(0));
+    out->resize(size(0, 0));
+    odata_.front() = out;
+
+    return true;
 }
 
 
-namespace kPrivate
+void KcOpHist::onStopPipeline()
 {
-    enum KeHistPropertyId
-    {
-        k_range,
-        k_bands
-    };
-};
-
-KcOpHist::kPropertySet KcOpHist::propertySet() const
-{
-    kPropertySet ps;
-    KpProperty prop;
-
-    prop.id = kPrivate::k_range;
-    prop.name = tr("Range");
-    prop.flag = KvPropertiedObject::k_restrict;
-    auto r = hist_->range();
-    prop.val = QPointF(r.first, r.second);
-    KvPropertiedObject::KpProperty subProp;
-    subProp.name = tr("min");
-    prop.children.push_back(subProp);
-    subProp.name = tr("max");
-    prop.children.push_back(subProp);
-    ps.push_back(prop);
-
-    prop.id = kPrivate::k_bands;
-    prop.name = tr("Bands");
-    prop.val = hist_->numBins();
-    prop.minVal = 1;
-    prop.step = 1;
-    auto objp = dynamic_cast<const KvDataProvider*>(parent());
-    assert(objp != nullptr && objp->step(0) != 0);
-    prop.maxVal = std::floor((r.second - r.first) / objp->step(0));  
-    ps.push_back(prop);
-
-    return ps;
+    hist_.reset();
+    // odata_.front() = nullptr;
 }
 
 
-void KcOpHist::setPropertyImpl_(int id, const QVariant& newVal)
+void KcOpHist::output()
 {
-    switch (id) {
-    case kPrivate::k_range:
-        hist_->resetLinear(hist_->numBins(), newVal.toPointF().x(), newVal.toPointF().y());
-        break;
+    auto in = std::dynamic_pointer_cast<KcSampled1d>(idata_.front());
+    auto out = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
 
-    case kPrivate::k_bands:
-        hist_->resetLinear(newVal.toInt(), hist_->range().first, hist_->range().second);
-        break;
-    };
+    auto prov = std::dynamic_pointer_cast<KvDataProvider>(inputs_.front()->parent().lock());
+    if (prov->isStream(inputs_.front()->index()))
+        in->alignX0(0);
+
+    hist_->process(*in, *out);
 }
 
 
-kRange KcOpHist::range(kIndex axis) const
+void KcOpHist::showProperySet()
 {
-    if (axis == 0) 
-        return { hist_->range().first, hist_->range().second };
+    super_::showProperySet();
+    ImGui::Separator();
 
-    return KvDataOperator::range(axis);
-}
+    if (ImGui::DragInt("Hist Bins", &bins_, 1, 1, 999999))
+        notifyChanged_();
 
-
-kReal KcOpHist::step(kIndex axis) const
-{
-    if (axis == 0) {
-        return hist_->binWidth(0); // bin是线性的
+    float low = min_, high = max_;
+    if (ImGui::DragFloatRange2("Hist Range", &low, &high)) {
+        min_ = low, max_ = high;
+        notifyChanged_();
     }
-
-    return KvDataOperator::step(axis);
 }
 
 
-kIndex KcOpHist::size(kIndex axis) const
+bool KcOpHist::permitInput(int dataSpec, unsigned inPort) const
 {
-    if (axis == 0) 
-        return hist_->numBins();
-
-    return KvDataOperator::step(axis);
-}
-
-void KcOpHist::preRender_()
-{
-
+    KpDataSpec sp(dataSpec);
+    return sp.type == k_sampled && sp.dim == 1; // TODO: 暂时只支持一维采样数据
 }
 
 
-std::shared_ptr<KvData> KcOpHist::processImpl_(std::shared_ptr<KvData> data)
+bool KcOpHist::onInputChanged(KcPortNode* outPort, unsigned inPort)
 {
-    auto res = std::make_shared<KcSampled1d>();
-    auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(data);
-    auto objp = dynamic_cast<KvDataProvider*>(parent());
-    if (objp->isStream())
-        samp1d->shiftLeftTo(0);
-        
-    hist_->process(*samp1d, *res);
-    return res;
+    return false;
 }

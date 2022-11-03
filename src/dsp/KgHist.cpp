@@ -21,6 +21,11 @@ void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
 
 void KgHist::process(const KcSampled1d& in, kReal* out)
 {
+    if (in.empty()) {
+        std::fill(out, out + numBins() * in.channels(), 0);
+        return;
+    }
+
     for (kIndex i = 0; i < numBins(); i++) {
         auto range = in.sampling(0).rangeToIndex(binLeft(i), binRight(i));
         if (range.first > range.second) std::swap(range.first, range.second);

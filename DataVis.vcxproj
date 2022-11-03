@@ -157,6 +157,7 @@
     <ClCompile Include="src\imapp\KvNode.cpp" />
     <ClCompile Include="src\imapp\KcActionSequence.cpp" />
     <ClCompile Include="src\op\KcOpFraming.cpp" />
+    <ClCompile Include="src\op\KcOpHist.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
     <ClCompile Include="src\op\KvDataOperator.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
@@ -278,6 +279,7 @@
     <ClInclude Include="src\imapp\KvModule.h" />
     <ClInclude Include="src\imapp\KvNode.h" />
     <ClInclude Include="src\op\KcOpFraming.h" />
+    <ClInclude Include="src\op\KcOpHist.h" />
     <ClInclude Include="src\op\KcOpSpectrum.h" />
     <ClInclude Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\plot\KcBars2d.h" />

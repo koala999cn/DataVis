@@ -7,30 +7,34 @@ class KgHist;
 
 class KcOpHist : public KvDataOperator
 {
+	using super_ = KvDataOperator;
+
 public:
-	KcOpHist(KvDataProvider* prov);
+	KcOpHist();
 
-	kPropertySet propertySet() const override;
+	int spec(kIndex outPort) const final;
 
-	bool isStream() const override { return false; }
+	kRange range(kIndex outPort, kIndex axis) const final;
 
-	kRange range(kIndex axis) const override;
+	kReal step(kIndex outPort, kIndex axis) const final;
 
-	kReal step(kIndex axis) const override;
+	kIndex size(kIndex outPort, kIndex axis) const final;
 
-	kIndex size(kIndex axis) const override;
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
-	unsigned ins() const final { return 1u; }
+	void onStopPipeline() final;
 
-	unsigned outs() const final { return 1u; }
+	void output() final;
 
+	void showProperySet() final;
 
-private:
-	void setPropertyImpl_(int id, const QVariant& newVal) override;
-	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
-	void preRender_() override;
+	bool permitInput(int dataSpec, unsigned inPort) const final;
+
+	bool onInputChanged(KcPortNode* outPort, unsigned inPort) final;
 
 private:
 	std::unique_ptr<KgHist> hist_;
+	double min_, max_; // 做hist的值域范围
+	int bins_; // hist的bin数
 };
 

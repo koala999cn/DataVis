@@ -153,7 +153,7 @@ void KvDataProvider::showProperySet()
 
 	// 数据数量
 	if (isDiscreted(outPort)) {
-		if (dim(outPort) == 1) {
+		if (dim(outPort) <= 1) {
 			ImGui::LabelText("Size", "%d", size(outPort, 0));
 		}
 		else {
@@ -177,7 +177,7 @@ void KvDataProvider::showProperySet()
 		ImGui::LabelText("Frequency", "%g", 1.0 / step(outPort, 0));
 	}
 
-	if (dim(outPort) == 1) {
+	if (dim(outPort) <= 1) {
 		ImGui::LabelText("Key Range", "%g - %g",
 			range(outPort, 0).low(), range(outPort, 0).high());
 		ImGui::LabelText("Value Range", "%g - %g",

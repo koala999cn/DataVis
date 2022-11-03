@@ -111,7 +111,7 @@ public:
 
     long xToLowIndex(KREAL t) const {
         auto idx = static_cast<long>(std::floor(xToIndex(t)));
-        assert(indexToX(idx) <= t); 
+        //assert(indexToX(idx) <= t); 
         if (indexToX(idx + 1) <= t) // 处理0.9999999变为0的情况
             idx++;
 

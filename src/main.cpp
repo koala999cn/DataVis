@@ -16,6 +16,7 @@
 #include "render/KcRdPlot3d.h"
 #include "op/KcOpSpectrum.h"
 #include "op/KcOpFraming.h"
+#include "op/KcOpHist.h"
 #include "plot/KsThemeManager.h"
 
 
@@ -41,6 +42,7 @@ int main_(int, char**)
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSpectrum>>("Spectrum"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFraming>>("Framing"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHist>>("Hist"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot3d>>("Plot3d"));
 

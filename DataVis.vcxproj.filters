@@ -289,6 +289,9 @@
     <ClCompile Include="src\op\KcOpFraming.cpp">
       <Filter>op</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcOpHist.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -680,6 +683,9 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KtFraming.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpHist.h">
+      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
