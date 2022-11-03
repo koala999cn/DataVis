@@ -17,6 +17,8 @@ public:
 
 	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
+	void onStopPipeline() final;
+
 	void output() final;
 
 	void showProperySet() final;

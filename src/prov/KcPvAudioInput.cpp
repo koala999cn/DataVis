@@ -142,8 +142,10 @@ void KcPvAudioInput::showProperySet()
 	if (ImGui::BeginCombo("Device", info.name.c_str())) {
 		for (unsigned i = 0; i < device->count(); i++) {
 			info = device->info(i);
-			if (info.inputChannels > 0 && ImGui::Selectable(info.name.c_str(), i == deviceId_))
+			if (info.inputChannels > 0 && ImGui::Selectable(info.name.c_str(), i == deviceId_)) {
 				deviceId_ = i;
+				KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+			}
 		}
 
 		ImGui::EndCombo();
@@ -152,19 +154,24 @@ void KcPvAudioInput::showProperySet()
 	info = device->info(deviceId_);
 	assert(spec_.channels <= info.inputChannels);
 	int channles = spec_.channels;
-	if (ImGui::SliderInt("Channles", &channles, 1, std::min<int>(info.inputChannels, 255)))
+	if (ImGui::SliderInt("Channles", &channles, 1, std::min<int>(info.inputChannels, 255))) {
 		spec_.channels = channles;
+		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+	}
 
 	auto rateStr = KuStrUtil::toString(sampleRate_);
 	if (ImGui::BeginCombo("SampleRate", rateStr.c_str())) {
 		for (auto rate : info.sampleRates)
-			if (ImGui::Selectable(KuStrUtil::toString(rate).c_str(), sampleRate_ == rate))
+			if (ImGui::Selectable(KuStrUtil::toString(rate).c_str(), sampleRate_ == rate)) {
 				sampleRate_ = rate;
+				KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+			}
 
 		ImGui::EndCombo();
 	}
 
-	ImGui::DragFloat("FrameTime", &frameTime_, 0.01, 0.01, 1.0);
+	if (ImGui::DragFloat("FrameTime", &frameTime_, 0.01, 0.01, 1.0))
+		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
 
 	ImGui::EndDisabled();
 	ImGui::Separator();

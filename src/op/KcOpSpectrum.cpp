@@ -17,7 +17,6 @@ KcOpSpectrum::KcOpSpectrum()
 int KcOpSpectrum::spec(kIndex outPort) const
 {
 	KpDataSpec sp(super_::spec(outPort));
-	sp.stream &= sp.dim > 1; // 输入若为高维数据，则该节点streaming
 	return sp.spec; 
 }
 
@@ -78,6 +77,13 @@ bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortN
 }
 
 
+void KcOpSpectrum::onStopPipeline()
+{
+	spec_.reset();
+	// TODO: odata_.front() = nullptr;
+}
+
+
 void KcOpSpectrum::output()
 {
 	assert(spec_);
@@ -122,20 +128,25 @@ void KcOpSpectrum::showProperySet()
 	auto curType = KgSpectrum::type2Str(specType_);
 	if (ImGui::BeginCombo("Spectrum Type", curType)) {
 		for (unsigned i = 0; i < KgSpectrum::typeCount(); i++)
-			if (ImGui::Selectable(KgSpectrum::type2Str(i), i == specType_))
+			if (ImGui::Selectable(KgSpectrum::type2Str(i), i == specType_)) {
 				specType_ = i;
+				KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+			}
 		ImGui::EndCombo();
 	}
 
 	auto curNorm = KgSpectrum::norm2Str(normMode_);
 	if (ImGui::BeginCombo("Normalization", curNorm)) {
 		for (unsigned i = 0; i < KgSpectrum::normModeCount(); i++)
-			if (ImGui::Selectable(KgSpectrum::norm2Str(i), i == normMode_))
+			if (ImGui::Selectable(KgSpectrum::norm2Str(i), i == normMode_)) {
 				normMode_ = i;
+				KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+			}
 		ImGui::EndCombo();
 	}
 
-	ImGui::Checkbox("Round to Power of 2", &roundToPower2_);
+	if (ImGui::Checkbox("Round to Power of 2", &roundToPower2_))
+		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
 
 	ImGui::EndDisabled();
 }

@@ -14,7 +14,7 @@ KcPvExpr::KcPvExpr()
     auto exprk = std::make_shared<KcExprtk1d>();
     exprk->compile(exprText_); // 构造默认的表达式
     assert(exprk->ok());
-    data_ = std::make_shared<KtContinuedExpr<1>>(exprk);
+    setData(std::make_shared<KtContinuedExpr<1>>(exprk));
 }
 
 
@@ -27,7 +27,7 @@ void KcPvExpr::showProperySet()
     ImGui::Separator();
     if (ImGui::Button("E", ImVec2(sz.y, sz.y))) { // 编辑表达式字符串
         KsImApp::singleton().windowManager().
-            registerWindow<KcImExprEditor>(&exprText_, &data_);
+            registerWindow<KcImExprEditor>(&exprText_, this);
     }
 
     ImGui::PushItemWidth(w - sz.y - ImGui::GetStyle().ItemSpacing.x);

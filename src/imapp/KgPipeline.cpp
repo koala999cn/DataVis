@@ -64,6 +64,8 @@ void KgPipeline::insertNode(const std::shared_ptr<KvBlockNode>& node)
         // TODO: node->onStartPipeline(); // 补一个流水线启动的回调
 
         // TODO: 检测错误
+
+        assert(false); // 暂时禁止管线运行时增加节点
     }
 }
 
@@ -139,6 +141,57 @@ void KgPipeline::eraseLink(int fromId, int toId)
     fromNode->parent().lock()->onDelLink(fromNode.get(), toNode.get());
     toNode->parent().lock()->onDelLink(fromNode.get(), toNode.get());
     graph_.eraseEdge(fromIdx, toIdx);
+}
+
+
+void KgPipeline::notifyOutputChanged(KvBlockNode* node, unsigned outPort)
+{
+    assert(node);
+    auto idx = nodeId2Index_(node->id());
+    if (idx == -1)
+        return;
+
+    auto portIdx = idx + node->inPorts() + outPort + 1;
+    auto port = std::dynamic_pointer_cast<KcPortNode>(graph().vertexAt(portIdx));
+
+    std::set<KvNode*> visited; // 保存已遍历的block节点，防止死循环
+    visited.insert(node);
+
+    std::queue<KcPortNode*> ports; // 待访问的端口节点
+    ports.push(port.get());
+
+    // 顺着输出链条，逐个节点调用onInputChanged
+    while (!ports.empty()) {
+        auto port = ports.front(); ports.pop();
+        auto idx = nodeId2Index_(port->id());
+        auto adj = KtAdjIter(graph_, idx);
+        for (; !adj.isEnd(); ++adj) {
+            auto inport = std::dynamic_pointer_cast<KcPortNode>(graph().vertexAt(*adj));
+            assert(inport);
+
+            auto node = inport->parent().lock();
+            if (!node || 
+                !node->onInputChanged(port, inport->index()) ||
+                node->outPorts() == 0)
+                continue; // node的输出无变化，跳过
+
+            if (visited.count(node.get()) > 0)
+                continue; // node已遍历过，不再遍历
+
+            visited.insert(node.get());
+            auto nodeIdx = parentIndex_(*adj);
+            assert(graph().vertexAt(nodeIdx) == node);
+
+            // 将node的输出端口加入ports队列
+            auto outIdx = nodeIdx + node->inPorts() + 1;
+            for (unsigned i = 0; i < node->outPorts(); i++) {
+                auto onode = graph().vertexAt(outIdx++);
+                auto port = std::dynamic_pointer_cast<KcPortNode>(onode);
+                if (port)
+                    ports.push(port.get());
+            }
+        }
+    }
 }
 
 

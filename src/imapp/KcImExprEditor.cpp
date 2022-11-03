@@ -6,12 +6,13 @@
 #include "exprtkX/KcExprtk2d.h"
 #include "exprtkX/KcExprtk3d.h"
 #include "KtContinuedExpr.h"
+#include "prov/KcPvData.h"
 
 
-KcImExprEditor::KcImExprEditor(std::string* text, std::shared_ptr<KvData>* data)
+KcImExprEditor::KcImExprEditor(std::string* text, KcPvData* pvData)
     : exprText_(text)
     , origText_(*text)
-    , data_(data)
+    , pvData_(pvData)
     , KvImModalWindow("Expression Editor")
 {
 
@@ -35,9 +36,11 @@ void KcImExprEditor::updateImpl_()
     ImGui::Spacing();
 
     if (ImGui::Button("OK", ImVec2(99, 0))) {
-        if (compile_()) {
+        auto data = compile_();
+        if (data) {
             origText_.clear(); // 防止重置原始字串
             close();
+            pvData_->setData(data);
         }
         else {
             // TODO: messagebox
@@ -50,27 +53,21 @@ void KcImExprEditor::updateImpl_()
 }
 
 
-bool KcImExprEditor::compile_()
+std::shared_ptr<KvData> KcImExprEditor::compile_()
 {
     auto expr = std::make_shared<KcExprtk1d>();
-    if (expr->compile(*exprText_)) { // 首先尝试编译一维表达式
-        *data_ = std::make_shared<KtContinuedExpr<1>>(expr);
-        return true;
-    }
+    if (expr->compile(*exprText_))  // 首先尝试编译一维表达式
+        return std::make_shared<KtContinuedExpr<1>>(expr);
 
     expr = std::make_shared<KcExprtk2d>();
-    if (expr->compile(*exprText_)) { // 尝试编译二维表达式
-        *data_ = std::make_shared<KtContinuedExpr<2>>(expr);
-        return true;
-    }
+    if (expr->compile(*exprText_))  // 尝试编译二维表达式
+        return std::make_shared<KtContinuedExpr<2>>(expr);
 
     expr = std::make_shared<KcExprtk3d>();
-    if (expr->compile(*exprText_)) { // 尝试编译三维表达式
-        *data_ = std::make_shared<KtContinuedExpr<3>>(expr);
-        return true;
-    }
+    if (expr->compile(*exprText_))  // 尝试编译三维表达式
+        return std::make_shared<KtContinuedExpr<3>>(expr);
 
-    return false;
+    return nullptr;
 }
 
 

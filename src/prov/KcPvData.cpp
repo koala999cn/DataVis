@@ -2,20 +2,20 @@
 #include "KvDiscreted.h"
 #include "KvContinued.h"
 #include "imgui.h"
+#include "imapp/KsImApp.h"
+#include "imapp/KgPipeline.h"
 
 
 KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-
+	updateSpec_();
 }
 
 
-int KcPvData::spec(kIndex outPort) const
+void KcPvData::updateSpec_()
 {
 	KpDataSpec sp;
-	sp.stream = false;
-	sp.dynamic = false;
 
 	if (data_) {
 
@@ -41,7 +41,13 @@ int KcPvData::spec(kIndex outPort) const
 		}
 	}
 
-	return sp.spec;
+	spec_ = sp.spec;
+}
+
+
+int KcPvData::spec(kIndex outPort) const
+{
+	return spec_;
 }
 
 
@@ -86,12 +92,23 @@ void KcPvData::showProperySet()
 			for (unsigned i = 0; i < data_->dim(); i++) {
 				auto r = data_->range(i);
 				float low = r.low(), high = r.high();
-				if (ImGui::DragFloatRange2(label, &low, &high))
+				if (ImGui::DragFloatRange2(label, &low, &high)) {
 					cont->setRange(i, low, high);
+					KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+				}
+
 				label[0] += 1;
 			}
 
 			ImGui::TreePop();
 		}
 	}
+}
+
+
+void KcPvData::setData(const std::shared_ptr<KvData>& d)
+{
+	data_ = d;
+	updateSpec_();
+	KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
 }

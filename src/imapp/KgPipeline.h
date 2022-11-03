@@ -29,6 +29,9 @@ public:
 
     void eraseLink(int fromId, int toId);
 
+    // 节点node第outPort个输出端口的数据规格、数据范围发生变化
+    void notifyOutputChanged(KvBlockNode* node, unsigned outPort);
+
     // 返回连接到nodeId第portIdx个输入端口的节点集合
     // NOTE: 耗时计算
     std::vector<KvNode*> getInputs(int nodeId, unsigned portIdx) const;

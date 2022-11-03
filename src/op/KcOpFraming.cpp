@@ -19,8 +19,7 @@ KcOpFraming::KcOpFraming()
 int KcOpFraming::spec(kIndex outPort) const
 {
 	KpDataSpec sp(super_::spec(outPort));
-	sp.dim = 2; // 比父数据多一个维度
-	sp.stream = true;
+	++sp.dim; // 比父数据多一个维度
 	return sp.spec;
 }
 
@@ -97,31 +96,31 @@ kIndex KcOpFraming::size(kIndex outPort, kIndex axis) const
 }
 
 
-void KcOpFraming::makeFraming_()
-{
-	assert(inputs_.size() == 1 && inputs_.front() != nullptr);
-	auto in = inputs_.front();
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(in->parent().lock());
-
-	if (framing_ == nullptr) {
-		framing_ = std::make_unique<KtFraming<kReal>>(
-			frameSize(), prov->channels(in->index()), shiftSize());
-	}
-	else {
-		framing_->reset(frameSize(), prov->channels(in->index()), shiftSize());
-	}
-}
-
-
 bool KcOpFraming::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+	assert(ins.size() == 1 && ins.front().first == 0);
+
 	if (!super_::onStartPipeline(ins))
 		return false;
 
-	makeFraming_();
-	odata_.resize(1);
+	assert(inputs_.size() == 1 && inputs_.front() != nullptr);
+	assert(odata_.size() == 1);
+
+	auto in = ins.front().second;
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(in->parent().lock());
+
+	framing_ = std::make_unique<KtFraming<kReal>>(
+		frameSize(), prov->channels(in->index()), shiftSize());
+
 	odata_.front() = std::make_shared<KcSampled2d>(step(0, 0), step(0, 1), channels(0));
 	return framing_ != nullptr;
+}
+
+
+void KcOpFraming::onStopPipeline()
+{
+	framing_.reset();
+	// TODO: odata_.front() = nullptr; 
 }
 
 
@@ -134,8 +133,8 @@ void KcOpFraming::output()
 	assert(inputs_.size() == 1 && inputs_.front() != nullptr);
 	auto in = inputs_.front();
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(in->parent().lock());
-//	if (!prov->isStream(0)) // 输入是否stream
-//		framing_->reset(); // clear the buffer
+	if (!prov->isStream(0)) // 输入是否stream
+		framing_->reset(); // clear the buffer
 
 	auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(idata_.front());
 	assert(samp1d);
@@ -158,11 +157,11 @@ void KcOpFraming::output()
 		});
 
 	// TODO: 使可配置
-//	if (!prov->isStream(0)) {
-//		framing_->flush([&out](const kReal* data) {
-///			out->pushBack(data, 1);
-//			});
-//	}
+	if (!prov->isStream(0)) {
+		framing_->flush([&out](const kReal* data) {
+			out->pushBack(data, 1);
+			});
+	}
 
 	odata_.front() = out;
 }
@@ -177,15 +176,27 @@ void KcOpFraming::showProperySet()
 	ImGui::BeginDisabled(disable);
 
 	const double frameTimeMin = super_::step(0, 0);
-	ImGui::DragScalar("Frame Length(s)", ImGuiDataType_Double, &frameTime_,
-		frameTime_ * 0.01, &frameTimeMin);
+	if (ImGui::DragScalar("Frame Length(s)", ImGuiDataType_Double, &frameTime_,
+		frameTime_ * 0.01, &frameTimeMin))
+		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
 
 	ImGui::LabelText("Frame Size", "%d", frameSize());
 
-	ImGui::DragScalar("Frame Shift(s)", ImGuiDataType_Double, &shiftTime_,
-		shiftTime_ * 0.01, &frameTimeMin);
+	if (ImGui::DragScalar("Frame Shift(s)", ImGuiDataType_Double, &shiftTime_,
+		shiftTime_ * 0.01, &frameTimeMin))
+		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
 
 	ImGui::LabelText("Shift Size", "%d", shiftSize());
 
 	ImGui::EndDisabled();
+}
+
+
+bool KcOpFraming::onInputChanged(KcPortNode* outPort, unsigned inPort)
+{
+	assert(outPort == inputs_.front());
+	
+	// 所有属性都已动态化，此处不需要额外工作
+
+	return true;
 }

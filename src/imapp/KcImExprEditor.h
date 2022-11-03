@@ -2,6 +2,7 @@
 #include "KvImModalWindow.h"
 #include <memory>
 
+class KcPvData;
 class KvData;
 
 class KcImExprEditor : public KvImModalWindow
@@ -9,7 +10,7 @@ class KcImExprEditor : public KvImModalWindow
 	using super_ = KvImModalWindow;
 
 public:
-	KcImExprEditor(std::string* text, std::shared_ptr<KvData>* data);
+	KcImExprEditor(std::string* text, KcPvData* pvData);
 
 	int flags() const override;
 
@@ -19,10 +20,10 @@ private:
 
 	void updateImpl_() override;
 
-	bool compile_();
+	std::shared_ptr<KvData> compile_();
 
 private:
 	std::string origText_;
 	std::string* exprText_;
-	std::shared_ptr<KvData>* data_;
+	KcPvData* pvData_;
 };

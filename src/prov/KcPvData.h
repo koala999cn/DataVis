@@ -25,6 +25,16 @@ public:
 
 	void showProperySet() override;
 
-protected:
+	std::shared_ptr<KvData> data() const {
+		return data_;
+	}
+
+	void setData(const std::shared_ptr<KvData>& d);
+
+private:
+	void updateSpec_();
+
+private:
 	std::shared_ptr<KvData> data_;
+	int spec_;
 };
