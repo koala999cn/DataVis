@@ -178,13 +178,13 @@ void KcOpFraming::showProperySet()
 	const double frameTimeMin = super_::step(0, 0);
 	if (ImGui::DragScalar("Frame Length(s)", ImGuiDataType_Double, &frameTime_,
 		frameTime_ * 0.01, &frameTimeMin))
-		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+		notifyChanged_();
 
 	ImGui::LabelText("Frame Size", "%d", frameSize());
 
 	if (ImGui::DragScalar("Frame Shift(s)", ImGuiDataType_Double, &shiftTime_,
 		shiftTime_ * 0.01, &frameTimeMin))
-		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+		notifyChanged_();
 
 	ImGui::LabelText("Shift Size", "%d", shiftSize());
 

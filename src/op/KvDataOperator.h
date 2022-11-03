@@ -43,6 +43,11 @@ public:
 	virtual bool permitInput(int dataSpec, unsigned inPort) const = 0;
 
 protected:
+
+	// 向管线管理器发送变化消息的帮助函数
+	void notifyChanged_();
+
+protected:
 	std::vector<std::shared_ptr<KvData>> idata_{ inPorts() };
 	std::vector<std::shared_ptr<KvData>> odata_{ outPorts() };
 	std::vector<KcPortNode*> inputs_{ inPorts() };

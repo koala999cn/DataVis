@@ -1,5 +1,7 @@
 #include "KvDataOperator.h"
 #include "KvDiscreted.h"
+#include "imapp/KsImApp.h"
+#include "imapp/KgPipeline.h"
 
 
 namespace kPrivate
@@ -149,4 +151,11 @@ bool KvDataOperator::onStartPipeline(const std::vector<std::pair<unsigned, KcPor
 	}
 
 	return true;
+}
+
+
+void KvDataOperator::notifyChanged_()
+{
+	for (unsigned i = 0; i < outPorts(); i++)
+		KsImApp::singleton().pipeline().notifyOutputChanged(this, i);
 }

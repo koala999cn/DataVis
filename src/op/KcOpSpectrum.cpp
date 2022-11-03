@@ -130,7 +130,7 @@ void KcOpSpectrum::showProperySet()
 		for (unsigned i = 0; i < KgSpectrum::typeCount(); i++)
 			if (ImGui::Selectable(KgSpectrum::type2Str(i), i == specType_)) {
 				specType_ = i;
-				KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+				notifyChanged_();
 			}
 		ImGui::EndCombo();
 	}
@@ -140,13 +140,13 @@ void KcOpSpectrum::showProperySet()
 		for (unsigned i = 0; i < KgSpectrum::normModeCount(); i++)
 			if (ImGui::Selectable(KgSpectrum::norm2Str(i), i == normMode_)) {
 				normMode_ = i;
-				KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+				notifyChanged_();
 			}
 		ImGui::EndCombo();
 	}
 
 	if (ImGui::Checkbox("Round to Power of 2", &roundToPower2_))
-		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+		notifyChanged_();
 
 	ImGui::EndDisabled();
 }
