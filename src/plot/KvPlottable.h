@@ -36,7 +36,7 @@ public:
 	}
 
 	// 返回false表示不需要辅助色
-	virtual bool minorColorNeeded() const { return 0; }
+	virtual bool minorColorNeeded() const { return false; }
 
 	// 主色彩的个数，一般等于majorColorNeeded。
 	// 在连续色彩情况下，返回主控制色的个数

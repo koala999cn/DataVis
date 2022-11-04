@@ -23,13 +23,13 @@ protected:
 
 private:
 
-	// 一维数据(x, y)在x-y平面画线（使用缺省z值）
+	// 一维数据(x, y)在x-y平面绘图（使用缺省z值）
 	void draw1d_(KvPaint*) const;
 
-	// 二维数据(x, y, z)画瀑布线, 以x为流动轴
+	// 二维数据(x, y, z)画瀑布图, 以x为流动轴
 	void draw2d_(KvPaint*) const;
 
-	// 二维数据(x, y, z)画3d线
+	// 二维数据(x, y, z)画3d图
 	void draw3d_(KvPaint*) const;
 
 private:

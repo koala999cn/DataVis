@@ -161,12 +161,13 @@
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
     <ClCompile Include="src\op\KvDataOperator.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
-    <ClCompile Include="src\plot\KcBars2.cpp" />
+    <ClCompile Include="src\plot\KcBars2d.cpp" />
     <ClCompile Include="src\plot\KcCoord2d.cpp" />
     <ClCompile Include="src\plot\KcCoord3d.cpp" />
     <ClCompile Include="src\plot\KcGraph.cpp" />
     <ClCompile Include="src\plot\KcCoordPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearScaler.cpp" />
+    <ClCompile Include="src\plot\KcMap2d.cpp" />
     <ClCompile Include="src\plot\KcScatter.cpp" />
     <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp" />
     <ClCompile Include="src\plot\KsThemeManager.cpp" />
@@ -288,6 +289,7 @@
     <ClInclude Include="src\plot\KcLinearScaler.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
+    <ClInclude Include="src\plot\KcMap2d.h" />
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
     <ClInclude Include="src\plot\KtGradient.h" />
     <ClInclude Include="src\plot\KpContext.h" />

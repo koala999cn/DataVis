@@ -253,7 +253,7 @@
     <ClCompile Include="src\audio\KcAudioDevice.cpp">
       <Filter>audio</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcBars2.cpp">
+    <ClCompile Include="src\plot\KcBars2d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KuDataUtil.cpp">
@@ -291,6 +291,9 @@
     </ClCompile>
     <ClCompile Include="src\op\KcOpHist.cpp">
       <Filter>op</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcMap2d.cpp">
+      <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -686,6 +689,9 @@
     </ClInclude>
     <ClInclude Include="src\op\KcOpHist.h">
       <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcMap2d.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
