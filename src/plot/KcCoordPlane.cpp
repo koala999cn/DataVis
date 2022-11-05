@@ -43,13 +43,23 @@ void KcCoordPlane::draw(KvPaint* paint) const
 		paint->fillQuad(horz_[0]->start(), horz_[0]->end(), horz_[1]->end(), horz_[1]->start());
 	}
 
-	if (majorVisible() && majorLineCxt_.style != KpPen::k_none) {
+	bool showMajor = majorVisible() && majorLineCxt_.style != KpPen::k_none;
+	bool showMinor = minorVisible() && minorLineCxt_.style != KpPen::k_none;
+
+	axis_ptr axes[] = {
+		horz_[0], horz_[1], vert_[0], vert_[1]
+	};
+
+	for(unsigned i = 0; i < std::size(axes); i++)
+		axes[i]->scaler()->generate(axes[i]->lower(), axes[i]->upper(), showMajor, showMinor);
+
+	if (showMajor) {
 		paint->apply(majorLineCxt_);
 		drawMajors_(paint, horz_[0], horz_[1]);
 		drawMajors_(paint, vert_[0], vert_[1]);
 	}
 
-	if (minorVisible() && minorLineCxt_.style != KpPen::k_none) {
+	if (showMinor) {
 		paint->apply(minorLineCxt_);
 		drawMinors_(paint, horz_[0], horz_[1]);
 		drawMinors_(paint, vert_[0], vert_[1]);

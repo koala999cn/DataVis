@@ -68,7 +68,7 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 
 	auto scale = scaler();
 	scale->generate(lower(), upper(), showSubtick(), showLabel());
-	auto& ticks = scale->ticks();
+	const auto& ticks = scale->ticks();
 
 	assert(KtuMath<float_t>::almostEqual(tickOrient().length(), 1));
 	auto pt0 = paint->project(point3(0));
