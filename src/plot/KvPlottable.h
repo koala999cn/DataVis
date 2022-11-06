@@ -2,10 +2,9 @@
 #include "KvRenderable.h"
 #include <string>
 #include <memory>
-#include "KvData.h"
 #include "KtColor.h"
-#include "KtAABB.h"
 
+class KvData;
 
 class KvPlottable : public KvRenderable
 {
@@ -16,44 +15,11 @@ public:
 	using KvRenderable::KvRenderable;
 
 	data_ptr data() const { return data_; }
-	void setData(data_ptr d) { 
-		data_ = d; 
-		majorColors_.resize(d->channels(), color4f{ 0, 0, 0, 1 });
+	void setData(data_ptr d);
 
-		if (d->isContinued() && d->dim() != sampCount_.size() ) 
-			sampCount_.assign(d->dim(), std::pow(1000., 1. / d->dim()));
-	}
-
-	bool empty() const {
-		return !data_ || data_->size() == 0;
-	}
+	bool empty() const;
 
 	aabb_type boundingBox() const override;
-
-	// 返回-1表示需要连续色带
-	virtual unsigned majorColorsNeeded() const { 
-		return !shareColor() && data() ? data()->channels() : 1; 
-	}
-
-	// 返回false表示不需要辅助色
-	virtual bool minorColorNeeded() const { return false; }
-
-	// 主色彩的个数，一般等于majorColorNeeded。
-	// 在连续色彩情况下，返回主控制色的个数
-	virtual unsigned majorColors() const { return majorColors_.size(); }
-
-	virtual const color4f& majorColor(unsigned idx) const {	return majorColors_[idx]; }
-	virtual color4f& majorColor(unsigned idx) { return majorColors_[idx]; }
-
-	virtual void setMajorColors(const std::vector<color4f>& majors) { majorColors_ = majors; }
-
-	virtual const color4f& minorColor() const { return minorColor_; }
-	virtual color4f& minorColor() { return minorColor_; }
-
-	virtual void setMinorColor(const color4f& minor) { minorColor_ = minor; }
-
-	bool shareColor() const { return shareColor_; }
-	bool& shareColor() { return shareColor_; }
 
 	unsigned sampCount(unsigned dim) const {
 		return sampCount_[dim];
@@ -63,13 +29,35 @@ public:
 		return sampCount_[dim];
 	}
 
+
+	/// 以下为调色板通用接口 //////////////////////////////////
+
+	// 返回-1表示需要连续色带
+	virtual unsigned majorColorsNeeded() const = 0;
+
+	// 返回false表示不需要辅助色
+	virtual bool minorColorNeeded() const = 0;
+
+	// 主色彩的个数，一般等于majorColorNeeded。
+	// 在连续色彩情况下，返回主控制色的个数
+	virtual unsigned majorColors() const = 0;
+
+	virtual const color4f& majorColor(unsigned idx) const = 0;
+	virtual color4f& majorColor(unsigned idx) = 0;
+
+	virtual void setMajorColors(const std::vector<color4f>& majors) = 0;
+
+	virtual const color4f& minorColor() const = 0;
+	virtual color4f& minorColor() = 0;
+
+	virtual void setMinorColor(const color4f& minor) = 0;
+
+	////////////////////////////////////////////////////////////////
+
+
 private:
 
 	data_ptr data_;
-	bool shareColor_{ false }; // 多通道数据是否共用调色板
-
-	std::vector<color4f> majorColors_{ color4f(0, 0, 0, 1) };
-	color4f minorColor_;
 
 	// 各维度的采样点数目, 仅适用于连续数据
 	std::vector<unsigned> sampCount_{ std::vector<unsigned>({ 1000 }) }; 

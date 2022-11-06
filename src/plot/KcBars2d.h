@@ -21,9 +21,26 @@ public:
 
 	aabb_type boundingBox() const;
 
+
+	unsigned majorColorsNeeded() const override;
+
+	bool minorColorNeeded() const override;
+
+	unsigned majorColors() const override;
+
+	const color4f& majorColor(unsigned idx) const override;
+	color4f& majorColor(unsigned idx) override;
+
+	void setMajorColors(const std::vector<color4f>& majors) override;
+
+	const color4f& minorColor() const override;
+	color4f& minorColor() override;
+
+	void setMinorColor(const color4f& minor) override;
+
 protected:
 
-	void drawImpl_(KvPaint*, point_getter, unsigned, const color4f&) const override;
+	void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const override;
 
 	// 计算单个bar的宽度（世界坐标）
 	float_t barWidth_() const;

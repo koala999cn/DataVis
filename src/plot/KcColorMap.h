@@ -1,9 +1,9 @@
 #pragma once
 #include "KvPlottable.h"
-#include "KpContext.h"
+#include "KtGradient.h"
 
 
-class KcMap2d : public KvPlottable
+class KcColorMap : public KvPlottable
 {
 	using super_ = KvPlottable;
 
@@ -16,4 +16,13 @@ public:
 	bool minorColorNeeded() const override { return true; }
 
 	void draw(KvPaint*) const override;
+
+protected:
+
+	color4f mapValueToColor_(float_t val) const;
+
+private:
+	float_t mapLower_{ 0 }, mapUpper_{ 1 }; // color mapµÄÖµÓò·¶Î§
+
+	KtGradient<float_t, color4f> mapper_;
 };

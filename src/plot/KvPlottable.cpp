@@ -1,9 +1,25 @@
 #include "KvPlottable.h"
+#include "KvData.h"
+
+
+void KvPlottable::setData(data_ptr d) 
+{
+	data_ = d;
+
+	if (d->isContinued() && d->dim() != sampCount_.size())
+		sampCount_.assign(d->dim(), std::pow(1000., 1. / d->dim()));
+}
+
+
+bool KvPlottable::empty() const 
+{
+	return !data_ || data_->size() == 0;
+}
 
 
 KvPlottable::aabb_type KvPlottable::boundingBox() const
 {
-	if (data_ == nullptr || data_->size() == 0)
+	if (empty())
 		return aabb_type(); // null aabb
 
 	point3 lower, upper;

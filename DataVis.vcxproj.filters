@@ -292,7 +292,7 @@
     <ClCompile Include="src\op\KcOpHist.cpp">
       <Filter>op</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcMap2d.cpp">
+    <ClCompile Include="src\plot\KcColorMap.cpp">
       <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
@@ -690,7 +690,7 @@
     <ClInclude Include="src\op\KcOpHist.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcMap2d.h">
+    <ClInclude Include="src\plot\KcColorMap.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

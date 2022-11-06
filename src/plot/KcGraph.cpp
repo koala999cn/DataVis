@@ -1,12 +1,12 @@
 #include "KcGraph.h"
 #include "KvPaint.h"
+#include "KvData.h"
+#include <assert.h>
 
 
-void KcGraph::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, const color4f& majorColor) const
+void KcGraph::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, unsigned ch) const
 {
-	auto cxt = lineCxt_;
-	cxt.color = majorColor;
-	paint->apply(cxt);
+	paint->apply(lineCxt_);
 
 	if (count > 4096) { // TODO：使用降采样算法
 		unsigned stride = count / 4096 + 1;
@@ -16,4 +16,59 @@ void KcGraph::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, con
 	else {
 		paint->drawLineStrip(getter, count);
 	}
+}
+
+
+unsigned KcGraph::majorColorsNeeded() const
+{
+	return 1;
+}
+
+
+bool KcGraph::minorColorNeeded() const 
+{ 
+	return false; 
+}
+
+
+unsigned KcGraph::majorColors() const 
+{
+	return 1;
+}
+
+
+const color4f& KcGraph::majorColor(unsigned idx) const 
+{ 
+	return lineCxt_.color;
+}
+
+
+color4f& KcGraph::majorColor(unsigned idx) 
+{ 
+	return lineCxt_.color;
+}
+
+
+void KcGraph::setMajorColors(const std::vector<color4f>& majors) 
+{ 
+	assert(majors.size() == 1);
+	lineCxt_.color = majors.front();
+}
+
+
+const color4f& KcGraph::minorColor() const 
+{ 
+	return color4f::invalid();
+}
+
+
+color4f& KcGraph::minorColor() 
+{ 
+	return color4f::invalid();
+}
+
+
+void KcGraph::setMinorColor(const color4f& minor) 
+{ 
+	assert(false);
 }

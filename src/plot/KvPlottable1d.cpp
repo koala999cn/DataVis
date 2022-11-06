@@ -57,7 +57,7 @@ void KvPlottable1d::draw1d_(KvPaint* paint) const
 	};
 
 	for (; ch < disc->channels(); ch++) {
-		drawImpl_(paint, getter, disc->size(0), majorColor(shareColor() ? 0 : ch));
+		drawImpl_(paint, getter, disc->size(0), ch);
 		defaultZ += stepZ_;
 	}
 }
@@ -82,6 +82,8 @@ void KvPlottable1d::draw2d_(KvPaint* paint) const
 	assert(disc->isSampled());
 
 	// TODO: 暂时只处理第1个通道
+	assert(disc->channels() == 1);
+
 	kIndex idx[2];
 	auto getter = [&disc, &idx](unsigned i) -> KvPaint::point3 {
 		idx[1] = i;
@@ -92,7 +94,7 @@ void KvPlottable1d::draw2d_(KvPaint* paint) const
 
 	for (kIndex ix = 0; ix < disc->size(0); ix++) {
 		idx[0] = ix;
-		drawImpl_(paint, getter, disc->size(1), majorColor(0));
+		drawImpl_(paint, getter, disc->size(1), 0);
 	}
 }
 
@@ -111,5 +113,5 @@ void KvPlottable1d::draw3d_(KvPaint* paint) const
 	};
 
 	for (; ch < disc->channels(); ch++) 
-		drawImpl_(paint, getter, disc->size(), majorColor(shareColor() ? 0 : ch));
+		drawImpl_(paint, getter, disc->size(), ch);
 }

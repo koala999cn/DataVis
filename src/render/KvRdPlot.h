@@ -110,6 +110,6 @@ protected:
 
 	std::pair<std::string, std::string> curTheme_[4];
 
-	bool splitChannels_{ false }; // 多通道数据是创建1个还是多个plt？ 
+	bool splitChannels_{ true }; // 多通道数据是创建1个还是多个plt？ 
 
 };
