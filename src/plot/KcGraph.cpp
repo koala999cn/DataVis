@@ -37,13 +37,7 @@ unsigned KcGraph::majorColors() const
 }
 
 
-const color4f& KcGraph::majorColor(unsigned idx) const 
-{ 
-	return lineCxt_.color;
-}
-
-
-color4f& KcGraph::majorColor(unsigned idx) 
+color4f KcGraph::majorColor(unsigned idx) const 
 { 
 	return lineCxt_.color;
 }
@@ -56,17 +50,10 @@ void KcGraph::setMajorColors(const std::vector<color4f>& majors)
 }
 
 
-const color4f& KcGraph::minorColor() const 
+color4f KcGraph::minorColor() const 
 { 
 	return color4f::invalid();
 }
-
-
-color4f& KcGraph::minorColor() 
-{ 
-	return color4f::invalid();
-}
-
 
 void KcGraph::setMinorColor(const color4f& minor) 
 { 

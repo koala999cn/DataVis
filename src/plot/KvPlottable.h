@@ -42,13 +42,11 @@ public:
 	// 在连续色彩情况下，返回主控制色的个数
 	virtual unsigned majorColors() const = 0;
 
-	virtual const color4f& majorColor(unsigned idx) const = 0;
-	virtual color4f& majorColor(unsigned idx) = 0;
+	virtual color4f majorColor(unsigned idx) const = 0;
 
 	virtual void setMajorColors(const std::vector<color4f>& majors) = 0;
 
-	virtual const color4f& minorColor() const = 0;
-	virtual color4f& minorColor() = 0;
+	virtual color4f minorColor() const = 0;
 
 	virtual void setMinorColor(const color4f& minor) = 0;
 

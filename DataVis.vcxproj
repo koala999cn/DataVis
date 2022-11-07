@@ -188,7 +188,9 @@
     <ClCompile Include="src\prov\KcPvExpr.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
+    <ClCompile Include="src\render\KcRdPlot2d.cpp" />
     <ClCompile Include="src\render\KcRdPlot3d.cpp" />
+    <ClCompile Include="src\render\KvDataRender.cpp" />
     <ClCompile Include="src\render\KvRdPlot.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -323,6 +325,7 @@
     <ClInclude Include="src\dsp\KtSampling.h" />
     <ClInclude Include="src\dsp\KvData.h" />
     <ClInclude Include="src\render\KcRdPlot1d.h" />
+    <ClInclude Include="src\render\KcRdPlot2d.h" />
     <ClInclude Include="src\render\KcRdPlot3d.h" />
     <ClInclude Include="src\render\KvDataRender.h" />
     <ClInclude Include="src\render\KvRdPlot.h" />

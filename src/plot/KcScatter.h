@@ -20,13 +20,11 @@ public:
 
 	unsigned majorColors() const override;
 
-	const color4f& majorColor(unsigned idx) const override;
-	color4f& majorColor(unsigned idx) override;
+	color4f majorColor(unsigned idx) const override;
 
 	void setMajorColors(const std::vector<color4f>& majors) override;
 
-	const color4f& minorColor() const override;
-	color4f& minorColor() override;
+	color4f minorColor() const override;
 
 	void setMinorColor(const color4f& minor) override;
 

@@ -2,7 +2,7 @@
 #include "KvDataRender.h"
 #include <memory>
 #include <map>
-
+#include "KuStrUtil.h"
 
 class KvPlot;
 class KvPlottable;
@@ -26,8 +26,6 @@ public:
 	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) override;
 
 	void onInput(KcPortNode* outPort, unsigned inPort) override;
-
-	void output() override {}
 
 	void showProperySet() override;
 

@@ -9,20 +9,39 @@ class KcColorMap : public KvPlottable
 
 public:
 
-	using super_::super_;
+	KcColorMap(const std::string_view& name);
 
-	unsigned majorColorsNeeded() const override { return -1; }
+	unsigned majorColorsNeeded() const override;
 
-	bool minorColorNeeded() const override { return true; }
+	bool minorColorNeeded() const override;
+
+	unsigned majorColors() const override;
+
+	color4f majorColor(unsigned idx) const override;
+
+	void setMajorColors(const std::vector<color4f>& majors) override;
+
+	color4f minorColor() const override;
+
+	void setMinorColor(const color4f& minor) override;
+
+	aabb_type boundingBox() const override;
 
 	void draw(KvPaint*) const override;
+
+	float_t valueLower() const { return valLower_; }
+	float_t& valueLower() { return valLower_; }
+
+	float_t valueUpper() const { return valUpper_; }
+	float_t& valueUpper() { return valUpper_; }
 
 protected:
 
 	color4f mapValueToColor_(float_t val) const;
 
 private:
-	float_t mapLower_{ 0 }, mapUpper_{ 1 }; // color map的值域范围
+	float_t valLower_{ 0 }, valUpper_{ 1 }; // color map的值域范围
 
 	KtGradient<float_t, color4f> mapper_;
+	color4f border_{ 0 };
 };

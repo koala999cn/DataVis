@@ -28,13 +28,7 @@ unsigned KcScatter::majorColors() const
 }
 
 
-const color4f& KcScatter::majorColor(unsigned idx) const
-{
-	return scatBrush_.color;
-}
-
-
-color4f& KcScatter::majorColor(unsigned idx)
+color4f KcScatter::majorColor(unsigned idx) const
 {
 	return scatBrush_.color;
 }
@@ -47,13 +41,7 @@ void KcScatter::setMajorColors(const std::vector<color4f>& majors)
 }
 
 
-const color4f& KcScatter::minorColor() const
-{
-	return scatPen_.color;
-}
-
-
-color4f& KcScatter::minorColor()
+color4f KcScatter::minorColor() const
 {
 	return scatPen_.color;
 }

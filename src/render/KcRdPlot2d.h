@@ -1,26 +1,30 @@
 ﻿#pragma once
-#include "KvRdCustomPlot.h"
-#include "kDsp.h" // for kReal
+#include "KvRdPlot.h"
 
 
-class QCPColorScale;
-
-class KcRdPlot2d : public KvRdCustomPlot
+class KcRdPlot2d : public KvRdPlot
 {
 public:
-	KcRdPlot2d(KvDataProvider* is);
 
-	kPropertySet propertySet() const override;
+	using super_ = KvRdPlot;
 
-	void reset() override;
+	KcRdPlot2d();
 
+	void onInput(KcPortNode* outPort, unsigned inPort) override;
 
-private:
-	void setPropertyImpl_(int id, const QVariant& newVal) override;
-	bool doRender_(std::shared_ptr<KvData> data) override;
-	void preRender_() override;
+	bool permitInput(int dataSpec, unsigned inPort) const override;
 
 private:
-	QCPColorScale* colorScale_;
+
+	std::vector<KvPlottable*> createPlottable_(KcPortNode* port) final;
+
+	unsigned supportPlottableTypes_() const final;
+
+	int plottableType_(KvPlottable* plt) const final;
+
+	const char* plottableTypeStr_(int iType) const final;
+
+	KvPlottable* newPlottable_(int iType, const std::string& name) final;
+
 };
 

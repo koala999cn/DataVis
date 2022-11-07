@@ -23,6 +23,9 @@ public:
 		if (upper == stops_.cend())
 			return std::prev(stops_.cend(), 1)->second;
 
+		if (lower == upper && upper != stops_.cbegin())
+			lower--;
+
 		auto& x0 = lower->first;
 		auto& x1 = upper->first;
 		auto& y0 = lower->second;
@@ -37,6 +40,10 @@ public:
 
 	auto& stopAt(unsigned idx) const {
 		return *std::next(stops_.cbegin(), idx);
+	}
+
+	void reset() {
+		stops_.clear();
 	}
 
 private:

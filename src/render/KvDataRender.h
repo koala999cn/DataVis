@@ -18,5 +18,15 @@ public:
 
 	// 渲染器没有输出
 	unsigned outPorts() const override { return 0; }
+
+	void output() override {}
+
+	// 调用permitInput虚拟方法，以判断是否接受该连接
+	bool onNewLink(KcPortNode* from, KcPortNode* to) override;
+
+	// inPort输入端口是否接受dataSpec规格的数据 ？ 
+	virtual bool permitInput(int dataSpec, unsigned inPort) const {
+		return true;
+	}
 };
 

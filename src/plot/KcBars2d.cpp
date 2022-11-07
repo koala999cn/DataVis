@@ -81,13 +81,7 @@ unsigned KcBars2d::majorColors() const
 }
 
 
-const color4f& KcBars2d::majorColor(unsigned idx) const
-{
-	return fill_.color;
-}
-
-
-color4f& KcBars2d::majorColor(unsigned idx)
+color4f KcBars2d::majorColor(unsigned idx) const
 {
 	return fill_.color;
 }
@@ -100,13 +94,7 @@ void KcBars2d::setMajorColors(const std::vector<color4f>& majors)
 }
 
 
-const color4f& KcBars2d::minorColor() const
-{
-	return border_.color;
-}
-
-
-color4f& KcBars2d::minorColor()
+color4f KcBars2d::minorColor() const
 {
 	return border_.color;
 }
