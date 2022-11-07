@@ -13,7 +13,7 @@ void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 	for (unsigned i = 0; i < count; i++) {
 		auto pt0 = getter(i);
 		pt0.x() -= barWidth * 0.5;
-		point3 pt1(pt0.x() + barWidth, 0, pt0.z());
+		point3 pt1(pt0.x() + barWidth, baseLine_, pt0.z());
 
 		if (drawFill) {
 			paint->apply(fill_);

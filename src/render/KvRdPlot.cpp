@@ -362,11 +362,16 @@ void KvRdPlot::showPlottableProperty_()
 			ImGui::InputText("##", &plt->name());
 			ImGui::PopID();
 
+			std::vector<color4f> majors(plt->majorColors());
+			for (unsigned i = 0; i < plt->majorColors(); i++)
+				majors[i] = plt->majorColor(i);
+
 			for (unsigned i = 0; i < plt->majorColors(); i++) {
 				ImGui::SameLine();
 				ImGui::PushID(plt + 1 + i);
-				ImGui::ColorEdit4("##", plt->majorColor(i),
-					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+				if (ImGui::ColorEdit4("##", majors[i],
+					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+					plt->setMajorColors(majors);
 				ImGui::PopID();
 			}
 
@@ -398,7 +403,8 @@ void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 				for (unsigned c = 0; c < majorColors.size(); c++)
 					majorColors[c] = oldPlt->majorColor(c);
 				newPlt->setMajorColors(majorColors);
-				newPlt->setMinorColor(oldPlt->minorColor());
+				if (newPlt->minorColorNeeded() && oldPlt->minorColorNeeded())
+				    newPlt->setMinorColor(oldPlt->minorColor());
 
 				// clone the data
 				newPlt->setData(oldPlt->data());

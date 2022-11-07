@@ -1,5 +1,7 @@
 #include "KvPlottable.h"
-#include "KvData.h"
+#include "KvDiscreted.h"
+#include "KvContinued.h"
+#include "KtSampler.h"
 
 
 void KvPlottable::setData(data_ptr d) 
@@ -39,4 +41,78 @@ KvPlottable::aabb_type KvPlottable::boundingBox() const
 	}
 
 	return { lower, upper };
+}
+
+
+namespace kPrivate
+{
+	std::shared_ptr<KvSampled> cont2samp(std::shared_ptr<KvContinued> cont)
+	{
+		std::shared_ptr<KvSampled> samp = nullptr;
+
+		switch (cont->dim())
+		{
+		case 1:
+			samp = std::make_shared<KtSampler<1>>(cont);
+			break;
+
+		case 2:
+			samp = std::make_shared<KtSampler<2>>(cont);
+			break;
+
+		case 3:
+			samp = std::make_shared<KtSampler<3>>(cont);
+			break;
+
+		case 4:
+			samp = std::make_shared<KtSampler<4>>(cont);
+			break;
+
+		case 5:
+			samp = std::make_shared<KtSampler<5>>(cont);
+			break;
+
+		case 6:
+			samp = std::make_shared<KtSampler<6>>(cont);
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
+
+		return samp;
+	}
+}
+
+void KvPlottable::draw(KvPaint* paint) const
+{
+	assert(paint);
+
+	if (empty())
+		return;
+
+	auto d = data();
+	for (unsigned i = 0; i < d->dim(); i++)
+		if (d->length(i) == 0)
+			return;
+
+	auto disc = std::dynamic_pointer_cast<KvDiscreted>(d);
+	if (disc == nullptr) {
+		auto cont = std::dynamic_pointer_cast<KvContinued>(d);
+		assert(cont);
+
+		auto samp = kPrivate::cont2samp(cont);
+		if (!samp)
+			return;
+
+		std::vector<kIndex> idx(cont->dim());
+		std::copy(sampCount_.cbegin(), sampCount_.cend(), idx.begin());
+		samp->resize(idx.data());
+
+		disc = samp;
+	}
+
+	assert(disc);
+	drawDiscreted_(paint, disc.get());
 }

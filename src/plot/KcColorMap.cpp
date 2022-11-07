@@ -92,27 +92,31 @@ KcColorMap::aabb_type KcColorMap::boundingBox() const
 }
 
 
-void KcColorMap::draw(KvPaint* paint) const
+void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 {
-	if (empty())
-		return;
+	assert(disc->dim() == 2 && disc->isSampled());
 
-	auto d = data();
-	assert(d->dim() == 2);
+	auto samp = dynamic_cast<KvSampled*>(disc);
+	assert(samp);
 
-	auto samp2d = std::dynamic_pointer_cast<KcSampled2d>(d);
-	assert(samp2d);
+	auto half_dx = samp->step(0) / 2;
+	auto hfalf_dy = samp->step(1) /2 ;
 
-	auto half_dx = samp2d->step(0) / 2;
-	auto hfalf_dy = samp2d->step(1) /2 ;
-
-	for (unsigned i = 0; i < samp2d->size(); i++) {
-		auto pt = samp2d->pointAt(i, 0);
+	for (unsigned i = 0; i < samp->size(); i++) {
+		auto pt = samp->pointAt(i, 0);
 		paint->setColor(mapValueToColor_(pt.back()));
 		paint->fillRect({ pt[0] - half_dx, pt[1] - hfalf_dy, 0 },
 			{ pt[0] + half_dx, pt[1] + hfalf_dy, 0 });
-		paint->setColor(color4f(1, 0, 0, 1));
-		paint->drawText({ pt[0], pt[1], 0 }, KuStrUtil::toString(pt.back()).c_str(), 0);
+	}
+
+	paint->setColor(color4f(1, 0, 0, 1)); // TODO:
+	for (unsigned i = 0; i < samp->size(); i++) {
+		auto pt = samp->pointAt(i, 0);
+		auto text = KuStrUtil::toString(pt.back());
+		auto szText = paint->textSize(text.c_str());
+		if (szText.x() <= samp->step(0) &&
+			szText.y() <= samp->step(1))
+		    paint->drawText({ pt[0], pt[1], 0 }, text.c_str(), 0);
 	}
 }
 

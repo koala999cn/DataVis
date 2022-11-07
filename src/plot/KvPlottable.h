@@ -5,6 +5,7 @@
 #include "KtColor.h"
 
 class KvData;
+class KvDiscreted;
 
 class KvPlottable : public KvRenderable
 {
@@ -19,15 +20,13 @@ public:
 
 	bool empty() const;
 
+	unsigned sampCount(unsigned dim) const { return sampCount_[dim]; }
+	unsigned& sampCount(unsigned dim) { return sampCount_[dim]; }
+
 	aabb_type boundingBox() const override;
 
-	unsigned sampCount(unsigned dim) const {
-		return sampCount_[dim];
-	}
-
-	unsigned& sampCount(unsigned dim) {
-		return sampCount_[dim];
-	}
+	// 封装连续数据的绘制，提供另外一个绘制离散数据的接口drawDiscreted_
+	void draw(KvPaint*) const override;
 
 
 	/// 以下为调色板通用接口 //////////////////////////////////
@@ -52,6 +51,9 @@ public:
 
 	////////////////////////////////////////////////////////////////
 
+private:
+
+	virtual void drawDiscreted_(KvPaint*, KvDiscreted*) const = 0;
 
 private:
 

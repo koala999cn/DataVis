@@ -76,5 +76,6 @@ bool KcRdPlot2d::permitInput(int dataSpec, unsigned inPort) const
     assert(inPort == 0);
 
     KpDataSpec sp(dataSpec);
-    return sp.dim == 2 && (sp.type == k_sampled || sp.type == k_continued);
+    return sp.dim == 2 && 
+        (sp.type == k_sampled || sp.type == k_continued || sp.type == k_array);
 }

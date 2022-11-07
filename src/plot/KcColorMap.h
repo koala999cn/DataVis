@@ -27,8 +27,6 @@ public:
 
 	aabb_type boundingBox() const override;
 
-	void draw(KvPaint*) const override;
-
 	float_t valueLower() const { return valLower_; }
 	float_t& valueLower() { return valLower_; }
 
@@ -36,6 +34,8 @@ public:
 	float_t& valueUpper() { return valUpper_; }
 
 protected:
+
+	void drawDiscreted_(KvPaint*, KvDiscreted*) const override;
 
 	color4f mapValueToColor_(float_t val) const;
 

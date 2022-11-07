@@ -12,25 +12,25 @@ public:
 
 	using KvPlottable::KvPlottable;
 
-	void draw(KvPaint*) const override;
-
 protected:
+
+	void drawDiscreted_(KvPaint*, KvDiscreted*) const override;
 
 	using point_getter = typename KvPaint::point_getter;
 
 	// 为了兼容连续数据，此处增加unsigned参数，表示数据count
-	virtual void drawImpl_(KvPaint*, point_getter, unsigned count, unsigned channel) const = 0;
+	virtual void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const = 0;
 
 private:
 
 	// 一维数据(x, y)在x-y平面绘图（使用缺省z值）
-	void draw1d_(KvPaint*) const;
+	void draw1d_(KvPaint*, KvDiscreted*) const;
 
 	// 二维数据(x, y, z)画瀑布图, 以x为流动轴
-	void draw2d_(KvPaint*) const;
+	void draw2d_(KvPaint*, KvDiscreted*) const;
 
 	// 二维数据(x, y, z)画3d图
-	void draw3d_(KvPaint*) const;
+	void draw3d_(KvPaint*, KvDiscreted*) const;
 
 private:
 
