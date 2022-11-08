@@ -12,7 +12,7 @@ class KcBars2d : public KvPlottable1d
 
 public:
 
-	using super_::super_;
+	KcBars2d(const std::string_view& name);
 
 	// bar的宽度设置，取值[0, 1]
 	// 若取1，则bars之间无空隙；若取0.5，则bar的宽度与bars之间的空隙相同。

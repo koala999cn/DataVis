@@ -17,6 +17,7 @@ KcOpSpectrum::KcOpSpectrum()
 int KcOpSpectrum::spec(kIndex outPort) const
 {
 	KpDataSpec sp(super_::spec(outPort));
+	sp.stream &= (sp.dim > 1);
 	return sp.spec; 
 }
 
@@ -29,8 +30,7 @@ kRange KcOpSpectrum::range(kIndex outPort, kIndex axis) const
 		return kRange(0, 1); // 暂时无输入连接
 
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-	if (prov == nullptr)
-		return kRange(0, 1); // 输入失效
+	assert(prov);
 
 	// 对信号的最高维进行变换，其他低维度保持原信号尺度不变
 	if (axis == dim(outPort) - 1) 
@@ -42,6 +42,51 @@ kRange KcOpSpectrum::range(kIndex outPort, kIndex axis) const
 		return spec_->orange({ r.low(), r.high() }); 
 	
 	return r;
+}
+
+
+kReal KcOpSpectrum::step(kIndex outPort, kIndex axis) const
+{
+	assert(inputs_.size() == 1);
+	auto d = inputs_.front();
+	if (d == nullptr)
+		return 0; // 暂时无输入连接
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+
+	if (axis == prov->dim(outPort) - 1) {
+		auto idim = prov->size(outPort, axis);
+		auto istep = prov->step(outPort, axis);
+		KtSampling<double> samp;
+		samp.resetn(KgSpectrum::odim(idim, roundToPower2_), 0, 0.5 / istep, 0.5);
+		return samp.dx();
+	}
+	else if (axis == prov->dim(outPort)) {
+		return KvDiscreted::k_nonuniform_step;
+	}
+
+	return prov->step(outPort, axis);
+}
+
+
+kIndex KcOpSpectrum::size(kIndex outPort, kIndex axis) const
+{
+	assert(inputs_.size() == 1);
+	auto d = inputs_.front();
+	if (d == nullptr)
+		return 0; // 暂时无输入连接
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+
+	if (axis == prov->dim(outPort) - 1) {
+		auto idim = prov->size(outPort, axis);
+		return KgSpectrum::odim(idim, roundToPower2_);
+	}
+	
+	return prov->size(outPort, axis);
+
 }
 
 
@@ -68,10 +113,21 @@ bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortN
 	assert(odata_.size() == 1);
 	KtSampling<double> samp;
 	samp.resetn(spec_->odim(), 0, opts.sampleRate / 2, 0.5);
-	auto out = std::make_shared<KcSampled1d>();
-	out->reset(0, 0, samp.dx(), 0.5);
-	out->resize(spec_->odim(), prov->channels(node->index()));
-	odata_.front() = out;
+
+	if (prov->dim(node->index()) == 1) {
+		auto out = std::make_shared<KcSampled1d>();
+		out->reset(0, 0, samp.dx(), 0.5);
+		out->resize(spec_->odim(), prov->channels(node->index()));
+		odata_.front() = out;
+	}
+	else {
+		assert(prov->dim(node->index()) == 2);
+		auto out = std::make_shared<KcSampled2d>();
+		out->reset(0, prov->range(node->index(), 0).low(), prov->step(node->index(), 0));
+		out->reset(1, 0, samp.dx(), 0.5);
+		out->resize(0, spec_->odim(), prov->channels(node->index()));
+		odata_.front() = out;
+	}
 
 	return true;
 }
@@ -89,16 +145,24 @@ void KcOpSpectrum::output()
 	assert(spec_);
 	assert(idata_.size() == 1 && idata_.front());
 	assert(idata_.front()->isDiscreted());
-	// assert(spec_->idim() == inputs_.front()->size()); 该断言不成立
 	
-	if (idata_.front()->size() < spec_->idim()) // TODO: 目前简单抛弃长度不足数据
-		return; 
+	auto in = std::dynamic_pointer_cast<KvSampled>(idata_.front());
+	assert(in);
+	if (in->size(in->dim() - 1) < spec_->idim()) // TODO: 目前简单抛弃长度不足数据
+		return;
 
+	in->dim() == 1 ? output1d_() : output2d_();
+}
+
+
+void KcOpSpectrum::output1d_()
+{
 	auto in = std::dynamic_pointer_cast<KcSampled1d>(idata_.front());
 	auto out = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
-	assert(in && out);
+	assert(in && in->size(0) >= spec_->idim());
+	assert(out && out->size(0) == spec_->odim());
 
-	unsigned offset = idata_.front()->size() - spec_->idim();
+	unsigned offset = in->size(0) - spec_->idim(); // 跳过多出的数据
 
 	if (in->channels() == 1) {
 		spec_->process(in->data() + offset, out->data());
@@ -106,12 +170,43 @@ void KcOpSpectrum::output()
 	else {
 		std::vector<kReal> in_(spec_->idim());
 		std::vector<kReal> out_(spec_->odim());
-		for (kIndex c = 0; c < in->channels(); c++) {
+		for (kIndex ch = 0; ch < in->channels(); ch++) {
 			for (kIndex i = 0; i < in->size(); i++)
-				in_[i] = in->value(i + offset, c);
+				in_[i] = in->value(i + offset, ch);
 
 			spec_->process(in_.data(), out_.data());
-			out->setChannel(nullptr, c, out_.data());
+			out->setChannel(nullptr, ch, out_.data());
+		}
+	}
+}
+
+
+void KcOpSpectrum::output2d_()
+{
+	auto in = std::dynamic_pointer_cast<KcSampled2d>(idata_.front());
+	auto out = std::dynamic_pointer_cast<KcSampled2d>(odata_.front());
+	assert(in && in->size(1) >= spec_->idim());
+	assert(out && out->size(1) == spec_->odim());
+
+	out->resize(in->size(0), spec_->odim(), in->channels());
+	unsigned offset = in->size(1) - spec_->idim(); // 跳过多出的数据
+
+	if (in->channels() == 1) {
+		for (unsigned r = 0; r < in->size(0); r++) 
+			spec_->process(in->row(r) + offset, out->row(r));
+	}
+	else {
+		std::vector<kReal> iData(spec_->idim()), oData(spec_->odim());
+
+		for (kIndex ch = 0; ch < in->channels(); ch++) {
+			kIndex row, col;
+			for (row = 0; row < in->size(0); row++) {
+				for (col = 0; col < iData.size(); col++)
+					iData[col] = in->value(row, col + offset, ch);
+
+				spec_->process(iData.data(), oData.data());
+				out->setChannel(&row, ch, oData.data());
+			}
 		}
 	}
 }
@@ -155,44 +250,6 @@ void KcOpSpectrum::showProperySet()
 bool KcOpSpectrum::permitInput(int dataSpec, unsigned inPort) const
 {
 	KpDataSpec sp(dataSpec);
-	return sp.dim == 1 && sp.type == k_sampled; // 只接受采样数据
+	return sp.dim <= 2 && sp.type == k_sampled; // 只接受采样数据
 }
 
-#if 0
-
-std::shared_ptr<KvData> KcOpSpectrum::process2d_(std::shared_ptr<KvData> data)
-{
-	assert(data->dim() == 2);
-	auto samp = std::dynamic_pointer_cast<KvSampled>(data);
-	assert(samp);
-	assert(KtuMath<kReal>::almostEqualRel(samp->step(1) * range(1).length(), kReal(0.5)));
-
-	if (samp->size(1) < 2 || samp->range(1).empty())
-		return data;
-
-	assert(spec_->sizeInTime() == samp->size(1));
-
-	auto df = spec_->df();
-	assert(df > 0);
-
-	auto res = std::make_shared<KcSampled2d>();
-
-	res->resize(samp->size(0), spec_->sizeInFreq(), samp->channels());
-	res->reset(0, samp->range(0).low(), samp->step(0));
-	res->reset(1, 0, df);
-
-	std::vector<kReal> rawData(samp->size(1));
-	for (kIndex c = 0; c < samp->channels(); c++) {
-		kIndex idx[2];
-		for (idx[0] = 0; idx[0] < samp->size(0); idx[0]++) {
-			for (idx[1] = 0; idx[1] < samp->size(1); idx[1]++)
-				rawData[idx[1]] = samp->value(idx, c);
-
-			spec_->porcess(rawData.data());
-			res->setChannel(idx, c, rawData.data());
-		}
-	}
-
-	return res;
-}
-#endif

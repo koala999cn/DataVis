@@ -60,7 +60,7 @@ public:
 	/// 帮助函数
 
 	// 计算谱输出维度
-	static unsigned odim(unsigned frameSize, bool roundToPower2);
+	static unsigned odim(unsigned idim, bool roundToPower2);
 
 	static constexpr unsigned typeCount() { return 4; }
 	static const char* type2Str(int type);

@@ -4,6 +4,13 @@
 #include "KvContinued.h"
 
 
+KcBars2d::KcBars2d(const std::string_view& name)
+	: super_(name)
+{
+	border_.color = color4f(0); // default no border 
+}
+
+
 void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, unsigned) const
 {
 	auto barWidth = barWidth_();

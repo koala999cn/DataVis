@@ -100,11 +100,11 @@ std::pair<double, double> KgSpectrum::orange(const std::pair<double, double>& in
 }
 
 
-unsigned KgSpectrum::odim(unsigned frameSize, bool roundToPower2)
+unsigned KgSpectrum::odim(unsigned idim, bool roundToPower2)
 {
 	if (roundToPower2)
-		frameSize = KtuBitwise<unsigned>::ceilPower2(frameSize);
-	return frameSize / 2 + 1;
+		idim = KtuBitwise<unsigned>::ceilPower2(idim);
+	return idim / 2 + 1;
 }
 
 

@@ -12,6 +12,15 @@ KcImDataView::KcImDataView(std::shared_ptr<KvDataProvider> prov)
 }
 
 
+KcImDataView::KcImDataView(std::shared_ptr<KvData> data, std::string_view sv)
+    : KvImWindow("DataView - " + std::string(sv))
+    , data_(data)
+{
+    dynamic_ = true;
+    deleteOnClose_ = true;
+}
+
+
 void KcImDataView::updateImpl_()
 {
     auto prov = prov_.lock();
@@ -21,4 +30,6 @@ void KcImDataView::updateImpl_()
         if (data)
             ImGuiX::showDataTable(*data);
     }
+    else if (data_)
+        ImGuiX::showDataTable(*data_);
 }

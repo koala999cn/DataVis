@@ -7,6 +7,8 @@ class KcSampled2d : public KtSampledArray<2>
 public:
     using super_ = KtSampledArray<2>;
 
+    using super_::super_;
+
     KcSampled2d(kReal dx, kReal dy, kIndex channels = 1) {
         resize(0, 0, channels);
         reset(0, 0, dx);
