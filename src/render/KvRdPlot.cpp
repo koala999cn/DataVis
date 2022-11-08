@@ -72,7 +72,8 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 	
 	if (prov->isStream(outPort->index())) { // shifting the data
 
-		assert(prov->isSampled(outPort->index())); // TODO: other types
+		assert(prov->isSampled(outPort->index()) || 
+			prov->isArray(outPort->index())); // TODO: other types
 
 		auto xrange = plot_->coord().upper().x() - plot_->coord().lower().x();
 		streaming_(streamData_[outPort], data, xrange);

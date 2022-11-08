@@ -99,8 +99,15 @@ public:
 
 	bool isSampled(kIndex outPort) const;
 
+	bool isArray(kIndex outPort) const;
+
 	static std::string dataTypeStr(int spec);
 	
+protected:
+
+	// 向管线管理器发送变化消息的帮助函数
+	void notifyChanged_();
+
 private:
 	int windowId_{ -1 }; // 挂接的ImWindow标识符
 };

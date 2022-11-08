@@ -152,10 +152,3 @@ bool KvDataOperator::onStartPipeline(const std::vector<std::pair<unsigned, KcPor
 
 	return true;
 }
-
-
-void KvDataOperator::notifyChanged_()
-{
-	for (unsigned i = 0; i < outPorts(); i++)
-		KsImApp::singleton().pipeline().notifyOutputChanged(this, i);
-}

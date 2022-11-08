@@ -87,9 +87,16 @@ bool KvDataProvider::isSeries(kIndex outPort) const
 	return sp.type == k_array && sp.dim == 1;
 }
 
+
 bool KvDataProvider::isSampled(kIndex outPort) const
 {
 	return KpDataSpec(spec(outPort)).type == k_sampled;
+}
+
+
+bool KvDataProvider::isArray(kIndex outPort) const
+{
+	return KpDataSpec(spec(outPort)).type == k_array;
 }
 
 
@@ -208,4 +215,11 @@ void KvDataProvider::onDoubleClicked()
 	else {
 		// TODO: bring the window to front
 	}
+}
+
+
+void KvDataProvider::notifyChanged_()
+{
+	for (unsigned i = 0; i < outPorts(); i++)
+		KsImApp::singleton().pipeline().notifyOutputChanged(this, i);
 }

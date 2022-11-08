@@ -301,6 +301,9 @@
     <ClCompile Include="src\render\KvDataRender.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="src\prov\KcPvExcitor.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -701,6 +704,12 @@
     </ClInclude>
     <ClInclude Include="src\render\KcRdPlot2d.h">
       <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KcPvExcitor.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KvExcitor.h">
+      <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -12,6 +12,7 @@
 #include "imapp/KgPipeline.h"
 #include "prov/KcPvAudioInput.h"
 #include "prov/KcPvExpr.h"
+#include "prov/KcPvExcitor.h"
 #include "render/KcRdPlot1d.h"
 #include "render/KcRdPlot2d.h"
 #include "render/KcRdPlot3d.h"
@@ -40,6 +41,7 @@ int main_(int, char**)
 
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExpr>>("Math Expression"));
+    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExcitor>>("Excitor"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSpectrum>>("Spectrum"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFraming>>("Framing"));

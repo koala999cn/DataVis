@@ -185,6 +185,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
+    <ClCompile Include="src\prov\KcPvExcitor.cpp" />
     <ClCompile Include="src\prov\KcPvExpr.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="src\dsp\KuMatrixUtil.h" />
     <ClInclude Include="src\dsp\KvContinued.h" />
     <ClInclude Include="src\dsp\KvDiscreted.h" />
+    <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\imapp\imguix.h" />
     <ClInclude Include="src\imapp\KcActionInsertDataNode.h" />
@@ -316,6 +318,7 @@
     <ClInclude Include="src\provider.h" />
     <ClInclude Include="src\prov\KcPvAudioInput.h" />
     <ClInclude Include="src\prov\KcPvData.h" />
+    <ClInclude Include="src\prov\KcPvExcitor.h" />
     <ClInclude Include="src\prov\KcPvExpr.h" />
     <ClInclude Include="src\prov\KvDataProvider.h" />
     <ClInclude Include="src\renderer.h" />
