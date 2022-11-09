@@ -3,7 +3,7 @@
 #include "KvContinued.h"
 #include "KvPaint.h"
 #include "KtSampling.h"
-#include "KtSampler.h"
+
 
 void KvPlottable1d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 {

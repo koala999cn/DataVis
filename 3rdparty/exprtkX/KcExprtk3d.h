@@ -7,7 +7,7 @@ class KcExprtk3d : public KcExprtk2d
 public:
     KcExprtk3d();
 
-    REAL value(REAL x, ...) const override;
+    REAL value(REAL x[]) const override;
 
 protected:
     mutable REAL z_;

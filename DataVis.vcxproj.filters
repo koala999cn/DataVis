@@ -45,9 +45,6 @@
     <ClCompile Include="src\dsp\KgMultiply.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KpExprtkHelper_.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
     <ClCompile Include="src\base\KuPathUtil.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -307,6 +304,15 @@
     <ClCompile Include="src\audio\KcAudioRender.cpp">
       <Filter>audio</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcOpSampler.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KcSampler.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KcContinuedFn.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -336,16 +342,13 @@
     <ClInclude Include="src\dsp\KtSampled.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KtContinued.h">
+    <ClInclude Include="src\dsp\KcContinuedFn.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtScattered.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KtContinuedExpr.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KtSampler.h">
+    <ClInclude Include="src\dsp\KcSampler.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KvSampled.h">
@@ -713,6 +716,12 @@
     </ClInclude>
     <ClInclude Include="src\audio\KcAudioRender.h">
       <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpSampler.h">
+      <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\misc.h">
+      <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

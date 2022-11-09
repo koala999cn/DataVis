@@ -1,7 +1,7 @@
 ﻿#include "KvContinued.h"
 #include "KtuMath.h"
 #include <assert.h>
-#include "KtSampler.h"
+#include "KcSampler.h"
 
 kRange KvContinued::valueRange(kIndex channel) const 
 {
@@ -10,15 +10,9 @@ kRange KvContinued::valueRange(kIndex channel) const
 		if (length(i) == 0)
 			return { 0, 0 };
 
-	KvSampled* samp = nullptr;
-	std::shared_ptr<KvContinued> cond;
-	cond.reset(const_cast<KvContinued*>(this));
-	if (dim() == 1)
-		samp = new KtSampler<1>(cond);
-	else if(dim() == 2)
-		samp = new KtSampler<2>(cond);
-	else 
-		samp = new KtSampler<3>(cond);
+	std::shared_ptr<KvContinued> cont;
+	cont.reset(const_cast<KvContinued*>(this));
+	KcSampler samp(cont);
 
 	kReal omin = std::numeric_limits<kReal>::max();
 	kReal omax = std::numeric_limits<kReal>::lowest();
@@ -26,7 +20,7 @@ kRange KvContinued::valueRange(kIndex channel) const
 	int maxIter(6), numIter(0);
 
 	while (numIter <= maxIter) {
-		auto r = samp->valueRange(channel);
+		auto r = samp.valueRange(channel);
 
 		if ((KtuMath<kReal>::almostEqualRel(omin, r.low(), tol) &&
 			KtuMath<kReal>::almostEqualRel(omax, r.high(), tol))) {
@@ -38,11 +32,10 @@ kRange KvContinued::valueRange(kIndex channel) const
 		if (r.low() < omin) omin = r.low();
 		if (r.high() > omax) omax = r.high();
 
-		std::vector<kIndex> shape(samp->dim());
-		for (kIndex i = 0; i < samp->dim(); i++) 
-			shape[i] = samp->size(i) * 2;
-		samp->resize(shape.data());
-		if (samp->size() > 1024 * 1024) // TODO: 满足实时性要求
+		for (kIndex i = 0; i < samp.dim(); i++)
+			samp.reset(i, samp.range(i).low(), samp.step(i) / 2);
+
+		if (samp.size() > 1024 * 1024) // TODO: 满足实时性要求
 			break;
 
 		++numIter;

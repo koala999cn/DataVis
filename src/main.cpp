@@ -19,6 +19,7 @@
 #include "op/KcOpSpectrum.h"
 #include "op/KcOpFraming.h"
 #include "op/KcOpHist.h"
+#include "op/KcOpSampler.h"
 #include "plot/KsThemeManager.h"
 
 
@@ -45,6 +46,7 @@ int main_(int, char**)
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSpectrum>>("Spectrum"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFraming>>("Framing"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHist>>("Hist"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSampler>>("Sampler"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot2d>>("Plot2d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot3d>>("Plot3d"));

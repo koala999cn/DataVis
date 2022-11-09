@@ -1,7 +1,7 @@
 #include "KvPlottable.h"
 #include "KvDiscreted.h"
 #include "KvContinued.h"
-#include "KtSampler.h"
+#include "KcSampler.h"
 
 
 void KvPlottable::setData(data_ptr d) 
@@ -44,47 +44,6 @@ KvPlottable::aabb_type KvPlottable::boundingBox() const
 }
 
 
-namespace kPrivate
-{
-	std::shared_ptr<KvSampled> cont2samp(std::shared_ptr<KvContinued> cont)
-	{
-		std::shared_ptr<KvSampled> samp = nullptr;
-
-		switch (cont->dim())
-		{
-		case 1:
-			samp = std::make_shared<KtSampler<1>>(cont);
-			break;
-
-		case 2:
-			samp = std::make_shared<KtSampler<2>>(cont);
-			break;
-
-		case 3:
-			samp = std::make_shared<KtSampler<3>>(cont);
-			break;
-
-		case 4:
-			samp = std::make_shared<KtSampler<4>>(cont);
-			break;
-
-		case 5:
-			samp = std::make_shared<KtSampler<5>>(cont);
-			break;
-
-		case 6:
-			samp = std::make_shared<KtSampler<6>>(cont);
-			break;
-
-		default:
-			assert(false);
-			break;
-		}
-
-		return samp;
-	}
-}
-
 void KvPlottable::draw(KvPaint* paint) const
 {
 	assert(paint);
@@ -102,7 +61,7 @@ void KvPlottable::draw(KvPaint* paint) const
 		auto cont = std::dynamic_pointer_cast<KvContinued>(d);
 		assert(cont);
 
-		auto samp = kPrivate::cont2samp(cont);
+		auto samp = std::make_shared<KcSampler>(cont);
 		if (!samp)
 			return;
 

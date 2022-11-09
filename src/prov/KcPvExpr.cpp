@@ -1,5 +1,5 @@
 #include "KcPvExpr.h"
-#include "KtContinuedExpr.h"
+#include "KcContinuedFn.h"
 #include "exprtkX/KcExprtk1d.h"
 #include "imgui.h"
 #include "imapp/KcImExprEditor.h"
@@ -11,10 +11,14 @@ KcPvExpr::KcPvExpr()
     : KcPvData("Expression", nullptr)
     , exprText_("sin(x) + 2sin(2x) + 3sin(3x)")
 {
-    auto exprk = std::make_shared<KcExprtk1d>();
-    exprk->compile(exprText_); // 构造默认的表达式
-    assert(exprk->ok());
-    setData(std::make_shared<KtContinuedExpr<1>>(exprk));
+    auto expr = std::make_shared<KcExprtk1d>();
+    expr->compile(exprText_); // 构造默认的表达式
+    assert(expr->ok());
+
+    auto cont = std::make_shared<KcContinuedFn>(
+        [expr](kReal x[]) { return expr->value(x); }, 1);
+
+    setData(cont);
 }
 
 

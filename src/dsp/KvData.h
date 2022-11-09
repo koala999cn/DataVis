@@ -35,7 +35,7 @@ public:
 	// 返回axis维度的数据范围
 	virtual kRange range(kIndex axis) const = 0;
 
-	// 第channel通道的最大最小值（使用二分算法粗略计算）
+	// 第channel通道的最大最小值
 	virtual kRange valueRange(kIndex channel) const = 0;
 
 	// 所有通道的最大最小值

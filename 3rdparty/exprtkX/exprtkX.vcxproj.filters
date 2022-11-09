@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Project\DataVis\3rdparty\exprtkX\KvExprtk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Project\DataVis\3rdparty\exprtkX\KcExprtk1d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Project\DataVis\3rdparty\exprtkX\KcExprtk2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Project\DataVis\3rdparty\exprtkX\KcExprtk3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Project\DataVis\3rdparty\exprtkX\exprtkX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Project\DataVis\3rdparty\exprtkX\KvExprtk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Project\DataVis\3rdparty\exprtkX\KcExprtk1d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Project\DataVis\3rdparty\exprtkX\KcExprtk2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Project\DataVis\3rdparty\exprtkX\KcExprtk3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{B82EFA1E-3AB4-3EB2-B04B-6A4AB3EA5BC0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4D8FDBD8-933A-30C1-B6D6-A54B5384A2EC}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -43,6 +43,7 @@ v0.4版对底层代码作了较大重构，主要有4方面：
 | [glad](https://github.com/Dav1dde/glad) | ImFileDialog依赖 | 单独编译 |
 | [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 已内嵌 |
 | [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/) | AudioInput支持 | 单独编译 |
+| [exprtk](http://www.partow.net/programming/exprtk/) | 数学表达式 | 内嵌子项目 |
 
 ## 编译
 

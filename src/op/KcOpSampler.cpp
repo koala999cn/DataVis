@@ -1,184 +1,79 @@
 ﻿#include "KcOpSampler.h"
-#include "dsp/KtSampler.h"
-#include <QPointF>
+#include "dsp/KcSampler.h"
 
 
-KcOpSampler::KcOpSampler(KvDataProvider* prov)
-    : KvDataOperator("sampler", prov)
-{
-    preRender_();
-}
-
-
-kRange KcOpSampler::range(kIndex axis) const
-{
-    assert(axis <= dim());
-    return axis < dim() ? kRange(samps_[axis]) :
-        dynamic_cast<KvDataProvider*>(parent())->range(axis); 
-    // TODO: samps_的坐标范围可能超出parent的设定，此时得到的valueRange是不准确的
-}
-
-
-kReal KcOpSampler::step(kIndex axis) const
-{
-    assert(axis < dim());
-    return samps_[axis].dx();
-}
-
-
-kIndex KcOpSampler::size(kIndex axis) const
-{
-    assert(axis < dim());
-    return samps_[axis].size();
-}
-
-
-
-namespace kPrivate
-{
-    enum KeSamplerProperty
-    {
-        k_sampler_dim,
-        k_sampler_channels,
-        k_sampler_count,
-
-        k_dim_size,
-        k_dim_range,
-        k_dim_step
-    };
-
-    static KvPropertiedObject::kPropertySet getDimProperties(kIndex dim, const KtSampling<kReal>& samp)
-    {
-        KvPropertiedObject::kPropertySet psAxis;
-        KvPropertiedObject::KpProperty prop;
-
-        int idBase = k_dim_size + dim * 3;
-        prop.id = idBase + k_dim_size;
-        prop.name = QStringLiteral("Size");
-        prop.flag = KvPropertiedObject::k_readonly;
-        prop.val = int(samp.size());
-        psAxis.push_back(prop);
-
-        prop.id = idBase + k_dim_step;
-        prop.name = QStringLiteral("Step");
-        prop.flag = 0;
-        prop.val = samp.dx();
-        psAxis.push_back(prop);
-
-        prop.id = idBase + k_dim_range;
-        prop.name = QStringLiteral("Range");
-        prop.flag = KvPropertiedObject::k_restrict;
-        prop.val = QPointF(samp.low(), samp.high());
-        KvPropertiedObject::KpProperty subProp;
-        subProp.name = QStringLiteral("low");
-        prop.children.push_back(subProp);
-        subProp.name = QStringLiteral("high");
-        prop.children.push_back(subProp);
-        psAxis.push_back(prop);
-
-        return psAxis;
-    }
-}
-
-
-KcOpSampler::kPropertySet KcOpSampler::propertySet() const
-{
-    using namespace kPrivate;
-
-    kPropertySet ps;
-
-    KpProperty prop;
-
-    prop.id = k_sampler_dim;
-    prop.name = tr("Dim");
-    prop.flag = k_readonly;
-    prop.val = int(dim());
-    ps.push_back(prop);
-
-    prop.id = k_sampler_channels;
-    prop.name = tr("Channels");
-    prop.flag = k_readonly;
-    prop.val = int(channels());
-    ps.push_back(prop);
-
-    prop.id = k_sampler_count;
-    prop.name = tr("Size");
-    prop.flag = k_readonly;
-    prop.val = int(KvDataProvider::size());
-    ps.push_back(prop);
-
-    for (kIndex i = 0; i < dim(); i++) {
-        prop.id = KvPropertiedObject::kInvalidId;
-        prop.name = QString("Dim %1").arg(i);
-        prop.flag = 0;
-        prop.val.clear();
-        prop.children = getDimProperties(i, samps_[i]);
-        ps.push_back(prop);
-    }
-
-    return ps;
-}
-
-
-
-void KcOpSampler::setPropertyImpl_(int id, const QVariant& newVal)
+KcOpSampler::KcOpSampler()
+    : super_("Sampler")
 {
 
 }
 
 
-void KcOpSampler::preRender_()
+int KcOpSampler::spec(kIndex outPort) const
 {
-    auto objp = dynamic_cast<KvDataProvider*>(parent());
-    assert(objp);
+    KpDataSpec sp(super_::spec(outPort));
+    sp.type = k_sampled;
+    return sp.spec;
+}
 
-    if (objp->dim() != samps_.size()) {
-        samps_.resize(objp->dim());
-        for (kIndex i = 0; i < objp->dim(); i++) {
-            auto r = objp->range(i);
-            auto low = r.low();
-            auto high = r.high();
-            if (std::isinf(low)) low = -1e8;
-            if (std::isinf(high)) high = 1e8;
-            samps_[i].resetn(1024, low, high, 0.5); // TODO: 1024改为定制值
+
+bool KcOpSampler::onNewLink(KcPortNode* from, KcPortNode* to)
+{
+    if (!super_::onNewLink(from, to))
+        return false;
+
+    if (to->parent().lock().get() == this) {
+        auto node = from->parent().lock();
+        auto prov = std::dynamic_pointer_cast<KvDataProvider>(node);
+        assert(prov);
+
+        auto d = prov->fetchData(from->index());
+        if (d) {
+            sampler_ = std::make_shared<KcSampler>(d);
+            odata_.front() = sampler_;
         }
     }
+
+    return true;
 }
 
 
-std::shared_ptr<KvData> KcOpSampler::processImpl_(std::shared_ptr<KvData> data)
+bool KcOpSampler::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
-    assert(data->isContinued() && data->dim() == samps_.size());
-
-    auto cond = std::dynamic_pointer_cast<KvContinued>(data);
-    std::shared_ptr<KvSampled> res;
-    switch (data->dim())
-    {
-    case 1:
-        res = std::make_shared<KtSampler<1>>(cond);
-        break;
-
-    case 2:
-        res = std::make_shared<KtSampler<2>>(cond);
-        break;
-
-    case 3:
-        res = std::make_shared<KtSampler<3>>(cond);
-        break;
-
-    default:
-        break;
-    }
-
-    if (res) {
-        std::vector<kIndex> shape(data->dim());
-        for (kIndex i = 0; i < data->dim(); i++) {
-            shape[i] = samps_[i].size();
-            res->reset(i, samps_[i].low(), samps_[i].dx(), 0.5);
-        }
-
-        res->resize(shape.data());
-    }
-
-    return res;
+    return true;
 }
+
+
+void KcOpSampler::onStopPipeline()
+{
+    // sampler_ = nullptr
+}
+
+
+void KcOpSampler::output()
+{
+    if (!odata_.front()) {
+        sampler_ = std::make_shared<KcSampler>(idata_.front());
+        odata_.front() = sampler_;
+    }
+}
+
+
+void KcOpSampler::showProperySet()
+{
+    super_::showProperySet();
+}
+
+
+bool KcOpSampler::permitInput(int dataSpec, unsigned inPort) const
+{
+    KpDataSpec sp(dataSpec);
+    return sp.type == k_continued || sp.type == k_array || sp.type == k_sampled;
+}
+
+
+bool KcOpSampler::onInputChanged(KcPortNode* outPort, unsigned inPort)
+{
+    return false;
+}
+
