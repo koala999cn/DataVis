@@ -1,31 +1,107 @@
 ﻿#include "KcRdAudioPlayer.h"
 #include "audio/KcAudioRender.h"
-#include "audio/KcAudioDevice.h"
+#include "prov/KvDataProvider.h" // for KpDataSpec
 #include "dsp/KcSampled1d.h"
+#include "imgui.h"
+#include "imapp/KsImApp.h"
+#include "imapp/KgPipeline.h"
 
 
-KcRdAudioPlayer::KcRdAudioPlayer(KvDataProvider* is)
-    : KvDataRender(tr("AudioPlayer"), is)
+KcRdAudioPlayer::KcRdAudioPlayer()
+    : KvDataRender("AudioPlayer")
 {
 	render_ = std::make_unique<KcAudioRender>();
+	render_->setAutoStop(false);
 
 	deviceId_ = render_->defaultDevice();
 	frameTime_ = 0.1;
 }
 
 
-namespace kPrivate
+bool KcRdAudioPlayer::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
-	enum KeAudioPlayerPropertyId
-	{
-		k_device_id,
-		k_channels,
-		k_sample_rate,
-		k_frame_time,
-	};
+	if (ins.empty())
+		return false;
+
+	assert(ins.front().first == 0);
+	auto port = ins.front().second; // TODO: 处理多输入的情况
+	auto node = port->parent().lock();
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(node);
+	if (!prov)
+		return false;
+
+	auto rate = std::round(1.0 / prov->step(port->index(), 0));
+	auto chs = prov->channels(port->index());
+	assert(render_->stopped());
+	return render_->play(deviceId_, rate, chs, frameTime_);
 }
 
 
+void KcRdAudioPlayer::onStopPipeline()
+{
+	render_->stop(true);
+}
+
+
+void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
+{
+	assert(inPort == 0);
+
+	auto pnode = outPort->parent().lock();
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
+	assert(prov);
+
+	auto data = prov->fetchData(outPort->index());
+
+	auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(data); // TODO: 不一定KcSampled1d
+	assert(render_ && samp1d);
+
+	render_->enqueue(samp1d);
+}
+
+
+bool KcRdAudioPlayer::permitInput(int dataSpec, unsigned inPort) const
+{
+	assert(inPort == 0); 
+	
+	KpDataSpec sp(dataSpec);
+	return sp.dim == 1 && sp.type == k_sampled;
+}
+
+
+void KcRdAudioPlayer::showProperySet()
+{
+	super_::showProperySet(); 
+
+	bool disable = KsImApp::singleton().pipeline().running();
+	ImGui::BeginDisabled(disable);
+
+	KcAudioDevice dev;
+	auto info = dev.info(deviceId_);
+
+	if (ImGui::BeginCombo("Device", info.name.c_str())) {
+		for (unsigned i = 0; i < dev.count(); i++) {
+			info = dev.info(i);
+			if (info.outputChannels > 0 && ImGui::Selectable(info.name.c_str(), i == deviceId_))
+				deviceId_ = i;
+		}
+
+		ImGui::EndCombo();
+	}
+
+	ImGui::DragFloat("FrameTime", &frameTime_, 0.01, 0.01, 1.0);
+
+
+	ImGui::EndDisabled();
+}
+
+
+void KcRdAudioPlayer::onDoubleClicked()
+{
+
+}
+
+/*
 KcRdAudioPlayer::kPropertySet KcRdAudioPlayer::propertySet() const
 {
 	kPropertySet ps;
@@ -51,7 +127,7 @@ KcRdAudioPlayer::kPropertySet KcRdAudioPlayer::propertySet() const
 	prop.id = kPrivate::k_channels;
 	prop.name = tr("Channles");
 	prop.disp.clear();
-	prop.desc = tr("channels of audio input device");
+	prop.desc = tr("channels of audio output device");
 	prop.flag = k_readonly;
 	prop.val = int(pobj->channels());
 	ps.push_back(prop);
@@ -78,67 +154,4 @@ KcRdAudioPlayer::kPropertySet KcRdAudioPlayer::propertySet() const
 }
 
 
-std::string KcRdAudioPlayer::errorText() const
-{
-	assert(render_);
-	return render_->errorText();
-}
-
-
-void KcRdAudioPlayer::reset()
-{
-    render_->reset();
-}
-
-
-bool KcRdAudioPlayer::doStart()
-{
-	doStop();
-	render_->reset();
-	return true;
-}
-
-
-void KcRdAudioPlayer::doStop()
-{
-	if(render_->running())
-	    render_->stop(true);
-}
-
-
-void KcRdAudioPlayer::setPropertyImpl_(int id, const QVariant& newVal)
-{
-	switch (id) {
-	case kPrivate::k_device_id:
-		deviceId_ = newVal.toInt();
-		break;
-
-	case kPrivate::k_frame_time:
-		frameTime_ = newVal.toDouble();
-		break;
-
-	default:
-		break;
-	}
-}
-
-
-void KcRdAudioPlayer::preRender_()
-{
-	//if (!render_->opened())
-	//	render_->play(deviceId_, sampleRate_, channels_, frameTime_);
-}
-
-	
-bool KcRdAudioPlayer::doRender_(std::shared_ptr<KvData> data)
-{
-	auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(data);
-	assert(render_ && samp1d);
-	
-	render_->enqueue(samp1d);
-
-	if (render_->stopped())
-		render_->play(deviceId_, samp1d->sampleRate(), samp1d->channels(), frameTime_);
-
-	return true;
-}
+*/

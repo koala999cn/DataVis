@@ -115,6 +115,7 @@
     <ClCompile Include="3rdparty\imgui\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="3rdparty\imnodes\imnodes.cpp" />
     <ClCompile Include="src\audio\KcAudioDevice.cpp" />
+    <ClCompile Include="src\audio\KcAudioRender.cpp" />
     <ClCompile Include="src\base\KuFileUtil.cpp" />
     <ClCompile Include="src\base\KuLex.cpp" />
     <ClCompile Include="src\base\KuPathUtil.cpp" />
@@ -187,6 +188,7 @@
     <ClCompile Include="src\prov\KcPvData.cpp" />
     <ClCompile Include="src\prov\KcPvExpr.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
+    <ClCompile Include="src\render\KcRdAudioPlayer.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
     <ClCompile Include="src\render\KcRdPlot2d.cpp" />
     <ClCompile Include="src\render\KcRdPlot3d.cpp" />
@@ -208,6 +210,7 @@
     <ClInclude Include="3rdparty\imnodes\imnodes.h" />
     <ClInclude Include="3rdparty\imnodes\imnodes_internal.h" />
     <ClInclude Include="src\audio\KcAudioDevice.h" />
+    <ClInclude Include="src\audio\KcAudioRender.h" />
     <ClInclude Include="src\base\KtCamera.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
@@ -324,6 +327,7 @@
     <ClInclude Include="src\dsp\kDsp.h" />
     <ClInclude Include="src\dsp\KtSampling.h" />
     <ClInclude Include="src\dsp\KvData.h" />
+    <ClInclude Include="src\render\KcRdAudioPlayer.h" />
     <ClInclude Include="src\render\KcRdPlot1d.h" />
     <ClInclude Include="src\render\KcRdPlot2d.h" />
     <ClInclude Include="src\render\KcRdPlot3d.h" />

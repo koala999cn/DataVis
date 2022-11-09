@@ -32,8 +32,8 @@ namespace kPrivate
     class KcAudioRenderObserver : public KcAudioRender::observer_type
     {
     public:
-        KcAudioRenderObserver(data_queue* q, unsigned channels)
-            : q_(q), channels_(channels), pos_(0), data_() {}
+        KcAudioRenderObserver(data_queue* q, unsigned channels, bool& autoStop)
+            : q_(q), channels_(channels), autoStop_(autoStop), pos_(0), data_() {}
 
         bool update(void* outputBuffer, unsigned frames, double streamTime) override {
 
@@ -42,7 +42,7 @@ namespace kPrivate
             if (data_ == nullptr) {
                 if (!q_->try_dequeue(data_)) {
                     KtuMath<kReal>::zeros(buf, frames * channels_);
-                    return false;
+                    return !autoStop_;
                 }
 
                 pos_ = 0;
@@ -54,7 +54,8 @@ namespace kPrivate
             if (toCopy > frames) toCopy = frames;
             data_->extract(pos_, buf, toCopy);
             pos_ += toCopy;
-            auto dx = data_->step(0);
+            
+            auto dx = data_->step(0); // 先获取data的dx，下一步data可能被重置
             if (pos_ == data_->size())
                 data_.reset(); // data_已耗尽
 
@@ -69,6 +70,7 @@ namespace kPrivate
         data_queue* q_;
         std::shared_ptr<KcSampled1d> data_;
         unsigned pos_;
+        bool& autoStop_;
     };
 
 
@@ -168,7 +170,7 @@ bool KcAudioRender::play(unsigned deviceId, double frameTime)
     assert(get<kPrivate::KcAudioRenderObserver>() == nullptr);
     assert(get<kPrivate::KcFileRenderObserver>() == nullptr);
     pushFront(std::make_shared<kPrivate::KcAudioRenderObserver>(
-        (kPrivate::data_queue*)queue_, chan)); // 放在最前面，这样写入的数据才能被其他观察者看到
+        (kPrivate::data_queue*)queue_, chan, autoStop_)); // 放在最前面，这样写入的数据才能被其他观察者看到
 
     device_->setStreamTime(samp->range(0).low());
     return device_->start();
@@ -183,7 +185,7 @@ bool KcAudioRender::play(unsigned deviceId, unsigned sampleRate, unsigned channe
     assert(get<kPrivate::KcAudioRenderObserver>() == nullptr);
     assert(get<kPrivate::KcFileRenderObserver>() == nullptr);
     pushFront(std::make_shared<kPrivate::KcAudioRenderObserver>(
-        (kPrivate::data_queue*)queue_, channels));
+        (kPrivate::data_queue*)queue_, channels, autoStop_));
 
     return device_->start();
 }

@@ -62,6 +62,9 @@ public:
 
     unsigned preferredSampleRate(unsigned deviceId) const;
 
+    bool autoStop() const { return autoStop_; }
+    void setAutoStop(bool b) { autoStop_ = b; }
+
 private:
 
     // open specific output audio 
@@ -80,4 +83,5 @@ private:
     std::unique_ptr<KcAudioDevice> device_; // 播放设备
     unsigned openedDevice_;
     void* queue_; // 缓存队列，暂存待播放音频数据
+    bool autoStop_{ true }; // 当数据耗尽时，是否自动停止设备？
 };

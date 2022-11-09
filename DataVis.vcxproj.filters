@@ -301,6 +301,12 @@
     <ClCompile Include="src\render\KvDataRender.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\KcRdAudioPlayer.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\KcAudioRender.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -701,6 +707,12 @@
     </ClInclude>
     <ClInclude Include="src\render\KcRdPlot2d.h">
       <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdAudioPlayer.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\KcAudioRender.h">
+      <Filter>audio</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
