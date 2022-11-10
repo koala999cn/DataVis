@@ -4,7 +4,7 @@
 #include "KvSampled.h"
 
 
-// 对连续数据的采样器
+// 对连续数据和数组数据的采样器， 也可用于采样数据的采样参数变更
 
 class KcSampler : public KvSampled
 {
@@ -44,8 +44,18 @@ public:
 
 	std::vector<kReal> point(kIndex idx[], kIndex channel) const final;
 
+
+	/// 成员方法
+
+	auto data() const { return internal_; }
+	auto steps() const { return steps_; }
+	auto x0refs() const { return x0refs_; }
+
+	// TODO: 此函数是否安全？
+	void setData(std::shared_ptr<KvData> d);
+
 private:
-	const std::shared_ptr<KvData> internal_;
+	std::shared_ptr<KvData> internal_;
 	std::vector<kReal> steps_;
 	std::vector<kReal> x0refs_;
 };

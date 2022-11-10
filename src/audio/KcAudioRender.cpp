@@ -1,13 +1,14 @@
 ﻿#include "KcAudioRender.h"
-#include "KcSampled1d.h"
+#include "KvSampled.h"
 #include "KgAudioFile.h"
 #include "readerwriterqueue/readerwriterqueue.h"
 #include <string.h>
+#include "KtuMath.h"
 
 
 namespace kPrivate
 {
-    using data_queue = moodycamel::ReaderWriterQueue<std::shared_ptr<KcSampled1d>>;
+    using data_queue = moodycamel::ReaderWriterQueue<std::shared_ptr<KvSampled>>;
 
     // 主要实现3个observer:
     //   一是KcNotifyObserver，用来向KcAudioRender的观察者转发update
@@ -52,8 +53,12 @@ namespace kPrivate
 
             auto toCopy = data_->size() - pos_;
             if (toCopy > frames) toCopy = frames;
-            data_->extract(pos_, buf, toCopy);
-            pos_ += toCopy;
+
+            // data_->extract(pos_, buf, toCopy);
+            // pos_ += toCopy;
+            for (unsigned i = 0; i < toCopy; i++, pos_++)
+                for (kIndex ch = 0; ch < channels_; ch++)
+                    *buf++ = data_->value(pos_, ch);           
             
             auto dx = data_->step(0); // 先获取data的dx，下一步data可能被重置
             if (pos_ == data_->size())
@@ -68,7 +73,7 @@ namespace kPrivate
     private:
         unsigned channels_;
         data_queue* q_;
-        std::shared_ptr<KcSampled1d> data_;
+        std::shared_ptr<KvSampled> data_;
         unsigned pos_;
         bool& autoStop_;
     };
@@ -115,7 +120,7 @@ KcAudioRender::~KcAudioRender()
 }
 
 
-bool KcAudioRender::play(const std::shared_ptr<KcSampled1d>& data, unsigned deviceId, double frameTime)
+bool KcAudioRender::play(const std::shared_ptr<KvSampled>& data, unsigned deviceId, double frameTime)
 {
     assert(data);
 
@@ -143,7 +148,7 @@ bool KcAudioRender::play(const std::shared_ptr<KgAudioFile>& file, unsigned devi
 }*/
 
 
-void KcAudioRender::enqueue(const std::shared_ptr<KcSampled1d>& data)
+void KcAudioRender::enqueue(const std::shared_ptr<KvSampled>& data)
 {
     ((kPrivate::data_queue*)queue_)->enqueue(data);
 }
@@ -162,7 +167,7 @@ bool KcAudioRender::play(unsigned deviceId, double frameTime)
         return false;
 
     auto samp = data->get();
-    unsigned rate = static_cast<unsigned>(samp->sampleRate());
+    unsigned rate = static_cast<unsigned>(1. / samp->step(0));
     unsigned chan = samp->channels();
     if (!openBestMatch_(deviceId, rate, chan, frameTime))
         return false;

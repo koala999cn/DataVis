@@ -36,5 +36,8 @@ void KcPvExpr::showProperySet()
 
     ImGui::PushItemWidth(w - sz.y - ImGui::GetStyle().ItemSpacing.x);
     ImGui::SameLine();
+
+    ImGui::BeginDisabled();
     ImGui::InputText("Formular", exprText_.data(), ImGuiInputTextFlags_ReadOnly);
+    ImGui::EndDisabled();
 }

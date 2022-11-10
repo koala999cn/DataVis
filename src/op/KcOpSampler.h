@@ -31,6 +31,10 @@ public:
 
 
 private:
+	void sampleCountChanged_();
+
+private:
 	std::shared_ptr<KcSampler> sampler_;
+	std::vector<int> sampCount_; // 适用于连续数据
 };
 

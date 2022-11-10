@@ -53,10 +53,10 @@ void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
 
 	auto data = prov->fetchData(outPort->index());
 
-	auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(data); // TODO: 不一定KcSampled1d
-	assert(render_ && samp1d);
+	auto samp = std::dynamic_pointer_cast<KvSampled>(data);
+	assert(render_ && samp && samp->dim() == 1);
 
-	render_->enqueue(samp1d);
+	render_->enqueue(samp);
 }
 
 
