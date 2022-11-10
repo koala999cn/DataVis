@@ -257,7 +257,7 @@
     <ClInclude Include="src\dsp\KvContinued.h" />
     <ClInclude Include="src\dsp\KvDiscreted.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
-    <ClInclude Include="src\dsp\misc.h" />
+    <ClInclude Include="src\dsp\minmax.h" />
     <ClInclude Include="src\imapp\imguix.h" />
     <ClInclude Include="src\imapp\KcActionInsertDataNode.h" />
     <ClInclude Include="src\imapp\KcActionTextLoadAndClean.h" />

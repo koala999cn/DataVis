@@ -720,7 +720,7 @@
     <ClInclude Include="src\op\KcOpSampler.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\misc.h">
+    <ClInclude Include="src\dsp\minmax.h">
       <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
