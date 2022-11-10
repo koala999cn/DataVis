@@ -51,7 +51,7 @@ namespace kPrivate
 
             assert(data_ && data_->channels() == channels_); // TODO: 频率也是一致的
 
-            auto toCopy = data_->size() - pos_;
+            auto toCopy = data_->size(0) - pos_;
             if (toCopy > frames) toCopy = frames;
 
             // data_->extract(pos_, buf, toCopy);
@@ -65,7 +65,7 @@ namespace kPrivate
                 data_.reset(); // data_已耗尽
 
             if (toCopy < frames)
-                return update(buf + toCopy, frames - toCopy, streamTime + dx * toCopy);
+                return update(buf , frames - toCopy, streamTime + dx * toCopy);
 
             return true;
         }

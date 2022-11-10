@@ -88,7 +88,9 @@ void KcOpSampler::showProperySet()
     ImGui::Separator();
     if (sampler_->data()->isContinued()) {
         if (sampler_->dim() == 1) {
-            if (ImGui::DragInt("Sample Count", sampCount_.data(), 1)) {
+            int c = sampCount_.front();
+            if (ImGui::DragInt("Sample Count", &c, 1) && c > 0) {
+                sampCount_.front() = c;
                 sampleCountChanged_();
                 KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
             }
@@ -98,7 +100,9 @@ void KcOpSampler::showProperySet()
                 for (kIndex i = 0; i < sampler_->dim(); i++) {
                     std::string label("Dim");
                     label += KuStrUtil::toString(i + 1);
-                    if (ImGui::DragInt(label.c_str(), sampCount_.data() + i, 1)) {
+                    int c = sampCount_[i];
+                    if (ImGui::DragInt(label.c_str(), &c, 1) && c > 0) {
+                        sampCount_[i] = c;
                         sampleCountChanged_();
                         KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
                     }

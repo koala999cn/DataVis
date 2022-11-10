@@ -27,10 +27,12 @@ bool KcRdAudioPlayer::onStartPipeline(const std::vector<std::pair<unsigned, KcPo
 	auto port = ins.front().second; // TODO: 处理多输入的情况
 	auto node = port->parent().lock();
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(node);
-	if (!prov)
-		return false;
+	assert(prov);
 
 	auto rate = std::round(1.0 / prov->step(port->index(), 0));
+	if (rate < 1600)
+		return false;
+
 	auto chs = prov->channels(port->index());
 	assert(render_->stopped());
 	return render_->play(deviceId_, rate, chs, frameTime_);
@@ -40,6 +42,7 @@ bool KcRdAudioPlayer::onStartPipeline(const std::vector<std::pair<unsigned, KcPo
 void KcRdAudioPlayer::onStopPipeline()
 {
 	render_->stop(true);
+	render_->reset();
 }
 
 
@@ -56,7 +59,9 @@ void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
 	auto samp = std::dynamic_pointer_cast<KvSampled>(data);
 	assert(render_ && samp && samp->dim() == 1);
 
-	render_->enqueue(samp);
+	if (prov->isStream(outPort->index()) || 
+		KsImApp::singleton().pipeline().frameIndex() == 0)
+	    render_->enqueue(samp);
 }
 
 

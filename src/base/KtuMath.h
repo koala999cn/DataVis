@@ -892,7 +892,7 @@ void KtuMath<KREAL>::applyExp(KREAL x[], unsigned n)
 template<class KREAL>
 void KtuMath<KREAL>::assign(KREAL x[], unsigned n, KREAL val)
 {
-    std::fill(x, x + n, val);
+    std::fill_n(x, n, val);
 }
 
 template<class KREAL>
