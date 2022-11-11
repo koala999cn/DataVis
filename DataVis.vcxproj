@@ -172,6 +172,7 @@
     <ClCompile Include="src\plot\KcCoordPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearScaler.cpp" />
     <ClCompile Include="src\plot\KcColorMap.cpp" />
+    <ClCompile Include="src\plot\KcLineFilled.cpp" />
     <ClCompile Include="src\plot\KcScatter.cpp" />
     <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp" />
     <ClCompile Include="src\plot\KsThemeManager.cpp" />
@@ -301,6 +302,7 @@
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
     <ClInclude Include="src\plot\KcColorMap.h" />
+    <ClInclude Include="src\plot\KcLineFilled.h" />
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
     <ClInclude Include="src\plot\KtGradient.h" />
     <ClInclude Include="src\plot\KpContext.h" />

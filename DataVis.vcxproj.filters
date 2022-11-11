@@ -316,6 +316,9 @@
     <ClCompile Include="src\plot\KcBubble2d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcLineFilled.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -727,6 +730,9 @@
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcBubble2d.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcLineFilled.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

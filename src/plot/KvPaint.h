@@ -66,6 +66,8 @@ public:
 
 	virtual void drawLineLoop(point_getter fn, unsigned count);
 
+	virtual void drawLineFilled(point_getter fn1, point_getter fn2, unsigned count);
+
 	virtual void drawRect(const point3& lower, const point3& upper);
 
 	virtual void fillRect(const point3& lower, const point3& upper) = 0;

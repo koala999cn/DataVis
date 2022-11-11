@@ -45,6 +45,22 @@ void KvPaint::drawLineLoop(point_getter fn, unsigned count)
 }
 
 
+void KvPaint::drawLineFilled(point_getter fn1, point_getter fn2, unsigned count)
+{
+	// 一个简单低效的实现
+	auto pt0 = fn1(0);
+	auto pt1 = fn2(0);
+	for (unsigned i = 1; i < count; i++) {
+		auto pt2 = fn2(i); 
+		auto pt3 = fn1(i);
+
+		fillQuad(pt0, pt1, pt2, pt3);
+
+		pt0 = pt3, pt1 = pt2;
+	}
+}
+
+
 void KvPaint::drawRect(const point3& lower, const point3& upper)
 {
 	point3 pts[4];

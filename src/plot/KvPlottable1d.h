@@ -3,7 +3,7 @@
 #include "KvPaint.h"
 
 
-// 序列图，包括折线图graph、散点图scatter、条状图bar等
+// 序列图的基类，包括折线图graph、散点图scatter、条状图bar等
 // 兼容2d和3d模式
 
 class KvPlottable1d : public KvPlottable
