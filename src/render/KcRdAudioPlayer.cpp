@@ -55,6 +55,8 @@ void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
 	assert(prov);
 
 	auto data = prov->fetchData(outPort->index());
+	if (!data || data->size() == 0)
+		return;
 
 	auto samp = std::dynamic_pointer_cast<KvSampled>(data);
 	assert(render_ && samp && samp->dim() == 1);
@@ -105,58 +107,3 @@ void KcRdAudioPlayer::onDoubleClicked()
 {
 
 }
-
-/*
-KcRdAudioPlayer::kPropertySet KcRdAudioPlayer::propertySet() const
-{
-	kPropertySet ps;
-	KpProperty prop;
-	KcAudioDevice dev;
-
-	prop.id = kPrivate::k_device_id;
-	prop.name = tr("Device");
-	prop.desc = tr("device used to render audio");
-	prop.val = int(deviceId_); // int类型代表enum类型
-	for (unsigned i = 0; i < dev.count(); i++) {
-		auto info = dev.info(i);
-		if (info.outputChannels > 0) {
-			auto name = QString::fromLocal8Bit(info.name.c_str(), info.name.size());
-			prop.enumList.emplace_back(name, i);
-		}
-	}
-	ps.push_back(prop);
-	prop.enumList.clear();
-
-	auto pobj = dynamic_cast<KvDataProvider*>(parent());
-
-	prop.id = kPrivate::k_channels;
-	prop.name = tr("Channles");
-	prop.disp.clear();
-	prop.desc = tr("channels of audio output device");
-	prop.flag = k_readonly;
-	prop.val = int(pobj->channels());
-	ps.push_back(prop);
-
-	prop.id = kPrivate::k_sample_rate;
-	prop.name = tr("SampleRate");
-	prop.disp = tr("Sampling rate");
-	prop.desc = tr("sampling rate of audio output device in Hz");
-	prop.val = 1.0 / pobj->step(0);
-	ps.push_back(prop);
-
-	prop.id = kPrivate::k_frame_time;
-	prop.name = tr("FrameTime");
-	prop.disp = tr("Frame time");
-	prop.desc = tr("time in second per frame of audio output");
-	prop.flag = 0;
-	prop.val = frameTime_;
-	prop.minVal = 0.005; // 最小5ms
-	prop.maxVal = 1.0; // 最大1s
-	prop.step = 0.01;
-	ps.push_back(prop);
-
-	return ps;
-}
-
-
-*/

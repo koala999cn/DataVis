@@ -313,6 +313,9 @@
     <ClCompile Include="src\dsp\KcContinuedFn.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcBubble2d.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -722,6 +725,9 @@
     </ClInclude>
     <ClInclude Include="src\dsp\minmax.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcBubble2d.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

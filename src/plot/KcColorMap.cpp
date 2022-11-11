@@ -123,13 +123,7 @@ void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 
 color4f KcColorMap::mapValueToColor_(float_t val) const
 {
-	auto factor = val - valLower_;
-	auto delta = valUpper_ - valLower_;
-	if (delta == 0)
-		factor = factor > 0 ? 1 : 0;
-	else
-		factor /= delta;
-
+	auto factor = KtuMath<float_t>::remap<true>(val, valLower_, valUpper_);
 	return mapper_.getAt(factor);
 }
 

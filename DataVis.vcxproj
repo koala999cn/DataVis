@@ -165,6 +165,7 @@
     <ClCompile Include="src\op\KvDataOperator.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
     <ClCompile Include="src\plot\KcBars2d.cpp" />
+    <ClCompile Include="src\plot\KcBubble2d.cpp" />
     <ClCompile Include="src\plot\KcCoord2d.cpp" />
     <ClCompile Include="src\plot\KcCoord3d.cpp" />
     <ClCompile Include="src\plot\KcGraph.cpp" />
@@ -293,6 +294,7 @@
     <ClInclude Include="src\op\KcOpSpectrum.h" />
     <ClInclude Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\plot\KcBars2d.h" />
+    <ClInclude Include="src\plot\KcBubble2d.h" />
     <ClInclude Include="src\plot\KcCoord2d.h" />
     <ClInclude Include="src\plot\KcCoordPlane.h" />
     <ClInclude Include="src\plot\KcLinearScaler.h" />

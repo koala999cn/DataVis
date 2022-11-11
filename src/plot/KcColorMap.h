@@ -27,11 +27,11 @@ public:
 
 	aabb_type boundingBox() const override;
 
-	float_t valueLower() const { return valLower_; }
-	float_t& valueLower() { return valLower_; }
+	float valueLower() const { return valLower_; }
+	float& valueLower() { return valLower_; }
 
-	float_t valueUpper() const { return valUpper_; }
-	float_t& valueUpper() { return valUpper_; }
+	float valueUpper() const { return valUpper_; }
+	float& valueUpper() { return valUpper_; }
 
 protected:
 
@@ -40,7 +40,7 @@ protected:
 	color4f mapValueToColor_(float_t val) const;
 
 private:
-	float_t valLower_{ 0 }, valUpper_{ 1 }; // color map的值域范围
+	float valLower_{ 0 }, valUpper_{ 1 }; // color map的值域范围
 
 	KtGradient<float_t, color4f> mapper_;
 	color4f border_{ 0 };

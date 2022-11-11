@@ -111,14 +111,15 @@ void KcPvAudioInput::onStopPipeline()
 
 void KcPvAudioInput::output()
 {
-	if (data_) { // 当pipeline运行时新增该node，data_将为null
-		// 组装数据
-		auto q = (kPrivate::data_queue*)queue_;
-		data_->clear(); // 清空历史数据
-		std::shared_ptr<KcSampled1d> d;
-		while (q->try_dequeue(d))
-			data_->pushBack(*d);
-	}
+	assert(data_);
+
+	data_->clear(); // 清空历史数据
+
+	// 组装数据
+	auto q = (kPrivate::data_queue*)queue_;
+	std::shared_ptr<KcSampled1d> d;
+	while (q->try_dequeue(d))
+		data_->pushBack(*d);
 }
 
 

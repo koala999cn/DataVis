@@ -154,9 +154,20 @@ public:
     } 
 
     // 重映射：将x从[x0, x1]区间映射到[y0, y1]区间
-    static KREAL remap(KREAL x, KREAL x0, KREAL x1, KREAL y0, KREAL y1)
-    {
-        return y0 + (x - x0) * (y1 - y0) / (x1 - x0);
+    template<bool CLAMP = false>
+    static KREAL remap(KREAL x, KREAL x0, KREAL x1, KREAL y0, KREAL y1) {
+        if (x0 == x1) 
+            return x > x1 ? y1 : y0;
+
+        auto y = y0 + (x - x0) * (y1 - y0) / (x1 - x0);
+        if constexpr (CLAMP)
+            y = clamp(y, y0, y1);
+        return y;
+    }
+
+    template<bool CLAMP = false>
+    static KREAL remap(KREAL x, KREAL x0, KREAL x1) {
+        return remap<CLAMP>(x, x0, x1, 0, 1);
     }
 
     /*************** VECTOR ALGORITHM *****************/

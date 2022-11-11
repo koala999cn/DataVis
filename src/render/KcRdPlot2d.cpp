@@ -1,6 +1,7 @@
 ﻿#include "KcRdPlot2d.h"
 #include "imapp/KcImPlot2d.h"
 #include "plot/KcColorMap.h"
+#include "plot/KcBubble2d.h"
 #include "prov/KvDataProvider.h"
 
 
@@ -13,19 +14,26 @@ KcRdPlot2d::KcRdPlot2d()
 
 std::vector<KvPlottable*> KcRdPlot2d::createPlottable_(KcPortNode* port)
 {
-    return createPlts_<KcColorMap>(port);
+    auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
+
+    if (prov->isScattered(port->index()))
+        return createPlts_<KcBubble2d>(port);
+    else 
+        return createPlts_<KcColorMap>(port);
 }
 
 
 unsigned KcRdPlot2d::supportPlottableTypes_() const
 {
-    return 1;
+    return 2;
 }
 
 
 int KcRdPlot2d::plottableType_(KvPlottable* plt) const
 {
-    if (dynamic_cast<KcColorMap*>(plt))
+    if (dynamic_cast<KcBubble2d*>(plt))
+        return 1;
+    else if (dynamic_cast<KcColorMap*>(plt))
         return 0;
 
     return -1;
@@ -35,7 +43,8 @@ int KcRdPlot2d::plottableType_(KvPlottable* plt) const
 const char* KcRdPlot2d::plottableTypeStr_(int iType) const
 {
     static const char* pltTypes[] = {
-        "Color Map"
+        "Color Map",
+        "Bubble"
     };
 
     return pltTypes[iType];
@@ -48,6 +57,9 @@ KvPlottable* KcRdPlot2d::newPlottable_(int iType, const std::string& name)
     {
     case 0:
         return new KcColorMap(name);
+
+    case 1:
+        return new KcBubble2d(name);
     }
 
     return nullptr;
