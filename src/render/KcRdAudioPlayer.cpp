@@ -61,9 +61,9 @@ void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
 	auto samp = std::dynamic_pointer_cast<KvSampled>(data);
 	assert(render_ && samp && samp->dim() == 1);
 
-	if (prov->isStream(outPort->index()) || 
+	if (prov->isStream(outPort->index()) ||
 		KsImApp::singleton().pipeline().frameIndex() == 0)
-	    render_->enqueue(samp);
+		render_->enqueue(samp);
 }
 
 
