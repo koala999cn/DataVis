@@ -66,13 +66,15 @@ public:
 
 	virtual void drawLineLoop(point_getter fn, unsigned count);
 
-	virtual void drawLineFilled(point_getter fn1, point_getter fn2, unsigned count);
-
 	virtual void drawRect(const point3& lower, const point3& upper);
 
 	virtual void fillRect(const point3& lower, const point3& upper) = 0;
 
 	virtual void fillQuad(const point3& pt0, const point3& pt1, const point3& pt2, const point3& pt3) = 0;
+
+	virtual void fillConvexPoly(point_getter fn, unsigned count) = 0;
+
+	virtual void fillBetween(point_getter line1, point_getter line2, unsigned count) = 0;
 
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
 

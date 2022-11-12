@@ -38,6 +38,10 @@ public:
 
 	void fillQuad(const point3& pt0, const point3& pt1, const point3& pt2, const point3& pt3) override;
 
+	void fillConvexPoly(point_getter fn, unsigned count) override;
+
+	void fillBetween(point_getter line1, point_getter line2, unsigned count) override;
+
 	void drawText(const point3& anchor, const char* text, int align) override;
 
 	point2 textSize(const char* text) const override;

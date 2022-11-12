@@ -219,6 +219,7 @@
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
     <ClInclude Include="src\base\KtLine.h" />
+    <ClInclude Include="src\base\KtLineS2d.h" />
     <ClInclude Include="src\base\KtMatrix3.h" />
     <ClInclude Include="src\base\KtMatrix4.h" />
     <ClInclude Include="src\base\KtObservable.h" />

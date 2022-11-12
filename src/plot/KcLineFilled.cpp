@@ -16,11 +16,11 @@ void KcLineFilled::drawImpl_(KvPaint* paint, point_getter getter1, unsigned coun
 
 	if (count > 4096) { // TODO：使用降采样算法
 		unsigned stride = count / 4096 + 1;
-		paint->drawLineFilled([&getter1, stride](unsigned idx) {
+		paint->fillBetween([&getter1, stride](unsigned idx) {
 			return getter1(stride * idx); }, getter2, count / stride);
 	}
 	else {
-		paint->drawLineFilled(getter1, getter2, count);
+		paint->fillBetween(getter1, getter2, count);
 	}
 }
 

@@ -735,5 +735,8 @@
     <ClInclude Include="src\plot\KcLineFilled.h">
       <Filter>plot</Filter>
     </ClInclude>
+    <ClInclude Include="src\base\KtLineS2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

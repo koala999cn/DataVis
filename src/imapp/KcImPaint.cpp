@@ -3,6 +3,8 @@
 #include "imguix.h"
 #include "KtuMath.h"
 #include <assert.h>
+#include "imgui_internal.h"
+#include "KtLineS2d.h"
 
 
 KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
@@ -95,7 +97,7 @@ void KcImPaint::drawLineStrip(point_getter fn, unsigned count)
 
 	if (lineStyle_ == KpPen::k_solid) {
 		// TODO: 点数太大（~44k）时会crack
-		// 去除drawList->Flags的ImDrawListFlags_AntiAliasedLines标记可正常云心，但很慢
+		// 去除drawList->Flags的ImDrawListFlags_AntiAliasedLines标记可正常运行，但速度很慢
 		for (unsigned i = 0; i < count; i++)
 			drawList->PathLineTo(world2Pos_(fn(i), true));
 		drawList->PathStroke(color_(), 0, lineWidth_); 
@@ -122,6 +124,95 @@ void KcImPaint::fillQuad(const point3& pt0, const point3& pt1, const point3& pt2
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	drawList->AddQuadFilled(world2Pos_(pt0), world2Pos_(pt1), world2Pos_(pt2), world2Pos_(pt3), color_());
+}
+
+
+void KcImPaint::fillConvexPoly(point_getter fn, unsigned count)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+
+	drawList->_Path.resize(count);
+
+	for (unsigned i = 0; i < count; i++)
+		drawList->_Path[i] = world2Pos_(fn(i));
+
+	drawList->PathFillConvex(color_());
+}
+
+
+void KcImPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
+{
+	// 一个简单低效的实现
+/*	auto pt0 = fn1(0);
+	auto pt1 = fn2(0);
+	for (unsigned i = 1; i < count; i++) {
+		auto pt2 = fn2(i);
+		auto pt3 = fn1(i);
+
+		fillQuad(pt0, pt1, pt2, pt3); // TODO: 考虑两条线相交的情况
+
+		pt0 = pt3, pt1 = pt2;
+	}*/
+
+	auto drawList = ImGui::GetWindowDrawList();
+	int vxt_count = count * 2 + count - 1; // 最多可能有count-1个交点
+	int idx_count = (count - 1) * 6; // 每个区间绘制2个三角形，共6个索引
+	drawList->PrimReserve(idx_count, vxt_count);
+
+	auto& vtxptr = drawList->_VtxWritePtr;
+	auto& idxptr = drawList->_IdxWritePtr;
+	auto uv = drawList->_Data->TexUvWhitePixel;
+	auto clr = color_();
+
+	auto p00 = world2Pos_(fn1(0));
+	auto p01 = world2Pos_(fn2(0));
+
+	auto vtxIdx0 = drawList->_VtxCurrentIdx;
+	drawList->PrimWriteVtx(p00, uv, clr);
+	drawList->PrimWriteVtx(p01, uv, clr);
+
+	int noninters(0); // 统计不相交的次数
+
+	for (unsigned i = 1; i < count; i++) {
+		auto p10 = world2Pos_(fn1(i));
+		auto p11 = world2Pos_(fn2(i));
+
+		auto vtxIdx1 = drawList->_VtxCurrentIdx;
+		drawList->PrimWriteVtx(p10, uv, clr);
+		drawList->PrimWriteVtx(p11, uv, clr);
+
+		using point2 = KtPoint<float_t, 2>;
+		KtLineS2d<float_t> ln0((const point2&)p00, (const point2&)p10);
+		KtLineS2d<float_t> ln1((const point2&)p01, (const point2&)p11);
+		auto pt = ln0.intersects(ln1);
+		if (pt) { // 相交
+			drawList->PrimWriteVtx((const ImVec2&)pt.value(), uv, clr);
+
+			drawList->PrimWriteIdx(vtxIdx0 + 1);
+			drawList->PrimWriteIdx(vtxIdx0);
+			drawList->PrimWriteIdx(vtxIdx1 + 2);
+
+			drawList->PrimWriteIdx(vtxIdx1);
+			drawList->PrimWriteIdx(vtxIdx1 + 1);
+			drawList->PrimWriteIdx(vtxIdx1 + 2);
+		}
+		else { // 不相交
+			drawList->PrimWriteIdx(vtxIdx0 + 1);
+			drawList->PrimWriteIdx(vtxIdx0);
+			drawList->PrimWriteIdx(vtxIdx1);
+
+			drawList->PrimWriteIdx(vtxIdx1);
+			drawList->PrimWriteIdx(vtxIdx1 + 1);
+			drawList->PrimWriteIdx(vtxIdx0 + 1);
+
+			++noninters;
+		}
+
+		vtxIdx0 = vtxIdx1;
+		p00 = p10, p01 = p11;
+	}
+
+	drawList->PrimUnreserve(0, noninters);
 }
 
 
