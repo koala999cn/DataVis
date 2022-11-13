@@ -46,8 +46,10 @@ public:
 	KtAABB(const KtAABB& box)
 		: lower_(box.lower_), upper_(box.upper_) {}
 
-	KtAABB(const point& lower, const point& upper)
-		: lower_(lower), upper_(upper) {}
+	KtAABB(const point& lower, const point& upper) {
+		lower_ = lower_.floor(lower, upper);
+		upper_ = upper_.ceil(lower, upper);
+	}
 
 
 	KtAABB& operator=(const KtAABB& rhs) {
