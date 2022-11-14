@@ -12,6 +12,9 @@ public:
 
 	KcImPaint(camera_type& cam);
 
+	void beginPaint() override;
+	void endPaint() override;
+
 	rect viewport() const override;
 	void setViewport(const rect& vp) override;
 
@@ -67,4 +70,6 @@ private:
 	float_t lineWidth_{ 1 };
 	int lineStyle_{ 0 };
 	float_t pointSize_{ 2 };
+
+	KtMatrix4<float_t> vp_; // ×ø±ê±ä»»¾ØÕó
 };

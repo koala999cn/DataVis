@@ -12,6 +12,18 @@ KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
 }
 
 
+void KcImPaint::beginPaint()
+{
+	camera_.updateProjectMatrixs();
+}
+
+
+void KcImPaint::endPaint()
+{
+	// depth sorting
+}
+
+
 KcImPaint::rect KcImPaint::viewport() const
 {
 	return camera_.viewport();
@@ -20,7 +32,7 @@ KcImPaint::rect KcImPaint::viewport() const
 
 void KcImPaint::setViewport(const rect& vp)
 {
-	camera_.viewport() = vp;
+	camera_.setViewport(vp);
 }
 
 
@@ -39,7 +51,8 @@ void KcImPaint::popClipRect()
 
 KcImPaint::point2 KcImPaint::project(const point3& worldPt) const
 {
-	return camera_.worldToScreen(worldPt);
+	auto scrPt = camera_.worldToScreen(worldPt);
+	return { scrPt.x(), scrPt.y() };
 }
 
 
@@ -140,20 +153,9 @@ void KcImPaint::fillConvexPoly(point_getter fn, unsigned count)
 }
 
 
+// 基于imgui的优化实现
 void KcImPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
 {
-	// 一个简单低效的实现
-/*	auto pt0 = fn1(0);
-	auto pt1 = fn2(0);
-	for (unsigned i = 1; i < count; i++) {
-		auto pt2 = fn2(i);
-		auto pt3 = fn1(i);
-
-		fillQuad(pt0, pt1, pt2, pt3); // TODO: 考虑两条线相交的情况
-
-		pt0 = pt3, pt1 = pt2;
-	}*/
-
 	auto drawList = ImGui::GetWindowDrawList();
 	int vxt_count = count * 2 + count - 1; // 最多可能有count-1个交点
 	int idx_count = (count - 1) * 6; // 每个区间绘制2个三角形，共6个索引
@@ -236,11 +238,7 @@ KcImPaint::point2 KcImPaint::textSize(const char* text) const
 ImVec2 KcImPaint::world2Pos_(const point3& pt, bool round) const
 {
 	auto pos = camera_.worldToScreen(pt);
-	if (round) {
-		pos.x() = std::round(pos.x());
-		pos.y() = std::round(pos.y());
-	}
-	return ImVec2(pos.x(), pos.y());
+	return round ? ImVec2(int(pos.x()), int(pos.y())) : ImVec2(pos.x(), pos.y());
 }
 
 

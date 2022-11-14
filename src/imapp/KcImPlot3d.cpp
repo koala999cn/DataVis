@@ -48,7 +48,7 @@ void KcImPlot3d::handleMouseInput_()
         auto mousePos = ImGui::GetMousePos();
         auto pivot = camera_.worldToScreen(coord().center());
         auto sz = ImGui::GetWindowSize();
-        trackball_.reset({ mousePos.x, mousePos.y }, pivot, { sz.x / 2, sz.y / 2 });
+        trackball_.reset({ mousePos.x, mousePos.y }, { pivot.x(), pivot.y() }, { sz.x / 2, sz.y / 2 });
     }
     if (ImGui::IsMouseDragging(0)) {
         auto d = ImGui::GetMouseDragDelta(0);

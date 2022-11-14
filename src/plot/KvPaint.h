@@ -33,6 +33,9 @@ public:
 	using rect = KtAABB<float_t, 2>;
 	using point_getter = std::function<point3(unsigned)>;
 
+	virtual void beginPaint() = 0;
+	virtual void endPaint() = 0;
+
 	virtual rect viewport() const = 0;
 	virtual void setViewport(const rect& vp) = 0;
 

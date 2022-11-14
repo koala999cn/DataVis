@@ -61,6 +61,8 @@ void KvPlot::update()
 
 	autoProject_();
 
+	paint_->beginPaint();
+
 	coord().draw(paint_.get());
 
 	paint_->pushClipRect(paint_->viewport());
@@ -70,6 +72,8 @@ void KvPlot::update()
 		    plottableAt(idx)->draw(paint_.get());
 
 	paint_->popClipRect();
+
+	paint_->endPaint();
 }
 
 

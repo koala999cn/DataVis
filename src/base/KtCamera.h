@@ -4,7 +4,21 @@
 #include "KtMatrix4.h"
 #include "KtQuaternion.h"
 #include "KtAABB.h"
+#include <optional>
 
+
+// 主要在给定视图矩阵、透视矩阵条件下，实现2类功能：
+//   1. 各类坐标系的转换
+//   2. 获取摄像机的参数
+
+// 总共实现7类坐标系的互换
+//   1. 局部坐标系(local)，也称物体坐标系
+//   2. 世界坐标系(world)，local通过模型矩阵(model)转换为world
+//   3. 摄像坐标系(eye)，world通过视图矩阵(view)转换为eye
+//   4. 裁剪坐标系(clip)，eye通过透视矩阵(proj)转换为clip
+//   5. 标准坐标系(NDC)，clip通过规范化(各元素除以w)转换为NDC，坐标范围从[-1, -1, -1]到[1, 1, 1]
+//   6. 视口坐标系(viewport)，坐标范围从[0, 0]到[1, 1]
+//   7. 屏幕坐标系(screen)，即视窗坐标
 
 template<typename KREAL, bool ROW_MAJOR = true>
 class KtCamera
@@ -19,142 +33,271 @@ public:
 	using quat = KtQuaternion<KREAL>;
 	using rect = KtAABB<KREAL, 2>;
 
-	KtCamera();
+	void pushLocal(const mat4& mat) {
+		modelMats_.push_back(modelMats_.empty() ? mat : 
+			modelMats_.back() * mat);
+		resetModelRelatedMats_();
+	}
 
-	const mat4& viewMatrix() const { return viewMatrix_; }
-	mat4& viewMatrix() { return viewMatrix_; }
+	void popLocal() {
+		modelMats_.pop_back();
+		resetModelRelatedMats_();
+	}
 
-	const mat4& projMatrix() const { return projMatrix_; }
-	mat4& projMatrix() { return projMatrix_; }
+	const mat4& viewMatrix() const { return viewMat_; }
+	mat4& viewMatrix() { return viewMat_; }
+
+	const mat4& projMatrix() const { return projMat_; }
+	mat4& projMatrix() { return projMat_; }
 
 	const rect& viewport() const { return vp_; }
-	rect& viewport() { return vp_; }
+	void setViewport(const rect& vp);
 
-	vec3 getCameraPos() const;
-	quat getCameraOrient() const;
+	vec3 getEyePos() const;
+	quat getEyeOrient() const;
 
-	// 对world坐标点/矢量in进行投影，即转换到viewport坐标系
-	bool project(const vec4& in, vec4& out) const;
+	// 更新与投影有关的变换矩阵
+	void updateProjectMatrixs();
 
-	// 对viewport坐标点in进行反投影，即转换到world坐标系
-	// 其中in.z()为规范化的深度值，取[0, 1]，对应[znear, zfar]
-	bool unproject(const vec3& in, vec4& out) const;
+	vec4 localToWorld(const vec4& pt) const { return modelMats_.empty() ? pt : modelMats_.back() * pt; }
+	vec4 localToEye(const vec4& pt) const { return getMvMat_() * pt; }
+	vec4 localToClip(const vec4& pt) const { return getMvpMat_() * pt; }
+	vec4 localToNdc(const vec4& pt) const { return clipToNdc(localToClip(pt)); }
+	vec4 localToViewport(const vec4& pt) const { return clipToViewport(localToClip(pt)); }
+	vec4 localToScreen(const vec4& pt) const { return clipToScreen(localToClip(pt)); }
 
-	// 返回ray的射向
-	// ray的原点可通过getCameraPos获取
-	vec3 screenPointToRay(const point2& pt) const;
-	
-	point2 worldToViewport(const vec4& in) const {
-		vec4 out;
-		project(in, out);
-		return { out.x(), out.y() };
+	vec4 worldToLocal(const vec4& pt) const { return modelMats_.empty() ? pt : getMMatR_() * pt; }
+	vec4 worldToEye(const vec4& pt) const { return viewMat_ * pt; }
+	vec4 worldToClip(const vec4& pt) const { return vpMat_ * pt; }
+	vec4 worldToNdc(const vec4& pt) const { return clipToNdc(worldToClip(pt)); }
+	vec4 worldToViewport(const vec4& pt) const { return clipToViewport(worldToClip(pt)); }
+	vec4 worldToScreen(const vec4& pt) const { return clipToScreen(worldToClip(pt)); }
+
+	vec4 eyeToLocal(const vec4& pt) const { return getMvMatR_() * pt; }
+	vec4 eyeToWorld(const vec4& pt) const { return getViewMatR_() * pt; }
+	vec4 eyeToClip(const vec4& pt) const { return projMat_ * pt; }
+	vec4 eyeToNdc(const vec4& pt) const { return clipToNdc(eyeToClip(pt)); }
+	vec4 eyeToViewport(const vec4& pt) const { return clipToViewport(eyeToClip(pt)); }
+	vec4 eyeToScreen(const vec4& pt) const { return clipToScreen(eyeToClip(pt)); }
+
+	vec4 clipToLocal(const vec4& pt) const { return getMvpMatR_() * pt; }
+	vec4 clipToWorld(const vec4& pt) const { return getVpMatR_() * pt; }
+	vec4 clipToEye(const vec4& pt) const { return getProjMatR_() * pt; }
+	vec4 clipToNdc(const vec4& pt) const { return vec4(pt).homogenize(); }
+	vec4 clipToViewport(const vec4& pt) const { return ndcToViewport(clipToNdc(pt)); }
+	vec4 clipToScreen(const vec4& pt) const { return ndcToScreen(clipToNdc(pt)); }
+
+	vec4 ndcToLocal(const vec4& pt) const { return clipToLocal(ndcToClip(pt)); }
+	vec4 ndcToWorld(const vec4& pt) const { return clipToWorld(ndcToClip(pt)); }
+	vec4 ndcToEye(const vec4& pt) const { return clipToEye(ndcToClip(pt)); }
+	vec4 ndcToClip(const vec4& pt) const { return pt; } // 不知道w值，只能返回原值
+	vec4 ndcToViewport(const vec4& pt) const { return nvMat_ * pt; }
+	vec4 ndcToScreen(const vec4& pt) const { return nsMat_ * pt; }
+
+	vec4 viewportToLocal(const vec4& pt) const { return ndcToLocal(viewportToNdc(pt)); }
+	vec4 viewportToWorld(const vec4& pt) const { return ndcToWorld(viewportToNdc(pt)); }
+	vec4 viewportToEye(const vec4& pt) const { return ndcToEye(viewportToNdc(pt)); }
+	vec4 viewportToClip(const vec4& pt) const { return ndcToClip(viewportToNdc(pt)); }
+	vec4 viewportToNdc(const vec4& pt) const { return vnMat_ * pt; }
+	vec4 viewportToScreen(const vec4& pt) const { return vsMat_ * pt; }
+
+	vec4 screenToLocal(const vec4& pt) const { return ndcToLocal(screenToNdc(pt)); }
+	vec4 screenToWorld(const vec4& pt) const { return ndcToWorld(screenToNdc(pt)); }
+	vec4 screenToEye(const vec4& pt) const { return ndcToEye(screenToNdc(pt)); }
+	vec4 screenToClip(const vec4& pt) const { return ndcToClip(screenToNdc(pt)); }
+	vec4 screenToNdc(const vec4& pt) const { return getNsMatR_() * pt; }
+	vec4 screenToViewport(const vec4& pt) const { return getVsMatR_() * pt; }
+
+
+private:
+
+	void resetModelRelatedMats_();
+
+	auto& getMvMat_() const {
+		if (modelMats_.empty())
+			return viewMat_;
+
+		if (!mvMat_)
+			mvMat_ = viewMat_ * modelMats_.back();
+		return mvMat_.value();
 	}
 
-	point2 worldToScreen(const vec4& in) {
-		return switchViewportAndScreen(worldToViewport(in));
+	auto& getMvpMat_() const {
+		if (modelMats_.empty())
+			return vpMat_;
+
+		if (!mvpMat_)
+			mvpMat_ = vpMat_ * modelMats_.back();
+		return mvpMat_.value();
 	}
 
-	// viewport左下角为(0, 0)点，screen左上角为(0, 0)点
-	// 规范化坐标下：y(scr*) = 1 - y(vp*)
-	// 屏幕坐标下：y(scr) = y0 + y(scr*) * h 
-	//                    = y0 + (1-y(vp*)) * h = y0 + h - y(vp*) * h 
-	// 视图坐标下：y(vp) = y0 + y(vp*) * h ==> y(vp*) = (y(vp) - y0) / h
-	// 综上：y(scr) = y0 + h - y(vp) + y0 = 2 * y0 + h - y(vp)
-	point2 switchViewportAndScreen(const point2& pt) const {
-
-		return { pt.x(), 2 * vp_.lower().y() + vp_.height() - pt.y() };
+	auto& getMMatR_() const {
+		if (!mMatR_)
+			mMatR_ = modelMats_.back().inverse();
+		return mMatR_.value();
 	}
 
-	KREAL width() const { return vp_.width() }
-	KREAL height() const { return vp_.height(); }
+	auto& getMvMatR_() const {
+		if (modelMats_.empty())
+			return getViewMatR_();
 
-protected:
+		if (!mvMatR_)
+			mvMatR_ = getMvMat_().inverse();
+		return mvMatR_.value();
+	}
 
-	// Viewing window. 
-	rect vp_;
+	auto& getMvpMatR_() const {
+		if (modelMats_.empty())
+			return getVpMatR_();
+
+		if (!mvpMatR_)
+			mvpMatR_ = getMvpMat_().inverse();
+		return mvpMatR_.value();
+	}
+
+	auto& getVpMatR_() const {
+		if (!vpMatR_)
+			vpMatR_ = vpMat_.inverse();
+		return vpMatR_.value();
+	}
+
+	auto& getViewMatR_() const {
+		if (!viewMatR_)
+			viewMatR_ = viewMat_.inverse();
+		return viewMatR_.value();
+	}
+
+	auto& getProjMatR_() const {
+		if (!projMatR_)
+			projMatR_ = projMat_.inverse();
+		return projMatR_.value();
+	}
+
+	auto& getVsMatR_() const {
+		if (!vsMatR_)
+			vsMatR_ = vsMat_.inverse();
+		return vsMatR_.value();
+	}
+
+	auto& getNsMatR_() const {
+		if (!nsMatR_)
+			nsMatR_ = nsMat_.inverse();
+		return nsMatR_.value();
+	}
+
+
+private:
+
+	// viewport 
+	rect vp_{ point2(0, 0), point2(1, 1) };
+
+	// 模型矩阵栈，用于从物体局部坐标变换到全局世界坐标
+	std::vector<mat4> modelMats_;
 
 	// view matrix
-	mat4 viewMatrix_; // viewMatrix_ * 物理坐标系vec4 = 摄像机坐标系vec4
+	mat4 viewMat_{ mat4::identity() };
 
 	// standard projection matrix
-	mat4 projMatrix_;
+	mat4 projMat_{ mat4::identity() };
+
+
+    // 临时矩阵变量
+
+	mat4 vpMat_; // proj * view
+	mutable std::optional<mat4> mvMat_; // view * model
+	mutable std::optional<mat4> mvpMat_; // proj * view * model
+	mutable std::optional<mat4> mMatR_; // (model)-1
+	mutable std::optional<mat4> viewMatR_; // (view)-1
+	mutable std::optional<mat4> projMatR_; // (proj)-1
+	mutable std::optional<mat4> mvMatR_; // (view * model)-1
+	mutable std::optional<mat4> mvpMatR_; // (proj * view * model)-1
+	mutable std::optional<mat4> vpMatR_; // (proj * view)-1
+
+	const mat4 nvMat_{
+		0.5f, 0, 0, 0.5f,
+		0, 0.5f, 0, 0.5f,
+		0, 0, 0.5f, 0.5f,
+		0, 0, 0, 1
+	}; // 从ndc到viewport的转换矩阵
+
+	const mat4 vnMat_{
+		2, 0, 0, -1,
+		0, 2, 0, -1,
+		0, 0, 2, -1,
+		0, 0, 0, 1
+	}; // 从viewport到ndc的变换矩阵
+
+	mat4 vsMat_{ mat4::identity() }; // 从viewport到screen的转换矩阵
+	mat4 nsMat_{ mat4::identity() }; // 从ndc到screen的转换矩阵
+	mutable std::optional<mat4> vsMatR_; 
+	mutable std::optional<mat4> nsMatR_; 
+
+	// 定义viewport的水平和垂直方向
+	bool invVpX_{ false }; // false表示从左至右为正向
+	bool invVpY_{ true }; // true表示从上至下为正向，兼容显示屏
 };
 
 
 template<typename KREAL, bool ROW_MAJOR>
-KtCamera<KREAL, ROW_MAJOR>::KtCamera()
+void KtCamera<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
 {
-	viewMatrix_ = projMatrix_ = mat4::identity();
+	vp_ = vp;
+
+	if (!invVpX_) {
+		vsMat_.m00() = vp.width();
+		vsMat_.m03() = vp.lower().x();
+	}
+	else {
+		vsMat_.m00() = -vp.width();
+		vsMat_.m03() = vp.lower().x() + vp.width();
+	}
+
+	if (invVpY_) {
+		vsMat_.m11() = -vp.height();
+		vsMat_.m13() = vp.lower().y() + vp.height();
+	}
+	else {
+		vsMat_.m11() = vp.height();
+		vsMat_.m13() = vp.lower().y();
+	}
+
+	// x, y方向各偏移0.5，相当于作round
+	vsMat_.m03() += 0.5;
+	vsMat_.m13() += 0.5;
+
+	nsMat_ = vsMat_ * nvMat_;
 }
 
 
 template<typename KREAL, bool ROW_MAJOR>
-bool KtCamera<KREAL, ROW_MAJOR>::project(const vec4& in, vec4& out) const
+void KtCamera<KREAL, ROW_MAJOR>::updateProjectMatrixs()
 {
-	out = projMatrix_ * viewMatrix_ * in;
-
-	if (out.w() == 0.0f)
-		return false;
-
-	// 此时out为各轴范围为[-1, +1]的规范化坐标
-	out.homogenize();
-
-	// map to range [0, 1]
-	out.x() = out.x() * 0.5f + 0.5f;
-	out.y() = out.y() * 0.5f + 0.5f;
-	out.z() = out.z() * 0.5f + 0.5f;
-
-	// map to viewport
-	out.x() = out.x() * vp_.width() + vp_.lower().x();
-	out.y() = out.y() * vp_.height() + vp_.lower().y();
-	return true;
+	vpMat_ = projMat_ * viewMat_;
+	vpMatR_.reset();
+	resetModelRelatedMats_();
 }
 
 
 template<typename KREAL, bool ROW_MAJOR>
-bool KtCamera<KREAL, ROW_MAJOR>::unproject(const vec3& in, vec4& out) const
+void KtCamera<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
 {
-	vec4 v(in);
-
-	// map from viewport to [0, 1]
-	v.x() = (v.x() - vp_.lower().x()) / vp_.width();
-	v.y() = (v.y() - vp_.lower().y()) / vp_.height();
-
-	// map to range [-1, +1]
-	v.x() = v.x() * 2.0f - 1.0f;
-	v.y() = v.y() * 2.0f - 1.0f;
-	v.z() = v.z() * 2.0f - 1.0f;
-
-	mat4 inverse = (projMatrix_ * viewMatrix_).getInverse();
-
-	v = inverse * v;
-	if (v.w() == 0.0)
-		return false;
-
-	out = v / v.w();
-	return true;
+	mvMat_.reset();
+	mvpMat_.reset();
+	mMatR_.reset();
+	mvMatR_.reset();
+	mvpMatR_.reset();
 }
 
 
 template<typename KREAL, bool ROW_MAJOR>
-KtVector3<KREAL> KtCamera<KREAL, ROW_MAJOR>::screenPointToRay(const point2& pt) const
+KtVector3<KREAL> KtCamera<KREAL, ROW_MAJOR>::getEyePos() const
 {
-	auto vpt = switchViewportAndScreen(pt);
-	vec4 out;
-	unproject({ vpt.x(), vpt.y(), 0 }, out);
-	return (vec3(out.x(), out.y(), out.z()) - getCameraPos()).normalize();
+	return viewMat_.getTranslation();
 }
 
 
 template<typename KREAL, bool ROW_MAJOR>
-KtVector3<KREAL> KtCamera<KREAL, ROW_MAJOR>::getCameraPos() const
+KtQuaternion<KREAL> KtCamera<KREAL, ROW_MAJOR>::getEyeOrient() const
 {
-	return viewMatrix_.getTranslation();
-}
-
-
-template<typename KREAL, bool ROW_MAJOR>
-KtQuaternion<KREAL> KtCamera<KREAL, ROW_MAJOR>::getCameraOrient() const
-{
-	return viewMatrix_.getRotation(); // TODO:
+	return viewMat_.getRotation(); // TODO:
 }
