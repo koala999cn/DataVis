@@ -21,11 +21,11 @@ public:
 	}
 
 	// 压入顶点，返回顶点索引
-	index_t pushVertex(const vertex_t& pt) {
+	void pushVertex(const vertex_t& pt) {
 		vtx_.push_back(pt);
 	}
 
-	index_t pushVertex(vertex_element_t x, vertex_element_t y, vertex_element_t z) {
+	void pushVertex(vertex_element_t x, vertex_element_t y, vertex_element_t z) {
 		vtx_.emplace_back(x, y, z);
 	}
 

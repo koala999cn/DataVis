@@ -161,8 +161,6 @@ void KcImPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
 	int idx_count = (count - 1) * 6; // 每个区间绘制2个三角形，共6个索引
 	drawList->PrimReserve(idx_count, vxt_count);
 
-	auto& vtxptr = drawList->_VtxWritePtr;
-	auto& idxptr = drawList->_IdxWritePtr;
 	auto uv = drawList->_Data->TexUvWhitePixel;
 	auto clr = color_();
 
@@ -215,6 +213,25 @@ void KcImPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
 	}
 
 	drawList->PrimUnreserve(0, noninters);
+}
+
+
+void KcImPaint::drawGeom(geom_ptr geom)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+	drawList->PrimReserve(geom->indexCount(), geom->vertexCount());
+	auto uv = drawList->_Data->TexUvWhitePixel;
+	auto clr = color_();
+
+	auto vtxIdx0 = drawList->_VtxCurrentIdx;
+
+	for (unsigned i = 0; i < geom->vertexCount(); i++) {
+		auto& vtx = geom->vertexAt(i);
+		drawList->PrimWriteVtx(world2Pos_(vtx), uv, clr);
+	}
+
+	for (unsigned i = 0; i < geom->indexCount(); i++)
+		drawList->PrimWriteIdx(geom->indexAt(i) + vtxIdx0);
 }
 
 

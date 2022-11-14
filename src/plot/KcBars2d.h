@@ -19,8 +19,7 @@ public:
 	float_t barWidthRatio() const { return barWidthRatio_; }
 	float_t& barWidthRatio() { return barWidthRatio_; }
 
-	aabb_type boundingBox() const;
-
+	aabb_type boundingBox() const override;
 
 	unsigned majorColorsNeeded() const override;
 
@@ -41,7 +40,7 @@ protected:
 	void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const override;
 
 	// 计算单个bar的宽度（世界坐标）
-	float_t barWidth_() const;
+	float_t barWidth_(unsigned dim = 0) const;
 
 protected:
 	KpPen border_;

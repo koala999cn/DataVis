@@ -35,19 +35,22 @@ void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 }
 
 
-KcBars2d::float_t KcBars2d::barWidth_() const
+KcBars2d::float_t KcBars2d::barWidth_(unsigned dim) const
 {
+	if (dim >= data()->dim())
+		return barWidth_(0);
+
 	if (data()->isDiscreted()) {
 		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
 		assert(disc->size() != 0);
 
-		return disc->step(0) != 0 ?
-			disc->step(0) * barWidthRatio_ :
-			disc->range(0).length() / disc->size() * barWidthRatio_;
+		return disc->step(dim) != 0 ?
+			disc->step(dim) * barWidthRatio_ :
+			disc->range(dim).length() / disc->size(dim) * barWidthRatio_;
 	}
 	else {
 		auto cont = std::dynamic_pointer_cast<KvContinued>(data());
-		return cont->range(0).length() / sampCount(0) * barWidthRatio_;
+		return cont->range(dim).length() / sampCount(dim) * barWidthRatio_;
 	}
 }
 

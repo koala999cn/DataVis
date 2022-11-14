@@ -15,15 +15,15 @@ public:
 
 
 	template<typename VT, typename IT = unsigned, bool CCW = false>
-	geom_ptr<VT, IT> makeBox(const KtAABB<VT>& aabb);
+	static geom_ptr<VT, IT> makeBox(const KtAABB<VT>& aabb);
 
 	template<typename VT, typename IT = unsigned, bool CCW = false>
-	geom_ptr<VT, IT> makeBox(const point3<VT>& lower, const point3<VT>& upper) {
+	static geom_ptr<VT, IT> makeBox(const point3<VT>& lower, const point3<VT>& upper) {
 		return makeBox(KtAABB<VT>(lower, upper));
 	}
 
 	template<typename VT, typename IT = unsigned, bool CCW = false>
-	geom_ptr<VT, IT> makeBox() {
+	static geom_ptr<VT, IT> makeBox() {
 		return makeBox({ 0, 0, 0 }, { 1, 1, 1 });
 	}
 
@@ -52,7 +52,7 @@ template<typename VT, typename IT, bool CCW> KuGeometryFactory::geom_ptr<VT, IT>
 	 6-----7
 	*/
 
-	for(auto& i : const) geom->pushVertex(i);
+	for(auto& i : corns) geom->pushVertex(i);
 
 	if constexpr (CCW) {
 		geom->pushIndex(3); geom->pushIndex(0); geom->pushIndex(1);
@@ -92,4 +92,6 @@ template<typename VT, typename IT, bool CCW> KuGeometryFactory::geom_ptr<VT, IT>
 		geom->pushIndex(5); geom->pushIndex(6); geom->pushIndex(0);
 		geom->pushIndex(0); geom->pushIndex(1); geom->pushIndex(5);
 	}
+
+	return geom;
 }

@@ -319,6 +319,9 @@
     <ClCompile Include="src\plot\KcLineFilled.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcBars3d.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -737,6 +740,15 @@
     </ClInclude>
     <ClInclude Include="src\base\KtLineS2d.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcBars3d.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KtGeometry.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KuGeometryFactory.h">
+      <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
