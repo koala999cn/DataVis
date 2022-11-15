@@ -45,17 +45,28 @@ kRange KvDataOperator::range(kIndex outPort, kIndex axis) const
 	assert(outPort < odata_.size());
 	assert(!inputs_.empty() && inputs_.size() == inPorts());
 
-	if (odata_[outPort])
-		return odata_[outPort]->range(axis);
+	if (axis < dim(outPort)) {
+		if (odata_[outPort])
+			return odata_[outPort]->range(axis);
 
-	
-	auto d = kPrivate::first_non_null(inputs_);
-	if (d == nullptr)
-		return kRange{ 0, 1 };
+		auto d = kPrivate::first_non_null(inputs_);
+		if (d == nullptr)
+			return kRange{ 0, 0 };
 
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+		auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
 
-	return prov ? prov->range(d->index(), axis) : kRange{ 0, 1 };
+		return prov ? prov->range(d->index(), axis) : kRange{ 0, 0 };
+	}
+	else { // value range：优先从prov获取
+		auto d = kPrivate::first_non_null(inputs_);
+		if (d) {
+			auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+			assert(prov);
+			return prov->range(d->index(), axis);
+		}
+
+		return kRange{ 0, 0 };
+	}
 }
 
 

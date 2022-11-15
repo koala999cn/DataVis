@@ -58,7 +58,7 @@ std::shared_ptr<KvData> KuDataUtil::makeSeries(const matrixd& mat)
     samp->reset(0, 0, 1);
 
     for (unsigned c = 0; c < samp->channels(); c++)
-        samp->setChannel(0, c, mat[c].data());
+        samp->setChannel(nullptr, c, mat[c].data());
 
     return samp;
 }

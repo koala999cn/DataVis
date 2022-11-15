@@ -15,6 +15,12 @@ public:
 
 	int spec(kIndex outPort) const final;
 
+	kRange range(kIndex outPort, kIndex axis) const final;
+
+	kReal step(kIndex outPort, kIndex axis) const final;
+
+	kIndex size(kIndex outPort, kIndex axis) const final;
+
 	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
 
 	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;

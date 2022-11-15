@@ -53,6 +53,7 @@ public:
     using super_::value; // make helper-members visible
 
     kReal value(kIndex idx[], kIndex channel) const override {
+        validateIndex(idx);
         return array_(makeTinyVector_(idx, channel));
     }
 
@@ -101,6 +102,8 @@ public:
     // @rows: 0表示从pos往后的所有帧
     void pushBack(const KtSampledArray& d, kIndex pos = 0, kIndex rows = 0);
 
+    void pushBack(const KvSampled& d, kIndex pos = 0, kIndex rows = 0);
+
     // 增加frames帧数据，data的长度等于frames * channels()
     void pushBack(const kReal* data, kIndex frames);
 
@@ -109,7 +112,7 @@ public:
 
     // 向this压入数据d，保持数据总行数等于totalRows
     // 若totalRows = 0，则保持当前行数总量不变
-    void shift(const KtSampledArray& d, kIndex totalRows = 0);
+    void shift(const KvSampled& d, kIndex totalRows = 0);
 
     // 从第idx帧开始，提取frames帧（行）的数据到buf
     // @frames: 要提取的帧数，若等于0，表示提取idx之后的所有帧
@@ -118,6 +121,8 @@ public:
 
     // 移除第0轴数值小于x的rows
     //void cutBefore(kReal x);
+
+    kReal* at(kIndex idx[]);
 
 private:
     static auto makeTinyVector_(kIndex idx[], kIndex channel) {
@@ -133,11 +138,26 @@ private:
 
 
 template<int DIM>
+kReal* KtSampledArray<DIM>::at(kIndex idx[])
+{
+    validateIndex(idx);
+    auto p = data();
+    for (int i = 0; i < DIM; i++)
+        p += idx[i] * stride(i);
+    return p;
+}
+
+
+template<int DIM>
 void KtSampledArray<DIM>::setChannel(kIndex idx[], kIndex channel, const kReal* data) {
     assert(channel >= 0 && channel < channels());
 
     blitz::TinyVector<int, DIM + 1> tv;
-    std::copy(idx, idx + DIM - 1, tv.begin());
+    if (DIM > 1) {
+        assert(idx != nullptr);
+        std::copy(idx, idx + DIM - 1, tv.begin());
+    }
+
     tv[DIM - 1] = 0;
     tv[DIM] = channel;
 
@@ -166,12 +186,44 @@ void KtSampledArray<DIM>::pushBack(const KtSampledArray& d, kIndex pos, kIndex r
 
 
 template<int DIM>
+void KtSampledArray<DIM>::pushBack(const KvSampled& d, kIndex pos, kIndex rows)
+{
+    assert(step(0) == d.step(0) && channels() == d.channels());
+    if (rows <= 0 || rows > d.size(0) - pos)
+        rows = d.size(0) - pos;
+
+    auto shape = array_.extent();
+    auto offset = shape[0];
+    shape[0] += rows;
+    std::array<kIndex, DIM> dims;
+    std::copy(shape.begin(), shape.end() - 1, dims.begin());
+    resize(dims.data());
+
+    // 逐帧复制
+    dims.fill(0);
+    dims[0] = pos; // 初始化索引
+    auto count = rows; // @count为要复制的帧数
+    for (unsigned i = 1; i < DIM; i++)
+        count *= d.size(i);
+
+    for (kIndex i = 0; i < count; i++) {
+        auto temp = dims;
+        temp[0] += offset - pos;
+        auto buf = at(temp.data());
+        for (kIndex ch = 0; ch < channels(); ch++)
+            buf[ch] = d.value(dims.data(), ch);
+
+        d.nextIndex(dims.data());
+    }
+}
+
+template<int DIM>
 void KtSampledArray<DIM>::pushBack(const kReal* data, kIndex frames)
 {
     auto shape = array_.extent();
     shape[0] += frames;
     kIndex dims[DIM];
-    std::copy(shape.begin(), shape.end(), dims);
+    std::copy(shape.begin(), shape.end() - 1, dims);
     resize(dims);
 
     std::copy(data, data + stride(0) * frames, row(shape[0] - frames));
@@ -190,11 +242,10 @@ void KtSampledArray<DIM>::popFront(kIndex rows)
 
 
 template<int DIM>
-void KtSampledArray<DIM>::shift(const KtSampledArray& d, kIndex totalRows)
+void KtSampledArray<DIM>::shift(const KvSampled& d, kIndex totalRows)
 {
     assert(step(0) == d.step(0));
     assert(channels() == d.channels());
-    assert(stride(0) == d.stride(0));
     for (unsigned i = 1; i < DIM; i++) 
         assert(size(i) == d.size(i));
 
@@ -203,7 +254,7 @@ void KtSampledArray<DIM>::shift(const KtSampledArray& d, kIndex totalRows)
 
     if (d.size(0) >= totalRows) {
         clear();
-        pushBack(d.row(d.size(0) - totalRows), totalRows);
+        pushBack(d, d.size(0) - totalRows, totalRows);
     }
     else {
         if (d.size(0) + size(0) > totalRows) {

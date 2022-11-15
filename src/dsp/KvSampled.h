@@ -104,4 +104,9 @@ public:
 
 	// N个采样点占据的内存大小(字节数)
 	auto bytesOfSamples(kIndex N) const { return bytesPerSample() * N; }
+
+	void validateIndex(kIndex idx[]) const {
+		for (unsigned i = 0; i < dim(); i++)
+			assert(idx[i] >= 0 && idx[i] < size(i));
+	}
 };

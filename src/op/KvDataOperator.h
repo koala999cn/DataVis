@@ -27,6 +27,10 @@ public:
 
 	/// provider接口
 
+	std::shared_ptr<KvData> fetchData(kIndex outPort) const override;
+
+	// 获取数据规格的方法：若output有效，优先从output获取；否则从inputs_获取
+
 	int spec(kIndex outPort) const override;
 
 	kRange range(kIndex outPort, kIndex axis) const override;
@@ -35,7 +39,6 @@ public:
 
 	kIndex size(kIndex outPort, kIndex axis) const override;
 
-	std::shared_ptr<KvData> fetchData(kIndex outPort) const override;
 
 	/// 自定义接口
 

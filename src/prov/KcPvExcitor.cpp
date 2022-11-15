@@ -83,8 +83,7 @@ void KcPvExcitor::output()
 
 std::shared_ptr<KvData> KcPvExcitor::fetchData(kIndex outPort) const
 {
-	assert(outPort == 0 && data_);
-
+	assert(outPort == 0);
 	return data_;
 }
 
