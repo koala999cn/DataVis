@@ -502,12 +502,20 @@ namespace kPrivate
 		assert(curData->dim() == newData->dim() && curData->channels() == newData->channels());
 
 		auto samp = std::dynamic_pointer_cast<KtSampledArray<DIM>>(curData);
-		auto input = std::dynamic_pointer_cast<KvSampled>(newData);
-		assert(samp && input);
-		if (xrange > 0)
-			samp->shift(*input, xrange / samp->step(0));
-		else
+		assert(samp);
+		if (xrange == 0) {
 			samp->clear();
+			return;
+		}
+
+		auto cnt = xrange / samp->step(0);
+		auto sampArray = std::dynamic_pointer_cast<KtSampledArray<DIM>>(newData);
+		if (sampArray) { // 使用快速版本
+			samp->shift(*sampArray, cnt);
+		}
+		else { // 使用通用版本
+			samp->shift(*std::dynamic_pointer_cast<KvSampled>(newData), cnt);
+		}
 	}
 }
 
