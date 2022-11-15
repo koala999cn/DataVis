@@ -304,6 +304,9 @@
     <ClCompile Include="src\prov\KcPvExcitor.cpp">
       <Filter>prov</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KvOpSampled1dHelper.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -710,6 +713,9 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KvExcitor.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KvOpSampled1dHelper.h">
+      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
