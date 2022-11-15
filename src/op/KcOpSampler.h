@@ -1,34 +1,40 @@
 ﻿#pragma once
 #include "KvDataOperator.h"
-#include "KtSampling.h"
 #include <vector>
 
+class KcSampler;
+
+// 采样器实现：将连续数据和数组数据转换为采样数据
 
 class KcOpSampler : public KvDataOperator
 {
+	using super_ = KvDataOperator;
+
 public:
-	KcOpSampler(KvDataProvider * prov);
+	KcOpSampler();
 
-	kPropertySet propertySet() const override;
+	int spec(kIndex outPort) const final;
 
-	kRange range(kIndex axis) const override;
+	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
 
-	kReal step(kIndex axis) const override;
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
-	kIndex size(kIndex axis) const override;
+	void onStopPipeline() final;
 
-	unsigned ins() const final { return 1u; }
+	void output() final;
 
-	unsigned outs() const final { return 1u; }
+	void showProperySet() final;
 
-private:
-	void setPropertyImpl_(int id, const QVariant & newVal) override;
+	bool permitInput(int dataSpec, unsigned inPort) const final;
 
-	void preRender_() override;
+	bool onInputChanged(KcPortNode* outPort, unsigned inPort) final;
 
-	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
 
 private:
-	std::vector<KtSampling<kReal>> samps_;
+	void sampleCountChanged_();
+
+private:
+	std::shared_ptr<KcSampler> sampler_;
+	std::vector<int> sampCount_; // 适用于连续数据
 };
 

@@ -45,9 +45,6 @@
     <ClCompile Include="src\dsp\KgMultiply.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KpExprtkHelper_.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
     <ClCompile Include="src\base\KuPathUtil.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -301,12 +298,6 @@
     <ClCompile Include="src\render\KvDataRender.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="src\prov\KcPvExcitor.cpp">
-      <Filter>prov</Filter>
-    </ClCompile>
-    <ClCompile Include="src\op\KvOpSampled1dHelper.cpp">
-      <Filter>op</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -336,16 +327,13 @@
     <ClInclude Include="src\dsp\KtSampled.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KtContinued.h">
+    <ClInclude Include="src\dsp\KcContinuedFn.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtScattered.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KtContinuedExpr.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KtSampler.h">
+    <ClInclude Include="src\dsp\KcSampler.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KvSampled.h">
@@ -707,15 +695,6 @@
     </ClInclude>
     <ClInclude Include="src\render\KcRdPlot2d.h">
       <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="src\prov\KcPvExcitor.h">
-      <Filter>prov</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KvExcitor.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\op\KvOpSampled1dHelper.h">
-      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

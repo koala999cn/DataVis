@@ -65,7 +65,7 @@ KcColorMap::aabb_type KcColorMap::boundingBox() const
 {
 	auto aabb = super_::boundingBox();
 
-	if (!empty()) {
+	if (!empty() && data()->dim() > 1) {
 
 		float_t dx, dy;
 
@@ -94,28 +94,29 @@ KcColorMap::aabb_type KcColorMap::boundingBox() const
 
 void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 {
-	assert(disc->dim() == 2 && disc->isSampled());
+	auto dx = disc->step(0);
+	auto dy = disc->dim() > 1 ? disc->step(1) : 0;
+	if (dx <= 0)
+		dx = disc->range(0).length() / disc->size(0);
+	if (dy <= 0)
+		dy = disc->range(1).length() / disc->size(disc->dim() > 1 ? 1 : 0);
 
-	auto samp = dynamic_cast<KvSampled*>(disc);
-	assert(samp);
+	auto half_dx = dx / 2;
+	auto hfalf_dy = dy /2 ;
 
-	auto half_dx = samp->step(0) / 2;
-	auto hfalf_dy = samp->step(1) /2 ;
-
-	for (unsigned i = 0; i < samp->size(); i++) {
-		auto pt = samp->pointAt(i, 0);
+	for (unsigned i = 0; i < disc->size(); i++) {
+		auto pt = disc->pointAt(i, 0);
 		paint->setColor(mapValueToColor_(pt.back()));
 		paint->fillRect({ pt[0] - half_dx, pt[1] - hfalf_dy, 0 },
 			{ pt[0] + half_dx, pt[1] + hfalf_dy, 0 });
 	}
 
 	paint->setColor(color4f(1, 0, 0, 1)); // TODO:
-	for (unsigned i = 0; i < samp->size(); i++) {
-		auto pt = samp->pointAt(i, 0);
+	for (unsigned i = 0; i < disc->size(); i++) {
+		auto pt = disc->pointAt(i, 0);
 		auto text = KuStrUtil::toString(pt.back());
 		auto szText = paint->textSize(text.c_str());
-		if (szText.x() <= samp->step(0) &&
-			szText.y() <= samp->step(1))
+		if (szText.x() <= dx && szText.y() <= dy)
 		    paint->drawText({ pt[0], pt[1], 0 }, text.c_str(), 0);
 	}
 }
@@ -123,13 +124,7 @@ void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 
 color4f KcColorMap::mapValueToColor_(float_t val) const
 {
-	auto factor = val - valLower_;
-	auto delta = valUpper_ - valLower_;
-	if (delta == 0)
-		factor = factor > 0 ? 1 : 0;
-	else
-		factor /= delta;
-
+	auto factor = KtuMath<float_t>::remap<true>(val, valLower_, valUpper_);
 	return mapper_.getAt(factor);
 }
 

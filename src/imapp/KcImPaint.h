@@ -12,6 +12,9 @@ public:
 
 	KcImPaint(camera_type& cam);
 
+	void beginPaint() override;
+	void endPaint() override;
+
 	rect viewport() const override;
 	void setViewport(const rect& vp) override;
 
@@ -38,7 +41,13 @@ public:
 
 	void fillQuad(const point3& pt0, const point3& pt1, const point3& pt2, const point3& pt3) override;
 
+	void fillConvexPoly(point_getter fn, unsigned count) override;
+
+	void fillBetween(point_getter line1, point_getter line2, unsigned count) override;
+
 	void drawText(const point3& anchor, const char* text, int align) override;
+
+	void drawGeom(geom_ptr geom) override;
 
 	point2 textSize(const char* text) const override;
 
@@ -63,4 +72,6 @@ private:
 	float_t lineWidth_{ 1 };
 	int lineStyle_{ 0 };
 	float_t pointSize_{ 2 };
+
+	KtMatrix4<float_t> vp_; // ×ø±ê±ä»»¾ØÕó
 };

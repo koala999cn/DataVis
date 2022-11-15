@@ -58,6 +58,9 @@ public:
         return status_ == k_busy;
     }
 
+    unsigned frameIndex() const {
+        return frameIdx_;
+    }
 
 private:
 

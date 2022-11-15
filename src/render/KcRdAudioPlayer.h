@@ -6,32 +6,26 @@ class KcAudioRender;
 
 class KcRdAudioPlayer : public KvDataRender
 {
+	using super_ = KvDataRender;
+
 public:
-	KcRdAudioPlayer(KvDataProvider* is);
+	KcRdAudioPlayer();
 
-	kPropertySet propertySet() const override;
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) override;
 
-	std::string errorText() const override;
+	void onStopPipeline() override;
 
-	bool doStart() override;
+	void onInput(KcPortNode* outPort, unsigned inPort) override;
 
-	void doStop() override;
+	bool permitInput(int dataSpec, unsigned inPort) const override;
 
+	void showProperySet() override;
 
-public slots:
-	void reset() override;
-
-
-private:
-	void setPropertyImpl_(int id, const QVariant& newVal) override;
-
-	void preRender_() override;
-
-	bool doRender_(std::shared_ptr<KvData> data) override;
+	void onDoubleClicked() override;
 
 
 private:
 	std::unique_ptr<KcAudioRender> render_;
 	unsigned deviceId_;
-	double frameTime_;
+	float frameTime_;
 };

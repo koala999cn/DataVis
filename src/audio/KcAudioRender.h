@@ -2,7 +2,7 @@
 #include <memory>
 #include "KcAudioDevice.h"
 
-class KcSampled1d;
+class KvSampled;
 class KgAudioFile;
 
 class KcAudioRender : public KtObservable<void*, unsigned, double>
@@ -12,7 +12,7 @@ public:
     ~KcAudioRender();
 
     // 将数据插入缓存队列
-    void enqueue(const std::shared_ptr<KcSampled1d>& data);
+    void enqueue(const std::shared_ptr<KvSampled>& data);
 
     // 清空缓存队列
     void reset(); 
@@ -31,7 +31,7 @@ public:
     // 播放data对象
     // 自动匹配data采样频率和通道数
     // 开始播放前，清空缓存队列
-    bool play(const std::shared_ptr<KcSampled1d>& data, unsigned deviceId = -1, double frameTime = 0);
+    bool play(const std::shared_ptr<KvSampled>& data, unsigned deviceId = -1, double frameTime = 0);
 
     // 播放filePath指向路径的音频文件
     // 自动匹配file采样频率和通道数
@@ -62,6 +62,9 @@ public:
 
     unsigned preferredSampleRate(unsigned deviceId) const;
 
+    bool autoStop() const { return autoStop_; }
+    void setAutoStop(bool b) { autoStop_ = b; }
+
 private:
 
     // open specific output audio 
@@ -80,4 +83,5 @@ private:
     std::unique_ptr<KcAudioDevice> device_; // 播放设备
     unsigned openedDevice_;
     void* queue_; // 缓存队列，暂存待播放音频数据
+    bool autoStop_{ true }; // 当数据耗尽时，是否自动停止设备？
 };

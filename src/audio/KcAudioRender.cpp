@@ -1,13 +1,14 @@
 ﻿#include "KcAudioRender.h"
-#include "KcSampled1d.h"
+#include "KvSampled.h"
 #include "KgAudioFile.h"
 #include "readerwriterqueue/readerwriterqueue.h"
 #include <string.h>
+#include "KtuMath.h"
 
 
 namespace kPrivate
 {
-    using data_queue = moodycamel::ReaderWriterQueue<std::shared_ptr<KcSampled1d>>;
+    using data_queue = moodycamel::ReaderWriterQueue<std::shared_ptr<KvSampled>>;
 
     // 主要实现3个observer:
     //   一是KcNotifyObserver，用来向KcAudioRender的观察者转发update
@@ -32,8 +33,8 @@ namespace kPrivate
     class KcAudioRenderObserver : public KcAudioRender::observer_type
     {
     public:
-        KcAudioRenderObserver(data_queue* q, unsigned channels)
-            : q_(q), channels_(channels), pos_(0), data_() {}
+        KcAudioRenderObserver(data_queue* q, unsigned channels, bool& autoStop)
+            : q_(q), channels_(channels), autoStop_(autoStop), pos_(0), data_() {}
 
         bool update(void* outputBuffer, unsigned frames, double streamTime) override {
 
@@ -42,7 +43,7 @@ namespace kPrivate
             if (data_ == nullptr) {
                 if (!q_->try_dequeue(data_)) {
                     KtuMath<kReal>::zeros(buf, frames * channels_);
-                    return false;
+                    return !autoStop_;
                 }
 
                 pos_ = 0;
@@ -50,16 +51,22 @@ namespace kPrivate
 
             assert(data_ && data_->channels() == channels_); // TODO: 频率也是一致的
 
-            auto toCopy = data_->size() - pos_;
+            assert(data_->size(0) > pos_);
+            auto toCopy = data_->size(0) - pos_;
             if (toCopy > frames) toCopy = frames;
-            data_->extract(pos_, buf, toCopy);
-            pos_ += toCopy;
-            auto dx = data_->step(0);
+
+            // data_->extract(pos_, buf, toCopy);
+            // pos_ += toCopy;
+            for (unsigned i = 0; i < toCopy; i++, pos_++)
+                for (kIndex ch = 0; ch < channels_; ch++)
+                    *buf++ = data_->value(pos_, ch);           
+            
+            auto dx = data_->step(0); // 先获取data的dx，下一步data可能被重置
             if (pos_ == data_->size())
                 data_.reset(); // data_已耗尽
 
             if (toCopy < frames)
-                return update(buf + toCopy, frames - toCopy, streamTime + dx * toCopy);
+                return update(buf , frames - toCopy, streamTime + dx * toCopy);
 
             return true;
         }
@@ -67,8 +74,9 @@ namespace kPrivate
     private:
         unsigned channels_;
         data_queue* q_;
-        std::shared_ptr<KcSampled1d> data_;
+        std::shared_ptr<KvSampled> data_;
         unsigned pos_;
+        bool& autoStop_;
     };
 
 
@@ -113,7 +121,7 @@ KcAudioRender::~KcAudioRender()
 }
 
 
-bool KcAudioRender::play(const std::shared_ptr<KcSampled1d>& data, unsigned deviceId, double frameTime)
+bool KcAudioRender::play(const std::shared_ptr<KvSampled>& data, unsigned deviceId, double frameTime)
 {
     assert(data);
 
@@ -141,7 +149,7 @@ bool KcAudioRender::play(const std::shared_ptr<KgAudioFile>& file, unsigned devi
 }*/
 
 
-void KcAudioRender::enqueue(const std::shared_ptr<KcSampled1d>& data)
+void KcAudioRender::enqueue(const std::shared_ptr<KvSampled>& data)
 {
     ((kPrivate::data_queue*)queue_)->enqueue(data);
 }
@@ -160,7 +168,7 @@ bool KcAudioRender::play(unsigned deviceId, double frameTime)
         return false;
 
     auto samp = data->get();
-    unsigned rate = static_cast<unsigned>(samp->sampleRate());
+    unsigned rate = static_cast<unsigned>(1. / samp->step(0));
     unsigned chan = samp->channels();
     if (!openBestMatch_(deviceId, rate, chan, frameTime))
         return false;
@@ -168,7 +176,7 @@ bool KcAudioRender::play(unsigned deviceId, double frameTime)
     assert(get<kPrivate::KcAudioRenderObserver>() == nullptr);
     assert(get<kPrivate::KcFileRenderObserver>() == nullptr);
     pushFront(std::make_shared<kPrivate::KcAudioRenderObserver>(
-        (kPrivate::data_queue*)queue_, chan)); // 放在最前面，这样写入的数据才能被其他观察者看到
+        (kPrivate::data_queue*)queue_, chan, autoStop_)); // 放在最前面，这样写入的数据才能被其他观察者看到
 
     device_->setStreamTime(samp->range(0).low());
     return device_->start();
@@ -183,7 +191,7 @@ bool KcAudioRender::play(unsigned deviceId, unsigned sampleRate, unsigned channe
     assert(get<kPrivate::KcAudioRenderObserver>() == nullptr);
     assert(get<kPrivate::KcFileRenderObserver>() == nullptr);
     pushFront(std::make_shared<kPrivate::KcAudioRenderObserver>(
-        (kPrivate::data_queue*)queue_, channels));
+        (kPrivate::data_queue*)queue_, channels, autoStop_));
 
     return device_->start();
 }

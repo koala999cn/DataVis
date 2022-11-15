@@ -1,6 +1,5 @@
 #pragma once
 #include "KvRenderable.h"
-#include <string>
 #include <memory>
 #include "KtColor.h"
 

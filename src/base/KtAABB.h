@@ -46,8 +46,10 @@ public:
 	KtAABB(const KtAABB& box)
 		: lower_(box.lower_), upper_(box.upper_) {}
 
-	KtAABB(const point& lower, const point& upper)
-		: lower_(lower), upper_(upper) {}
+	KtAABB(const point& lower, const point& upper) {
+		lower_ = lower_.floor(lower, upper);
+		upper_ = upper_.ceil(lower, upper);
+	}
 
 
 	KtAABB& operator=(const KtAABB& rhs) {
@@ -96,7 +98,7 @@ public:
 	std::vector<point> allCorners() const {
 		std::vector<point> pts(4 * (DIM - 1));
 		for (int i = 0; i < pts.size(); i++)
-			pts[i] = corner(KeBoxCorner(i));
+			pts[i] = corner(KeCorner(i));
 		return pts;
 	}
 
@@ -221,22 +223,40 @@ KtPoint<T, DIM> KtAABB<T, DIM>::corner(KeCorner id) const
 		return lower_;
 
 	case k_far_left_top:
-		return DIM == 3 ? { lower_.x(), upper_.y(), lower_.z() } : { lower_.x(), upper_.y() };
+		if constexpr (DIM == 3)
+			return { lower_.x(), upper_.y(), lower_.z() };
+		else 
+		    return{ lower_.x(), upper_.y() };
 
 	case k_far_right_top:
-		return DIM == 3 ? { upper_.x(), upper_.y(), lower_.z() } : { upper_.x(), upper_.y() };
+		if constexpr (DIM == 3)
+			return { upper_.x(), upper_.y(), lower_.z() };
+		else 
+		    return{ upper_.x(), upper_.y() };
 
 	case k_far_right_bottom:
-		return DIM == 3 ? { upper_.x(), lower_.y(), lower_.z() } : { upper_.x(), lower_.y() };
+		if constexpr (DIM == 3)
+			return { upper_.x(), lower_.y(), lower_.z() };
+		else
+			return { upper_.x(), lower_.y() };
 
 	case k_near_right_bottom:
-		return DIM == 3 ? { upper_.x(), lower_.y(), upper_.z() } : { upper_.x(), lower_.y() };
+		if constexpr (DIM == 3)
+			return { upper_.x(), lower_.y(), upper_.z() };
+		else
+			return { upper_.x(), lower_.y() };
 
 	case k_near_left_bottom:
-		return DIM == 3 ? { lower_.x(), lower_.y(), upper_.z() } : { lower_.x(), lower_.y() };
+		if constexpr (DIM == 3)
+			return { lower_.x(), lower_.y(), upper_.z() };
+		else
+			return { lower_.x(), lower_.y() };
 
 	case k_near_left_top:
-		return DIM == 3 ? { lower_.x(), upper_.y(), upper_.z() } : { lower_.x(), upper_.y() };
+		if constexpr (DIM == 3)
+			return { lower_.x(), upper_.y(), upper_.z() };
+		else
+			return { lower_.x(), upper_.y() };
 
 	case k_near_right_top:
 		return upper_;
@@ -245,7 +265,7 @@ KtPoint<T, DIM> KtAABB<T, DIM>::corner(KeCorner id) const
 		assert(false);
 	}
 
-	return { 0 }; // make compiler happy
+	return point(0); // make compiler happy
 }
 
 

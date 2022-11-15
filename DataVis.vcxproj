@@ -74,7 +74,7 @@
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <Version>0.1</Version>
-      <AdditionalDependencies>opengl32.lib;glad.lib;glfw3.lib;rtaudio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glad.lib;glfw3.lib;rtaudio.lib;exprtkX.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -115,10 +115,13 @@
     <ClCompile Include="3rdparty\imgui\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="3rdparty\imnodes\imnodes.cpp" />
     <ClCompile Include="src\audio\KcAudioDevice.cpp" />
+    <ClCompile Include="src\audio\KcAudioRender.cpp" />
     <ClCompile Include="src\base\KuFileUtil.cpp" />
     <ClCompile Include="src\base\KuLex.cpp" />
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
+    <ClCompile Include="src\dsp\KcContinuedFn.cpp" />
+    <ClCompile Include="src\dsp\KcSampler.cpp" />
     <ClCompile Include="src\dsp\KgHist.cpp" />
     <ClCompile Include="src\dsp\KgHistC.cpp" />
     <ClCompile Include="src\dsp\KgMultiply.cpp" />
@@ -126,7 +129,6 @@
     <ClCompile Include="src\dsp\KgRdft.cpp" />
     <ClCompile Include="src\dsp\KgSpectrum.cpp" />
     <ClCompile Include="src\dsp\KmBins.cpp" />
-    <ClCompile Include="src\dsp\KpExprtkHelper_.cpp" />
     <ClCompile Include="src\dsp\KuDataUtil.cpp" />
     <ClCompile Include="src\dsp\KvContinued.cpp" />
     <ClCompile Include="src\dsp\KvDiscreted.cpp" />
@@ -158,17 +160,21 @@
     <ClCompile Include="src\imapp\KcActionSequence.cpp" />
     <ClCompile Include="src\op\KcOpFraming.cpp" />
     <ClCompile Include="src\op\KcOpHist.cpp" />
+    <ClCompile Include="src\op\KcOpSampler.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
     <ClCompile Include="src\op\KvDataOperator.cpp" />
     <ClCompile Include="src\op\KvOpSampled1dHelper.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
     <ClCompile Include="src\plot\KcBars2d.cpp" />
+    <ClCompile Include="src\plot\KcBars3d.cpp" />
+    <ClCompile Include="src\plot\KcBubble2d.cpp" />
     <ClCompile Include="src\plot\KcCoord2d.cpp" />
     <ClCompile Include="src\plot\KcCoord3d.cpp" />
     <ClCompile Include="src\plot\KcGraph.cpp" />
     <ClCompile Include="src\plot\KcCoordPlane.cpp" />
     <ClCompile Include="src\plot\KcLinearScaler.cpp" />
     <ClCompile Include="src\plot\KcColorMap.cpp" />
+    <ClCompile Include="src\plot\KcLineFilled.cpp" />
     <ClCompile Include="src\plot\KcScatter.cpp" />
     <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp" />
     <ClCompile Include="src\plot\KsThemeManager.cpp" />
@@ -189,6 +195,7 @@
     <ClCompile Include="src\prov\KcPvExcitor.cpp" />
     <ClCompile Include="src\prov\KcPvExpr.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
+    <ClCompile Include="src\render\KcRdAudioPlayer.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
     <ClCompile Include="src\render\KcRdPlot2d.cpp" />
     <ClCompile Include="src\render\KcRdPlot3d.cpp" />
@@ -210,10 +217,12 @@
     <ClInclude Include="3rdparty\imnodes\imnodes.h" />
     <ClInclude Include="3rdparty\imnodes\imnodes_internal.h" />
     <ClInclude Include="src\audio\KcAudioDevice.h" />
+    <ClInclude Include="src\audio\KcAudioRender.h" />
     <ClInclude Include="src\base\KtCamera.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
     <ClInclude Include="src\base\KtLine.h" />
+    <ClInclude Include="src\base\KtLineS2d.h" />
     <ClInclude Include="src\base\KtMatrix3.h" />
     <ClInclude Include="src\base\KtMatrix4.h" />
     <ClInclude Include="src\base\KtObservable.h" />
@@ -243,11 +252,11 @@
     <ClInclude Include="src\dsp\KmBins.h" />
     <ClInclude Include="src\dsp\KtFraming.h" />
     <ClInclude Include="src\dsp\KtMultiArray.h" />
-    <ClInclude Include="src\dsp\KtContinued.h" />
+    <ClInclude Include="src\dsp\KcContinuedFn.h" />
     <ClInclude Include="src\dsp\KtFIR.h" />
     <ClInclude Include="src\dsp\KtSampled.h" />
     <ClInclude Include="src\dsp\KtSampledArray.h" />
-    <ClInclude Include="src\dsp\KtSampler.h" />
+    <ClInclude Include="src\dsp\KcSampler.h" />
     <ClInclude Include="src\dsp\KtScattered.h" />
     <ClInclude Include="src\dsp\KuDataUtil.h" />
     <ClInclude Include="src\dsp\KuMatrixUtil.h" />
@@ -255,6 +264,7 @@
     <ClInclude Include="src\dsp\KvDiscreted.h" />
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
+    <ClInclude Include="src\dsp\minmax.h" />
     <ClInclude Include="src\imapp\imguix.h" />
     <ClInclude Include="src\imapp\KcActionInsertDataNode.h" />
     <ClInclude Include="src\imapp\KcActionTextLoadAndClean.h" />
@@ -286,23 +296,29 @@
     <ClInclude Include="src\imapp\KvNode.h" />
     <ClInclude Include="src\op\KcOpFraming.h" />
     <ClInclude Include="src\op\KcOpHist.h" />
+    <ClInclude Include="src\op\KcOpSampler.h" />
     <ClInclude Include="src\op\KcOpSpectrum.h" />
     <ClInclude Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\op\KvOpSampled1dHelper.h" />
     <ClInclude Include="src\plot\KcBars2d.h" />
+    <ClInclude Include="src\plot\KcBars3d.h" />
+    <ClInclude Include="src\plot\KcBubble2d.h" />
     <ClInclude Include="src\plot\KcCoord2d.h" />
     <ClInclude Include="src\plot\KcCoordPlane.h" />
     <ClInclude Include="src\plot\KcLinearScaler.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
     <ClInclude Include="src\plot\KcColorMap.h" />
+    <ClInclude Include="src\plot\KcLineFilled.h" />
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
+    <ClInclude Include="src\plot\KtGeometry.h" />
     <ClInclude Include="src\plot\KtGradient.h" />
     <ClInclude Include="src\plot\KpContext.h" />
     <ClInclude Include="src\plot\KsThemeManager.h" />
     <ClInclude Include="src\plot\KtColor.h" />
     <ClInclude Include="src\plot\KtMargins.h" />
     <ClInclude Include="src\plot\KuColorUtil.h" />
+    <ClInclude Include="src\plot\KuGeometryFactory.h" />
     <ClInclude Include="src\plot\KuThemeParser.h" />
     <ClInclude Include="src\plot\KvCoord.h" />
     <ClInclude Include="src\plot\KvPaint.h" />
@@ -324,11 +340,11 @@
     <ClInclude Include="src\prov\KcPvExpr.h" />
     <ClInclude Include="src\prov\KvDataProvider.h" />
     <ClInclude Include="src\renderer.h" />
-    <ClInclude Include="src\dsp\KtContinuedExpr.h" />
     <ClInclude Include="src\dsp\KcSampled1d.h" />
     <ClInclude Include="src\dsp\kDsp.h" />
     <ClInclude Include="src\dsp\KtSampling.h" />
     <ClInclude Include="src\dsp\KvData.h" />
+    <ClInclude Include="src\render\KcRdAudioPlayer.h" />
     <ClInclude Include="src\render\KcRdPlot1d.h" />
     <ClInclude Include="src\render\KcRdPlot2d.h" />
     <ClInclude Include="src\render\KcRdPlot3d.h" />

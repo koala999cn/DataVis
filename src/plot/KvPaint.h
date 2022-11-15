@@ -3,6 +3,7 @@
 #include <functional>
 #include "KvRenderable.h"
 #include "KpContext.h"
+#include "KtGeometry.h"
 
 
 enum KeAlignment
@@ -32,6 +33,10 @@ public:
 	using point3 = KtPoint<float_t, 3>;
 	using rect = KtAABB<float_t, 2>;
 	using point_getter = std::function<point3(unsigned)>;
+	using geom_ptr = std::shared_ptr<KtGeometry<float_t, unsigned>>;
+
+	virtual void beginPaint() = 0;
+	virtual void endPaint() = 0;
 
 	virtual rect viewport() const = 0;
 	virtual void setViewport(const rect& vp) = 0;
@@ -72,7 +77,14 @@ public:
 
 	virtual void fillQuad(const point3& pt0, const point3& pt1, const point3& pt2, const point3& pt3) = 0;
 
+	virtual void fillConvexPoly(point_getter fn, unsigned count) = 0;
+
+	virtual void fillBetween(point_getter line1, point_getter line2, unsigned count) = 0;
+
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
+
+	virtual void drawGeom(geom_ptr geom) = 0;
+
 
 	// 一些尺寸计算函数
 

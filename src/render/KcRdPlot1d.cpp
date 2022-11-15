@@ -3,6 +3,7 @@
 #include "plot/KcGraph.h"
 #include "plot/KcScatter.h"
 #include "plot/KcBars2d.h"
+#include "plot/KcLineFilled.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
 #include "imgui.h"
@@ -30,7 +31,7 @@ std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KcPortNode* port)
 
 unsigned KcRdPlot1d::supportPlottableTypes_() const
 {
-	return 3;
+	return 4;
 }
 
 
@@ -42,6 +43,8 @@ int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 		return 1;
 	else if (dynamic_cast<KcBars2d*>(plt))
 		return 2;
+	else if (dynamic_cast<KcLineFilled*>(plt))
+		return 3;
 
 	return -1;
 }
@@ -50,7 +53,7 @@ int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 const char* KcRdPlot1d::plottableTypeStr_(int iType) const
 {
 	static const char* pltTypes[] = {
-		"graph", "scatter", "bar"
+		"graph", "scatter", "bar", "line-filled"
 	};
 
 	return pltTypes[iType];
@@ -69,6 +72,9 @@ KvPlottable* KcRdPlot1d::newPlottable_(int iType, const std::string& name)
 
 	case 2:
 		return new KcBars2d(name);
+
+	case 3:
+		return new KcLineFilled(name);
 	}
 
 	return nullptr;

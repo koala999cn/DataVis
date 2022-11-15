@@ -3,10 +3,24 @@
 #include "imguix.h"
 #include "KtuMath.h"
 #include <assert.h>
+#include "imgui_internal.h"
+#include "KtLineS2d.h"
 
 
 KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
 {
+}
+
+
+void KcImPaint::beginPaint()
+{
+	camera_.updateProjectMatrixs();
+}
+
+
+void KcImPaint::endPaint()
+{
+	// depth sorting
 }
 
 
@@ -18,7 +32,7 @@ KcImPaint::rect KcImPaint::viewport() const
 
 void KcImPaint::setViewport(const rect& vp)
 {
-	camera_.viewport() = vp;
+	camera_.setViewport(vp);
 }
 
 
@@ -37,7 +51,8 @@ void KcImPaint::popClipRect()
 
 KcImPaint::point2 KcImPaint::project(const point3& worldPt) const
 {
-	return camera_.worldToScreen(worldPt);
+	auto scrPt = camera_.worldToScreen(worldPt);
+	return { scrPt.x(), scrPt.y() };
 }
 
 
@@ -95,7 +110,7 @@ void KcImPaint::drawLineStrip(point_getter fn, unsigned count)
 
 	if (lineStyle_ == KpPen::k_solid) {
 		// TODO: 点数太大（~44k）时会crack
-		// 去除drawList->Flags的ImDrawListFlags_AntiAliasedLines标记可正常云心，但很慢
+		// 去除drawList->Flags的ImDrawListFlags_AntiAliasedLines标记可正常运行，但速度很慢
 		for (unsigned i = 0; i < count; i++)
 			drawList->PathLineTo(world2Pos_(fn(i), true));
 		drawList->PathStroke(color_(), 0, lineWidth_); 
@@ -125,6 +140,101 @@ void KcImPaint::fillQuad(const point3& pt0, const point3& pt1, const point3& pt2
 }
 
 
+void KcImPaint::fillConvexPoly(point_getter fn, unsigned count)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+
+	drawList->_Path.resize(count);
+
+	for (unsigned i = 0; i < count; i++)
+		drawList->_Path[i] = world2Pos_(fn(i));
+
+	drawList->PathFillConvex(color_());
+}
+
+
+// 基于imgui的优化实现
+void KcImPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+	int vxt_count = count * 2 + count - 1; // 最多可能有count-1个交点
+	int idx_count = (count - 1) * 6; // 每个区间绘制2个三角形，共6个索引
+	drawList->PrimReserve(idx_count, vxt_count);
+
+	auto uv = drawList->_Data->TexUvWhitePixel;
+	auto clr = color_();
+
+	auto p00 = world2Pos_(fn1(0));
+	auto p01 = world2Pos_(fn2(0));
+
+	auto vtxIdx0 = drawList->_VtxCurrentIdx;
+	drawList->PrimWriteVtx(p00, uv, clr);
+	drawList->PrimWriteVtx(p01, uv, clr);
+
+	int noninters(0); // 统计不相交的次数
+
+	for (unsigned i = 1; i < count; i++) {
+		auto p10 = world2Pos_(fn1(i));
+		auto p11 = world2Pos_(fn2(i));
+
+		auto vtxIdx1 = drawList->_VtxCurrentIdx;
+		drawList->PrimWriteVtx(p10, uv, clr);
+		drawList->PrimWriteVtx(p11, uv, clr);
+
+		using point2 = KtPoint<float_t, 2>;
+		KtLineS2d<float_t> ln0((const point2&)p00, (const point2&)p10);
+		KtLineS2d<float_t> ln1((const point2&)p01, (const point2&)p11);
+		auto pt = ln0.intersects(ln1);
+		if (pt) { // 相交
+			drawList->PrimWriteVtx((const ImVec2&)pt.value(), uv, clr);
+
+			drawList->PrimWriteIdx(vtxIdx0 + 1);
+			drawList->PrimWriteIdx(vtxIdx0);
+			drawList->PrimWriteIdx(vtxIdx1 + 2);
+
+			drawList->PrimWriteIdx(vtxIdx1);
+			drawList->PrimWriteIdx(vtxIdx1 + 1);
+			drawList->PrimWriteIdx(vtxIdx1 + 2);
+		}
+		else { // 不相交
+			drawList->PrimWriteIdx(vtxIdx0 + 1);
+			drawList->PrimWriteIdx(vtxIdx0);
+			drawList->PrimWriteIdx(vtxIdx1);
+
+			drawList->PrimWriteIdx(vtxIdx1);
+			drawList->PrimWriteIdx(vtxIdx1 + 1);
+			drawList->PrimWriteIdx(vtxIdx0 + 1);
+
+			++noninters;
+		}
+
+		vtxIdx0 = vtxIdx1;
+		p00 = p10, p01 = p11;
+	}
+
+	drawList->PrimUnreserve(0, noninters);
+}
+
+
+void KcImPaint::drawGeom(geom_ptr geom)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+	drawList->PrimReserve(geom->indexCount(), geom->vertexCount());
+	auto uv = drawList->_Data->TexUvWhitePixel;
+	auto clr = color_();
+
+	auto vtxIdx0 = drawList->_VtxCurrentIdx;
+
+	for (unsigned i = 0; i < geom->vertexCount(); i++) {
+		auto& vtx = geom->vertexAt(i);
+		drawList->PrimWriteVtx(world2Pos_(vtx), uv, clr);
+	}
+
+	for (unsigned i = 0; i < geom->indexCount(); i++)
+		drawList->PrimWriteIdx(geom->indexAt(i) + vtxIdx0);
+}
+
+
 void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 {
 	auto drawList = ImGui::GetWindowDrawList();
@@ -145,11 +255,7 @@ KcImPaint::point2 KcImPaint::textSize(const char* text) const
 ImVec2 KcImPaint::world2Pos_(const point3& pt, bool round) const
 {
 	auto pos = camera_.worldToScreen(pt);
-	if (round) {
-		pos.x() = std::round(pos.x());
-		pos.y() = std::round(pos.y());
-	}
-	return ImVec2(pos.x(), pos.y());
+	return round ? ImVec2(int(pos.x()), int(pos.y())) : ImVec2(pos.x(), pos.y());
 }
 
 

@@ -9,7 +9,7 @@ public:
     KvExprtk();
     virtual ~KvExprtk();
 
-    virtual REAL value(REAL x, ...) const = 0;
+    virtual REAL value(REAL x[]) const = 0;
 
     virtual bool compile(const std::string& expr);
 

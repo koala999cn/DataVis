@@ -42,8 +42,13 @@ int KvDataOperator::spec(kIndex outPort) const
 
 kRange KvDataOperator::range(kIndex outPort, kIndex axis) const
 {
+	assert(outPort < odata_.size());
 	assert(!inputs_.empty() && inputs_.size() == inPorts());
 
+	if (odata_[outPort])
+		return odata_[outPort]->range(axis);
+
+	
 	auto d = kPrivate::first_non_null(inputs_);
 	if (d == nullptr)
 		return kRange{ 0, 1 };
@@ -56,7 +61,13 @@ kRange KvDataOperator::range(kIndex outPort, kIndex axis) const
 
 kReal KvDataOperator::step(kIndex outPort, kIndex axis) const
 {
+	assert(outPort < odata_.size());
 	assert(!inputs_.empty() && inputs_.size() == inPorts());
+
+	if (odata_[outPort]) {
+		auto disc = std::dynamic_pointer_cast<KvDiscreted>(odata_[outPort]);
+		return disc ? disc->step(axis) : 0;
+	}
 
 	auto d = kPrivate::first_non_null(inputs_);
 	if (d == nullptr)
@@ -70,7 +81,13 @@ kReal KvDataOperator::step(kIndex outPort, kIndex axis) const
 
 kIndex KvDataOperator::size(kIndex outPort, kIndex axis) const
 {
+	assert(outPort < odata_.size());
 	assert(!inputs_.empty() && inputs_.size() == inPorts());
+
+	if (odata_[outPort]) {
+		auto disc = std::dynamic_pointer_cast<KvDiscreted>(odata_[outPort]);
+		return disc ? disc->size(axis) : 0;
+	}
 
 	auto d = kPrivate::first_non_null(inputs_);
 	if (d == nullptr)
