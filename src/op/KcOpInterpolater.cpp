@@ -1,139 +1,87 @@
 ﻿#include "KcOpInterpolater.h"
 #include "dsp/KcInterpolater.h"
-#include <QPointF>
+#include "KvDiscreted.h"
+#include "imgui.h"
 
 
-KcOpInterpolater::KcOpInterpolater(KvDataProvider* prov)
-    : KvDataOperator("interpolate", prov)
+KcOpInterpolater::KcOpInterpolater()
+    : super_("Interpolate")
 {
-    preRender_();
+
 }
 
 
-kReal KcOpInterpolater::step(kIndex axis) const
+int KcOpInterpolater::spec(kIndex outPort) const
 {
-    assert(axis < dim());
+    KpDataSpec sp(super_::spec(outPort));
+    sp.type = k_continued;
+    return sp.spec;
+}
+
+
+kReal KcOpInterpolater::step(kIndex outPort, kIndex axis) const
+{
+    assert(axis < dim(outPort));
     return 0;
 }
 
 
-kIndex KcOpInterpolater::size(kIndex axis) const
+kIndex KcOpInterpolater::size(kIndex outPort, kIndex axis) const
 {
-    assert(axis < dim());
+    assert(axis < dim(outPort));
     return KvData::k_inf_size;
 }
 
 
-
-namespace kPrivate
+bool KcOpInterpolater::permitInput(int dataSpec, unsigned inPort) const
 {
-    enum KeInterpolaterProperty
-    {
-        k_dim,
-        k_channels,
-        k_range_x,
-        k_range_y,
-        k_range_z,
-        k_interp,
-        k_extrap
-    };
+    assert(inPort == 0);
+    KpDataSpec sp(dataSpec);
+    return sp.type != k_continued && sp.dim == 1;
 }
 
 
-KcOpInterpolater::kPropertySet KcOpInterpolater::propertySet() const
+void KcOpInterpolater::showProperySet()
 {
-    using namespace kPrivate;
+    super_::showProperySet();
+    ImGui::Separator();
 
-    kPropertySet ps;
-
-    KpProperty prop;
-
-    prop.id = k_dim;
-    prop.name = tr("Dim");
-    prop.flag = k_readonly;
-    prop.val = int(dim());
-    ps.push_back(prop);
-
-    prop.id = k_channels;
-    prop.name = tr("Channels");
-    prop.flag = k_readonly;
-    prop.val = int(channels());
-    ps.push_back(prop);
-
-    prop.id = k_range_x;
-    prop.name = QStringLiteral("Range");
-    prop.flag = KvPropertiedObject::k_readonly;
-    prop.val = QPointF(range(0).low(), range(0).high());
-    KvPropertiedObject::KpProperty subProp;
-    subProp.name = QStringLiteral("low");
-    prop.children.push_back(subProp);
-    subProp.name = QStringLiteral("high");
-    prop.children.push_back(subProp);
-    ps.push_back(prop);
+    static const char* interp[] = { "Linear", "Quad" };
+    if (ImGui::BeginCombo("Interpolate Method", interp[interpMethod_])) {
+        for (unsigned i = 0; i < std::size(interp); i++)
+            if (ImGui::Selectable(interp[i], i == interpMethod_))
+                interpMethod_ = i;
+        ImGui::EndCombo();
+    }
 
 
-    static const std::pair<QString, int> interp[] = {
-        { "Linear", KcInterpolater::k_linear },
-        { "Quad", KcInterpolater::k_quad }
+    static const char* extrap[] = {
+        "Nan",
+        "Zero", 
+        "Const",
+        "Mirro", 
+        "Period",
+        "Extrap"
     };
-    prop.id = kPrivate::k_interp;
-    prop.name = u8"InterpolateMethod";
-    prop.val = interpMethod_;
-    prop.flag = 0;
-    prop.children.clear();
-    prop.makeEnum(interp);
-    ps.push_back(prop);
-
-
-    static const std::pair<QString, int> extrap[] = {
-        { "Nan", KcInterpolater::k_nan },
-        { "Zero", KcInterpolater::k_zero },
-        { "Const", KcInterpolater::k_const },
-        { "Mirro", KcInterpolater::k_mirro },
-        { "Period", KcInterpolater::k_period },
-        { "Extra", KcInterpolater::k_extra },
-
-    };
-    prop.id = kPrivate::k_extrap;
-    prop.name = u8"ExtrapolateMethod";
-    prop.val = extrapMethod_;
-    prop.makeEnum(extrap);
-    ps.push_back(prop);
-
-
-    return ps;
-}
-
-
-
-void KcOpInterpolater::setPropertyImpl_(int id, const QVariant& newVal)
-{
-    switch (id) {
-    case kPrivate::k_interp:
-        interpMethod_ = newVal.toInt();
-        break;
-
-    case kPrivate::k_extrap:
-        extrapMethod_ = newVal.toInt();
-        break;
+    if (ImGui::BeginCombo("Extrapolate Method", extrap[extrapMethod_])) {
+        for (unsigned i = 0; i < std::size(extrap); i++)
+            if (ImGui::Selectable(extrap[i], i == extrapMethod_))
+                extrapMethod_ = i;
+        ImGui::EndCombo();
     }
 }
 
 
-void KcOpInterpolater::preRender_()
+void KcOpInterpolater::output()
 {
-    auto objp = dynamic_cast<KvDataProvider*>(parent());
-    assert(objp);
-}
-
-
-std::shared_ptr<KvData> KcOpInterpolater::processImpl_(std::shared_ptr<KvData> data)
-{
-    assert(data->isDiscreted());
-
-    auto dis = std::dynamic_pointer_cast<KvDiscreted>(data);
-    auto interp = std::make_shared<KcInterpolater>(dis);
-    interp->setInterMethod(interpMethod_);
-    interp->setExtraMethod(extrapMethod_);
-    return interp;
+    if (idata_.front()) {
+        auto disc = std::dynamic_pointer_cast<KvDiscreted>(idata_.front());
+        auto interp = std::make_shared<KcInterpolater>(disc);
+        interp->setInterMethod(interpMethod_);
+        interp->setExtraMethod(extrapMethod_);
+        odata_.front() = interp;
+    }
+    else {
+        odata_.front() = nullptr;
+    }
 }

@@ -64,10 +64,9 @@ void KvPlottable::draw(KvPaint* paint) const
 		auto samp = std::make_shared<KcSampler>(cont);
 		if (!samp)
 			return;
-
-		std::vector<kIndex> idx(cont->dim());
-		std::copy(sampCount_.cbegin(), sampCount_.cend(), idx.begin());
-		samp->resize(idx.data());
+		
+		for (unsigned i = 0; i < cont->dim(); i++)
+			samp->reset(0, cont->range(i).low(), cont->length(i) / sampCount_[i]);
 
 		disc = samp;
 	}

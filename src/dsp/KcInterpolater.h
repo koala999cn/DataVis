@@ -4,6 +4,8 @@
 
 class KvDiscreted;
 
+// 离散数据插值，目前只支持一维数据
+
 class KcInterpolater : public KvContinued
 {
 public:
@@ -44,10 +46,14 @@ public:
 
 	kReal value(kReal pt[], kIndex channel) const override;
 
+	void setRange(kIndex axis, kReal low, kReal high) override;
+
 private:
 	const std::shared_ptr<KvDiscreted> internal_;
 
 	int interMethod_; // 内插方法
 	int extraMethod_; // 外插方法
+
+	kRange range_;
 };
 

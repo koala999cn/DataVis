@@ -1,6 +1,6 @@
 ﻿#include "KcInterpolater.h"
 #include "KuInterp1d.h"
-#include "KcSampled1d.h"
+#include "KvDiscreted.h"
 #include "KtuMath.h"
 #include "KuExtrapolate.h"
 #include <assert.h>
@@ -13,6 +13,8 @@ KcInterpolater::KcInterpolater(std::shared_ptr<KvDiscreted>& cont)
 
 	interMethod_ = k_linear;
 	extraMethod_ = k_nan;
+
+	range_ = cont->range(0);
 }
 
 
@@ -30,7 +32,21 @@ kIndex KcInterpolater::channels() const
 
 kRange KcInterpolater::range(kIndex axis) const 
 {
-	return internal_->range(axis);
+	if (axis == 0)
+		return range_;
+	
+	// 值域范围
+	auto r = internal_->range(axis);
+	if (extraMethod_ == k_zero)
+		r.resetLow(std::min(r.low(), kReal(0))), r.resetHigh(std::max(r.high(), kReal(0)));
+	return r;
+}
+
+
+void KcInterpolater::setRange(kIndex axis, kReal low, kReal high)
+{
+	assert(axis == 0);
+	range_ = { low, high };
 }
 
 

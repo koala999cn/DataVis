@@ -42,9 +42,6 @@
     <ClCompile Include="src\dsp\KgHist.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\dsp\KgMultiply.cpp">
-      <Filter>dsp</Filter>
-    </ClCompile>
     <ClCompile Include="src\base\KuPathUtil.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -328,6 +325,18 @@
     <ClCompile Include="src\dsp\KcSampler.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcOpInterpolater.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KcInterpolater.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KuExtrapolate.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KuInterp1d.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -337,9 +346,6 @@
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtSampledArray.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\KgMultiply.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgHist.h">
@@ -606,7 +612,7 @@
     <ClInclude Include="src\plot\KvPlot.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\dsp\KcDataMono.h">
+    <ClInclude Include="src\dsp\KcMonoDiscreted.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcImPropertySheet.h">
@@ -763,6 +769,21 @@
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\minmax.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpInterpolater.h">
+      <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KcInterpolater.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuExtrapolate.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuInterp1d.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KcMonoContinued.h">
       <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>

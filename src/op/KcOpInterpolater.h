@@ -1,34 +1,35 @@
 ﻿#pragma once
 #include "KvDataOperator.h"
-#include "KtSampling.h"
-#include <vector>
 
 
 class KcOpInterpolater : public KvDataOperator
 {
+	using super_ = KvDataOperator;
+
 public:
-	KcOpInterpolater(KvDataProvider* prov);
+	KcOpInterpolater();
 
-	kPropertySet propertySet() const override;
+	int spec(kIndex outPort) const final;
 
-	kReal step(kIndex axis) const override;
+	kReal step(kIndex outPort, kIndex axis) const final;
 
-	kIndex size(kIndex axis) const override;
+	kIndex size(kIndex outPort, kIndex axis) const final;
 
-	unsigned ins() const final { return 1u; }
+	//bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
-	unsigned outs() const final { return 1u; }
+	//void onStopPipeline() final;
+
+	void output() final;
+
+	void showProperySet() final;
+
+	bool permitInput(int dataSpec, unsigned inPort) const final;
+
+	//bool onInputChanged(KcPortNode* outPort, unsigned inPort) final;
+
 
 private:
-	void setPropertyImpl_(int id, const QVariant& newVal) override;
-
-	void preRender_() override;
-
-	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
-
-
-private:
-	int interpMethod_;
-	int extrapMethod_;
+	int interpMethod_{ 0 };
+	int extrapMethod_{ 0 };
 };
 

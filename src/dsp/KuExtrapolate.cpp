@@ -12,12 +12,12 @@ double KuExtrapolate::mirror(double low, double high, double x)
 {
     auto length = high - low;
     if (x > high) {
-        auto ratio = std::fmod(x - high, length);
-        return high - ratio * length;
+        auto delta = std::fmod(x - high, length);
+        return high - delta;
     }
     else {
-        auto ratio = std::fmod(low - x, length);
-        return low + ratio * length;
+        auto delta = std::fmod(low - x, length);
+        return low + delta;
     }
 }
 
@@ -26,11 +26,11 @@ double KuExtrapolate::period(double low, double high, double x)
 {
     auto length = high - low;
     if (x > high) {
-        auto ratio = std::fmod(x - high, length);
-        return low + ratio * length;
+        auto delta = std::fmod(x - high, length);
+        return low + delta;
     }
     else {
-        auto ratio = std::fmod(low - x, length);
-        return high - ratio * length;
+        auto delta = std::fmod(low - x, length);
+        return high - delta;
     }
 }

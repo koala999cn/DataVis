@@ -2,7 +2,8 @@
 #include "plot/KvPlot.h"
 #include "plot/KvPlottable.h"
 #include "prov/KvDataProvider.h"
-#include "dsp/KcDataMono.h"
+#include "dsp/KcMonoDiscreted.h"
+#include "dsp/KcMonoContinued.h"
 #include "imapp/KvImWindow.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
@@ -87,12 +88,20 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 		assert(data->channels() == numPlts);
 
 		kIndex ch(0);
-		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data);
-		assert(disc);
 
-		for (auto i = r.first; i != r.second; i++) {
-			assert(i->first == outPort->id());
-			i->second->setData(std::make_shared<KcDataMono>(disc, ch++));
+		if (data->isDiscreted()) {
+			auto disc = std::dynamic_pointer_cast<KvDiscreted>(data);
+			for (auto i = r.first; i != r.second; i++) {
+				assert(i->first == outPort->id());
+				i->second->setData(std::make_shared<KcMonoDiscreted>(disc, ch++));
+			}
+		}
+		else {
+			auto cont = std::dynamic_pointer_cast<KvContinued>(data);
+			for (auto i = r.first; i != r.second; i++) {
+				assert(i->first == outPort->id());
+				i->second->setData(std::make_shared<KcMonoContinued>(cont, ch++));
+			}
 		}
 	}
 }

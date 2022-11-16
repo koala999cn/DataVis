@@ -3,16 +3,16 @@
 #include <memory>
 
 
-// 提取单通道数据
+// 提取单通道离散数据
 
-class KcDataMono : public KvDiscreted
+class KcMonoDiscreted : public KvDiscreted
 {
 	using data_ptr = std::shared_ptr<KvDiscreted>;
 
 public:
 
 	// 提取数据d的第ch通道数据
-	KcDataMono(data_ptr d, kIndex ch) : d_(d), channel_(ch) {
+	KcMonoDiscreted(data_ptr d, kIndex ch) : d_(d), channel_(ch) {
 		assert(ch >= 0 && ch < d->channels());
 	}
 
@@ -31,6 +31,9 @@ public:
 	}
 
 	kRange range(kIndex axis) const override {
+		if (axis == dim())
+			return valueRange(0);
+
 		return d_->range(axis);
 	}
 
