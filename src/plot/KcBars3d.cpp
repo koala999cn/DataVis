@@ -7,7 +7,8 @@ KcBars3d::aabb_type KcBars3d::boundingBox() const
 {
 	auto aabb = super_::boundingBox();
 
-	// TODO: 
+	if (aabb.depth() == 0)
+		aabb.upper().z() = aabb.lower().z() + 1;
 	return aabb;
 }
 
@@ -16,7 +17,7 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 {
 	auto dim = data()->dim();
 	auto xw = barWidth_(0);
-	auto yw = barWidth_(dim == 1 ? 2 : 1);
+	auto yw = dim == 1 ? boundingBox().depth() / count : barWidth_(1);
 
 	bool drawFill = fill_.style != KpBrush::k_none && majorColor(0).a() != 0;
 	bool drawBorder = border_.style != KpPen::k_none && minorColor().a() != 0 && minorColor() != majorColor(0);
