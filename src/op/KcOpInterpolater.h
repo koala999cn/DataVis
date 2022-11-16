@@ -15,17 +15,11 @@ public:
 
 	kIndex size(kIndex outPort, kIndex axis) const final;
 
-	//bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
-
-	//void onStopPipeline() final;
-
 	void output() final;
 
 	void showProperySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
-
-	//bool onInputChanged(KcPortNode* outPort, unsigned inPort) final;
 
 
 private:

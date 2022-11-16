@@ -160,6 +160,7 @@
     <ClCompile Include="src\imapp\KsImApp.cpp" />
     <ClCompile Include="src\imapp\KvNode.cpp" />
     <ClCompile Include="src\imapp\KcActionSequence.cpp" />
+    <ClCompile Include="src\op\KcOpFIR.cpp" />
     <ClCompile Include="src\op\KcOpFraming.cpp" />
     <ClCompile Include="src\op\KcOpHist.cpp" />
     <ClCompile Include="src\op\KcOpInterpolater.cpp" />
@@ -300,6 +301,7 @@
     <ClInclude Include="src\imapp\KsImApp.h" />
     <ClInclude Include="src\imapp\KvModule.h" />
     <ClInclude Include="src\imapp\KvNode.h" />
+    <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpFraming.h" />
     <ClInclude Include="src\op\KcOpHist.h" />
     <ClInclude Include="src\op\KcOpInterpolater.h" />

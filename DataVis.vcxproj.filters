@@ -337,6 +337,9 @@
     <ClCompile Include="src\dsp\KuInterp1d.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcOpFIR.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -785,6 +788,9 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KcMonoContinued.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpFIR.h">
+      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
