@@ -8,17 +8,9 @@
 
 
 KcOpSpectrum::KcOpSpectrum()
-	: super_("Spectrum")
+	: super_("Spectrum", true)
 {
 	
-}
-
-
-int KcOpSpectrum::spec(kIndex outPort) const
-{
-	KpDataSpec sp(super_::spec(outPort));
-	sp.stream &= (sp.dim > 1);
-	return sp.spec; 
 }
 
 
@@ -70,26 +62,6 @@ kReal KcOpSpectrum::step(kIndex outPort, kIndex axis) const
 }
 
 
-kIndex KcOpSpectrum::size(kIndex outPort, kIndex axis) const
-{
-	assert(inputs_.size() == 1);
-	auto d = inputs_.front();
-	if (d == nullptr)
-		return 0; // 暂时无输入连接
-
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-	assert(prov);
-
-	if (axis == prov->dim(outPort) - 1) {
-		auto idim = prov->size(outPort, axis);
-		return KgSpectrum::odim(idim, roundToPower2_);
-	}
-	
-	return prov->size(outPort, axis);
-
-}
-
-
 bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
 	if (!super_::onStartPipeline(ins))
@@ -125,15 +97,16 @@ void KcOpSpectrum::onStopPipeline()
 
 kIndex KcOpSpectrum::isize_() const
 {
-	assert(spec_);
-	return spec_->idim();
+	if (inputs_.front() == nullptr)
+		return 0;
+
+	return spec_ ? spec_->idim() : super_::size(inputs_.front()->index(), dim(0));
 }
 
 
 kIndex KcOpSpectrum::osize_(kIndex is) const
 {
-	assert(spec_);
-	return spec_->odim();
+	return spec_ ? spec_->odim() : KgSpectrum::odim(is, roundToPower2_);
 }
 
 
@@ -178,11 +151,3 @@ void KcOpSpectrum::showProperySet()
 
 	ImGui::EndDisabled();
 }
-
-
-bool KcOpSpectrum::permitInput(int dataSpec, unsigned inPort) const
-{
-	KpDataSpec sp(dataSpec);
-	return sp.dim <= 2 && sp.type == k_sampled; // 只接受采样数据
-}
-
