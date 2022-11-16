@@ -6,9 +6,14 @@
 // 继承类只需重载processNaive_方法，实现单一的单通道数据处理即可
 class KvOpSampled1dHelper : public KvDataOperator
 {
+	using super_ = KvDataOperator;
+
 public:
-	KvOpSampled1dHelper(const std::string_view& name)
-		: KvDataOperator(name) {}
+	KvOpSampled1dHelper(const std::string_view& name, bool splitChannels);
+
+	bool permitInput(int dataSpec, unsigned inPort) const override;
+
+	kIndex size(kIndex outPort, kIndex axis) const override;
 
 	void output() override;
 
@@ -34,5 +39,7 @@ private:
 
 	void output2d_();
 
+private:
+	bool splitChannels_;
 };
 
