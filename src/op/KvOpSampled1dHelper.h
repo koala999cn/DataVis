@@ -25,10 +25,10 @@ protected:
 	// @out: 输出结果，可能与in重叠，尺寸等于size(dim() - 1)
 	virtual void op_(const kReal* in, unsigned len, kReal* out) = 0;
 
-private:
-
-	// 创建输出对象的帮助函数
+	// 创建输出对象的帮助函数，由继承类在onStartPipeline中调用
 	void prepareOutput_();
+
+private:
 
 	void output1d_();
 

@@ -1,11 +1,11 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOpSampled1dHelper.h"
 #include "KgSpectrum.h"
 
 
-class KcOpSpectrum : public KvDataOperator
+class KcOpSpectrum : public KvOpSampled1dHelper
 {
-	using super_ = KvDataOperator;
+	using super_ = KvOpSampled1dHelper;
 
 public:
 
@@ -23,17 +23,17 @@ public:
 
 	void onStopPipeline() final;
 
-	void output() final;
-
 	void showProperySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
 
 private:
 	
-	void output1d_();
+	kIndex isize_() const final;
 
-	void output2d_();
+	kIndex osize_(kIndex is) const final;
+
+	void op_(const kReal* in, unsigned len, kReal* out) final;
 
 private:
 	std::unique_ptr<KgSpectrum> spec_;

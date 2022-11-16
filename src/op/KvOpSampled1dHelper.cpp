@@ -32,7 +32,7 @@ void KvOpSampled1dHelper::prepareOutput_()
 			samp->reset(i, range(i, j).low(), step(i, j), 0.5);
 
 		std::vector<kIndex> idx(dim(i), 0);
-		idx.back() = size(i, dim(i));
+		idx.back() = size(i, dim(i) - 1);
 		samp->resize(idx.data(), channels(i));
 
 		odata_[i] = samp;
@@ -42,15 +42,16 @@ void KvOpSampled1dHelper::prepareOutput_()
 
 void KvOpSampled1dHelper::output1d_()
 {
-	auto in = std::dynamic_pointer_cast<KcSampled1d>(idata_.front()); // TODO: in可能为null
+	auto in = std::dynamic_pointer_cast<KvSampled>(idata_.front()); // TODO: in可能为null
 	auto out = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
 	assert(in && in->size(0) >= isize_());
 	assert(out && out->size(0) == osize_(isize_()));
 
 	unsigned offset = in->size(0) - isize_(); // 跳过多出的数据
 
-	if (in->channels() == 1) {
-		op_(in->data() + offset, isize_(), out->data());
+	auto samp = std::dynamic_pointer_cast<KcSampled1d>(in);
+	if (samp && samp->channels() == 1) {
+		op_(samp->data() + offset, isize_(), out->data());
 	}
 	else {
 		std::vector<kReal> in_(isize_());
@@ -60,7 +61,7 @@ void KvOpSampled1dHelper::output1d_()
 				in_[i] = in->value(i + offset, ch);
 
 			op_(in_.data(), isize_(), out_.data());
-			out->setChannel(nullptr, ch, out_.data());
+			out->setChannel(nullptr, ch, out_.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
 		}
 	}
 }
@@ -68,7 +69,7 @@ void KvOpSampled1dHelper::output1d_()
 
 void KvOpSampled1dHelper::output2d_()
 {
-	auto in = std::dynamic_pointer_cast<KcSampled2d>(idata_.front());
+	auto in = std::dynamic_pointer_cast<KvSampled>(idata_.front());
 	auto out = std::dynamic_pointer_cast<KcSampled2d>(odata_.front());
 	assert(in && in->size(1) >= isize_());
 	assert(out && out->size(1) == osize_(isize_()));
@@ -76,9 +77,10 @@ void KvOpSampled1dHelper::output2d_()
 	out->resize(in->size(0), osize_(isize_()), in->channels());
 	unsigned offset = in->size(1) - isize_(); // 跳过多出的数据
 
-	if (in->channels() == 1) {
+	auto samp = std::dynamic_pointer_cast<KcSampled2d>(in);
+	if (samp && samp->channels() == 1) {
 		for (unsigned r = 0; r < in->size(0); r++)
-			op_(in->row(r) + offset, isize_(), out->row(r));
+			op_(samp->row(r) + offset, isize_(), out->row(r));
 	}
 	else {
 		std::vector<kReal> iData(isize_()), oData(osize_(isize_()));
@@ -90,7 +92,7 @@ void KvOpSampled1dHelper::output2d_()
 					iData[col] = in->value(row, col + offset, ch);
 
 				op_(iData.data(), isize_(), oData.data());
-				out->setChannel(&row, ch, oData.data());
+				out->setChannel(&row, ch, oData.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
 			}
 		}
 	}

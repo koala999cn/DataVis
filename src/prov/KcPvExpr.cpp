@@ -5,6 +5,7 @@
 #include "imapp/KcImExprEditor.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
+#include "imapp/KgPipeline.h"
 
 
 KcPvExpr::KcPvExpr()
@@ -29,10 +30,14 @@ void KcPvExpr::showProperySet()
     auto w = ImGui::CalcItemWidth();
     auto sz = ImGui::GetItemRectSize();
     ImGui::Separator();
+    bool disable = KsImApp::singleton().pipeline().running();
+    ImGui::BeginDisabled(disable);
+
     if (ImGui::Button("E", ImVec2(sz.y, sz.y))) { // ±à¼­±í´ïÊ½×Ö·û´®
         KsImApp::singleton().windowManager().
             registerWindow<KcImExprEditor>(&exprText_, this);
     }
+    ImGui::EndDisabled();
 
     ImGui::PushItemWidth(w - sz.y - ImGui::GetStyle().ItemSpacing.x);
     ImGui::SameLine();

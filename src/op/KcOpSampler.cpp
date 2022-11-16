@@ -134,6 +134,9 @@ void KcOpSampler::showProperySet()
         return;
 
     ImGui::Separator();
+    bool disable = KsImApp::singleton().pipeline().running();
+    ImGui::BeginDisabled(disable);
+
     auto oport = inputs_.front()->index();
     if (super_::isContinued(oport)) {
         if (dim(0) == 1) {
@@ -184,6 +187,8 @@ void KcOpSampler::showProperySet()
             }
         }
     }
+
+    ImGui::EndDisabled();
 }
 
 
