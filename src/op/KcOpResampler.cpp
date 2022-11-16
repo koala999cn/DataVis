@@ -1,138 +1,99 @@
 ﻿#include "KcOpResampler.h"
 #include "dsp/KgResampler.h"
 #include "KcSampled1d.h"
+#include "imgui.h"
 
 
-KcOpResampler::KcOpResampler(KvDataProvider* prov)
-    : KvDataOperator("resampler", prov)
+KcOpResampler::KcOpResampler()
+    : super_("Resampler", false)
 {
     factor_ = 0.5;
     method_ = KgResampler::k_linear;
     wsize_ = 2;
-
-    resamp_ = std::make_unique<KgResampler>(method_, wsize_, prov->channels(), factor_);
 }
 
 
-kReal KcOpResampler::step(kIndex axis) const
+kReal KcOpResampler::step(kIndex outPort, kIndex axis) const
 {
-    assert(axis < dim());
-    auto st = KvDataOperator::step(axis);
-    if (axis == dim() - 1)
+    assert(axis < dim(outPort));
+    auto st = super_::step(outPort, axis);
+    if (axis == dim(outPort) - 1 && odata_[outPort] == nullptr)
         st /= factor_;
     return st;
 }
 
 
-kIndex KcOpResampler::size(kIndex axis) const
+bool KcOpResampler::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
-    assert(axis < dim());
-    auto sz = KvDataOperator::size(axis);
-    if (axis == dim() - 1)
-        sz *= factor_;
-    return sz;
+    assert(resamp_ == nullptr);
+    resamp_ = std::make_unique<KgResampler>(method_, wsize_, channels(0), factor_);
+    prepareOutput_();
+    return resamp_ != nullptr && odata_.front() != nullptr;
 }
 
 
-namespace kPrivate
+void KcOpResampler::onStopPipeline()
 {
-    enum KeResamplerProperty
-    {
-        k_factor,
-        k_interp_method,
-        k_window_length
-    };
+    resamp_.reset();
 }
 
 
-KcOpResampler::kPropertySet KcOpResampler::propertySet() const
-{
-    using namespace kPrivate;
-
-    kPropertySet ps;
-
-    KpProperty prop;
-
-    prop.id = k_factor;
-    prop.name = tr("Factor");
-    prop.val = factor_;
-    prop.minVal = 0.001;
-    prop.maxVal = 1024;
-    prop.step = 0.1;
-    ps.push_back(prop);
-
-    static const std::pair<QString, int> method[] = {
-        { "linear", KgResampler::k_linear },
-        { "lagrange", KgResampler::k_lagrange },
-        { "sinc", KgResampler::k_sinc }
-    };
-    prop.id = k_interp_method;
-    prop.name = u8"Method";
-    prop.val = method_;
-    prop.makeEnum(method);
-    ps.push_back(prop);
-
-    prop.id = k_window_length;
-    prop.name = tr("WindowLength");
-    prop.val = wsize_;
-    prop.minVal = 2;
-    prop.maxVal = 1024 * 16; // 16k
-    prop.step = 2;
-    prop.children.clear();
-    ps.push_back(prop);
-
-    return ps;
-}
-
-
-
-void KcOpResampler::setPropertyImpl_(int id, const QVariant& newVal)
-{
-    switch (id) {
-    case kPrivate::k_factor:
-        factor_ = newVal.value<kReal>();
-        break;
-
-    case kPrivate::k_interp_method:
-        method_ = newVal.toInt();
-        break;
-
-    case kPrivate::k_window_length:
-        wsize_ = newVal.toInt();
-        break;
-    }
-}
-
-
-void KcOpResampler::preRender_()
+void KcOpResampler::onNewFrame(int frameIdx)
 {
     assert(resamp_);
 
     if (resamp_->factor() != factor_ ||
-        resamp_->size() != wsize_ || 
+        resamp_->size() != wsize_ ||
         resamp_->method() != method_) {
-        auto objp = dynamic_cast<KvDataProvider*>(parent());
-        assert(objp);
-        resamp_->reset(method_, wsize_, objp->channels(), factor_);
+        resamp_->reset(method_, wsize_, channels(0), factor_);
+
+        auto samp = std::dynamic_pointer_cast<KvSampled>(odata_.front());
+        odata_.front() = nullptr; // 确保step返回正确的值
+        for (kIndex i = 0; i < dim(0); i++)
+            samp->reset(i, samp->range(i).low(), step(0, i), 0);
+        odata_.front() = samp;
     }
 }
 
 
-std::shared_ptr<KvData> KcOpResampler::processImpl_(std::shared_ptr<KvData> data)
+void KcOpResampler::showProperySet()
 {
-    assert(data->isDiscreted() && data->dim() == 1);
-    auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(data);
-    assert(samp1d);
+    super_::showProperySet();
+    ImGui::Separator();
 
-    auto res = std::make_shared<KcSampled1d>();
-    res->reset(0, samp1d->range(0).low(), step(0), samp1d->sampling(0).x0ref()); // TODO: 处理延时
-    res->resize(resamp_->osize(samp1d->size()), samp1d->channels());
+    float factor = factor_;
+    if (ImGui::DragFloat("Factor", &factor, 0.1, 0.001, 1000))
+        factor_ = factor;
 
-    auto N = resamp_->apply(samp1d->data(), samp1d->size(), res->data(), res->size());
-    assert(N <= res->size());
-    if(N != res->size())
-        res->resize(N);
-    return res;
+    static const char* method[] = {
+        "linear", 
+        "lagrange", 
+        "sinc"
+    };
+    if (ImGui::BeginCombo("Method", method[method_])) {
+        for (unsigned i = 0; i < std::size(method); i++)
+            if (ImGui::Selectable(method[i], i == method_))
+                method_ = i;
+        ImGui::EndCombo();
+    }
+
+    ImGui::DragInt("Window Length", &wsize_, 2, 2, 1024 * 16);
 }
 
 
+kIndex KcOpResampler::isize_() const
+{
+    return 0;
+}
+
+
+kIndex KcOpResampler::osize_(kIndex is) const
+{
+    return resamp_ ? resamp_->osize(is) : is * factor_;
+}
+
+
+void KcOpResampler::op_(const kReal* in, unsigned len, kReal* out)
+{
+    resamp_->apply(in, len, out, resamp_->osize(len));
+}

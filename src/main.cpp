@@ -21,6 +21,7 @@
 #include "op/KcOpFraming.h"
 #include "op/KcOpHist.h"
 #include "op/KcOpSampler.h"
+#include "op/KcOpResampler.h"
 #include "op/KcOpFIR.h"
 #include "op/KcOpInterpolater.h"
 #include "plot/KsThemeManager.h"
@@ -51,6 +52,7 @@ int main_(int, char**)
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFraming>>("Framing"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHist>>("Hist"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSampler>>("Sampler"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpResampler>>("Resampler"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFIR>>("FIR"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpInterpolater>>("Interpolater"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));

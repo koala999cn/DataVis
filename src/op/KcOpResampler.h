@@ -1,30 +1,36 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOpSampled1dHelper.h"
 #include <vector>
 
 class KgResampler;
 
-class KcOpResampler : public KvDataOperator
+class KcOpResampler : public KvOpSampled1dHelper
 {
+	using super_ = KvOpSampled1dHelper;
+
 public:
-	KcOpResampler(KvDataProvider* prov);
+	KcOpResampler();
 
-	kPropertySet propertySet() const override;
+	kReal step(kIndex outPort, kIndex axis) const override;
 
-	kReal step(kIndex axis) const override;
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
-	kIndex size(kIndex axis) const override;
+	void onStopPipeline() final;
 
-	unsigned ins() const final { return 1u; }
+	void onNewFrame(int frameIdx) final;
 
-	unsigned outs() const final { return 1u; }
+	void showProperySet() final;
+
 
 private:
-	void setPropertyImpl_(int id, const QVariant& newVal) override;
 
-	void preRender_() override;
+	// KvOpSampled1dHelper接口
 
-	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
+	kIndex isize_() const final;
+
+	kIndex osize_(kIndex is) const final;
+
+	void op_(const kReal* in, unsigned len, kReal* out) final;
 
 private:
 	std::unique_ptr<KgResampler> resamp_;

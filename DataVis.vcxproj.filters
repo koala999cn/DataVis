@@ -340,6 +340,12 @@
     <ClCompile Include="src\op\KcOpFIR.cpp">
       <Filter>op</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcOpResampler.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgResampler.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -791,6 +797,15 @@
     </ClInclude>
     <ClInclude Include="src\op\KcOpFIR.h">
       <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpResampler.h">
+      <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgResampler.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KtResampling.h">
+      <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

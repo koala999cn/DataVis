@@ -21,6 +21,12 @@ bool KvOpSampled1dHelper::permitInput(int dataSpec, unsigned inPort) const
 
 kIndex KvOpSampled1dHelper::size(kIndex outPort, kIndex axis) const
 {
+	if (odata_[outPort]) {
+		auto disc = std::dynamic_pointer_cast<KvDiscreted>(odata_[outPort]);
+		assert(disc);
+		return disc->size(axis);
+	}
+
 	if (axis == dim(outPort) - 1 && isize_() != 0)
 		return osize_(isize_());
 
@@ -53,8 +59,9 @@ void KvOpSampled1dHelper::prepareOutput_()
 		else 
 			samp = std::make_shared<KcSampled2d>();
 
+		odata_[i] = nullptr;
 		for (kIndex j = 0; j < dim(i); j++)
-			samp->reset(i, range(i, j).low(), step(i, j), 0.5);
+			samp->reset(j, range(i, j).low(), step(i, j), 0);
 
 		std::vector<kIndex> idx(dim(i), 0);
 		idx.back() = size(i, dim(i) - 1);
