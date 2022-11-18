@@ -37,5 +37,6 @@ private:
 	kReal factor_; // 重采样系数
 	int wsize_;
 	int method_;
+	bool doFlush_;
 };
 
