@@ -27,9 +27,11 @@ v0.4版对底层代码作了较大重构，主要有4方面：
 
 一是构造pipeline，通过ActionPanel新增provider和renderer节点，在NodeEditor中建立拓扑链接；
 
-二是配置pipeline，在PropertySheet中进行参数设定，部分参数可也后期调整；
+二是配置pipeline，选中node节点，在PropertySheet中进行参数设定，部分参数可也后期调整；
 
 三是运行pipeline，点击主菜单pipeline的start选项。
+
+此外，双击node节点可查看即时输出数据。
 
 ## 依赖库
 
@@ -42,8 +44,10 @@ v0.4版对底层代码作了较大重构，主要有4方面：
 | [stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h) | ImFileDialog依赖 | 已内嵌 |
 | [glad](https://github.com/Dav1dde/glad) | ImFileDialog依赖 | 单独编译 |
 | [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 已内嵌 |
+| [blitz](https://github.com/blitzpp/blitz/) | 多维数组支持 | 已内嵌 |
 | [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/) | Audio录放 | 单独编译 |
 | [exprtk](http://www.partow.net/programming/exprtk/) | 数学表达式 | 内嵌子项目 |
+| [kfr](https://www.kfr.dev/) | 滤波器支持 | 已内嵌 |
 
 ## 编译
 
