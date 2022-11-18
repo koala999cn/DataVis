@@ -18,8 +18,9 @@ KcOpFraming::KcOpFraming()
 
 int KcOpFraming::spec(kIndex outPort) const
 {
-	KpDataSpec sp(super_::spec(outPort));
-	++sp.dim; // 比父数据多一个维度
+	KpDataSpec sp(inputSpec_(outPort));
+	if (sp.spec != 0)
+	    ++sp.dim; // 比父数据多一个维度
 	return sp.spec;
 }
 
@@ -31,28 +32,26 @@ bool KcOpFraming::permitInput(int dataSpec, unsigned inPort) const
 }
 
 
-kReal KcOpFraming::inputStep_() const
-{
-	auto in = inputs_.front();
-	if (in == nullptr)
-		return 1.0 / 8000.;
-
-	return super_::step(in->index(), 0);
-}
-
-
 kIndex KcOpFraming::frameSize() const
 {
+	auto dx = step(0, 1);
+	if (dx == 0)
+		return 0;
+
 	KtSampling<kReal> samp;
-	samp.reset(0, frameTime_, inputStep_(), 0);
+	samp.reset(0, frameTime_, dx, 0);
 	return samp.size();
 }
 
 
 kIndex KcOpFraming::shiftSize() const
 {
+	auto dx = step(0, 1);
+	if (dx == 0)
+		return 0;
+
 	KtSampling<kReal> samp;
-	samp.reset(0, shiftTime_, inputStep_(), 0);
+	samp.reset(0, shiftTime_, dx, 0);
 	return samp.size();
 }
 
@@ -61,12 +60,10 @@ kRange KcOpFraming::range(kIndex outPort, kIndex axis) const
 {
 	assert(outPort == 0);
 
-	if (axis == 1)
+	if (axis == dim(outPort) - 1)
 		return { 0, frameTime_ };
-	else if(axis == 0)
-	    return super_::range(outPort, 0);
-	
-	return super_::range(outPort, axis - 1);
+
+	return super_::range(outPort, axis);
 }
 
 
@@ -75,7 +72,7 @@ kReal KcOpFraming::step(kIndex outPort, kIndex axis) const
 	if (axis == 0)
 		return shiftTime_;
 
-	return super_::step(outPort, axis - 1);
+	return inputStep_(axis - 1);
 }
 
 
@@ -88,7 +85,11 @@ kIndex KcOpFraming::size(kIndex outPort, kIndex axis) const
 		KtFraming<kReal> fram(frameSize(), channels(0), shiftSize());
 		KtSampling<kReal> samp;
 		auto r = range(0, 0);
-		samp.reset(r.low(), r.high(), inputStep_(), 0);
+		auto dx = step(0, 1);
+		if (r.empty() || dx == 0)
+			return 0;
+
+		samp.reset(r.low(), r.high(), dx, 0);
 		return fram.outFrames(samp.size(), false);
 	}
 

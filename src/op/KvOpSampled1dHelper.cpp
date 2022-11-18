@@ -15,7 +15,7 @@ KvOpSampled1dHelper::KvOpSampled1dHelper(const std::string_view& name, bool spli
 bool KvOpSampled1dHelper::permitInput(int dataSpec, unsigned inPort) const
 {
 	KpDataSpec ds(dataSpec);
-	return ds.type == k_sampled && (isize_() == 0 ? ds.dim == 1 : ds.dim <= 2);
+	return ds.type == k_sampled && ds.dim <= 2; // TODO:  isize_() == 0 ? ds.dim == 1 : ds.dim <= 2);
 }
 
 

@@ -4,39 +4,10 @@
 #include "imapp/KgPipeline.h"
 
 
-namespace kPrivate
-{
-	template<typename VEC_T>
-	typename VEC_T::value_type first_non_null(const VEC_T& v)
-	{
-		for (auto& i : v)
-			if (i) return i;
-
-		return nullptr;
-	}
-}
-
-
-int KvDataOperator::spec(kIndex outPort) const
+int KvDataOperator::spec(kIndex) const
 {
 	assert(!inputs_.empty() && inputs_.size() == inPorts());
-
-	KpDataSpec sp;
-
-	for (auto i : inputs_)
-		if (i) {
-			auto prov = std::dynamic_pointer_cast<KvDataProvider>(i->parent().lock());
-			if (prov) {
-				KpDataSpec psp(prov->spec(i->index()));
-				sp.stream |= psp.stream;
-				sp.dynamic |= psp.dynamic;
-				sp.dim = std::max(sp.dim, psp.dim);
-				sp.channels = std::max(sp.channels, psp.channels);
-				sp.type = psp.type;
-			}
-		}
-
-	return sp.spec;
+	return inputSpec_();
 }
 
 
@@ -49,23 +20,10 @@ kRange KvDataOperator::range(kIndex outPort, kIndex axis) const
 		if (odata_[outPort])
 			return odata_[outPort]->range(axis);
 
-		auto d = kPrivate::first_non_null(inputs_);
-		if (d == nullptr)
-			return kRange{ 0, 0 };
-
-		auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-
-		return prov ? prov->range(d->index(), axis) : kRange{ 0, 0 };
+		return inputRange_(axis);
 	}
 	else { // value range：优先从prov获取
-		auto d = kPrivate::first_non_null(inputs_);
-		if (d) {
-			auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-			assert(prov);
-			return prov->range(d->index(), axis);
-		}
-
-		return kRange{ 0, 0 };
+		return inputRange_(axis);
 	}
 }
 
@@ -80,13 +38,7 @@ kReal KvDataOperator::step(kIndex outPort, kIndex axis) const
 		return disc ? disc->step(axis) : 0;
 	}
 
-	auto d = kPrivate::first_non_null(inputs_);
-	if (d == nullptr)
-		return 0;
-
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-
-	return prov ? prov->step(d->index(), axis) : 0;
+	return inputStep_(axis);
 }
 
 
@@ -100,13 +52,7 @@ kIndex KvDataOperator::size(kIndex outPort, kIndex axis) const
 		return disc ? disc->size(axis) : 0;
 	}
 
-	auto d = kPrivate::first_non_null(inputs_);
-	if (d == nullptr)
-		return 0;
-
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-
-	return prov ? prov->size(d->index(), axis) : 0;
+	return inputSize_(axis);
 }
 
 
@@ -179,4 +125,121 @@ bool KvDataOperator::onStartPipeline(const std::vector<std::pair<unsigned, KcPor
 	}
 
 	return true;
+}
+
+
+int KvDataOperator::inputSpec_(kIndex inPort) const
+{
+	assert(inPort < inputs_.size() && inPort >= 0);
+
+	auto d = inputs_[inPort];
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+	return prov->spec(d->index());
+}
+
+
+kRange KvDataOperator::inputRange_(kIndex inPort, kIndex axis) const
+{
+	assert(inPort < inputs_.size() && inPort >= 0);
+
+	auto d = inputs_[inPort];
+	if (d == nullptr)
+		return kRange(0, 0);
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+	return prov->range(d->index(), axis);
+}
+
+
+kReal KvDataOperator::inputStep_(kIndex inPort, kIndex axis) const
+{
+	assert(inPort < inputs_.size() && inPort >= 0);
+
+	auto d = inputs_[inPort];
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+	return prov->step(d->index(), axis);
+}
+
+
+kIndex KvDataOperator::inputSize_(kIndex inPort, kIndex axis) const
+{
+	assert(inPort < inputs_.size() && inPort >= 0);
+
+	auto d = inputs_[inPort];
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+	return prov->size(d->index(), axis);
+}
+
+
+namespace kPrivate
+{
+	template<typename VEC_T>
+	typename VEC_T::value_type first_non_null(const VEC_T& v)
+	{
+		for (auto& i : v)
+			if (i) return i;
+
+		return nullptr;
+	}
+}
+
+
+int KvDataOperator::inputSpec_() const
+{
+	auto d = kPrivate::first_non_null(inputs_);
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+	return prov->spec(d->index());
+}
+
+
+kRange KvDataOperator::inputRange_(kIndex axis) const
+{
+	auto d = kPrivate::first_non_null(inputs_);
+	if (d == nullptr)
+		return kRange{ 0, 0 };
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+	return prov->range(d->index(), axis);
+}
+
+
+kReal KvDataOperator::inputStep_(kIndex axis) const
+{
+	auto d = kPrivate::first_non_null(inputs_);
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+	return prov->step(d->index(), axis);
+}
+
+
+kIndex KvDataOperator::inputSize_(kIndex axis) const
+{
+	auto d = kPrivate::first_non_null(inputs_);
+	if (d == nullptr)
+		return 0;
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
+	assert(prov);
+	return prov->size(d->index(), axis);
 }

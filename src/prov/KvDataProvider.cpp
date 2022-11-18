@@ -180,8 +180,18 @@ void KvDataProvider::showProperySet()
 
 	// 采样间隔
 	if (isSampled(outPort)) {
-		ImGui::LabelText("Step", "%g", step(outPort, 0));
-		ImGui::LabelText("Frequency", "%g", 1.0 / step(outPort, 0));
+		if (dim(outPort) <= 1) {
+			ImGui::LabelText("Step", "%g", step(outPort, 0));
+			ImGui::LabelText("Frequency", "%g", 1.0 / step(outPort, 0));
+		}
+		else if (kPrivate::TreePush("Step")) {
+			for (kIndex i = 0; i < dim(outPort); i++) {
+				std::string label("Dim");
+				label += KuStrUtil::toString(i + 1);
+				ImGui::LabelText(label.c_str(), "%g", step(outPort, i));
+			}
+			kPrivate::TreePop();
+		}
 	}
 
 	if (dim(outPort) <= 1) {

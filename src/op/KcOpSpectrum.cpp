@@ -100,7 +100,7 @@ kIndex KcOpSpectrum::isize_() const
 	if (inputs_.front() == nullptr)
 		return 0;
 
-	return spec_ ? spec_->idim() : super_::size(inputs_.front()->index(), dim(0));
+	return spec_ ? spec_->idim() : inputSize_(dim(0) - 1);
 }
 
 

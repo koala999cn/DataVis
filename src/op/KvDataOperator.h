@@ -45,6 +45,21 @@ public:
 	// inPort输入端口是否接受dataSpec规格的数据 ？ 
 	virtual bool permitInput(int dataSpec, unsigned inPort) const = 0;
 
+protected:
+
+	/// 几个获取输入数据规格的帮助函数
+
+	// 特定输入端口
+	int inputSpec_(kIndex inPort) const;
+	kRange inputRange_(kIndex inPort, kIndex axis) const;
+	kReal inputStep_(kIndex inPort, kIndex axis) const;
+	kIndex inputSize_(kIndex inPort, kIndex axis) const;
+
+	// 首个非空输入端口
+	int inputSpec_() const;
+	kRange inputRange_(kIndex axis) const;
+	kReal inputStep_(kIndex axis) const;
+	kIndex inputSize_(kIndex axis) const;
 
 protected:
 	std::vector<std::shared_ptr<KvData>> idata_{ inPorts() };

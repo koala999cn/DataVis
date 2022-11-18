@@ -36,9 +36,6 @@ private:
 	kIndex frameSize() const;
 	kIndex shiftSize() const;
 
-	// 获取输入的采样间隔，若无输入连接，则返回一个缺省值
-	kReal inputStep_() const;
-
 private:
 	std::unique_ptr<KtFraming<kReal>> framing_;
 	kReal frameTime_; // 单帧时长
