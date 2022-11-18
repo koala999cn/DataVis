@@ -213,7 +213,7 @@ unsigned KtResampling<T>::isize(unsigned osize) const
 template<typename T>
 unsigned KtResampling<T>::fsize() const
 {
-	return osize(ibuffered() > 0 ? size() - mid_() : 0);
+	return osize(ibuffered() > 0 ? size() - mid_() - 1 : 0);
 }
 
 
