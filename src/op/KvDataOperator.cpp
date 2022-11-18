@@ -1,7 +1,5 @@
 #include "KvDataOperator.h"
 #include "KvDiscreted.h"
-#include "imapp/KsImApp.h"
-#include "imapp/KgPipeline.h"
 
 
 int KvDataOperator::spec(kIndex) const

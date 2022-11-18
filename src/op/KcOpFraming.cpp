@@ -3,8 +3,6 @@
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
 #include "imgui.h"
-#include "imapp/KsImApp.h"
-#include "imapp/KgPipeline.h"
 
 
 KcOpFraming::KcOpFraming() 
@@ -173,8 +171,7 @@ void KcOpFraming::showProperySet()
 	KvDataOperator::showProperySet();
 	ImGui::Separator();
 
-	bool disable = KsImApp::singleton().pipeline().running();
-	ImGui::BeginDisabled(disable);
+	ImGui::BeginDisabled(working_());
 
 	const double frameTimeMin = super_::step(0, 0);
 	if (ImGui::DragScalar("Frame Length(s)", ImGuiDataType_Double, &frameTime_,

@@ -1,8 +1,6 @@
 ﻿#include "KcOpSampler.h"
 #include "dsp/KcSampler.h"
 #include "imgui.h"
-#include "imapp/KsImApp.h"
-#include "imapp/KgPipeline.h"
 #include "KuStrUtil.h"
 #include "KtSampling.h"
 #include "KtuMath.h"
@@ -134,8 +132,7 @@ void KcOpSampler::showProperySet()
         return;
 
     ImGui::Separator();
-    bool disable = KsImApp::singleton().pipeline().running();
-    ImGui::BeginDisabled(disable);
+    ImGui::BeginDisabled(working_());
 
     auto oport = inputs_.front()->index();
     if (super_::isContinued(oport)) {
@@ -241,5 +238,5 @@ void KcOpSampler::sampleCountChanged_()
         }
     }
 
-    KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+    notifyChanged_();
 }

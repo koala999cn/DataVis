@@ -2,9 +2,9 @@
 #include "audio/KcAudioRender.h"
 #include "prov/KvDataProvider.h" // for KpDataSpec
 #include "dsp/KcSampled1d.h"
-#include "imgui.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgPipeline.h"
+#include "imgui.h"
 
 
 KcRdAudioPlayer::KcRdAudioPlayer()
@@ -80,8 +80,7 @@ void KcRdAudioPlayer::showProperySet()
 {
 	super_::showProperySet(); 
 
-	bool disable = KsImApp::singleton().pipeline().running();
-	ImGui::BeginDisabled(disable);
+	ImGui::BeginDisabled(working_());
 
 	KcAudioDevice dev;
 	auto info = dev.info(deviceId_);

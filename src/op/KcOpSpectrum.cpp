@@ -123,8 +123,7 @@ void KcOpSpectrum::showProperySet()
 	KvDataOperator::showProperySet();
 	ImGui::Separator();
 
-	bool disable = KsImApp::singleton().pipeline().running();
-	ImGui::BeginDisabled(disable);
+	ImGui::BeginDisabled(working_());
 
 	auto curType = KgSpectrum::type2Str(specType_);
 	if (ImGui::BeginCombo("Spectrum Type", curType)) {

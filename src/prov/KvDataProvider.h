@@ -108,6 +108,8 @@ protected:
 	// 向管线管理器发送变化消息的帮助函数
 	void notifyChanged_();
 
+	bool working_() const;
+
 private:
 	int windowId_{ -1 }; // 挂接的ImWindow标识符
 };

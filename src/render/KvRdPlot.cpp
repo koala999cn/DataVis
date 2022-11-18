@@ -7,7 +7,6 @@
 #include "imapp/KvImWindow.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
-#include "imapp/KgPipeline.h"
 #include "imguix.h"
 #include "KuStrUtil.h"
 #include "misc/cpp/imgui_stdlib.h"
@@ -118,7 +117,7 @@ bool KvRdPlot::onNewLink(KcPortNode* from, KcPortNode* to)
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
 	assert(prov);
 
-	return !KsImApp::singleton().pipeline().running(); // 运行时不接受新的链接
+	return !working_(); // 运行时不接受新的链接
 }
 
 

@@ -28,5 +28,10 @@ public:
 	virtual bool permitInput(int dataSpec, unsigned inPort) const {
 		return true;
 	}
+
+
+protected:
+
+	bool working_() const;
 };
 

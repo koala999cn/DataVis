@@ -233,3 +233,9 @@ void KvDataProvider::notifyChanged_()
 	for (unsigned i = 0; i < outPorts(); i++)
 		KsImApp::singleton().pipeline().notifyOutputChanged(this, i);
 }
+
+
+bool KvDataProvider::working_() const
+{
+	return KsImApp::singleton().pipeline().running();
+}
