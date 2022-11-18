@@ -194,10 +194,10 @@ void KtSampledArray<DIM>::pushBack(const KvSampled& d, kIndex pos, kIndex rows)
 
     auto shape = array_.extent();
     auto offset = shape[0];
-    shape[0] += rows;
+    shape[0] += rows; // 增加rows行
     std::array<kIndex, DIM> dims;
     std::copy(shape.begin(), shape.end() - 1, dims.begin());
-    resize(dims.data());
+    resize(dims.data()); // 调整this存储布局，增加相应行数
 
     // 逐帧复制
     dims.fill(0);
@@ -207,6 +207,7 @@ void KtSampledArray<DIM>::pushBack(const KvSampled& d, kIndex pos, kIndex rows)
         count *= d.size(i);
 
     for (kIndex i = 0; i < count; i++) {
+        assert(dims.front() >= pos);
         auto temp = dims;
         temp[0] += offset - pos;
         auto buf = at(temp.data());
@@ -214,6 +215,8 @@ void KtSampledArray<DIM>::pushBack(const KvSampled& d, kIndex pos, kIndex rows)
             buf[ch] = d.value(dims.data(), ch);
 
         d.nextIndex(dims.data());
+        if (dims.front() == 0) // 考虑进位
+            dims.front() = pos;
     }
 }
 
