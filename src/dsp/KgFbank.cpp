@@ -51,7 +51,7 @@ void KgFbank::process(const double* in, double* out) const
 }
 
 
-double KgFbank::toHertz_(double scale)
+double KgFbank::toHertz(KeType type, double scale)
 {
     static std::function<double(double)> cvt[] = {
         [](double f) { return f; }, // k_linear
@@ -61,11 +61,11 @@ double KgFbank::toHertz_(double scale)
         [](double f) { return KuFreqUnit::camToHertz(f); }  // k_erb
     };
 
-    return cvt[opts_.type](scale);
+    return cvt[type](scale);
 }
 
 
-double KgFbank::fromHertz_(double hz)
+double KgFbank::fromHertz(KeType type, double hz)
 {
     static std::function<double(double)> cvt[] = {
         [](double hz) { return hz; }, // k_linear
@@ -75,7 +75,7 @@ double KgFbank::fromHertz_(double hz)
         [](double hz) { return KuFreqUnit::hertzToCam(hz); }  // k_erb
     };
 
-    return cvt[opts_.type](hz);
+    return cvt[type](hz);
 }
 
 
@@ -86,8 +86,8 @@ void KgFbank::initWeights_()
     sanpHertz.resetn(idim() - 1, 0, opts_.sampleRate / 2, 0); // 兼容kaldi, x0ref取0, n取idim - 1
 
     // 目标(type_)尺度的采样参数
-    auto lowScale = fromHertz_(opts_.lowFreq);
-    auto highScale = fromHertz_(opts_.highFreq);
+    auto lowScale = fromHertz(opts_.type, opts_.lowFreq);
+    auto highScale = fromHertz(opts_.type, opts_.highFreq);
     KtSampling<double> sanpScale;
     sanpScale.resetn(opts_.numBanks + 1, lowScale, highScale, 0); // 在目标尺度上均匀划分各bin，相邻的bin有1/2重叠
 
@@ -102,14 +102,14 @@ void KgFbank::initWeights_()
         auto fr = sanpScale.indexToX(bin + 2);
 
         // 计算当前bin的频点范围
-        auto flhz = toHertz_(fl); 
-        auto frhz = toHertz_(fr);
+        auto flhz = toHertz(opts_.type, fl);
+        auto frhz = toHertz(opts_.type, fr);
         auto lowIdx = sanpHertz.xToHighIndex(flhz);
         auto highIdx = sanpHertz.xToLowIndex(frhz);
         lowIdx = std::max(lowIdx, long(0));
         highIdx = std::min(highIdx, long(idim() - 1));
         firstIdx_[bin] = lowIdx;
-        fc_[bin] = toHertz_(fc);
+        fc_[bin] = toHertz(opts_.type, fc);
 
         // 计算当前bin的权值
         weights_[bin].clear();
@@ -118,7 +118,8 @@ void KgFbank::initWeights_()
             auto& wt = weights_[bin];
             wt.resize(highIdx - lowIdx + 1, 0);
             for (long i = lowIdx; i <= highIdx; i++)
-                wt[i - lowIdx] = calcFilterWeight_(fl, fr, fromHertz_(sanpHertz.indexToX(i)));
+                wt[i - lowIdx] = calcFilterWeight_(fl, fr, 
+                    fromHertz(opts_.type, sanpHertz.indexToX(i)));
 
             if (opts_.normalize)
                 KtuMath<double>::scale(wt.data(), 
@@ -138,7 +139,7 @@ double KgFbank::calcFilterWeight_(double low, double high, double f)
 const char* KgFbank::type2Str(KeType type)
 {
     switch (type) {
-    case k_linear:	return "power";
+    case k_linear:	return "linear";
     case k_log:		return "log";
     case k_mel:		return "mel";
     case k_bark:	return "bark";

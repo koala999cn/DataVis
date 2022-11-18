@@ -16,14 +16,15 @@ public:
 		k_log,
 		k_mel,
 		k_bark,
-		k_erb
+		k_erb,
+		k_type_count
 	};
 
 	// @lowFreq, @highFreq: 拟作fbank分析的频率范围(Hz)
 	struct KpOptions
 	{
 		double sampleRate;
-		unsigned fftBins;
+		unsigned fftBins; // 输入的采样点数，即idim
 
 		KeType type; 
 		unsigned numBanks;
@@ -51,9 +52,10 @@ public:
 	static const char* type2Str(KeType type);
 	static KeType str2Type(const char* str);
 
+	static double toHertz(KeType type, double scale); // 将type频率尺度转换为hz
+	static double fromHertz(KeType type, double hz); // 将hz转换为type频率尺度
+
 private:
-	double toHertz_(double scale); // 将type频率尺度转换为hz
-	double fromHertz_(double hz); // 将hz转换为type频率尺度
 
 	void initWeights_();
 

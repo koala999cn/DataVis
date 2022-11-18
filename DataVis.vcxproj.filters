@@ -346,6 +346,15 @@
     <ClCompile Include="src\dsp\KgResampler.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcOpFbank.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KgFbank.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KuFreqUnit.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -805,6 +814,15 @@
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtResampling.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpFbank.h">
+      <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgFbank.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuFreqUnit.h">
       <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
