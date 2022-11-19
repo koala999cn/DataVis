@@ -361,6 +361,9 @@
     <ClCompile Include="src\op\KcOpWindowing.cpp">
       <Filter>op</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcOpHistC.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -838,6 +841,9 @@
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\op\KcOpWindowing.h">
+      <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpHistC.h">
       <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>

@@ -20,6 +20,7 @@
 #include "op/KcOpSpectrum.h"
 #include "op/KcOpFraming.h"
 #include "op/KcOpHist.h"
+#include "op/KcOpHistC.h"
 #include "op/KcOpSampler.h"
 #include "op/KcOpResampler.h"
 #include "op/KcOpFbank.h"
@@ -53,6 +54,7 @@ int main_(int, char**)
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSpectrum>>("Spectrum"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFraming>>("Framing"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHist>>("Hist"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHistC>>("HistC"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSampler>>("Sampler"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpResampler>>("Resampler"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFbank>>("Fbank"));

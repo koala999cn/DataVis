@@ -168,6 +168,7 @@
     <ClCompile Include="src\op\KcOpFIR.cpp" />
     <ClCompile Include="src\op\KcOpFraming.cpp" />
     <ClCompile Include="src\op\KcOpHist.cpp" />
+    <ClCompile Include="src\op\KcOpHistC.cpp" />
     <ClCompile Include="src\op\KcOpInterpolater.cpp" />
     <ClCompile Include="src\op\KcOpResampler.cpp" />
     <ClCompile Include="src\op\KcOpSampler.cpp" />
@@ -318,6 +319,7 @@
     <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpFraming.h" />
     <ClInclude Include="src\op\KcOpHist.h" />
+    <ClInclude Include="src\op\KcOpHistC.h" />
     <ClInclude Include="src\op\KcOpInterpolater.h" />
     <ClInclude Include="src\op\KcOpResampler.h" />
     <ClInclude Include="src\op\KcOpSampler.h" />

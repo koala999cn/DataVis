@@ -2,116 +2,138 @@
 #include "KtSampling.h"
 #include <vector>
 #include "KcSampled1d.h"
-#include <QPointF>
 #include "KgHistC.h"
+#include "imgui.h"
+#include "stlex.h"
 #include "KtuMath.h"
 
 
-KcOpHistC::KcOpHistC(KvDataProvider* prov)
-    : KvDataOperator("histC", prov)
+KcOpHistC::KcOpHistC()
+    : super_("HistC")
 {
-    assert(prov->dim() == 1);
-    auto yrange = prov->range(1);
-
-    histc_ = std::make_unique<KgHistC>();
-    histc_->resetLinear(9, yrange.low(), yrange.high()); // 缺省9个bin
+    bins_ = 9;;
+    low_ = 0, high_ = 1;
 }
 
 
-namespace kPrivate
+int KcOpHistC::spec(kIndex outPort) const
 {
-    enum KeHistPropertyId
-    {
-        k_range,
-        k_bands
-    };
-};
-
-KcOpHistC::kPropertySet KcOpHistC::propertySet() const
-{
-    kPropertySet ps;
-    KpProperty prop;
-
-    prop.id = kPrivate::k_range;
-    prop.name = tr("Range");
-    prop.flag = KvPropertiedObject::k_restrict;
-    auto r = histc_->range();
-    prop.val = QPointF(r.first, r.second);
-    KvPropertiedObject::KpProperty subProp;
-    subProp.name = tr("min");
-    prop.children.push_back(subProp);
-    subProp.name = tr("max");
-    prop.children.push_back(subProp);
-    ps.push_back(prop);
-
-    prop.id = kPrivate::k_bands;
-    prop.name = tr("Bands");
-    prop.val = histc_->numBins();
-    prop.minVal = 1;
-    prop.step = 1;
-    auto objp = dynamic_cast<const KvDataProvider*>(parent());
-    assert(objp != nullptr && objp->step(0) != 0);
-    prop.maxVal = std::floor((r.second - r.first) / objp->step(0));
-    ps.push_back(prop);
-
-    return ps;
+    KpDataSpec ds(super_::spec(outPort));
+    ds.dynamic = ds.stream;
+    ds.stream = false;
+    ds.dim = 1;
+    ds.type = k_sampled;
+    
+    return ds.spec;
 }
 
 
-void KcOpHistC::setPropertyImpl_(int id, const QVariant& newVal)
-{
-    switch (id) {
-    case kPrivate::k_range:
-        histc_->resetLinear(histc_->numBins(), newVal.toPointF().x(), newVal.toPointF().y());
-        break;
-
-    case kPrivate::k_bands:
-        histc_->resetLinear(newVal.toInt(), histc_->range().first, histc_->range().second);
-        break;
-    };
-}
-
-
-kRange KcOpHistC::range(kIndex axis) const
+kRange KcOpHistC::range(kIndex outPort, kIndex axis) const
 {
     if (axis == 0)
-        return { histc_->range().first, histc_->range().second };
+        return { low_, high_ };
 
-    return { 0, 1 }; // 归一化
+    assert(axis == 1);
+    return { 0, 1 }; // TODO: 暂时使用归一化范围，应根据histc类型调整
 }
 
 
-kReal KcOpHistC::step(kIndex axis) const
+kReal KcOpHistC::step(kIndex outPort, kIndex axis) const
 {
     if (axis == 0) {
-        return histc_->binWidth(0); // bin是线性的
+        KtSampling<kReal> samp;
+        samp.resetn(bins_, low_, high_, 0.5);
+        return samp.dx();
     }
 
-    return KvDataOperator::step(axis);
+    return KvDiscreted::k_nonuniform_step;
 }
 
 
-void KcOpHistC::preRender_()
+kIndex KcOpHistC::size(kIndex outPort, kIndex axis) const
 {
-
+    return bins_;
 }
 
 
-std::shared_ptr<KvData> KcOpHistC::processImpl_(std::shared_ptr<KvData> data)
+bool KcOpHistC::permitInput(int dataSpec, unsigned inPort) const
 {
-    assert(data->channels() == 1); // TODO: 处理多通道
+    KpDataSpec ds(dataSpec);
+    return ds.type != k_continued;
+}
 
-    auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(data);
-    histc_->count(samp1d->data(), samp1d->size());
 
-    auto res = std::make_shared<KcSampled1d>();
-    res->reset(0, histc_->range().first, histc_->binWidth(0), 0.5);
-    res->resize(histc_->numBins(), 1);
+bool KcOpHistC::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
+{
+    assert(histc_ == nullptr);
 
-    auto& cnt = histc_->result();
-    std::vector<kReal> d(cnt.size());
-    std::copy(cnt.cbegin(), cnt.cend(), d.begin());
-    KtuMath<kReal>::scaleTo(d.data(), d.size(), 0.9);
-    res->setChannel(nullptr, 0, d.data());
-    return res;
+    histc_ = std::make_unique<KgHistC>();
+    if (histc_ == nullptr)
+        return false;
+    histc_->resetLinear(bins_, low_, high_);
+
+    auto samp = std::make_shared<KcSampled1d>();
+    if (samp == nullptr) {
+        histc_.reset();
+        return false;
+    }
+
+    odata_.front().reset();
+    samp->reset(0, histc_->range().first, histc_->binWidth(0), 0.5);
+    samp->resize(histc_->numBins(), channels(0));
+    odata_.front() = samp;
+    return true;
+}
+
+
+void KcOpHistC::onStopPipeline()
+{
+    histc_.reset();
+}
+
+
+void KcOpHistC::showProperySet()
+{
+    super_::showProperySet();
+    ImGui::Separator();
+
+    if (ImGui::DragInt("Hist Bins", &bins_, 1, 1, 999999))
+        notifyChanged_();
+
+    if (ImGui::DragFloatRange2("Hist Range", &low_, &high_)) 
+        notifyChanged_();
+}
+
+
+void KcOpHistC::output()
+{
+    KpDataSpec ds(inputSpec_());
+    if (!ds.stream) // 如果输入不是流式数据，重置hist计数
+        histc_->reset();
+
+    auto disc = std::dynamic_pointer_cast<KvDiscreted>(idata_.front());
+    assert(disc);
+
+    std::vector<kReal> vals(disc->size());
+    for (unsigned i = 0; i < disc->size(); i++)
+        vals[i] = disc->valueAt(i, 0); // TODO: 多通道支持
+
+    histc_->count(vals.data(), vals.size());
+    auto& res = histc_->result();
+    stdx::copy(res, vals);
+    KtuMath<kReal>::scaleTo(vals.data(), vals.size(), 0.9);
+
+    auto samp = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
+    samp->setChannel(nullptr, 0, vals.data()); // TODO: 多通道支持
+}
+
+
+bool KcOpHistC::onNewLink(KcPortNode* from, KcPortNode* to)
+{
+    if (!super_::onNewLink(from, to))
+        return false;
+
+    auto r = inputRange_(dim(0)); // 输入的值域范围
+    low_ = r.low(), high_ = r.high();
+    return true;
 }

@@ -7,28 +7,35 @@ class KgHistC;
 
 class KcOpHistC : public KvDataOperator
 {
+	using super_ = KvDataOperator;
+
 public:
-	KcOpHistC(KvDataProvider* prov);
+	KcOpHistC();
 
-	kPropertySet propertySet() const override;
+	int spec(kIndex outPort) const final;
 
-	bool isStream() const override { return false; }
+	kRange range(kIndex outPort, kIndex axis) const final;
 
-	kRange range(kIndex axis) const override;
+	kReal step(kIndex outPort, kIndex axis) const final;
 
-	kReal step(kIndex axis) const override;
+	kIndex size(kIndex outPort, kIndex axis) const final;
 
-	unsigned ins() const final { return 1u; }
+	bool permitInput(int dataSpec, unsigned inPort) const final;
 
-	unsigned outs() const final { return 1u; }
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
+	void onStopPipeline() final;
 
-private:
-	void setPropertyImpl_(int id, const QVariant& newVal) override;
-	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
-	void preRender_() override;
+	void output() final;
+
+	void showProperySet() final;
+
+	// 根据输入同步low_ & high_
+	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
 
 private:
 	std::unique_ptr<KgHistC> histc_;
+	int bins_;
+	float low_, high_;
 };
 
