@@ -25,6 +25,7 @@
 #include "op/KcOpFbank.h"
 #include "op/KcOpFIR.h"
 #include "op/KcOpInterpolater.h"
+#include "op/KcOpWindowing.h"
 #include "plot/KsThemeManager.h"
 
 
@@ -57,6 +58,7 @@ int main_(int, char**)
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFbank>>("Fbank"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFIR>>("FIR"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpInterpolater>>("Interpolater"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpWindowing>>("Windowing"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot2d>>("Plot2d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot3d>>("Plot3d"));

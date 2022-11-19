@@ -1,90 +1,56 @@
 ﻿#include "KcOpWindowing.h"
-#include "../dsp/KgWindowing.h"
-#include "KcSampled1d.h"
-#include "KcSampled2d.h"
+#include "dsp/KgWindowing.h"
+#include "imgui.h"
 
 
-KcOpWindowing::KcOpWindowing(KvDataProvider* prov)
-    : KvDataOperator("windowing", prov)
-    , type_(KuWindowFactory::k_hamming)
+KcOpWindowing::KcOpWindowing()
+    : super_("Windowing", true)
+    , type_(KgWindowing::k_hamming)
     , arg_(0)
 {
-    preRender_();
+
 }
 
 
-KcOpWindowing::kPropertySet KcOpWindowing::propertySet() const
+bool KcOpWindowing::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
-    kPropertySet ps;
+    assert(win_ == nullptr);
+    assert(isize_() > 0);
 
-    KpProperty prop;
-    KpProperty subProp;
-
-    static const std::pair<QString, int> type[] = {
-        { "None", -1 },
-        { "Hamming", KuWindowFactory::k_hamming },
-        { "Hann", KuWindowFactory::k_hann },
-        { "Povey", KuWindowFactory::k_povey },
-        { "Blackman", KuWindowFactory::k_blackman },
-        { "Blackman Harris", KuWindowFactory::k_blackmanharris },
-        { "Blackman Harris7", KuWindowFactory::k_blackmanharris7 },
-        { "Flat Top", KuWindowFactory::k_flattop },
-    };
-
-    prop.id = 0;
-    prop.name = tr("type");
-    prop.val = type_;
-    prop.makeEnum(type);
-    ps.push_back(prop);
-
-    return ps;
+    win_ = std::make_unique<KgWindowing>(isize_(), KgWindowing::KeType(type_), arg_);
+    prepareOutput_();
+    return win_ != nullptr && odata_.front() != nullptr;
 }
 
 
-void KcOpWindowing::setPropertyImpl_(int id, const QVariant& newVal)
+void KcOpWindowing::onStopPipeline()
 {
-    assert(id == 0);
-    type_ = newVal.toInt();
-    KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());
-    assert(objp);
-    if (type_ != -1)
-        win_.reset(new KgWindowing(type_, objp->size(objp->dim() - 1), arg_));
-    else
-        win_.reset(nullptr);
+    win_.reset();
 }
 
 
-void KcOpWindowing::preRender_()
+void KcOpWindowing::showProperySet()
 {
-    if (type_ >= 0) {
-        KvDataProvider* objp = dynamic_cast<KvDataProvider*>(parent());
-        assert(objp);
-        if (win_ == nullptr || objp->size(objp->dim() - 1) != (*win_)->size())
-            win_.reset(new KgWindowing(type_, objp->size(objp->dim() - 1), arg_));
+    super_::showProperySet();
+    ImGui::Separator();
+
+    ImGui::BeginDisabled(working_());
+
+    if (ImGui::BeginCombo("Type", KgWindowing::type2Str(KgWindowing::KeType(type_)))) {
+        for (unsigned i = 0; i < KgWindowing::k_type_count; i++)
+            if (ImGui::Selectable(KgWindowing::type2Str(KgWindowing::KeType(i)), i == type_))
+                type_ = i;
+        ImGui::EndCombo();
     }
+
+    ImGui::InputFloat("Arg", &arg_);
+
+    ImGui::EndDisabled();
 }
 
 
-std::shared_ptr<KvData> KcOpWindowing::processImpl_(std::shared_ptr<KvData> data)
+void KcOpWindowing::op_(const kReal* in, unsigned len, kReal* out)
 {
-    if (win_ == nullptr)
-        return data;
-
-
-    if (data->dim() == 1) {
-        auto samp = std::dynamic_pointer_cast<KcSampled1d>(data);
-        assert(samp && samp->size(0) == (*win_)->size());
-        win_->process(*samp);
-    }
-    else if (data->dim() == 2) {
-        auto samp = std::dynamic_pointer_cast<KcSampled2d>(data);
-        assert(samp && samp->size(1) == (*win_)->size());
-        for(kIndex i = 0; i < samp->size(0); i++)
-            win_->process(samp->row(i), samp->channels());
-    }
-    else {
-        assert(false);
-    }
-
-    return data;
+    assert(win_->idim() == len);
+    win_->process(in, out);
 }

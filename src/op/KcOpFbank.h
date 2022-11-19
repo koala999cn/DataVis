@@ -23,8 +23,6 @@ public:
 
 private:
 
-	kIndex isize_() const final;
-
 	kIndex osize_(kIndex is) const final;
 
 	void op_(const kReal* in, unsigned len, kReal* out) final;

@@ -88,13 +88,6 @@ void KcOpFbank::showProperySet()
 }
 
 
-kIndex KcOpFbank::isize_() const
-{
-    auto d = dim(0);
-    return d == 0 ? 0 : inputSize_(d - 1);
-}
-
-
 kIndex KcOpFbank::osize_(kIndex is) const
 {
     return bins_;

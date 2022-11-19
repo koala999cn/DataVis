@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <cstdarg>
 #include "KtuMath.h"
-#include "windows.h"
+#include "wops.h"
 
 
 KgWindowing::KgWindowing(unsigned frameSize, KeType type, ...)
@@ -19,9 +19,15 @@ KgWindowing::KgWindowing(unsigned frameSize, KeType type, ...)
 }
 
 
-void KgWindowing::porcess(double* x) const
+void KgWindowing::process(double* x) const
 {
 	KtuMath<double>::mul(x, win_.data(), x, idim());
+}
+
+
+void KgWindowing::process(const double* in, double* out) const
+{
+	KtuMath<double>::mul(in, win_.data(), out, idim());
 }
 
 
@@ -134,5 +140,6 @@ KgWindowing::KeType KgWindowing::str2Type(const char* str)
 	if (0 == _stricmp(str, type2Str(k_kaiser)))
 		return k_kaiser;
 
-	return k_unknown;
+	assert(false);
+	return k_hamming;
 }

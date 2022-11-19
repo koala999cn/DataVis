@@ -355,6 +355,12 @@
     <ClCompile Include="src\dsp\KuFreqUnit.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\dsp\KgWindowing.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\op\KcOpWindowing.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -824,6 +830,15 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KuFreqUnit.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KgWindowing.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\wops.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpWindowing.h">
+      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

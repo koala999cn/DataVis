@@ -130,6 +130,7 @@
     <ClCompile Include="src\dsp\KgRdft.cpp" />
     <ClCompile Include="src\dsp\KgResampler.cpp" />
     <ClCompile Include="src\dsp\KgSpectrum.cpp" />
+    <ClCompile Include="src\dsp\KgWindowing.cpp" />
     <ClCompile Include="src\dsp\KmBins.cpp" />
     <ClCompile Include="src\dsp\KuDataUtil.cpp" />
     <ClCompile Include="src\dsp\KuExtrapolate.cpp" />
@@ -171,6 +172,7 @@
     <ClCompile Include="src\op\KcOpResampler.cpp" />
     <ClCompile Include="src\op\KcOpSampler.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
+    <ClCompile Include="src\op\KcOpWindowing.cpp" />
     <ClCompile Include="src\op\KvDataOperator.cpp" />
     <ClCompile Include="src\op\KvOpSampled1dHelper.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
@@ -261,6 +263,7 @@
     <ClInclude Include="src\dsp\KgRdft.h" />
     <ClInclude Include="src\dsp\KgResampler.h" />
     <ClInclude Include="src\dsp\KgSpectrum.h" />
+    <ClInclude Include="src\dsp\KgWindowing.h" />
     <ClInclude Include="src\dsp\KmBins.h" />
     <ClInclude Include="src\dsp\KtFraming.h" />
     <ClInclude Include="src\dsp\KtMultiArray.h" />
@@ -281,6 +284,7 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\dsp\minmax.h" />
+    <ClInclude Include="src\dsp\wops.h" />
     <ClInclude Include="src\imapp\imguix.h" />
     <ClInclude Include="src\imapp\KcActionInsertDataNode.h" />
     <ClInclude Include="src\imapp\KcActionTextLoadAndClean.h" />
@@ -318,6 +322,7 @@
     <ClInclude Include="src\op\KcOpResampler.h" />
     <ClInclude Include="src\op\KcOpSampler.h" />
     <ClInclude Include="src\op\KcOpSpectrum.h" />
+    <ClInclude Include="src\op\KcOpWindowing.h" />
     <ClInclude Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\op\KvOpSampled1dHelper.h" />
     <ClInclude Include="src\plot\KcBars2d.h" />

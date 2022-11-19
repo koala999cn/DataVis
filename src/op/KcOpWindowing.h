@@ -1,29 +1,28 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOpSampled1dHelper.h"
 
 class KgWindowing;
 
-class KcOpWindowing : public KvDataOperator
+class KcOpWindowing : public KvOpSampled1dHelper
 {
+	using super_ = KvOpSampled1dHelper;
+
 public:
-	KcOpWindowing(KvDataProvider* prov);
+	KcOpWindowing();
 
-	kPropertySet propertySet() const override;
+	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
-	unsigned ins() const final { return 1u; }
+	void onStopPipeline() final;
 
-	unsigned outs() const final { return 1u; }
+	void showProperySet() final;
 
 private:
-	void setPropertyImpl_(int id, const QVariant& newVal) override;
 
-	void preRender_() override;
-
-	std::shared_ptr<KvData> processImpl_(std::shared_ptr<KvData> data) override;
+	void op_(const kReal* in, unsigned len, kReal* out) final;
 
 private:
 	std::unique_ptr<KgWindowing> win_;
 	int type_;
-	kReal arg_;
+	float arg_;
 };
 

@@ -20,10 +20,14 @@ public:
 protected:
 
 	// 返回输入数据的尺寸规格，0代表无要求，可处理任意长度输入
-	virtual kIndex isize_() const = 0;
+	// 缺省实现为输入数据的尺寸，若无输入连接，则返回0
+	virtual kIndex isize_() const;
 
 	// 返回is帧出入生成的输出帧数
-	virtual kIndex osize_(kIndex is) const = 0;
+	// 缺省实现为一致尺寸
+	virtual kIndex osize_(kIndex is) const {
+		return is;
+	}
 
 	// @in: 单通道数据
 	// @len: 输入in的尺寸
