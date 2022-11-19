@@ -25,13 +25,11 @@ v0.4版对底层代码作了较大重构，主要有4方面：
 
 主要分3步：
 
-一是构造pipeline，通过ActionPanel新增provider和renderer节点，在NodeEditor中建立拓扑链接；
+一是构造pipeline，通过ActionPanel新增provider、operator和renderer节点，在NodeEditor中建立拓扑链接；
 
-二是配置pipeline，选中node节点，在PropertySheet中进行参数设定，部分参数可也后期调整；
+二是配置pipeline，选中单个节点，在PropertySheet中进行参数设定，部分参数可也后期调整；
 
-三是运行pipeline，点击主菜单pipeline的start选项。
-
-此外，双击node节点可查看即时输出数据。
+三是运行pipeline，点击主菜单pipeline的start选项，renderer节点会渲染输出。双击节点可查看该节点的即时数据。
 
 ## 依赖库
 
