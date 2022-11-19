@@ -35,14 +35,13 @@ void KmBins::resetLog(kIndex numBins, kReal low, kReal high)
 
 kIndex KmBins::binIndex(kReal x)
 {
-	if (x < range().first || x > range().second)
+	auto pos = std::upper_bound(bins_.cbegin(), bins_.cend(), x);
+	if (pos == bins_.cbegin() || pos == bins_.cend())
 		return -1;
 
-	auto pos = std::lower_bound(bins_.cbegin(), bins_.cend(), x);
-	auto idx = pos - bins_.cbegin();
+	auto idx = std::distance(bins_.cbegin(), pos) - 1;
 
-	if (idx == numBins()) // x == range().second
-		--idx;
+	assert(x >= binLeft(idx) && x < binRight(idx));
 
 	return idx;
 }
