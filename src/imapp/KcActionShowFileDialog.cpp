@@ -39,7 +39,7 @@ void KcActionShowFileDialog::update()
 
 	if (ifd::FileDialog::Instance().IsDone(key_)) {
 		if (ifd::FileDialog::Instance().HasResult()) {
-			result_ = ifd::FileDialog::Instance().GetResult().u8string();
+			result_ = ifd::FileDialog::Instance().GetResult().string();
 			state_ = KeState::k_done;
 		}
 		else {
