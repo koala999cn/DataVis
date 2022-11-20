@@ -33,6 +33,9 @@ public:
 	// 根据输入同步low_ & high_
 	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
 
+	// 重载该函数，以支持动态设定参数
+	void onNewFrame(int frameIdx) final;
+
 private:
 	std::unique_ptr<KgHistC> histc_;
 	int bins_;

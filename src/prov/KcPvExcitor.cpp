@@ -29,8 +29,10 @@ int KcPvExcitor::spec(kIndex outPort) const
 
 kRange KcPvExcitor::range(kIndex outPort, kIndex axis) const
 {
-	return axis == 0 ? kRange(0, plusePerFrame_) :
-		excitor_ ? excitor_->range() : kRange{ 0, 1 };
+	if (axis == 0)
+		return kRange(0, plusePerFrame_);
+		
+	return excitor_ ? excitor_->range() : kRange{ 0, 0 };
 }
 
 
@@ -42,7 +44,7 @@ kReal KcPvExcitor::step(kIndex outPort, kIndex axis) const
 
 kIndex KcPvExcitor::size(kIndex outPort, kIndex axis) const
 {
-	return axis == 0 ? plusePerFrame_ : KvData::k_inf_size;
+	return plusePerFrame_;
 }
 
 

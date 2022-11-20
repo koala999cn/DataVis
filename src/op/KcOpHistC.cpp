@@ -40,7 +40,7 @@ kRange KcOpHistC::range(kIndex outPort, kIndex axis) const
 
 kReal KcOpHistC::step(kIndex outPort, kIndex axis) const
 {
-    if (axis == 0) {
+    if (axis == 0 && low_ != high_) {
         KtSampling<kReal> samp;
         samp.resetn(bins_, low_, high_, 0.5);
         return samp.dx();
@@ -67,6 +67,13 @@ bool KcOpHistC::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode
 {
     assert(histc_ == nullptr);
 
+    if (low_ == high_) {
+        auto r = inputRange_(dim(0));
+        low_ = r.low(), high_ = r.high(); // 进一步同步值域范围
+        if (low_ == high_)
+            return false;
+    }
+
     histc_ = std::make_unique<KgHistC>();
     if (histc_ == nullptr)
         return false;
@@ -78,7 +85,6 @@ bool KcOpHistC::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode
         return false;
     }
 
-    odata_.front().reset();
     samp->reset(0, histc_->range().first, histc_->binWidth(0), 0.5);
     samp->resize(histc_->numBins(), channels(0));
     odata_.front() = samp;
@@ -136,4 +142,19 @@ bool KcOpHistC::onNewLink(KcPortNode* from, KcPortNode* to)
     auto r = inputRange_(dim(0)); // 输入的值域范围
     low_ = r.low(), high_ = r.high();
     return true;
+}
+
+
+void KcOpHistC::onNewFrame(int frameIdx)
+{
+    assert(histc_);
+
+    if (histc_->numBins() != bins_ ||
+        histc_->range().first != low_ ||
+        histc_->range().second != high_) {
+        histc_->resetLinear(bins_, low_, high_);
+        auto samp = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
+        samp->reset(0, histc_->range().first, histc_->binWidth(0), 0.5);
+        samp->resize(histc_->numBins(), channels(0));
+    }
 }
