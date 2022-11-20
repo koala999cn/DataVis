@@ -1,5 +1,4 @@
 ﻿#include "imapp/KsImApp.h"
-#include "imgui.h"
 #include "imapp/KcImNodeEditor.h"
 #include "imapp/KcImActionPanel.h"
 #include "imapp/KcImPropertySheet.h"
@@ -11,25 +10,13 @@
 #include "imapp/KcModuleImNode.h"
 #include "imapp/KcModuleImFileDialog.h"
 #include "imapp/KgPipeline.h"
-#include "prov/KcPvAudioInput.h"
-#include "prov/KcPvExpr.h"
-#include "prov/KcPvExcitor.h"
-#include "render/KcRdPlot1d.h"
-#include "render/KcRdPlot2d.h"
-#include "render/KcRdPlot3d.h"
-#include "render/KcRdAudioPlayer.h"
-#include "op/KcOpSpectrum.h"
-#include "op/KcOpFraming.h"
-#include "op/KcOpHist.h"
-#include "op/KcOpHistC.h"
-#include "op/KcOpSampler.h"
-#include "op/KcOpResampler.h"
-#include "op/KcOpFbank.h"
-#include "op/KcOpFIR.h"
-#include "op/KcOpInterpolater.h"
-#include "op/KcOpWindowing.h"
 #include "plot/KsThemeManager.h"
+#include "imgui.h"
+#include "provider.h"
+#include "operator.h"
+#include "renderer.h"
 
+static void initActions();
 
 int main_(int, char**)
 {
@@ -44,34 +31,16 @@ int main_(int, char**)
     if (!app.initialize())
         return 1;
 
-    auto editor = app.windowManager().registerWindow<KcImNodeEditor>("Node Editor");
-    auto panel = app.windowManager().registerWindow<KcImActionPanel>("Action Panel");
-    auto sheet = app.windowManager().registerWindow<KcImPropertySheet>("Property Sheet");
+    app.windowManager().registerWindow<KcImNodeEditor>("Node Editor");
+    app.windowManager().registerWindow<KcImActionPanel>("Action Panel");
+    app.windowManager().registerWindow<KcImPropertySheet>("Property Sheet");
 
-    panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
-    panel->addAction("Provider", std::make_shared<KcActionNewAudioData>());
-    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExpr>>("Math Expression"));
-    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExcitor>>("Excitor"));
-    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSpectrum>>("Spectrum"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFraming>>("Framing"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHist>>("Hist"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHistC>>("HistC"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSampler>>("Sampler"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpResampler>>("Resampler"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFbank>>("Fbank"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFIR>>("FIR"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpInterpolater>>("Interpolater"));
-    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpWindowing>>("Windowing"));
-    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
-    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot2d>>("Plot2d"));
-    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot3d>>("Plot3d"));
-    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdAudioPlayer>>("Audio Player"));
+    initActions();
 
     // 加载theme
     KsThemeManager::singleton().load("themes/*.json");
 
-    app.listenPerFrame([&editor]() -> bool {
+    app.listenPerFrame([]() -> bool {
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -101,6 +70,34 @@ int main_(int, char**)
     
     return 0;
 }
+
+
+void initActions()
+{
+    auto panel = KsImApp::singleton().windowManager().getWindow<KcImActionPanel>();
+    assert(panel);
+
+    panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
+    panel->addAction("Provider", std::make_shared<KcActionNewAudioData>());
+    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExpr>>("Math Expression"));
+    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExcitor>>("Excitor"));
+    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSpectrum>>("Spectrum"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFraming>>("Framing"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHist>>("Hist"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHistC>>("HistC"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSampler>>("Sampler"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpResampler>>("Resampler"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFbank>>("Fbank"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFIR>>("FIR"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpInterpolater>>("Interpolater"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpWindowing>>("Windowing"));
+    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
+    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot2d>>("Plot2d"));
+    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot3d>>("Plot3d"));
+    panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdAudioPlayer>>("Audio Player"));
+}
+
 
 #ifdef _WIN32
 

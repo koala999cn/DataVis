@@ -1,4 +1,4 @@
 #pragma once
-#include "prov/KcPvData.h"
 #include "prov/KcPvAudioInput.h"
-#include "prov/KcPvExcitationSource.h"
+#include "prov/KcPvExpr.h"
+#include "prov/KcPvExcitor.h"

@@ -42,6 +42,10 @@ public:
 			if (std::dynamic_pointer_cast<T>(i))
 				return std::dynamic_pointer_cast<T>(i);
 
+		for (auto& i : registerQueue_)
+			if (std::dynamic_pointer_cast<T>(i))
+				return std::dynamic_pointer_cast<T>(i);
+		
 		return {};
 	}
 
