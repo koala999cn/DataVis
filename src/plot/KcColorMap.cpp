@@ -112,11 +112,14 @@ void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 	}
 
 	paint->setColor(color4f(1, 0, 0, 1)); // TODO:
+	auto orig = paint->project({ 0, dy, 0 });
+	auto leng = paint->project({ dx, 0, 0 });
+	leng -= orig; // TODO: 实现矢量的投影变换
 	for (unsigned i = 0; i < disc->size(); i++) {
 		auto pt = disc->pointAt(i, 0);
 		auto text = KuStrUtil::toString(pt.back());
 		auto szText = paint->textSize(text.c_str());
-		if (szText.x() <= dx && szText.y() <= dy)
+		if (szText.x() <= leng.x() && szText.y() <= leng.y())
 		    paint->drawText({ pt[0], pt[1], 0 }, text.c_str(), 0);
 	}
 }
