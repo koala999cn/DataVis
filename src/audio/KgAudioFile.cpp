@@ -1,6 +1,5 @@
 ﻿#include "KgAudioFile.h"
-#include "libsndfile/sndfile.h"
-#include "smarc/smarc.h"
+#include "libsndfile/include/sndfile.h"
 #include <memory.h>
 #include <assert.h>
 #include <algorithm>
@@ -556,6 +555,9 @@ bool KgAudioFile::open(const std::string& path, int mode)
         sampleRate_ = si.samplerate;  // 写模式下，内外采样频率可以不一致，封装缺省的resampler实现
     
     if (sampleRate_ != si.samplerate) {
+        return false; // TODO:
+
+#if 0
         assert(resampler_ == nullptr);
 
         const double bandwidth = 0.95;  // bandwidth
@@ -573,6 +575,7 @@ bool KgAudioFile::open(const std::string& path, int mode)
         for(kIndex c = 0; c < channels_; c++)
             pstates_[c] = ::smarc_init_pstate(pfilt); // 各声道分别创建自己的滤波器状态
         resampler_ = pfilt;
+#endif
     }
 
     return true;
@@ -594,6 +597,8 @@ kIndex KgAudioFile::seek(kIndex frames, int where)
 void KgAudioFile::close()
 {
     if (resampler_) {
+        assert(false); // TODO
+#if 0
         // flush resampler remaining values
         std::vector<kReal> outBuf(kPrivate::k_block_size * channels_);
         std::vector<kReal> mono(kPrivate::k_block_size);
@@ -618,6 +623,7 @@ void KgAudioFile::close()
         // release smarc filter
         ::smarc_destroy_pfilter((PFilter*)resampler_);
         resampler_ = nullptr;
+#endif
     }
 
     ::sf_close((SNDFILE*)snd_);
@@ -662,6 +668,8 @@ kIndex KgAudioFile::write_(const kReal* buf, kIndex frames)
     std::vector<kReal> outBuf;
 
     if (resampler_) { // 重采样
+        assert(false); // TODO:
+#if 0
         auto outFrames = ::smarc_get_output_buffer_size((PFilter*)resampler_, frames);
         outBuf.resize(outFrames * channels_);
         buf_ = outBuf.data();
@@ -681,6 +689,7 @@ kIndex KgAudioFile::write_(const kReal* buf, kIndex frames)
                     outBuf[i * channels_ + c] = monoOut[i];
             }
         }
+#endif
     }
 
     return writeDirect_(buf_, frames_);

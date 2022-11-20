@@ -364,6 +364,15 @@
     <ClCompile Include="src\op\KcOpHistC.cpp">
       <Filter>op</Filter>
     </ClCompile>
+    <ClCompile Include="src\audio\KgAudioFile.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imapp\KcActionNewAudioData.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\KcAudio.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -845,6 +854,15 @@
     </ClInclude>
     <ClInclude Include="src\op\KcOpHistC.h">
       <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\KgAudioFile.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcActionNewAudioData.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\KcAudio.h">
+      <Filter>audio</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

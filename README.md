@@ -35,17 +35,19 @@ v0.4版对底层代码作了较大重构，主要有4方面：
 
 | 库名称 | 作用 | 编译 |
 |---|---|---|
-| [ImGui](https://github.com/ocornut/imgui) | 界面显示 | 已内嵌 |
+| [ImGui](https://github.com/ocornut/imgui) | 界面显示 | 内联 |
 | [glfw](https://github.com/glfw/glfw) | ImGui依赖 | 单独编译 |
-| [imnodes](https://github.com/Nelarius/imnodes) | 节点编辑器 | 已内嵌 |
-| [ImFileDialog](https://github.com/dfranx/ImFileDialog) | 文件对话框 | 已内嵌 |
-| [stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h) | ImFileDialog依赖 | 已内嵌 |
+| [imnodes](https://github.com/Nelarius/imnodes) | 节点编辑器 | 内联 |
+| [ImFileDialog](https://github.com/dfranx/ImFileDialog) | 文件对话框 | 内联 |
+| [stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h) | ImFileDialog依赖 | 内联 |
 | [glad](https://github.com/Dav1dde/glad) | ImFileDialog依赖 | 单独编译 |
-| [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 已内嵌 |
-| [blitz](https://github.com/blitzpp/blitz/) | 多维数组支持 | 已内嵌 |
+| [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 内联 |
+| [blitz](https://github.com/blitzpp/blitz/) | 多维数组支持 | 内联 |
 | [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/) | Audio录放 | 单独编译 |
 | [exprtk](http://www.partow.net/programming/exprtk/) | 数学表达式 | 内嵌子项目 |
-| [kfr](https://www.kfr.dev/) | 滤波器支持 | 已内嵌 |
+| [kfr](https://www.kfr.dev/) | 滤波器支持 | 内联 |
+| [kGraph](https://gitee.com/koala999/kgl) | pipeline和模块加载 | 内联 |
+| [libsndfile](http://libsndfile.github.io/libsndfile/) | 音频文件读写 | 内嵌子项目 |
 
 ## 编译
 

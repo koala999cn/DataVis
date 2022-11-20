@@ -4,6 +4,7 @@
 #include "imapp/KcImActionPanel.h"
 #include "imapp/KcImPropertySheet.h"
 #include "imapp/KcActionNewTextData.h"
+#include "imapp/KcActionNewAudioData.h"
 #include "imapp/KtActionInsertNode.h"
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KcModuleImGuiGlfw.h"
@@ -48,6 +49,7 @@ int main_(int, char**)
     auto sheet = app.windowManager().registerWindow<KcImPropertySheet>("Property Sheet");
 
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
+    panel->addAction("Provider", std::make_shared<KcActionNewAudioData>());
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExpr>>("Math Expression"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExcitor>>("Excitor"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));
