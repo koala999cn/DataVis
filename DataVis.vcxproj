@@ -235,7 +235,7 @@
     <ClInclude Include="src\audio\KcAudioDevice.h" />
     <ClInclude Include="src\audio\KcAudioRender.h" />
     <ClInclude Include="src\audio\KgAudioFile.h" />
-    <ClInclude Include="src\base\KtCamera.h" />
+    <ClInclude Include="src\base\KtProjector.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
     <ClInclude Include="src\base\KtLine.h" />

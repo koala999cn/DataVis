@@ -1,12 +1,12 @@
 #pragma once
 #include "plot/KvPaint.h"
-#include "KtCamera.h"
+#include "KtProjector.h"
 #include "imgui.h"
 
 
 class KcImPaint : public KvPaint
 {
-	using camera_type = KtCamera<float_t>;
+	using camera_type = KtProjector<float_t>;
 	
 public:
 

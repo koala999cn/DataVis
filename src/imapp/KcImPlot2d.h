@@ -1,7 +1,7 @@
 #pragma once
 #include "KvImWindow.h"
 #include "plot/KvPlot2d.h"
-#include "KtCamera.h"
+#include "KtProjector.h"
 
 
 class KcImPlot2d : public KvImWindow, public KvPlot2d
@@ -32,5 +32,5 @@ private:
 	void updateImpl_() override;
 
 private:
-	KtCamera<float_t> camera_;
+	KtProjector<float_t> camera_;
 };

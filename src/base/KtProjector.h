@@ -7,7 +7,7 @@
 #include <optional>
 
 
-// 主要在给定视图矩阵、透视矩阵条件下，实现2类功能：
+// 主要在给定视图矩阵、透视矩阵和视口条件下，实现2类功能：
 //   1. 各类坐标系的转换
 //   2. 获取摄像机的参数
 
@@ -21,7 +21,7 @@
 //   7. 屏幕坐标系(screen)，即视窗坐标
 
 template<typename KREAL, bool ROW_MAJOR = true>
-class KtCamera
+class KtProjector
 {
 public:
 	using point2 = KtPoint<KREAL, 2>;
@@ -57,6 +57,7 @@ public:
 	quat getEyeOrient() const;
 
 	// 更新与投影有关的变换矩阵
+	// NOTE: 重置viewMat, projMat和viewport之后，须在调用坐标转换方法之前调用该函数
 	void updateProjectMatrixs();
 
 	vec4 localToWorld(const vec4& pt) const { return modelMats_.empty() ? pt : modelMats_.back() * pt; }
@@ -242,7 +243,7 @@ private:
 
 
 template<typename KREAL, bool ROW_MAJOR>
-void KtCamera<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
+void KtProjector<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
 {
 	vp_ = vp;
 
@@ -274,7 +275,7 @@ void KtCamera<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
 
 
 template<typename KREAL, bool ROW_MAJOR>
-void KtCamera<KREAL, ROW_MAJOR>::updateProjectMatrixs()
+void KtProjector<KREAL, ROW_MAJOR>::updateProjectMatrixs()
 {
 	vpMat_ = projMat_ * viewMat_;
 	vpMatR_.reset();
@@ -285,7 +286,7 @@ void KtCamera<KREAL, ROW_MAJOR>::updateProjectMatrixs()
 
 
 template<typename KREAL, bool ROW_MAJOR>
-void KtCamera<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
+void KtProjector<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
 {
 	mvMat_.reset();
 	mvpMat_.reset();
@@ -296,14 +297,14 @@ void KtCamera<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
 
 
 template<typename KREAL, bool ROW_MAJOR>
-KtVector3<KREAL> KtCamera<KREAL, ROW_MAJOR>::getEyePos() const
+KtVector3<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyePos() const
 {
 	return viewMat_.getTranslation();
 }
 
 
 template<typename KREAL, bool ROW_MAJOR>
-KtQuaternion<KREAL> KtCamera<KREAL, ROW_MAJOR>::getEyeOrient() const
+KtQuaternion<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyeOrient() const
 {
 	return viewMat_.getRotation(); // TODO:
 }

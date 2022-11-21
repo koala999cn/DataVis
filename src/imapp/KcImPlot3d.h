@@ -1,7 +1,7 @@
 #pragma once
 #include "KvImWindow.h"
 #include "plot/KvPlot3d.h"
-#include "KtCamera.h"
+#include "KtProjector.h"
 #include "KtTrackballController.h"
 
 
@@ -51,7 +51,7 @@ private:
 	void handleMouseInput_();
 
 private:
-	KtCamera<float_t> camera_;
+	KtProjector<float_t> camera_;
 	
 	KtTrackballController<float_t> trackball_; // ÓÃÓÚ²Ù¿Øorient_
 };
