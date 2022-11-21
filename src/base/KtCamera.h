@@ -71,7 +71,7 @@ public:
 	vec4 worldToClip(const vec4& pt) const { return vpMat_ * pt; }
 	vec4 worldToNdc(const vec4& pt) const { return clipToNdc(worldToClip(pt)); }
 	vec4 worldToViewport(const vec4& pt) const { return clipToViewport(worldToClip(pt)); }
-	vec4 worldToScreen(const vec4& pt) const { return clipToScreen(worldToClip(pt)); }
+	vec4 worldToScreen(const vec4& pt) const { return (wsMat_* pt).homogenize(); }
 
 	vec4 eyeToLocal(const vec4& pt) const { return getMvMatR_() * pt; }
 	vec4 eyeToWorld(const vec4& pt) const { return getViewMatR_() * pt; }
@@ -235,6 +235,9 @@ private:
 	// 定义viewport的水平和垂直方向
 	bool invVpX_{ false }; // false表示从左至右为正向
 	bool invVpY_{ true }; // true表示从上至下为正向，兼容显示屏
+
+
+	mat4 wsMat_; // 从world到screen的转换矩阵，进一步将二次矩阵运算压减到一次
 };
 
 
@@ -266,6 +269,7 @@ void KtCamera<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
 	vsMat_.m13() += 0.5;
 
 	nsMat_ = vsMat_ * nvMat_;
+	wsMat_ = nsMat_ * vpMat_;
 }
 
 
@@ -275,6 +279,8 @@ void KtCamera<KREAL, ROW_MAJOR>::updateProjectMatrixs()
 	vpMat_ = projMat_ * viewMat_;
 	vpMatR_.reset();
 	resetModelRelatedMats_();
+
+	wsMat_ = nsMat_ * vpMat_;
 }
 
 
