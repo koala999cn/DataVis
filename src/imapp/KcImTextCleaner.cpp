@@ -201,7 +201,8 @@ void KcImTextCleaner::clean_()
             row.resize(cr.second, 0);
     }
 
-    assert(cleanData_.size() == rows_);
+    // 若有"ignore模式"造成的空行，该断言不成立
+    // assert(cleanData_.size() == rows_);
 }
 
 

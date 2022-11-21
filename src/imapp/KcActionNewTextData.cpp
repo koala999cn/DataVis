@@ -10,7 +10,7 @@ KcActionNewTextData::KcActionNewTextData()
 	auto fileDialog = std::make_shared<KcActionShowFileDialog>(
 		KcActionShowFileDialog::KeType::k_open,
 		"Select text data file",
-		"text file (*.txt;*.cvs){.txt,.cvs},.*");
+		"text file (*.txt;*.csv){.txt,.csv},.*");
 
 	auto dataClean = std::make_shared<KcActionTextLoadAndClean>(
 		fileDialog->result()
