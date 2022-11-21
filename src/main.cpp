@@ -17,6 +17,7 @@
 #include "renderer.h"
 
 static void initActions();
+static bool showMainMenu();
 
 int main_(int, char**)
 {
@@ -40,32 +41,8 @@ int main_(int, char**)
     // 加载theme
     KsThemeManager::singleton().load("themes/*.json");
 
-    app.listenPerFrame([]() -> bool {
-
-        if (ImGui::BeginMainMenuBar()) {
-
-            KsImApp::singleton().windowManager().showMenu("View");
-            auto& pipe = KsImApp::singleton().pipeline();
-
-            if (ImGui::BeginMenu("Pileline")) {
-
-                if (ImGui::MenuItem("Start", nullptr, nullptr, !pipe.running()))
-                    pipe.start();
-
-                if (ImGui::MenuItem("Stop", nullptr, nullptr, pipe.running()))
-                    pipe.stop();
-
-                ImGui::EndMenu();
-            }
-            
-            ImGui::EndMainMenuBar();
-        }
-
-        return true;
-        });
-
+    app.listenPerFrame(showMainMenu);
     app.run();
-
     app.deinitialize();
     
     return 0;
@@ -96,6 +73,31 @@ void initActions()
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot2d>>("Plot2d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot3d>>("Plot3d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdAudioPlayer>>("Audio Player"));
+}
+
+
+bool showMainMenu()
+{
+    if (ImGui::BeginMainMenuBar()) {
+
+        KsImApp::singleton().windowManager().showMenu("View");
+        auto& pipe = KsImApp::singleton().pipeline();
+
+        if (ImGui::BeginMenu("Pileline")) {
+
+            if (ImGui::MenuItem("Start", nullptr, nullptr, !pipe.running()))
+                pipe.start();
+
+            if (ImGui::MenuItem("Stop", nullptr, nullptr, pipe.running()))
+                pipe.stop();
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+
+    return true;
 }
 
 
