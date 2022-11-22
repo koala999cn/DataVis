@@ -3,6 +3,7 @@
 #include "plot/KcColorMap.h"
 #include "plot/KcBubble2d.h"
 #include "prov/KvDataProvider.h"
+#include "imgui.h"
 
 
 KcRdPlot2d::KcRdPlot2d()
@@ -75,8 +76,8 @@ void KcRdPlot2d::onInput(KcPortNode* outPort, unsigned inPort)
             if (plt) {
                 auto d = plt->data();
                 auto r = d->valueRange();
-                plt->valueLower() = r.low();
-                plt->valueUpper() = r.high();
+                plt->mapLower() = r.low();
+                plt->mapUpper() = r.high();
             }
         }
     }
@@ -90,4 +91,20 @@ bool KcRdPlot2d::permitInput(int dataSpec, unsigned inPort) const
     KpDataSpec sp(dataSpec);
     return sp.dim == 2 && 
         (sp.type == k_sampled || sp.type == k_continued || sp.type == k_array);
+}
+
+
+void KcRdPlot2d::showPlottableSpecificProperty_(unsigned idx)
+{
+    auto plt = plot_->plottableAt(idx);
+    if (plottableType_(plt) == 0) { // color-map
+        auto cmap = dynamic_cast<KcColorMap*>(plt);
+        ImGui::DragFloatRange2("Map Range", &cmap->mapLower(), &cmap->mapUpper());
+        ImGui::Checkbox("Show Border", &cmap->showBorder());
+        ImGui::Checkbox("Show Text", &cmap->showText());
+        if (cmap->showText()) {
+            ImGui::ColorEdit4("Text Color", cmap->textColor());
+            ImGui::ShowFontSelector("Font");
+        }
+    }
 }

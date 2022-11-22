@@ -3,6 +3,8 @@
 #include "KtGradient.h"
 
 
+// ºÊ»›∆◊Õº∫Õ»»Õº
+
 class KcColorMap : public KvPlottable
 {
 	using super_ = KvPlottable;
@@ -27,11 +29,20 @@ public:
 
 	aabb_type boundingBox() const override;
 
-	float valueLower() const { return valLower_; }
-	float& valueLower() { return valLower_; }
+	float mapLower() const { return mapLower_; }
+	float& mapLower() { return mapLower_; }
 
-	float valueUpper() const { return valUpper_; }
-	float& valueUpper() { return valUpper_; }
+	float mapUpper() const { return mapUpper_; }
+	float& mapUpper() { return mapUpper_; }
+
+	bool showText() const { return showText_; }
+	bool& showText() { return showText_; }
+
+	color4f textColor() const { return clrText_; }
+	color4f& textColor() { return clrText_; }
+
+	bool showBorder() const { return showBorder_; }
+	bool& showBorder() { return showBorder_; }
 
 protected:
 
@@ -40,8 +51,13 @@ protected:
 	color4f mapValueToColor_(float_t val) const;
 
 private:
-	float valLower_{ 0 }, valUpper_{ 1 }; // color mapµƒ÷µ”Ú∑∂Œß
+	float mapLower_{ 0 }, mapUpper_{ 1 }; // color mapµƒ÷µ”Ú∑∂Œß
 
 	KtGradient<float_t, color4f> mapper_;
-	color4f border_{ 0 };
+
+	bool showBorder_{ false };
+	color4f clrBorder_{ 0 };
+
+	bool showText_{ false };
+	color4f clrText_{ 1, 0, 0, 1 };
 };

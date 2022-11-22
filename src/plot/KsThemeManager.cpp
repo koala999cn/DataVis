@@ -446,7 +446,7 @@ void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 		return;
 
 	if (minors.empty())
-		minors.push_back(color4f(0));
+		minors.push_back(color4f(0, 0, 0, 1));
 
 	// 统计该plot需要多少个主色调
 	unsigned majorsNeeded(0);

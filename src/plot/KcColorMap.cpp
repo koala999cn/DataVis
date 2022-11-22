@@ -51,13 +51,13 @@ void KcColorMap::setMajorColors(const std::vector<color4f>& majors)
 
 color4f KcColorMap::minorColor() const
 {
-	return border_;
+	return clrBorder_;
 }
 
 
 void KcColorMap::setMinorColor(const color4f& minor)
 {
-	border_ = minor;
+	clrBorder_ = minor;
 }
 
 
@@ -111,21 +111,32 @@ void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 			{ pt[0] + half_dx, pt[1] + hfalf_dy, 0 });
 	}
 
-	paint->setColor(color4f(1, 0, 0, 1)); // TODO:
-	auto leng = paint->projectv({ dx, -dy, 0 });
-	for (unsigned i = 0; i < disc->size(); i++) {
-		auto pt = disc->pointAt(i, 0);
-		auto text = KuStrUtil::toString(pt.back());
-		auto szText = paint->textSize(text.c_str());
-		if (szText.x() <= leng.x() && szText.y() <= leng.y())
-		    paint->drawText({ pt[0], pt[1], 0 }, text.c_str(), 0);
+	if (showBorder_ && clrBorder_.a() != 0) {
+		paint->setColor(clrBorder_);
+		for (unsigned i = 0; i < disc->size(); i++) {
+			auto pt = disc->pointAt(i, 0);
+			paint->drawRect({ pt[0] - half_dx, pt[1] - hfalf_dy, 0 },
+				{ pt[0] + half_dx, pt[1] + hfalf_dy, 0 });
+		}
+	}
+
+	if (showText_ && clrText_.a() != 0) {
+		paint->setColor(clrText_);
+		auto leng = paint->projectv({ dx, -dy, 0 });
+		for (unsigned i = 0; i < disc->size(); i++) {
+			auto pt = disc->pointAt(i, 0);
+			auto text = KuStrUtil::toString(pt.back());
+			auto szText = paint->textSize(text.c_str());
+			if (szText.x() <= leng.x() && szText.y() <= leng.y())
+				paint->drawText({ pt[0], pt[1], 0 }, text.c_str(), 0);
+		}
 	}
 }
 
 
 color4f KcColorMap::mapValueToColor_(float_t val) const
 {
-	auto factor = KtuMath<float_t>::remap<true>(val, valLower_, valUpper_);
+	auto factor = KtuMath<float_t>::remap<true>(val, mapLower_, mapUpper_);
 	return mapper_.getAt(factor);
 }
 
