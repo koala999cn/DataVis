@@ -49,10 +49,9 @@ void KcImPaint::popClipRect()
 }
 
 
-KcImPaint::point2 KcImPaint::project(const point3& worldPt) const
+KcImPaint::point4 KcImPaint::project(const point4& worldPt) const
 {
-	auto scrPt = camera_.worldToScreen(worldPt);
-	return { scrPt.x(), scrPt.y() };
+	return camera_.worldToScreen(worldPt);
 }
 
 
@@ -239,7 +238,8 @@ void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 
-	auto r = textRect(project(anchor), text, align);
+	auto ap = projectp(anchor);
+	auto r = textRect({ ap.x(), ap.y() }, text, align);
 
 	drawList->AddText(ImVec2(r.lower().x(), r.lower().y()), color_(), text);
 }

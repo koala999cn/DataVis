@@ -31,6 +31,7 @@ public:
 	using float_t = typename KvRenderable::float_t;
 	using point2 = KtPoint<float_t, 2>;
 	using point3 = KtPoint<float_t, 3>;
+	using point4 = KtPoint<float_t, 4>;
 	using rect = KtAABB<float_t, 2>;
 	using point_getter = std::function<point3(unsigned)>;
 	using geom_ptr = std::shared_ptr<KtGeometry<float_t, unsigned>>;
@@ -45,7 +46,19 @@ public:
 	virtual void popClipRect() = 0;
 
 	// project world point to screen point
-	virtual point2 project(const point3& worldPt) const = 0;
+	virtual point4 project(const point4& pt) const = 0;
+
+	// 点投影
+	point3 projectp(const point3& pt) const {
+		auto r = project(point4(pt.x(), pt.y(), pt.z(), 1));
+		return { r.x(), r.y(), r.z() };
+	}
+
+	// 矢量投影
+	point3 projectv(const point3& v) const {
+		auto r = project(point4(v.x(), v.y(), v.z(), 0));
+		return { r.x(), r.y(), r.z() };
+	}
 
 	virtual void setColor(const color_t& clr) = 0;
 

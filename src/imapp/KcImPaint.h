@@ -21,7 +21,7 @@ public:
 	void pushClipRect(const rect& cr) const override;
 	void popClipRect() override;
 
-	point2 project(const point3& worldPt) const override;
+	point4 project(const point4& worldPt) const override;
 
 	void setColor(const color_t& clr) override;
 

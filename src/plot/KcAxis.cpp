@@ -71,13 +71,12 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 	const auto& ticks = scale->ticks();
 
 	assert(KtuMath<float_t>::almostEqual(tickOrient().length(), 1));
-	auto pt0 = paint->project(point3(0));
-	auto pt1 = paint->project(tickOrient_);
-	auto pt2 = paint->project(labelOrient_);
 
 	// 计算屏幕坐标1个像素尺度，相当于世界坐标多少个单位长度
-	float_t tickLenPerPixel = 1 / (pt1 - pt0).length();
-	float_t labelPaddingPerPixel = 1 / (pt2 - pt0).length();
+	auto tl = paint->projectv(tickOrient_);
+	auto ll = paint->projectv(labelOrient_);
+	float_t tickLenPerPixel = 1 / tl.length();
+	float_t labelPaddingPerPixel = 1 / ll.length();
 
 	paint->apply(tickCxt_);
 
