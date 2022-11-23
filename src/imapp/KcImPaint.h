@@ -18,8 +18,14 @@ public:
 	rect viewport() const override;
 	void setViewport(const rect& vp) override;
 
-	void pushClipRect(const rect& cr) const override;
+	void pushClipRect(const rect& cr) override;
 	void popClipRect() override;
+
+	void pushLocal(const mat4& mat) override;
+	void popLocal() override;
+
+	void pushCoord(KeCoordType type) override;
+	void popCoord() override;
 
 	point4 project(const point4& worldPt) const override;
 
@@ -52,7 +58,7 @@ public:
 	point2 textSize(const char* text) const override;
 
 private:
-	ImVec2 world2Pos_(const point3& pt, bool round = false) const;
+	ImVec2 project_(const point3& pt, bool round = false) const;
 
 	ImColor color_() const {
 		return ImColor(clr_.r(), clr_.g(), clr_.b(), clr_.a());
@@ -74,4 +80,6 @@ private:
 	float_t pointSize_{ 2 };
 
 	KtMatrix4<float_t> vp_; // ×ø±ê±ä»»¾ØÕó
+
+	std::vector<int> coords_; // ×ø±êÏµ¶ÑÕ»
 };

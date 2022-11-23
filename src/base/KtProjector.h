@@ -114,7 +114,7 @@ private:
 
 	void resetModelRelatedMats_();
 
-	auto& getMvMat_() const {
+	const mat4& getMvMat_() const {
 		if (modelMats_.empty())
 			return viewMat_;
 
@@ -123,7 +123,7 @@ private:
 		return mvMat_.value();
 	}
 
-	auto& getMvpMat_() const {
+	const mat4& getMvpMat_() const {
 		if (modelMats_.empty())
 			return vpMat_;
 
@@ -132,13 +132,13 @@ private:
 		return mvpMat_.value();
 	}
 
-	auto& getMMatR_() const {
+	const mat4& getMMatR_() const {
 		if (!mMatR_)
 			mMatR_ = modelMats_.back().inverse();
 		return mMatR_.value();
 	}
 
-	auto& getMvMatR_() const {
+	const mat4& getMvMatR_() const {
 		if (modelMats_.empty())
 			return getViewMatR_();
 
@@ -147,7 +147,7 @@ private:
 		return mvMatR_.value();
 	}
 
-	auto& getMvpMatR_() const {
+	const mat4& getMvpMatR_() const {
 		if (modelMats_.empty())
 			return getVpMatR_();
 
@@ -156,31 +156,31 @@ private:
 		return mvpMatR_.value();
 	}
 
-	auto& getVpMatR_() const {
+	const mat4& getVpMatR_() const {
 		if (!vpMatR_)
 			vpMatR_ = vpMat_.inverse();
 		return vpMatR_.value();
 	}
 
-	auto& getViewMatR_() const {
+	const mat4& getViewMatR_() const {
 		if (!viewMatR_)
 			viewMatR_ = viewMat_.inverse();
 		return viewMatR_.value();
 	}
 
-	auto& getProjMatR_() const {
+	const mat4& getProjMatR_() const {
 		if (!projMatR_)
 			projMatR_ = projMat_.inverse();
 		return projMatR_.value();
 	}
 
-	auto& getVsMatR_() const {
+	const mat4& getVsMatR_() const {
 		if (!vsMatR_)
 			vsMatR_ = vsMat_.inverse();
 		return vsMatR_.value();
 	}
 
-	auto& getNsMatR_() const {
+	const mat4& getNsMatR_() const {
 		if (!nsMatR_)
 			nsMatR_ = nsMat_.inverse();
 		return nsMatR_.value();

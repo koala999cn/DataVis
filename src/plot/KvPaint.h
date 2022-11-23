@@ -4,6 +4,8 @@
 #include "KvRenderable.h"
 #include "KpContext.h"
 #include "KtGeometry.h"
+#include "KtMatrix4.h"
+#include "KtQuaternion.h"
 
 
 enum KeAlignment
@@ -33,6 +35,7 @@ public:
 	using point3 = KtPoint<float_t, 3>;
 	using point4 = KtPoint<float_t, 4>;
 	using rect = KtAABB<float_t, 2>;
+	using mat4 = KtMatrix4<float_t>;
 	using point_getter = std::function<point3(unsigned)>;
 	using geom_ptr = std::shared_ptr<KtGeometry<float_t, unsigned>>;
 
@@ -42,8 +45,23 @@ public:
 	virtual rect viewport() const = 0;
 	virtual void setViewport(const rect& vp) = 0;
 
-	virtual void pushClipRect(const rect& cr) const = 0;
+	virtual void pushClipRect(const rect& cr) = 0;
 	virtual void popClipRect() = 0;
+
+	// 改变model变换矩阵，即局部坐标系
+	virtual void pushLocal(const mat4& mat) = 0;
+	virtual void popLocal() = 0;
+
+	enum KeCoordType
+	{
+		k_world, // 世界坐标系，即绘图坐标系
+		k_viewport, // 各轴规范化为[0, 1]的标准坐标系
+		k_screen // 屏幕坐标系
+	};
+
+	// 改变当前坐标系类型
+	virtual void pushCoord(KeCoordType type) = 0;
+	virtual void popCoord() = 0;
 
 	// project world point to screen point
 	virtual point4 project(const point4& pt) const = 0;
