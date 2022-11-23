@@ -373,6 +373,9 @@
     <ClCompile Include="src\audio\KcAudio.cpp">
       <Filter>audio</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcLegend.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -863,6 +866,9 @@
     </ClInclude>
     <ClInclude Include="src\audio\KcAudio.h">
       <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcLegend.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

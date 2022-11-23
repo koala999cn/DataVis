@@ -3,9 +3,12 @@
 #include <vector>
 #include "KvPlottable.h"
 #include "KpContext.h"
+#include "KcLegend.h"
+
 
 class KvPaint; // 用来执行具体的plot绘制
 class KvCoord;
+
 
 // plot的最底层抽象接口
 
@@ -54,6 +57,7 @@ protected:
 protected:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
 	std::shared_ptr<KvCoord> coord_; // 由用户创建并传入
+	std::unique_ptr<KcLegend> legend_; // 内部创建并管理
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理
 
 	KpBrush bkgnd_;
