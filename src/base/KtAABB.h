@@ -13,10 +13,11 @@ which is the maxima of all 2/3 axes.
 template<typename T, int DIM = 3>
 class KtAABB
 {
-	using point = KtPoint<T, DIM>;
 	using kMath = KtuMath<T>;
 
 public:
+
+	using point_t = KtPoint<T, DIM>;
 
 	/*
 		1-----2
@@ -46,7 +47,7 @@ public:
 	KtAABB(const KtAABB& box)
 		: lower_(box.lower_), upper_(box.upper_) {}
 
-	KtAABB(const point& lower, const point& upper) {
+	KtAABB(const point_t& lower, const point_t& upper) {
 		lower_ = lower_.floor(lower, upper);
 		upper_ = upper_.ceil(lower, upper);
 	}
@@ -62,27 +63,27 @@ public:
 
 	/** Gets the minimum corner of the box.
 	*/
-	const point& lower() const { return lower_; }
+	const point_t& lower() const { return lower_; }
 
 	/** Gets a modifiable version of the minimum
 	corner of the box.
 	*/
-	point& lower() { return lower_; }
+	point_t& lower() { return lower_; }
 
 
 	/** Gets the maximum corner of the box.
 	*/
-	const point& upper() const { return upper_; }
+	const point_t& upper() const { return upper_; }
 
 	/** Gets a modifiable version of the maximum
 	corner of the box.
 	*/
-	point& upper() { return upper_; }
+	point_t& upper() { return upper_; }
 
 
 	/** Sets both minimum and maximum extents at once.
 	*/
-	void setExtents(const point& lower, const point& upper) {
+	void setExtents(const point_t& lower, const point_t& upper) {
 		assert(lower.leAll(upper));
 		lower_ = lower, upper_ = upper;
 	}
@@ -90,13 +91,13 @@ public:
 
 	/** gets the position of one of the corners
 	*/
-	point corner(KeCorner id) const;
+	point_t corner(KeCorner id) const;
 
 	/** Returns an array of 4/8 corner points, useful for
 	collision vs. non-aligned objects.
 	*/
-	std::vector<point> allCorners() const {
-		std::vector<point> pts(4 * (DIM - 1));
+	std::vector<point_t> allCorners() const {
+		std::vector<point_t> pts(4 * (DIM - 1));
 		for (int i = 0; i < pts.size(); i++)
 			pts[i] = corner(KeCorner(i));
 		return pts;
@@ -104,13 +105,13 @@ public:
 
 
 	/// Gets the centre of the box
-	point center() const {
-		return isNull() ? point(0) : (lower_ + upper_) / 2;
+	point_t center() const {
+		return isNull() ? point_t(0) : (lower_ + upper_) / 2;
 	}
 
 	/// Gets the size of the box
-	point size() const {
-		return isNull() ? point(0) : upper_ - lower_;
+	point_t size() const {
+		return isNull() ? point_t(0) : upper_ - lower_;
 	}
 
 	/// Calculate the volume of this box
@@ -128,7 +129,7 @@ public:
 	/** Sets the box to a 'null' value i.e. not a box.
 	*/
 	void setNull() {
-		lower_ = upper_ = point(kMath::nan);
+		lower_ = upper_ = point_t(kMath::nan);
 	}
 
 	/** Returns true if the box is null i.e. empty.
@@ -140,7 +141,7 @@ public:
 	/** Sets the box to 'infinite'
 	*/
 	void setInf() {
-		setExtents(point(-kMath::inf), point(kMath::inf));
+		setExtents(point_t(-kMath::inf), point_t(kMath::inf));
 	}
 
 	/** Returns true if the box is infinite.
@@ -169,26 +170,47 @@ public:
 
 	/** Tests whether the given point contained by this box.
 	*/
-	bool contains(const point& v) const;
+	bool contains(const point_t& v) const;
 
 	/** Tests whether another box contained by this box.
 	*/
 	bool contains(const KtAABB& rhs) const;
 
 	/** Scales the AABB by the vector given. */
-	KtAABB& scale(const point& v) {
+	KtAABB& scale(const point_t& v) {
 		// NB assumes centered on origin
 		lower_ *= v, upper_ *= v;
 		return *this;
 	}
 
-	KtAABB& shrink(const point& lw, const point& up) {
+	KtAABB& scale(T v) {
+		// NB assumes centered on origin
+		lower_ *= v, upper_ *= v;
+		return *this;
+	}
+
+	KtAABB& shrink(const point_t& lw, const point_t& up) {
 		lower_ += lw, upper_ -= up;
 		return *this;
 	}
 
-	KtAABB& expand(const point& lw, const point& up) {
+	KtAABB& shrink(const KtAABB& d) {
+		shrink(d.lower(), d.upper());
+		return *this;
+	}
+
+	KtAABB& expand(const point_t& lw, const point_t& up) {
 		lower_ -= lw, upper_ += up;
+		return *this;
+	}
+
+	KtAABB& expand(const KtAABB& d) {
+		expand(d.lower(), d.upper());
+		return *this;
+	}
+
+	KtAABB& shift(const point_t& d) {
+		lower_ += d, upper_ += d;
 		return *this;
 	}
 
@@ -199,7 +221,7 @@ public:
 
 	/** Extends the box to encompass the specified point (if needed).
 	*/
-	KtAABB& merge(const point& pt);
+	KtAABB& merge(const point_t& pt);
 
 	/// Calculate the area of intersection of this box and another
 	KtAABB intersection(const KtAABB& rhs) const;
@@ -208,14 +230,14 @@ public:
 	bool isIntersects(const KtAABB& rhs) const;
 
 private:
-	KtPoint<T, DIM> lower_, upper_;
+	point_t lower_, upper_;
 };
 
 template<typename T, int DIM>
-KtPoint<T, DIM> KtAABB<T, DIM>::corner(KeCorner id) const
+typename KtAABB<T, DIM>::point_t KtAABB<T, DIM>::corner(KeCorner id) const
 {
 	if (isNull())
-		return point(0);
+		return point_t(0);
 
 	switch (id)
 	{
@@ -265,12 +287,12 @@ KtPoint<T, DIM> KtAABB<T, DIM>::corner(KeCorner id) const
 		assert(false);
 	}
 
-	return point(0); // make compiler happy
+	return point_t(0); // make compiler happy
 }
 
 
 template<typename T, int DIM>
-bool KtAABB<T, DIM>::contains(const point& v) const
+bool KtAABB<T, DIM>::contains(const point_t& v) const
 {
 	if (isNull())
 		return false;
@@ -293,13 +315,13 @@ bool KtAABB<T, DIM>::contains(const KtAABB& rhs) const
 }
 
 template<typename T, int DIM>
-KtAABB<T, DIM>& KtAABB<T, DIM>::merge(const point& pt)
+KtAABB<T, DIM>& KtAABB<T, DIM>::merge(const point_t& pt)
 {
 	if (isNull()) // if null, use this point
 		setExtents(pt, pt);
 	else if (isFinite()) {
-		auto lower = point::floor(lower_, pt);
-		auto upper = point::ceil(upper_, pt);
+		auto lower = point_t::floor(lower_, pt);
+		auto upper = point_t::ceil(upper_, pt);
 		setExtents(lower, upper);
 	}
 
@@ -320,8 +342,8 @@ KtAABB<T, DIM>& KtAABB<T, DIM>::merge(const KtAABB& rhs)
 		*this = rhs;
 	// Otherwise merge
 	else {
-		auto lower = point::floor(lower_, rhs.lower_);
-		auto upper = point::ceil(upper_, rhs.upper_);
+		auto lower = point_t::floor(lower_, rhs.lower_);
+		auto upper = point_t::ceil(upper_, rhs.upper_);
 		setExtents(lower, upper);
 	}
 
@@ -338,8 +360,8 @@ KtAABB<T, DIM> KtAABB<T, DIM>::intersection(const KtAABB& rhs) const
 	else if (rhs.isInf())
 		return *this;
 
-	auto lower = point::ceil(lower_, rhs.lower_);
-	auto upper = point::floor(upper_, rhs.upper_);
+	auto lower = point_t::ceil(lower_, rhs.lower_);
+	auto upper = point_t::floor(upper_, rhs.upper_);
 
 	// Check intersection isn't null
 	if (lower.leAll(upper))
