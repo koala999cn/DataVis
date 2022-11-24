@@ -1,6 +1,7 @@
 #include "KcLegend.h"
 #include "KvPlottable.h"
 #include "KvPaint.h"
+#include "KuAlignment.h"
 
 
 KcLegend::KcLegend()
@@ -130,54 +131,4 @@ KcLegend::aabb_type KcLegend::boundingBox() const
 {
     assert(false); // TODO:
     return {};
-}
-
-
-bool KcLegend::outter() const
-{
-    return align_ & (k_align_vert_first | k_align_horz_first);
-}
-
-
-KcLegend::point2i KcLegend::location(KvPaint* paint, const rect& vp) const
-{
-    auto sz = calcSize(paint);
-
-    point2i loc(vp.center().x() - sz.x() / 2, vp.center().y() - sz.y() / 2);
-
-    if (align_ & k_align_left)
-        loc.x() = vp.lower().x();
-    else if (align_ & k_align_right)
-        loc.x() = vp.upper().x() - sz.x();
-
-    if (align_ & k_align_top)
-        loc.y() = vp.lower().y();
-    else if (align_ & k_align_bottom)
-        loc.y() = vp.upper().y() - sz.y();
-
-    loc = loc.ceil(loc, vp.lower());
-
-    // 若位于外部，则进一步调整loc
-    if (align_ & k_align_horz_first) { // 外侧，左右优先
-        if (align_ & k_align_left)
-            loc.x() -= sz.x();
-        else if (align_ & k_align_right)
-            loc.x() += sz.x();
-        else if (align_ & k_align_top)
-            loc.y() -= sz.y();
-        else if (align_ & k_align_bottom)
-            loc.y() += sz.y();
-    }
-    else if (align_ & k_align_vert_first) { // 外侧，上下优先
-        if (align_ & k_align_top)
-            loc.y() -= sz.y();
-        else if (align_ & k_align_bottom)
-            loc.y() += sz.y();
-        else if (align_ & k_align_left)
-            loc.x() -= sz.x();
-        else if (align_ & k_align_right)
-            loc.x() += sz.x();
-    }
-
-    return loc;
 }

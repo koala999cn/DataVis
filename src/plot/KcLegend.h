@@ -43,12 +43,6 @@ public:
 	int alignment() const { return align_; }
 	void setAlignment(int align) { align_ = align; }
 
-	// 根据alignment判断legend是否位于plot的外部
-	bool outter() const;
-
-	// 给定视图vp，计算legend的lower点位置(屏幕坐标)
-	point2i location(KvPaint*, const rect& vp) const;
-
 private:
 
 	// 计算items分布的行列数

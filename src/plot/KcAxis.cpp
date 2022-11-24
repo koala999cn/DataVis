@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "KcLinearScaler.h"
 #include "KvPaint.h"
+#include "KuAlignment.h"
 #include "KtuMath.h"
 #include "KtLine.h"
 

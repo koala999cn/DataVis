@@ -59,13 +59,10 @@ public:
 
 	void removeAllPlottables();
 
+
 protected:
 	virtual void autoProject_() = 0;
 
-private:
-
-	// 给定画布边框rcCanvas，计算并返回坐标系的边框区域
-	rect calcCoordLayout_(const rect& rcCanvas);
 
 protected:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入

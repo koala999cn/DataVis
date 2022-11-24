@@ -13,7 +13,7 @@
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
 #include "plot/KvCoord.h"
-#include "plot/KvPaint.h" // for k_align_xxx flags
+#include "plot/KuAlignment.h" // for k_align_xxx flags
 #include "KvNode.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
@@ -352,28 +352,11 @@ void KvRdPlot::showCoordProperty_()
 
 namespace kPrivate
 {
-	static int toggleSide(int align)
-	{
-		if (align & (k_align_horz_first | k_align_vert_first))
-			align &= ~(k_align_horz_first | k_align_vert_first);
-		else 
-		    align |= k_align_horz_first;	
-
-		return align;
-	}
-
-	static int toggleHorzFirst(int align)
-	{
-		auto outside = align & (k_align_horz_first | k_align_vert_first);
-		return outside ? align ^ (k_align_horz_first | k_align_vert_first) : align;
-	}
-
 	static int switchAlign(int oldAlign, int newAlign)
 	{
-		auto outside = oldAlign & (k_align_horz_first | k_align_vert_first);
-		bool repeat = (oldAlign & ~(k_align_horz_first | k_align_vert_first)) == newAlign;
-
-		return repeat ? toggleHorzFirst(oldAlign) : newAlign | outside;
+		return KuAlignment::sameLocation(oldAlign, newAlign) ? 
+			KuAlignment::toggleHorzFirst(oldAlign) 
+			: newAlign | KuAlignment::side(oldAlign);
 	}
 }
 
@@ -391,8 +374,8 @@ void KvRdPlot::showLegendProperty_()
 
 		ImVec2 itemSize(ImGui::CalcTextSize("Out").x * 2, 0);
 
-		bool outside = plot_->legend().outter();
 		auto align = plot_->legend().alignment();
+		bool outside = KuAlignment::outside(align);
 		int spacing = 12;
 
 		if (ImGui::Button(align & k_align_vert_first ? "NW" : "WN", itemSize))
@@ -411,7 +394,7 @@ void KvRdPlot::showLegendProperty_()
 		ImGui::SameLine(0, spacing);
 
 		if (ImGui::Button(outside ? "Out" : "In", itemSize)) 
-			plot_->legend().setAlignment(toggleSide(align));
+			plot_->legend().setAlignment(KuAlignment::toggleSide(align));
 		ImGui::SameLine(0, spacing);
 
 		if (ImGui::Button("E", itemSize))

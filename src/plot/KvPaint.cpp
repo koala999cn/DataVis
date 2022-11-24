@@ -1,4 +1,5 @@
 #include "KvPaint.h"
+#include "KuAlignment.h"
 
 
 void KvPaint::drawPoints(const point3 pts[], unsigned count)

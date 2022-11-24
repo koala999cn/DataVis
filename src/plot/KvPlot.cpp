@@ -1,6 +1,7 @@
 #include "KvPlot.h"
 #include "KvCoord.h"
 #include "KvPaint.h"
+#include "KuAlignment.h"
 
 
 KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
@@ -65,38 +66,6 @@ void KvPlot::removeAllPlottables()
 }
 
 
-KvPlot::rect KvPlot::calcCoordLayout_(const rect& rcPlot)
-{
-	auto rcCoord = rcPlot;
-		
-	int align = legend_->alignment();
-	auto size = legend_->calcSize(paint_.get());
-
-	if (align & k_align_horz_first) {
-		if (align & k_align_left)
-			rcCoord.lower().x() += size.x();
-		else if (align & k_align_right)
-			rcCoord.upper().x() -= size.x();
-		else if (align & k_align_top)
-			rcCoord.lower().y() += size.y();
-		else if (align & k_align_bottom)
-			rcCoord.upper().y() -= size.y();
-	}
-	else if (align & k_align_vert_first) {
-		if (align & k_align_top)
-			rcCoord.lower().y() += size.y();
-		else if (align & k_align_bottom)
-			rcCoord.upper().y() -= size.y();
-		else if (align & k_align_left)
-			rcCoord.lower().x() += size.x();
-		else if (align & k_align_right)
-			rcCoord.upper().x() -= size.x();
-	}
-
-	return rcCoord;
-}
-
-
 void KvPlot::update()
 {
 	if (autoFit_ && !plottables_.empty())
@@ -109,10 +78,14 @@ void KvPlot::update()
 	// 计算legend的空间
 	auto rcCanvas = paint_->viewport();
 	auto rcCoord = rcCanvas;
+	int ali = legend_->alignment();
+	point2d szLegend; // 需要时计算
 
 	bool showLegend = showLegend_ && legend_->itemCount() > 0;
-	if (showLegend) 
-		rcCoord = calcCoordLayout_(rcCanvas);
+	if (showLegend) {
+		szLegend = legend_->calcSize(paint_.get());
+		rcCoord = KuAlignment::layout(ali, szLegend, rcCanvas);
+	}
 
 	auto rcPlot = rcCoord; // 绘图区域
 	auto mrgCoord = coord().calcMargins(paint_.get());
@@ -132,7 +105,7 @@ void KvPlot::update()
 	paint_->popClipRect();
 
 	if (showLegend) {
-		auto pos = legend_->location(paint_.get(), legend_->outter() ? rcCoord : rcPlot);
+		auto pos = KuAlignment::position(ali, szLegend, KuAlignment::outside(ali) ? rcCoord : rcPlot);
 
 		paint_->pushCoord(KvPaint::k_coord_screen);
 		paint_->pushLocal(KvPaint::mat4::buildTanslation({ pos.x(), pos.y(), 0 }));
