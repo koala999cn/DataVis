@@ -79,7 +79,10 @@ public:
 		return pt;
 	}
 	KtPoint operator/(T factor) const {
-		return operator*(1/factor);
+		KtPoint pt;
+		for (unsigned i = 0; i < size(); i++)
+			pt[i] = at(i) / factor;
+		return pt;
 	}
 
 	KtPoint& operator+=(const KtPoint& v) {
@@ -111,20 +114,28 @@ public:
 		return *this;
 	}
 	KtPoint& operator/=(T factor) {
-		return operator*=(1/ factor);
+		for (unsigned i = 0; i < size(); i++)
+			at[i] = at(i) / factor;
+		return *this;
 	}
 
 	bool isNan() const {
-		for (unsigned i = 0; i < size(); i++)
-			if (std::isnan(at(i)))
-				return true;
+		if constexpr (std::is_floating_point_v<T>) {
+			for (unsigned i = 0; i < size(); i++)
+				if (std::isnan(at(i)))
+					return true;
+		}
+
 		return false;
 	}
 
 	bool isInf() const {
-		for (unsigned i = 0; i < size(); i++)
-			if (std::isinf(at(i)))
-				return true;
+		if constexpr (std::is_floating_point_v<T>) {
+			for (unsigned i = 0; i < size(); i++)
+				if (std::isinf(at(i)))
+					return true;
+		}
+
 		return false;
 	}
 
