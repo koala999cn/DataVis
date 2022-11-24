@@ -66,6 +66,8 @@ protected:
 
 	virtual void showCoordProperty_();
 
+	virtual void showLegendProperty_();
+	
 	virtual void showPlottableProperty_();
 
 	    void showPlottableTypeProperty_(unsigned idx);

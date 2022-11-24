@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include "KvRenderable.h"
+#include "KtMargins.h"
 
 class KcAxis; 
 class KcCoordPlane;
@@ -40,6 +41,8 @@ public:
 
 	// 轮询坐标平面
 	virtual void forPlane(std::function<bool(KcCoordPlane& plane)>) const = 0;
+
+	virtual KtMargins<float_t> calcMargins(KvPaint*) const = 0;
 
 	// 提供基类接口的缺省实现
 

@@ -9,7 +9,7 @@
 
 KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
 {
-	coords_.push_back(k_world);
+	coords_.push_back(k_coord_world);
 }
 
 
@@ -79,10 +79,10 @@ KcImPaint::point4 KcImPaint::project(const point4& pt) const
 {
 	switch (coords_.back())
 	{
-	case k_world:
+	case k_coord_world:
 		return camera_.localToScreen(pt);
 
-	case k_screen:
+	case k_coord_screen:
 		return camera_.localToWorld(pt); // 仅执行局部变换
 
 	default:

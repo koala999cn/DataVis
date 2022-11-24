@@ -25,7 +25,7 @@ void KcImPlot2d::updateImpl_()
         auto pos = ImGui::GetWindowPos();
         auto sz = ImGui::GetWindowSize();
         KvPaint::rect vp({ pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y });
-        vp.shrink({ margins_.left(),margins_.bottom() }, { margins_.right(), margins_.top() });
+        vp.shrink({ margins_.left(), margins_.bottom() }, { margins_.right(), margins_.top() });
         paint_->setViewport(vp);
 
         auto lower = coord().lower();

@@ -103,20 +103,25 @@ void KcCoord2d::draw(KvPaint* paint) const
 {
 	if (visible()) {
 
-		auto l = axes_[KcAxis::k_left].front()->calcMargins(paint);
-		auto r = axes_[KcAxis::k_right].front()->calcMargins(paint);
-		auto t = axes_[KcAxis::k_top].front()->calcMargins(paint);
-		auto b = axes_[KcAxis::k_bottom].front()->calcMargins(paint);
 
-		l.makeCeil(r); l.makeCeil(b); l.makeCeil(t);
 
-		auto oldVp = paint->viewport(); // save the old viewport
-		auto newVp = paint->viewport().shrink({ l.left(), l.top() }, { l.right(), l.bottom() });
-		newVp.intersection(oldVp); // 防止margins过大，超出原vp
-		paint->setViewport(newVp);
+
 
 		KvCoord::draw(paint);
 
-		paint->viewport() = oldVp; // restore the old viewport
+		//paint->setViewport(oldVp); // restore the old viewport
 	}
+}
+
+
+KtMargins<KcCoord2d::float_t> KcCoord2d::calcMargins(KvPaint* paint) const
+{
+	auto l = axes_[KcAxis::k_left].front()->calcMargins(paint);
+	auto r = axes_[KcAxis::k_right].front()->calcMargins(paint);
+	auto t = axes_[KcAxis::k_top].front()->calcMargins(paint);
+	auto b = axes_[KcAxis::k_bottom].front()->calcMargins(paint);
+
+	l.makeCeil(r); l.makeCeil(b); l.makeCeil(t);
+
+	return l;
 }

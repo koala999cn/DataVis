@@ -91,3 +91,9 @@ void KvPaint::apply(const KpBrush& cxt)
 {
 	setColor(cxt.color);
 }
+
+
+void KvPaint::apply(const KpFont& cxt)
+{
+	// TODO:
+}

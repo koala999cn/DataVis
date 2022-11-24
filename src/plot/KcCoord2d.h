@@ -29,6 +29,8 @@ public:
 
 	void forPlane(std::function<bool(KcCoordPlane& plane)>) const override;
 
+	KtMargins<float_t> calcMargins(KvPaint*) const override;
+
 	axis_list& axes(int type) { return axes_[type]; }
 
 	// 实现基类的接口

@@ -54,9 +54,9 @@ public:
 
 	enum KeCoordType
 	{
-		k_world, // 世界坐标系，即绘图坐标系
-		k_viewport, // 各轴规范化为[0, 1]的标准坐标系
-		k_screen // 屏幕坐标系
+		k_coord_world, // 世界坐标系，即绘图坐标系
+		k_coord_screen, // 屏幕坐标系
+		k_coord_viewport // 各轴规范化为[0, 1]的标准坐标系
 	};
 
 	// 改变当前坐标系类型

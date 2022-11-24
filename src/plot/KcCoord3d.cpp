@@ -178,3 +178,9 @@ void KcCoord3d::forPlane(std::function<bool(KcCoordPlane& plane)> fn) const
 		if (!fn(*planes_[i]))
 			break;
 }
+
+
+KtMargins<KcCoord3d::float_t> KcCoord3d::calcMargins(KvPaint*) const
+{
+	return {};
+}

@@ -4,6 +4,7 @@
 #include "KvPlottable.h"
 #include "KpContext.h"
 #include "KcLegend.h"
+#include "KtAABB.h"
 
 
 class KvPaint; // 用来执行具体的plot绘制
@@ -14,6 +15,8 @@ class KvCoord;
 
 class KvPlot
 {
+	using rect = KtAABB<double, 2>;
+
 public:
 	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
 
@@ -33,7 +36,12 @@ public:
 	bool autoFit() const { return autoFit_; }
 	bool& autoFit() { return autoFit_; }
 
+	bool showLegend() const { return showLegend_; }
+	bool& showLegend() { return showLegend_; }
+
 	KvCoord& coord() { return *coord_.get(); }
+
+	KcLegend& legend() { return *legend_; }
 
 	unsigned plottableCount() const { return plottables_.size(); }
 
@@ -54,6 +62,11 @@ public:
 protected:
 	virtual void autoProject_() = 0;
 
+private:
+
+	// 给定画布边框rcCanvas，计算并返回坐标系的边框区域
+	rect calcCoordLayout_(const rect& rcCanvas);
+
 protected:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
 	std::shared_ptr<KvCoord> coord_; // 由用户创建并传入
@@ -63,4 +76,5 @@ protected:
 	KpBrush bkgnd_;
 
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
+	bool showLegend_{ false };
 };

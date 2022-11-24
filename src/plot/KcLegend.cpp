@@ -6,11 +6,11 @@
 KcLegend::KcLegend()
     : super_("Legend")
 {
-
+    align_ = k_align_right | k_align_top;
 }
 
 
-point2f KcLegend::calcSize(KvPaint* paint) const
+KcLegend::point2i KcLegend::calcSize(KvPaint* paint) const
 {
     point2f legSize = innerMargin_ * 2;
     legSize += outterMargin_ * 2;
@@ -31,9 +31,9 @@ point2f KcLegend::calcSize(KvPaint* paint) const
 }
 
 
-KtPoint<int, 2> KcLegend::maxLabelSize_(KvPaint* paint) const
+KcLegend::point2i KcLegend::maxLabelSize_(KvPaint* paint) const
 {
-    KtPoint<int, 2> maxSize(0, 0);
+    point2i maxSize(0, 0);
 
     for (unsigned i = 0; i < items_.size(); ++i) {
         auto& label = items_[i]->name();
@@ -45,7 +45,7 @@ KtPoint<int, 2> KcLegend::maxLabelSize_(KvPaint* paint) const
 }
 
 
-KtPoint<int, 2> KcLegend::layouts_() const
+KcLegend::point2i KcLegend::layouts_() const
 {
     auto itemCount = items_.size();
 
@@ -72,6 +72,9 @@ void KcLegend::draw(KvPaint* paint) const
     sz -= outterMargin_;
     paint->apply(border_);
     paint->drawRect(point3(outterMargin_.x(), outterMargin_.y(), 0), point3(sz.x(), sz.y(), 0));
+
+    if (items_.empty())
+        return;
 
     auto itemSize = maxLabelSize_(paint);
     itemSize.x() += iconSize_.x() + iconTextPadding_;
@@ -127,4 +130,54 @@ KcLegend::aabb_type KcLegend::boundingBox() const
 {
     assert(false); // TODO:
     return {};
+}
+
+
+bool KcLegend::outter() const
+{
+    return align_ & (k_align_vert_first | k_align_horz_first);
+}
+
+
+KcLegend::point2i KcLegend::location(KvPaint* paint, const rect& vp) const
+{
+    auto sz = calcSize(paint);
+
+    point2i loc(vp.center().x() - sz.x() / 2, vp.center().y() - sz.y() / 2);
+
+    if (align_ & k_align_left)
+        loc.x() = vp.lower().x();
+    else if (align_ & k_align_right)
+        loc.x() = vp.upper().x() - sz.x();
+
+    if (align_ & k_align_top)
+        loc.y() = vp.lower().y();
+    else if (align_ & k_align_bottom)
+        loc.y() = vp.upper().y() - sz.y();
+
+    loc = loc.ceil(loc, vp.lower());
+
+    // 若位于外部，则进一步调整loc
+    if (align_ & k_align_horz_first) { // 外侧，左右优先
+        if (align_ & k_align_left)
+            loc.x() -= sz.x();
+        else if (align_ & k_align_right)
+            loc.x() += sz.x();
+        else if (align_ & k_align_top)
+            loc.y() -= sz.y();
+        else if (align_ & k_align_bottom)
+            loc.y() += sz.y();
+    }
+    else if (align_ & k_align_vert_first) { // 外侧，上下优先
+        if (align_ & k_align_top)
+            loc.y() -= sz.y();
+        else if (align_ & k_align_bottom)
+            loc.y() += sz.y();
+        else if (align_ & k_align_left)
+            loc.x() -= sz.x();
+        else if (align_ & k_align_right)
+            loc.x() += sz.x();
+    }
+
+    return loc;
 }

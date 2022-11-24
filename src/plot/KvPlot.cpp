@@ -65,6 +65,38 @@ void KvPlot::removeAllPlottables()
 }
 
 
+KvPlot::rect KvPlot::calcCoordLayout_(const rect& rcPlot)
+{
+	auto rcCoord = rcPlot;
+		
+	int align = legend_->alignment();
+	auto size = legend_->calcSize(paint_.get());
+
+	if (align & k_align_horz_first) {
+		if (align & k_align_left)
+			rcCoord.lower().x() += size.x();
+		else if (align & k_align_right)
+			rcCoord.upper().x() -= size.x();
+		else if (align & k_align_top)
+			rcCoord.lower().y() += size.y();
+		else if (align & k_align_bottom)
+			rcCoord.upper().y() -= size.y();
+	}
+	else if (align & k_align_vert_first) {
+		if (align & k_align_top)
+			rcCoord.lower().y() += size.y();
+		else if (align & k_align_bottom)
+			rcCoord.upper().y() -= size.y();
+		else if (align & k_align_left)
+			rcCoord.lower().x() += size.x();
+		else if (align & k_align_right)
+			rcCoord.upper().x() -= size.x();
+	}
+
+	return rcCoord;
+}
+
+
 void KvPlot::update()
 {
 	if (autoFit_ && !plottables_.empty())
@@ -74,22 +106,44 @@ void KvPlot::update()
 
 	paint_->beginPaint();
 
+	// 计算legend的空间
+	auto rcCanvas = paint_->viewport();
+	auto rcCoord = rcCanvas;
+
+	bool showLegend = showLegend_ && legend_->itemCount() > 0;
+	if (showLegend) 
+		rcCoord = calcCoordLayout_(rcCanvas);
+
+	auto rcPlot = rcCoord; // 绘图区域
+	auto mrgCoord = coord().calcMargins(paint_.get());
+	rcPlot.shrink({ mrgCoord.left(), mrgCoord.top() }, { mrgCoord.right(), mrgCoord.bottom() });
+	// TOOD: 检测rcPlot是否超限
+
+	paint_->setViewport(rcPlot); // coord绘制需要设定plot视图，以便按世界坐标计算绘制参数
+
 	coord().draw(paint_.get());
 
-	paint_->pushClipRect(paint_->viewport());
+	paint_->pushClipRect(rcPlot); // 绘制clip，防止plottables超出范围
 
 	for (int idx = 0; idx < plottableCount(); idx++)
 		if (plottableAt(idx)->visible())
 		    plottableAt(idx)->draw(paint_.get());
 
-	paint_->pushCoord(KvPaint::k_screen);
-	auto rc = paint_->viewport();
-	paint_->pushLocal(KvPaint::mat4::buildTanslation({rc.lower().x(), rc.lower().y(), 0}));
-	legend_->draw(paint_.get());
-	paint_->popLocal();
-	paint_->popCoord();
-
 	paint_->popClipRect();
+
+	if (showLegend) {
+		auto pos = legend_->location(paint_.get(), legend_->outter() ? rcCoord : rcPlot);
+
+		paint_->pushCoord(KvPaint::k_coord_screen);
+		paint_->pushLocal(KvPaint::mat4::buildTanslation({ pos.x(), pos.y(), 0 }));
+
+		legend_->draw(paint_.get());
+
+		paint_->popLocal();
+		paint_->popCoord();
+	}
+
+	paint_->setViewport(rcCanvas); // 恢复原视口
 
 	paint_->endPaint();
 }

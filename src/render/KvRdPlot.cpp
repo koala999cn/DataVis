@@ -13,6 +13,7 @@
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
 #include "plot/KvCoord.h"
+#include "plot/KvPaint.h" // for k_align_xxx flags
 #include "KvNode.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
@@ -229,6 +230,9 @@ void KvRdPlot::showProperySet()
 	showCoordProperty_();
 	ImGui::Separator();
 
+	showLegendProperty_();
+	ImGui::Separator();
+
 	showPlottableProperty_();
 }
 
@@ -340,6 +344,91 @@ void KvRdPlot::showCoordProperty_()
 	if (extendsChanged) {
 		plot_->coord().setExtents(lower, upper);
 		plot_->autoFit() = false;
+	}
+
+	kPrivate::TreePop();
+}
+
+
+namespace kPrivate
+{
+	static int toggleSide(int align)
+	{
+		if (align & (k_align_horz_first | k_align_vert_first))
+			align &= ~(k_align_horz_first | k_align_vert_first);
+		else 
+		    align |= k_align_horz_first;	
+
+		return align;
+	}
+
+	static int toggleHorzFirst(int align)
+	{
+		auto outside = align & (k_align_horz_first | k_align_vert_first);
+		return outside ? align ^ (k_align_horz_first | k_align_vert_first) : align;
+	}
+
+	static int switchAlign(int oldAlign, int newAlign)
+	{
+		auto outside = oldAlign & (k_align_horz_first | k_align_vert_first);
+		bool repeat = (oldAlign & ~(k_align_horz_first | k_align_vert_first)) == newAlign;
+
+		return repeat ? toggleHorzFirst(oldAlign) : newAlign | outside;
+	}
+}
+
+
+void KvRdPlot::showLegendProperty_()
+{
+	using namespace kPrivate;
+
+	if (!kPrivate::TreePush("Legend"))
+		return;
+
+	ImGui::Checkbox("Show", &plot_->showLegend());
+
+	if (ImGui::TreeNodeEx("Alignment", ImGuiTreeNodeFlags_FramePadding)) {
+
+		ImVec2 itemSize(ImGui::CalcTextSize("Out").x * 2, 0);
+
+		bool outside = plot_->legend().outter();
+		auto align = plot_->legend().alignment();
+		int spacing = 12;
+
+		if (ImGui::Button(align & k_align_vert_first ? "NW" : "WN", itemSize))
+		    plot_->legend().setAlignment(switchAlign(align, k_align_left | k_align_top));
+		ImGui::SameLine(0, spacing);
+
+		if (ImGui::Button("N", itemSize))
+			plot_->legend().setAlignment(outside ? k_align_top | k_align_vert_first : k_align_top);
+		ImGui::SameLine(0, spacing);
+
+		if (ImGui::Button(align & k_align_vert_first ? "NE" : "EN", itemSize))
+			plot_->legend().setAlignment(switchAlign(align, k_align_right | k_align_top));
+
+		if (ImGui::Button("W", itemSize))
+			plot_->legend().setAlignment(outside ? k_align_left | k_align_horz_first : k_align_left);
+		ImGui::SameLine(0, spacing);
+
+		if (ImGui::Button(outside ? "Out" : "In", itemSize)) 
+			plot_->legend().setAlignment(toggleSide(align));
+		ImGui::SameLine(0, spacing);
+
+		if (ImGui::Button("E", itemSize))
+			plot_->legend().setAlignment(outside ? k_align_right | k_align_horz_first : k_align_right);
+
+		if (ImGui::Button(align & k_align_vert_first ? "SW" : "WS", itemSize))
+			plot_->legend().setAlignment(switchAlign(align, k_align_left | k_align_bottom)); 
+		ImGui::SameLine(0, spacing);
+
+		if (ImGui::Button("S", itemSize))
+			plot_->legend().setAlignment(outside ? k_align_bottom | k_align_vert_first : k_align_bottom);
+		ImGui::SameLine(0, spacing);
+
+		if (ImGui::Button(align & k_align_vert_first ? "SE" : "ES", itemSize))
+			plot_->legend().setAlignment(switchAlign(align, k_align_right | k_align_bottom));
+
+		ImGui::TreePop();
 	}
 
 	kPrivate::TreePop();
