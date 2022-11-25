@@ -14,7 +14,7 @@ public:
 
 	using super_::super_;
 
-	aabb_type boundingBox() const override;
+	aabb_t boundingBox() const override;
 
 private:
 

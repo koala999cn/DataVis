@@ -19,7 +19,7 @@ public:
 	float_t barWidthRatio() const { return barWidthRatio_; }
 	float_t& barWidthRatio() { return barWidthRatio_; }
 
-	aabb_type boundingBox() const override;
+	aabb_t boundingBox() const override;
 
 	unsigned majorColorsNeeded() const override;
 

@@ -158,7 +158,7 @@ public:
 	std::shared_ptr<KvScaler> scaler() const;
 	void setScaler(std::shared_ptr<KvScaler> scale);
 
-	aabb_type boundingBox() const override;
+	aabb_t boundingBox() const override;
 
 	void draw(KvPaint*) const override;
 
@@ -176,7 +176,7 @@ private:
 	
 	int labelAlignment_() const; // 根据label的orientation判定label的alignment
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
-	aabb_type textBox_(KvPaint*, const point3& anchor, const std::string& text) const;
+	aabb_t textBox_(KvPaint*, const point3& anchor, const std::string& text) const;
 
 private:
 	KeAxisType type_;

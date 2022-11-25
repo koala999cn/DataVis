@@ -27,7 +27,7 @@ public:
 
 	void setMinorColor(const color4f& minor) override;
 
-	aabb_type boundingBox() const override;
+	aabb_t boundingBox() const override;
 
 	float mapLower() const { return mapLower_; }
 	float& mapLower() { return mapLower_; }

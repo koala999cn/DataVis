@@ -61,7 +61,7 @@ void KcColorMap::setMinorColor(const color4f& minor)
 }
 
 
-KcColorMap::aabb_type KcColorMap::boundingBox() const
+KcColorMap::aabb_t KcColorMap::boundingBox() const
 {
 	auto aabb = super_::boundingBox();
 

@@ -38,7 +38,7 @@ void KcAxis::setScaler(std::shared_ptr<KvScaler> scale)
 }
 
 
-KcAxis::aabb_type KcAxis::boundingBox() const
+KcAxis::aabb_t KcAxis::boundingBox() const
 {
 	return { start(), end() };
 }
@@ -176,7 +176,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 
 	vec3 dir = (end() - start()).normalize(); // 坐标轴的方向矢量
 	point3 lowerPt(0), upperPt(lowerPt + dir * (upper() - lower())); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
-	aabb_type box(lowerPt, upperPt);
+	aabb_t box(lowerPt, upperPt);
 
 	// 合并第一个和最后一个tick的box
 	{
@@ -232,7 +232,7 @@ bool KcAxis::tickAndLabelInSameSide_() const
 }
 
 
-KcAxis::aabb_type KcAxis::textBox_(KvPaint* paint, const point3& anchor, const std::string& text) const
+KcAxis::aabb_t KcAxis::textBox_(KvPaint* paint, const point3& anchor, const std::string& text) const
 {
 	auto r = paint->textRect({ anchor.x(), anchor.y() }, text.c_str(), labelAlignment_());
 

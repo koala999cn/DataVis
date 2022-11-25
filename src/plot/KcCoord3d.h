@@ -24,7 +24,7 @@ public:
 	point3 lower() const override;
 	point3 upper() const override;
 
-	aabb_type boundingBox() const override;
+	aabb_t boundingBox() const override;
 
 	void forAxis(std::function<bool(KcAxis& axis)>) const override;
 

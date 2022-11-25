@@ -376,6 +376,18 @@
     <ClCompile Include="src\plot\KcLegend.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcColorBar.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KuAlignment.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcLayoutGrid.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcLayoutVector.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -869,6 +881,21 @@
     </ClInclude>
     <ClInclude Include="src\plot\KcLegend.h">
       <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcColorBar.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KuAlignment.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvLayoutElement.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcLayoutGrid.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcLayoutVector.h">
+      <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

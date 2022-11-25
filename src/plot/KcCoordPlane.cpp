@@ -23,11 +23,11 @@ KcCoordPlane::KcCoordPlane(KePlaneType type, axis_ptr h0, axis_ptr h1, axis_ptr 
 }
 
 
-KcCoordPlane::aabb_type KcCoordPlane::boundingBox() const
+KcCoordPlane::aabb_t KcCoordPlane::boundingBox() const
 {
-	auto box1 = aabb_type{ point3::floor(horz_[0]->start(), horz_[1]->start()),
+	auto box1 = aabb_t{ point3::floor(horz_[0]->start(), horz_[1]->start()),
 		point3::ceil(horz_[0]->end(), horz_[1]->end()) };
-	auto box2 = aabb_type{ point3::floor(vert_[0]->start(), vert_[1]->start()),
+	auto box2 = aabb_t{ point3::floor(vert_[0]->start(), vert_[1]->start()),
 		point3::ceil(vert_[0]->end(), vert_[1]->end()) };
 
 	return box1.merge(box2);

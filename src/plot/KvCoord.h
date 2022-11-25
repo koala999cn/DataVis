@@ -48,5 +48,5 @@ public:
 
 	void draw(KvPaint*) const override;
 
-	aabb_type boundingBox() const override;
+	aabb_t boundingBox() const override;
 };

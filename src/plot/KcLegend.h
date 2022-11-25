@@ -17,7 +17,7 @@ public:
 
 	void draw(KvPaint*) const override;
 
-	aabb_type boundingBox() const override;
+	aabb_t boundingBox() const override;
 
 	// 预先计算legend的尺寸（屏幕坐标）
 	point2i calcSize(KvPaint*) const;

@@ -19,10 +19,10 @@ bool KvPlottable::empty() const
 }
 
 
-KvPlottable::aabb_type KvPlottable::boundingBox() const
+KvPlottable::aabb_t KvPlottable::boundingBox() const
 {
 	if (empty())
-		return aabb_type(); // null aabb
+		return aabb_t(); // null aabb
 
 	point3 lower, upper;
 

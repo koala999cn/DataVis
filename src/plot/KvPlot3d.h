@@ -11,7 +11,7 @@ class KvPlot3d : public KvPlot
 {
 public:
 	using float_t = typename KvRenderable::float_t;
-	using aabb_type = KtAABB<float_t>;
+	using aabb_t = KtAABB<float_t>;
 	using mat4 = KtMatrix4<float_t>;
 	using point3 = KtPoint<float_t, 3>;
 	using vec3 = point3;

@@ -8,7 +8,7 @@ class KcAxis;
 class KcCoordPlane : public KvRenderable
 {
 	using axis_ptr = std::shared_ptr<KcAxis>;
-	using KvRenderable::aabb_type;
+	using KvRenderable::aabb_t;
 	using point3 = KtPoint<float_t, 3>;
 
 public:
@@ -48,7 +48,7 @@ public:
 	const KpBrush& background() const { return bkgnd_; }
 	KpBrush& background() { return bkgnd_; }
 
-	aabb_type boundingBox() const override;
+	aabb_t boundingBox() const override;
 
 	void draw(KvPaint*) const override;
 

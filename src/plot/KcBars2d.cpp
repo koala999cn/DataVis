@@ -53,7 +53,7 @@ KcBars2d::float_t KcBars2d::barWidth_(unsigned dim) const
 }
 
 
-KcBars2d::aabb_type KcBars2d::boundingBox() const
+KcBars2d::aabb_t KcBars2d::boundingBox() const
 {
 	auto aabb = super_::boundingBox();
 	if (aabb.lower().y() > baseLine_)

@@ -127,7 +127,7 @@ void KcLegend::drawItem_(KvPaint* paint, KvPlottable* item, const rect& rc) cons
 }
 
 
-KcLegend::aabb_type KcLegend::boundingBox() const
+KcLegend::aabb_t KcLegend::boundingBox() const
 {
     assert(false); // TODO:
     return {};

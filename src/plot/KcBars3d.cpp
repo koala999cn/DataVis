@@ -3,7 +3,7 @@
 #include "KvData.h"
 
 
-KcBars3d::aabb_type KcBars3d::boundingBox() const
+KcBars3d::aabb_t KcBars3d::boundingBox() const
 {
 	auto aabb = super_::boundingBox();
 

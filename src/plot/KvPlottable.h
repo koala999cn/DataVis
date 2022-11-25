@@ -22,7 +22,7 @@ public:
 	unsigned sampCount(unsigned dim) const { return sampCount_[dim]; }
 	unsigned& sampCount(unsigned dim) { return sampCount_[dim]; }
 
-	aabb_type boundingBox() const override;
+	aabb_t boundingBox() const override;
 
 	// 封装连续数据的绘制，提供另外一个绘制离散数据的接口drawDiscreted_
 	void draw(KvPaint*) const override;

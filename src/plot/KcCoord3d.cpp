@@ -158,7 +158,7 @@ KcCoord3d::point3 KcCoord3d::upper() const
 }
 
 
-KcCoord3d::aabb_type KcCoord3d::boundingBox() const
+KcCoord3d::aabb_t KcCoord3d::boundingBox() const
 {
 	return { lower(), upper() };
 }

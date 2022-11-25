@@ -124,7 +124,7 @@ void KvPlot::update()
 
 void KvPlot::fitData()
 {
-	typename KvRenderable::aabb_type box;
+	typename KvRenderable::aabb_t box;
 	for (auto& p : plottables_)
 		box.merge(p->boundingBox());
 

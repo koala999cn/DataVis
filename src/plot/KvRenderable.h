@@ -8,7 +8,7 @@ class KvRenderable
 {
 public:
 	using float_t = double;
-	using aabb_type = KtAABB<float_t>;
+	using aabb_t = KtAABB<float_t>;
 
 	KvRenderable(const std::string_view& name) 
 		: name_(name), visible_(true) {}
@@ -21,7 +21,7 @@ public:
 
 	virtual void draw(KvPaint*) const = 0;
 
-	virtual aabb_type boundingBox() const = 0;
+	virtual aabb_t boundingBox() const = 0;
 
 private:
 	std::string name_;

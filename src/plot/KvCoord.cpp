@@ -22,9 +22,9 @@ void KvCoord::draw(KvPaint* paint) const
 }
 
 
-KvCoord::aabb_type KvCoord::boundingBox() const
+KvCoord::aabb_t KvCoord::boundingBox() const
 {
-	aabb_type box;
+	aabb_t box;
 
 	forAxis([&box](KcAxis& axis) {
 		box.merge(axis.boundingBox());
