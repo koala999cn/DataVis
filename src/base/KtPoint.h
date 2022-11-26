@@ -204,7 +204,10 @@ public:
 
 using point2d = KtPoint<double, 2>;
 using point2f = KtPoint<float,  2>;
+using point2i = KtPoint<int, 2>;
 using point3d = KtPoint<double, 3>;
 using point3f = KtPoint<float,  3>;
+using point3i = KtPoint<int, 3>;
 using point4d = KtPoint<double, 4>;
 using point4f = KtPoint<float,  4>;
+using point4i = KtPoint<int, 4>;
