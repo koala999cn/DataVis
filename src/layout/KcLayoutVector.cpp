@@ -110,6 +110,7 @@ void KcLayoutVector::putAt(unsigned idx, KvLayoutElement* ele)
 {
 	if (idx >= size())
 		resize(idx + 1);
+	if (ele) ele->setParent(this);
 	elements_[idx].reset(ele);
 }
 
@@ -117,6 +118,7 @@ void KcLayoutVector::putAt(unsigned idx, KvLayoutElement* ele)
 void KcLayoutVector::setAt(unsigned idx, KvLayoutElement* ele)
 {
 	assert(idx < size());
+	if (ele) ele->setParent(this);
 	elements_[idx].reset(ele);
 }
 
@@ -124,6 +126,7 @@ void KcLayoutVector::setAt(unsigned idx, KvLayoutElement* ele)
 void KcLayoutVector::insertAt(unsigned idx, KvLayoutElement* ele)
 {
 	assert(idx <= size());
+	if (ele) ele->setParent(this);
 	elements_.emplace(std::next(elements_.cbegin(), idx), ele);
 }
 
@@ -131,6 +134,10 @@ void KcLayoutVector::insertAt(unsigned idx, KvLayoutElement* ele)
 KvLayoutElement* KcLayoutVector::takeAt(unsigned idx)
 {
 	assert(idx < size());
+
+	if (elements_[idx])
+	    elements_[idx]->setParent(nullptr);
+
 	return elements_[idx].release();
 }
 
@@ -170,5 +177,6 @@ void KcLayoutVector::remove(KvLayoutElement* ele)
 
 void KcLayoutVector::append(KvLayoutElement* ele)
 {
+	ele->setParent(this);
 	elements_.emplace_back(ele);
 }

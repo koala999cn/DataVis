@@ -12,6 +12,8 @@ class KcLayoutVector : public KvLayoutElement
 
 public:
 
+	using KvLayoutElement::KvLayoutElement;
+
 	void arrange(const rect_t& rc) override;
 
 	point2i extraShares() const override {

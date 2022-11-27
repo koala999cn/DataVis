@@ -7,6 +7,13 @@ KcLayoutGrid::KcLayoutGrid()
 }
 
 
+KcLayoutGrid::KcLayoutGrid(KvLayoutElement* p)
+	: KcLayoutVector(p)
+{
+	setRowMajor(false);
+}
+
+
 unsigned KcLayoutGrid::cols() const
 {
 	return empty() ? 0 : rowAt(0)->size();
@@ -69,6 +76,7 @@ void KcLayoutGrid::setAt(unsigned rowIdx, unsigned colIdx, KvLayoutElement* ele)
 {
 	assert(rowIdx < rows() && colIdx < cols());
 	rowAt(rowIdx)->setAt(colIdx, ele);
+	ele->setParent(this); // ÐÞÕýparent
 }
 
 
@@ -83,6 +91,7 @@ void KcLayoutGrid::insertAt(unsigned rowIdx, unsigned colIdx, KvLayoutElement* e
 	row->resize(cols());
 	row->setAt(colIdx, ele);
 	super_::insertAt(rowIdx, row);
+	ele->setParent(this); // ÐÞÕýparent
 }
 
 

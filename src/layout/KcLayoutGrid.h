@@ -11,6 +11,7 @@ class KcLayoutGrid : public KcLayoutVector
 public:
 
 	KcLayoutGrid();
+	KcLayoutGrid(KvLayoutElement* parent);
 
 	void resize(unsigned numRows, unsigned numCols);
 

@@ -397,6 +397,9 @@
     <ClCompile Include="src\layout\KvLayoutElement.cpp">
       <Filter>layout</Filter>
     </ClCompile>
+    <ClCompile Include="src\layout\KgLayoutManager.cpp">
+      <Filter>layout</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -910,6 +913,9 @@
       <Filter>layout</Filter>
     </ClInclude>
     <ClInclude Include="src\layout\KvLayoutElement.h">
+      <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout\KgLayoutManager.h">
       <Filter>layout</Filter>
     </ClInclude>
   </ItemGroup>

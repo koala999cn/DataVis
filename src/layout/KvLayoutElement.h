@@ -25,6 +25,12 @@ public:
 	using margins_t = rect_t;
 	using point_t = typename rect_t::point_t;
 
+	KvLayoutElement() = default;
+	KvLayoutElement(KvLayoutElement* parent) : parent_(parent) {}
+
+	KvLayoutElement* parent() { return parent_; }
+	void setParent(KvLayoutElement* p) { parent_ = p; }
+
 	// 调用该函数之前，须先调用calcSize
 	virtual void arrange(const rect_t& rc) {
 		if (rc.width()) arrange_(rc, 0);
@@ -70,5 +76,5 @@ protected:
 protected:
 	rect_t iRect_, oRect_; // 内、外边框。外边框用于布局，内边框用于绘制
 	margins_t margins_{ point_t(0) ,point_t(0) }; // 内外边框间的留白，缺省无留白
-
+	KvLayoutElement* parent_{ nullptr };
 };
