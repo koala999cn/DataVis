@@ -68,7 +68,7 @@ KuMatrixUtil::matrix<T> KuMatrixUtil::transpose(const matrix<T>& mat)
 {
     matrix<T> trans;
     if (!mat.empty()) {
-        trans.resize(mat.front().size(), vectord(mat.size()));
+        trans.resize(mat.front().size(), std::vector<T>(mat.size()));
         for (unsigned r = 0; r < mat.size(); r++)
             for (unsigned c = 0; c < trans.size(); c++)
                 trans[c][r] = mat[r][c];
