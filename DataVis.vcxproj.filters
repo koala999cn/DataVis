@@ -37,6 +37,9 @@
     <Filter Include="3rdparty\imFileDialog">
       <UniqueIdentifier>{3ce5a1f3-ec03-4789-9bf1-b55abfac78dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="layout">
+      <UniqueIdentifier>{042ff681-4dc1-456c-bc11-8be0a9bc789c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KgHist.cpp">
@@ -382,17 +385,17 @@
     <ClCompile Include="src\plot\KuAlignment.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcLayoutGrid.cpp">
-      <Filter>plot</Filter>
+    <ClCompile Include="src\layout\KcLayoutFold.cpp">
+      <Filter>layout</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcLayoutVector.cpp">
-      <Filter>plot</Filter>
+    <ClCompile Include="src\layout\KcLayoutGrid.cpp">
+      <Filter>layout</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcLayoutFold.cpp">
-      <Filter>plot</Filter>
+    <ClCompile Include="src\layout\KcLayoutVector.cpp">
+      <Filter>layout</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KvLayoutElement.cpp">
-      <Filter>plot</Filter>
+    <ClCompile Include="src\layout\KvLayoutElement.cpp">
+      <Filter>layout</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -894,17 +897,20 @@
     <ClInclude Include="src\plot\KuAlignment.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KvLayoutElement.h">
-      <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KcLayoutGrid.h">
-      <Filter>plot</Filter>
-    </ClInclude>
     <ClInclude Include="src\plot\KcLayoutVector.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcLayoutFold.h">
-      <Filter>plot</Filter>
+    <ClInclude Include="src\layout\KcLayoutFold.h">
+      <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout\KcLayoutGrid.h">
+      <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout\KcLayoutVector.h">
+      <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout\KvLayoutElement.h">
+      <Filter>layout</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

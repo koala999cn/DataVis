@@ -1,6 +1,5 @@
 #pragma once
 #include "KtAABB.h"
-#include "KtMargins.h"
 
 
 //
@@ -9,7 +8,11 @@
 // 元素内容的绘制限制在内边框(等于clipRect)，外边框和内边框的间隔由margins确定
 // margins由用户配置
 // outterRect, innerRect由layout引擎算定
-//
+// 
+// 目前仅支持两种类型的元素：
+// 一是固定尺寸，此时calcSize返回非零值，layout引擎尽量按该尺寸为元素分配空间
+// 二是浮动尺寸，此时calcSize返回零值，layout引擎将剩余空间按照extraShares返回的份额为元素分配空间
+// 
 
 class KvLayoutElement
 {
@@ -52,8 +55,8 @@ public:
 		return room;
 	}
 
-	// 返回x/y维度需要引擎自动分配空间的数量
-	virtual point2i squeezeNeeded() const {
+	// 返回x/y维度需要引擎分配空间的份额
+	virtual point2i extraShares() const {
 		return { iRect_.width() > 0, iRect_.height() > 0 };
 	}
 
@@ -65,7 +68,7 @@ protected:
 	float_t arrange_(const rect_t& rc, int dim);
 
 protected:
-	rect_t iRect_, oRect_; // 内、外边框
+	rect_t iRect_, oRect_; // 内、外边框。外边框用于布局，内边框用于绘制
 	margins_t margins_{ point_t(0) ,point_t(0) }; // 内外边框间的留白，缺省无留白
 
 };

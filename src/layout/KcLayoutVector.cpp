@@ -32,11 +32,11 @@ KcLayoutVector::float_t KcLayoutVector::calcSizeStacked_(int dim) const
 	for (auto& i : elements_) {
 		if (i) {
 			sz += i->expectRoom()[dim];
-			squeezedItems += i->squeezeNeeded()[dim];
+			squeezedItems += i->extraShares()[dim];
 		}
 	}
 	
-	squeezeNeeded_[dim] = squeezedItems;
+	extraShares_[dim] = squeezedItems;
 
 	return sz;
 }
@@ -45,16 +45,16 @@ KcLayoutVector::float_t KcLayoutVector::calcSizeStacked_(int dim) const
 KcLayoutVector::float_t KcLayoutVector::calcSizeOverlayed_(int dim) const
 {
 	float_t sz(0);
-	int squeezedItems(0);
+	int shares(0);
 
 	for (auto& i : elements_) {
 		if (i) {
 			sz = std::max(sz, i->expectRoom()[dim]);
-			squeezedItems = std::max(squeezedItems, i->squeezeNeeded()[dim]);
+			shares = std::max(shares, i->extraShares()[dim]);
 		}
 	}
 
-	squeezeNeeded_[dim] = squeezedItems;
+	extraShares_[dim] = shares;
 
 	return sz;
 }
@@ -76,8 +76,8 @@ void KcLayoutVector::arrangeStack_(const rect_t& rc, int dim)
 	auto fixedSpace = expectRoom()[dim];
 	auto extraSpace = std::max(0., totalSpace - fixedSpace);
 
-	// TODO: 1. 暂时使用均匀分配策略; 2. 未考虑squeezeNeeded == 0时，仍有extraSpace的情况
-	auto squeezedItemSpace = squeezeNeeded()[dim] ? extraSpace / squeezeNeeded()[dim] : 0;
+	// TODO: 1. 暂时使用均匀分配策略; 2. 未考虑extraShares == 0时，仍有extraSpace的情况
+	auto spacePerShare = extraShares()[dim] ? extraSpace / extraShares()[dim] : 0;
 
 	__super::arrange_(rc, dim); // 不能在expectRoom之前调用，否则会破坏expectRoom依赖的iRect
 
@@ -89,11 +89,86 @@ void KcLayoutVector::arrangeStack_(const rect_t& rc, int dim)
 			continue;
 
 		// 支持fixd-item和squeezed-item的混合体
-		auto itemSpace = i->expectRoom()[dim] + i->squeezeNeeded()[dim] * squeezedItemSpace;
+		auto itemSpace = i->expectRoom()[dim] + i->extraShares()[dim] * spacePerShare;
 
 		rcItem.upper()[dim] = rcItem.lower()[dim] + itemSpace;
 		i->arrange(rcItem);
 
 		rcItem.lower() = rcItem.upper();
 	}
+}
+
+
+KvLayoutElement* KcLayoutVector::getAt(unsigned idx) const
+{
+	assert(idx < elements_.size());
+	return elements_[idx].get();
+}
+
+
+void KcLayoutVector::putAt(unsigned idx, KvLayoutElement* ele)
+{
+	if (idx >= size())
+		resize(idx + 1);
+	elements_[idx].reset(ele);
+}
+
+
+void KcLayoutVector::setAt(unsigned idx, KvLayoutElement* ele)
+{
+	assert(idx < size());
+	elements_[idx].reset(ele);
+}
+
+
+void KcLayoutVector::insertAt(unsigned idx, KvLayoutElement* ele)
+{
+	assert(idx <= size());
+	elements_.emplace(std::next(elements_.cbegin(), idx), ele);
+}
+
+
+KvLayoutElement* KcLayoutVector::takeAt(unsigned idx)
+{
+	assert(idx < size());
+	return elements_[idx].release();
+}
+
+
+void KcLayoutVector::removeAt(unsigned idx)
+{
+	assert(idx < size());
+	elements_.erase(std::next(elements_.cbegin(), idx));
+}
+
+
+unsigned KcLayoutVector::find(KvLayoutElement* ele) const
+{
+	for (unsigned i = 0; i < size(); i++)
+		if (getAt(i) == ele)
+			return i;
+
+	return -1;
+}
+
+
+void KcLayoutVector::take(KvLayoutElement* ele)
+{
+	auto pos = find(ele);
+	if (pos != -1)
+		takeAt(pos);
+}
+
+
+void KcLayoutVector::remove(KvLayoutElement* ele)
+{
+	auto pos = find(ele);
+	if (pos != -1)
+		removeAt(pos);
+}
+
+
+void KcLayoutVector::append(KvLayoutElement* ele)
+{
+	elements_.emplace_back(ele);
 }

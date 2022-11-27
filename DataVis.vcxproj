@@ -167,6 +167,10 @@
     <ClCompile Include="src\imapp\KsImApp.cpp" />
     <ClCompile Include="src\imapp\KvNode.cpp" />
     <ClCompile Include="src\imapp\KcActionSequence.cpp" />
+    <ClCompile Include="src\layout\KcLayoutFold.cpp" />
+    <ClCompile Include="src\layout\KcLayoutGrid.cpp" />
+    <ClCompile Include="src\layout\KcLayoutVector.cpp" />
+    <ClCompile Include="src\layout\KvLayoutElement.cpp" />
     <ClCompile Include="src\op\KcOpFbank.cpp" />
     <ClCompile Include="src\op\KcOpFIR.cpp" />
     <ClCompile Include="src\op\KcOpFraming.cpp" />
@@ -188,9 +192,6 @@
     <ClCompile Include="src\plot\KcCoord3d.cpp" />
     <ClCompile Include="src\plot\KcGraph.cpp" />
     <ClCompile Include="src\plot\KcCoordPlane.cpp" />
-    <ClCompile Include="src\plot\KcLayoutFold.cpp" />
-    <ClCompile Include="src\plot\KcLayoutGrid.cpp" />
-    <ClCompile Include="src\plot\KcLayoutVector.cpp" />
     <ClCompile Include="src\plot\KcLegend.cpp" />
     <ClCompile Include="src\plot\KcLinearScaler.cpp" />
     <ClCompile Include="src\plot\KcColorMap.cpp" />
@@ -202,7 +203,6 @@
     <ClCompile Include="src\plot\KuColorUtil.cpp" />
     <ClCompile Include="src\plot\KuThemeParser.cpp" />
     <ClCompile Include="src\plot\KvCoord.cpp" />
-    <ClCompile Include="src\plot\KvLayoutElement.cpp" />
     <ClCompile Include="src\plot\KvPaint.cpp" />
     <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvPlot2d.cpp" />
@@ -328,6 +328,10 @@
     <ClInclude Include="src\imapp\KsImApp.h" />
     <ClInclude Include="src\imapp\KvModule.h" />
     <ClInclude Include="src\imapp\KvNode.h" />
+    <ClInclude Include="src\layout\KcLayoutFold.h" />
+    <ClInclude Include="src\layout\KcLayoutGrid.h" />
+    <ClInclude Include="src\layout\KcLayoutVector.h" />
+    <ClInclude Include="src\layout\KvLayoutElement.h" />
     <ClInclude Include="src\op\KcOpFbank.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpFraming.h" />
@@ -346,8 +350,6 @@
     <ClInclude Include="src\plot\KcColorBar.h" />
     <ClInclude Include="src\plot\KcCoord2d.h" />
     <ClInclude Include="src\plot\KcCoordPlane.h" />
-    <ClInclude Include="src\plot\KcLayoutFold.h" />
-    <ClInclude Include="src\plot\KcLayoutGrid.h" />
     <ClInclude Include="src\plot\KcLayoutVector.h" />
     <ClInclude Include="src\plot\KcLegend.h" />
     <ClInclude Include="src\plot\KcLinearScaler.h" />
@@ -370,7 +372,6 @@
     <ClInclude Include="src\plot\KvPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\plot\KvPlot2d.h" />
-    <ClInclude Include="src\plot\KvLayoutElement.h" />
     <ClInclude Include="src\plot\KvPlottable1d.h" />
     <ClInclude Include="src\plot\KcScatter.h" />
     <ClInclude Include="src\plot\KvThemedPlot.h" />
