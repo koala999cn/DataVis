@@ -64,7 +64,7 @@ void KcLayoutVector::arrangeOverlay_(const rect_t& rc, int dim)
 {
 	__super::arrange_(rc, dim);
 	auto rcLay = rc;
-	rcLay.upper()[~dim] = rcLay.lower()[~dim]; // 屏蔽另一个维度
+	rcLay.upper()[!dim] = rcLay.lower()[!dim]; // 屏蔽另一个维度
 	for (auto& i : elements_)
 		if (i) i->arrange(rcLay);
 }
@@ -82,7 +82,7 @@ void KcLayoutVector::arrangeStack_(const rect_t& rc, int dim)
 	__super::arrange_(rc, dim); // 不能在expectRoom之前调用，否则会破坏expectRoom依赖的iRect
 
 	rect_t rcItem = iRect_;
-	rcItem.upper()[~dim] = rcItem.lower()[~dim]; // 屏蔽另一个维度
+	rcItem.upper()[!dim] = rcItem.lower()[!dim]; // 屏蔽另一个维度
 	auto unusedSpace = iRect_.upper()[dim] - iRect_.lower()[dim]; // 可用的空间
 	for (auto& i : elements_) {
 		if (i == nullptr)

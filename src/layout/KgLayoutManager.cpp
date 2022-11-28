@@ -3,23 +3,32 @@
 
 namespace kPrivate
 {
+	enum
+	{
+		k_side_left = 0x01,
+		k_side_right = 0x02,
+		k_side_top = 0x04,
+		k_side_bottom = 0x08,
+
+		k_side_backword = k_side_left | k_side_top,
+		k_side_foreward = k_side_right | k_side_bottom,
+
+		k_side_horz = k_side_left | k_side_right,
+		k_side_vert = k_side_top | k_side_bottom
+	};
+
 	KcLayoutGrid* createGridFromVector(KcLayoutVector* v)
 	{
 		auto grid = new KcLayoutGrid(v->parent());
+		int dim = v->rowMajor() ? 0 : 1;
+		point2i szGrid;
+		szGrid[dim] = v->size(), szGrid[!dim] = 1;
+		grid->resize(szGrid[0], szGrid[1]);
 
-		if (v->rowMajor()) {
-			grid->resize(v->size(), 1);
-			for (unsigned i = 0; i < v->size(); i++) {
-				auto e = v->takeAt(0);
-				grid->setAt(i, 0, e);
-			}
-		}
-		else {
-			grid->resize(1, v->size());
-			for (unsigned i = 0; i < v->size(); i++) {
-				auto e = v->takeAt(0);
-				grid->setAt(0, i, e);
-			}
+		point2i pos(0);
+		for (; pos[dim] < v->size(); pos[dim]++) {
+			auto e = v->takeAt(0);
+			grid->setAt(pos[0], pos[1], e);
 		}
 
 		return grid;
@@ -44,53 +53,112 @@ namespace kPrivate
 		if (dist == -1)
 			dist = vect->size() - pos;
 
-		while (dist > 0 && ++pos != vect->size()) {
+		// 确保pos至少执行一次加法
+		while (++pos != vect->size() && dist > 0) {
 			if (vect->getAt(pos))
 				dist--;
 		}
 
 		return pos;
 	}
+
+	using pair_u = std::pair<unsigned, unsigned>;
+	pair_u stepDist(KcLayoutGrid* grid, pair_u pos, unsigned dist, int side)
+	{
+		if (side & k_side_horz) {
+			if (side & k_side_foreward)
+				pos.second = stepForeward(grid->rowAt(pos.first), pos.second, dist);
+			else 
+				pos.second = stepBackward(grid->rowAt(pos.first), pos.second, dist);
+		}
+		else {
+			if (side & k_side_foreward) {
+				if (dist == -1)
+					dist = grid->rows() - pos.first;
+
+				while (++pos.first != grid->rows() && dist > 0) {
+					if (grid->getAt(pos.first, pos.second))
+						dist--;
+				}
+			}
+			else {
+				if (dist == -1)
+					dist = pos.first;
+
+				while (dist > 0 && pos.first != 0) {
+					if (grid->getAt(--pos.first, pos.second))
+						dist--;
+				}
+			}
+		}
+
+		return pos;
+	}
+
 }
 
 
-bool KgLayoutManager::placeLeft(KvLayoutElement* who, KvLayoutElement* ele, int dist)
+void KgLayoutManager::arrange(const rect_t& rc)
 {
-	auto p = who->parent();
-	if (p == nullptr) {
+	assert(root_);
+	root_->arrange(rc);
+}
+
+
+void KgLayoutManager::setRoot(KvLayoutElement* ele)
+{
+	root_.reset(ele);
+}
+
+
+bool KgLayoutManager::placeSide_(KvLayoutElement* who, KvLayoutElement* ele, int dist, int side)
+{
+	using namespace kPrivate;
+
+	auto par = who->parent();
+	if (par == nullptr) {
 		assert(who == root_.get());
-		auto v = new KcLayoutVector;
-		v->setRowMajor(true);
-		v->resize(2);
-		v->setAt(0, ele);
-		v->setAt(1, who);
-		root_.reset(v);
+		auto vect = new KcLayoutVector;
+		vect->setRowMajor(side & k_side_horz);
+		vect->resize(2);
+		int whoPos = side & k_side_backword;
+		vect->setAt(whoPos, who);
+		vect->setAt(!whoPos, ele);	
+		root_.reset(vect);
 		return true;
 	}
 
 	// 先尝试grid
-	auto grid = dynamic_cast<KcLayoutGrid*>(p);
+	auto grid = dynamic_cast<KcLayoutGrid*>(par);
 	if (grid) {
 		auto pos = grid->find(who); // 定位who的位置
 		assert(pos.first != -1);
 
-		pos.second = kPrivate::stepBackward(grid->rowAt(pos.first), pos.second, dist);
+		pos = kPrivate::stepDist(grid, pos, dist, side);
 		grid->insertAt(pos.first, pos.second, ele);
+
 		return true;
 	}
 
-	auto vect = dynamic_cast<KcLayoutVector*>(p);
+	auto vect = dynamic_cast<KcLayoutVector*>(par);
 	if (vect) {
 
 		auto idx = vect->find(who);
 
-		if (vect->rowMajor()) {
-			auto pos = kPrivate::stepBackward(vect, idx, dist);
+		if (vect->rowMajor() == bool(side & k_side_horz)) {
+			auto pos = (side & k_side_backword) ? kPrivate::stepBackward(vect, idx, dist)
+				                                : kPrivate::stepForeward(vect, idx, dist);
 			vect->insertAt(pos, ele);
 		}
 		else { // 创建grid
 			auto grid = kPrivate::createGridFromVector(vect);
-			grid->insertAt(idx, 0, ele);
+
+			point2i pos;
+			int dim = (side & k_side_horz) ? 0 : 1;
+			pos[dim] = idx;
+			pos[!dim] = (side & k_side_foreward) ? 1 : 0;
+
+			grid->insertAt(pos.x(), pos.y(), ele);
 			substitute_(vect, grid);
 		}
 
@@ -98,6 +166,30 @@ bool KgLayoutManager::placeLeft(KvLayoutElement* who, KvLayoutElement* ele, int 
 	}
 
 	return false;
+}
+
+
+bool KgLayoutManager::placeLeft(KvLayoutElement* who, KvLayoutElement* ele, int dist)
+{
+	return placeSide_(who, ele, dist, kPrivate::k_side_left);
+}
+
+
+bool KgLayoutManager::placeRight(KvLayoutElement* who, KvLayoutElement* ele, int dist)
+{
+	return placeSide_(who, ele, dist, kPrivate::k_side_right);
+}
+
+
+bool KgLayoutManager::placeTop(KvLayoutElement* who, KvLayoutElement* ele, int dist)
+{
+	return placeSide_(who, ele, dist, kPrivate::k_side_top);
+}
+
+
+bool KgLayoutManager::placeBottom(KvLayoutElement* who, KvLayoutElement* ele, int dist)
+{
+	return placeSide_(who, ele, dist, kPrivate::k_side_bottom);
 }
 
 

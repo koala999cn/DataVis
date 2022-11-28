@@ -63,8 +63,12 @@ public:
 
 	// 返回x/y维度需要引擎分配空间的份额
 	virtual point2i extraShares() const {
-		return { iRect_.width() > 0, iRect_.height() > 0 };
+		return { iRect_.width() == 0 ? shareFactor_.x() : 0, 
+			iRect_.height() == 0 ? shareFactor_.y()  : 0 };
 	}
+
+	const point2i& shareFactor() const { return shareFactor_; }
+	void setShareFactor(const point2i& f) { shareFactor_ = f; }
 
 protected:
 	virtual size_t calcSize_() const = 0;
@@ -77,4 +81,5 @@ protected:
 	rect_t iRect_, oRect_; // 内、外边框。外边框用于布局，内边框用于绘制
 	margins_t margins_{ point_t(0) ,point_t(0) }; // 内外边框间的留白，缺省无留白
 	KvLayoutElement* parent_{ nullptr };
+	point2i shareFactor_{ 1, 1 }; // 份额因子，值越大分配的空间越多
 };

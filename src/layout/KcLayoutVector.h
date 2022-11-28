@@ -17,7 +17,7 @@ public:
 	void arrange(const rect_t& rc) override;
 
 	point2i extraShares() const override {
-		return extraShares_;
+		return extraShares_ * shareFactor();
 	}
 
 	bool rowMajor() const { return rowMajor_; }
