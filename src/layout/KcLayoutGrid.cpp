@@ -44,14 +44,17 @@ void KcLayoutGrid::removeColAt(unsigned colIdx)
 
 void KcLayoutGrid::resize(unsigned numRows, unsigned numCols)
 {
-	auto oldRows = rows();
-	super_::resize(numRows);
-	for (auto i = oldRows; i < numRows; i++)
-		super_::putAt(i, new KcLayoutVector);
-
 	if (numCols != cols()) {
 		for (unsigned i = 0; i < rows(); i++)
 			rowAt(i)->resize(numCols);
+	}
+
+	auto oldRows = rows();
+	super_::resize(numRows);
+	for (auto i = oldRows; i < numRows; i++) {
+		auto vect = new KcLayoutVector;
+		vect->resize(numCols);
+		super_::putAt(i, vect);
 	}
 }
 
@@ -66,7 +69,7 @@ KvLayoutElement* KcLayoutGrid::getAt(unsigned rowIdx, unsigned colIdx) const
 void KcLayoutGrid::putAt(unsigned rowIdx, unsigned colIdx, KvLayoutElement* ele)
 {
 	if (rowIdx >= rows() || colIdx >= cols())
-		resize(std::max(rowIdx, rows()), std::max(colIdx, cols()));
+		resize(std::max(rowIdx + 1, rows()), std::max(colIdx + 1, cols()));
 	
 	setAt(rowIdx, colIdx, ele);
 }

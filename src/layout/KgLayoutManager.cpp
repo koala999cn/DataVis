@@ -20,7 +20,7 @@ namespace kPrivate
 	KcLayoutGrid* createGridFromVector(KcLayoutVector* v)
 	{
 		auto grid = new KcLayoutGrid(v->parent());
-		int dim = v->rowMajor() ? 0 : 1;
+		int dim = v->rowMajor() ? 1 : 0;
 		point2i szGrid;
 		szGrid[dim] = v->size(), szGrid[!dim] = 1;
 		grid->resize(szGrid[0], szGrid[1]);
@@ -169,7 +169,7 @@ bool KgLayoutManager::placeSide_(KvLayoutElement* who, KvLayoutElement* ele, int
 			pos[dim] = idx;
 			pos[!dim] = (side & k_side_foreward) ? 1 : 0;
 
-			grid->insertAt(pos.x(), pos.y(), ele);
+			grid->putAt(pos.x(), pos.y(), ele);
 			substitute_(vect, grid);
 		}
 
