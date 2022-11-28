@@ -8,13 +8,16 @@
 #include "KtVector3.h"
 #include "KtMargins.h"
 #include "KpContext.h"
+#include "layout/KvLayoutElement.h"
 
 
 // 坐标轴（单轴）实现
 // 坐标轴由4类元素构成：1.baseline, 2.ticks(major & minor), 3.labels, 4.title
 
-class KcAxis : public KvRenderable
+class KcAxis : public KvRenderable, public KvLayoutElement
 {
+	using KvRenderable::float_t;
+
 public:
 	using point2 = KtPoint<float_t, 2>;
 	using point3 = KtPoint<float_t, 3>;
@@ -177,6 +180,8 @@ private:
 	int labelAlignment_() const; // 根据label的orientation判定label的alignment
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
 	aabb_t textBox_(KvPaint*, const point3& anchor, const std::string& text) const;
+
+	size_t calcSize_(void* cxt) const final;
 
 private:
 	KeAxisType type_;

@@ -9,6 +9,14 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
 	, coord_(coord)
 {
 	legend_ = std::make_unique<KcLegend>();
+
+	//layMgr_.setRoot(coord.get());
+}
+
+
+KvPlot::~KvPlot()
+{
+	//layMgr_.take(coord_.get());
 }
 
 
@@ -74,6 +82,9 @@ void KvPlot::update()
 	autoProject_();
 
 	paint_->beginPaint();
+
+	//layMgr_.root()->calcSize(paint_.get());
+	//layMgr_.root()->arrange(paint_->viewport()); // 布局plot各元素
 
 	// 计算legend的空间
 	auto rcCanvas = paint_->viewport();

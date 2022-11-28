@@ -10,9 +10,11 @@ class KgLayoutManager
 
 public:
 
-	void arrange(const rect_t& rc);
-
+	KvLayoutElement* root() { return root_.get(); }
+	const KvLayoutElement* root() const { return root_.get(); }
 	void setRoot(KvLayoutElement* ele);
+
+	void take(KvLayoutElement* ele);
 
 	// 将新元素ele放置在已有元素who的左侧
 	// dist = 0，表示紧邻放置，1表示隔1个有效元素放置，2表示隔2个有效元素放置，-1表示尽远放置

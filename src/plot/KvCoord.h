@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include "KvRenderable.h"
+#include "layout/KvLayoutElement.h"
 #include "KtMargins.h"
 
 class KcAxis; 
@@ -8,9 +9,10 @@ class KcCoordPlane;
 
 // 绘图坐标系的抽象接口
 
-class KvCoord : public KvRenderable
+class KvCoord : public KvRenderable, public KvLayoutElement
 {
 public:
+	using float_t = typename KvRenderable::float_t;
 	using point3 = KtPoint<float_t, 3>;
 
 	using KvRenderable::KvRenderable;

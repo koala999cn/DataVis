@@ -76,7 +76,7 @@ void KcLayoutGrid::setAt(unsigned rowIdx, unsigned colIdx, KvLayoutElement* ele)
 {
 	assert(rowIdx < rows() && colIdx < cols());
 	rowAt(rowIdx)->setAt(colIdx, ele);
-	ele->setParent(this); // 修正parent
+	if (ele) ele->setParent(this); // 修正parent
 }
 
 
@@ -91,7 +91,7 @@ void KcLayoutGrid::insertAt(unsigned rowIdx, unsigned colIdx, KvLayoutElement* e
 	row->resize(cols());
 	row->setAt(colIdx, ele);
 	super_::insertAt(rowIdx, row);
-	ele->setParent(this); // 修正parent
+	if (ele) ele->setParent(this); // 修正parent
 }
 
 

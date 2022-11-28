@@ -5,6 +5,7 @@
 #include "KpContext.h"
 #include "KcLegend.h"
 #include "KtAABB.h"
+#include "layout/KgLayoutManager.h"
 
 
 class KvPaint; // 用来执行具体的plot绘制
@@ -19,6 +20,7 @@ class KvPlot
 
 public:
 	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
+	~KvPlot();
 
 	virtual void setVisible(bool b) = 0;
 	virtual bool visible() const = 0;
@@ -74,4 +76,6 @@ protected:
 
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
 	bool showLegend_{ false };
+
+	KgLayoutManager layMgr_;
 };

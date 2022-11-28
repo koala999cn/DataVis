@@ -2,6 +2,7 @@
 #include "KvCoord.h"
 #include <list>
 #include <memory>
+#include "layout/KgLayoutManager.h"
 
 class KcAxis;
 class KcCoordPlane;
@@ -20,6 +21,8 @@ public:
 	KcCoord2d();
 	KcCoord2d(const point2& lower, const point2& upper);
 
+	virtual ~KcCoord2d();
+
 	void setExtents(const point3& lower, const point3& upper) override;
 
 	point3 lower() const override;
@@ -35,9 +38,18 @@ public:
 
 	// 实现基类的接口
 
-	void draw(KvPaint*) const override;
+	void draw(KvPaint*) const final;
+
+	void arrange(const rect_t& rc) final;
+
+	point2i extraShares() const final;
+
+private:
+
+	size_t calcSize_(void* cxt) const final;
 
 private:
 	axis_list axes_[4];
 	grid_plane_ptr plane_;
+	mutable KgLayoutManager layMgr_;
 };

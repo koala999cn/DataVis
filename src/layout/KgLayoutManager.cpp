@@ -27,8 +27,9 @@ namespace kPrivate
 
 		point2i pos(0);
 		for (; pos[dim] < v->size(); pos[dim]++) {
-			auto e = v->takeAt(0);
+			auto e = v->takeAt(pos[dim]);
 			grid->setAt(pos[0], pos[1], e);
+			assert(e == nullptr || e->parent() == grid);
 		}
 
 		return grid;
@@ -98,16 +99,25 @@ namespace kPrivate
 }
 
 
-void KgLayoutManager::arrange(const rect_t& rc)
-{
-	assert(root_);
-	root_->arrange(rc);
-}
-
-
 void KgLayoutManager::setRoot(KvLayoutElement* ele)
 {
 	root_.reset(ele);
+}
+
+
+void KgLayoutManager::take(KvLayoutElement* ele)
+{
+	auto parent = ele->parent();
+	if (parent == nullptr && root_.get() == ele) {
+		root_.release();
+	}
+	else {
+		auto vect = dynamic_cast<KcLayoutVector*>(parent);
+		if (vect)
+			vect->take(ele);
+		else
+			ele->setParent(nullptr);
+	}
 }
 
 
@@ -124,6 +134,7 @@ bool KgLayoutManager::placeSide_(KvLayoutElement* who, KvLayoutElement* ele, int
 		int whoPos = side & k_side_backword;
 		vect->setAt(whoPos, who);
 		vect->setAt(!whoPos, ele);	
+		root_.release();
 		root_.reset(vect);
 		return true;
 	}
@@ -223,6 +234,7 @@ namespace kPrivate
 bool KgLayoutManager::substitute_(KvLayoutElement* who, KvLayoutElement* ele)
 {
 	if (root_.get() == who) {
+		assert(ele->parent() == nullptr);
 		root_.reset(ele);
 		return true;
 	}

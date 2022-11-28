@@ -63,7 +63,7 @@ public:
 
 protected:
 
-	size_t calcSize_() const override;
+	size_t calcSize_(void* cxt) const override;
 
 	float_t calcSizeStacked_(int dim) const; // 计算各元素dim维度尺寸的累计和
 	float_t calcSizeOverlayed_(int dim) const; // 计算各元素dim维度尺寸的最大值

@@ -156,6 +156,29 @@ KcAxis::point3 KcAxis::tickPos(double val) const
 }
 
 
+KcAxis::size_t KcAxis::calcSize_(void* cxt) const
+{
+	return { 0, 0 };
+
+	assert(visible() && length() > 0);
+
+	auto paint = (KvPaint*)cxt;
+	bool isHorz = (start().y() == end().y());
+	bool isVert = (start().x() == end().x());
+
+	double w = 1; // baseline TODO: 考虑线的宽度
+
+	if (showTick() || showLabel()) {
+		auto scale = scaler();
+		scale->generate(lower(), upper(), false, showLabel());
+		auto& ticks = scale->ticks();
+		if (!ticks.empty()) 
+			w += std::max(tickCxt_.length, subtickCxt_.length); // TODO: 考虑角度
+	}
+
+}
+
+
 // calcMargins主要进行虚拟绘制，以计算以像素为单位的margins为主
 // draw则在世界坐标系进行实际绘制，paint在执行绘制指令时负责坐标转换
 KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const

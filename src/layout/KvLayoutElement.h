@@ -47,9 +47,9 @@ public:
 	// 计算content的尺寸，结果放置在iRect_中
 	// iRect_的lower点等于margins_的lower，iRect_的size等于contentSize
 	// 返回非0代表固定尺寸，返回0表示可拉伸尺寸，由layout引擎根据可用空间分配
-	void calcSize() { 
+	void calcSize(void* cxt) const { 
 		iRect_.lower() = margins_.lower();
-		iRect_.upper() = iRect_.lower() + calcSize_();
+		iRect_.upper() = iRect_.lower() + calcSize_(cxt);
 	}
 
 	// 返回期望的空间大小，由内部使用
@@ -71,14 +71,14 @@ public:
 	void setShareFactor(const point2i& f) { shareFactor_ = f; }
 
 protected:
-	virtual size_t calcSize_() const = 0;
+	virtual size_t calcSize_(void* cxt) const = 0;
 
 	// 返回iRect_缓存的contentSize
 	// 调用此函数之后，iRect_的尺寸将不再等于contentSize
 	float_t arrange_(const rect_t& rc, int dim);
 
 protected:
-	rect_t iRect_, oRect_; // 内、外边框。外边框用于布局，内边框用于绘制
+	mutable rect_t iRect_, oRect_; // 内、外边框。外边框用于布局，内边框用于绘制
 	margins_t margins_{ point_t(0) ,point_t(0) }; // 内外边框间的留白，缺省无留白
 	KvLayoutElement* parent_{ nullptr };
 	point2i shareFactor_{ 1, 1 }; // 份额因子，值越大分配的空间越多

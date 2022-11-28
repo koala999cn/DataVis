@@ -14,10 +14,10 @@ void KcLayoutVector::arrange(const rect_t& rc)
 }
 
 
-KcLayoutVector::size_t KcLayoutVector::calcSize_() const
+KcLayoutVector::size_t KcLayoutVector::calcSize_(void* cxt) const
 {
 	for (auto& i : elements_)
-		if (i) i->calcSize();
+		if (i) i->calcSize(cxt);
 
 	return  rowMajor_ ? size_t(calcSizeStacked_(0), calcSizeOverlayed_(1))
 		              : size_t(calcSizeOverlayed_(0), calcSizeStacked_(1));

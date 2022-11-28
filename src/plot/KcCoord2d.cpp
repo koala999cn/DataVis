@@ -7,7 +7,7 @@
 KcCoord2d::KcCoord2d()
     : KcCoord2d(point2(0), point2(1))
 {
-
+	
 }
 
 
@@ -39,6 +39,20 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 		axes_[KcAxis::k_right].front(),
 		axes_[KcAxis::k_bottom].front(),
 		axes_[KcAxis::k_top].front());
+
+	layMgr_.setRoot(plane_.get());
+}
+
+
+KcCoord2d::~KcCoord2d()
+{
+	// 清除layMgr_中的plane和axis对象，防止二次release
+	forPlane([this](KcCoordPlane& plan) {
+		layMgr_.take(&plan);
+		return true; });
+	forAxis([this](KcAxis& axis) {
+		layMgr_.take(&axis);
+		return true; });
 }
 
 
@@ -103,9 +117,9 @@ void KcCoord2d::draw(KvPaint* paint) const
 {
 	if (visible()) {
 
-
-
-
+		auto THIS = const_cast<KcCoord2d*>(this);
+		THIS->calcSize(paint);
+		THIS->arrange(paint->viewport());
 
 		KvCoord::draw(paint);
 
@@ -124,4 +138,55 @@ KtMargins<KcCoord2d::float_t> KcCoord2d::calcMargins(KvPaint* paint) const
 	l.makeCeil(r); l.makeCeil(b); l.makeCeil(t);
 
 	return l;
+}
+
+
+KcCoord2d::size_t KcCoord2d::calcSize_(void* cxt) const
+{
+	// 重新布局axis
+	forAxis([this](KcAxis& axis) {
+		layMgr_.take(&axis);
+		return true; });
+	
+	for (auto iter = axes_[KcAxis::k_left].rbegin();
+		iter != axes_[KcAxis::k_left].rend();
+		iter++) 
+		if ((*iter)->visible())
+		    layMgr_.placeLeft(plane_.get(), iter->get(), 0);
+
+	for (auto iter = axes_[KcAxis::k_right].rbegin();
+		iter != axes_[KcAxis::k_right].rend();
+		iter++)
+		if ((*iter)->visible())
+		    layMgr_.placeRight(plane_.get(), iter->get(), 0);
+
+	for (auto iter = axes_[KcAxis::k_top].rbegin();
+		iter != axes_[KcAxis::k_top].rend();
+		iter++)
+		if ((*iter)->visible())
+		    layMgr_.placeTop(plane_.get(), iter->get(), 0);
+
+	for (auto iter = axes_[KcAxis::k_bottom].rbegin();
+		iter != axes_[KcAxis::k_bottom].rend();
+		iter++)
+		if ((*iter)->visible())
+		    layMgr_.placeBottom(plane_.get(), iter->get(), 0);
+
+
+	layMgr_.root()->calcSize(cxt);
+	return { layMgr_.root()->innerRect().width(),
+		layMgr_.root()->innerRect().height() };
+}
+
+
+void KcCoord2d::arrange(const rect_t& rc)
+{
+	__super::arrange(rc);
+	layMgr_.root()->arrange(rc);
+}
+
+
+point2i KcCoord2d::extraShares() const
+{
+	return layMgr_.root()->extraShares() * shareFactor();
 }

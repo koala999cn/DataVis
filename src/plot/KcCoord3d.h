@@ -37,6 +37,10 @@ public:
 
 
 private:
+
+	size_t calcSize_(void* cxt) const override { return { 0, 0 }; }
+
+private:
 	axis_ptr axes_[12];
 	grid_plane_ptr planes_[6];
 };
