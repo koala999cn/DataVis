@@ -42,6 +42,25 @@ void KcLayoutGrid::removeColAt(unsigned colIdx)
 }
 
 
+void KcLayoutGrid::insertRowAt(unsigned rowIdx)
+{
+	assert(rowIdx <= rows());
+
+	auto row = new KcLayoutVector;
+	row->resize(cols());
+	super_::insertAt(rowIdx, row);
+}
+
+
+void KcLayoutGrid::insertColAt(unsigned colIdx)
+{
+	assert(colIdx <= cols());
+
+	for (unsigned i = 0; i < rows(); i++)
+		rowAt(i)->insertAt(colIdx, nullptr);
+}
+
+
 void KcLayoutGrid::resize(unsigned numRows, unsigned numCols)
 {
 	if (numCols != cols()) {
@@ -85,16 +104,9 @@ void KcLayoutGrid::setAt(unsigned rowIdx, unsigned colIdx, KvLayoutElement* ele)
 
 void KcLayoutGrid::insertAt(unsigned rowIdx, unsigned colIdx, KvLayoutElement* ele)
 {
-	assert(rowIdx <= rows() && colIdx <= cols());
-
-	for (unsigned i = 0; i < rows(); i++)
-		rowAt(i)->insertAt(colIdx, nullptr);
-
-	auto row = new KcLayoutVector;
-	row->resize(cols());
-	row->setAt(colIdx, ele);
-	super_::insertAt(rowIdx, row);
-	if (ele) ele->setParent(this); // 修正parent
+	insertColAt(colIdx);
+	insertRowAt(rowIdx);
+	setAt(rowIdx, colIdx, ele);
 }
 
 
@@ -106,10 +118,8 @@ void KcLayoutGrid::removeAt(unsigned rowIdx, unsigned colIdx)
 
 KvLayoutElement* KcLayoutGrid::takeAt(unsigned rowIdx, unsigned colIdx)
 {
-	auto row = rowAt(rowIdx);
-	auto ele = row->takeAt(colIdx);
-	row->insertAt(colIdx, nullptr); // 把删掉的元素再填回去nullptr
-	return ele;
+	assert(rowIdx < rows() && colIdx < cols());
+	return rowAt(rowIdx)->takeAt(colIdx);
 }
 
 

@@ -24,6 +24,10 @@ public:
 
 	void removeColAt(unsigned colIdx);
 
+	void insertRowAt(unsigned rowIdx);
+
+	void insertColAt(unsigned colIdx);
+
 	/// element的访问方法
 
 	// 返回[rowIdx, colIdx]位置的元素指针

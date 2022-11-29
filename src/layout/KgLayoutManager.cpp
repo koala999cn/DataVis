@@ -108,16 +108,16 @@ void KgLayoutManager::setRoot(KvLayoutElement* ele)
 void KgLayoutManager::take(KvLayoutElement* ele)
 {
 	auto parent = ele->parent();
-	if (parent == nullptr && root_.get() == ele) {
-		root_.release();
+	if (parent == nullptr) {
+		if (root_.get() == ele)
+			root_.release();
 	}
-	else {
-		auto vect = dynamic_cast<KcLayoutVector*>(parent);
-		if (vect)
-			vect->take(ele);
-		else
-			ele->setParent(nullptr);
-	}
+	else if (dynamic_cast<KcLayoutGrid*>(parent))
+		dynamic_cast<KcLayoutGrid*>(parent)->take(ele);
+	else if (dynamic_cast<KcLayoutVector*>(parent))
+		dynamic_cast<KcLayoutVector*>(parent)->take(ele);
+	else 
+		ele->setParent(nullptr);
 }
 
 
@@ -146,7 +146,16 @@ bool KgLayoutManager::placeSide_(KvLayoutElement* who, KvLayoutElement* ele, int
 		assert(pos.first != -1);
 
 		pos = kPrivate::stepDist(grid, pos, dist, side);
-		grid->insertAt(pos.first, pos.second, ele);
+		if (pos.first < grid->rows() && pos.second < grid->cols() &&
+			grid->getAt(pos.first, pos.second) == nullptr)
+			; // 有空余位置，不增加新行/新列
+		else if (side & k_side_horz)
+			grid->insertColAt(pos.second);
+		else 
+			grid->insertRowAt(pos.first);
+
+		assert(grid->getAt(pos.first, pos.second) == nullptr);
+		grid->putAt(pos.first, pos.second, ele);
 
 		return true;
 	}
