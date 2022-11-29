@@ -10,13 +10,13 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
 {
 	legend_ = std::make_unique<KcLegend>();
 
-	//layMgr_.setRoot(coord_.get());
+	layMgr_.setRoot(coord_.get());
 }
 
 
 KvPlot::~KvPlot()
 {
-	//layMgr_.take(coord_.get());
+	layMgr_.take(coord_.get());
 }
 
 
@@ -83,11 +83,11 @@ void KvPlot::update()
 
 	paint_->beginPaint();
 
-	//layMgr_.root()->calcSize(paint_.get());
-	//layMgr_.root()->arrange(paint_->viewport()); // 布局plot各元素
+	auto rcCanvas = paint_->viewport();
+	updateLayout_(rcCanvas, paint_.get()); // 在调用beginPaint之后更新布局
 
 	// 计算legend的空间
-	auto rcCanvas = paint_->viewport();
+	
 	auto rcCoord = rcCanvas;
 	int ali = legend_->alignment();
 	point2d szLegend; // 需要时计算
@@ -103,14 +103,10 @@ void KvPlot::update()
 //	rcPlot.shrink({ mrgCoord.left(), mrgCoord.top() }, { mrgCoord.right(), mrgCoord.bottom() });
 	// TOOD: 检测rcPlot是否超限
 
-//	paint_->setViewport(rcPlot); // coord绘制需要设定plot视图，以便按世界坐标计算绘制参数
-
-	coord().calcSize(paint_.get());
-	coord().arrange(rcCanvas);
 	coord().draw(paint_.get());
 
 	auto rcPlot = coord().getPlotRect();
-	paint_->setViewport(rcPlot);
+	paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
 	paint_->pushClipRect(rcPlot); // 绘制clip，防止plottables超出范围
 
 	for (int idx = 0; idx < plottableCount(); idx++)
@@ -147,4 +143,11 @@ void KvPlot::fitData()
 		coord_->setExtents(box.lower(), box.upper());
 	else
 		coord_->setExtents({ 0, 0, 0 }, { 1, 1, 1 });
+}
+
+
+void KvPlot::updateLayout_(const rect_t& rc, void* cxt)
+{
+	layMgr_.root()->calcSize(cxt);
+	layMgr_.root()->arrange(rc); // 布局plot各元素
 }

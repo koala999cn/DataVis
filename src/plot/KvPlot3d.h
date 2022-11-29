@@ -1,6 +1,5 @@
 #pragma once
 #include "KvPlot.h"
-#include "KcCoord3d.h"
 #include "KtMatrix4.h"
 #include "KvRenderable.h"
 

@@ -16,7 +16,7 @@ class KvCoord;
 
 class KvPlot
 {
-	using rect = KtAABB<double, 2>;
+	using rect_t = KtAABB<double, 2>;
 
 public:
 	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
@@ -65,6 +65,7 @@ public:
 protected:
 	virtual void autoProject_() = 0;
 
+	void updateLayout_(const rect_t& rc, void* cxt);
 
 protected:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入

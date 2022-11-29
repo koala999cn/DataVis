@@ -3,6 +3,7 @@
 #include "plot/KcGraph.h"
 #include "plot/KcScatter.h"
 #include "plot/KcBars3d.h"
+#include "plot/KvCoord.h" // TODO: 此处不该引用KvCoord文件
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
 #include "imgui.h"
@@ -57,7 +58,7 @@ void KcRdPlot3d::showProperySet()
 	ImGui::DragScalarN("Scale", ImGuiDataType_Double, plot3d->scale(), 3, 0.01, &minVal, &maxVal, format);
 	ImGui::DragScalarN("Shift", ImGuiDataType_Double, plot3d->shift(), 3, 
 		plot_->coord().boundingBox().width() * 0.01, 0, 0, format);
-
+	
 	auto& orient = plot3d->orient();
 	mat3d<> rot;
 	orient.toRotateMatrix(rot);

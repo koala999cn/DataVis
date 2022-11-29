@@ -1,7 +1,7 @@
 #include "KcImPlot2d.h"
 #include "KcImPaint.h"
 #include "plot/KcAxis.h"
-#include "plot/KcCoord3d.h"
+#include "plot/KcCoord2d.h"
 #include "KuStrUtil.h"
 
 

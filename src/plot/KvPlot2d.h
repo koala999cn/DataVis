@@ -1,9 +1,10 @@
 #pragma once
 #include "KvPlot.h"
-#include "KcCoord2d.h"
 #include "KvRenderable.h"
 #include "KtMargins.h"
 
+
+class KcAxis;
 
 // 二维plot的抽象类
 

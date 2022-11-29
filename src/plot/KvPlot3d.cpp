@@ -1,10 +1,11 @@
 #include "KvPlot3d.h"
+#include "KvCoord.h"
 
 
 KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
 	: KvPlot(paint, coord)
 {
-	coord_ = std::make_unique<KcCoord3d>();
+	coord_ = coord;
 
     mat3d<> rot;
     rot.fromEulerAngleXYZ(0.316, -0.595, 0);
