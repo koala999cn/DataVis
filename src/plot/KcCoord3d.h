@@ -32,6 +32,8 @@ public:
 
 	KtMargins<float_t> calcMargins(KvPaint*) const override;
 
+	rect_t getPlotRect() const override;
+
 	axis_ptr& axis(int type) { return axes_[type]; }
 	axis_ptr axis(int type) const { return axes_[type]; }
 

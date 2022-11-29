@@ -184,3 +184,9 @@ KtMargins<KcCoord3d::float_t> KcCoord3d::calcMargins(KvPaint*) const
 {
 	return {};
 }
+
+
+KcCoord3d::rect_t KcCoord3d::getPlotRect() const
+{
+	return innerRect();
+}

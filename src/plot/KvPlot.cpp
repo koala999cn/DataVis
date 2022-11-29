@@ -10,7 +10,7 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
 {
 	legend_ = std::make_unique<KcLegend>();
 
-	//layMgr_.setRoot(coord.get());
+	//layMgr_.setRoot(coord_.get());
 }
 
 
@@ -98,15 +98,19 @@ void KvPlot::update()
 		rcCoord = KuAlignment::layout(ali, szLegend, rcCanvas);
 	}
 
-	auto rcPlot = rcCoord; // 绘图区域
-	auto mrgCoord = coord().calcMargins(paint_.get());
-	rcPlot.shrink({ mrgCoord.left(), mrgCoord.top() }, { mrgCoord.right(), mrgCoord.bottom() });
+//	auto rcPlot = rcCoord; // 绘图区域
+//	auto mrgCoord = coord().calcMargins(paint_.get());
+//	rcPlot.shrink({ mrgCoord.left(), mrgCoord.top() }, { mrgCoord.right(), mrgCoord.bottom() });
 	// TOOD: 检测rcPlot是否超限
 
-	paint_->setViewport(rcPlot); // coord绘制需要设定plot视图，以便按世界坐标计算绘制参数
+//	paint_->setViewport(rcPlot); // coord绘制需要设定plot视图，以便按世界坐标计算绘制参数
 
+	coord().calcSize(paint_.get());
+	coord().arrange(rcCanvas);
 	coord().draw(paint_.get());
 
+	auto rcPlot = coord().getPlotRect();
+	paint_->setViewport(rcPlot);
 	paint_->pushClipRect(rcPlot); // 绘制clip，防止plottables超出范围
 
 	for (int idx = 0; idx < plottableCount(); idx++)
@@ -116,14 +120,14 @@ void KvPlot::update()
 	paint_->popClipRect();
 
 	if (showLegend) {
-		auto pos = KuAlignment::position(ali, szLegend, KuAlignment::outside(ali) ? rcCoord : rcPlot);
+//		auto pos = KuAlignment::position(ali, szLegend, KuAlignment::outside(ali) ? rcCoord : rcPlot);
 
 		paint_->pushCoord(KvPaint::k_coord_screen);
-		paint_->pushLocal(KvPaint::mat4::buildTanslation({ pos.x(), pos.y(), 0 }));
+//		paint_->pushLocal(KvPaint::mat4::buildTanslation({ pos.x(), pos.y(), 0 }));
 
 		legend_->draw(paint_.get());
 
-		paint_->popLocal();
+//		paint_->popLocal();
 		paint_->popCoord();
 	}
 

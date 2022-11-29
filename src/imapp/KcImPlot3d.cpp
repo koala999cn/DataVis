@@ -6,7 +6,7 @@
 
 
 KcImPlot3d::KcImPlot3d(const std::string_view& name)
-    : KvPlot3d(std::make_shared<KcImPaint>(camera_), std::make_shared<KcCoord2d>())
+    : KvPlot3d(std::make_shared<KcImPaint>(camera_), std::make_shared<KcCoord3d>())
     , KvImWindow(name)
     , trackball_(orient_)
 {

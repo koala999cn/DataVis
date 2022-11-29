@@ -116,14 +116,10 @@ void KcCoord2d::forPlane(std::function<bool(KcCoordPlane& plane)> fn) const
 void KcCoord2d::draw(KvPaint* paint) const
 {
 	if (visible()) {
-
-		auto THIS = const_cast<KcCoord2d*>(this);
-		THIS->calcSize(paint);
-		THIS->arrange(paint->viewport());
-
+		auto oldVp = paint->viewport();
+		paint->setViewport(plane_->innerRect());
 		KvCoord::draw(paint);
-
-		//paint->setViewport(oldVp); // restore the old viewport
+		paint->setViewport(oldVp); // restore the old viewport
 	}
 }
 
@@ -189,4 +185,10 @@ void KcCoord2d::arrange(const rect_t& rc)
 point2i KcCoord2d::extraShares() const
 {
 	return layMgr_.root()->extraShares() * shareFactor();
+}
+
+
+KcCoord2d::rect_t KcCoord2d::getPlotRect() const
+{
+	return plane_->innerRect();
 }

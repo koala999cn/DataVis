@@ -158,24 +158,30 @@ KcAxis::point3 KcAxis::tickPos(double val) const
 
 KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 {
-	return { 0, 0 };
-
 	assert(visible() && length() > 0);
 
 	auto paint = (KvPaint*)cxt;
-	bool isHorz = (start().y() == end().y());
-	bool isVert = (start().x() == end().x());
+	auto margins = calcMargins(paint);
 
-	double w = 1; // baseline TODO: 考虑线的宽度
+	switch (type_)
+	{
+	case KcAxis::k_left:
+		return { margins.left(), 0 };
 
-	if (showTick() || showLabel()) {
-		auto scale = scaler();
-		scale->generate(lower(), upper(), false, showLabel());
-		auto& ticks = scale->ticks();
-		if (!ticks.empty()) 
-			w += std::max(tickCxt_.length, subtickCxt_.length); // TODO: 考虑角度
+	case KcAxis::k_right:
+		return { margins.right(), 0 };
+
+	case KcAxis::k_bottom:
+		return { 0, margins.bottom() };
+
+	case KcAxis::k_top:
+		return { 0, margins.top() };
+
+	default:
+		break;
 	}
-
+	
+	return { 0, 0 };
 }
 
 

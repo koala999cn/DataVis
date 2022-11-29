@@ -46,6 +46,9 @@ public:
 
 	virtual KtMargins<float_t> calcMargins(KvPaint*) const = 0;
 
+	// 返回实际的绘图区域，paint将此设置为viewport，之后绘制plottables
+	virtual rect_t getPlotRect() const = 0;
+
 	// 提供基类接口的缺省实现
 
 	void draw(KvPaint*) const override;
