@@ -17,7 +17,7 @@ KcImPlot2d::KcImPlot2d(const std::string_view& name)
 void KcImPlot2d::updateImpl_()
 {
     // 设置窗口背景为plot的背景色
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, (const ImVec4&)bkgnd_.color);
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, (const ImVec4&)background().color);
 
     if (ImGui::BeginChild("##", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove)) {
 
@@ -26,7 +26,7 @@ void KcImPlot2d::updateImpl_()
         auto sz = ImGui::GetWindowSize();
         KvPaint::rect vp({ pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y });
         vp.shrink({ margins_.left(), margins_.bottom() }, { margins_.right(), margins_.top() });
-        paint_->setViewport(vp);
+        paint().setViewport(vp);
 
         auto lower = coord().lower();
         auto upper = coord().upper();

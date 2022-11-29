@@ -41,6 +41,7 @@ public:
 	bool showLegend() const { return showLegend_; }
 	bool& showLegend() { return showLegend_; }
 
+	KvPaint& paint() { return *paint_.get(); }
 	KvCoord& coord() { return *coord_.get(); }
 
 	KcLegend& legend() { return *legend_; }
@@ -62,12 +63,12 @@ public:
 	void removeAllPlottables();
 
 
-protected:
+private:
 	virtual void autoProject_() = 0;
 
 	void updateLayout_(const rect_t& rc, void* cxt);
 
-protected:
+private:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
 	std::shared_ptr<KvCoord> coord_; // 由用户创建并传入
 	std::unique_ptr<KcLegend> legend_; // 内部创建并管理

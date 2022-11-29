@@ -5,8 +5,6 @@
 KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
 	: KvPlot(paint, coord)
 {
-	coord_ = coord;
-
     mat3d<> rot;
     rot.fromEulerAngleXYZ(0.316, -0.595, 0);
     orient_ = quatd(rot);

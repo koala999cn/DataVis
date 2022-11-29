@@ -15,13 +15,13 @@ public:
 	using axis_ptr = std::shared_ptr<KcAxis>;
 	using point2 = point2d;
 
-	KvPlot2d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
+	using KvPlot::KvPlot;
 
 	const KtMargins<float_t>& margins() const { return margins_; }
 	KtMargins<float_t>& margins() { return margins_; }
 
-protected:
-	void autoProject_() override;
+private:
+	void autoProject_() override { }
 
 protected:
 	KtMargins<float_t> margins_{ 15, 15, 15, 15 };
