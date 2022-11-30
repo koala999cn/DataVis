@@ -147,25 +147,25 @@ KcCoord2d::size_t KcCoord2d::calcSize_(void* cxt) const
 	for (auto iter = axes_[KcAxis::k_left].rbegin();
 		iter != axes_[KcAxis::k_left].rend();
 		iter++) 
-		if ((*iter)->visible())
+		if ((*iter)->visible() && (*iter)->length() > 0)
 		    layMgr_.placeLeft(plane_.get(), iter->get(), 0);
 
 	for (auto iter = axes_[KcAxis::k_right].rbegin();
 		iter != axes_[KcAxis::k_right].rend();
 		iter++)
-		if ((*iter)->visible())
+		if ((*iter)->visible() && (*iter)->length() > 0)
 		    layMgr_.placeRight(plane_.get(), iter->get(), 0);
 
 	for (auto iter = axes_[KcAxis::k_top].rbegin();
 		iter != axes_[KcAxis::k_top].rend();
 		iter++)
-		if ((*iter)->visible())
+		if ((*iter)->visible() && (*iter)->length() > 0)
 		    layMgr_.placeTop(plane_.get(), iter->get(), 0);
 
 	for (auto iter = axes_[KcAxis::k_bottom].rbegin();
 		iter != axes_[KcAxis::k_bottom].rend();
 		iter++)
-		if ((*iter)->visible())
+		if ((*iter)->visible() && (*iter)->length() > 0)
 		    layMgr_.placeBottom(plane_.get(), iter->get(), 0);
 
 
