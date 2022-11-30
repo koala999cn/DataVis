@@ -41,5 +41,8 @@ private:
 	std::shared_ptr<KvData> data_; // 当前帧生成的数据
 	std::shared_ptr<KvExcitor> excitor_;
 	int type_{ 0 }; // 随机分布类型
+
+	kReal pluseRate_{ 4000 }; // 信号发生速率：每秒产生的脉冲数
 	kIndex plusePerFrame_{ 256 }; // 每帧产生的脉冲数
+	kReal timePerFrame_{ 256 / 4000 }; // 每帧（即每次调用fetchData）产生该时长的信号，与pluseRate_和plusePerFrame_联动
 };

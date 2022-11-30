@@ -138,6 +138,7 @@
     <ClCompile Include="src\dsp\KuExtrapolate.cpp" />
     <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
     <ClCompile Include="src\dsp\KuInterp1d.cpp" />
+    <ClCompile Include="src\dsp\KuOscillatorFactory.cpp" />
     <ClCompile Include="src\dsp\KvContinued.cpp" />
     <ClCompile Include="src\dsp\KvDiscreted.cpp" />
     <ClCompile Include="src\imapp\imguix.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="src\audio\KcAudioDevice.h" />
     <ClInclude Include="src\audio\KcAudioRender.h" />
     <ClInclude Include="src\audio\KgAudioFile.h" />
+    <ClInclude Include="src\base\bimap.h" />
     <ClInclude Include="src\base\KtProjector.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
@@ -298,6 +300,7 @@
     <ClInclude Include="src\dsp\KvExcitor.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\dsp\minmax.h" />
+    <ClInclude Include="src\dsp\KuOscillatorFactory.h" />
     <ClInclude Include="src\dsp\wops.h" />
     <ClInclude Include="src\imapp\imguix.h" />
     <ClInclude Include="src\imapp\KcActionInsertDataNode.h" />

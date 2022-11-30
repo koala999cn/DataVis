@@ -79,7 +79,7 @@ void KcPvExcitor::output()
 
 	kReal* buf = samp->data();
 	for (kIndex i = 0; i < samp->size(0); i++)
-		*buf++ = excitor_->pulse();
+		*buf++ = excitor_->tick();
 }
 
 

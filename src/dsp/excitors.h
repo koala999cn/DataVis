@@ -11,7 +11,7 @@ public:
 
 	KcGaussExcitor(kReal mu, kReal sigma) : mu_(mu), sigma_(sigma) {}
 
-	kReal pulse() override {
+	kReal tick() override {
 		return static_cast<kReal>(r_.gauss(mu_, sigma_));
 	}
 
@@ -35,7 +35,7 @@ public:
 
 	KcExponentExcitor(kReal beta) : beta_(beta) {}
 
-	kReal pulse() override {
+	kReal tick() override {
 		return static_cast<kReal>(r_.exponent(beta_));
 	}
 
@@ -57,7 +57,7 @@ public:
 
 	KcLaplaceExcitor(kReal beta) : beta_(beta) {}
 
-	kReal pulse() override {
+	kReal tick() override {
 		return static_cast<kReal>(r_.laplace(beta_));
 	}
 
@@ -79,7 +79,7 @@ public:
 
 	KcRayleighExcitor(kReal sigma) : sigma_(sigma) {}
 
-	kReal pulse() override {
+	kReal tick() override {
 		return static_cast<kReal>(r_.rayleigh(sigma_));
 	}
 
@@ -101,7 +101,7 @@ public:
 
 	KcLognormExcitor(kReal mu, kReal sigma) : mu_(mu), sigma_(sigma) {}
 
-	kReal pulse() override {
+	kReal tick() override {
 		return static_cast<kReal>(r_.lognorm(mu_, sigma_));
 	}
 
@@ -124,7 +124,7 @@ public:
 
 	KcCauchyExcitor(kReal alpha, kReal beta) : alpha_(alpha_), beta_(beta) {}
 
-	kReal pulse() override {
+	kReal tick() override {
 		return static_cast<kReal>(r_.cauchy(alpha_, beta_));
 	}
 
@@ -147,7 +147,7 @@ public:
 
 	KcWeibullExcitor(kReal alpha, kReal beta) : alpha_(alpha_), beta_(beta) {}
 
-	kReal pulse() override {
+	kReal tick() override {
 		return static_cast<kReal>(r_.weibull(alpha_, beta_));
 	}
 
