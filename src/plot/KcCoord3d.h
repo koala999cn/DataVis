@@ -34,13 +34,11 @@ public:
 
 	rect_t getPlotRect() const override;
 
+	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;
+
 	axis_ptr& axis(int type) { return axes_[type]; }
 	axis_ptr axis(int type) const { return axes_[type]; }
 
-
-private:
-
-	size_t calcSize_(void* cxt) const override { return { 0, 0 }; }
 
 private:
 	axis_ptr axes_[12];

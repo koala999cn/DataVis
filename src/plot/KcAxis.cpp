@@ -2,9 +2,9 @@
 #include <assert.h>
 #include "KcLinearScaler.h"
 #include "KvPaint.h"
-#include "KuAlignment.h"
 #include "KtuMath.h"
 #include "KtLine.h"
+#include "layout/KeAlignment.h"
 
 
 KcAxis::KcAxis(KeAxisType type)
@@ -136,14 +136,18 @@ int KcAxis::labelAlignment_() const
 	int align(0);
 
 	if (labelOrient_.x() > 0)
-		align |= k_align_left;
+		align |= KeAlignment::k_left;
 	else if (labelOrient_.x() < 0)
-		align |= k_align_right;
+		align |= KeAlignment::k_right;
+	else
+		align |= KeAlignment::k_hcenter;
 
 	if (labelOrient_.y() > 0 || labelOrient_.z() < 0 )
-		align |= k_align_bottom;
+		align |= KeAlignment::k_bottom;
 	else if (labelOrient_.y() < 0 || labelOrient_.z() > 0)
-		align |= k_align_top;
+		align |= KeAlignment::k_top;
+	else
+		align |= KeAlignment::k_vcenter;
 
 	return align;
 }

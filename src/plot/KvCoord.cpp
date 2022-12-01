@@ -14,7 +14,7 @@ void KvCoord::draw(KvPaint* paint) const
 			});
 
 		forAxis([paint](KcAxis& axis) {
-			if (axis.visible())
+			if (axis.visible() && axis.length() > 0)
 				axis.draw(paint);
 			return true;
 			});

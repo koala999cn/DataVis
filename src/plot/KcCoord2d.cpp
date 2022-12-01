@@ -2,6 +2,7 @@
 #include "KcAxis.h"
 #include "KcCoordPlane.h"
 #include "KvPaint.h"
+#include "layout/KuLayoutHelper.h"
 
 
 KcCoord2d::KcCoord2d()
@@ -40,18 +41,18 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 		axes_[KcAxis::k_bottom].front(),
 		axes_[KcAxis::k_top].front());
 
-	layMgr_.setRoot(plane_.get());
+	putAt(0, 0, plane_.get());
 }
 
 
 KcCoord2d::~KcCoord2d()
 {
-	// 清除layMgr_中的plane和axis对象，防止二次release
+	// 清除layout中的plane和axis对象，防止二次release
 	forPlane([this](KcCoordPlane& plan) {
-		layMgr_.take(&plan);
+		KuLayoutHelper::take(&plan);
 		return true; });
 	forAxis([this](KcAxis& axis) {
-		layMgr_.take(&axis);
+		KuLayoutHelper::take(&axis);
 		return true; });
 }
 
@@ -141,54 +142,75 @@ KcCoord2d::size_t KcCoord2d::calcSize_(void* cxt) const
 {
 	// 重新布局axis
 	forAxis([this](KcAxis& axis) {
-		layMgr_.take(&axis);
+		KuLayoutHelper::take(&axis);
 		return true; });
 	
 	for (auto iter = axes_[KcAxis::k_left].rbegin();
 		iter != axes_[KcAxis::k_left].rend();
 		iter++) 
 		if ((*iter)->visible())
-		    layMgr_.placeLeft(plane_.get(), iter->get(), 0);
+			KuLayoutHelper::placeLeft(plane_.get(), iter->get(), 0);
 
 	for (auto iter = axes_[KcAxis::k_right].rbegin();
 		iter != axes_[KcAxis::k_right].rend();
 		iter++)
 		if ((*iter)->visible())
-		    layMgr_.placeRight(plane_.get(), iter->get(), 0);
+			KuLayoutHelper::placeRight(plane_.get(), iter->get(), 0);
 
 	for (auto iter = axes_[KcAxis::k_top].rbegin();
 		iter != axes_[KcAxis::k_top].rend();
 		iter++)
 		if ((*iter)->visible())
-		    layMgr_.placeTop(plane_.get(), iter->get(), 0);
+			KuLayoutHelper::placeTop(plane_.get(), iter->get(), 0);
 
 	for (auto iter = axes_[KcAxis::k_bottom].rbegin();
 		iter != axes_[KcAxis::k_bottom].rend();
 		iter++)
 		if ((*iter)->visible())
-		    layMgr_.placeBottom(plane_.get(), iter->get(), 0);
+			KuLayoutHelper::placeBottom(plane_.get(), iter->get(), 0);
 
 
-	layMgr_.root()->calcSize(cxt);
-	return { layMgr_.root()->innerRect().width(),
-		layMgr_.root()->innerRect().height() };
-}
-
-
-void KcCoord2d::arrange(const rect_t& rc)
-{
-	__super::arrange(rc);
-	layMgr_.root()->arrange(rc);
-}
-
-
-point2i KcCoord2d::extraShares() const
-{
-	return layMgr_.root()->extraShares() * shareFactor();
+	return __super::calcSize_(cxt);
 }
 
 
 KcCoord2d::rect_t KcCoord2d::getPlotRect() const
 {
 	return plane_->innerRect();
+}
+
+
+void KcCoord2d::placeElement(KvLayoutElement* ele, KeAlignment loc)
+{
+	assert(!isAncestorOf(ele));
+
+	if (loc.inner()) {
+		plane_->insert(ele);
+	}
+	else {
+		if (loc & KeAlignment::k_horz_first) {
+			if (loc & KeAlignment::k_left)
+				KuLayoutHelper::placeLeft(plane_.get(), ele, -1);
+			else if (loc & KeAlignment::k_right)
+				KuLayoutHelper::placeRight(plane_.get(), ele, -1);
+			else if (loc & KeAlignment::k_top)
+				KuLayoutHelper::placeTop(plane_.get(), ele, -1);
+			else if (loc & KeAlignment::k_bottom)
+				KuLayoutHelper::placeBottom(plane_.get(), ele, -1);
+			else
+				assert(false);
+		}
+		else {
+			if (loc & KeAlignment::k_top)
+				KuLayoutHelper::placeTop(plane_.get(), ele, -1);
+			else if (loc & KeAlignment::k_bottom)
+				KuLayoutHelper::placeBottom(plane_.get(), ele, -1);
+			else if (loc & KeAlignment::k_left)
+				KuLayoutHelper::placeLeft(plane_.get(), ele, -1);
+			else if (loc & KeAlignment::k_right)
+				KuLayoutHelper::placeRight(plane_.get(), ele, -1);
+			else
+				assert(false);
+		}
+	}
 }

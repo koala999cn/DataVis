@@ -1,7 +1,8 @@
 #include "KvPlot.h"
 #include "KvCoord.h"
 #include "KvPaint.h"
-#include "KuAlignment.h"
+#include "layout/KcLayoutGrid.h"
+#include "layout/KuLayoutHelper.h"
 
 
 KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
@@ -10,13 +11,15 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
 {
 	legend_ = std::make_unique<KcLegend>();
 
-	layMgr_.setRoot(coord_.get());
+	layout_ = std::make_unique<KcLayoutGrid>();
+	layout_->putAt(0, 0, coord_.get());
 }
 
 
 KvPlot::~KvPlot()
 {
-	layMgr_.take(coord_.get());
+	KuLayoutHelper::take(legend_.get());
+	KuLayoutHelper::take(coord_.get());
 }
 
 
@@ -89,25 +92,20 @@ void KvPlot::update()
 	// 计算legend的空间
 	
 	auto rcCoord = rcCanvas;
-	int ali = legend_->alignment();
+	int ali = legend_->location();
 	point2d szLegend; // 需要时计算
 
 	bool showLegend = showLegend_ && legend_->itemCount() > 0;
-	if (showLegend) {
-		szLegend = legend_->calcSize(paint_.get());
-		rcCoord = KuAlignment::layout(ali, szLegend, rcCanvas);
-	}
-
-//	auto rcPlot = rcCoord; // 绘图区域
-//	auto mrgCoord = coord().calcMargins(paint_.get());
-//	rcPlot.shrink({ mrgCoord.left(), mrgCoord.top() }, { mrgCoord.right(), mrgCoord.bottom() });
-	// TOOD: 检测rcPlot是否超限
+	//if (showLegend) {
+	//	szLegend = legend_->calcSize(paint_.get());
+	//	rcCoord = KuAlignment::layout(ali, szLegend, rcCanvas);
+	//}
 
 	coord().draw(paint_.get());
 
 	auto rcPlot = coord().getPlotRect();
 	paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
-	paint_->pushClipRect(rcPlot); // 绘制clip，防止plottables超出范围
+	paint_->pushClipRect(rcPlot); // 设置clipRect，防止plottables超出范围
 
 	for (int idx = 0; idx < plottableCount(); idx++)
 		if (plottableAt(idx)->visible())
@@ -115,17 +113,9 @@ void KvPlot::update()
 
 	paint_->popClipRect();
 
-	if (showLegend) {
+	if (showLegend) 
 //		auto pos = KuAlignment::position(ali, szLegend, KuAlignment::outside(ali) ? rcCoord : rcPlot);
-
-		paint_->pushCoord(KvPaint::k_coord_screen);
-//		paint_->pushLocal(KvPaint::mat4::buildTanslation({ pos.x(), pos.y(), 0 }));
-
 		legend_->draw(paint_.get());
-
-//		paint_->popLocal();
-		paint_->popCoord();
-	}
 
 	paint_->setViewport(rcCanvas); // 恢复原视口
 
@@ -148,6 +138,15 @@ void KvPlot::fitData()
 
 void KvPlot::updateLayout_(const rect_t& rc, void* cxt)
 {
-	layMgr_.root()->calcSize(cxt);
-	layMgr_.root()->arrange(rc); // 布局plot各元素
+	KuLayoutHelper::take(legend_.get());
+
+	bool showLegend = showLegend_ && legend_->itemCount() > 0;
+	if (showLegend) {
+		auto loc = legend_->location();
+		//legend_->align() = loc;
+		coord_->placeElement(legend_.get(), loc);
+	}
+
+	layout_->calcSize(cxt);
+	layout_->arrange(rc); // 布局plot各元素
 }

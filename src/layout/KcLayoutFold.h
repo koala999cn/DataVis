@@ -1,8 +1,9 @@
 #pragma once
-#include "KcLayoutVector.h"
+#include "KcLayout1d.h"
 
 
-class KcLayoutFold : public KcLayoutVector
+// TODO: ´ýÊµÏÖ
+class KcLayoutFold : public KcLayout1d
 {
 public:
 

@@ -5,12 +5,11 @@
 #include "KpContext.h"
 #include "KcLegend.h"
 #include "KtAABB.h"
-#include "layout/KgLayoutManager.h"
 
 
 class KvPaint; // 用来执行具体的plot绘制
 class KvCoord;
-
+class KcLayoutGrid;
 
 // plot的最底层抽象接口
 
@@ -79,5 +78,5 @@ private:
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
 	bool showLegend_{ false };
 
-	KgLayoutManager layMgr_;
+	std::unique_ptr<KcLayoutGrid> layout_;
 };

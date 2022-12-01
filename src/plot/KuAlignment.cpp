@@ -1,45 +1,6 @@
+#if 0
+
 #include "KuAlignment.h"
-
-
-int KuAlignment::location(int align)
-{
-	return align & k_align_location_mask;
-}
-
-
-int KuAlignment::side(int align)
-{
-	return align & k_align_side_mask;
-}
-
-
-int KuAlignment::toggleSide(int align)
-{
-	if (align & k_align_side_mask)
-		align &= ~k_align_side_mask;
-	else
-		align |= k_align_horz_first;
-
-	return align;
-}
-
-
-int KuAlignment::toggleHorzFirst(int align)
-{
-	return side(align) ? align ^ k_align_side_mask : align;
-}
-
-
-bool KuAlignment::sameLocation(int ali1, int ali2)
-{
-	return location(ali1) == location(ali2);
-}
-
-
-bool KuAlignment::sameSide(int ali1, int ali2)
-{
-	return side(ali1) == side(ali2);
-}
 
 
 point2d KuAlignment::position(int align, const point2d& sz, const rect& rc)
@@ -114,3 +75,4 @@ KuAlignment::rect KuAlignment::layout(int align, const point2d& szBox, const rec
 
 	return rc;
 }
+#endif

@@ -1,5 +1,5 @@
 #include "KvPaint.h"
-#include "KuAlignment.h"
+#include "layout/KeAlignment.h"
 
 
 void KvPaint::drawPoints(const point3 pts[], unsigned count)
@@ -62,16 +62,16 @@ KvPaint::rect KvPaint::textRect(const point2& pos, const char* text, int align) 
 	auto lower = pos;
 	auto szText = textSize(text);
 
-	if (align & k_align_bottom)
+	if (align & KeAlignment::k_bottom)
 		lower.y() -= szText.y();
-	else if (align & k_align_top)
+	else if (align & KeAlignment::k_top)
 		lower.y();
 	else // k_align_venter
 		lower.y() -= szText.y() * 0.5;
 
-	if (align & k_align_left)
+	if (align & KeAlignment::k_left)
 		lower.x();
-	else if (align & k_align_right)
+	else if (align & KeAlignment::k_right)
 		lower.x() -= szText.x();
 	else // k_align_center
 		lower.x() -= szText.x() * 0.5;

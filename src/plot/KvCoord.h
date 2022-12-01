@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
 #include "KvRenderable.h"
-#include "layout/KvLayoutElement.h"
+#include "layout/KcLayoutGrid.h"
 #include "KtMargins.h"
 
 class KcAxis; 
@@ -9,7 +9,7 @@ class KcCoordPlane;
 
 // 绘图坐标系的抽象接口
 
-class KvCoord : public KvRenderable, public KvLayoutElement
+class KvCoord : public KvRenderable, public KcLayoutGrid
 {
 public:
 	using float_t = typename KvRenderable::float_t;
@@ -48,6 +48,8 @@ public:
 
 	// 返回实际的绘图区域，paint将此设置为viewport，之后绘制plottables
 	virtual rect_t getPlotRect() const = 0;
+
+	virtual void placeElement(KvLayoutElement* ele, KeAlignment loc) = 0;
 
 	// 提供基类接口的缺省实现
 

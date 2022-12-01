@@ -168,9 +168,10 @@
     <ClCompile Include="src\imapp\KvNode.cpp" />
     <ClCompile Include="src\imapp\KcActionSequence.cpp" />
     <ClCompile Include="src\layout\KcLayoutFold.cpp" />
+    <ClCompile Include="src\layout\KcLayout2d.cpp" />
+    <ClCompile Include="src\layout\KcLayout1d.cpp" />
     <ClCompile Include="src\layout\KcLayoutGrid.cpp" />
-    <ClCompile Include="src\layout\KcLayoutVector.cpp" />
-    <ClCompile Include="src\layout\KgLayoutManager.cpp" />
+    <ClCompile Include="src\layout\KuLayoutHelper.cpp" />
     <ClCompile Include="src\layout\KvLayoutElement.cpp" />
     <ClCompile Include="src\op\KcOpFbank.cpp" />
     <ClCompile Include="src\op\KcOpFIR.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="src\audio\KcAudioDevice.h" />
     <ClInclude Include="src\audio\KcAudioRender.h" />
     <ClInclude Include="src\audio\KgAudioFile.h" />
+    <ClInclude Include="src\base\KtHolder.h" />
     <ClInclude Include="src\base\KtProjector.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
@@ -330,9 +332,13 @@
     <ClInclude Include="src\imapp\KvModule.h" />
     <ClInclude Include="src\imapp\KvNode.h" />
     <ClInclude Include="src\layout\KcLayoutFold.h" />
+    <ClInclude Include="src\layout\KcLayout2d.h" />
+    <ClInclude Include="src\layout\KcLayout1d.h" />
     <ClInclude Include="src\layout\KcLayoutGrid.h" />
-    <ClInclude Include="src\layout\KcLayoutVector.h" />
-    <ClInclude Include="src\layout\KgLayoutManager.h" />
+    <ClInclude Include="src\layout\KcLayoutOverlay.h" />
+    <ClInclude Include="src\layout\KeAlignment.h" />
+    <ClInclude Include="src\layout\KuLayoutHelper.h" />
+    <ClInclude Include="src\layout\KvLayoutContainer.h" />
     <ClInclude Include="src\layout\KvLayoutElement.h" />
     <ClInclude Include="src\op\KcOpFbank.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
@@ -366,7 +372,6 @@
     <ClInclude Include="src\plot\KsThemeManager.h" />
     <ClInclude Include="src\plot\KtColor.h" />
     <ClInclude Include="src\plot\KtMargins.h" />
-    <ClInclude Include="src\plot\KuAlignment.h" />
     <ClInclude Include="src\plot\KuColorUtil.h" />
     <ClInclude Include="src\plot\KuGeometryFactory.h" />
     <ClInclude Include="src\plot\KuThemeParser.h" />

@@ -1,26 +1,21 @@
 #pragma once
-#include "KcLayoutVector.h"
+#include "KcLayout2d.h"
 
 
-// 网格布局，底层算法依赖KcLayoutVector实现
+// 网格布局，每行的列数相同，同列元素的布局宽度相同
 
-class KcLayoutGrid : public KcLayoutVector
+class KcLayoutGrid : public KcLayout2d
 {
-	using super_ = KcLayoutVector;
+	using float_t = typename size_t::value_type;
+	using super_ = KcLayout2d;
 
 public:
 
-	KcLayoutGrid();
-	KcLayoutGrid(KvLayoutElement* parent);
+	using super_::super_;
 
-	void resize(unsigned numRows, unsigned numCols);
-
-	unsigned rows() const { return super_::size(); }
 	unsigned cols() const;
 
-	KcLayoutVector* rowAt(unsigned rowIdx) const;
-
-	void removeRowAt(unsigned rowIdx);
+	void resize(unsigned numRows, unsigned numCols);
 
 	void removeColAt(unsigned colIdx);
 
@@ -28,7 +23,7 @@ public:
 
 	void insertColAt(unsigned colIdx);
 
-	/// element的访问方法
+	/// 为保持存储的严整（各行的列数相同），重新实现element的访问方法
 
 	// 返回[rowIdx, colIdx]位置的元素指针
 	// rowIdx < rows(), colIdx < cols()
@@ -52,14 +47,20 @@ public:
 	// 同removeAt，但不销毁元素对象，而是返回对象指针
 	KvLayoutElement* takeAt(unsigned rowIdx, unsigned colIdx);
 
-	// 返回元素ele的位置序号，-1表示未找到ele
-	std::pair<unsigned, unsigned> find(KvLayoutElement* ele) const;
-
-	void take(KvLayoutElement* ele);
-
 	void remove(KvLayoutElement* ele);
 
-	// 相当于insertAt(rows(), cols(), ele)
-	void append(KvLayoutElement* ele);
 
+	void arrange(const rect_t& rc) final;
+
+protected:
+	size_t calcSize_(void* cxt) const override;
+
+private:
+
+	// 模拟实现0维度的arrangeStack_
+	void arrangeColStack_(const rect_t& rc);
+
+private:
+	// calcSize的缓存变量. 用于保存每列的尺寸数据，first值为列的固定尺寸，second值为列的extra份额
+	mutable std::vector<std::pair<float_t, int>> szCols_;
 };

@@ -190,3 +190,31 @@ KcCoord3d::rect_t KcCoord3d::getPlotRect() const
 {
 	return innerRect();
 }
+
+
+void KcCoord3d::placeElement(KvLayoutElement* ele, KeAlignment loc)
+{
+	assert(!isAncestorOf(ele));
+
+/*	if (loc.inner()) {
+		plane_->append(ele);
+	}
+	else {
+		if (loc & KeAlignment::k_horz_first) {
+			if (loc & KeAlignment::k_left)
+				KuLayoutHelper::placeLeft(plane_.get(), ele, -1);
+			else if (loc & KeAlignment::k_right)
+				KuLayoutHelper::placeRight(plane_.get(), ele, -1);
+			else
+				assert(false);
+		}
+		else {
+			if (loc & KeAlignment::k_top)
+				KuLayoutHelper::placeTop(plane_.get(), ele, -1);
+			else if (loc & KeAlignment::k_bottom)
+				KuLayoutHelper::placeBottom(plane_.get(), ele, -1);
+			else
+				assert(false);
+		}
+	}*/
+}
