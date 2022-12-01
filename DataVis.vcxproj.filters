@@ -403,6 +403,9 @@
     <ClCompile Include="src\layout\KcLayoutGrid.cpp">
       <Filter>layout</Filter>
     </ClCompile>
+    <ClCompile Include="src\dsp\KuOscillatorFactory.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -932,6 +935,12 @@
     </ClInclude>
     <ClInclude Include="src\layout\KeAlignment.h">
       <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuOscillatorFactory.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\bimap.h">
+      <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

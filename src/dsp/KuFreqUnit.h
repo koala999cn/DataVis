@@ -173,22 +173,22 @@ public:
 
 
 	// Convert decibels to amplitude.
-	static double decibelsToAmplitude(double decibels) {
+	static double dBToAmp(double decibels) {
 		return std::pow(10, decibels / 20.0);
 	}
 
 	// Convert amplitude to decibels.
-	static double amplitudeToDecibels(double amplitude) {
+	static double ampTodB(double amplitude) {
 		return 20 * std::log10(amplitude);
 	}
 
 	// Convert decibels to power.
-	static double decibelsToPower(double decibels) {
+	static double dBToPower(double decibels) {
 		return std::pow(10, decibels / 10.0);
 	}
 
 	// Convert power to decibels.
-	static double powerToDecibels(double power) {
+	static double powerTodB(double power) {
 		return 10 * std::log10(power);
 	}
 
