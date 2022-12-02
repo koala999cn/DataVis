@@ -34,7 +34,7 @@ void KvPaint::drawLineLoop(const point3 pts[], unsigned count)
 {
 	drawLineStrip(pts, count);
 	if (count  > 2)
-	    drawLine(pts[count - 1], pts[0]);
+	    drawLine(pts[count - 1], pts[0]); // TODO: imgui按此实现的封口不好
 }
 
 

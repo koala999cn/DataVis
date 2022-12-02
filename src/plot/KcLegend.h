@@ -37,8 +37,8 @@ public:
 		items_.clear();
 	}
 
-	KeAlignment location() const { return align_; }
-	KeAlignment& location() { return align_; }
+	KeAlignment location() const { return location_; }
+	KeAlignment& location() { return location_; }
 
 private:
 

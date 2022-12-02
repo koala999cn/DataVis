@@ -13,6 +13,7 @@
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
 #include "plot/KvCoord.h"
+#include "plot/KcLegend.h"
 #include "layout/KeAlignment.h" 
 #include "KvNode.h"
 #include "KcSampled1d.h"
@@ -377,52 +378,50 @@ void KvRdPlot::showLegendProperty_()
 
 		ImVec2 itemSize(ImGui::CalcTextSize("Out").x * 2, 0);
 
-		auto loc = plot_->legend().location();
+		auto& loc = plot_->legend()->location();
 		bool outter = loc.outter();
 		int spacing = 12;
 
 		if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NW" : "WN", itemSize))
-		    plot_->legend().location() = switchAlign(loc, KeAlignment::k_left | KeAlignment::k_top);
+		    loc = switchAlign(loc, KeAlignment::k_left | KeAlignment::k_top);
 		ImGui::SameLine(0, spacing);
 
 		if (ImGui::Button("N", itemSize)) {
 			auto newLoc = KeAlignment::k_top | KeAlignment::k_hcenter;
-			plot_->legend().location() = outter ? newLoc | KeAlignment::k_vert_first : newLoc;
+			loc = outter ? newLoc | KeAlignment::k_vert_first : newLoc;
 		}
 		ImGui::SameLine(0, spacing);
 
 		if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NE" : "EN", itemSize))
-			plot_->legend().location() = switchAlign(loc, KeAlignment::k_right | KeAlignment::k_top);
+			loc = switchAlign(loc, KeAlignment::k_right | KeAlignment::k_top);
 
 		if (ImGui::Button("W", itemSize)) {
 			auto newLoc = KeAlignment::k_left | KeAlignment::k_vcenter;
-			plot_->legend().location() = outter ? newLoc | KeAlignment::k_horz_first : newLoc;
+			loc = outter ? newLoc | KeAlignment::k_horz_first : newLoc;
 		}
 		ImGui::SameLine(0, spacing);
 
-		if (ImGui::Button(outter ? "Out" : "In", itemSize)) {
+		if (ImGui::Button(outter ? "Out" : "In", itemSize)) 
 			loc.toggleSide();
-			plot_->legend().location() = loc;
-		}
 		ImGui::SameLine(0, spacing);
 
 		if (ImGui::Button("E", itemSize)) {
 			auto newLoc = KeAlignment::k_right | KeAlignment::k_vcenter;
-			plot_->legend().location() = outter ? newLoc | KeAlignment::k_horz_first : newLoc;
+			loc = outter ? newLoc | KeAlignment::k_horz_first : newLoc;
 		}
 
 		if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SW" : "WS", itemSize))
-			plot_->legend().location() = switchAlign(loc, KeAlignment::k_left | KeAlignment::k_bottom);
+			loc = switchAlign(loc, KeAlignment::k_left | KeAlignment::k_bottom);
 		ImGui::SameLine(0, spacing);
 
 		if (ImGui::Button("S", itemSize)) {
 			auto newLoc = KeAlignment::k_bottom | KeAlignment::k_hcenter;
-			plot_->legend().location() = outter ? newLoc | KeAlignment::k_vert_first : newLoc;
+			loc = outter ? newLoc | KeAlignment::k_vert_first : newLoc;
 		}
 		ImGui::SameLine(0, spacing);
 
 		if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SE" : "ES", itemSize))
-			plot_->legend().location() = switchAlign(loc, KeAlignment::k_right | KeAlignment::k_bottom);
+			loc = switchAlign(loc, KeAlignment::k_right | KeAlignment::k_bottom);
 
 		ImGui::TreePop();
 	}

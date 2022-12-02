@@ -3,12 +3,13 @@
 #include <vector>
 #include "KvPlottable.h"
 #include "KpContext.h"
-#include "KcLegend.h"
 #include "KtAABB.h"
 
 
 class KvPaint; // 用来执行具体的plot绘制
 class KvCoord;
+class KcLegend;
+class KcColorBar;
 class KcLayoutGrid;
 
 // plot的最底层抽象接口
@@ -40,10 +41,14 @@ public:
 	bool showLegend() const { return showLegend_; }
 	bool& showLegend() { return showLegend_; }
 
+	bool showColorBar() const { return showColorBar_; }
+	bool& showColorBar() { return showColorBar_; }
+
 	KvPaint& paint() { return *paint_.get(); }
 	KvCoord& coord() { return *coord_.get(); }
 
-	KcLegend& legend() { return *legend_; }
+	KcLegend* legend() const { return legend_; }
+	KcColorBar* colorBar() const { return colorBar_; }
 
 	unsigned plottableCount() const { return plottables_.size(); }
 
@@ -67,16 +72,23 @@ private:
 
 	void updateLayout_(const rect_t& rc, void* cxt);
 
+	bool realShowLegend_() const;
+	bool realShowColorBar_() const;
+
+	void syncLegendAndColorBar_(KvPlottable* removed, KvPlottable* added);
+
 private:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
 	std::shared_ptr<KvCoord> coord_; // 由用户创建并传入
-	std::unique_ptr<KcLegend> legend_; // 内部创建并管理
+	KcLegend* legend_; // 内部创建并管理
+	KcColorBar* colorBar_; // 内部创建并管理
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理
 
 	KpBrush bkgnd_;
 
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
 	bool showLegend_{ false };
+	bool showColorBar_{ true };
 
 	std::unique_ptr<KcLayoutGrid> layout_;
 };
