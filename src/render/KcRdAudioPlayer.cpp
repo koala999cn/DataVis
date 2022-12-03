@@ -2,6 +2,7 @@
 #include "audio/KcAudioRender.h"
 #include "prov/KvDataProvider.h" // for KpDataSpec
 #include "dsp/KcSampled1d.h"
+#include "dsp/KuDataUtil.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgPipeline.h"
 #include "imgui.h"
@@ -61,9 +62,22 @@ void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
 	auto samp = std::dynamic_pointer_cast<KvSampled>(data);
 	assert(render_ && samp && samp->dim() == 1);
 
-	if (prov->isStream(outPort->index()) ||
-		KsImApp::singleton().pipeline().frameIndex() == 0)
-		render_->enqueue(samp);
+	if (prov->isStream(outPort->index())) {
+		if (samp.unique()) {
+			render_->enqueue(samp); // 对于独享数据，直接压入播放队列
+		}
+		else { // 对于共享数据，拷贝之后再压入播放队列
+			auto samp1d = std::dynamic_pointer_cast<KvSampled>(KuDataUtil::cloneSampled1d(samp));
+			assert(samp1d);
+			assert(samp1d->size() == samp->size());
+			assert(samp1d->step(0) == samp->step(0));
+			assert(samp1d->channels() == samp->channels());
+			render_->enqueue(samp1d);
+		}
+	}
+	else if (KsImApp::singleton().pipeline().frameIndex() == 0) {
+		render_->enqueue(samp); // 对于快照数据，只在第一帧压入播放队列
+	}
 }
 
 

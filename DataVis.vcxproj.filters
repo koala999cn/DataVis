@@ -310,9 +310,6 @@
     <ClCompile Include="src\plot\KcLineFilled.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\render\KcRdAudioPlayer.cpp">
-      <Filter>audio</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KcContinuedFn.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
@@ -417,6 +414,9 @@
     </ClCompile>
     <ClCompile Include="src\dsp\KuStocahsticFactory.cpp">
       <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\KcRdAudioPlayer.cpp">
+      <Filter>render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -822,9 +822,6 @@
     <ClInclude Include="src\plot\KcLineFilled.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\render\KcRdAudioPlayer.h">
-      <Filter>audio</Filter>
-    </ClInclude>
     <ClInclude Include="src\prov\KvPvExcitor.h">
       <Filter>prov</Filter>
     </ClInclude>
@@ -962,6 +959,9 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KuStocahsticFactory.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdAudioPlayer.h">
+      <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -27,8 +27,10 @@ public:
 
 	static std::shared_ptr<KvData> makeMatrix(const matrixd& mat);
 
+	// 多通道的一维采样数据
 	static std::shared_ptr<KvData> makeSampled1d(const matrixd& mat);
 
+	// 单通道的二维采样数据
 	static std::shared_ptr<KvData> makeSampled2d(const matrixd& mat);
 
 	static std::shared_ptr<KvData> makeScattered(const matrixd& mat, unsigned dim);
@@ -36,6 +38,8 @@ public:
 	// 把mat转换为type类型数据
 	// 按照row-major读取mat数据
 	static std::shared_ptr<KvData> makeData(const matrixd& mat, int type);
+
+	static std::shared_ptr<KvData> cloneSampled1d(std::shared_ptr<KvData> samp);
 
 private:
 	KuDataUtil() = default;
