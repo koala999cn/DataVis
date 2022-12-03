@@ -24,7 +24,7 @@ int KcPvOscillator::spec(kIndex outPort) const
 
 kReal KcPvOscillator::step(kIndex outPort, kIndex axis) const
 {
-	return axis == 0 ? 1 / freq_ : KvDiscreted::k_nonuniform_step;
+	return axis == 0 ? 1 / tickRate_ : KvDiscreted::k_nonuniform_step;
 }
 
 
