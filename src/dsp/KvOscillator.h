@@ -3,7 +3,7 @@
 
 
 // 周期振荡信号发生器的基类
-
+// 参考https://blog.demofox.org/2012/05/19/diy-synthesizer-chapter-2-common-wave-forms/
 class KvOscillator : public KvExcitor
 {
 public:

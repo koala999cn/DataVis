@@ -171,8 +171,8 @@ public:
 		return 100.0 * semitones;
 	}
 
-	//calculate the frequency of the specified note.
-	//fractional notes allowed!
+	// calculate the frequency of the specified note.
+	// fractional notes allowed!
 	/*
 		Calculate the frequency of any note!
 		frequency = 440×(2^(n/12))
