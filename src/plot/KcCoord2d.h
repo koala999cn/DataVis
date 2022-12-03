@@ -2,7 +2,6 @@
 #include "KvCoord.h"
 #include <list>
 #include <memory>
-#include "layout/KgLayoutManager.h"
 
 class KcAxis;
 class KcCoordPlane;
@@ -23,28 +22,24 @@ public:
 
 	virtual ~KcCoord2d();
 
-	void setExtents(const point3& lower, const point3& upper) override;
+	void setExtents(const point3& lower, const point3& upper) final;
 
-	point3 lower() const override;
-	point3 upper() const override;
+	point3 lower() const final;
+	point3 upper() const final;
 
-	void forAxis(std::function<bool(KcAxis& axis)>) const override;
+	void forAxis(std::function<bool(KcAxis& axis)>) const final;
 
-	void forPlane(std::function<bool(KcCoordPlane& plane)>) const override;
+	void forPlane(std::function<bool(KcCoordPlane& plane)>) const final;
 
-	KtMargins<float_t> calcMargins(KvPaint*) const override;
+	KtMargins<float_t> calcMargins(KvPaint*) const final;
 
-	rect_t getPlotRect() const override;
+	rect_t getPlotRect() const final;
 
-	axis_list& axes(int type) { return axes_[type]; }
-
-	// 实现基类的接口
+	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;
 
 	void draw(KvPaint*) const final;
 
-	void arrange(const rect_t& rc) final;
-
-	point2i extraShares() const final;
+	axis_list& axes(int type) { return axes_[type]; }
 
 private:
 
@@ -53,5 +48,4 @@ private:
 private:
 	axis_list axes_[4];
 	grid_plane_ptr plane_;
-	mutable KgLayoutManager layMgr_;
 };

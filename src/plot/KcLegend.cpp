@@ -1,24 +1,24 @@
 #include "KcLegend.h"
 #include "KvPlottable.h"
 #include "KvPaint.h"
-#include "KuAlignment.h"
 
 
 KcLegend::KcLegend()
     : super_("Legend")
 {
-    align_ = k_align_right | k_align_top;
+    align() = location_ = KeAlignment::k_right | KeAlignment::k_top;
+    setMargins({ point_t(7, 5), point_t(7, 5) });
 }
 
 
-KcLegend::point2i KcLegend::calcSize(KvPaint* paint) const
+KcLegend::size_t KcLegend::calcSize_(void* cxt) const
 {
     point2f legSize = innerMargin_ * 2;
-    legSize += outterMargin_ * 2;
 
     if (items_.empty())
         return legSize;
 
+    auto paint = (KvPaint*)cxt;
     auto labelSize = maxLabelSize_(paint);
 
     auto lay = layouts_();
@@ -66,46 +66,51 @@ KcLegend::point2i KcLegend::layouts_() const
 
 void KcLegend::draw(KvPaint* paint) const
 {
-    // 在legned的局部空间执行绘制操作，确保paint已被正确设置
     using point3 = KvPaint::point3;
 
-    auto sz = calcSize(paint);
-    sz -= outterMargin_;
+    // 配置paint，以便在legned的局部空间执行绘制操作
+    paint->pushCoord(KvPaint::k_coord_screen);
+    // TODO; 设置clipRect
+    
     paint->apply(border_);
-    paint->drawRect(point3(outterMargin_.x(), outterMargin_.y(), 0), point3(sz.x(), sz.y(), 0));
+    paint->drawRect(point3(iRect_.lower().x(), iRect_.lower().y(), 0),
+        point3(iRect_.upper().x(), iRect_.upper().y(), 0));
 
-    if (items_.empty())
-        return;
+    if (!items_.empty()) {
 
-    auto itemSize = maxLabelSize_(paint);
-    itemSize.x() += iconSize_.x() + iconTextPadding_;
-    itemSize.y() = std::max(itemSize.y(), iconSize_.y());
+        auto itemSize = maxLabelSize_(paint);
+        itemSize.x() += iconSize_.x() + iconTextPadding_;
+        itemSize.y() = std::max(itemSize.y(), iconSize_.y());
 
-    auto lay = layouts_();
-    assert(lay.x() > 0 && lay.y() > 0);
+        auto lay = layouts_();
+        assert(lay.x() > 0 && lay.y() > 0);
 
-    auto itemPos = outterMargin_ + innerMargin_;
-    unsigned rowStride = lay.y(), colStride = lay.x();
+        auto itemPos = iRect_.lower() + innerMargin_;
+        unsigned rowStride = lay.y(), colStride = lay.x();
 
-    KvPaint::rect itemRect(itemPos, itemPos + itemSize);
-    unsigned rowIdx = 0;
-    for (unsigned r = 0; r < lay.x(); r++, rowIdx += rowStride) {
-        auto itemIdx = rowIdx;
-        auto rcNow = itemRect;
-        for (unsigned c = 0; c < lay.y(); c++, itemIdx += colStride) {
-            drawItem_(paint, items_[itemIdx], rcNow);
+        KvPaint::rect itemRect(itemPos, itemPos + itemSize);
+        unsigned rowIdx = 0;
+        for (unsigned r = 0; r < lay.x(); r++, rowIdx += rowStride) {
+            auto itemIdx = rowIdx;
+            auto rcNow = itemRect;
+            for (unsigned c = 0; c < lay.y(); c++, itemIdx += colStride) {
+                drawItem_(paint, items_[itemIdx], rcNow);
 
-            rcNow.lower().x() += itemSize.x() + itemSpacing_.x();
-            rcNow.upper().x() += itemSize.x() + itemSpacing_.x();
+                rcNow.lower().x() += itemSize.x() + itemSpacing_.x();
+                rcNow.upper().x() += itemSize.x() + itemSpacing_.x();
+            }
+
+            itemRect.lower().y() += itemSize.y() + itemSpacing_.y();
+            itemRect.upper().y() += itemSize.y() + itemSpacing_.y();
         }
 
-        itemRect.lower().y() += itemSize.y() + itemSpacing_.y();
-        itemRect.upper().y() += itemSize.y() + itemSpacing_.y();
     }
+
+    paint->popCoord();
 }
 
 
-void KcLegend::drawItem_(KvPaint* paint, KvPlottable* item, const rect& rc) const
+void KcLegend::drawItem_(KvPaint* paint, KvPlottable* item, const rect_t& rc) const
 {
     using point3 = KvPaint::point3;
 
@@ -123,7 +128,9 @@ void KcLegend::drawItem_(KvPaint* paint, KvPlottable* item, const rect& rc) cons
     lablePos.y() += rc.height() / 2;
     paint->setColor(clrText_);
     paint->apply(fontText_);
-    paint->drawText(point3(lablePos.x(), lablePos.y(), 0), item->name().c_str(), k_align_left);
+    paint->drawText(point3(lablePos.x(), lablePos.y(), 0), 
+        item->name().c_str(), 
+        KeAlignment::k_left);
 }
 
 

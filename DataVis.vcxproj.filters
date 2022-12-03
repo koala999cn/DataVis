@@ -388,16 +388,19 @@
     <ClCompile Include="src\layout\KcLayoutFold.cpp">
       <Filter>layout</Filter>
     </ClCompile>
-    <ClCompile Include="src\layout\KcLayoutGrid.cpp">
+    <ClCompile Include="src\layout\KcLayout2d.cpp">
       <Filter>layout</Filter>
     </ClCompile>
-    <ClCompile Include="src\layout\KcLayoutVector.cpp">
+    <ClCompile Include="src\layout\KcLayout1d.cpp">
       <Filter>layout</Filter>
     </ClCompile>
     <ClCompile Include="src\layout\KvLayoutElement.cpp">
       <Filter>layout</Filter>
     </ClCompile>
-    <ClCompile Include="src\layout\KgLayoutManager.cpp">
+    <ClCompile Include="src\layout\KuLayoutHelper.cpp">
+      <Filter>layout</Filter>
+    </ClCompile>
+    <ClCompile Include="src\layout\KcLayoutGrid.cpp">
       <Filter>layout</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KuOscillatorFactory.cpp">
@@ -909,25 +912,37 @@
     <ClInclude Include="src\plot\KcColorBar.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KuAlignment.h">
-      <Filter>plot</Filter>
-    </ClInclude>
     <ClInclude Include="src\plot\KcLayoutVector.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\layout\KcLayoutFold.h">
       <Filter>layout</Filter>
     </ClInclude>
-    <ClInclude Include="src\layout\KcLayoutGrid.h">
+    <ClInclude Include="src\layout\KcLayout2d.h">
       <Filter>layout</Filter>
     </ClInclude>
-    <ClInclude Include="src\layout\KcLayoutVector.h">
+    <ClInclude Include="src\layout\KcLayout1d.h">
       <Filter>layout</Filter>
     </ClInclude>
     <ClInclude Include="src\layout\KvLayoutElement.h">
       <Filter>layout</Filter>
     </ClInclude>
-    <ClInclude Include="src\layout\KgLayoutManager.h">
+    <ClInclude Include="src\layout\KuLayoutHelper.h">
+      <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout\KvLayoutContainer.h">
+      <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout\KcLayoutGrid.h">
+      <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout\KcLayoutOverlay.h">
+      <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtHolder.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout\KeAlignment.h">
       <Filter>layout</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KuOscillatorFactory.h">

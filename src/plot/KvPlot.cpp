@@ -1,22 +1,35 @@
 #include "KvPlot.h"
 #include "KvCoord.h"
 #include "KvPaint.h"
-#include "KuAlignment.h"
+#include "KcLegend.h"
+#include "KcColorBar.h"
+#include "layout/KcLayoutGrid.h"
+#include "layout/KuLayoutHelper.h"
 
 
 KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
 	: paint_(paint)
 	, coord_(coord)
 {
-	legend_ = std::make_unique<KcLegend>();
+	legend_ = new KcLegend;
+	colorBar_ = nullptr;
 
-	layMgr_.setRoot(coord_.get());
+	layout_ = std::make_unique<KcLayoutGrid>();
+	layout_->putAt(0, 0, coord_.get());
 }
 
 
 KvPlot::~KvPlot()
 {
-	layMgr_.take(coord_.get());
+	if (colorBar_)
+		KuLayoutHelper::take(colorBar_);
+
+	assert(legend_);
+	KuLayoutHelper::take(legend_);
+	KuLayoutHelper::take(coord_.get());
+
+	delete legend_;
+	delete colorBar_;
 }
 
 
@@ -30,16 +43,13 @@ KvPlottable* KvPlot::plottableAt(unsigned idx)
 void KvPlot::addPlottable(KvPlottable* plt)
 {
 	plottables_.emplace_back(plt);
-
-	if (plt->majorColorsNeeded() != -1)
-		legend_->addItem(plt);
+	syncLegendAndColorBar_(nullptr, plt);
 }
 
 
 void KvPlot::removePlottable(KvPlottable* plt)
 {
-	if (plt->majorColorsNeeded() != -1)
-		legend_->removeItem(plt);
+	syncLegendAndColorBar_(plt, nullptr);
 
 	for (auto iter = plottables_.cbegin(); iter != plottables_.cend(); iter++)
 		if (iter->get() == plt) {
@@ -51,24 +61,32 @@ void KvPlot::removePlottable(KvPlottable* plt)
 
 void KvPlot::setPlottableAt(unsigned idx, KvPlottable* plt)
 {
-	legend_->removeItem(plottables_[idx].get());
-	if (plt->majorColorsNeeded() != -1)
-		legend_->addItem(plt);
-
 	assert(idx < plottableCount());
+
+	syncLegendAndColorBar_(plottables_[idx].get(), plt);
+
 	return plottables_[idx].reset(plt);
 }
 
 
 void KvPlot::removePlottableAt(unsigned idx)
 {
-	legend_->removeItem(plottables_[idx].get());
+	assert(idx < plottableCount());
+
+	syncLegendAndColorBar_(plottables_[idx].get(), nullptr);
+
 	plottables_.erase(plottables_.begin() + idx);
 }
 
 
 void KvPlot::removeAllPlottables()
 {
+	assert(legend_);
+	if (colorBar_) {
+		delete colorBar_;
+		colorBar_ = nullptr;
+	}
+
 	legend_->clear();
 	plottables_.clear();
 }
@@ -86,28 +104,11 @@ void KvPlot::update()
 	auto rcCanvas = paint_->viewport();
 	updateLayout_(rcCanvas, paint_.get()); // 在调用beginPaint之后更新布局
 
-	// 计算legend的空间
-	
-	auto rcCoord = rcCanvas;
-	int ali = legend_->alignment();
-	point2d szLegend; // 需要时计算
-
-	bool showLegend = showLegend_ && legend_->itemCount() > 0;
-	if (showLegend) {
-		szLegend = legend_->calcSize(paint_.get());
-		rcCoord = KuAlignment::layout(ali, szLegend, rcCanvas);
-	}
-
-//	auto rcPlot = rcCoord; // 绘图区域
-//	auto mrgCoord = coord().calcMargins(paint_.get());
-//	rcPlot.shrink({ mrgCoord.left(), mrgCoord.top() }, { mrgCoord.right(), mrgCoord.bottom() });
-	// TOOD: 检测rcPlot是否超限
-
 	coord().draw(paint_.get());
 
 	auto rcPlot = coord().getPlotRect();
 	paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
-	paint_->pushClipRect(rcPlot); // 绘制clip，防止plottables超出范围
+	paint_->pushClipRect(rcPlot); // 设置clipRect，防止plottables超出范围
 
 	for (int idx = 0; idx < plottableCount(); idx++)
 		if (plottableAt(idx)->visible())
@@ -115,17 +116,11 @@ void KvPlot::update()
 
 	paint_->popClipRect();
 
-	if (showLegend) {
-//		auto pos = KuAlignment::position(ali, szLegend, KuAlignment::outside(ali) ? rcCoord : rcPlot);
-
-		paint_->pushCoord(KvPaint::k_coord_screen);
-//		paint_->pushLocal(KvPaint::mat4::buildTanslation({ pos.x(), pos.y(), 0 }));
-
+	if (realShowLegend_()) 
 		legend_->draw(paint_.get());
 
-//		paint_->popLocal();
-		paint_->popCoord();
-	}
+	if (realShowColorBar_())
+		colorBar_->draw(paint_.get());
 
 	paint_->setViewport(rcCanvas); // 恢复原视口
 
@@ -148,6 +143,63 @@ void KvPlot::fitData()
 
 void KvPlot::updateLayout_(const rect_t& rc, void* cxt)
 {
-	layMgr_.root()->calcSize(cxt);
-	layMgr_.root()->arrange(rc); // 布局plot各元素
+	assert(legend_);
+	KuLayoutHelper::take(legend_);
+	if (colorBar_)
+	    KuLayoutHelper::take(colorBar_);
+
+	if (realShowLegend_()) {
+		auto loc = legend_->location();
+		legend_->align() = loc;
+		coord_->placeElement(legend_, loc);
+	}
+
+	if (realShowColorBar_()) {
+		assert(colorBar_);
+		auto loc = colorBar_->location();
+		colorBar_->align() = loc;
+		coord_->placeElement(colorBar_, loc);
+	}
+
+	layout_->calcSize(cxt);
+	layout_->arrange(rc); // 布局plot各元素
+}
+
+
+bool KvPlot::realShowLegend_() const
+{
+	return showLegend_ && legend_ && legend_->itemCount() > 0;
+}
+
+
+bool KvPlot::realShowColorBar_() const
+{
+	return showColorBar_ && colorBar_;
+}
+
+
+void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedPlt)
+{
+	assert(legend_);
+
+	if (removedPlt) {
+		if (removedPlt->majorColorsNeeded() != -1) {
+			legend_->removeItem(removedPlt);
+		}
+		else {
+			assert(colorBar_);
+			if (colorBar_) delete colorBar_;
+			colorBar_ = nullptr;
+		}
+	}
+
+	if (addedPlt) {
+		if (addedPlt->majorColorsNeeded() != -1) {
+			legend_->addItem(addedPlt);
+		}
+		else {
+			assert(colorBar_ == nullptr);
+			colorBar_ = new KcColorBar(addedPlt);
+		}
+	}
 }

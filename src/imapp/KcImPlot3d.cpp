@@ -18,14 +18,14 @@ KcImPlot3d::KcImPlot3d(const std::string_view& name)
 void KcImPlot3d::updateImpl_()
 {
     // 设置窗口背景为plot的背景色
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, (const ImVec4&)bkgnd_.color); // TODO: check the style
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, (const ImVec4&)background().color); // TODO: check the style
 
     if (ImGui::BeginChild("##", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove)) {
 
         // 更新摄像机的视图
         auto pos = ImGui::GetWindowPos();
         auto sz = ImGui::GetWindowSize();
-        paint_->setViewport({ { pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y } });
+        paint().setViewport({ { pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y } });
 
         // 处理鼠标事件
         if (ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(pos, { pos.x + sz.x, pos.y + sz.y }))

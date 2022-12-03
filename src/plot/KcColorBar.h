@@ -1,15 +1,12 @@
 #pragma once
 #include "KvRenderable.h"
 #include "KpContext.h"
+#include "layout/KvLayoutElement.h"
 
 class KvPlottable;
 
-class KcColorBar : public KvRenderable
+class KcColorBar : public KvRenderable, public KvLayoutElement
 {
-	using super_ = KvRenderable;
-	using rect = KtAABB<float_t, 2>;
-	using point2i = KtPoint<int, 2>;
-
 public:
 
 	KcColorBar(KvPlottable* plt);
@@ -18,12 +15,12 @@ public:
 
 	aabb_t boundingBox() const override;
 
-	// 预先计算color-bar的尺寸（屏幕坐标）
-	point2i calcSize(KvPaint*) const;
+	KeAlignment location() const { return location_; }
+	KeAlignment& location() { return location_; }
 
-	// KeAlignment的组合
-	int alignment() const { return align_; }
-	void setAlignment(int align) { align_ = align; }
+private:
+
+	size_t calcSize_(void*) const final;
 
 private:
 
@@ -36,5 +33,5 @@ private:
 	int barLength_{ 0 }; // 0表示延展与coord对齐
 
 	KvPlottable* plt_;
-	int align_;
+	KeAlignment location_; // colorbar的位置
 };

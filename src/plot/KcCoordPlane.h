@@ -2,11 +2,11 @@
 #include "KvRenderable.h"
 #include <memory>
 #include "KpContext.h"
-#include "layout/KvLayoutElement.h"
+#include "layout/KcLayoutOverlay.h"
 
 class KcAxis;
 
-class KcCoordPlane : public KvRenderable, public KvLayoutElement
+class KcCoordPlane : public KvRenderable, public KcLayoutOverlay
 {
 	using KvRenderable::float_t;
 	using axis_ptr = std::shared_ptr<KcAxis>;
@@ -61,8 +61,6 @@ private:
 
 	// 绘制从axis0轴到axis1轴的副grid
 	static void drawMinors_(KvPaint*, axis_ptr axis0, axis_ptr axis1);
-
-	size_t calcSize_(void* cxt) const override { return { 0, 0 }; }
 
 private:
 	KePlaneType type_;
