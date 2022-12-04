@@ -37,4 +37,5 @@ private:
 private:
 	std::shared_ptr<KvData> data_;
 	int spec_;
+	kRange valueRange_; // 缓存数据的值域，避免重复计算耗费资源
 };

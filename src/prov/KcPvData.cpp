@@ -10,6 +10,7 @@ KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
 	updateSpec_();
+	valueRange_ = data->valueRange();
 }
 
 
@@ -53,7 +54,7 @@ int KcPvData::spec(kIndex outPort) const
 
 kRange KcPvData::range(kIndex outPort, kIndex axis) const
 {
-	return data_->range(axis);
+	return axis == dim(outPort) ? valueRange_ : data_->range(axis);
 }
 
 
@@ -110,5 +111,6 @@ void KcPvData::setData(const std::shared_ptr<KvData>& d)
 {
 	data_ = d;
 	updateSpec_();
+	valueRange_ = d->valueRange();
 	KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
 }
