@@ -251,6 +251,14 @@ void KvRdPlot::showPlotProperty_()
 
 		ImGui::Checkbox("Auto Fit", &plot_->autoFit());
 
+		auto& coord = plot_->coord();
+		const char* label[] = { "Invert X", "Invert Y", "Invert Z" };
+		for (int i = 0; i < 3; i++) {
+			bool inv = coord.axisInversed(i);
+			if (ImGui::Checkbox(label[i], &inv))
+				coord.setAxisInversed(i, inv);
+		}
+
 		kPrivate::TreePop();
 	}
 }

@@ -251,7 +251,7 @@
     <ClInclude Include="src\audio\KgAudioFile.h" />
     <ClInclude Include="src\base\KtHolder.h" />
     <ClInclude Include="src\base\bimap.h" />
-    <ClInclude Include="src\base\KtProjector.h" />
+    <ClInclude Include="src\base\KtProjector3d.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
     <ClInclude Include="src\base\KtLine.h" />

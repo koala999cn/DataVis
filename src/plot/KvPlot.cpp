@@ -110,9 +110,18 @@ void KvPlot::update()
 	paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
 	paint_->pushClipRect(rcPlot); // 设置clipRect，防止plottables超出范围
 
+	bool inv[3];
+	for (int i = 0; i < 3; i++) {
+		inv[i] = paint_->axisInversed(i); // 保存坐标轴反转状态
+		paint_->setAxisInversed(i, coord().axisInversed(i));
+	}
+
 	for (int idx = 0; idx < plottableCount(); idx++)
 		if (plottableAt(idx)->visible())
 		    plottableAt(idx)->draw(paint_.get());
+
+	for (int i = 0; i < 3; i++)
+		paint_->setAxisInversed(i, inv[i]); // 恢复坐标轴反转状态
 
 	paint_->popClipRect();
 

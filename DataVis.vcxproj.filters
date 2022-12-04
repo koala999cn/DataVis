@@ -657,7 +657,7 @@
     <ClInclude Include="src\base\KtArray.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtProjector.h">
+    <ClInclude Include="src\base\KtProjector3d.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtPlane.h">

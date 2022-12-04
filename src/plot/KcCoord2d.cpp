@@ -15,8 +15,13 @@ KcCoord2d::KcCoord2d()
 KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 	: KvCoord("CoordSystem2d")
 {
+	int dim[4];
+	dim[KcAxis::k_top] = dim[KcAxis::k_bottom] = 0;
+	dim[KcAxis::k_left] = dim[KcAxis::k_right] = 1;
+
+	// 初始化4根主坐标轴
 	for (unsigned i = 0; i < 4; i++)
-		axes_[i].push_back(std::make_shared<KcAxis>(KcAxis::KeAxisType(i)));
+		axes_[i].emplace_back(new KcAxis(KcAxis::KeAxisType(i), dim[i], true));
 
 	setExtents({ lower.x(), lower.y(), -1 }, { upper.x(), upper.y(), 1 });
 

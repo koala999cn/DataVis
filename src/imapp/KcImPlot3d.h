@@ -1,7 +1,7 @@
 #pragma once
 #include "KvImWindow.h"
 #include "plot/KvPlot3d.h"
-#include "KtProjector.h"
+#include "KtProjector3d.h"
 #include "KtTrackballController.h"
 
 

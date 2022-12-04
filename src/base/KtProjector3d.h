@@ -109,6 +109,8 @@ public:
 	vec4 screenToNdc(const vec4& pt) const { return getNsMatR_() * pt; }
 	vec4 screenToViewport(const vec4& pt) const { return getVsMatR_() * pt; }
 
+	bool axisInversed(int dim) const { return invAxis_[dim]; }
+	void setAxisInversed(int dim, bool inv = true);
 
 private:
 
@@ -214,14 +216,14 @@ private:
 	mutable std::optional<mat4> mvpMatR_; // (proj * view * model)-1
 	mutable std::optional<mat4> vpMatR_; // (proj * view)-1
 
-	const mat4 nvMat_{
+	mat4 nvMat_{
 		0.5f, 0, 0, 0.5f,
 		0, 0.5f, 0, 0.5f,
 		0, 0, 0.5f, 0.5f,
 		0, 0, 0, 1
 	}; // 从ndc到viewport的转换矩阵
 
-	const mat4 vnMat_{
+	mat4 vnMat_{
 		2, 0, 0, -1,
 		0, 2, 0, -1,
 		0, 0, 2, -1,
@@ -237,8 +239,9 @@ private:
 	bool invVpX_{ false }; // false表示从左至右为正向
 	bool invVpY_{ true }; // true表示从上至下为正向，兼容显示屏
 
-
 	mat4 wsMat_; // 从world到screen的转换矩阵，进一步将二次矩阵运算压减到一次
+
+	bool invAxis_[3]{ false, false, false }; // 各坐标轴的翻转状态
 };
 
 
@@ -307,4 +310,20 @@ template<typename KREAL, bool ROW_MAJOR>
 KtQuaternion<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyeOrient() const
 {
 	return viewMat_.getRotation(); // TODO:
+}
+
+
+template<typename KREAL, bool ROW_MAJOR>
+void KtProjector<KREAL, ROW_MAJOR>::setAxisInversed(int dim, bool inv)
+{
+	if (axisInversed(dim) == inv)
+		return; // 状态一致，直接返回
+
+	invAxis_[dim] = inv;
+
+	nvMat_.data()[dim * 5] *= -1; // dim * 5 = dim * 4 + dim = [dim][dim]
+	vnMat_.data()[dim * 5] *= -1;
+
+	nsMat_ = vsMat_ * nvMat_;
+	wsMat_ = nsMat_ * vpMat_;
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "plot/KvPaint.h"
-#include "KtProjector.h"
+#include "KtProjector3d.h"
 #include "imgui.h"
 
 
@@ -26,6 +26,9 @@ public:
 
 	void pushCoord(KeCoordType type) override;
 	void popCoord() override;
+
+	bool axisInversed(int dim) const override;
+	void setAxisInversed(int dim, bool inv) override;
 
 	point4 project(const point4& worldPt) const override;
 
