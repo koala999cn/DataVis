@@ -30,6 +30,11 @@ bool KcActionInsertDataNode::trigger()
 }
 
 
+namespace kPrivate
+{
+    std::string localToUtf8(const std::string& str);
+}
+
 void KcActionInsertDataNode::update()
 {
     assert(dataMaker_ != nullptr);
@@ -39,7 +44,8 @@ void KcActionInsertDataNode::update()
     else {
         if (odata_) {
             state_ = KeState::k_done;
-            auto node = std::make_shared<KcPvData>(KuPathUtil::fileName(filepath_), odata_);
+            auto node = std::make_shared<KcPvData>(
+                kPrivate::localToUtf8(KuPathUtil::fileName(filepath_)), odata_);
             KsImApp::singleton().pipeline().insertNode(node);
         }
         else {

@@ -90,6 +90,11 @@ bool KcRdAudioPlayer::permitInput(int dataSpec, unsigned inPort) const
 }
 
 
+namespace kPrivate
+{
+	std::string localToUtf8(const std::string& str);
+}
+
 void KcRdAudioPlayer::showProperySet()
 {
 	super_::showProperySet(); 
@@ -99,10 +104,11 @@ void KcRdAudioPlayer::showProperySet()
 	KcAudioDevice dev;
 	auto info = dev.info(deviceId_);
 
-	if (ImGui::BeginCombo("Device", info.name.c_str())) {
+	if (ImGui::BeginCombo("Device", kPrivate::localToUtf8(info.name).c_str())) {
 		for (unsigned i = 0; i < dev.count(); i++) {
 			info = dev.info(i);
-			if (info.outputChannels > 0 && ImGui::Selectable(info.name.c_str(), i == deviceId_))
+			auto name = kPrivate::localToUtf8(info.name);
+			if (info.outputChannels > 0 && ImGui::Selectable(name.c_str(), i == deviceId_))
 				deviceId_ = i;
 		}
 

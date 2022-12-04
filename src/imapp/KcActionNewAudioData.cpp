@@ -15,6 +15,11 @@ KcActionNewAudioData::KcActionNewAudioData()
 }
 
 
+namespace kPrivate
+{
+    std::string localToUtf8(const std::string& str);
+}
+
 void KcActionNewAudioData::update()
 {
     super_::update();
@@ -27,7 +32,8 @@ void KcActionNewAudioData::update()
             // TODO: show the error message
         }
         else {
-            auto node = std::make_shared<KcPvData>(KuPathUtil::fileName(result()), audio);
+            auto node = std::make_shared<KcPvData>(
+                kPrivate::localToUtf8(KuPathUtil::fileName(result())), audio);
             KsImApp::singleton().pipeline().insertNode(node);
         }
     }
