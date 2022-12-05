@@ -34,7 +34,7 @@ void KvPaint::drawLineLoop(const point3 pts[], unsigned count)
 {
 	drawLineStrip(pts, count);
 	if (count  > 2)
-	    drawLine(pts[count - 1], pts[0]); // TODO: imgui按此实现的封口不好
+	    drawLine(pts[count - 1], pts[0]);
 }
 
 
@@ -57,7 +57,23 @@ void KvPaint::drawRect(const point3& lower, const point3& upper)
 }
 
 
-KvPaint::rect KvPaint::textRect(const point2& pos, const char* text, int align) const
+void KvPaint::fillQuad(point3 pts[4])
+{
+	fillTriangle(pts);
+	std::swap(pts[0], pts[1]);
+	fillTriangle(pts + 1);
+}
+
+
+void KvPaint::fillQuad(point3 pts[4], color_t clrs[4])
+{
+	fillTriangle(pts, clrs);
+	std::swap(pts[0], pts[1]); std::swap(clrs[0], clrs[1]);
+	fillTriangle(pts + 1, clrs + 1);
+}
+
+
+KvPaint::rect_t KvPaint::textRect(const point2& pos, const char* text, int align) const
 {
 	auto lower = pos;
 	auto szText = textSize(text);
@@ -66,14 +82,14 @@ KvPaint::rect KvPaint::textRect(const point2& pos, const char* text, int align) 
 		lower.y() -= szText.y();
 	else if (align & KeAlignment::k_top)
 		lower.y();
-	else // k_align_venter
+	else // k_vcenter
 		lower.y() -= szText.y() * 0.5;
 
 	if (align & KeAlignment::k_left)
 		lower.x();
 	else if (align & KeAlignment::k_right)
 		lower.x() -= szText.x();
-	else // k_align_center
+	else // k_hcenter
 		lower.x() -= szText.x() * 0.5;
 
 	return { lower, lower + szText };

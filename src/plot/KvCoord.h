@@ -2,7 +2,6 @@
 #include <functional>
 #include "KvRenderable.h"
 #include "layout/KcLayoutGrid.h"
-#include "KtMargins.h"
 
 class KcAxis; 
 class KcCoordPlane;
@@ -43,8 +42,6 @@ public:
 
 	// 轮询坐标平面
 	virtual void forPlane(std::function<bool(KcCoordPlane& plane)>) const = 0;
-
-	virtual KtMargins<float_t> calcMargins(KvPaint*) const = 0;
 
 	// 返回实际的绘图区域，paint将此设置为viewport，之后绘制plottables
 	virtual rect_t getPlotRect() const = 0;

@@ -5,10 +5,20 @@
 #include <assert.h>
 
 
+namespace kPrivate
+{
+	class KcDummyElement_ : public KvLayoutElement
+	{
+	private:
+		size_t calcSize_(void* cxt) const final { return { 0, 0 }; }
+	};
+}
+
+
 KcCoord3d::KcCoord3d()
 	: KcCoord3d(point3(0), point3(1))
 {
-
+	putAt(0, 0, new kPrivate::KcDummyElement_); // 此处压入一个dummy元素，否则零元素的grid布局尺寸始终为0
 }
 
 
@@ -177,12 +187,6 @@ void KcCoord3d::forPlane(std::function<bool(KcCoordPlane& plane)> fn) const
 	for (unsigned i = 0; i < std::size(planes_); i++)
 		if (!fn(*planes_[i]))
 			break;
-}
-
-
-KtMargins<KcCoord3d::float_t> KcCoord3d::calcMargins(KvPaint*) const
-{
-	return {};
 }
 
 

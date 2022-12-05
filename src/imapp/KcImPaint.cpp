@@ -25,19 +25,19 @@ void KcImPaint::endPaint()
 }
 
 
-KcImPaint::rect KcImPaint::viewport() const
+KcImPaint::rect_t KcImPaint::viewport() const
 {
 	return camera_.viewport();
 }
 
 
-void KcImPaint::setViewport(const rect& vp)
+void KcImPaint::setViewport(const rect_t& vp)
 {
 	camera_.setViewport(vp);
 }
 
 
-void KcImPaint::pushClipRect(const rect& cr)
+void KcImPaint::pushClipRect(const rect_t& cr)
 {
 	ImGui::GetWindowDrawList()->PushClipRect(
 		ImVec2(cr.lower().x(), cr.lower().y()), ImVec2(cr.upper().x(), cr.upper().y()));
@@ -164,6 +164,41 @@ void KcImPaint::drawLineStrip(point_getter fn, unsigned count)
 }
 
 
+void KcImPaint::drawRect(const point3& lower, const point3& upper)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+	drawList->AddRect(project_(lower, true), project_(upper, true), color_());
+}
+
+
+void KcImPaint::fillTriangle(point3 pts[3])
+{
+	auto drawList = ImGui::GetWindowDrawList();
+	auto p0 = project_(pts[0]);
+	auto p1 = project_(pts[1]);
+	auto p2 = project_(pts[2]);
+	drawList->AddTriangleFilled(p0, p1, p2, color_());
+}
+
+
+void KcImPaint::fillTriangle(point3 pts[3], color_t clrs[3])
+{
+	auto drawList = ImGui::GetWindowDrawList();
+	drawList->PrimReserve(3, 3);
+
+	auto uv = drawList->_Data->TexUvWhitePixel;
+
+	auto p0 = project_(pts[0]);
+	auto p1 = project_(pts[1]);
+	auto p2 = project_(pts[2]);
+
+	auto vtxIdx0 = drawList->_VtxCurrentIdx;
+	drawList->PrimVtx(p0, uv, imColor(clrs[0]));
+	drawList->PrimVtx(p1, uv, imColor(clrs[1]));
+	drawList->PrimVtx(p2, uv, imColor(clrs[2]));
+}
+
+
 void KcImPaint::fillRect(const point3& lower, const point3& upper)
 {
 	auto drawList = ImGui::GetWindowDrawList();
@@ -171,10 +206,13 @@ void KcImPaint::fillRect(const point3& lower, const point3& upper)
 }
 
 
-void KcImPaint::fillQuad(const point3& pt0, const point3& pt1, const point3& pt2, const point3& pt3)
+void KcImPaint::fillQuad(point3 pts[4])
 {
 	auto drawList = ImGui::GetWindowDrawList();
-	drawList->AddQuadFilled(project_(pt0), project_(pt1), project_(pt2), project_(pt3), color_());
+	ImVec2 vec[4];
+	for (int i = 0; i < 4; i++)
+		vec[i] = project_(pts[i]);
+	drawList->AddQuadFilled(vec[0], vec[1], vec[2], vec[3], color_());
 }
 
 

@@ -165,9 +165,16 @@ public:
         return y;
     }
 
+    // 规范化重映射：remap(x, x0, x1, 0, 1)
     template<bool CLAMP = false>
     static KREAL remap(KREAL x, KREAL x0, KREAL x1) {
         return remap<CLAMP>(x, x0, x1, 0, 1);
+    }
+
+
+    // 反转：相当于remap(x, x0, x1, x1, x0)
+    static KREAL invert(KREAL x, KREAL x0, KREAL x1) {
+        return x0 + x1 - x;
     }
 
     /*************** VECTOR ALGORITHM *****************/

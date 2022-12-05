@@ -68,6 +68,8 @@ protected:
 
 	virtual void showLegendProperty_();
 	
+	virtual void showColorBarProperty_();
+
 	virtual void showPlottableProperty_();
 
 	    void showPlottableTypeProperty_(unsigned idx);

@@ -3,6 +3,7 @@
 #include "KuDataUtil.h"
 #include "KvDiscreted.h"
 #include "KcSampled2d.h"
+#include "layout/KeAlignment.h"
 
 
 namespace kPrivate
@@ -273,4 +274,67 @@ namespace ImGuiX
         return res;
     }
 
+
+    static void switchAlign(KeAlignment& curAlign, int newAlign)
+    {
+        if (curAlign.location() == newAlign)
+            curAlign.toggleAlginFirst();
+        else
+            curAlign.setLocation(newAlign);
+
+        if (curAlign & KeAlignment::k_hcenter)
+            curAlign.setAlignFirst(KeAlignment::k_vert_first);
+        else if (curAlign & KeAlignment::k_vcenter)
+            curAlign.setAlignFirst(KeAlignment::k_horz_first);
+    }
+
+    bool alignment(const char* label, KeAlignment& loc)
+    {
+        if (ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_FramePadding)) {
+
+            ImVec2 itemSize(ImGui::CalcTextSize("Outter").x * 2, 0);
+
+            bool outter = loc.outter();
+            int spacing = 12;
+
+            if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NW" : "WN", itemSize)) 
+                switchAlign(loc, KeAlignment::k_left | KeAlignment::k_top);
+            ImGui::SameLine(0, spacing);
+
+            if (ImGui::Button("N", itemSize)) 
+                switchAlign(loc, KeAlignment::k_top | KeAlignment::k_hcenter);
+            ImGui::SameLine(0, spacing);
+
+            if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NE" : "EN", itemSize))
+                switchAlign(loc, KeAlignment::k_right | KeAlignment::k_top);
+
+            if (ImGui::Button("W", itemSize)) 
+                switchAlign(loc, KeAlignment::k_left | KeAlignment::k_vcenter);
+            ImGui::SameLine(0, spacing);
+
+            if (ImGui::Button(outter ? "Out" : "In", itemSize))
+                loc.toggleSide();
+            ImGui::SameLine(0, spacing);
+
+            if (ImGui::Button("E", itemSize))
+                switchAlign(loc, KeAlignment::k_right | KeAlignment::k_vcenter);
+
+            if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SW" : "WS", itemSize))
+                switchAlign(loc, KeAlignment::k_left | KeAlignment::k_bottom);
+            ImGui::SameLine(0, spacing);
+
+            if (ImGui::Button("S", itemSize))
+                switchAlign(loc, KeAlignment::k_bottom | KeAlignment::k_hcenter);
+            ImGui::SameLine(0, spacing);
+
+            if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SE" : "ES", itemSize))
+                switchAlign(loc, KeAlignment::k_right | KeAlignment::k_bottom);
+
+            ImGui::TreePop();
+
+            return true;
+        }
+
+        return false;
+    }
 }

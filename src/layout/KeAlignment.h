@@ -27,10 +27,12 @@ public:
 		k_vert_first = 0x40,
 		k_horz_first = 0x80,
 
+		k_outter = 0x100,
+
 		k_horz_location_mask = k_left | k_right | k_hcenter,
 		k_vert_location_mask = k_top | k_bottom | k_vcenter,
 		k_location_mask = k_horz_location_mask | k_vert_location_mask,
-		k_side_mask = k_vert_first | k_horz_first
+		k_align_first_mask = k_vert_first | k_horz_first
 	};
 
 
@@ -38,41 +40,48 @@ public:
 		return inside() & k_location_mask;
 	}
 
-	int side() const {
-		return inside() & k_side_mask;
+	void setLocation(int loc) {
+		inside() &= ~k_location_mask;
+		inside() |= loc;
+	}
+
+	int alginFirst() const {
+		return inside() & k_align_first_mask;
+	}
+
+	void setAlignFirst(int first) {
+		inside() &= ~k_align_first_mask;
+		inside() |= first;
 	}
 
 	bool sameLocation(KeAlignment rhs) const {
 		return location() == rhs.location();
 	}
 
-	bool sameSide(KeAlignment rhs) const {
-		return side() == rhs.side();
+	bool sameAlginFirst(KeAlignment rhs) const {
+		return alginFirst() == rhs.alginFirst();
 	}
 
-	bool outter() const { return side(); }
+	bool outter() const { return inside() & k_outter; }
 
-	bool inner() const { return !side(); }
+	bool inner() const { return !outter(); }
 
 	void toggleSide() {
-		if (side())
-			inside() &= ~k_side_mask;
-		else
-			inside() |= k_horz_first; // 默认水平优先
+		inside() ^= k_outter;
 	}
 
-	void toggleHorzFirst() {
-		if (side()) inside() ^= k_side_mask;
+	void toggleAlginFirst() {
+		inside() ^= k_align_first_mask;
 	}
 
 	// left -> right 或者 right -> left
-	void toggleHAlign() {
+	void toggleLeftRight() {
 		if (inside() & (k_left | k_right))
 			inside() ^= (k_left | k_right);
 	}
 
 	// top -> bottom 或者 bottom -> top
-	void toggleVAlign() {
+	void toggleTopBottom() {
 		if (inside() & (k_top | k_bottom))
 			inside() ^= (k_top | k_bottom);
 	}

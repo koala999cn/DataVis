@@ -125,7 +125,7 @@ void KcCoord2d::draw(KvPaint* paint) const
 }
 
 
-KtMargins<KcCoord2d::float_t> KcCoord2d::calcMargins(KvPaint* paint) const
+KtMargins<KcCoord2d::float_t> KcCoord2d::calcMargins_(KvPaint* paint) const
 {
 	auto l = axes_[KcAxis::k_left].front()->calcMargins(paint);
 	auto r = axes_[KcAxis::k_right].front()->calcMargins(paint);

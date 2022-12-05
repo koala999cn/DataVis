@@ -5,6 +5,7 @@
 #include "../plot/KtColor.h"
 
 class KvData;
+class KeAlignment;
 
 // imguiµÄÀ©Õ¹º¯Êý
 
@@ -51,4 +52,6 @@ namespace ImGuiX
 
 
 	bool prefixCheckbox(const char* label, bool* v);
+
+	bool alignment(const char* label, KeAlignment& align);
 }

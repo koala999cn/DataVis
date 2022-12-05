@@ -25,13 +25,16 @@ private:
 private:
 
 	KpPen border_;
-	KpBrush bkgnd_;
 	KpFont fontText_;
 	color4f clrText_{ 0, 0, 0, 1 };
 
 	int barWidth_{ 24 };
 	int barLength_{ 0 }; // 0表示延展与coord对齐
+	int ticks_{ 0 }; // 0表示autotick
 
 	KvPlottable* plt_;
 	KeAlignment location_; // colorbar的位置
+
+	bool showBorder_{ true };
+	bool showTicker_{ true };
 };

@@ -2,6 +2,7 @@
 #include "KvCoord.h"
 #include <list>
 #include <memory>
+#include "KtMargins.h"
 
 class KcAxis;
 class KcCoordPlane;
@@ -31,8 +32,6 @@ public:
 
 	void forPlane(std::function<bool(KcCoordPlane& plane)>) const final;
 
-	KtMargins<float_t> calcMargins(KvPaint*) const final;
-
 	rect_t getPlotRect() const final;
 
 	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;
@@ -42,6 +41,8 @@ public:
 	axis_list& axes(int type) { return axes_[type]; }
 
 private:
+
+	KtMargins<float_t> calcMargins_(KvPaint*) const;
 
 	size_t calcSize_(void* cxt) const final;
 

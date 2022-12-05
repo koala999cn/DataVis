@@ -15,10 +15,10 @@ public:
 	void beginPaint() override;
 	void endPaint() override;
 
-	rect viewport() const override;
-	void setViewport(const rect& vp) override;
+	rect_t viewport() const override;
+	void setViewport(const rect_t& vp) override;
 
-	void pushClipRect(const rect& cr) override;
+	void pushClipRect(const rect_t& cr) override;
 	void popClipRect() override;
 
 	void pushLocal(const mat4& mat) override;
@@ -43,9 +43,15 @@ public:
 
 	void drawLineStrip(point_getter fn, unsigned count) override;
 
+	void drawRect(const point3& lower, const point3& upper) override;
+
+	void fillTriangle(point3 pts[3]) override;
+
+	void fillTriangle(point3 pts[3], color_t clrs[3]) override;
+
 	void fillRect(const point3& lower, const point3& upper) override;
 
-	void fillQuad(const point3& pt0, const point3& pt1, const point3& pt2, const point3& pt3) override;
+	void fillQuad(point3 pts[4]) override;
 
 	void fillConvexPoly(point_getter fn, unsigned count) override;
 
@@ -60,9 +66,11 @@ public:
 private:
 	ImVec2 project_(const point3& pt, bool round = false) const;
 
-	ImColor color_() const {
-		return ImColor(clr_.r(), clr_.g(), clr_.b(), clr_.a());
+	static ImColor imColor(const color_t& clr) {
+		return ImColor(clr.r(), clr.g(), clr.b(), clr.a());
 	}
+
+	ImColor color_() const { return imColor(clr_); }
 
 	void drawLine_(const ImVec2& from, const ImVec2& to);
 

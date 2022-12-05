@@ -30,8 +30,6 @@ public:
 
 	void forPlane(std::function<bool(KcCoordPlane& plane)>) const override;
 
-	KtMargins<float_t> calcMargins(KvPaint*) const override;
-
 	rect_t getPlotRect() const override;
 
 	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;

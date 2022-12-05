@@ -24,7 +24,7 @@ void KcImPlot2d::updateImpl_()
         // 更新摄像机的视图
         auto pos = ImGui::GetWindowPos();
         auto sz = ImGui::GetWindowSize();
-        KvPaint::rect vp({ pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y });
+        KvPaint::rect_t vp({ pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y });
         vp.shrink({ margins_.left(), margins_.bottom() }, { margins_.right(), margins_.top() });
         paint().setViewport(vp);
 

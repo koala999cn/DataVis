@@ -40,7 +40,8 @@ void KcCoordPlane::draw(KvPaint* paint) const
 
 	if (bkgnd_.style != KpBrush::k_none) {
 		paint->apply(background());
-		paint->fillQuad(horz_[0]->start(), horz_[0]->end(), horz_[1]->end(), horz_[1]->start());
+		point3 pts[4] = { horz_[0]->start(), horz_[0]->end(), horz_[1]->end(), horz_[1]->start() };
+		paint->fillQuad(pts);
 	}
 
 	bool showMajor = majorVisible() && majorLineCxt_.style != KpPen::k_none;

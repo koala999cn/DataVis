@@ -14,7 +14,7 @@
 #include "plot/KcThemedPlotImpl_.h"
 #include "plot/KvCoord.h"
 #include "plot/KcLegend.h"
-#include "layout/KeAlignment.h" 
+#include "plot/KcColorBar.h"
 #include "KvNode.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
@@ -231,8 +231,15 @@ void KvRdPlot::showProperySet()
 	showCoordProperty_();
 	ImGui::Separator();
 
-	showLegendProperty_();
-	ImGui::Separator();
+	if (plot_->legend()->itemCount() > 0) {
+		showLegendProperty_();
+		ImGui::Separator();
+	}
+
+	if (plot_->colorBar()) {
+		showColorBarProperty_();
+		ImGui::Separator();
+	}
 
 	showPlottableProperty_();
 }
@@ -351,80 +358,30 @@ void KvRdPlot::showCoordProperty_()
 }
 
 
-namespace kPrivate
-{
-	static KeAlignment switchAlign(KeAlignment oldAlign, KeAlignment newAlign)
-	{
-		if (newAlign.sameLocation(oldAlign)) {
-			oldAlign.toggleHorzFirst();
-			return oldAlign;
-		}
-		
-		return newAlign | oldAlign.side();
-	}
-}
-
-
 void KvRdPlot::showLegendProperty_()
 {
-	using namespace kPrivate;
-
 	if (!kPrivate::TreePush("Legend"))
 		return;
 
 	ImGui::Checkbox("Show", &plot_->showLegend());
 
-	if (ImGui::TreeNodeEx("Alignment", ImGuiTreeNodeFlags_FramePadding)) {
+	auto& loc = plot_->legend()->location();
+	ImGuiX::alignment("Alignment", loc);
 
-		ImVec2 itemSize(ImGui::CalcTextSize("Out").x * 2, 0);
+	kPrivate::TreePop();
+}
 
-		auto& loc = plot_->legend()->location();
-		bool outter = loc.outter();
-		int spacing = 12;
 
-		if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NW" : "WN", itemSize))
-		    loc = switchAlign(loc, KeAlignment::k_left | KeAlignment::k_top);
-		ImGui::SameLine(0, spacing);
 
-		if (ImGui::Button("N", itemSize)) {
-			auto newLoc = KeAlignment::k_top | KeAlignment::k_hcenter;
-			loc = outter ? newLoc | KeAlignment::k_vert_first : newLoc;
-		}
-		ImGui::SameLine(0, spacing);
+void KvRdPlot::showColorBarProperty_()
+{
+	if (!kPrivate::TreePush("ColorBar"))
+		return;
 
-		if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NE" : "EN", itemSize))
-			loc = switchAlign(loc, KeAlignment::k_right | KeAlignment::k_top);
+	ImGui::Checkbox("Show", &plot_->showColorBar());
 
-		if (ImGui::Button("W", itemSize)) {
-			auto newLoc = KeAlignment::k_left | KeAlignment::k_vcenter;
-			loc = outter ? newLoc | KeAlignment::k_horz_first : newLoc;
-		}
-		ImGui::SameLine(0, spacing);
-
-		if (ImGui::Button(outter ? "Out" : "In", itemSize)) 
-			loc.toggleSide();
-		ImGui::SameLine(0, spacing);
-
-		if (ImGui::Button("E", itemSize)) {
-			auto newLoc = KeAlignment::k_right | KeAlignment::k_vcenter;
-			loc = outter ? newLoc | KeAlignment::k_horz_first : newLoc;
-		}
-
-		if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SW" : "WS", itemSize))
-			loc = switchAlign(loc, KeAlignment::k_left | KeAlignment::k_bottom);
-		ImGui::SameLine(0, spacing);
-
-		if (ImGui::Button("S", itemSize)) {
-			auto newLoc = KeAlignment::k_bottom | KeAlignment::k_hcenter;
-			loc = outter ? newLoc | KeAlignment::k_vert_first : newLoc;
-		}
-		ImGui::SameLine(0, spacing);
-
-		if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SE" : "ES", itemSize))
-			loc = switchAlign(loc, KeAlignment::k_right | KeAlignment::k_bottom);
-
-		ImGui::TreePop();
-	}
+	auto& loc = plot_->colorBar()->location();
+	ImGuiX::alignment("Alignment", loc);
 
 	kPrivate::TreePop();
 }
