@@ -6,8 +6,13 @@
 #include "imguix.h"
 
 
+namespace kPrivate
+{
+    std::string localToUtf8(const std::string& str);
+}
+
 KcImDataMaker::KcImDataMaker(const std::string& source, const matrixd& idata, std::shared_ptr<KvData>& odata)
-    : KvImModalWindow(KuPathUtil::fileName(source))
+    : KvImModalWindow(kPrivate::localToUtf8(KuPathUtil::fileName(source)))
     , idata_(idata), odata_(odata)
 {
     assert(!idata.empty());

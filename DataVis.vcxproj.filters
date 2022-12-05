@@ -310,13 +310,10 @@
     <ClCompile Include="src\plot\KcLineFilled.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\render\KcRdAudioPlayer.cpp">
-      <Filter>audio</Filter>
-    </ClCompile>
     <ClCompile Include="src\dsp\KcContinuedFn.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\prov\KcPvExcitor.cpp">
+    <ClCompile Include="src\prov\KvPvExcitor.cpp">
       <Filter>prov</Filter>
     </ClCompile>
     <ClCompile Include="src\op\KcOpSampler.cpp">
@@ -406,6 +403,21 @@
     <ClCompile Include="src\dsp\KuOscillatorFactory.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\prov\KcPvOscillator.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KvOscillator.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prov\KcPvStocahstic.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsp\KuStocahsticFactory.cpp">
+      <Filter>dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\KcRdAudioPlayer.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -469,9 +481,6 @@
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgRand.h">
-      <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dsp\excitors.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgHistC.h">
@@ -648,7 +657,7 @@
     <ClInclude Include="src\base\KtArray.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtProjector.h">
+    <ClInclude Include="src\base\KtProjector3d.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KtPlane.h">
@@ -813,10 +822,7 @@
     <ClInclude Include="src\plot\KcLineFilled.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\render\KcRdAudioPlayer.h">
-      <Filter>audio</Filter>
-    </ClInclude>
-    <ClInclude Include="src\prov\KcPvExcitor.h">
+    <ClInclude Include="src\prov\KvPvExcitor.h">
       <Filter>prov</Filter>
     </ClInclude>
     <ClInclude Include="src\op\KcOpSampler.h">
@@ -941,6 +947,21 @@
     </ClInclude>
     <ClInclude Include="src\base\bimap.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KcPvOscillator.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KvOscillator.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KcPvStocahstic.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KuStocahsticFactory.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\KcRdAudioPlayer.h">
+      <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

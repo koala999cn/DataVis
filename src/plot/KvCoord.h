@@ -26,6 +26,17 @@ public:
 	// the upper conner
 	virtual point3 upper() const = 0; 
 
+	// 轮询坐标轴
+	virtual void forAxis(std::function<bool(KcAxis& axis)>) const = 0;
+
+	// 轮询坐标平面
+	virtual void forPlane(std::function<bool(KcCoordPlane& plane)>) const = 0;
+
+	// 返回实际的绘图区域，paint将此设置为viewport，之后绘制plottables
+	virtual rect_t getPlotRect() const = 0;
+
+	virtual void placeElement(KvLayoutElement* ele, KeAlignment loc) = 0;
+
 	// the center point
 	point3 center() const {
 		return (upper() + lower()) / 2;
@@ -37,16 +48,8 @@ public:
 	// factor=0时，坐标系收缩到中心点
 	void zoom(float_t factor);
 
-	// 轮询坐标轴
-	virtual void forAxis(std::function<bool(KcAxis& axis)>) const = 0;
-
-	// 轮询坐标平面
-	virtual void forPlane(std::function<bool(KcCoordPlane& plane)>) const = 0;
-
-	// 返回实际的绘图区域，paint将此设置为viewport，之后绘制plottables
-	virtual rect_t getPlotRect() const = 0;
-
-	virtual void placeElement(KvLayoutElement* ele, KeAlignment loc) = 0;
+	void setAxisInversed(int dim, bool inv); // 反转dim维度的所有主坐标轴
+	bool axisInversed(int dim) const;
 
 	// 提供基类接口的缺省实现
 

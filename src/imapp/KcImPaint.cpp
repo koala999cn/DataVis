@@ -75,6 +75,20 @@ void KcImPaint::popCoord()
 }
 
 
+bool KcImPaint::axisInversed(int dim) const
+{
+	assert(dim < 3);
+	return camera_.axisInversed(dim);
+}
+
+
+void KcImPaint::setAxisInversed(int dim, bool inv)
+{
+	assert(dim < 3);
+	camera_.setAxisInversed(dim, inv);
+}
+
+
 KcImPaint::point4 KcImPaint::project(const point4& pt) const
 {
 	switch (coords_.back())

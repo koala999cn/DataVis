@@ -7,9 +7,11 @@
 #include "layout/KeAlignment.h"
 
 
-KcAxis::KcAxis(KeAxisType type)
+KcAxis::KcAxis(KeAxisType type, int dim, bool main)
 	: KvRenderable("Axis")
 	, type_(type)
+	, dim_(dim)
+	, main_(main)
 {
 	lower_ = upper_ = 0;
 
@@ -48,6 +50,10 @@ void KcAxis::draw(KvPaint* paint) const
 {
 	assert(visible());
 
+	bool inv = paint->axisInversed(dim_);
+
+	paint->setAxisInversed(dim_, inv_);
+
 	// draw baseline
 	if (showBaseline()) {
 		paint->apply(baselineCxt_);
@@ -57,6 +63,8 @@ void KcAxis::draw(KvPaint* paint) const
 	// draw ticks
 	if (showTick() || showLabel())
 		drawTicks_(paint);
+
+	paint->setAxisInversed(dim_, inv); // »Ö¸´×´Ì¬
 }
 
 

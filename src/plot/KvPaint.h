@@ -47,6 +47,9 @@ public:
 	virtual void pushCoord(KeCoordType type) = 0;
 	virtual void popCoord() = 0;
 
+	virtual bool axisInversed(int dim) const = 0;
+	virtual void setAxisInversed(int dim, bool inv) = 0;
+
 	// project world point to screen point
 	virtual point4 project(const point4& pt) const = 0;
 

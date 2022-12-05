@@ -1,7 +1,7 @@
 #pragma once
 #include "KvImWindow.h"
 #include "plot/KvPlot2d.h"
-#include "KtProjector.h"
+#include "KtProjector3d.h"
 
 
 class KcImPlot2d : public KvImWindow, public KvPlot2d

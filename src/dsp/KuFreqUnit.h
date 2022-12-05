@@ -171,6 +171,37 @@ public:
 		return 100.0 * semitones;
 	}
 
+	// calculate the frequency of the specified note.
+	// fractional notes allowed!
+	/*
+		Calculate the frequency of any note!
+		frequency = 440×(2^(n/12))
+
+		N=0 is A4
+		N=1 is A#4
+		etc...
+
+		notes go like so...
+		0  = A
+		1  = A#
+		2  = B
+		3  = C
+		4  = C#
+		5  = D
+		6  = D#
+		7  = E
+		8  = F
+		9  = F#
+		10 = G
+		11 = G#
+	*/
+	// octave=4代表中央调
+	// 
+	// 代码参考https://blog.demofox.org/2012/05/19/diy-synthesizer-chapter-2-common-wave-forms/
+	//
+	static double noteToFreq(double note, double octave = 4) {
+		return 440 * pow(2.0, ((octave - 4) * 12 + note) / 12.0);
+	}
 
 	// Convert decibels to amplitude.
 	static double dBToAmp(double decibels) {

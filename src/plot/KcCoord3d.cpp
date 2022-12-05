@@ -25,9 +25,17 @@ KcCoord3d::KcCoord3d()
 KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 	: KvCoord("CoordSystem3d")
 {
-	// 初始化12根坐标轴
+	int dim[12];
+	dim[KcAxis::k_near_top] = dim[KcAxis::k_near_bottom] 
+		= dim[KcAxis::k_far_top] = dim[KcAxis::k_far_bottom] = 0;
+	dim[KcAxis::k_near_left] = dim[KcAxis::k_near_right] 
+		= dim[KcAxis::k_near_left] = dim[KcAxis::k_near_right] = 1;
+	dim[KcAxis::k_floor_left] = dim[KcAxis::k_floor_right]
+		= dim[KcAxis::k_ceil_left] = dim[KcAxis::k_ceil_right] = 2;
+
+	// 初始化12根主坐标轴
 	for (unsigned i = 0; i < std::size(axes_); i++)
-		axes_[i].reset(new KcAxis(KcAxis::KeAxisType(i)));
+		axes_[i] = std::make_shared<KcAxis>(KcAxis::KeAxisType(i), dim[i], true);
 
 	setExtents(lower, upper);
 

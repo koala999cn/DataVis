@@ -1,6 +1,8 @@
 #include "KuOscillatorFactory.h"
 #include <string>
 #include "bimap.h"
+#include "KvOscillator.h"
+#include "KtuMath.h"
 
 
 namespace kPrivate
@@ -24,6 +26,66 @@ namespace kPrivate
 	};
 
 	static auto typeMap = bimap(typeName);
+
+	class KcSine : public KvOscillator
+	{
+	public:
+		KcSine() : KvOscillator(2 * KtuMath<kReal>::pi) {}
+
+		kReal tickImpl_(kReal phase) const final {
+			return sin(phase);
+		}
+	};
+
+	class KcTriangle : public KvOscillator
+	{
+	public:
+		KcTriangle() : KvOscillator(1) {}
+
+		kReal tickImpl_(kReal phase) const final {
+			kReal tmp = phase <= 0.5 ? phase * 2 : (1 - phase) * 2;
+			return tmp * 2 - 1;
+		}
+	};
+
+	class KcSaw : public KvOscillator
+	{
+	public:
+		KcSaw() : KvOscillator(1) {}
+
+		kReal tickImpl_(kReal phase) const final {
+			return phase * 2 - 1;
+		}
+	};
+
+	class KcSquare : public KvOscillator
+	{
+	public:
+		KcSquare() : KvOscillator(1) {}
+
+		kReal tickImpl_(kReal phase) const final {
+			return 	phase <= 0.5 ? -1 : 1;
+		}
+	};
+
+	class KcPulse : public KvOscillator
+	{
+	public:
+		KcPulse() : KvOscillator(1) {}
+
+		kReal tickImpl_(kReal phase) const final {
+			auto res = phase < prePhase_ ? 1 : 0;
+			prePhase_ = phase;
+			return res;
+		}
+
+		std::pair<kReal, kReal> range() const override {
+			return { 0, 1 };
+		}
+
+	private:
+		mutable kReal prePhase_{ 1 };
+	};
 }
 
 
@@ -40,7 +102,7 @@ const char* KuOscillatorFactory::typeName(unsigned typeIdx)
 }
 
 
-KvExcitor* KuOscillatorFactory::create(const char* name)
+KvOscillator* KuOscillatorFactory::create(const char* name)
 {
 	if (!kPrivate::typeMap.hasY(name))
 		return nullptr;
@@ -49,30 +111,30 @@ KvExcitor* KuOscillatorFactory::create(const char* name)
 }
 
 
-KvExcitor* KuOscillatorFactory::create(unsigned typeIdx)
+KvOscillator* KuOscillatorFactory::create(unsigned typeIdx)
 {
 	using namespace kPrivate;
 
 	switch (typeIdx)
 	{
 	case k_oscillator_sine:
-		break;
+		return new KcSine;
 
 	case k_oscillator_triangle:
-		break;
+		return new KcTriangle;
 
 	case k_oscillator_saw:
-		break;
+		return new KcSaw;
 
 	case k_oscillator_square:
-		break;
+		return new KcSquare;
 
 	case k_oscillator_pulse:
-		break;
+		return new KcPulse;
 
 	default:
 		break;
 	}
-
+	
 	return nullptr;
 }

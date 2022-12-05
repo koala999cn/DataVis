@@ -27,8 +27,13 @@ namespace kPrivate
 }
 
 
+namespace kPrivate
+{
+    std::string localToUtf8(const std::string& str);
+}
+
 KcImTextCleaner::KcImTextCleaner(const std::string& source, const matrix<std::string_view>& rawData, matrix<double>& cleanData)
-    : KvImModalWindow(KuPathUtil::fileName(source))
+    : KvImModalWindow(kPrivate::localToUtf8(KuPathUtil::fileName(source)))
     , source_(source)
     , rawData_(rawData)
     , cleanData_(cleanData)

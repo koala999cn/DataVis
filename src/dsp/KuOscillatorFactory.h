@@ -1,9 +1,8 @@
 #pragma once
-#include "KvExcitor.h"
-#include "rchoscillators/rch_oscillators.h"
 
+class KvOscillator;
 
-// 常用振荡器
+// 周期信号振荡器的工厂类
 
 class KuOscillatorFactory
 {
@@ -16,10 +15,10 @@ public:
 	static const char* typeName(unsigned typeIdx);
 
 	// 通过振荡器名字创建
-	static KvExcitor* create(const char* name);
+	static KvOscillator* create(const char* name);
 
 	// 通过振荡器类型创建
-	static KvExcitor* create(unsigned typeIdx);
+	static KvOscillator* create(unsigned typeIdx);
 
 private:
 	KuOscillatorFactory() = delete;

@@ -66,7 +66,7 @@ public:
 		}
 	};
 
-	KcAxis(KeAxisType type);
+	KcAxis(KeAxisType type, int dim, bool main);
 
 	KeAxisType type() const { return type_; }
 
@@ -171,7 +171,12 @@ public:
 	// 返回当前axis在屏幕坐标所占的尺寸（像素大小）
 	KtMargins<float_t> calcMargins(KvPaint* paint) const;
 
+	int dim() const { return dim_; }
 
+	bool main() const { return main_; }
+
+	bool inversed() const { return inv_; }
+	void setInversed(bool inv) { inv_ = inv; }
 
 private:
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度
@@ -206,4 +211,8 @@ private:
 	bool tickBothSide_{ false };
 
 	std::shared_ptr<KvScaler> scaler_;
+
+	int dim_; // 0表示x轴，1表示y轴，2表示z轴
+	bool main_{ true }; // 是否主坐标轴
+	bool inv_{ false }; // 是否反转坐标轴
 };

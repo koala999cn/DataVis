@@ -139,8 +139,10 @@
     <ClCompile Include="src\dsp\KuFreqUnit.cpp" />
     <ClCompile Include="src\dsp\KuInterp1d.cpp" />
     <ClCompile Include="src\dsp\KuOscillatorFactory.cpp" />
+    <ClCompile Include="src\dsp\KuStocahsticFactory.cpp" />
     <ClCompile Include="src\dsp\KvContinued.cpp" />
     <ClCompile Include="src\dsp\KvDiscreted.cpp" />
+    <ClCompile Include="src\dsp\KvOscillator.cpp" />
     <ClCompile Include="src\imapp\imguix.cpp" />
     <ClCompile Include="src\imapp\KcActionInsertDataNode.cpp" />
     <ClCompile Include="src\imapp\KcActionNewAudioData.cpp" />
@@ -217,8 +219,10 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
-    <ClCompile Include="src\prov\KcPvExcitor.cpp" />
+    <ClCompile Include="src\prov\KcPvStocahstic.cpp" />
+    <ClCompile Include="src\prov\KvPvExcitor.cpp" />
     <ClCompile Include="src\prov\KcPvExpr.cpp" />
+    <ClCompile Include="src\prov\KcPvOscillator.cpp" />
     <ClCompile Include="src\prov\KvDataProvider.cpp" />
     <ClCompile Include="src\render\KcRdAudioPlayer.cpp" />
     <ClCompile Include="src\render\KcRdPlot1d.cpp" />
@@ -247,7 +251,7 @@
     <ClInclude Include="src\audio\KgAudioFile.h" />
     <ClInclude Include="src\base\KtHolder.h" />
     <ClInclude Include="src\base\bimap.h" />
-    <ClInclude Include="src\base\KtProjector.h" />
+    <ClInclude Include="src\base\KtProjector3d.h" />
     <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
     <ClInclude Include="src\base\KtLine.h" />
@@ -269,7 +273,6 @@
     <ClInclude Include="src\base\KuPathUtil.h" />
     <ClInclude Include="src\base\KuStrUtil.h" />
     <ClInclude Include="src\base\KtUniObject.h" />
-    <ClInclude Include="src\dsp\excitors.h" />
     <ClInclude Include="src\dsp\KcMonoContinued.h" />
     <ClInclude Include="src\dsp\KcMonoDiscreted.h" />
     <ClInclude Include="src\dsp\KcInterpolater.h" />
@@ -297,9 +300,11 @@
     <ClInclude Include="src\dsp\KuFreqUnit.h" />
     <ClInclude Include="src\dsp\KuInterp1d.h" />
     <ClInclude Include="src\dsp\KuMatrixUtil.h" />
+    <ClInclude Include="src\dsp\KuStocahsticFactory.h" />
     <ClInclude Include="src\dsp\KvContinued.h" />
     <ClInclude Include="src\dsp\KvDiscreted.h" />
     <ClInclude Include="src\dsp\KvExcitor.h" />
+    <ClInclude Include="src\dsp\KvOscillator.h" />
     <ClInclude Include="src\dsp\KvSampled.h" />
     <ClInclude Include="src\dsp\minmax.h" />
     <ClInclude Include="src\dsp\KuOscillatorFactory.h" />
@@ -394,8 +399,10 @@
     <ClInclude Include="src\provider.h" />
     <ClInclude Include="src\prov\KcPvAudioInput.h" />
     <ClInclude Include="src\prov\KcPvData.h" />
-    <ClInclude Include="src\prov\KcPvExcitor.h" />
+    <ClInclude Include="src\prov\KvPvExcitor.h" />
     <ClInclude Include="src\prov\KcPvExpr.h" />
+    <ClInclude Include="src\prov\KcPvOscillator.h" />
+    <ClInclude Include="src\prov\KcPvStocahstic.h" />
     <ClInclude Include="src\prov\KvDataProvider.h" />
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\dsp\KcSampled1d.h" />

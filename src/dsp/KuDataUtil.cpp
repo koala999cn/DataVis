@@ -184,3 +184,21 @@ std::shared_ptr<KvData> KuDataUtil::makeData(const matrixd& mat, int type)
 
     return data;
 }
+
+
+std::shared_ptr<KvData> KuDataUtil::cloneSampled1d(std::shared_ptr<KvData> samp)
+{
+    auto samp1d = std::dynamic_pointer_cast<KvSampled>(samp);
+    assert(samp1d && samp1d->dim() == 1);
+
+    auto copyed = std::make_shared<KcSampled1d>();
+    copyed->reset(0, samp1d->range(0).low(), samp1d->step(0)); // TODO: x0_ref
+    copyed->resize(samp1d->size(), samp1d->channels());
+    
+    auto buf = copyed->data();
+    for (kIndex i = 0; i < samp1d->size(); i++)
+        for (kIndex ch = 0; ch < samp1d->channels(); ch++)
+            *buf++ = samp1d->valueAt(i, ch);
+
+    return copyed;
+}

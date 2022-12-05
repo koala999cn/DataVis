@@ -43,3 +43,28 @@ void KvCoord::zoom(float_t factor)
 
 	assert(c.isApproxEqual(center()));
 }
+
+
+bool KvCoord::axisInversed(int dim) const
+{
+	bool inv{ false };
+	forAxis([dim, &inv](KcAxis& axis) {
+		if (axis.dim() == dim && axis.main()) {
+			inv = axis.inversed();
+			return false;
+		}
+		return true;
+		});
+
+	return inv;
+}
+
+
+void KvCoord::setAxisInversed(int dim, bool inv)
+{
+	forAxis([dim, inv](KcAxis& axis) {
+		if (axis.dim() == dim && axis.main())
+			axis.setInversed(inv);
+		return true;
+		});
+}
