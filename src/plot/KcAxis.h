@@ -69,6 +69,7 @@ public:
 	KcAxis(KeAxisType type, int dim, bool main);
 
 	KeAxisType type() const { return type_; }
+	void setType(KeAxisType t) { type_ = t; }
 
 	const point3& start() const { return start_; }
 	void setStart(const point3& v) { start_ = v; }
@@ -182,7 +183,7 @@ private:
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度
 	void drawTick_(KvPaint*, const point3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
 	
-	int labelAlignment_() const; // 根据label的orientation判定label的alignment
+	int labelAlignment_(bool toggleTopBottom) const; // 根据label的orientation判定label的alignment
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
 	aabb_t textBox_(KvPaint*, const point3& anchor, const std::string& text) const;
 
@@ -212,7 +213,7 @@ private:
 
 	std::shared_ptr<KvScaler> scaler_;
 
-	int dim_; // 0表示x轴，1表示y轴，2表示z轴
+	int dim_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴（用来显示colorbar）
 	bool main_{ true }; // 是否主坐标轴
 	bool inv_{ false }; // 是否反转坐标轴
 };

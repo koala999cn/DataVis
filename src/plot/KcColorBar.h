@@ -1,6 +1,7 @@
 #pragma once
 #include "KvRenderable.h"
 #include "KpContext.h"
+#include "KcAxis.h"
 #include "layout/KvLayoutElement.h"
 
 class KvPlottable;
@@ -25,16 +26,15 @@ private:
 private:
 
 	KpPen border_;
-	KpFont fontText_;
-	color4f clrText_{ 0, 0, 0, 1 };
 
-	int barWidth_{ 24 };
-	int barLength_{ 0 }; // 0表示延展与coord对齐
+	int barWidth_{ 24 }; // 像素值
+	int barLength_{ 0 }; // 像素值. 0表示延展与coord-plane对齐
 	int ticks_{ 0 }; // 0表示autotick
 
 	KvPlottable* plt_;
 	KeAlignment location_; // colorbar的位置
 
 	bool showBorder_{ true };
-	bool showTicker_{ true };
+	
+	std::unique_ptr<KcAxis> axis_; // 用于绘制tick和label
 };

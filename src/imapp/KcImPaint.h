@@ -26,6 +26,7 @@ public:
 
 	void pushCoord(KeCoordType type) override;
 	void popCoord() override;
+	KeCoordType currentCoord() const override;
 
 	bool axisInversed(int dim) const override;
 	void setAxisInversed(int dim, bool inv) override;

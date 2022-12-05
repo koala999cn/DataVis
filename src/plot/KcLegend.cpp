@@ -6,7 +6,7 @@
 KcLegend::KcLegend()
     : super_("Legend")
 {
-    align() = location_ = KeAlignment::k_right | KeAlignment::k_top | KeAlignment::k_outter;
+    align() = location_ = KeAlignment::k_right | KeAlignment::k_top | KeAlignment::k_horz_first | KeAlignment::k_outter;
     setMargins({ point_t(7, 5), point_t(7, 5) });
 }
 

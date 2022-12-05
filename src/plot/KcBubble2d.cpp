@@ -12,7 +12,7 @@ unsigned KcBubble2d::majorColorsNeeded() const
 float KcBubble2d::mapValueToSize_(float_t val) const
 {
 	if (radiusAsSize_) 
-		return KtuMath<float_t>::remap<true>(val, mapLower(), mapUpper(), 
+		return KtuMath<float_t>::remap<true>(val, mapLower(), mapUpper(),
 			sizeLower_, sizeUpper_);
 
 	auto factor = KtuMath<float_t>::remap<true>(val, mapLower(), mapUpper(),

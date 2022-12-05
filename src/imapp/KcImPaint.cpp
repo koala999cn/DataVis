@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "imgui_internal.h"
 #include "KtLineS2d.h"
+#include "layout/KuLayoutUtil.h"
 
 
 KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
@@ -74,6 +75,11 @@ void KcImPaint::popCoord()
 	coords_.pop_back();
 }
 
+
+KcImPaint::KeCoordType KcImPaint::currentCoord() const
+{
+	return KeCoordType(coords_.back());
+}
 
 bool KcImPaint::axisInversed(int dim) const
 {
@@ -330,8 +336,8 @@ void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 	auto drawList = ImGui::GetWindowDrawList();
 
 	auto ap = projectp(anchor);
-	auto r = textRect({ ap.x(), ap.y() }, text, align);
-
+	auto r = KuLayoutUtil::anchorAlignedRect({ ap.x(), ap.y() }, textSize(text), align);
+	
 	drawList->AddText(ImVec2(r.lower().x(), r.lower().y()), color_(), text);
 }
 

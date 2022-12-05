@@ -5,6 +5,7 @@
 #include "KtuMath.h"
 #include "KtLine.h"
 #include "layout/KeAlignment.h"
+#include "layout/KuLayoutUtil.h"
 
 
 KcAxis::KcAxis(KeAxisType type, int dim, bool main)
@@ -115,7 +116,8 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		auto& labels = scale->labels();
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
-			paint->drawText(labelAchors[i], label.c_str(), labelAlignment_());
+			KeAlignment align = labelAlignment_(paint->currentCoord() == KvPaint::k_coord_screen);
+			paint->drawText(labelAchors[i], label.c_str(), align);
 		}
 	}
 
@@ -139,7 +141,7 @@ void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length) cons
 }
 
 
-int KcAxis::labelAlignment_() const
+int KcAxis::labelAlignment_(bool toggleTopBottom) const
 {
 	int align(0);
 
@@ -147,15 +149,11 @@ int KcAxis::labelAlignment_() const
 		align |= KeAlignment::k_left;
 	else if (labelOrient_.x() < 0)
 		align |= KeAlignment::k_right;
-	else
-		align |= KeAlignment::k_hcenter;
 
 	if (labelOrient_.y() > 0 || labelOrient_.z() < 0 )
-		align |= KeAlignment::k_bottom;
+		align |= toggleTopBottom ? KeAlignment::k_top : KeAlignment::k_bottom;
 	else if (labelOrient_.y() < 0 || labelOrient_.z() > 0)
-		align |= KeAlignment::k_top;
-	else
-		align |= KeAlignment::k_vcenter;
+		align |= toggleTopBottom ? KeAlignment::k_bottom : KeAlignment::k_top;
 
 	return align;
 }
@@ -163,8 +161,7 @@ int KcAxis::labelAlignment_() const
 
 KcAxis::point3 KcAxis::tickPos(double val) const
 {
-	auto ratio = (val - lower()) / length();
-	return start() + (end() - start()) * ratio; // TODO: lerp
+	return KtuMath<float_t>::remap<point3>(val, lower(), upper(), start(), end());
 }
 
 
@@ -222,8 +219,8 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 	// 合并第一个和最后一个tick的box
 	{
 		float_t pos[2];
-		pos[0] = KtuMath<float_t>::remap(ticks.front(), lower(), upper(), 0, length());
-		pos[1] = KtuMath<float_t>::remap(ticks.back(), lower(), upper(), 0, length());
+		pos[0] = KtuMath<float_t>::remap(ticks.front(), lower(), upper(), 0., length());
+		pos[1] = KtuMath<float_t>::remap(ticks.back(), lower(), upper(), 0., length());
 		for (int i = 0; i < 2; i++)
 			box.merge(lowerPt + dir * pos[i] + tickLen);
 	}
@@ -275,11 +272,14 @@ bool KcAxis::tickAndLabelInSameSide_() const
 
 KcAxis::aabb_t KcAxis::textBox_(KvPaint* paint, const point3& anchor, const std::string& text) const
 {
-	auto r = paint->textRect({ anchor.x(), anchor.y() }, text.c_str(), labelAlignment_());
+	auto r = KuLayoutUtil::anchorAlignedRect({ anchor.x(), anchor.y() }, 
+		paint->textSize(text.c_str()), labelAlignment_(true));
+
+	return { { r.lower().x(), r.lower().y(), anchor.z() }, { r.upper().x(), r.upper().y(), anchor.z() } };
 
 	// 此处r为屏幕坐标，需要转换为视图坐标
-	auto yLower = 2 * anchor.y() - r.upper().y();
-	auto yUpper = 2 * anchor.y() - r.lower().y();
+	//auto yLower = 2 * anchor.y() - r.upper().y();
+	//auto yUpper = 2 * anchor.y() - r.lower().y();
 
-	return { { r.lower().x(), yLower, anchor.z() }, { r.upper().x(), yUpper, anchor.z() } };
+	//return { { r.lower().x(), yLower, anchor.z() }, { r.upper().x(), yUpper, anchor.z() } };
 }

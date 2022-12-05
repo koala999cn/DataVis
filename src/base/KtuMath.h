@@ -154,23 +154,32 @@ public:
     } 
 
     // 重映射：将x从[x0, x1]区间映射到[y0, y1]区间
-    template<bool CLAMP = false>
-    static KREAL remap(KREAL x, KREAL x0, KREAL x1, KREAL y0, KREAL y1) {
+    template<typename T2, bool CLAMP = false>
+    static T2 remap(KREAL x, KREAL x0, KREAL x1, T2 y0, T2 y1) {
         if (x0 == x1) 
             return x > x1 ? y1 : y0;
 
-        auto y = y0 + (x - x0) * (y1 - y0) / (x1 - x0);
+        auto y = y0 + (y1 - y0) * ((x - x0) / (x1 - x0));
         if constexpr (CLAMP)
-            y = clamp(y, y0, y1);
+            y = KtuMath<T2>::clamp(y, y0, y1);
         return y;
     }
 
-    // 规范化重映射：remap(x, x0, x1, 0, 1)
     template<bool CLAMP = false>
-    static KREAL remap(KREAL x, KREAL x0, KREAL x1) {
-        return remap<CLAMP>(x, x0, x1, 0, 1);
+    static KREAL remap(KREAL x, KREAL x0, KREAL x1, KREAL y0, KREAL y1) {
+        return remap<KREAL, CLAMP>(x, x0, x1, y0, y1);
     }
 
+    // 规范化重映射：remap(x, x0, x1, 0, 1)
+    template<typename T2, bool CLAMP = false>
+    static T2 remap(KREAL x, KREAL x0, KREAL x1) {
+        return remap<T2, CLAMP>(x, x0, x1, 0, 1);
+    }
+
+    template<bool CLAMP = false>
+    static KREAL remap(KREAL x, KREAL x0, KREAL x1) {
+        return remap<KREAL, CLAMP>(x, x0, x1, 0, 1);
+    }
 
     // 反转：相当于remap(x, x0, x1, x1, x0)
     static KREAL invert(KREAL x, KREAL x0, KREAL x1) {

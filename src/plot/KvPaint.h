@@ -46,6 +46,7 @@ public:
 	// 改变当前坐标系类型
 	virtual void pushCoord(KeCoordType type) = 0;
 	virtual void popCoord() = 0;
+	virtual KeCoordType currentCoord() const = 0;
 
 	virtual bool axisInversed(int dim) const = 0;
 	virtual void setAxisInversed(int dim, bool inv) = 0;
@@ -151,10 +152,6 @@ public:
 	void drawText(const point2& ach, const char* text, int align) {
 		drawText(point3(ach.x(), ach.y(), 0), text, align);
 	}
-
-	// 以pos为锚点，以align为对齐方式，计算绘制text的矩形空间
-	// 所用参数均为屏幕空间坐标
-	rect_t textRect(const point2& pos, const char* text, int align) const;
 
 	void apply(const KpPen& cxt);
 

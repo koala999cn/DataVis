@@ -175,6 +175,7 @@
     <ClCompile Include="src\layout\KcLayout1d.cpp" />
     <ClCompile Include="src\layout\KcLayoutGrid.cpp" />
     <ClCompile Include="src\layout\KuLayoutHelper.cpp" />
+    <ClCompile Include="src\layout\KuLayoutUtil.cpp" />
     <ClCompile Include="src\layout\KvLayoutElement.cpp" />
     <ClCompile Include="src\op\KcOpFbank.cpp" />
     <ClCompile Include="src\op\KcOpFIR.cpp" />
@@ -346,6 +347,7 @@
     <ClInclude Include="src\layout\KcLayoutOverlay.h" />
     <ClInclude Include="src\layout\KeAlignment.h" />
     <ClInclude Include="src\layout\KuLayoutHelper.h" />
+    <ClInclude Include="src\layout\KuLayoutUtil.h" />
     <ClInclude Include="src\layout\KvLayoutContainer.h" />
     <ClInclude Include="src\layout\KvLayoutElement.h" />
     <ClInclude Include="src\op\KcOpFbank.h" />

@@ -2,15 +2,30 @@
 #include "KvPlottable.h"
 #include "KvPaint.h"
 #include "KtGradient.h"
+#include "KvData.h"
 
 
 KcColorBar::KcColorBar(KvPlottable* plt)
     : KvRenderable("ColorBar")
     , plt_(plt)
 {
-    align() = location_ = KeAlignment::k_right | KeAlignment::k_top | KeAlignment::k_outter;
-    assert(plt_ != nullptr);
+    assert(plt_);
+
+    align() = location_ = KeAlignment::k_right | KeAlignment::k_horz_first | KeAlignment::k_outter;
+    
     margins_ = margins_t({ 5, 5 }, { 5, 5 });
+
+    axis_ = std::make_unique<KcAxis>(KcAxis::k_right, -1, false);
+    axis_->showBaseline() = false;
+    axis_->showSubtick() = false;
+
+    if (plt_->data()) {
+        auto r = plt->data()->valueRange();
+        axis_->setRange(r.low(), r.high());
+    }
+    else {
+        axis_->setRange(0, 0);
+    }
 }
 
 
@@ -36,10 +51,24 @@ void KcColorBar::draw(KvPaint* paint) const
     for (unsigned i = 0; i < plt_->majorColors(); i++) 
         grad.setAt(double(i) / (plt_->majorColors() - 1), plt_->majorColor(i));
 
-    if (location() & KeAlignment::k_horz_first) 
+    if (align() & KeAlignment::k_horz_first) { // TODO: 更优雅的修正box的方法
+
+        if (align() & KeAlignment::k_right)
+            box.upper().x() = box.lower().x() + barWidth_;
+        else if (align() & KeAlignment::k_left)
+            box.lower().x() = box.upper().x() - barWidth_;
+
         kPrivate::drawGradient(paint, box, grad, 1, -1);
-    else 
+    }
+    else {
+
+        if (align() & KeAlignment::k_bottom)
+            box.upper().y() = box.lower().y() + barWidth_;
+        else if (align() & KeAlignment::k_top)
+            box.lower().y() = box.upper().y() - barWidth_;
+
         kPrivate::drawGradient(paint, box, grad, 0, 1);
+    }
 
     // draw border
     if (showBorder_) {
@@ -47,7 +76,34 @@ void KcColorBar::draw(KvPaint* paint) const
         paint->drawRect(box);
     }
 
-    // TODO: draw the ticker
+    // draw the ticker
+    if (axis_->visible()) {
+        typename KcAxis::point3 start, end;
+
+        if (align() & KeAlignment::k_horz_first) {
+            if (align() & KeAlignment::k_right) { // TODO: 更优雅的定位方法
+                start = { box.upper().x(), box.upper().y(), 0 };
+                end = { box.upper().x(), box.lower().y(), 0 };
+            }
+            else {
+                start = { box.lower().x(), box.upper().y(), 0 };
+                end = { box.lower().x(), box.lower().y(), 0 };
+            }
+        }
+        else {
+            if (align() & KeAlignment::k_bottom) {
+                start = { box.lower().x(), box.upper().y(), 0 };
+                end = { box.upper().x(), box.upper().y(), 0 };
+            }
+            else {
+                start = { box.lower().x(), box.lower().y(), 0 };
+                end = { box.upper().x(), box.lower().y(), 0 };
+            }
+        }
+
+        axis_->setExtend(start, end);
+        axis_->draw(paint);
+    }
 
     paint->popCoord();
 }
@@ -60,12 +116,30 @@ KcColorBar::aabb_t KcColorBar::boundingBox() const
 }
 
 
-KcColorBar::size_t KcColorBar::calcSize_(void*) const
+KcColorBar::size_t KcColorBar::calcSize_(void* cxt) const
 {
+    if (axis_->length() == 0 && plt_->data()) {
+        auto r = plt_->data()->valueRange();
+        axis_->setRange(r.low(), r.high());
+    }
+
+    if (location() & KeAlignment::k_horz_first) {
+        axis_->tickOrient() = axis_->labelOrient() =
+            (location() & KeAlignment::k_right) ? KcAxis::vec3::unitX() : -KcAxis::vec3::unitX();
+        axis_->setType(location() & KeAlignment::k_right ? KcAxis::k_right : KcAxis::k_left);
+    }
+    else {
+        axis_->tickOrient() = axis_->labelOrient() =
+            (location() & KeAlignment::k_bottom) ? KcAxis::vec3::unitY() : -KcAxis::vec3::unitY();
+        axis_->setType(location() & KeAlignment::k_bottom ? KcAxis::k_bottom : KcAxis::k_top);
+    }
+
+    auto mar = axis_->calcMargins((KvPaint*)cxt);
+
     if (location() & KeAlignment::k_horz_first)
-        return { barWidth_, barLength_ };
+        return { barWidth_ + mar.left() + mar.right(), barLength_ };
     else 
-        return { barLength_, barWidth_ };
+        return { barLength_, barWidth_ + mar.top() + mar.bottom() };
 }
 
 
@@ -91,7 +165,8 @@ namespace kPrivate
         for (unsigned i = 1; i < grad.numStops(); i++) {
             auto& stop = grad.stopAt(i);
             clrs[2] = clrs[3] = stop.second;
-            pts[2][dim] = pts[3][dim] = KtuMath<KvPaint::float_t>::remap(stop.first, 0, 1, lower[dim], upper[dim]);
+            using kMath = KtuMath<KvPaint::float_t>;
+            pts[2][dim] = pts[3][dim] = kMath::remap(stop.first, 0, 1, lower[dim], upper[dim]);
             paint->fillQuad(pts, clrs);
 
             clrs[0] = clrs[1] = clrs[2];

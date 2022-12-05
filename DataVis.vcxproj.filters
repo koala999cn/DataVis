@@ -418,6 +418,9 @@
     <ClCompile Include="src\render\KcRdAudioPlayer.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="src\layout\KuLayoutUtil.cpp">
+      <Filter>layout</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -962,6 +965,9 @@
     </ClInclude>
     <ClInclude Include="src\render\KcRdAudioPlayer.h">
       <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout\KuLayoutUtil.h">
+      <Filter>layout</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

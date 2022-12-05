@@ -73,29 +73,6 @@ void KvPaint::fillQuad(point3 pts[4], color_t clrs[4])
 }
 
 
-KvPaint::rect_t KvPaint::textRect(const point2& pos, const char* text, int align) const
-{
-	auto lower = pos;
-	auto szText = textSize(text);
-
-	if (align & KeAlignment::k_bottom)
-		lower.y() -= szText.y();
-	else if (align & KeAlignment::k_top)
-		lower.y();
-	else // k_vcenter
-		lower.y() -= szText.y() * 0.5;
-
-	if (align & KeAlignment::k_left)
-		lower.x();
-	else if (align & KeAlignment::k_right)
-		lower.x() -= szText.x();
-	else // k_hcenter
-		lower.x() -= szText.x() * 0.5;
-
-	return { lower, lower + szText };
-}
-
-
 void KvPaint::apply(const KpPen& cxt)
 {
 	setColor(cxt.color);
