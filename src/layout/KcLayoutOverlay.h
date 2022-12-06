@@ -1,5 +1,6 @@
 #pragma once
 #include "KvLayoutContainer.h"
+#include "layout/KuLayoutUtil.h"
 
 
 class KcLayoutOverlay : public KvLayoutContainer
@@ -14,10 +15,15 @@ public:
 		super_::arrange(rc);
 
 		auto iRect = innerRect();
-		if (rc.width() == 0) iRect.upper()[0] = iRect.lower()[0];
-		if (rc.height() == 0) iRect.upper()[1] = iRect.lower()[1];
-		for (auto& i : elements())
-			if (i) i->arrange(iRect);
+		for (int i = 0; i < 2; i++)
+			if (rc.extent(i) == 0) iRect.setExtent(i, 0);
+		for (auto& i : elements()) {
+			if (i == nullptr) continue;
+			
+			if (i->align().outter())
+				iRect = KuLayoutUtil::outterAlignedRect(rc, i->expectRoom(), i->align());
+			i->arrange(iRect);
+		}
 	}
 
 

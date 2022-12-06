@@ -49,8 +49,7 @@ public:
 
 	void remove(KvLayoutElement* ele);
 
-
-	void arrange(const rect_t& rc) final;
+	void arrange(const rect_t& rc) override;
 
 protected:
 	size_t calcSize_(void* cxt) const override;

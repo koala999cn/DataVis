@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 
+class KcLayoutOverlay;
 
 // 三维坐标系实现，由12根坐标轴和6个平面构成
 // 默认X轴向右，Y轴向上，Z轴向外
@@ -34,11 +35,18 @@ public:
 
 	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;
 
+	void arrange(const rect_t& rc) final;
+
 	axis_ptr& axis(int type) { return axes_[type]; }
 	axis_ptr axis(int type) const { return axes_[type]; }
 
 
 private:
+	size_t calcSize_(void* cxt) const final;
+
+private:
 	axis_ptr axes_[12];
 	grid_plane_ptr planes_[6];
+	std::unique_ptr<KcLayoutOverlay> layCoord_;
+	mutable rect_t rcCoord_; // coord3d的屏幕坐标rect，用于作为legend和colorbar的基准. 由calcSize_负责计算
 };

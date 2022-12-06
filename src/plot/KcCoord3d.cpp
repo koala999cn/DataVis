@@ -3,22 +3,14 @@
 #include "KcCoordPlane.h"
 #include "KvPaint.h"
 #include <assert.h>
-
-
-namespace kPrivate
-{
-	class KcDummyElement_ : public KvLayoutElement
-	{
-	private:
-		size_t calcSize_(void* cxt) const final { return { 0, 0 }; }
-	};
-}
+#include "layout/KcLayoutOverlay.h"
 
 
 KcCoord3d::KcCoord3d()
 	: KcCoord3d(point3(0), point3(1))
 {
-	putAt(0, 0, new kPrivate::KcDummyElement_); // 此处压入一个dummy元素，否则零元素的grid布局尺寸始终为0
+	putAt(0, 0, new KcLayoutOverlay); // 此处压入一个dummy元素，否则零元素的grid布局尺寸始终为0
+	layCoord_ = std::make_unique<KcLayoutOverlay>();
 }
 
 
@@ -204,29 +196,45 @@ KcCoord3d::rect_t KcCoord3d::getPlotRect() const
 }
 
 
+KcCoord3d::size_t KcCoord3d::calcSize_(void* cxt) const
+{
+	rcCoord_.setNull();
+
+	layCoord_->calcSize(cxt);
+
+	if (!layCoord_->empty()) { // 需要时才计算rcCoord_
+
+		aabb_t box(lower(), upper());
+		auto corns = box.allCorners();
+
+		for (auto& i : corns) {
+			i = ((KvPaint*)cxt)->projectp(i);
+			rcCoord_.merge({ i.x(), i.y() });
+		}
+	}
+
+	return __super::calcSize_(cxt);
+}
+
+
+void KcCoord3d::arrange(const rect_t& rc)
+{
+	__super::arrange(rc);
+
+	if (!layCoord_->empty()) {
+		auto rcCoord = rcCoord_;
+		for (unsigned i = 0; i < 2; i++)
+			if (rc.extent(i) == 0) rcCoord.setExtent(i, 0);
+		layCoord_->arrange(rcCoord);
+	}
+}
+
+
 void KcCoord3d::placeElement(KvLayoutElement* ele, KeAlignment loc)
 {
 	assert(!isAncestorOf(ele));
 
-/*	if (loc.inner()) {
-		plane_->append(ele);
-	}
-	else {
-		if (loc & KeAlignment::k_horz_first) {
-			if (loc & KeAlignment::k_left)
-				KuLayoutHelper::placeLeft(plane_.get(), ele, -1);
-			else if (loc & KeAlignment::k_right)
-				KuLayoutHelper::placeRight(plane_.get(), ele, -1);
-			else
-				assert(false);
-		}
-		else {
-			if (loc & KeAlignment::k_top)
-				KuLayoutHelper::placeTop(plane_.get(), ele, -1);
-			else if (loc & KeAlignment::k_bottom)
-				KuLayoutHelper::placeBottom(plane_.get(), ele, -1);
-			else
-				assert(false);
-		}
-	}*/
+	ele->align() = loc; // TODO： 并不完全一致，暂时简单处理
+	layCoord_->append(ele);
 }
+

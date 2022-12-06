@@ -88,6 +88,15 @@ public:
 		lower_ = lower, upper_ = upper;
 	}
 
+	void setExtent(int dim, T ext) { upper_[dim] = lower_[dim] + ext; }
+
+	T extent(int dim) const { return upper_[dim] - lower_[dim]; }
+
+	T width() const { return extent(0); }
+
+	T height() const { return extent(1); }
+
+	T depth() const { return extent(2); }
 
 	/** gets the position of one of the corners
 	*/
@@ -119,12 +128,6 @@ public:
 		auto sz = size();
 		return kMath::product(sz.data(), sz.size());
 	}
-
-	T width() const { return upper_.x() - lower_.x(); }
-
-	T height() const { return upper_.y() - lower_.y(); }
-
-	T depth() const { return upper_.z() - lower_.z(); }
 
 	/** Sets the box to a 'null' value i.e. not a box.
 	*/

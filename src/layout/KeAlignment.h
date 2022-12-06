@@ -86,28 +86,3 @@ public:
 			inside() ^= (k_top | k_bottom);
 	}
 };
-
-#if 0
-class KuAlignment
-{
-public:
-
-	using rect = KtAABB<double, 2>;
-
-
-
-	// 计算box的lower点位置(屏幕坐标)
-	// @align: box的对齐方式
-	// @szBox: box的尺寸大小
-	// @rc: box拟对齐的rect
-	static point2d position(int align, const point2d& szBox, const rect& rc);
-
-	// 计算rcAll中布局box之后剩余的rect区域
-	// @align: box相对rect的对齐方式
-	// @szBox: box的尺寸大小
-	// @rcAll: 布局box和rect的区域
-	static rect layout(int align, const point2d& szBox, const rect& rcAll);
-
-
-};
-#endif

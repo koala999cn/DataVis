@@ -276,7 +276,7 @@ bool KcAxis::tickAndLabelInSameSide_() const
 
 KcAxis::aabb_t KcAxis::textBox_(KvPaint* paint, const point3& anchor, const std::string& text) const
 {
-	auto r = KuLayoutUtil::anchorAlignedRect({ anchor.x(), anchor.y() }, 
+	auto r = KuLayoutUtil::anchorAlignedRect({ anchor.x(), anchor.y() },
 		paint->textSize(text.c_str()), labelAlignment_(true));
 
 	return { 
