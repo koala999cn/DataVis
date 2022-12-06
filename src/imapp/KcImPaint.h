@@ -28,9 +28,6 @@ public:
 	void popCoord() override;
 	KeCoordType currentCoord() const override;
 
-	bool axisInversed(int dim) const override;
-	void setAxisInversed(int dim, bool inv) override;
-
 	point4 project(const point4& worldPt) const override;
 
 	void setColor(const color_t& clr) override;

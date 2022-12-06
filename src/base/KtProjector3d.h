@@ -109,8 +109,9 @@ public:
 	vec4 screenToNdc(const vec4& pt) const { return getNsMatR_() * pt; }
 	vec4 screenToViewport(const vec4& pt) const { return getVsMatR_() * pt; }
 
-	bool axisInversed(int dim) const { return invAxis_[dim]; }
-	void setAxisInversed(int dim, bool inv = true);
+	// 基于NDC的坐标轴翻转实现，仅对2d有效，
+	// bool axisInversed(int dim) const { return invAxis_[dim]; }
+	// void setAxisInversed(int dim, bool inv = true);
 
 private:
 
@@ -241,7 +242,7 @@ private:
 
 	mat4 wsMat_; // 从world到screen的转换矩阵，进一步将二次矩阵运算压减到一次
 
-	bool invAxis_[3]{ false, false, false }; // 各坐标轴的翻转状态
+	// bool invAxis_[3]{ false, false, false }; // 各坐标轴的翻转状态
 };
 
 
@@ -312,7 +313,7 @@ KtQuaternion<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyeOrient() const
 	return viewMat_.getRotation(); // TODO:
 }
 
-
+#if 0
 template<typename KREAL, bool ROW_MAJOR>
 void KtProjector<KREAL, ROW_MAJOR>::setAxisInversed(int dim, bool inv)
 {
@@ -327,3 +328,4 @@ void KtProjector<KREAL, ROW_MAJOR>::setAxisInversed(int dim, bool inv)
 	nsMat_ = vsMat_ * nvMat_;
 	wsMat_ = nsMat_ * vpMat_;
 }
+#endif

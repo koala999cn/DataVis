@@ -77,6 +77,8 @@ private:
 
 	void syncLegendAndColorBar_(KvPlottable* removed, KvPlottable* added);
 
+	void drawPlottables_();
+
 private:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
 	std::shared_ptr<KvCoord> coord_; // 由用户创建并传入

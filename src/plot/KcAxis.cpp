@@ -51,10 +51,6 @@ void KcAxis::draw(KvPaint* paint) const
 {
 	assert(visible());
 
-	bool inv = paint->axisInversed(dim_);
-
-	paint->setAxisInversed(dim_, inv_);
-
 	// draw baseline
 	if (showBaseline()) {
 		paint->apply(baselineCxt_);
@@ -64,8 +60,6 @@ void KcAxis::draw(KvPaint* paint) const
 	// draw ticks
 	if (showTick() || showLabel())
 		drawTicks_(paint);
-
-	paint->setAxisInversed(dim_, inv); // 恢复状态
 }
 
 
@@ -159,9 +153,19 @@ int KcAxis::labelAlignment_(bool toggleTopBottom) const
 }
 
 
+namespace kPrivate
+{
+	template<typename T1, typename T2>
+	T2 remap(const T1& x, const T1& x0, const T1& x1, const T2& y0, const T2& y1, bool inv)
+	{
+		return !inv ? KtuMath<T1>::remap<T2>(x, x0, x1, y0, y1)
+			: KtuMath<T1>::remap<T2>(x, x0, x1, y1, y0);
+	}
+}
+
 KcAxis::point3 KcAxis::tickPos(double val) const
 {
-	return KtuMath<float_t>::remap<point3>(val, lower(), upper(), start(), end());
+	return kPrivate::remap(val, lower(), upper(), start(), end(), inversed());
 }
 
 
@@ -219,8 +223,8 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 	// 合并第一个和最后一个tick的box
 	{
 		float_t pos[2];
-		pos[0] = KtuMath<float_t>::remap(ticks.front(), lower(), upper(), 0., length());
-		pos[1] = KtuMath<float_t>::remap(ticks.back(), lower(), upper(), 0., length());
+		pos[0] = kPrivate::remap(ticks.front(), lower(), upper(), 0., length(), inversed());
+		pos[1] = kPrivate::remap(ticks.back(), lower(), upper(), 0., length(), inversed());
 		for (int i = 0; i < 2; i++)
 			box.merge(lowerPt + dir * pos[i] + tickLen);
 	}
@@ -233,7 +237,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 		auto& labels = scale->labels();
 
 		for (unsigned i = 0; i < ticks.size(); i++) {
-			auto pos = KtuMath<float_t>::remap(ticks[i], lower(), upper(), 0, length());
+			auto pos = kPrivate::remap(ticks[i], lower(), upper(), 0., length(), inversed());
 			auto labelAchors = lowerPt + dir * pos;
 			if (sameSide)
 				labelAchors += tickOrient_ * tickCxt_.length;
@@ -275,7 +279,10 @@ KcAxis::aabb_t KcAxis::textBox_(KvPaint* paint, const point3& anchor, const std:
 	auto r = KuLayoutUtil::anchorAlignedRect({ anchor.x(), anchor.y() }, 
 		paint->textSize(text.c_str()), labelAlignment_(true));
 
-	return { { r.lower().x(), r.lower().y(), anchor.z() }, { r.upper().x(), r.upper().y(), anchor.z() } };
+	return { 
+		{ r.lower().x(), r.lower().y(), anchor.z() }, 
+		{ r.upper().x(), r.upper().y(), anchor.z() } 
+	};
 
 	// 此处r为屏幕坐标，需要转换为视图坐标
 	//auto yLower = 2 * anchor.y() - r.upper().y();

@@ -108,22 +108,8 @@ void KvPlot::update()
 
 	auto rcPlot = coord().getPlotRect();
 	paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
-	paint_->pushClipRect(rcPlot); // 设置clipRect，防止plottables超出范围
 
-	bool inv[3];
-	for (int i = 0; i < 3; i++) {
-		inv[i] = paint_->axisInversed(i); // 保存坐标轴反转状态
-		paint_->setAxisInversed(i, coord().axisInversed(i));
-	}
-
-	for (int idx = 0; idx < plottableCount(); idx++)
-		if (plottableAt(idx)->visible())
-		    plottableAt(idx)->draw(paint_.get());
-
-	for (int i = 0; i < 3; i++)
-		paint_->setAxisInversed(i, inv[i]); // 恢复坐标轴反转状态
-
-	paint_->popClipRect();
+	drawPlottables_();
 
 	if (realShowLegend_()) 
 		legend_->draw(paint_.get());
@@ -211,4 +197,39 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 			colorBar_ = new KcColorBar(addedPlt);
 		}
 	}
+}
+
+
+void KvPlot::drawPlottables_()
+{
+	paint_->pushClipRect(paint_->viewport()); // 设置clipRect，防止plottables超出范围
+
+	// 设置坐标轴反转矩阵
+	bool inv(false);
+	typename KvPaint::mat4 invMat = KvPaint::mat4::identity();
+	if (coord().axisInversed(0)) {
+		inv = true;
+		invMat.m00() = -1; 
+		invMat.m03() = coord().lower().x() + coord().upper().x();
+	}
+	if (coord().axisInversed(1)) {
+		inv = true;
+		invMat.m11() = -1;
+		invMat.m13() = coord().lower().y() + coord().upper().y();
+	}
+	if (coord().axisInversed(2)) {
+		inv = true;
+		invMat.m22() = -1;
+		invMat.m23() = coord().lower().z() + coord().upper().z();
+	}
+
+	if (inv) paint_->pushLocal(invMat); // TODO: 确保invMat是首个local变换阵
+
+	for (int idx = 0; idx < plottableCount(); idx++)
+		if (plottableAt(idx)->visible())
+			plottableAt(idx)->draw(paint_.get());
+
+	if (inv) paint_->popLocal();
+
+	paint_->popClipRect();
 }

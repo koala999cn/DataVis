@@ -2,13 +2,13 @@
 #include "KvPvExcitor.h"
 
 
-class KcPvStocahstic : public KvPvExcitor
+class KcPvStochastic : public KvPvExcitor
 {
 	using super_ = KvPvExcitor;
 
 public:
 
-	KcPvStocahstic();
+	KcPvStochastic();
 
 
 private:

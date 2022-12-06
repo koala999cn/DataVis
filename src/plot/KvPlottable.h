@@ -2,6 +2,7 @@
 #include "KvRenderable.h"
 #include <memory>
 #include "KtColor.h"
+#include "KcAxis.h"
 
 class KvData;
 class KvDiscreted;
@@ -14,13 +15,22 @@ public:
 
 	using KvRenderable::KvRenderable;
 
+	bool empty() const;
+
 	data_ptr data() const { return data_; }
 	void setData(data_ptr d);
 
-	bool empty() const;
-
 	unsigned sampCount(unsigned dim) const { return sampCount_[dim]; }
 	unsigned& sampCount(unsigned dim) { return sampCount_[dim]; }
+
+	// 设置第dim维度的分离坐标轴，该函数接管axis的控制权
+	void setAxis(unsigned dim, KcAxis* axis) { selfAxes_[dim].reset(axis); }
+
+	// 返回dim维度的分离坐标轴引用
+	KcAxis* axis(unsigned dim) const { return selfAxes_[dim].get(); }
+
+	// 该plt是否含有分离坐标轴
+	bool hasSelfAxis() const;
 
 	aabb_t boundingBox() const override;
 
@@ -60,4 +70,6 @@ private:
 
 	// 各维度的采样点数目, 仅适用于连续数据
 	std::vector<unsigned> sampCount_{ std::vector<unsigned>({ 1000 }) }; 
+
+	std::array<std::unique_ptr<KcAxis>, 3> selfAxes_; // 用于分离坐标轴，缺省为null，表示使用主坐标轴
 };

@@ -409,7 +409,7 @@
     <ClCompile Include="src\dsp\KvOscillator.cpp">
       <Filter>dsp</Filter>
     </ClCompile>
-    <ClCompile Include="src\prov\KcPvStocahstic.cpp">
+    <ClCompile Include="src\prov\KcPvStochastic.cpp">
       <Filter>prov</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KuStocahsticFactory.cpp">
@@ -957,7 +957,7 @@
     <ClInclude Include="src\dsp\KvOscillator.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\prov\KcPvStocahstic.h">
+    <ClInclude Include="src\prov\KcPvStochastic.h">
       <Filter>prov</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KuStocahsticFactory.h">

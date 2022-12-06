@@ -220,7 +220,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
-    <ClCompile Include="src\prov\KcPvStocahstic.cpp" />
+    <ClCompile Include="src\prov\KcPvStochastic.cpp" />
     <ClCompile Include="src\prov\KvPvExcitor.cpp" />
     <ClCompile Include="src\prov\KcPvExpr.cpp" />
     <ClCompile Include="src\prov\KcPvOscillator.cpp" />
@@ -404,7 +404,7 @@
     <ClInclude Include="src\prov\KvPvExcitor.h" />
     <ClInclude Include="src\prov\KcPvExpr.h" />
     <ClInclude Include="src\prov\KcPvOscillator.h" />
-    <ClInclude Include="src\prov\KcPvStocahstic.h" />
+    <ClInclude Include="src\prov\KcPvStochastic.h" />
     <ClInclude Include="src\prov\KvDataProvider.h" />
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\dsp\KcSampled1d.h" />

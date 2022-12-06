@@ -74,3 +74,9 @@ void KvPlottable::draw(KvPaint* paint) const
 	assert(disc);
 	drawDiscreted_(paint, disc.get());
 }
+
+
+bool KvPlottable::hasSelfAxis() const
+{
+	return selfAxes_[0] || selfAxes_[1] || selfAxes_[2];
+}

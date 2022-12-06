@@ -8,12 +8,13 @@
 3. 分离axis
 4. x轴与y轴的交换
 5. plot3d的legend布局
-6. colorbar
+6. colorbar --> ok
 7. axis的反向设置
 8. 中文字体显示
 9. opengl加速
 10. 导出图片
 11. 导出矢量图
+12. auto-fold layout
 
 ## theme
 1. 更多theme，SCI等
