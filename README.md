@@ -43,6 +43,8 @@ v0.4版对底层代码作了较大重构，主要有4方面：
 | [glad](https://github.com/Dav1dde/glad) | ImFileDialog依赖 | 单独编译 |
 | [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 内联 |
 | [blitz](https://github.com/blitzpp/blitz/) | 多维数组支持 | 内联 |
+| [praat](https://www.fon.hum.uva.nl/praat/) | FFT | 内联 |
+| [readerwriterqueue](https://github.com/cameron314/readerwriterqueue/) | 线程安全队列 | 内联 |
 | [rtaudio](http://www.music.mcgill.ca/~gary/rtaudio/) | Audio录放 | 单独编译 |
 | [exprtk](http://www.partow.net/programming/exprtk/) | 数学表达式 | 内嵌子项目 |
 | [kfr](https://www.kfr.dev/) | 滤波器支持 | 内联 |
