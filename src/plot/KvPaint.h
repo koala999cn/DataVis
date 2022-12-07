@@ -51,6 +51,8 @@ public:
 	// project world point to screen point
 	virtual point4 project(const point4& pt) const = 0;
 
+	virtual point4 localToWorld(const point4& pt) const = 0;
+
 	virtual void setColor(const color_t& clr) = 0;
 
 	virtual void setPointSize(double size) = 0;
@@ -108,9 +110,19 @@ public:
 		return { r.x(), r.y(), r.z() };
 	}
 
+	point3 localToWorldP(const point3& pt) const {
+		auto r = localToWorld(point4(pt.x(), pt.y(), pt.z(), 1));
+		return { r.x(), r.y(), r.z() };
+	}
+
 	// Ê¸Á¿Í¶Ó°
 	point3 projectv(const point3& v) const {
 		auto r = project(point4(v.x(), v.y(), v.z(), 0));
+		return { r.x(), r.y(), r.z() };
+	}
+
+	point3 localToWorldV(const point3& v) const {
+		auto r = localToWorld(point4(v.x(), v.y(), v.z(), 0));
 		return { r.x(), r.y(), r.z() };
 	}
 

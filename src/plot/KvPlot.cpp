@@ -98,6 +98,7 @@ void KvPlot::update()
 		fitData();
 
 	coord().swapAxis(KvCoord::k_axis_swap_xy);
+	paint_->pushLocal(coord().localMatrix());
 
 	autoProject_();
 
@@ -106,14 +107,15 @@ void KvPlot::update()
 	auto rcCanvas = paint_->viewport();
 	updateLayout_(rcCanvas, paint_.get()); // 在调用beginPaint之后更新布局
 
-	paint_->pushLocal(coord().localMatrix());
 	coord().draw(paint_.get());
-	paint_->popLocal();
-
+	
 	auto rcPlot = coord().getPlotRect();
 	paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
 
 	drawPlottables_();
+
+	paint_->popLocal();
+	coord().swapAxis(KvCoord::k_axis_swap_none);
 
 	if (realShowLegend_()) 
 		legend_->draw(paint_.get());
@@ -124,8 +126,6 @@ void KvPlot::update()
 	paint_->setViewport(rcCanvas); // 恢复原视口
 
 	paint_->endPaint();
-
-	coord().swapAxis(KvCoord::k_axis_swap_none);
 }
 
 
@@ -209,12 +209,12 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 void KvPlot::drawPlottables_()
 {
 	paint_->pushClipRect(paint_->viewport()); // 设置clipRect，防止plottables超出范围
-	paint_->pushLocal(coord().localMatrix());
+	//paint_->pushLocal(coord().localMatrix());
 
 	for (int idx = 0; idx < plottableCount(); idx++)
 		if (plottableAt(idx)->visible())
 			plottableAt(idx)->draw(paint_.get());
 
-	paint_->popLocal();
+	//paint_->popLocal();
 	paint_->popClipRect();
 }

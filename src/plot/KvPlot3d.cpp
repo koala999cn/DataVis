@@ -1,5 +1,6 @@
 #include "KvPlot3d.h"
 #include "KvCoord.h"
+#include "KvPaint.h"
 
 
 KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
@@ -14,14 +15,14 @@ KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coor
 void KvPlot3d::autoProject_()
 {
     auto box = coord().boundingBox();
-    const auto& lower = box.lower();
-    const auto& upper = box.upper();
+    auto lower = paint().localToWorldP(coord().lower());
+    auto upper = paint().localToWorldP(coord().upper());
     auto center = lower + (upper - lower) / 2;
     double radius = (upper - lower).length() / 2;
 
     auto zoom = zoom_;
-    auto scale = scale_;
-    auto shift = shift_;
+    auto scale = paint().localToWorldV(scale_); // 有可能交换了坐标轴，此处要交换回来
+    auto shift = shift_; // 移动使用全局坐标，否则在交换坐标轴的情况下用户很难操作
     if (!isometric_) {
         zoom *= 2 * radius / sqrt(3.);
         auto factor = upper - lower;

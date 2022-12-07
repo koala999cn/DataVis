@@ -101,6 +101,12 @@ KcImPaint::point4 KcImPaint::project(const point4& pt) const
 }
 
 
+KcImPaint::point4 KcImPaint::localToWorld(const point4& pt) const
+{
+	return camera_.localToWorld(pt);
+}
+
+
 void KcImPaint::setColor(const color_t& clr)
 {
 	clr_ = clr;
