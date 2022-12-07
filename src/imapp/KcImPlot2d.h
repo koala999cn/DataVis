@@ -28,6 +28,13 @@ public:
 
 	std::string label() const override;
 
+	mat4 projMatrix() const override {
+		return camera_.projMatrix();
+	}
+	void setProjMatrix(const mat4& pm) override {
+		camera_.projMatrix() = pm;
+	}
+
 private:
 	void updateImpl_() override;
 

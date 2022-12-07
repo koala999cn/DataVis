@@ -13,8 +13,9 @@ KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coor
 
 void KvPlot3d::autoProject_()
 {
-    auto lower = coord().lower();
-    auto upper = coord().upper();
+    auto box = coord().boundingBox();
+    const auto& lower = box.lower();
+    const auto& upper = box.upper();
     auto center = lower + (upper - lower) / 2;
     double radius = (upper - lower).length() / 2;
 

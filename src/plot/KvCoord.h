@@ -1,18 +1,21 @@
 #pragma once
 #include <functional>
 #include "KvRenderable.h"
+#include "KtMatrix4.h"
 #include "layout/KcLayoutGrid.h"
 
 class KcAxis; 
 class KcCoordPlane;
 
 // 绘图坐标系的抽象接口
+// 内置坐标系缩放、绘制和坐标轴反转、交换等实现
 
 class KvCoord : public KvRenderable, public KcLayoutGrid
 {
 public:
 	using float_t = typename KvRenderable::float_t;
 	using point3 = KtPoint<float_t, 3>;
+	using mat4 = KtMatrix4<float_t>;
 
 	using KvRenderable::KvRenderable;
 
@@ -48,12 +51,30 @@ public:
 	// factor=0时，坐标系收缩到中心点
 	void zoom(float_t factor);
 
-	void setAxisInversed(int dim, bool inv); // 反转dim维度的所有主坐标轴
-	bool axisInversed(int dim) const;
+	void inverseAxis(int dim, bool inv); // 反转dim维度的主坐标轴
+	bool axisInversed(int dim) const; // dim维度坐标轴是否反转
+	bool axisInversed() const; // 有任意坐标轴反转，则返回true
+
+	enum KeAxisSwapStatus
+	{
+		k_axis_swap_none,
+		k_axis_swap_xy,
+		k_axis_swap_xz,
+		k_axis_swap_yz
+	};
+
+	void swapAxis(KeAxisSwapStatus status);
+	KeAxisSwapStatus axisSwapped() const { return swapStatus_; }
+
+	// 返回坐标轴反转和交换所构成的变换矩阵，可用于绘制plottable
+	mat4 localMatrix() const;
 
 	// 提供基类接口的缺省实现
 
 	void draw(KvPaint*) const override;
 
 	aabb_t boundingBox() const override;
+
+private:
+	KeAxisSwapStatus swapStatus_{ k_axis_swap_none }; // 保存坐标轴交换的状态
 };

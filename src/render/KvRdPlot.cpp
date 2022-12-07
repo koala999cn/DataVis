@@ -263,7 +263,7 @@ void KvRdPlot::showPlotProperty_()
 		for (int i = 0; i < 3; i++) {
 			bool inv = coord.axisInversed(i);
 			if (ImGui::Checkbox(label[i], &inv))
-				coord.setAxisInversed(i, inv);
+				coord.inverseAxis(i, inv);
 		}
 
 		kPrivate::TreePop();

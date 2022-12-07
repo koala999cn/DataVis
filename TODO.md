@@ -25,8 +25,9 @@
 ## pipeline
 1. 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多
 2. 管线运行时，node属性的动态设置与同步
+3. 给数据加时间戳stamp
 
 ## FIXME
 1. 使用layout系统后，plot的axis留白出现问题
 2. 三维坐标系下，虚线的绘制在旋转到特定方向时会出现错位
-
+3. 加载大的text数据文件很慢

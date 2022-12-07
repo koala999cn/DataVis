@@ -158,6 +158,7 @@ namespace kPrivate
 	template<typename T1, typename T2>
 	T2 remap(const T1& x, const T1& x0, const T1& x1, const T2& y0, const T2& y1, bool inv)
 	{
+		inv = false;
 		return !inv ? KtuMath<T1>::remap<T2>(x, x0, x1, y0, y1)
 			: KtuMath<T1>::remap<T2>(x, x0, x1, y1, y0);
 	}

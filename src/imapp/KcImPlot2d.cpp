@@ -28,12 +28,7 @@ void KcImPlot2d::updateImpl_()
         vp.shrink({ margins_.left(), margins_.bottom() }, { margins_.right(), margins_.top() });
         paint().setViewport(vp);
 
-        auto lower = coord().lower();
-        auto upper = coord().upper();
-
-        camera_.projMatrix() = KtMatrix4<float_t>::projectOrtho(lower, upper);
-
-        // 绘制3d数据图
+        // 绘制数据图
         KvPlot2d::update();
     }
 
