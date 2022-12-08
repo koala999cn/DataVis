@@ -70,7 +70,7 @@ public:
 private:
 	virtual void autoProject_() = 0;
 
-	void updateLayout_(const rect_t& rc, void* cxt);
+	void updateLayout_(const rect_t& rc);
 
 	bool realShowLegend_() const;
 	bool realShowColorBar_() const;

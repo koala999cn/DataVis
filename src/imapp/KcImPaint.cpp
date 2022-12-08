@@ -101,6 +101,25 @@ KcImPaint::point4 KcImPaint::project(const point4& pt) const
 }
 
 
+KcImPaint::point4 KcImPaint::unproject(const point4& pt) const
+{
+	switch (coords_.back())
+	{
+	case k_coord_world:
+		return camera_.screenToLocal(pt);
+
+	case k_coord_screen:
+		return camera_.worldToLocal(pt); // 仅执行局部变换
+
+	default:
+		break;
+	}
+
+	assert(false);
+	return pt;
+}
+
+
 KcImPaint::point4 KcImPaint::localToWorld(const point4& pt) const
 {
 	return camera_.localToWorld(pt);

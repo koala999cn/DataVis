@@ -60,6 +60,13 @@ public:
 		m20() = _20, m21() = _21, m22() = _22, m23() = _23,
 		m30() = _30, m31() = _31, m32() = _32, m33() = _33;
 	}
+
+	KtMatrix4(const mat3& m3) : 
+		KtMatrix4(
+			m3.m00(), m3.m01(), m3.m02(), 0,
+			m3.m10(), m3.m11(), m3.m12(), 0,
+			m3.m20(), m3.m21(), m3.m22(), 0,
+			       0,        0,        0, 1 ) {}
 		
 	static mat4 zero() {
 		return mat4();
@@ -94,16 +101,9 @@ public:
 	/** Builds a rotation matrix.
 	*/
 	static mat4 buildRotation(const quat& orient) {
-
 		mat3 rot;
 		orient.toRotateMatrix(rot);
-
-		return {
-			rot.m00(), rot.m01(), rot.m02(), 0,
-			rot.m10(), rot.m11(), rot.m12(), 0,
-			rot.m20(), rot.m21(), rot.m22(), 0,
-			        0,         0,         0, 1
-		};
+		return rot;
 	}
 
     /** Building a Matrix4 from orientation / scale / position.
@@ -129,6 +129,20 @@ public:
 			// No projection term
 			0, 0, 0, 1
 		};
+	}
+
+	/** Builds a reflection matrix.
+	*/
+	// @v: 镜像平面的法相矢量
+	// 结果=1-v*v(T)
+	static mat4 buildReflection(const vec3& v)
+	{
+		auto x2 = v.x() * v.x(), y2 = v.y() * v.y(), z2 = v.z() * v.z();
+		auto xy = v.x() * v.y(), xz = v.x() * v.z(), yz = v.y() * v.z();
+		return { 1-2*x2,  -2*xy,  -2*xz, 0.0f,
+				  -2*xy, 1-2*y2,  -2*yz, 0.0f,
+				  -2*xz,  -2*yz, 1-2*z2, 0.0f,
+				   0.0f,   0.0f,   0.0f, 1.0f };
 	}
 
 	/// 构造视图和透视矩阵

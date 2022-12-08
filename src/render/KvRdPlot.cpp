@@ -266,6 +266,15 @@ void KvRdPlot::showPlotProperty_()
 				coord.inverseAxis(i, inv);
 		}
 
+		const char* swapStr[] = { "No Swap", "Swap XY", "Swap XZ", "Swap YZ" };
+		if (ImGui::BeginCombo("Swap Axes", swapStr[coord.axisSwapped()])) {
+			for (unsigned i = 0; i < std::size(swapStr); i++)
+				if (ImGui::Selectable(swapStr[i], i == coord.axisSwapped()))
+					coord.swapAxis(KvCoord::KeAxisSwapStatus(i));
+
+			ImGui::EndCombo();
+		}
+
 		kPrivate::TreePop();
 	}
 }

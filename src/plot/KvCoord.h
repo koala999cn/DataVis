@@ -51,6 +51,7 @@ public:
 	// factor=0时，坐标系收缩到中心点
 	void zoom(float_t factor);
 
+	// 以下成员只针对主坐标轴进行操作
 	void inverseAxis(int dim, bool inv); // 反转dim维度的主坐标轴
 	bool axisInversed(int dim) const; // dim维度坐标轴是否反转
 	bool axisInversed() const; // 有任意坐标轴反转，则返回true
@@ -74,6 +75,10 @@ public:
 	void draw(KvPaint*) const override;
 
 	aabb_t boundingBox() const override;
+
+private:
+
+	mat4 axisReflectMatrix_(int dim) const;
 
 private:
 	KeAxisSwapStatus swapStatus_{ k_axis_swap_none }; // 保存坐标轴交换的状态

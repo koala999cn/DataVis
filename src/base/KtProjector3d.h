@@ -137,7 +137,7 @@ private:
 
 	const mat4& getMMatR_() const {
 		if (!mMatR_)
-			mMatR_ = modelMats_.back().inverse();
+			mMatR_ = modelMats_.back().getInverse();
 		return mMatR_.value();
 	}
 
@@ -146,7 +146,7 @@ private:
 			return getViewMatR_();
 
 		if (!mvMatR_)
-			mvMatR_ = getMvMat_().inverse();
+			mvMatR_ = getMvMat_().getInverse();
 		return mvMatR_.value();
 	}
 
@@ -155,37 +155,37 @@ private:
 			return getVpMatR_();
 
 		if (!mvpMatR_)
-			mvpMatR_ = getMvpMat_().inverse();
+			mvpMatR_ = getMvpMat_().getInverse();
 		return mvpMatR_.value();
 	}
 
 	const mat4& getVpMatR_() const {
 		if (!vpMatR_)
-			vpMatR_ = vpMat_.inverse();
+			vpMatR_ = vpMat_.getInverse();
 		return vpMatR_.value();
 	}
 
 	const mat4& getViewMatR_() const {
 		if (!viewMatR_)
-			viewMatR_ = viewMat_.inverse();
+			viewMatR_ = viewMat_.getInverse();
 		return viewMatR_.value();
 	}
 
 	const mat4& getProjMatR_() const {
 		if (!projMatR_)
-			projMatR_ = projMat_.inverse();
+			projMatR_ = projMat_.getInverse();
 		return projMatR_.value();
 	}
 
 	const mat4& getVsMatR_() const {
 		if (!vsMatR_)
-			vsMatR_ = vsMat_.inverse();
+			vsMatR_ = vsMat_.getInverse();
 		return vsMatR_.value();
 	}
 
 	const mat4& getNsMatR_() const {
 		if (!nsMatR_)
-			nsMatR_ = nsMat_.inverse();
+			nsMatR_ = nsMat_.getInverse();
 		return nsMatR_.value();
 	}
 

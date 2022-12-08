@@ -97,15 +97,14 @@ void KvPlot::update()
 	if (autoFit_ && !plottables_.empty())
 		fitData();
 
-	coord().swapAxis(KvCoord::k_axis_swap_xy);
-	paint_->pushLocal(coord().localMatrix());
+	paint_->pushLocal(coord().localMatrix()); // 坐标轴的反转和交换矩阵，autoProject_需要用到
 
 	autoProject_();
 
 	paint_->beginPaint();
 
 	auto rcCanvas = paint_->viewport();
-	updateLayout_(rcCanvas, paint_.get()); // 在调用beginPaint之后更新布局
+	updateLayout_(rcCanvas);
 
 	coord().draw(paint_.get());
 	
@@ -114,8 +113,7 @@ void KvPlot::update()
 
 	drawPlottables_();
 
-	paint_->popLocal();
-	coord().swapAxis(KvCoord::k_axis_swap_none);
+	paint_->popLocal(); // 后续绘制基于屏幕坐标，不再反转和交换坐标，弹出变换矩阵
 
 	if (realShowLegend_()) 
 		legend_->draw(paint_.get());
@@ -142,7 +140,7 @@ void KvPlot::fitData()
 }
 
 
-void KvPlot::updateLayout_(const rect_t& rc, void* cxt)
+void KvPlot::updateLayout_(const rect_t& rc)
 {
 	assert(legend_);
 	KuLayoutHelper::take(legend_);
@@ -162,7 +160,7 @@ void KvPlot::updateLayout_(const rect_t& rc, void* cxt)
 		coord_->placeElement(colorBar_, loc);
 	}
 
-	layout_->calcSize(cxt);
+	layout_->calcSize(paint_.get());
 	layout_->arrange(rc); // 布局plot各元素
 }
 

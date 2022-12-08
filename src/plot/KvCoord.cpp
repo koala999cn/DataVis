@@ -1,6 +1,18 @@
 #include "KvCoord.h"
 #include "KcAxis.h"
 #include "KcCoordPlane.h"
+#include "KvPaint.h"
+
+
+KvCoord::mat4 KvCoord::axisReflectMatrix_(int dim) const
+{
+	point3 vec(0);
+	vec[dim] = upper()[dim] + lower()[dim]; // reflection造成2*lower()[dim]偏移，此处补偿回来，实际偏移量upper()[dim] - lower()[dim]
+	auto trans  = mat4::buildTanslation(vec);
+
+	vec3d dir(0); dir[dim] = 1; 
+	return trans * mat4::buildReflection(dir);
+}
 
 
 void KvCoord::draw(KvPaint* paint) const
@@ -13,9 +25,33 @@ void KvCoord::draw(KvPaint* paint) const
 			return true;
 			});
 
-		forAxis([paint](KcAxis& axis) {
-			if (axis.visible() && axis.length() > 0)
+		bool inv[3];
+		for (int i = 0; i < 3; i++)
+			inv[i] = axisInversed(i);
+
+		forAxis([paint, this, inv](KcAxis& axis) {
+			if (axis.visible() && axis.length() > 0) {
+	
+				const static int otherDim[][2] = {
+					{ 1, 2 }, { 0, 2 }, { 1, 2 }
+				};
+
+				int dim = axis.dim();
+				int localPushed(0);
+
+				for (int i = 0; i < 2; i++) {
+					if (inv[otherDim[dim][i]]) {
+						++localPushed;
+						paint->pushLocal(axisReflectMatrix_(otherDim[dim][i]));
+					}
+				}
+
 				axis.draw(paint);
+
+				for(int i = 0; i < localPushed; i++)
+					paint->popLocal();
+			}
+
 			return true;
 			});
 	}
@@ -98,7 +134,7 @@ KvCoord::mat4 KvCoord::localMatrix() const
 		  0, 0, 0, 1 },
 	};
 
-	return swapStatus_ ? swapMat[swapStatus_ - 1] * invMat : invMat;
+	return swapStatus_ ? swapMat[swapStatus_ - 1] * invMat : invMat; // TODO: 先反转还是先交换？
 }
 
 

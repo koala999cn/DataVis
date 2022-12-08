@@ -14,15 +14,15 @@ KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coor
 
 void KvPlot3d::autoProject_()
 {
-    auto box = coord().boundingBox();
+    // local阵保存着坐标轴反转和交换信息，应在此结果上进行投影计算
     auto lower = paint().localToWorldP(coord().lower());
     auto upper = paint().localToWorldP(coord().upper());
     auto center = lower + (upper - lower) / 2;
     double radius = (upper - lower).length() / 2;
 
-    auto zoom = zoom_;
-    auto scale = paint().localToWorldV(scale_); // 有可能交换了坐标轴，此处要交换回来
-    auto shift = shift_; // 移动使用全局坐标，否则在交换坐标轴的情况下用户很难操作
+    auto zoom = zoom_; // 全局缩放标量，不作处理
+    auto scale = paint().localToWorldV(scale_); // 有可能交换了坐标轴，此处要交换回来，否则会缩放被交换的其他坐标轴
+    auto shift = shift_; // 使用全局坐标，否则在反转和交换坐标轴的情况下，有违用户操作常识
     if (!isometric_) {
         zoom *= 2 * radius / sqrt(3.);
         auto factor = upper - lower;

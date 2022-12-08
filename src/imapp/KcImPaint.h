@@ -30,6 +30,8 @@ public:
 
 	point4 project(const point4& worldPt) const override;
 
+	point4 unproject(const point4& pt) const override;
+
 	point4 localToWorld(const point4& pt) const override;
 
 	void setColor(const color_t& clr) override;
