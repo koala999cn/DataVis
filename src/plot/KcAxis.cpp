@@ -175,21 +175,20 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 	assert(visible() && length() > 0);
 
 	auto paint = (KvPaint*)cxt;
-	auto margins = calcMargins(paint);
 
 	switch (type_)
 	{
 	case KcAxis::k_left:
-		return { margins.left(), 0 };
+		return { calcMargins(paint).left(), 0 };
 
 	case KcAxis::k_right:
-		return { margins.right(), 0 };
+		return { calcMargins(paint).right(), 0 };
 
 	case KcAxis::k_bottom:
-		return { 0, margins.bottom() };
+		return { 0, calcMargins(paint).bottom() };
 
 	case KcAxis::k_top:
-		return { 0, margins.top() };
+		return { 0, calcMargins(paint).top() };
 
 	default:
 		break;
@@ -214,15 +213,19 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 	scale->generate(lower(), upper(), false, showLabel());
 	auto& ticks = scale->ticks();
 
-	if (ticks.empty())
-		return { 0, 0, 0, 0 };
-
 	vec3 dir = (end() - start()).normalize(); // 坐标轴的方向矢量
 	point3 lowerPt(0), upperPt(lowerPt + dir * (upper() - lower())); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
 	aabb_t box(lowerPt, upperPt);
 
-	// 合并第一个和最后一个tick的box
-	{
+	if (showBaseline()) {
+		auto w = baselineCxt_.width;
+		if (type_ == k_left || type_ == k_bottom)
+			w = -w;
+		box.merge({ w, w, w });
+	}
+
+	if (showTick())	{ 
+		// 合并第一个和最后一个tick的box
 		float_t pos[2];
 		pos[0] = kPrivate::remap(ticks.front(), lower(), upper(), 0., length(), inversed());
 		pos[1] = kPrivate::remap(ticks.back(), lower(), upper(), 0., length(), inversed());
