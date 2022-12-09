@@ -8,7 +8,7 @@
 #include "layout/KuLayoutUtil.h"
 
 
-KcAxis::KcAxis(KeAxisType type, int dim, bool main)
+KcAxis::KcAxis(KeType type, int dim, bool main)
 	: KvRenderable("Axis")
 	, type_(type)
 	, dim_(dim)

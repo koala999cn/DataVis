@@ -101,7 +101,7 @@ void KcColorBar::draw(KvPaint* paint) const
             }
         }
 
-        axis_->setExtend(start, end);
+        axis_->setExtent(start, end);
         axis_->draw(paint);
     }
 

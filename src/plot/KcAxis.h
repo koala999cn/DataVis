@@ -24,7 +24,7 @@ public:
 	using vec3 = KtVector3<float_t>;
 
 	// 3d坐标系中的12根坐标轴
-	enum KeAxisType
+	enum KeType
 	{
 		k_near_left,
 		k_near_right,
@@ -66,20 +66,20 @@ public:
 		}
 	};
 
-	KcAxis(KeAxisType type, int dim, bool main);
+	KcAxis(KeType type, int dim, bool main);
 
-	KeAxisType type() const { return type_; }
-	void setType(KeAxisType t) { type_ = t; }
+	KeType type() const { return type_; }
+	void setType(KeType t) { type_ = t; }
 
 	const point3& start() const { return start_; }
 	void setStart(const point3& v) { start_ = v; }
-	void setStart(double x, double y, double z) { start_ = point3(x, y, z); }
+	void setStart(float_t x, float_t y, float_t z) { start_ = point3(x, y, z); }
 
 	const point3& end() const { return end_; }
 	void setEnd(const point3& v) { end_ = v; }
-	void setEnd(double x, double y, double z) { end_ = point3(x, y, z); }
+	void setEnd(float_t x, float_t y, float_t z) { end_ = point3(x, y, z); }
 
-	void setExtend(const point3& st, const point3& ed) {
+	void setExtent(const point3& st, const point3& ed) {
 		start_ = st, end_ = ed;
 	}
 
@@ -94,12 +94,12 @@ public:
 
 	/// range 
 
-	double lower() const { return lower_; }
-	double& lower() { return lower_; }
-	double upper() const { return upper_; }
-	double& upper() { return upper_; }
+	float_t lower() const { return lower_; }
+	float_t& lower() { return lower_; }
+	float_t upper() const { return upper_; }
+	float_t& upper() { return upper_; }
 
-	void setRange(double l, double u) {
+	void setRange(float_t l, float_t u) {
 		lower_ = l, upper_ = u;
 	}
 
@@ -190,10 +190,10 @@ private:
 	size_t calcSize_(void* cxt) const final;
 
 private:
-	KeAxisType type_;
+	KeType type_;
 	std::string title_;
 	std::vector<std::string> labels_; // tick labels
-	double lower_, upper_; // range
+	float_t lower_, upper_; // range
 	bool showBaseline_, showTick_, showSubtick_, showTitle_, showLabel_;
 
 	KpPen baselineCxt_;
@@ -213,7 +213,7 @@ private:
 
 	std::shared_ptr<KvScaler> scaler_;
 
-	int dim_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴（用来显示colorbar）
+	int dim_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴?（用来显示colorbar）
 	bool main_{ true }; // 是否主坐标轴
 	bool inv_{ false }; // 是否反转坐标轴
 };
