@@ -110,7 +110,10 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		auto& labels = scale->labels();
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
-			KeAlignment align = labelAlignment_(paint->currentCoord() == KvPaint::k_coord_screen);
+
+			// 即可在世界坐标绘制，也可在屏幕坐标绘制
+			KeAlignment align = labelAlignment_(paint, paint->currentCoord() == KvPaint::k_coord_screen);
+
 			paint->drawText(labelAchors[i], label.c_str(), align);
 		}
 	}
@@ -135,18 +138,19 @@ void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length) cons
 }
 
 
-int KcAxis::labelAlignment_(bool toggleTopBottom) const
+int KcAxis::labelAlignment_(KvPaint* paint, bool toggleTopBottom) const
 {
 	int align(0);
+	auto labelOrient = labelOrient_; // paint->localToWorldV(labelOrient_);
 
-	if (labelOrient_.x() > 0)
+	if (labelOrient.x() > 0)
 		align |= KeAlignment::k_left;
-	else if (labelOrient_.x() < 0)
+	else if (labelOrient.x() < 0)
 		align |= KeAlignment::k_right;
 
-	if (labelOrient_.y() > 0 || labelOrient_.z() < 0 )
+	if (labelOrient.y() > 0 || labelOrient.z() < 0 )
 		align |= toggleTopBottom ? KeAlignment::k_top : KeAlignment::k_bottom;
-	else if (labelOrient_.y() < 0 || labelOrient_.z() > 0)
+	else if (labelOrient.y() < 0 || labelOrient.z() > 0)
 		align |= toggleTopBottom ? KeAlignment::k_bottom : KeAlignment::k_top;
 
 	return align;
@@ -281,7 +285,7 @@ bool KcAxis::tickAndLabelInSameSide_() const
 KcAxis::aabb_t KcAxis::textBox_(KvPaint* paint, const point3& anchor, const std::string& text) const
 {
 	auto r = KuLayoutUtil::anchorAlignedRect({ anchor.x(), anchor.y() },
-		paint->textSize(text.c_str()), labelAlignment_(true));
+		paint->textSize(text.c_str()), labelAlignment_(paint, true));
 
 	return { 
 		{ r.lower().x(), r.lower().y(), anchor.z() }, 

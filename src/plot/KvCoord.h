@@ -51,10 +51,18 @@ public:
 	// factor=0时，坐标系收缩到中心点
 	void zoom(float_t factor);
 
-	// 以下成员只针对主坐标轴进行操作
-	void inverseAxis(int dim, bool inv); // 反转dim维度的主坐标轴
-	bool axisInversed(int dim) const; // dim维度坐标轴是否反转
-	bool axisInversed() const; // 有任意坐标轴反转，则返回true
+	/// 以下3个成员方法只针对主坐标轴进行操作
+
+	// 反转dim维度的主坐标轴
+	void inverseAxis(int dim, bool inv); 
+
+	// dim维度坐标轴是否反转
+	bool axisInversed(int dim) const { return inv_[dim]; }
+
+	// 有任意坐标轴反转，则返回true
+	bool axisInversed() const {
+		return axisInversed(0) || axisInversed(1) || axisInversed(2);
+	}
 
 	enum KeAxisSwapStatus
 	{
@@ -78,8 +86,11 @@ public:
 
 private:
 
+	mat4 axisInverseMatrix_() const;
+	const mat4& axisSwapMatrix_() const;
 	mat4 axisReflectMatrix_(int dim) const;
 
 private:
+	bool inv_[3]{ false }; // 保存主坐标轴（x/y/z）的反转状态，用于快速访问
 	KeAxisSwapStatus swapStatus_{ k_axis_swap_none }; // 保存坐标轴交换的状态
 };

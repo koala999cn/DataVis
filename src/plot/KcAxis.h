@@ -183,7 +183,7 @@ private:
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度
 	void drawTick_(KvPaint*, const point3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
 	
-	int labelAlignment_(bool toggleTopBottom) const; // 根据label的orientation判定label的alignment
+	int labelAlignment_(KvPaint* paint, bool toggleTopBottom) const; // 根据label的orientation判定label的alignment
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
 	aabb_t textBox_(KvPaint*, const point3& anchor, const std::string& text) const;
 

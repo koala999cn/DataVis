@@ -25,22 +25,29 @@ void KvCoord::draw(KvPaint* paint) const
 			return true;
 			});
 
-		bool inv[3];
-		for (int i = 0; i < 3; i++)
-			inv[i] = axisInversed(i);
-
-		forAxis([paint, this, inv](KcAxis& axis) {
+		forAxis([paint, this](KcAxis& axis) {
 			if (axis.visible() && axis.length() > 0) {
 	
 				const static int otherDim[][2] = {
-					{ 1, 2 }, { 0, 2 }, { 1, 2 }
+					{ 1, 2 }, { 0, 2 }, { 0, 1 }
+				};
+
+				const static bool otherSwapped[][4] = {
+					{ false, false, false, true },
+					{ false, false, true, false },
+					{ false, true, false, false }
 				};
 
 				int dim = axis.dim();
 				int localPushed(0);
 
+				if (otherSwapped[dim][swapStatus_]) {
+					//++localPushed;
+					//paint->pushLocal(axisSwapMatrix_());
+				}
+
 				for (int i = 0; i < 2; i++) {
-					if (inv[otherDim[dim][i]]) {
+					if (axisInversed(otherDim[dim][i])) {
 						++localPushed;
 						paint->pushLocal(axisReflectMatrix_(otherDim[dim][i]));
 					}
@@ -94,25 +101,21 @@ void KvCoord::zoom(float_t factor)
 }
 
 
-KvCoord::mat4 KvCoord::localMatrix() const
+KvCoord::mat4 KvCoord::axisInverseMatrix_() const
 {
-	// 设置坐标轴反转矩阵
-
 	const static float_t diag[] = { 1, -1 }; // invMat阵的对角线值
 
-	bool inv[] = {
-		axisInversed(0),
-		axisInversed(1),
-		axisInversed(2)
-	};
-
-	mat4 invMat = {
-		diag[inv[0]], 0, 0, inv[0] ? lower().x() + upper().x() : 0,
-		0, diag[inv[1]], 0, inv[1] ? lower().y() + upper().y() : 0,
-		0, 0, diag[inv[2]], inv[2] ? lower().z() + upper().z() : 0,
+	return {
+		diag[inv_[0]], 0, 0, inv_[0] ? lower().x() + upper().x() : 0,
+		0, diag[inv_[1]], 0, inv_[1] ? lower().y() + upper().y() : 0,
+		0, 0, diag[inv_[2]], inv_[2] ? lower().z() + upper().z() : 0,
 		0, 0, 0, 1
 	};
+}
 
+
+const KvCoord::mat4& KvCoord::axisSwapMatrix_() const
+{
 	const static mat4 swapMat[] = {
 
 		// swap xy
@@ -121,60 +124,39 @@ KvCoord::mat4 KvCoord::localMatrix() const
 		  0, 0, 1, 0,
 		  0, 0, 0, 1 },
 
-		// sway xz
-		{ 0, 0, 1, 0,
-		  0, 1, 0, 0,
-		  1, 0, 0, 0,
-		  0, 0, 0, 1 },
+		  // sway xz
+		  { 0, 0, 1, 0,
+			0, 1, 0, 0,
+			1, 0, 0, 0,
+			0, 0, 0, 1 },
 
-		// sway yz
-		{ 1, 0, 0, 0,
-		  0, 0, 1, 0,
-		  0, 1, 0, 0,
-		  0, 0, 0, 1 },
+			// sway yz
+			{ 1, 0, 0, 0,
+			  0, 0, 1, 0,
+			  0, 1, 0, 0,
+			  0, 0, 0, 1 },
 	};
 
-	return swapStatus_ ? swapMat[swapStatus_ - 1] * invMat : invMat; // TODO: 先反转还是先交换？
+	return swapMat[swapStatus_ - 1];
+}
+
+
+KvCoord::mat4 KvCoord::localMatrix() const
+{
+	// TODO: 先反转还是先交换？
+	return swapStatus_ ? axisSwapMatrix_() * axisInverseMatrix_() : axisInverseMatrix_(); 
 }
 
 
 void KvCoord::inverseAxis(int dim, bool inv)
 {
+	inv_[dim] = inv;
+
 	forAxis([dim, inv](KcAxis& axis) {
 		if (axis.dim() == dim && axis.main())
 			axis.setInversed(inv);
 		return true;
 		});
-}
-
-
-bool KvCoord::axisInversed(int dim) const
-{
-	bool inv{ false };
-	forAxis([dim, &inv](KcAxis& axis) {
-		if (axis.dim() == dim && axis.main()) {
-			inv = axis.inversed();
-			return false;
-		}
-		return true;
-		});
-
-	return inv;
-}
-
-
-bool KvCoord::axisInversed() const
-{
-	bool inv{ false };
-	forAxis([&inv](KcAxis& axis) {
-		if (axis.inversed()) {
-			inv = true;
-			return false;
-		}
-		return true;
-		});
-
-	return inv;
 }
 
 
