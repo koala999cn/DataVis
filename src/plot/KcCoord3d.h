@@ -2,8 +2,8 @@
 #include "KvCoord.h"
 #include <vector>
 #include <memory>
+#include "layout/KcLayoutOverlay.h"
 
-class KcLayoutOverlay;
 
 // 三维坐标系实现，由12根坐标轴和6个平面构成
 // 默认X轴向右，Y轴向上，Z轴向外
@@ -19,11 +19,6 @@ public:
 
 	KcCoord3d();
 	KcCoord3d(const point3& lower, const point3& upper);
-
-	void setExtents(const point3& lower, const point3& upper) override;
-
-	point3 lower() const override;
-	point3 upper() const override;
 
 	aabb_t boundingBox() const override;
 

@@ -23,11 +23,6 @@ public:
 
 	virtual ~KcCoord2d();
 
-	void setExtents(const point3& lower, const point3& upper) final;
-
-	point3 lower() const final;
-	point3 upper() const final;
-
 	void forAxis(std::function<bool(KcAxis& axis)>) const final;
 
 	void forPlane(std::function<bool(KcCoordPlane& plane)>) const final;

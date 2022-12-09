@@ -21,7 +21,7 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 
 	// 初始化4根主坐标轴
 	for (unsigned i = 0; i < 4; i++)
-		axes_[i].emplace_back(new KcAxis(KcAxis::KeAxisType(i), dim[i], true));
+		axes_[i].emplace_back(new KcAxis(KcAxis::KeType(i), dim[i], true));
 
 	setExtents({ lower.x(), lower.y(), -1 }, { upper.x(), upper.y(), 1 });
 
@@ -59,48 +59,6 @@ KcCoord2d::~KcCoord2d()
 	forAxis([this](KcAxis& axis) {
 		KuLayoutHelper::take(&axis);
 		return true; });
-}
-
-
-void KcCoord2d::setExtents(const point3& lower, const point3& upper)
-{
-	// 只更新4根主坐标轴的range
-	point3 bottomLeft(lower);
-	point3 topRight(upper);
-	point3 bottomRight(upper.x(), lower.y(), 0);
-	point3 topLeft(lower.x(), upper.y(), 0);
-
-	axes_[KcAxis::k_bottom].front()->setRange(lower.x(), upper.x());
-	axes_[KcAxis::k_bottom].front()->setExtend(bottomLeft, bottomRight);
-
-	axes_[KcAxis::k_top].front()->setRange(lower.x(), upper.x());
-	axes_[KcAxis::k_top].front()->setExtend(topLeft, topRight);
-
-	axes_[KcAxis::k_left].front()->setRange(lower.y(), upper.y());
-	axes_[KcAxis::k_left].front()->setExtend(bottomLeft, topLeft);
-
-	axes_[KcAxis::k_right].front()->setRange(lower.y(), upper.y());
-	axes_[KcAxis::k_right].front()->setExtend(bottomRight, topRight);
-}
-
-
-KcCoord2d::point3 KcCoord2d::lower() const
-{
-	return { 
-		axes_[KcAxis::k_bottom].front()->lower(), 
-		axes_[KcAxis::k_left].front()->lower(),
-		-1
-	};
-}
-
-
-KcCoord2d::point3 KcCoord2d::upper() const
-{
-	return { 
-		axes_[KcAxis::k_bottom].front()->upper(), 
-		axes_[KcAxis::k_left].front()->upper(),
-		1
-	};
 }
 
 

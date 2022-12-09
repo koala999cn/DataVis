@@ -19,15 +19,13 @@ public:
 
 	using KvRenderable::KvRenderable;
 
-	virtual ~KvCoord() {}
-
-	virtual void setExtents(const point3& lower, const point3& upper) = 0;;
+	void setExtents(const point3& lower, const point3& upper);
 
 	// the lower conner
-	virtual point3 lower() const = 0; 
+	point3 lower() const { return extent_[0]; }
 
 	// the upper conner
-	virtual point3 upper() const = 0; 
+	point3 upper() const { return extent_[1]; }
 
 	// 轮询坐标轴
 	virtual void forAxis(std::function<bool(KcAxis& axis)>) const = 0;
@@ -90,7 +88,10 @@ private:
 	const mat4& axisSwapMatrix_() const;
 	mat4 axisReflectMatrix_(int dim) const;
 
+	void resetAxisExtent_(KcAxis& axis, bool swap) const;
+
 private:
+	point3 extent_[2]; // 主坐标轴的范围：extent_[0] = lower, extent_[1] = upper
 	bool inv_[3]{ false }; // 保存主坐标轴（x/y/z）的反转状态，用于快速访问
 	KeAxisSwapStatus swapStatus_{ k_axis_swap_none }; // 保存坐标轴交换的状态
 };

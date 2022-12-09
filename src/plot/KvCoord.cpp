@@ -4,6 +4,82 @@
 #include "KvPaint.h"
 
 
+namespace kPrivate
+{
+
+	/*
+	 *    p1 -------x1------  p6
+	 *     /z3           z2/|
+	 *  p2 --------x2-----  |y1
+	 *    |y3           y2| | p5
+	 *    |_______________|/z1
+	 *  p3         x3    p4
+	 *
+	 */
+
+	// 定义坐标轴的extent取值
+	// 12代表KcAxis::KeAxisType标识的12根坐标轴
+	// 2代表start、end两个端点
+	// 3代表x、y、z三个维度
+	constexpr static int axisExtent[12][2][3] = {
+		{ {0, 0, 1}/*p3*/, {0, 1, 1}/*p2*/ }, // k_near_left
+		{ {1, 0, 1}/*p4*/, {1, 1, 1}/*p7*/ }, // k_near_right
+		{ {0, 0, 1}/*p3*/, {1, 0, 1}/*p4*/ }, // k_near_bottom
+		{ {0, 1, 1}/*p2*/, {1, 1, 1}/*p7*/ }, // k_near_top
+
+		{ {0, 0, 0}/*p0*/, {0, 1, 0}/*p1*/ }, // k_far_left
+		{ {1, 0, 0}/*p5*/, {1, 1, 0}/*p6*/ }, // k_far_right
+		{ {0, 0, 0}/*p0*/, {1, 0, 0}/*p5*/ }, // k_far_bottom
+		{ {0, 1, 0}/*p1*/, {1, 1, 0}/*p6*/ }, // k_far_top
+
+		{ {0, 0, 0}/*p0*/, {0, 0, 1}/*p3*/ }, // k_floor_left
+		{ {1, 0, 0}/*p5*/, {1, 0, 1}/*p4*/ }, // k_floor_right
+		{ {0, 1, 0}/*p1*/, {0, 1, 1}/*p2*/ }, // k_ceil_left
+		{ {1, 1, 0}/*p6*/, {1, 1, 1}/*p7*/ }, // k_ceil_right
+	};
+
+
+	static void resetAxisExtent(KcAxis& axis)
+	{
+
+	}
+}
+
+
+void KvCoord::resetAxisExtent_(KcAxis& axis, bool swap) const
+{
+	const static int otherDim[][2] = {
+		{ 1, 2 }, { 0, 2 }, { 0, 1 }
+	};
+
+	auto loc = kPrivate::axisExtent[axis.type()];
+	KtPoint<int, 3> lpos(loc[0][0], loc[0][1], loc[0][2]);
+	KtPoint<int, 3> upos(loc[1][0], loc[1][1], loc[1][2]);
+	if (swap) {
+		auto d = axis.dim();
+		std::swap(lpos.at(otherDim[d][0]), lpos.at(otherDim[d][1]));
+		std::swap(upos.at(otherDim[d][0]), upos.at(otherDim[d][1]));
+	}
+
+	point3 lower = { extent_[lpos[0]].x(), extent_[lpos[1]].y(), extent_[lpos[2]].z() };
+	point3 upper = { extent_[upos[0]].x(), extent_[upos[1]].y(), extent_[upos[2]].z() };
+	axis.setExtent(lower, upper);
+}
+
+
+void KvCoord::setExtents(const point3& lower, const point3& upper)
+{
+	extent_[0] = lower, extent_[1] = upper;
+
+	forAxis([this](KcAxis& axis) {
+		auto dim = axis.dim();
+		axis.setRange(extent_[0][dim], extent_[1][dim]);
+		resetAxisExtent_(axis, false);
+		return true;
+		});
+}
+
+
 KvCoord::mat4 KvCoord::axisReflectMatrix_(int dim) const
 {
 	point3 vec(0);
@@ -41,11 +117,6 @@ void KvCoord::draw(KvPaint* paint) const
 				int dim = axis.dim();
 				int localPushed(0);
 
-				if (otherSwapped[dim][swapStatus_]) {
-					//++localPushed;
-					//paint->pushLocal(axisSwapMatrix_());
-				}
-
 				for (int i = 0; i < 2; i++) {
 					if (axisInversed(otherDim[dim][i])) {
 						++localPushed;
@@ -53,7 +124,13 @@ void KvCoord::draw(KvPaint* paint) const
 					}
 				}
 
+				if (otherSwapped[dim][swapStatus_])
+					resetAxisExtent_(axis, true);
+
 				axis.draw(paint);
+
+				if (otherSwapped[dim][swapStatus_])
+					resetAxisExtent_(axis, false);
 
 				for(int i = 0; i < localPushed; i++)
 					paint->popLocal();
@@ -230,7 +307,7 @@ namespace kPrivate
 
 		int t = swapType[axis.type()][status];
 		assert(t != -1);
-		axis.setType(KcAxis::KeAxisType(t));
+		axis.setType(KcAxis::KeType(t));
 	}
 
 	static void swapStartAndEnd(KcAxis& axis, KvCoord::KeAxisSwapStatus status)
