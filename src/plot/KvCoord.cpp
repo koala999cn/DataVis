@@ -22,43 +22,38 @@ namespace kPrivate
 	// 2代表start、end两个端点
 	// 3代表x、y、z三个维度
 	constexpr static int axisExtent[12][2][3] = {
-		{ {0, 0, 1}/*p3*/, {0, 1, 1}/*p2*/ }, // k_near_left
-		{ {1, 0, 1}/*p4*/, {1, 1, 1}/*p7*/ }, // k_near_right
-		{ {0, 0, 1}/*p3*/, {1, 0, 1}/*p4*/ }, // k_near_bottom
-		{ {0, 1, 1}/*p2*/, {1, 1, 1}/*p7*/ }, // k_near_top
+		{ {0, 0, 1}/*p3*/, {0, 1, 1}/*p2*/ }, // k_near_left, y3
+		{ {1, 0, 1}/*p4*/, {1, 1, 1}/*p7*/ }, // k_near_right, y2
+		{ {0, 0, 1}/*p3*/, {1, 0, 1}/*p4*/ }, // k_near_bottom, x3
+		{ {0, 1, 1}/*p2*/, {1, 1, 1}/*p7*/ }, // k_near_top, x2
 
-		{ {0, 0, 0}/*p0*/, {0, 1, 0}/*p1*/ }, // k_far_left
-		{ {1, 0, 0}/*p5*/, {1, 1, 0}/*p6*/ }, // k_far_right
-		{ {0, 0, 0}/*p0*/, {1, 0, 0}/*p5*/ }, // k_far_bottom
-		{ {0, 1, 0}/*p1*/, {1, 1, 0}/*p6*/ }, // k_far_top
+		{ {0, 0, 0}/*p0*/, {0, 1, 0}/*p1*/ }, // k_far_left, y0
+		{ {1, 0, 0}/*p5*/, {1, 1, 0}/*p6*/ }, // k_far_right, y1
+		{ {0, 0, 0}/*p0*/, {1, 0, 0}/*p5*/ }, // k_far_bottom, x0
+		{ {0, 1, 0}/*p1*/, {1, 1, 0}/*p6*/ }, // k_far_top, x1
 
-		{ {0, 0, 0}/*p0*/, {0, 0, 1}/*p3*/ }, // k_floor_left
-		{ {1, 0, 0}/*p5*/, {1, 0, 1}/*p4*/ }, // k_floor_right
-		{ {0, 1, 0}/*p1*/, {0, 1, 1}/*p2*/ }, // k_ceil_left
-		{ {1, 1, 0}/*p6*/, {1, 1, 1}/*p7*/ }, // k_ceil_right
+		{ {0, 0, 0}/*p0*/, {0, 0, 1}/*p3*/ }, // k_floor_left, z0
+		{ {1, 0, 0}/*p5*/, {1, 0, 1}/*p4*/ }, // k_floor_right, z1
+		{ {0, 1, 0}/*p1*/, {0, 1, 1}/*p2*/ }, // k_ceil_left, z3
+		{ {1, 1, 0}/*p6*/, {1, 1, 1}/*p7*/ }, // k_ceil_right, z2
 	};
 
 
-	static void resetAxisExtent(KcAxis& axis)
-	{
-
-	}
+	const static int dimOthers[][2] = {
+		{ 1, 2 }, { 0, 2 }, { 0, 1 }
+	};
 }
 
 
 void KvCoord::resetAxisExtent_(KcAxis& axis, bool swap) const
 {
-	const static int otherDim[][2] = {
-		{ 1, 2 }, { 0, 2 }, { 0, 1 }
-	};
-
-	auto loc = kPrivate::axisExtent[axis.type()];
-	KtPoint<int, 3> lpos(loc[0][0], loc[0][1], loc[0][2]);
-	KtPoint<int, 3> upos(loc[1][0], loc[1][1], loc[1][2]);
+	const auto& loc = kPrivate::axisExtent[axis.type()];
+	int lpos[3] = { loc[0][0], loc[0][1], loc[0][2] };
+	int upos[3] = { loc[1][0], loc[1][1], loc[1][2] };
 	if (swap) {
-		auto d = axis.dim();
-		std::swap(lpos.at(otherDim[d][0]), lpos.at(otherDim[d][1]));
-		std::swap(upos.at(otherDim[d][0]), upos.at(otherDim[d][1]));
+		auto d = kPrivate::dimOthers[axis.dim()];
+		std::swap(lpos[d[0]], lpos[d[1]]);
+		std::swap(upos[d[0]], upos[d[1]]);
 	}
 
 	point3 lower = { extent_[lpos[0]].x(), extent_[lpos[1]].y(), extent_[lpos[2]].z() };
@@ -104,36 +99,34 @@ void KvCoord::draw(KvPaint* paint) const
 		forAxis([paint, this](KcAxis& axis) {
 			if (axis.visible() && axis.length() > 0) {
 	
-				const static int otherDim[][2] = {
-					{ 1, 2 }, { 0, 2 }, { 0, 1 }
-				};
-
-				const static bool otherSwapped[][4] = {
-					{ false, false, false, true },
-					{ false, false, true, false },
-					{ false, true, false, false }
-				};
-
-				int dim = axis.dim();
+				// 实现在坐标轴反转的情况下，保持坐标轴方位一致性.
+				// 取消该方案！切换回由坐标轴自行负责反转绘制
+				/*
+				auto d = kPrivate::dimOthers[axis.dim()];
 				int localPushed(0);
-
 				for (int i = 0; i < 2; i++) {
-					if (axisInversed(otherDim[dim][i])) {
+					if (axisInversed(d[i])) {
 						++localPushed;
-						paint->pushLocal(axisReflectMatrix_(otherDim[dim][i]));
+						paint->pushLocal(axisReflectMatrix_(d[i]));
 					}
-				}
+				}*/
 
-				if (otherSwapped[dim][swapStatus_])
-					resetAxisExtent_(axis, true);
+				// 尝试找到一个在交换坐标轴的情况下，仍能保持方位一致性的方案，按此仅能部分实现，弃用！！
+				// const static bool otherSwapped[][4] = {
+				//	{ false, false, false, true },
+				//	{ false, false, true, false },
+				//	{ false, true, false, false }
+				// };
+				// if (otherSwapped[dim][swapStatus_])
+				//	 resetAxisExtent_(axis, true);
 
 				axis.draw(paint);
 
-				if (otherSwapped[dim][swapStatus_])
-					resetAxisExtent_(axis, false);
+				//if (otherSwapped[dim][swapStatus_])
+				//	resetAxisExtent_(axis, false);
 
-				for(int i = 0; i < localPushed; i++)
-					paint->popLocal();
+				//for(int i = 0; i < localPushed; i++)
+				//	paint->popLocal();
 			}
 
 			return true;
@@ -178,7 +171,7 @@ void KvCoord::zoom(float_t factor)
 }
 
 
-KvCoord::mat4 KvCoord::axisInverseMatrix_() const
+KvCoord::mat4 KvCoord::axisInverseMatrix() const
 {
 	const static float_t diag[] = { 1, -1 }; // invMat阵的对角线值
 
@@ -191,7 +184,7 @@ KvCoord::mat4 KvCoord::axisInverseMatrix_() const
 }
 
 
-const KvCoord::mat4& KvCoord::axisSwapMatrix_() const
+const KvCoord::mat4& KvCoord::axisSwapMatrix() const
 {
 	const static mat4 swapMat[] = {
 
@@ -201,29 +194,29 @@ const KvCoord::mat4& KvCoord::axisSwapMatrix_() const
 		  0, 0, 1, 0,
 		  0, 0, 0, 1 },
 
-		  // sway xz
-		  { 0, 0, 1, 0,
-			0, 1, 0, 0,
-			1, 0, 0, 0,
-			0, 0, 0, 1 },
+		// sway xz
+		{ 0, 0, 1, 0,
+		  0, 1, 0, 0,
+		  1, 0, 0, 0,
+		  0, 0, 0, 1 },
 
 			// sway yz
-			{ 1, 0, 0, 0,
-			  0, 0, 1, 0,
-			  0, 1, 0, 0,
-			  0, 0, 0, 1 },
+		{ 1, 0, 0, 0,
+		  0, 0, 1, 0,
+		  0, 1, 0, 0,
+		  0, 0, 0, 1 },
 	};
 
 	return swapMat[swapStatus_ - 1];
 }
 
-
+/*
 KvCoord::mat4 KvCoord::localMatrix() const
 {
 	// TODO: 先反转还是先交换？
 	return swapStatus_ ? axisSwapMatrix_() * axisInverseMatrix_() : axisInverseMatrix_(); 
 }
-
+*/
 
 void KvCoord::inverseAxis(int dim, bool inv)
 {
@@ -237,37 +230,14 @@ void KvCoord::inverseAxis(int dim, bool inv)
 }
 
 
-namespace kPrivate
-{
-	static void swapAxis(KcAxis& axis, KvCoord::KeAxisSwapStatus status);
-}
-
-
 void KvCoord::swapAxis(KeAxisSwapStatus status)
 {
-	if (swapStatus_ == status)
-		return;
-
-	// 先恢复已交换的坐标轴
-	if (swapStatus_ != k_axis_swap_none) {
-		forAxis([this](KcAxis& axis) {
-			//kPrivate::swapAxis(axis, swapStatus_);
-			return true;
-			});
-	}
-
-	// 按传入的status参数交换坐标轴
-	if (status != k_axis_swap_none) {
-		forAxis([status](KcAxis& axis) {
-			//kPrivate::swapAxis(axis, status);
-			return true;
-			});
-	}
-
 	swapStatus_ = status;
 }
 
 
+// 最初尝试的坐标轴交换实现方案
+#if 0
 namespace kPrivate
 {
 	static bool needSwap(int dim, KvCoord::KeAxisSwapStatus status)
@@ -340,3 +310,4 @@ namespace kPrivate
 		}
 	}
 }
+#endif

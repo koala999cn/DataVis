@@ -73,8 +73,12 @@ public:
 	void swapAxis(KeAxisSwapStatus status);
 	KeAxisSwapStatus axisSwapped() const { return swapStatus_; }
 
+	mat4 axisInverseMatrix() const;
+
+	const mat4& axisSwapMatrix() const;
+
 	// 返回坐标轴反转和交换所构成的变换矩阵，可用于绘制plottable
-	mat4 localMatrix() const;
+	// mat4 localMatrix() const;
 
 	// 提供基类接口的缺省实现
 
@@ -84,8 +88,6 @@ public:
 
 private:
 
-	mat4 axisInverseMatrix_() const;
-	const mat4& axisSwapMatrix_() const;
 	mat4 axisReflectMatrix_(int dim) const;
 
 	void resetAxisExtent_(KcAxis& axis, bool swap) const;

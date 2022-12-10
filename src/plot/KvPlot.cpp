@@ -97,7 +97,11 @@ void KvPlot::update()
 	if (autoFit_ && !plottables_.empty())
 		fitData();
 
-	paint_->pushLocal(coord().localMatrix()); // 坐标轴的反转和交换矩阵，autoProject_需要用到
+	//paint_->pushLocal(coord().localMatrix()); // 坐标轴的反转和交换矩阵，autoProject_需要用到
+
+	auto axisSwapped = coord_->axisSwapped();
+	if (axisSwapped)
+		paint_->pushLocal(coord_->axisSwapMatrix());
 
 	autoProject_();
 
@@ -111,9 +115,19 @@ void KvPlot::update()
 	auto rcPlot = coord().getPlotRect();
 	paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
 
+	auto axisInversed = coord_->axisInversed();
+	if (axisInversed)
+		paint_->pushLocal(coord_->axisInverseMatrix());
+
 	drawPlottables_();
 
-	paint_->popLocal(); // 后续绘制基于屏幕坐标，不再反转和交换坐标，弹出变换矩阵
+	if (axisInversed)
+		paint_->popLocal();
+
+	if (axisSwapped)
+		paint_->popLocal();
+
+	//paint_->popLocal(); // 后续绘制基于屏幕坐标，不再反转和交换坐标，弹出变换矩阵
 
 	if (realShowLegend_()) 
 		legend_->draw(paint_.get());
