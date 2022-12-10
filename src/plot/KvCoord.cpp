@@ -4,9 +4,8 @@
 #include "KvPaint.h"
 
 
-namespace kPrivate
+void KvCoord::resetAxisExtent_(KcAxis& axis, bool swap) const
 {
-
 	/*
 	 *    p1 -------x1------  p6
 	 *     /z3           z2/|
@@ -17,10 +16,10 @@ namespace kPrivate
 	 *
 	 */
 
-	// 定义坐标轴的extent取值
-	// 12代表KcAxis::KeAxisType标识的12根坐标轴
-	// 2代表start、end两个端点
-	// 3代表x、y、z三个维度
+	 // 定义坐标轴的extent取值
+	 // 12代表KcAxis::KeAxisType标识的12根坐标轴
+	 // 2代表start、end两个端点
+	 // 3代表x、y、z三个维度
 	constexpr static int axisExtent[12][2][3] = {
 		{ {0, 0, 1}/*p3*/, {0, 1, 1}/*p2*/ }, // k_near_left, y3
 		{ {1, 0, 1}/*p4*/, {1, 1, 1}/*p7*/ }, // k_near_right, y2
@@ -40,18 +39,16 @@ namespace kPrivate
 
 
 	const static int dimOthers[][2] = {
-		{ 1, 2 }, { 0, 2 }, { 0, 1 }
+		{ 1, 2 }, // 0维度对应的其他2个维度
+		{ 0, 2 }, // 1维度对应的其他2个维度
+		{ 0, 1 }  // 2维度对应的其他2个维度
 	};
-}
 
-
-void KvCoord::resetAxisExtent_(KcAxis& axis, bool swap) const
-{
-	const auto& loc = kPrivate::axisExtent[axis.type()];
+	const auto& loc = axisExtent[axis.type()];
 	int lpos[3] = { loc[0][0], loc[0][1], loc[0][2] };
 	int upos[3] = { loc[1][0], loc[1][1], loc[1][2] };
 	if (swap) {
-		auto d = kPrivate::dimOthers[axis.dim()];
+		auto d = dimOthers[axis.dim()];
 		std::swap(lpos[d[0]], lpos[d[1]]);
 		std::swap(upos[d[0]], upos[d[1]]);
 	}
@@ -200,7 +197,7 @@ const KvCoord::mat4& KvCoord::axisSwapMatrix() const
 		  1, 0, 0, 0,
 		  0, 0, 0, 1 },
 
-			// sway yz
+		// sway yz
 		{ 1, 0, 0, 0,
 		  0, 0, 1, 0,
 		  0, 1, 0, 0,
@@ -232,6 +229,21 @@ void KvCoord::inverseAxis(int dim, bool inv)
 
 void KvCoord::swapAxis(KeAxisSwapStatus status)
 {
+	if (swapStatus_ == status)
+		return;
+
+	constexpr static int swapped[][3] = {
+		{ 0, 1, 2 }, // k_axis_swap_none
+		{ 1, 0, 2 }, // k_axis_swap_xy
+		{ 2, 1, 0 }, // k_axis_swap_xz
+		{ 0, 2, 1 }  // k_axis_swap_yz
+	};
+
+	forAxis([status](KcAxis& axis) {
+		axis.setSwapped(swapped[status][axis.dim()]);
+		return true;
+		});
+
 	swapStatus_ = status;
 }
 

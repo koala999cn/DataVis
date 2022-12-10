@@ -11,7 +11,8 @@
 KcAxis::KcAxis(KeType type, int dim, bool main)
 	: KvRenderable("Axis")
 	, type_(type)
-	, dim_(dim)
+	, dimReal_(dim)
+	, dimSwapped_(dim)
 	, main_(main)
 {
 	lower_ = upper_ = 0;
@@ -141,7 +142,7 @@ void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length) cons
 int KcAxis::labelAlignment_(KvPaint* paint, bool toggleTopBottom) const
 {
 	int align(0);
-	auto labelOrient = labelOrient_; // paint->localToWorldV(labelOrient_);
+	auto labelOrient = paint->localToWorldV(labelOrient_); // labelOrient_
 
 	if (labelOrient.x() > 0)
 		align |= KeAlignment::k_left;
@@ -179,7 +180,7 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 
 	auto paint = (KvPaint*)cxt;
 
-	switch (type_)
+	switch (typeReal())
 	{
 	case KcAxis::k_left:
 		return { calcMargins(paint).left(), 0 };
@@ -205,24 +206,28 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 // draw则在世界坐标系进行实际绘制，paint在执行绘制指令时负责坐标转换
 KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 {
-	if (!visible() || length() == 0)
-		return { 0, 0, 0, 0 };
+	//if (!visible() || length() == 0)
+	//	return { 0, 0, 0, 0 };
+
+	paint->pushCoord(KvPaint::k_coord_screen); // 所有计算在屏幕坐标下进行
+
+	auto tickOrient = paint->projectv(tickOrient_);
 
 	vec3 tickLen(0); // tick的长度矢量
 	if (showTick())
-		tickLen = tickOrient_ * tickCxt_.length;
+		tickLen = tickOrient * tickCxt_.length;
 
 	auto scale = scaler();
 	scale->generate(lower(), upper(), false, showLabel());
 	auto& ticks = scale->ticks();
 
-	vec3 dir = (end() - start()).normalize(); // 坐标轴的方向矢量
-	point3 lowerPt(0), upperPt(lowerPt + dir * (upper() - lower())); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
+	vec3 dir = paint->projectv((end() - start()).normalize()); // 坐标轴的方向矢量
+	point3 lowerPt(0), upperPt(lowerPt + dir * length()); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
 	aabb_t box(lowerPt, upperPt);
 
 	if (showBaseline()) {
 		auto w = baselineCxt_.width;
-		if (type_ == k_left || type_ == k_bottom)
+		if (typeReal() == k_left || typeReal() == k_bottom)
 			w = -w;
 		box.merge({ w, w, w });
 	}
@@ -247,9 +252,9 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 			auto pos = kPrivate::remap(ticks[i], lower(), upper(), 0., length(), inversed());
 			auto labelAchors = lowerPt + dir * pos;
 			if (sameSide)
-				labelAchors += tickOrient_ * tickCxt_.length;
+				labelAchors += tickOrient * tickCxt_.length;
 
-			labelAchors += labelOrient_ * labelPadding_;
+			labelAchors += paint->projectv(labelOrient_) * labelPadding_;
 
 			auto labelText = i < labels_.size() ? labels_[i] : labels[i];
 			box.merge(textBox_(paint, labelAchors, labelText));
@@ -261,14 +266,22 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 		//margins += titlePadding_;
 	}
 
-	KtMargins<float_t> margins;
-	margins.left() = -box.lower().x();
-	margins.bottom() = -box.lower().y();
-	margins.right() = box.upper().x() - upperPt.x();
-	margins.top() = box.upper().y() - upperPt.y();
-	assert(margins.geAll({ 0, 0, 0, 0 }));
+	aabb_t outter(box.lower(), box.upper());
+	aabb_t inner(lowerPt, upperPt);
+	
+	auto l = inner.lower() - outter.lower();
+	auto u = outter.upper() - inner.upper();
+	
+	KtMargins<KcAxis::float_t> margs;
+	margs.left() = l.x();
+	margs.right() = u.x();
+	margs.bottom() = l.y(); // 由于计算所用矢量都是世界坐标系，所以不用交换bottom和top
+	margs.top() = u.y();
+	assert(margs.geAll({ 0, 0, 0, 0 }));
 
-	return margins;
+	paint->popCoord();
+
+	return margs;
 }
 
 
@@ -296,4 +309,45 @@ KcAxis::aabb_t KcAxis::textBox_(KvPaint* paint, const point3& anchor, const std:
 	//auto yUpper = 2 * anchor.y() - r.lower().y();
 
 	//return { { r.lower().x(), yLower, anchor.z() }, { r.upper().x(), yUpper, anchor.z() } };
+}
+
+
+KcAxis::KeType KcAxis::typeReal() const
+{
+	// 可逆的类型交换数组
+	//constexpr static int swapType[4][3][3] = {
+		/// KcAxis::k_near_left
+		//{
+		//	/*dim0*/ { KcAxis::k_near_left, KcAxis::k_near_bottom, -1 },
+		//	/*dim1*/ { KcAxis::k_near_left, KcAxis::k_near_bottom, -1 },
+		//},
+		/// KcAxis::k_near_right
+
+		/// KcAxis::k_near_bottom
+
+		/// KcAxis::k_near_top
+	//};
+	
+	//return swapType[type_][dimReal_][dimSwapped_];
+	
+	constexpr static int swapType[][4] = {
+			/* swap_none */          /* swap_xy */           /* swap_xz */        /* swap_yz */
+		{ KcAxis::k_near_left,   KcAxis::k_near_bottom, -1,                    KcAxis::k_ceil_left   },
+		{ KcAxis::k_near_right,  KcAxis::k_near_top ,   -1,                    KcAxis::k_ceil_right  },
+		{ KcAxis::k_near_bottom, KcAxis::k_near_left,   KcAxis::k_floor_right, -1                    },
+		{ KcAxis::k_near_top,    KcAxis::k_near_right,  KcAxis::k_ceil_right,  -1                    },
+
+		{ KcAxis::k_far_left,    KcAxis::k_far_bottom, -1,                     KcAxis::k_floor_left  },
+		{ KcAxis::k_far_right,   KcAxis::k_far_top,    -1,                     KcAxis::k_floor_right },
+		{ KcAxis::k_far_bottom,  KcAxis::k_far_left,   KcAxis::k_floor_left,   -1                    },
+		{ KcAxis::k_far_top,     KcAxis::k_far_right,  KcAxis::k_ceil_left,    -1                    },
+
+		{ KcAxis::k_floor_left,  -1,                   KcAxis::k_far_bottom,   KcAxis::k_far_left   },
+		{ KcAxis::k_floor_right, -1,                   KcAxis::k_near_bottom,  KcAxis::k_far_right  },
+		{ KcAxis::k_ceil_left,   -1,                   KcAxis::k_far_top,      KcAxis::k_near_left  },
+		{ KcAxis::k_ceil_right,  -1,                   KcAxis::k_near_top,     KcAxis::k_near_right }
+	};
+
+	// TODO: 暂时只考虑二维情况
+	return KeType(swapType[type_][swapped() ? 1 : 0]);
 }

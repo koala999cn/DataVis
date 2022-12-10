@@ -6,8 +6,8 @@
 #include "KvScaler.h"
 #include "KtColor.h"
 #include "KtVector3.h"
-#include "KtMargins.h"
 #include "KpContext.h"
+#include "KtMargins.h"
 #include "layout/KvLayoutElement.h"
 
 
@@ -17,6 +17,7 @@
 class KcAxis : public KvRenderable, public KvLayoutElement
 {
 	using KvRenderable::float_t;
+	using KvLayoutElement::rect_t;
 
 public:
 	using point2 = KtPoint<float_t, 2>;
@@ -94,17 +95,17 @@ public:
 
 	/// range 
 
-	float_t lower() const { return lower_; }
+	float_t lower() const { return start()[dim()]; }
 	float_t& lower() { return lower_; }
-	float_t upper() const { return upper_; }
+	float_t upper() const { return end()[dim()]; }
 	float_t& upper() { return upper_; }
 
 	void setRange(float_t l, float_t u) {
 		lower_ = l, upper_ = u;
 	}
 
-	double length() const {
-		return upper_ - lower_; // == (end - start).length ? 
+	float_t length() const { 
+		return upper() - lower(); 
 	}
 
 	bool showBaseline() const { return showBaseline_; }
@@ -172,12 +173,18 @@ public:
 	// 返回当前axis在屏幕坐标所占的尺寸（像素大小）
 	KtMargins<float_t> calcMargins(KvPaint* paint) const;
 
-	int dim() const { return dim_; }
+	int dim() const { return dimReal_; }
 
 	bool main() const { return main_; }
 
 	bool inversed() const { return inv_; }
 	void setInversed(bool inv) { inv_ = inv; }
+
+	bool swapped() const { return dimReal_ != dimSwapped_; }
+	void setSwapped(int dimSwap) { dimSwapped_ = dimSwap; }
+
+	int dimSwapped() const { return dimSwapped_; } // 返回交换的坐标轴维度
+	KeType typeReal() const; // 考虑swap，返回axis的真实方位布局
 
 private:
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度
@@ -213,7 +220,8 @@ private:
 
 	std::shared_ptr<KvScaler> scaler_;
 
-	int dim_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴?（用来显示colorbar）
+	int dimReal_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴?（用来显示colorbar）
+	int dimSwapped_; 
 	bool main_{ true }; // 是否主坐标轴
 	bool inv_{ false }; // 是否反转坐标轴
 };

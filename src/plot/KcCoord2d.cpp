@@ -108,30 +108,31 @@ KcCoord2d::size_t KcCoord2d::calcSize_(void* cxt) const
 		KuLayoutHelper::take(&axis);
 		return true; });
 	
-	for (auto iter = axes_[KcAxis::k_left].rbegin();
-		iter != axes_[KcAxis::k_left].rend();
-		iter++) 
-		if ((*iter)->visible() && (*iter)->length() > 0)
-			KuLayoutHelper::placeLeft(plane_.get(), iter->get(), 0);
+	forAxis([this](KcAxis& axis) {
+		if (axis.visible() && axis.length() > 0) {
+			switch (axis.typeReal())
+			{
+			case KcAxis::k_left:
+				KuLayoutHelper::placeLeft(plane_.get(), &axis, axis.main() ? 0 : -1);
+				break;
 
-	for (auto iter = axes_[KcAxis::k_right].rbegin();
-		iter != axes_[KcAxis::k_right].rend();
-		iter++)
-		if ((*iter)->visible() && (*iter)->length() > 0)
-			KuLayoutHelper::placeRight(plane_.get(), iter->get(), 0);
+			case KcAxis::k_right:
+				KuLayoutHelper::placeRight(plane_.get(), &axis, axis.main() ? 0 : -1);
+				break;
 
-	for (auto iter = axes_[KcAxis::k_top].rbegin();
-		iter != axes_[KcAxis::k_top].rend();
-		iter++)
-		if ((*iter)->visible() && (*iter)->length() > 0)
-			KuLayoutHelper::placeTop(plane_.get(), iter->get(), 0);
+			case KcAxis::k_top:
+				KuLayoutHelper::placeTop(plane_.get(), &axis, axis.main() ? 0 : -1);
+				break;
 
-	for (auto iter = axes_[KcAxis::k_bottom].rbegin();
-		iter != axes_[KcAxis::k_bottom].rend();
-		iter++)
-		if ((*iter)->visible() && (*iter)->length() > 0)
-			KuLayoutHelper::placeBottom(plane_.get(), iter->get(), 0);
+			case KcAxis::k_bottom:
+				KuLayoutHelper::placeBottom(plane_.get(), &axis, axis.main() ? 0 : -1);
+				break;
 
+			default:
+				break;
+			}
+		}
+		return true; });
 
 	return __super::calcSize_(cxt);
 }
