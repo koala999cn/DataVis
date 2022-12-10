@@ -2,6 +2,8 @@
 #include "KtArray.h"
 
 
+// 提供语义一致性的上下左右方位访问
+
 template<typename T>
 class KtMargins : public KtArray<T, 4>
 {
@@ -9,8 +11,13 @@ private:
 	using super_ = KtArray<T, 4>;
 
 public:
+
 	using super_::super_;
 
+	KtMargins(T l, T t, T r, T b) {
+		left() = l, right() = r, top() = t, bottom() = b;
+	}
+	
 	const T& left() const { return super_::at(0); }
 	T& left() { return super_::at(0); }
 
@@ -26,5 +33,13 @@ public:
 	bool isNull() const {
 		return left() == 0 && top() == 0 && 
 			right() == 0 && bottom() == 0;
+	}
+
+	void swapLeftRight() {
+		std::swap(left(), right());
+	}
+
+	void swapBottomTop() {
+		std::swap(top(), bottom());
 	}
 };

@@ -95,9 +95,9 @@ public:
 
 	/// range 
 
-	float_t lower() const { return start()[dim()]; }
+	float_t lower() const { return lower_; }
 	float_t& lower() { return lower_; }
-	float_t upper() const { return end()[dim()]; }
+	float_t upper() const { return upper_; }
 	float_t& upper() { return upper_; }
 
 	void setRange(float_t l, float_t u) {

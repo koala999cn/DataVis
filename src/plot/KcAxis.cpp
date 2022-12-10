@@ -232,7 +232,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 		box.merge({ w, w, w });
 	}
 
-	if (showTick())	{ 
+	if (showTick() && !ticks.empty())	{
 		// 合并第一个和最后一个tick的box
 		float_t pos[2];
 		pos[0] = kPrivate::remap(ticks.front(), lower(), upper(), 0., length(), inversed());
