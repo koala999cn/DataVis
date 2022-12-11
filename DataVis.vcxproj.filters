@@ -421,6 +421,9 @@
     <ClCompile Include="src\layout\KuLayoutUtil.cpp">
       <Filter>layout</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KcImOglPaint.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -965,6 +968,9 @@
     </ClInclude>
     <ClInclude Include="src\layout\KuLayoutUtil.h">
       <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcImOglPaint.h">
+      <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

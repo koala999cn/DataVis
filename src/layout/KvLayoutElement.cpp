@@ -4,7 +4,7 @@
 
 void KvLayoutElement::arrange_(const rect_t& rc, int dim)
 {
-	assert(rc.upper()[dim] > rc.lower()[dim]);
+	// assert(rc.upper()[dim] > rc.lower()[dim]);
 
 	oRect_.lower()[dim] = rc.lower()[dim];
 	oRect_.upper()[dim] = rc.upper()[dim];

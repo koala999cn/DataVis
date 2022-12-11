@@ -6,7 +6,7 @@
 1. title等设置
 2. 各种类型的axis
 3. 分离axis
-4. x轴与y轴的交换
+4. x轴与y轴的交换 --> ok
 5. plot3d的legend布局 --> ok
 6. colorbar --> ok
 7. axis的反向设置 --> ok

@@ -152,6 +152,7 @@
     <ClCompile Include="src\imapp\KcImDataMaker.cpp" />
     <ClCompile Include="src\imapp\KcImDataView.cpp" />
     <ClCompile Include="src\imapp\KcImExprEditor.cpp" />
+    <ClCompile Include="src\imapp\KcImOglPaint.cpp" />
     <ClCompile Include="src\imapp\KcImPaint.cpp" />
     <ClCompile Include="src\imapp\KcImPlot2d.cpp" />
     <ClCompile Include="src\imapp\KcImPlot3d.cpp" />
@@ -320,6 +321,7 @@
     <ClInclude Include="src\imapp\KcImDataMaker.h" />
     <ClInclude Include="src\imapp\KcImDataView.h" />
     <ClInclude Include="src\imapp\KcImExprEditor.h" />
+    <ClInclude Include="src\imapp\KcImOglPaint.h" />
     <ClInclude Include="src\imapp\KcImPaint.h" />
     <ClInclude Include="src\imapp\KcImPlot2d.h" />
     <ClInclude Include="src\imapp\KcImPlot3d.h" />
