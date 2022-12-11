@@ -178,7 +178,7 @@ public:
 
 
 	// 路径是否存在
-	static bool exist(const std::string& path);
+	static bool exist(const std::string_view& path);
 
 
 	// 结合当前目录解析relpath，返回绝对路径

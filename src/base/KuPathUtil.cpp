@@ -407,9 +407,9 @@ bool KuPathUtil::setCwd(const std::string& path)
 }
 
 
-bool KuPathUtil::exist(const std::string& path)
+bool KuPathUtil::exist(const std::string_view& path)
 {
-	return -1 != ::_access(path.c_str(), 0);
+	return -1 != ::_access(path.data(), 0);
 }
 
 

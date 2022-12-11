@@ -40,6 +40,9 @@
     <Filter Include="layout">
       <UniqueIdentifier>{042ff681-4dc1-456c-bc11-8be0a9bc789c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="opengl">
+      <UniqueIdentifier>{6c8e049e-5599-45c4-9e5a-62bc4d398592}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KgHist.cpp">
@@ -423,6 +426,12 @@
     </ClCompile>
     <ClCompile Include="src\imapp\KcImOglPaint.cpp">
       <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcGlslProgram.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcGlslShader.cpp">
+      <Filter>opengl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -971,6 +980,12 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcImOglPaint.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcGlslProgram.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcGlslShader.h">
+      <Filter>opengl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
