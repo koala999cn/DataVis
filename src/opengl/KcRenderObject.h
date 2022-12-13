@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "KtMatrix4.h"
+#include "KtAABB.h"
 
 class KcGpuBuffer;
 class KcGlslProgram;
@@ -11,6 +12,8 @@ class KcVertexDeclaration;
 
 class KcRenderObject
 {
+	using rect_t = KtAABB<double, 2>;
+
 public:
 
 	enum KeType
@@ -56,6 +59,10 @@ public:
 		projMat_ = projMat;
 	}
 
+	void setViewport(const rect_t& vp) {
+		vp_ = vp;
+	}
+
 	void draw() const;
 
 private:
@@ -64,4 +71,5 @@ private:
 	std::shared_ptr<KcGpuBuffer> vbo_;
 	std::shared_ptr<KcVertexDeclaration> vtxDecl_;
 	float4x4<> projMat_;
+	rect_t vp_;
 };

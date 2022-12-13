@@ -25,6 +25,8 @@ void KcRenderObject::draw() const
 	vbo_->bind(); // 激活vbo
 	vtxDecl_->declare(); // 声明vbo数据规格
 	prog_->useProgram(); // 激活shader
+	glUniformMatrix4fv(0, 1, GL_TRUE, projMat_.data());
+	glViewport(vp_.lower().x(), vp_.upper().y(), vp_.width(), vp_.height());
 
 	glDrawArrays(glModes[type_], 0, vbo_->bytesCount() / vtxDecl_->calcVertexSize());
 }
