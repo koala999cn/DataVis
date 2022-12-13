@@ -23,8 +23,8 @@ void KcRenderObject::draw() const
 	// TODO: 此处没有保存和恢复render状态
 
 	vbo_->bind(); // 激活vbo
-	vertexDecl_->declare(); // 声明vbo数据规格
+	vtxDecl_->declare(); // 声明vbo数据规格
 	prog_->useProgram(); // 激活shader
 
-	glDrawArrays(glModes[type_], 0, vbo_->bytesCount() / vertexDecl_->calcVertexSize());
+	glDrawArrays(glModes[type_], 0, vbo_->bytesCount() / vtxDecl_->calcVertexSize());
 }

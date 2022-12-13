@@ -85,7 +85,7 @@ private:
 	void drawLinePattern_(const ImVec2& from, const ImVec2& to, const std::vector<int>& pat);
 
 
-private:
+protected:
 	camera_type& camera_;
 	color_t clr_{ 0, 0, 0, 1 };
 	float_t lineWidth_{ 1 };

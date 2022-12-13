@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "KtMatrix4.h"
 
 class KcGpuBuffer;
 class KcGlslProgram;
@@ -41,11 +42,26 @@ public:
 	};
 
 
+	KcRenderObject(KeType type, std::shared_ptr<KcGlslProgram> prog) 
+		: type_(type), prog_(prog) {}
+
+	KcRenderObject(const KcRenderObject& rhs) 
+		: type_(rhs.type_), prog_(rhs.prog_), vbo_(rhs.vbo_), vtxDecl_(rhs.vtxDecl_) {}
+
+	void setVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl) {
+		vbo_ = vbo, vtxDecl_ = vtxDecl;
+	}
+
+	void setProjMatrix(const float4x4<>& projMat) {
+		projMat_ = projMat;
+	}
+
 	void draw() const;
 
 private:
 	KeType type_;
 	std::shared_ptr<KcGlslProgram> prog_;
 	std::shared_ptr<KcGpuBuffer> vbo_;
-	std::shared_ptr<KcVertexDeclaration> vertexDecl_;
+	std::shared_ptr<KcVertexDeclaration> vtxDecl_;
+	float4x4<> projMat_;
 };

@@ -69,6 +69,8 @@ void KcVertexDeclaration::declare() const
 			type = GL_FLOAT;
 		else if (type == KcVertexAttribute::k_short)
 			type = GL_SHORT;
+		else if (type == KcVertexAttribute::k_ubyte4)
+			type = GL_UNSIGNED_BYTE;
 		else {
 			assert(false);
 		}
