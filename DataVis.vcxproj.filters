@@ -433,6 +433,15 @@
     <ClCompile Include="src\opengl\KcGlslShader.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
+    <ClCompile Include="src\opengl\KcGpuBuffer.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcVertexDeclaration.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcVertexAttribute.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -985,6 +994,15 @@
       <Filter>opengl</Filter>
     </ClInclude>
     <ClInclude Include="src\opengl\KcGlslShader.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcGpuBuffer.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcVertexDeclaration.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcVertexAttribute.h">
       <Filter>opengl</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,11 +21,11 @@ KcGlslShader::KcGlslShader(KeType type, const std::string_view& path_or_source)
 
 KcGlslShader::~KcGlslShader()
 {
-    deleteShader_();
+    destroy();
 }
 
 
-void KcGlslShader::createShader_()
+void KcGlslShader::create_()
 {
     const static GLenum mapShaderType[] = {
         GL_VERTEX_SHADER,
@@ -37,10 +37,12 @@ void KcGlslShader::createShader_()
 
     if (!handle()) 
         handle_ = glCreateShader(mapShaderType[type_]);
+
+    assert(glIsShader(handle())); // TODO:
 }
 
 
-void KcGlslShader::deleteShader_()
+void KcGlslShader::destroy()
 {
     if (handle()) {
         glDeleteShader(handle()); 
@@ -69,11 +71,11 @@ std::string KcGlslShader::getShaderSource() const
 
 bool KcGlslShader::compile()
 {
-    if (compiled())
+    if (compileStatus())
         return true;
 
     // make sure shader object exists
-    createShader_();
+    create_();
 
     // assign sources
     const char* source[] = { source_.c_str() };
@@ -82,13 +84,14 @@ bool KcGlslShader::compile()
     // compile the shader
     glCompileShader(handle());
 
-    return compiled();
+    return compileStatus();
 }
 
 
-bool KcGlslShader::compiled() const
+bool KcGlslShader::compileStatus() const
 {
-    assert(handle());
+    if (!handle())
+        return false;
 
     int status = 0;
     glGetShaderiv(handle(), GL_COMPILE_STATUS, &status);

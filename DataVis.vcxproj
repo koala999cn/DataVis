@@ -178,8 +178,11 @@
     <ClCompile Include="src\layout\KuLayoutHelper.cpp" />
     <ClCompile Include="src\layout\KuLayoutUtil.cpp" />
     <ClCompile Include="src\layout\KvLayoutElement.cpp" />
+    <ClCompile Include="src\opengl\KcGpuBuffer.cpp" />
     <ClCompile Include="src\opengl\KcGlslProgram.cpp" />
     <ClCompile Include="src\opengl\KcGlslShader.cpp" />
+    <ClCompile Include="src\opengl\KcVertexDeclaration.cpp" />
+    <ClCompile Include="src\opengl\KcVertexAttribute.cpp" />
     <ClCompile Include="src\op\KcOpFbank.cpp" />
     <ClCompile Include="src\op\KcOpFIR.cpp" />
     <ClCompile Include="src\op\KcOpFraming.cpp" />
@@ -356,6 +359,9 @@
     <ClInclude Include="src\layout\KvLayoutElement.h" />
     <ClInclude Include="src\opengl\KcGlslProgram.h" />
     <ClInclude Include="src\opengl\KcGlslShader.h" />
+    <ClInclude Include="src\opengl\KcGpuBuffer.h" />
+    <ClInclude Include="src\opengl\KcVertexDeclaration.h" />
+    <ClInclude Include="src\opengl\KcVertexAttribute.h" />
     <ClInclude Include="src\op\KcOpFbank.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpFraming.h" />

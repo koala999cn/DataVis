@@ -34,18 +34,18 @@ public:
 
 	// Returns true if the shader has been succesfully compiled.
 	// The check is done using the OpenGL function glGetShaderiv()
-	bool compiled() const;
+	bool compileStatus() const;
 
 	// Returns a String object containing this shader's info log as returned by glGetShaderInfoLog(), see also http://www.opengl.org/sdk/docs/man/xhtml/glGetShaderInfoLog.xml for more information.
 	std::string infoLog() const;
 
+	// Deletes the shader using the OpenGL function glDeleteShader()
+	void destroy();
+
 private:
 
 	// Creates the shader using the OpenGL function glCreateShader()
-	void createShader_();
-
-	// Deletes the shader using the OpenGL function glDeleteShader()
-	void deleteShader_();
+	void create_();
 
 private:
 	KeType type_;
