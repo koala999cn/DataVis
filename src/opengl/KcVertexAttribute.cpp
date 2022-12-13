@@ -21,9 +21,6 @@ unsigned KcVertexAttribute::byteSize() const
 	case k_short1_norm:	
 		return 2;
 
-	case k_color:
-	case k_color_argb:
-	case k_color_abgr:
 	case k_float:
 	case k_ubyte4:
 	case k_ubyte4_norm:
@@ -86,9 +83,6 @@ unsigned KcVertexAttribute::componentCount() const
 {
     switch(format_)
     {
-	case k_color:
-	case k_color_argb:
-	case k_color_abgr:
 	case k_short1:
 	case k_short1_norm:
     case k_float1:		
@@ -121,9 +115,6 @@ unsigned KcVertexAttribute::componentByteSize() const
 {
     switch(format_)
     {
-	case k_color:
-	case k_color_argb:
-	case k_color_abgr:
     case k_float1: 
     case k_float2:
     case k_float3:
@@ -146,4 +137,23 @@ unsigned KcVertexAttribute::componentByteSize() const
     }
     
     return 0;
+}
+
+
+bool KcVertexAttribute::normalized() const
+{
+	switch (format_)
+	{
+	case k_ubyte4_norm:
+	case k_short1_norm:
+	case k_short2_norm:
+	case k_short3_norm:
+	case k_short4_norm:
+		return true;
+
+	default:
+		break;
+	}
+
+	return false;
 }

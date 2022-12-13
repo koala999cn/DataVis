@@ -23,6 +23,12 @@ void KcGpuBuffer::destroy()
 }
 
 
+void KcGpuBuffer::bind() const
+{
+    glBindBuffer(GL_ARRAY_BUFFER, handle());
+}
+
+
 void KcGpuBuffer::setData(const void* data, unsigned bytes, KeUsage usage)
 {
     const static GLenum glUsages[] = {
@@ -47,7 +53,7 @@ void KcGpuBuffer::setData(const void* data, unsigned bytes, KeUsage usage)
     glBufferData(GL_ARRAY_BUFFER, bytes, data, glUsages[usage]);
 
     if (last_array_buffer != handle())
-        glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer); // TODO: 是否这种恢复模式？
 
     bytes_ = bytes;
     usage_ = usage;

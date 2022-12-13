@@ -48,10 +48,6 @@ public:
 		k_short2_norm,	    //> two-component normalized signed short (value / 32767.0f)
 		k_short3_norm,
 		k_short4_norm,	    //> four-component normalized signed short (value / 32767.0f)
-	
-		k_color,            /// alias to more specific colour type - use the current rendersystem's colour packing	
-		k_color_argb,       /// D3D style compact color
-		k_color_abgr        /// GL style compact color
 	};
 
 	KcVertexAttribute() = default;
@@ -83,6 +79,8 @@ public:
 
 	// get the size in byte of per-component
 	unsigned componentByteSize() const;
+
+	bool normalized() const;
 
 private:
 

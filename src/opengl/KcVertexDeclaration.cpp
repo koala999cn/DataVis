@@ -1,4 +1,6 @@
 #include "KcVertexDeclaration.h"
+#include "glad.h"
+#include <assert.h>
 
 
 const KcVertexAttribute* KcVertexDeclaration::findAttribute(KcVertexAttribute::KeSemantic semantic, unsigned semanticIdx) const
@@ -54,4 +56,24 @@ unsigned KcVertexDeclaration::texCoordCount() const
 	}
 
 	return c;
+}
+
+
+void KcVertexDeclaration::declare() const
+{
+	for (unsigned i = 0; i < attributeCount(); i++) {
+		auto& attr = getAttribute(i);
+		glEnableVertexAttribArray(attr.location());
+		int type = attr.baseType();
+		if (type == KcVertexAttribute::k_float)
+			type = GL_FLOAT;
+		else if (type == KcVertexAttribute::k_short)
+			type = GL_SHORT;
+		else {
+			assert(false);
+		}
+
+		glVertexAttribPointer(attr.location(), attr.componentCount(), type, 
+			attr.normalized() ? GL_TRUE : GL_FALSE, 0, (void*)attr.offset()); // TODO: stride
+	}
 }

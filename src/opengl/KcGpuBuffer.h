@@ -13,6 +13,8 @@ public:
 
     unsigned int handle() const { return handle_; }
 
+    void bind() const;
+
     unsigned bytesCount() const { return bytes_; }
 
     void destroy();
