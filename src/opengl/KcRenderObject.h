@@ -63,9 +63,9 @@ public:
 		vp_ = vp;
 	}
 
-	void draw() const;
+	virtual void draw() const;
 
-private:
+protected:
 	KeType type_;
 	std::shared_ptr<KcGlslProgram> prog_;
 	std::shared_ptr<KcGpuBuffer> vbo_;

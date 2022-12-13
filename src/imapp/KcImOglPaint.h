@@ -22,5 +22,9 @@ public:
 
 
 private:
+
+	void pushRenderObject_(KcRenderObject* obj);
+
+private:
 	std::vector<std::unique_ptr<KcRenderObject>> objs_;
 };

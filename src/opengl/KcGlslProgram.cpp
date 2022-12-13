@@ -172,13 +172,13 @@ int KcGlslProgram::getAttribLocation(const  std::string_view& name) const
 }
 
 
-bool KcGlslProgram::attachShader(KcGlslShader* shader)
+bool KcGlslProgram::attachShader(std::shared_ptr<KcGlslShader> shader)
 {
 	create();
 
 	scheduleRelinking_();
 
-	detachShader(shader);
+	detachShader(shader.get());
 	shaders_.emplace_back(shader);
 
 	glAttachShader(handle(), shader->handle());
@@ -234,8 +234,11 @@ void KcGlslProgram::getUniformiv(int location, int* params) const
 }
 
 
-void KcGlslProgram::useProgram() const
+void KcGlslProgram::useProgram()
 {
+	if (!linked())
+		link(true);
+
 	useProgram(handle());
 }
 

@@ -63,7 +63,7 @@ public:
      * Attaches the GLSLShader to this GLSLProgram
      * Attaching a shader triggers the compilation of the shader (if not already compiled) and relinking of the program.
     */
-    bool attachShader(KcGlslShader* shader);
+    bool attachShader(std::shared_ptr<KcGlslShader> shader);
 
     // Detaches a GLSLShader from the GLSLShader (note: it does NOT schedule a relink of the program)
     bool detachShader(KcGlslShader* shader);
@@ -109,7 +109,7 @@ public:
         getUniformiv(getUniformLocation(name), params); 
     }
 
-    void useProgram() const;
+    void useProgram();
 
     static unsigned currentProgram();
 
