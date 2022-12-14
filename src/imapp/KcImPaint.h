@@ -90,7 +90,7 @@ protected:
 	color_t clr_{ 0, 0, 0, 1 };
 	float_t lineWidth_{ 1 };
 	int lineStyle_{ 0 };
-	float_t pointSize_{ 2 };
+	float_t pointSize_{ 1 };
 
 	KtMatrix4<float_t> vp_; // ×ø±ê±ä»»¾ØÕó
 

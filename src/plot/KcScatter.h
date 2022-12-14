@@ -35,5 +35,5 @@ private:
 protected:
 	KpPen scatPen_;
 	KpBrush scatBrush_;
-	float size_{ 3 };
+	float size_{ 1 };
 };

@@ -5,6 +5,7 @@
 #include "opengl/KcGlslShader.h"
 #include "opengl/KcGpuBuffer.h"
 #include "opengl/KcVertexDeclaration.h"
+#include "opengl/KcPointObject.h"
 #include "opengl/KcLineObject.h"
 
 
@@ -50,6 +51,27 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 }
 
 
+void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
+{
+	auto obj = new KcPointObject;
+
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	KcVertexAttribute attr(0, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_position);
+	decl->pushAttribute(attr);
+
+	auto vbo = std::make_shared<KcGpuBuffer>();
+	std::vector<point3f> vtx;
+	for (unsigned i = 0; i < count; i++) // ×°ÅäÊý¾Ý
+		vtx.push_back(fn(i));
+	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
+
+	obj->setVbo(vbo, decl);
+	obj->setColor(clr_);
+	obj->setSize(pointSize_);
+	pushRenderObject_(obj);
+}
+
+
 void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 {
 	auto obj = new KcLineObject(KcRenderObject::k_line_strip);
@@ -66,5 +88,6 @@ void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 
 	obj->setVbo(vbo, decl);
 	obj->setColor(clr_);
+	obj->setWidth(lineWidth_);
 	pushRenderObject_(obj);
 }

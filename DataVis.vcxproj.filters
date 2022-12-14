@@ -451,6 +451,9 @@
     <ClCompile Include="src\opengl\KsShaderManager.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
+    <ClCompile Include="src\opengl\KcPointObject.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1021,6 +1024,9 @@
       <Filter>opengl</Filter>
     </ClInclude>
     <ClInclude Include="src\opengl\KsShaderManager.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcPointObject.h">
       <Filter>opengl</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,8 +4,11 @@
 
 void KvPaint::drawPoints(const point3 pts[], unsigned count)
 {
-	for (unsigned i = 0; i < count; i++)
-		drawPoint(pts[i]);
+	auto getter = [pts](unsigned idx) {
+		return pts[idx];
+	};
+
+	drawPoints(getter, count);
 }
 
 
@@ -18,8 +21,11 @@ void KvPaint::drawPoints(point_getter fn, unsigned count)
 
 void KvPaint::drawLineStrip(const point3 pts[], unsigned count)
 {
-	for (unsigned i = 1; i < count; i++)
-		drawLine(pts[i - 1], pts[i]);
+	auto getter = [pts](unsigned idx) {
+		return pts[idx];
+	};
+
+	drawLineStrip(getter, count);
 }
 
 
@@ -32,9 +38,11 @@ void KvPaint::drawLineStrip(point_getter fn, unsigned count)
 
 void KvPaint::drawLineLoop(const point3 pts[], unsigned count)
 {
-	drawLineStrip(pts, count);
-	if (count  > 2)
-	    drawLine(pts[count - 1], pts[0]);
+	auto getter = [pts](unsigned idx) {
+		return pts[idx];
+	};
+
+	drawLineLoop(getter, count);
 }
 
 

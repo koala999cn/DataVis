@@ -18,6 +18,8 @@ public:
 	void beginPaint() override;
 	void endPaint() override;
 
+	void drawPoints(point_getter fn, unsigned count) override;
+
 	void drawLineStrip(point_getter fn, unsigned count) override;
 
 
