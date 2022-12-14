@@ -43,11 +43,40 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 	obj->setProjMatrix(camera_.getMvpMat());
 
 	auto vp = viewport(); // opengl的viewport原点在左下角，此处要反转y值
-	vp.lower().y() = ImGui::GetWindowViewport()->Size.y - vp.upper().y() - vp.height(); // TODO: ???
+	vp.lower().y() = ImGui::GetWindowViewport()->Size.y - (vp.upper().y() + vp.height());
 	vp.setExtent(1, viewport().height());
 	obj->setViewport(vp);
 
 	objs_.emplace_back(obj);
+}
+
+
+void KcImOglPaint::drawPoint(const point3& pt)
+{
+	super_::drawPoint(pt);
+
+#if 0 // TODO:
+	auto progId = KcGlslProgram::currentProgram();
+
+	KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixd(camera_.projMatrix().data());
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixd(camera_.viewMatrix().data());
+
+	glPointSize(pointSize_);
+	glEnable(GL_POINT_SMOOTH);
+	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBegin(GL_POINTS);
+	glColor4f(clr_.r(), clr_.g(), clr_.b(), clr_.a());
+	glVertex3f(pt.x(), pt.y(), pt.z());
+	glEnd();
+
+	KcGlslProgram::useProgram(progId);
+#endif
 }
 
 
