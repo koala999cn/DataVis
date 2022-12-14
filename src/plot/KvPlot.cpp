@@ -201,6 +201,7 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 		}
 		else {
 			assert(colorBar_);
+			KuLayoutHelper::take(colorBar_);
 			if (colorBar_) delete colorBar_;
 			colorBar_ = nullptr;
 		}
