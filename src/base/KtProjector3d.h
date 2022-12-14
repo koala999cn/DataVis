@@ -50,23 +50,15 @@ public:
 	const mat4& projMatrix() const { return projMat_; }
 	mat4& projMatrix() { return projMat_; }
 
-	const mat4& getMvMat() const {
-		if (modelMats_.empty())
-			return viewMat_;
+	// get the model-view matrix
+	const mat4& getMvMat() const;
 
-		if (!mvMat_)
-			mvMat_ = viewMat_ * modelMats_.back();
-		return mvMat_.value();
-	}
+	// get the model-view-projection matrix
+	const mat4& getMvpMat() const;
 
-	const mat4& getMvpMat() const {
-		if (modelMats_.empty())
-			return vpMat_;
-
-		if (!mvpMat_)
-			mvpMat_ = vpMat_ * modelMats_.back();
-		return mvpMat_.value();
-	}
+	// 返回法向变换矩阵 
+	// 等于model-view矩阵的逆的转置，即=(mv(-1))T
+	mat4 getNormalMatrix() const;
 
 	const rect& viewport() const { return vp_; }
 	void setViewport(const rect& vp);
@@ -244,6 +236,36 @@ private:
 
 	// bool invAxis_[3]{ false, false, false }; // 各坐标轴的翻转状态
 };
+
+
+template<typename KREAL, bool ROW_MAJOR> const typename KtProjector<KREAL, ROW_MAJOR>::mat4&
+KtProjector<KREAL, ROW_MAJOR>::getMvMat() const
+{
+	if (modelMats_.empty())
+		return viewMat_;
+
+	if (!mvMat_)
+		mvMat_ = viewMat_ * modelMats_.back();
+	return mvMat_.value();
+}
+
+
+template<typename KREAL, bool ROW_MAJOR> const typename KtProjector<KREAL, ROW_MAJOR>::mat4&
+KtProjector<KREAL, ROW_MAJOR>::getMvpMat() const {
+	if (modelMats_.empty())
+		return vpMat_;
+
+	if (!mvpMat_)
+		mvpMat_ = vpMat_ * modelMats_.back();
+	return mvpMat_.value();
+}
+
+
+template<typename KREAL, bool ROW_MAJOR> typename KtProjector<KREAL, ROW_MAJOR>::mat4
+KtProjector<KREAL, ROW_MAJOR>::getNormalMatrix() const
+{
+	return getMvMat().getInverse().getTranspose();
+}
 
 
 template<typename KREAL, bool ROW_MAJOR>
