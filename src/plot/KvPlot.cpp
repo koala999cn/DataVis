@@ -97,8 +97,6 @@ void KvPlot::update()
 	if (autoFit_ && !plottables_.empty())
 		fitData();
 
-	//paint_->pushLocal(coord().localMatrix()); // 坐标轴的反转和交换矩阵，autoProject_需要用到
-
 	auto axisSwapped = coord_->axisSwapped();
 	if (axisSwapped)
 		paint_->pushLocal(coord_->axisSwapMatrix());
@@ -109,11 +107,23 @@ void KvPlot::update()
 
 	auto rcCanvas = paint_->viewport();
 	updateLayout_(rcCanvas);
+	auto rcPlot = coord().getPlotRect();
+
+	KvPaint::point2 shift = { rcPlot.lower().x() - rcCanvas.lower().x(),
+								rcPlot.upper().y() - rcCanvas.upper().y() };
+	auto shiftMat = KvPaint::mat4::buildTanslation(paint_->unprojectv(shift));
+	
+	KvPaint::point3 scale = { rcPlot.width() / rcCanvas.width(), 
+								rcPlot.height() / rcCanvas.height(), 1 };
+	if (coord_->axisSwapped() == KvCoord::k_axis_swap_xy)
+		std::swap(scale.x(), scale.y());
+	auto scaleMat = KvPaint::mat4::buildScale(scale);
+
+	paint_->pushLocal(shiftMat * scaleMat);
 
 	coord().draw(paint_.get());
 	
-	auto rcPlot = coord().getPlotRect();
-	paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
+	//paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
 
 	auto axisInversed = coord_->axisInversed();
 	if (axisInversed)
@@ -127,7 +137,7 @@ void KvPlot::update()
 	if (axisSwapped)
 		paint_->popLocal();
 
-	//paint_->popLocal(); // 后续绘制基于屏幕坐标，不再反转和交换坐标，弹出变换矩阵
+	paint_->popLocal();
 
 	if (realShowLegend_()) 
 		legend_->draw(paint_.get());
@@ -135,7 +145,7 @@ void KvPlot::update()
 	if (realShowColorBar_())
 		colorBar_->draw(paint_.get());
 
-	paint_->setViewport(rcCanvas); // 恢复原视口
+	//paint_->setViewport(rcCanvas); // 恢复原视口
 
 	paint_->endPaint();
 }
@@ -225,7 +235,7 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 
 void KvPlot::drawPlottables_()
 {
-	paint_->pushClipRect(paint_->viewport()); // 设置clipRect，防止plottables超出范围
+	//paint_->pushClipRect(paint_->viewport()); // 设置clipRect，防止plottables超出范围
 	//paint_->pushLocal(coord().localMatrix());
 
 	for (int idx = 0; idx < plottableCount(); idx++)
@@ -233,5 +243,5 @@ void KvPlot::drawPlottables_()
 			plottableAt(idx)->draw(paint_.get());
 
 	//paint_->popLocal();
-	paint_->popClipRect();
+	//paint_->popClipRect();
 }

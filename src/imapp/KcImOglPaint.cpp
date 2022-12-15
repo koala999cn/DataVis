@@ -91,8 +91,8 @@ KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 {
 	auto p = camera_.localToNdc(pt);
 
-	// opengl固定管线默认NDC是左手系，p的结果是右手系，所以需要给z值取反
-	return { p.x(), p.y(), -p.z() };
+	// opengl固定管线默认NDC是左手系，p的结果是右手系，所以需要给z值取反???
+	return { p.x(), p.y(), p.z() };
 }
 
 void KcImOglPaint::drawPoint(const point3& pt)

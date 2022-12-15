@@ -81,9 +81,9 @@ void KcCoord2d::draw(KvPaint* paint) const
 {
 	if (visible()) {
 		auto oldVp = paint->viewport();
-		paint->setViewport(plane_->innerRect());
+		//paint->setViewport(plane_->innerRect());
 		KvCoord::draw(paint);
-		paint->setViewport(oldVp); // restore the old viewport
+		//paint->setViewport(oldVp); // restore the old viewport
 	}
 }
 
