@@ -26,7 +26,7 @@ namespace kPrivate
 	}
 
 	// color和width已设置好，此处主要设置style
-	void oglDrawLine(int style, const KcImOglPaint::point3& from, const KcImOglPaint::point3& to)
+	void oglLine(int style, const KcImOglPaint::point3& from, const KcImOglPaint::point3& to)
 	{
 		glBegin(GL_LINES);
 		glVertex3f(from.x(), from.y(), from.z());
@@ -66,7 +66,7 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 	obj->setProjMatrix(camera_.getMvpMat());
 
 	auto vp = viewport(); // opengl的viewport原点在左下角，此处要反转y值
-	vp.lower().y() = ImGui::GetWindowViewport()->Size.y - (vp.upper().y() + vp.height());
+	vp.lower().y() = ImGui::GetWindowViewport()->Size.y - (vp.lower().y() + vp.height());
 	vp.setExtent(1, viewport().height());
 	obj->setViewport(vp);
 
@@ -79,7 +79,7 @@ void KcImOglPaint::setGlViewport_(const rect_t& rc)
 	auto draw_data = ImGui::GetDrawData();
 	int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
 	auto vp(rc);
-	vp.lower().y() = fb_height - (vp.upper().y() + vp.height());
+	vp.lower().y() = fb_height - (vp.lower().y() + vp.height());
 	vp.setExtent(1, viewport().height());
 	glViewport(vp.lower().x(), vp.lower().y(), vp.width(), vp.height());
 
@@ -87,22 +87,30 @@ void KcImOglPaint::setGlViewport_(const rect_t& rc)
 }
 
 
+KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
+{
+	auto p = camera_.localToNdc(pt);
+
+	// opengl固定管线默认NDC是左手系，p的结果是右手系，所以需要给z值取反
+	return { p.x(), p.y(), -p.z() };
+}
+
 void KcImOglPaint::drawPoint(const point3& pt)
 {
 	auto clr = clr_;
 	auto ptSize = pointSize_;
-	auto projMat = camera_.projMatrix();
-	auto viewModelMat = camera_.getMvMat();
+	auto p = toNdc_(pt);
+
 	auto vp = viewport();
-	auto drawFn = [clr, ptSize, pt, projMat, viewModelMat, vp, this]() {
+	auto drawFn = [clr, ptSize, p, vp, this]() {
 		auto progId = KcGlslProgram::currentProgram();
 
 		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
 
 		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixd(projMat.data());
+		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixd(viewModelMat.data());
+		glLoadIdentity();
 		setGlViewport_(vp);
 
 		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
@@ -112,7 +120,7 @@ void KcImOglPaint::drawPoint(const point3& pt)
 		//glEnable(GL_BLEND);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_POINTS);
-		glVertex3f(pt.x(), pt.y(), pt.z());
+		glVertex3f(p.x(), p.y(), p.z());
 		glEnd();
 
 		KcGlslProgram::useProgram(progId);
@@ -148,18 +156,20 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 	auto clr = clr_;
 	auto lnWidth = lineWidth_;
 	auto style = lineStyle_;
-	auto projMat = camera_.projMatrix();
-	auto viewModelMat = camera_.getMvMat();
 	auto vp = viewport();
-	auto drawFn = [clr, lnWidth, from, to, style, projMat, viewModelMat, vp, this]() {
+	auto pt0 = toNdc_(from);
+	auto pt1 = toNdc_(to);
+
+	auto drawFn = [clr, lnWidth, pt0, pt1, style, vp, this]() {
 		auto progId = KcGlslProgram::currentProgram();
 
 		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
 
+		// TODO: 将此处的管线设置移动外面设置一次即可
 		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixd(projMat.data());
+		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixd(viewModelMat.data());
+		glLoadIdentity();
 		setGlViewport_(vp);
 
 		glLineWidth(lnWidth);
@@ -168,10 +178,7 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 		//glHint(GL_LINE_SMOOTH, GL_NICEST);
 		//glEnable(GL_BLEND);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_LINES);
-		glVertex3f(from.x(), from.y(), from.z());
-		glVertex3f(to.x(), to.y(), to.z());
-		glEnd();
+		kPrivate::oglLine(style, pt0, pt1);
 
 		KcGlslProgram::useProgram(progId);
 	};

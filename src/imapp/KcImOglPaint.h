@@ -34,6 +34,8 @@ private:
 
 	void setGlViewport_(const rect_t& rc);
 
+	point3 toNdc_(const point3& pt) const;
+
 private:
 	std::vector<std::unique_ptr<KcRenderObject>> objs_;
 	std::vector<std::function<void(void)>> fns_;
