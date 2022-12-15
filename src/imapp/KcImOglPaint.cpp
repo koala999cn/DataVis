@@ -11,16 +11,33 @@
 
 namespace kPrivate
 {
-	void oglDrawCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd)
+	void oglDrawVbos(const ImDrawList* parent_list, const ImDrawCmd* cmd)
 	{
 		auto objs = (std::vector<std::unique_ptr<KcRenderObject>>*)cmd->UserCallbackData;
 		for (auto& i : *objs)
 			i->draw();
 	}
+
+	void oglDrawFns(const ImDrawList* parent_list, const ImDrawCmd* cmd)
+	{
+		auto fns = (std::vector<std::function<void(void)>>*)cmd->UserCallbackData;
+		for (auto& i : *fns)
+			i();
+	}
+
+	// color和width已设置好，此处主要设置style
+	void oglDrawLine(int style, const KcImOglPaint::point3& from, const KcImOglPaint::point3& to)
+	{
+		glBegin(GL_LINES);
+		glVertex3f(from.x(), from.y(), from.z());
+		glVertex3f(to.x(), to.y(), to.z());
+		glEnd();
+	}
 }
 
 void KcImOglPaint::beginPaint()
 {
+	fns_.clear();
 	objs_.clear();
 	super_::beginPaint();
 }
@@ -28,9 +45,15 @@ void KcImOglPaint::beginPaint()
 
 void KcImOglPaint::endPaint()
 {
-	if (!objs_.empty()) {
+	if (!fns_.empty() || !objs_.empty()) {
 		auto dl = ImGui::GetWindowDrawList();
-		dl->AddCallback(kPrivate::oglDrawCallback, &objs_);
+
+		if (!fns_.empty())
+			dl->AddCallback(kPrivate::oglDrawFns, &fns_);
+
+		if (!objs_.empty())
+		    dl->AddCallback(kPrivate::oglDrawVbos, &objs_);
+
 		dl->AddCallback(ImDrawCallback_ResetRenderState, nullptr); // 让imgui恢复渲染状态
 	}
 
@@ -51,32 +74,51 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 }
 
 
+void KcImOglPaint::setGlViewport_(const rect_t& rc)
+{
+	auto draw_data = ImGui::GetDrawData();
+	int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+	auto vp(rc);
+	vp.lower().y() = fb_height - (vp.upper().y() + vp.height());
+	vp.setExtent(1, viewport().height());
+	glViewport(vp.lower().x(), vp.lower().y(), vp.width(), vp.height());
+
+	// TODO: glViewportArrayv();
+}
+
+
 void KcImOglPaint::drawPoint(const point3& pt)
 {
-	super_::drawPoint(pt);
+	auto clr = clr_;
+	auto ptSize = pointSize_;
+	auto projMat = camera_.projMatrix();
+	auto viewModelMat = camera_.getMvMat();
+	auto vp = viewport();
+	auto drawFn = [clr, ptSize, pt, projMat, viewModelMat, vp, this]() {
+		auto progId = KcGlslProgram::currentProgram();
 
-#if 0 // TODO:
-	auto progId = KcGlslProgram::currentProgram();
+		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
 
-	KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
+		glMatrixMode(GL_PROJECTION);
+		glLoadMatrixd(projMat.data());
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixd(viewModelMat.data());
+		setGlViewport_(vp);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixd(camera_.projMatrix().data());
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixd(camera_.viewMatrix().data());
+		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
+		glPointSize(ptSize);
+		glEnable(GL_POINT_SMOOTH);
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_POINTS);
+		glVertex3f(pt.x(), pt.y(), pt.z());
+		glEnd();
 
-	glPointSize(pointSize_);
-	glEnable(GL_POINT_SMOOTH);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBegin(GL_POINTS);
-	glColor4f(clr_.r(), clr_.g(), clr_.b(), clr_.a());
-	glVertex3f(pt.x(), pt.y(), pt.z());
-	glEnd();
+		KcGlslProgram::useProgram(progId);
+	};
 
-	KcGlslProgram::useProgram(progId);
-#endif
+	fns_.push_back(drawFn);
 }
 
 
@@ -98,6 +140,43 @@ void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
 	obj->setColor(clr_);
 	obj->setSize(pointSize_);
 	pushRenderObject_(obj);
+}
+
+
+void KcImOglPaint::drawLine(const point3& from, const point3& to)
+{
+	auto clr = clr_;
+	auto lnWidth = lineWidth_;
+	auto style = lineStyle_;
+	auto projMat = camera_.projMatrix();
+	auto viewModelMat = camera_.getMvMat();
+	auto vp = viewport();
+	auto drawFn = [clr, lnWidth, from, to, style, projMat, viewModelMat, vp, this]() {
+		auto progId = KcGlslProgram::currentProgram();
+
+		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadMatrixd(projMat.data());
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixd(viewModelMat.data());
+		setGlViewport_(vp);
+
+		glLineWidth(lnWidth);
+		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
+		//glEnable(GL_LINE_SMOOTH);
+		//glHint(GL_LINE_SMOOTH, GL_NICEST);
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_LINES);
+		glVertex3f(from.x(), from.y(), from.z());
+		glVertex3f(to.x(), to.y(), to.z());
+		glEnd();
+
+		KcGlslProgram::useProgram(progId);
+	};
+
+	fns_.push_back(drawFn);
 }
 
 

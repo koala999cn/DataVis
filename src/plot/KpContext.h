@@ -17,7 +17,8 @@ public:
 		k_dash,
 		k_dot,
 		k_dash_dot,
-		k_dash_dot_dot
+		k_dash_dot_dot,
+		k_dash_dot_dash
 	};
 
 	int style{ k_solid };
