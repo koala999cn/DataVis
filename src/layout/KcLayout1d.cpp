@@ -75,7 +75,7 @@ void KcLayout1d::arrangeStack_(const rect_t& rc, int dim)
 	__super::arrange_(rc, dim);
 
 	auto unusedSpace = iRect_.upper()[dim] - iRect_.lower()[dim];
-	auto fixedSpace = expectRoom()[dim];
+	auto fixedSpace = contentSize()[dim]; // 此处不可再用expectRoom，否则留白要多算一次，因为传入的rc已扣除了留白
 	auto extraSpace = std::max(0., unusedSpace - fixedSpace);
 
 	// TODO: 1. 暂时使用均匀分配策略; 2. 未考虑extraShares == 0时，仍有extraSpace的情况
@@ -88,7 +88,7 @@ void KcLayout1d::arrangeStack_(const rect_t& rc, int dim)
 			continue;
 
 		// 支持fixd-item和squeezed-item的混合体
-		auto itemSpace = i->expectRoom()[dim] + i->extraShares()[dim] * spacePerShare;
+		auto itemSpace = i->contentSize()[dim] + i->extraShares()[dim] * spacePerShare;
 
 		rcItem.upper()[dim] = rcItem.lower()[dim] + itemSpace;
 		i->arrange(rcItem);

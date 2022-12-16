@@ -141,7 +141,7 @@ void KcLayoutGrid::arrangeColStack_(const rect_t& rc)
 	super_::arrange_(rc, 0); // ≥ı ºªØiRect_
 
 	auto unusedSpace = iRect_.width();
-	auto fixedSpace = expectRoom()[0];
+	auto fixedSpace = contentSize()[0];
 	auto extraSpace = std::max(0., unusedSpace - fixedSpace);
 
 	auto spacePerShare = extraShares()[0] ? extraSpace / extraShares()[0] : 0;
