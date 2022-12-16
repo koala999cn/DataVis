@@ -4,6 +4,7 @@
 #include "KvPlottable.h"
 #include "KpContext.h"
 #include "KtAABB.h"
+#include "KtMargins.h"
 
 
 class KvPaint; // 用来执行具体的plot绘制
@@ -17,6 +18,7 @@ class KcLayoutGrid;
 class KvPlot
 {
 	using rect_t = KtAABB<double, 2>;
+	using margins_t = KtMargins<float>;
 
 public:
 	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
@@ -66,6 +68,8 @@ public:
 
 	void removeAllPlottables();
 
+	void setMargins(const margins_t& m);
+	margins_t margins() const;
 
 private:
 	virtual void autoProject_() = 0;
@@ -78,6 +82,9 @@ private:
 	void syncLegendAndColorBar_(KvPlottable* removed, KvPlottable* added);
 
 	void drawPlottables_();
+
+	// 修正绘图视口的偏移和缩放（对plot2d很重要）
+	void fixPlotView_();
 
 private:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入

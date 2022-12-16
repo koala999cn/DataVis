@@ -105,25 +105,11 @@ void KvPlot::update()
 
 	paint_->beginPaint();
 
-	auto rcCanvas = paint_->viewport();
-	updateLayout_(rcCanvas);
-	auto rcPlot = coord().getPlotRect();
+	updateLayout_(paint_->viewport());
 
-	KvPaint::point2 shift = { rcPlot.lower().x() - rcCanvas.lower().x(),
-								rcPlot.upper().y() - rcCanvas.upper().y() };
-	auto shiftMat = KvPaint::mat4::buildTanslation(paint_->unprojectv(shift));
-	
-	KvPaint::point3 scale = { rcPlot.width() / rcCanvas.width(), 
-								rcPlot.height() / rcCanvas.height(), 1 };
-	if (coord_->axisSwapped() == KvCoord::k_axis_swap_xy)
-		std::swap(scale.x(), scale.y());
-	auto scaleMat = KvPaint::mat4::buildScale(scale);
+	fixPlotView_(); // 此处有1个local矩阵入栈，后续须pop
 
-	paint_->pushLocal(shiftMat * scaleMat);
-
-	coord().draw(paint_.get());
-	
-	//paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
+	coord_->draw(paint_.get());
 
 	auto axisInversed = coord_->axisInversed();
 	if (axisInversed)
@@ -145,9 +131,41 @@ void KvPlot::update()
 	if (realShowColorBar_())
 		colorBar_->draw(paint_.get());
 
-	//paint_->setViewport(rcCanvas); // 恢复原视口
+	// debug drawing
+	paint_->pushCoord(KvPaint::k_coord_screen);
+	paint_->setColor({ 1,0,0,1 });
+	paint_->drawRect(coord_->getPlotRect());
+	if (realShowLegend_())
+		paint_->drawRect(legend_->outterRect()); 
+	paint_->popCoord();
 
 	paint_->endPaint();
+}
+
+
+void KvPlot::fixPlotView_()
+{
+	auto rcCanvas = paint_->viewport();
+	auto rcPlot = coord_->getPlotRect();
+
+	// 绘图区域相对于画布（窗口视图）的缩放比例
+	KvPaint::point3 scale = { rcPlot.width() / rcCanvas.width(),
+								rcPlot.height() / rcCanvas.height(), 1 };
+	if (coord_->axisSwapped() == KvCoord::k_axis_swap_xy)
+		std::swap(scale.x(), scale.y());
+	auto scaleMat = KvPaint::mat4::buildScale(scale);
+
+	// 绘图区域相对于画布（窗口视图）的偏移，屏幕坐标下的像素值
+	KvPaint::point2 shift = { rcPlot.lower().x() - rcCanvas.lower().x(),
+								rcPlot.upper().y() - rcCanvas.upper().y() };
+	auto shift3d = paint_->unprojectv(shift); // 转换到世界坐标
+
+	// 此外，由于缩放变换是相对于原点进行的，这就造成了坐标系的lower点产生了偏移，需要进一步修正
+	shift3d += (coord_->lower() - coord_->lower() * scale);
+
+	auto shiftMat = KvPaint::mat4::buildTanslation(shift3d);
+
+	paint_->pushLocal(shiftMat * scaleMat);
 }
 
 
@@ -236,12 +254,32 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 void KvPlot::drawPlottables_()
 {
 	//paint_->pushClipRect(paint_->viewport()); // 设置clipRect，防止plottables超出范围
-	//paint_->pushLocal(coord().localMatrix());
 
 	for (int idx = 0; idx < plottableCount(); idx++)
 		if (plottableAt(idx)->visible())
 			plottableAt(idx)->draw(paint_.get());
 
-	//paint_->popLocal();
 	//paint_->popClipRect();
+}
+
+
+void KvPlot::setMargins(const margins_t& m)
+{ 
+	rect_t rc;
+	rc.lower() = { m.left(), m.top() }; // TODO: 
+	rc.upper() = { m.right(), m.bottom() };
+	
+	layout_->setMargins(rc); 
+}
+
+
+KvPlot::margins_t KvPlot::margins() const
+{ 
+	auto rc = layout_->margins();
+	margins_t m;
+	m.left() = rc.lower().x();
+	m.right() = rc.upper().x();
+	m.top() = rc.lower().y();
+	m.bottom() = rc.upper().y();
+	return m; 
 }
