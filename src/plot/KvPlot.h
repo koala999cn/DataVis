@@ -68,8 +68,9 @@ public:
 
 	void removeAllPlottables();
 
-	void setMargins(const margins_t& m);
 	margins_t margins() const;
+	void setMargins(const margins_t& m);
+	void setMargins(float l, float t, float r, float b);
 
 private:
 	virtual void autoProject_() = 0;
@@ -84,7 +85,11 @@ private:
 	void drawPlottables_();
 
 	// 修正绘图视口的偏移和缩放（对plot2d很重要）
-	void fixPlotView_();
+	// 返回压入的local变换矩阵数量
+	int fixPlotView_();
+
+	// 绘制各布局元素的外边框，用于debug使用
+	void drawLayoutRect_();
 
 private:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入

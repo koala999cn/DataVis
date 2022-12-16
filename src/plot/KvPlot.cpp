@@ -107,7 +107,7 @@ void KvPlot::update()
 
 	updateLayout_(paint_->viewport());
 
-	fixPlotView_(); // 此处有1个local矩阵入栈，后续须pop
+	auto locals = fixPlotView_(); // 此处有locals个矩阵入栈，后续须pop
 
 	coord_->draw(paint_.get());
 
@@ -123,7 +123,8 @@ void KvPlot::update()
 	if (axisSwapped)
 		paint_->popLocal();
 
-	paint_->popLocal();
+	for (int i = 0; i < locals; i++)
+	    paint_->popLocal();
 
 	if (realShowLegend_()) 
 		legend_->draw(paint_.get());
@@ -132,40 +133,49 @@ void KvPlot::update()
 		colorBar_->draw(paint_.get());
 
 	// debug drawing
-	paint_->pushCoord(KvPaint::k_coord_screen);
-	paint_->setColor({ 1,0,0,1 });
-	paint_->drawRect(coord_->getPlotRect());
-	if (realShowLegend_())
-		paint_->drawRect(legend_->outterRect()); 
-	paint_->popCoord();
+	drawLayoutRect_();
 
 	paint_->endPaint();
 }
 
 
-void KvPlot::fixPlotView_()
+int KvPlot::fixPlotView_()
 {
 	auto rcCanvas = paint_->viewport();
 	auto rcPlot = coord_->getPlotRect();
-
+	if (rcPlot == rcCanvas)
+		return 0;
+		
 	// 绘图区域相对于画布（窗口视图）的缩放比例
 	KvPaint::point3 scale = { rcPlot.width() / rcCanvas.width(),
 								rcPlot.height() / rcCanvas.height(), 1 };
-	if (coord_->axisSwapped() == KvCoord::k_axis_swap_xy)
-		std::swap(scale.x(), scale.y());
+	//if (coord_->axisSwapped() == KvCoord::k_axis_swap_xy)
+	//	std::swap(scale.x(), scale.y());
+	scale = paint_->localToWorldV(scale); // 等价于上述坐标轴交换代码，此处使用更通用的变换方法
 	auto scaleMat = KvPaint::mat4::buildScale(scale);
+	paint_->pushLocal(scaleMat);
 
+	// 把世界坐标系的lower点偏移到rcPlot的左下点
+	auto lower = paint_->unprojectp({ rcPlot.lower().x(), rcPlot.upper().y() });
+	auto shiftMat = KvPaint::mat4::buildTanslation(lower - coord_->lower());
+	
+	/////////////////////////////////////////////////////////////////////////
+	// 上述偏移等价于以下代码
 	// 绘图区域相对于画布（窗口视图）的偏移，屏幕坐标下的像素值
-	KvPaint::point2 shift = { rcPlot.lower().x() - rcCanvas.lower().x(),
-								rcPlot.upper().y() - rcCanvas.upper().y() };
-	auto shift3d = paint_->unprojectv(shift); // 转换到世界坐标
-
+	//KvPaint::point2 shift = { rcPlot.lower().x() - rcCanvas.lower().x(),
+	//							rcPlot.upper().y() - rcCanvas.upper().y() };
+	//auto shift3d = paint_->unprojectv(shift); // 转换到世界坐标
 	// 此外，由于缩放变换是相对于原点进行的，这就造成了坐标系的lower点产生了偏移，需要进一步修正
-	shift3d += (coord_->lower() - coord_->lower() * scale);
+	//shift3d += (coord_->lower() - coord_->lower() * scale);
+	//auto shiftMat = KvPaint::mat4::buildTanslation(shift3d);
+	//////////////////////////////////////////////////////////////////////////
 
-	auto shiftMat = KvPaint::mat4::buildTanslation(shift3d);
+	paint_->pushLocal(shiftMat);
 
-	paint_->pushLocal(shiftMat * scaleMat);
+	//assert(std::floor(paint_->projectp(coord_->lower()).x()) == rcPlot.lower().x());
+	//assert(std::floor(paint_->projectp(coord_->lower()).y()) == rcPlot.upper().y());
+
+	return 2;
 }
 
 
@@ -273,6 +283,12 @@ void KvPlot::setMargins(const margins_t& m)
 }
 
 
+void KvPlot::setMargins(float l, float t, float r, float b)
+{
+	return setMargins({ l, t, r, b });
+}
+
+
 KvPlot::margins_t KvPlot::margins() const
 { 
 	auto rc = layout_->margins();
@@ -282,4 +298,27 @@ KvPlot::margins_t KvPlot::margins() const
 	m.top() = rc.lower().y();
 	m.bottom() = rc.upper().y();
 	return m; 
+}
+
+
+#include <queue>
+void KvPlot::drawLayoutRect_()
+{
+	std::queue<KvLayoutElement*> eles; // 待绘制布局元素
+	eles.push(layout_.get());
+
+	paint_->pushCoord(KvPaint::k_coord_screen);
+	paint_->setColor({ 1,0,0,1 });
+	
+	while (!eles.empty()) {
+		auto e = eles.front(); eles.pop();
+		paint_->drawRect(e->outterRect());
+		auto c = dynamic_cast<KvLayoutContainer*>(e);
+		if (c) {
+			for (auto& i : c->elements())
+				if (i) eles.push(i.get());
+		}
+	}
+
+	paint_->popCoord();
 }

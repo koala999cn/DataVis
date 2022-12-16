@@ -34,13 +34,13 @@ public:
 	using rect = KtAABB<KREAL, 2>;
 
 	void pushLocal(const mat4& mat) {
-		modelMats_.push_back(modelMats_.empty() ? mat : 
-			modelMats_.back() * mat);
+		localMatStack_.push_back(localMatStack_.empty() ? mat :
+			localMatStack_.back() * mat);
 		resetModelRelatedMats_();
 	}
 
 	void popLocal() {
-		modelMats_.pop_back();
+		localMatStack_.pop_back();
 		resetModelRelatedMats_();
 	}
 
@@ -70,14 +70,14 @@ public:
 	// NOTE: 重置viewMat, projMat和viewport之后，须在调用坐标转换方法之前调用该函数
 	void updateProjectMatrixs();
 
-	vec4 localToWorld(const vec4& pt) const { return modelMats_.empty() ? pt : modelMats_.back() * pt; }
+	vec4 localToWorld(const vec4& pt) const { return localMatStack_.empty() ? pt : localMatStack_.back() * pt; }
 	vec4 localToEye(const vec4& pt) const { return getMvMat() * pt; }
 	vec4 localToClip(const vec4& pt) const { return getMvpMat() * pt; }
 	vec4 localToNdc(const vec4& pt) const { return clipToNdc(localToClip(pt)); }
 	vec4 localToViewport(const vec4& pt) const { return clipToViewport(localToClip(pt)); }
 	vec4 localToScreen(const vec4& pt) const { return clipToScreen(localToClip(pt)); }
 
-	vec4 worldToLocal(const vec4& pt) const { return modelMats_.empty() ? pt : getMMatR_() * pt; }
+	vec4 worldToLocal(const vec4& pt) const { return localMatStack_.empty() ? pt : getMMatR_() * pt; }
 	vec4 worldToEye(const vec4& pt) const { return viewMat_ * pt; }
 	vec4 worldToClip(const vec4& pt) const { return vpMat_ * pt; }
 	vec4 worldToNdc(const vec4& pt) const { return clipToNdc(worldToClip(pt)); }
@@ -129,12 +129,12 @@ private:
 
 	const mat4& getMMatR_() const {
 		if (!mMatR_)
-			mMatR_ = modelMats_.back().getInverse();
+			mMatR_ = localMatStack_.back().getInverse();
 		return mMatR_.value();
 	}
 
 	const mat4& getMvMatR_() const {
-		if (modelMats_.empty())
+		if (localMatStack_.empty())
 			return getViewMatR_();
 
 		if (!mvMatR_)
@@ -143,7 +143,7 @@ private:
 	}
 
 	const mat4& getMvpMatR_() const {
-		if (modelMats_.empty())
+		if (localMatStack_.empty())
 			return getVpMatR_();
 
 		if (!mvpMatR_)
@@ -188,7 +188,7 @@ private:
 	rect vp_{ point2(0, 0), point2(1, 1) };
 
 	// 模型矩阵栈，用于从物体局部坐标变换到全局世界坐标
-	std::vector<mat4> modelMats_;
+	std::vector<mat4> localMatStack_;
 
 	// view matrix
 	mat4 viewMat_{ mat4::identity() };
@@ -241,22 +241,22 @@ private:
 template<typename KREAL, bool ROW_MAJOR> const typename KtProjector<KREAL, ROW_MAJOR>::mat4&
 KtProjector<KREAL, ROW_MAJOR>::getMvMat() const
 {
-	if (modelMats_.empty())
+	if (localMatStack_.empty())
 		return viewMat_;
 
 	if (!mvMat_)
-		mvMat_ = viewMat_ * modelMats_.back();
+		mvMat_ = viewMat_ * localMatStack_.back();
 	return mvMat_.value();
 }
 
 
 template<typename KREAL, bool ROW_MAJOR> const typename KtProjector<KREAL, ROW_MAJOR>::mat4&
 KtProjector<KREAL, ROW_MAJOR>::getMvpMat() const {
-	if (modelMats_.empty())
+	if (localMatStack_.empty())
 		return vpMat_;
 
 	if (!mvpMat_)
-		mvpMat_ = vpMat_ * modelMats_.back();
+		mvpMat_ = vpMat_ * localMatStack_.back();
 	return mvpMat_.value();
 }
 
@@ -317,8 +317,14 @@ void KtProjector<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
 	mvMat_.reset();
 	mvpMat_.reset();
 	mMatR_.reset();
+	viewMatR_.reset();
+	projMatR_.reset();
 	mvMatR_.reset();
 	mvpMatR_.reset();
+	vpMatR_.reset();
+
+	vsMatR_.reset();
+	nsMatR_.reset();
 }
 
 

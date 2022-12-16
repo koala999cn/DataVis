@@ -11,6 +11,21 @@
 
 namespace kPrivate
 {
+	void oglSetRenderState(const ImDrawList* parent_list, const ImDrawCmd* cmd)
+	{
+		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		KcImOglPaint* paint = (KcImOglPaint*)cmd->UserCallbackData;
+		auto rc = paint->viewport();
+		auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
+		glViewport(rc.lower().x(), y0, rc.width(), rc.height());
+	}
+
 	void oglDrawVbos(const ImDrawList* parent_list, const ImDrawCmd* cmd)
 	{
 		auto objs = (std::vector<std::unique_ptr<KcRenderObject>>*)cmd->UserCallbackData;
@@ -48,6 +63,8 @@ void KcImOglPaint::endPaint()
 	if (!fns_.empty() || !objs_.empty()) {
 		auto dl = ImGui::GetWindowDrawList();
 
+		dl->AddCallback(kPrivate::oglSetRenderState, this);
+
 		if (!fns_.empty())
 			dl->AddCallback(kPrivate::oglDrawFns, &fns_);
 
@@ -66,9 +83,9 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 	obj->setProjMatrix(camera_.getMvpMat());
 
 	auto vp = viewport(); // opengl的viewport原点在左下角，此处要反转y值
-	vp.lower().y() = ImGui::GetWindowViewport()->Size.y - (vp.lower().y() + vp.height());
-	vp.setExtent(1, viewport().height());
-	obj->setViewport(vp);
+	//vp.lower().y() = ImGui::GetWindowViewport()->Size.y - (vp.lower().y() + vp.height());
+	//vp.setExtent(1, viewport().height());
+	//obj->setViewport(vp);
 
 	objs_.emplace_back(obj);
 }
@@ -103,15 +120,6 @@ void KcImOglPaint::drawPoint(const point3& pt)
 
 	auto vp = viewport();
 	auto drawFn = [clr, ptSize, p, vp, this]() {
-		auto progId = KcGlslProgram::currentProgram();
-
-		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		setGlViewport_(vp);
 
 		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
 		glPointSize(ptSize);
@@ -123,7 +131,6 @@ void KcImOglPaint::drawPoint(const point3& pt)
 		glVertex3f(p.x(), p.y(), p.z());
 		glEnd();
 
-		KcGlslProgram::useProgram(progId);
 	};
 
 	fns_.push_back(drawFn);
@@ -161,16 +168,6 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 	auto pt1 = toNdc_(to);
 
 	auto drawFn = [clr, lnWidth, pt0, pt1, style, vp, this]() {
-		auto progId = KcGlslProgram::currentProgram();
-
-		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
-
-		// TODO: 将此处的管线设置移动外面设置一次即可
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		setGlViewport_(vp);
 
 		glLineWidth(lnWidth);
 		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
@@ -180,7 +177,6 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		kPrivate::oglLine(style, pt0, pt1);
 
-		KcGlslProgram::useProgram(progId);
 	};
 
 	fns_.push_back(drawFn);

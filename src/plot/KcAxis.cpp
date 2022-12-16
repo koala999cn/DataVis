@@ -211,7 +211,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 
 	paint->pushCoord(KvPaint::k_coord_screen); // 所有计算在屏幕坐标下进行
 
-	auto tickOrient = paint->projectv(tickOrient_);
+	auto tickOrient = paint->projectv(tickOrient_).normalize();
 
 	vec3 tickLen(0); // tick的长度矢量
 	if (showTick())
@@ -254,7 +254,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 			if (sameSide)
 				labelAchors += tickOrient * tickCxt_.length;
 
-			labelAchors += paint->projectv(labelOrient_) * labelPadding_;
+			labelAchors += paint->projectv(labelOrient_).normalize() * labelPadding_;
 
 			auto labelText = i < labels_.size() ? labels_[i] : labels[i];
 			box.merge(textBox_(paint, labelAchors, labelText));

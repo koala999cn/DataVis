@@ -17,7 +17,7 @@ public:
 	using point2 = point2d;
 	using mat4 = KtMatrix4<float_t>;
 
-	using KvPlot::KvPlot;
+	KvPlot2d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
 
 	virtual mat4 projMatrix() const = 0;
 	virtual void setProjMatrix(const mat4&) = 0;

@@ -92,7 +92,5 @@ protected:
 	int lineStyle_{ 0 };
 	float_t pointSize_{ 1 };
 
-	KtMatrix4<float_t> vp_; // 坐标变换矩阵
-
 	std::vector<int> coords_; // 坐标系堆栈
 };
