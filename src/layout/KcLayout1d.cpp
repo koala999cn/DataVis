@@ -64,7 +64,7 @@ void KcLayout1d::arrangeOverlay_(const rect_t& rc, int dim)
 {
 	__super::arrange_(rc, dim);
 	auto rcLay = rc;
-	rcLay.upper()[!dim] = rcLay.lower()[!dim]; // 屏蔽另一个维度
+	rcLay.setExtent(!dim, 0); // 屏蔽另一个维度
 	for (auto& i : elements())
 		if (i) i->arrange(rcLay);
 }
@@ -82,15 +82,15 @@ void KcLayout1d::arrangeStack_(const rect_t& rc, int dim)
 	auto spacePerShare = extraShares()[dim] ? extraSpace / extraShares()[dim] : 0;
 
 	rect_t rcItem = iRect_;
-	rcItem.upper()[!dim] = rcItem.lower()[!dim]; // 屏蔽另一个维度
+	rcItem.setExtent(!dim, 0); // 屏蔽另一个维度
 	for (auto& i : elements()) {
 		if (i == nullptr)
 			continue;
 
 		// 支持fixd-item和squeezed-item的混合体
-		auto itemSpace = i->contentSize()[dim] + i->extraShares()[dim] * spacePerShare;
+		auto itemSpace = i->expectRoom()[dim] + i->extraShares()[dim] * spacePerShare;
 
-		rcItem.upper()[dim] = rcItem.lower()[dim] + itemSpace;
+		rcItem.setExtent(dim, itemSpace);
 		i->arrange(rcItem);
 
 		rcItem.lower() = rcItem.upper();

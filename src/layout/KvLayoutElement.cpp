@@ -12,15 +12,15 @@ void KvLayoutElement::arrange_(const rect_t& rc, int dim)
 	iRect_.upper()[dim] = rc.upper()[dim] - margins_.upper()[dim];
 
 	if (iRect_.upper().at(dim) < iRect_.lower().at(dim))
-		iRect_.upper().at(dim) = iRect_.lower().at(dim);
-	else if (contentSize_[dim] > 0 && iRect_.upper().at(dim) - iRect_.lower().at(dim) > contentSize_[dim]) {
+		iRect_.setExtent(dim, 0);
+	else if (contentSize_[dim] > 0 && iRect_.extent(dim) > contentSize_[dim]) {
 		// 根据align对iRect进行调整
 		const int left[] = { align_ & KeAlignment::k_left, align_ & KeAlignment::k_top };
 		const int mid[] = { align_ & KeAlignment::k_hcenter, align_ & KeAlignment::k_vcenter };
 		const int right[] = { align_ & KeAlignment::k_right, align_ & KeAlignment::k_bottom };
 		
 		if (left[dim]) {
-			iRect_.upper()[dim] = iRect_.lower()[dim] + contentSize_[dim];
+			iRect_.setExtent(dim, contentSize_[dim]);
 		}
 		else if (right[dim]) {
 			iRect_.lower()[dim] = iRect_.upper()[dim] - contentSize_[dim];

@@ -59,10 +59,6 @@ public:
 		projMat_ = projMat;
 	}
 
-	void setViewport(const rect_t& vp) { // TODO: 移到上下文中去统一设置
-		vp_ = vp;
-	}
-
 	virtual void draw() const;
 
 protected:
@@ -71,5 +67,5 @@ protected:
 	std::shared_ptr<KcGpuBuffer> vbo_;
 	std::shared_ptr<KcVertexDeclaration> vtxDecl_;
 	float4x4<> projMat_;
-	rect_t vp_; // 保存单独的视口，以支持多窗口绘制
+	//rect_t vp_; // 保存单独的视口，以支持多窗口绘制
 };
