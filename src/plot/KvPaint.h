@@ -96,6 +96,15 @@ public:
 
 	virtual void fillBetween(point_getter line1, point_getter line2, unsigned count) = 0;
 
+	// 实现文本在三维平面的绘制
+	// @topLeft: 文本框的左上点位置
+	// @hDir: 文字布局的水平方向
+	// @vDir: 文字布局的垂直方向。文字按此方向从上到下书写
+	virtual void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) = 0;
+
+	// 该方法默认dir = {1, 0, 0}
+	// topLeft点将根据anchor和align确定
+	// @anchor: 文本框的锚点。文本框按align方式对齐于anchor
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
 
 	virtual void drawGeom(geom_ptr geom) = 0;

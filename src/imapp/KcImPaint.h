@@ -68,7 +68,7 @@ public:
 
 	point2 textSize(const char* text) const override;
 
-private:
+protected:
 	ImVec2 project_(const point3& pt, bool round = false) const;
 
 	static ImColor imColor(const color_t& clr) {

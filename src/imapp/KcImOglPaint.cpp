@@ -1,5 +1,6 @@
 #include "KcImOglPaint.h"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "glad.h"
 #include "opengl/KcGlslProgram.h"
 #include "opengl/KcGlslShader.h"
@@ -7,6 +8,7 @@
 #include "opengl/KcVertexDeclaration.h"
 #include "opengl/KcPointObject.h"
 #include "opengl/KcLineObject.h"
+#include "opengl/KsShaderManager.h"
 
 
 namespace kPrivate
@@ -40,6 +42,28 @@ namespace kPrivate
 			i();
 	}
 
+	void oglDrawText(const ImDrawList* parent_list, const ImDrawCmd* cmd)
+	{
+		auto vtx = (std::vector<KcImOglPaint::TextVbo>*)cmd->UserCallbackData;
+
+		auto obj = KcRenderObject(KcRenderObject::k_quads, KsShaderManager::singleton().programColorUV());
+
+		auto decl = std::make_shared<KcVertexDeclaration>();
+		KcVertexAttribute attrPos(0, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_position);
+		KcVertexAttribute attrUv(1, KcVertexAttribute::k_float2, sizeof(float) * 3, KcVertexAttribute::k_texcoord);
+		KcVertexAttribute attrClr(2, KcVertexAttribute::k_float4, sizeof(float) * 5, KcVertexAttribute::k_diffuse);
+		decl->pushAttribute(attrPos);
+		decl->pushAttribute(attrUv);
+		decl->pushAttribute(attrClr);
+
+		auto vbo = std::make_shared<KcGpuBuffer>();
+		vbo->setData(vtx->data(), vtx->size() * sizeof(KcImOglPaint::TextVbo), KcGpuBuffer::k_stream_draw);
+
+		obj.setVbo(vbo, decl);
+		obj.setProjMatrix(float4x4<>::identity());
+		obj.draw();
+	}
+
 	// color和width已设置好，此处主要设置style
 	void oglLine(int style, const KcImOglPaint::point3& from, const KcImOglPaint::point3& to)
 	{
@@ -65,9 +89,15 @@ void KcImOglPaint::endPaint()
 
 		dl->AddCallback(kPrivate::oglSetRenderState, this);
 
+		// 绘制零散点线
 		if (!fns_.empty())
 			dl->AddCallback(kPrivate::oglDrawFns, &fns_);
 
+		// 绘制text
+		if (!texts_.empty())
+			dl->AddCallback(kPrivate::oglDrawText, &texts_);
+
+		// 绘制plottables
 		if (!objs_.empty())
 		    dl->AddCallback(kPrivate::oglDrawVbos, &objs_);
 
@@ -75,32 +105,6 @@ void KcImOglPaint::endPaint()
 	}
 
 	super_::endPaint();
-}
-
-
-void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
-{
-	obj->setProjMatrix(camera_.getMvpMat());
-
-	auto vp = viewport(); // opengl的viewport原点在左下角，此处要反转y值
-	//vp.lower().y() = ImGui::GetWindowViewport()->Size.y - (vp.lower().y() + vp.height());
-	//vp.setExtent(1, viewport().height());
-	//obj->setViewport(vp);
-
-	objs_.emplace_back(obj);
-}
-
-
-void KcImOglPaint::setGlViewport_(const rect_t& rc)
-{
-	auto draw_data = ImGui::GetDrawData();
-	int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
-	auto vp(rc);
-	vp.lower().y() = fb_height - (vp.lower().y() + vp.height());
-	vp.setExtent(1, viewport().height());
-	glViewport(vp.lower().x(), vp.lower().y(), vp.width(), vp.height());
-
-	// TODO: glViewportArrayv();
 }
 
 
@@ -154,7 +158,8 @@ void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
 	obj->setVbo(vbo, decl);
 	obj->setColor(clr_);
 	obj->setSize(pointSize_);
-	pushRenderObject_(obj);
+	obj->setProjMatrix(camera_.getMvpMat());
+	objs_.emplace_back(obj);
 }
 
 
@@ -200,5 +205,74 @@ void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 	obj->setVbo(vbo, decl);
 	obj->setColor(clr_);
 	obj->setWidth(lineWidth_);
-	pushRenderObject_(obj);
+	obj->setProjMatrix(camera_.getMvpMat());
+	objs_.emplace_back(obj);
+}
+
+
+void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text)
+{
+	auto font = ImGui::GetFont();
+	auto eos = text + strlen(text);
+
+	auto hScale = 1.0 / unprojectv(hDir).length();
+	auto vScale = 1.0 / unprojectv(vDir).length();
+	auto height = vDir * font->FontSize * vScale; // 每行文字的高度. 暂时只支持单行渲染，该变量用不上
+
+	auto s = text;
+	auto orig = topLeft;
+	texts_.reserve(texts_.size() + (eos - text) * 4);
+	while (s < eos) {
+		// Decode and advance source
+		unsigned int c = (unsigned int)*s;
+		if (c < 0x80) {
+			s += 1;
+		}
+		else {
+			s += ImTextCharFromUtf8(&c, s, eos);
+			if (c == 0) // Malformed UTF-8?
+				break;
+		}
+
+		if (c < 32) {
+			if (c == '\n') {
+				// TODO: 处理换行
+				continue;
+			}
+			if (c == '\r')
+				continue;
+		}
+
+		const ImFontGlyph* glyph = font->FindGlyph((ImWchar)c);
+		if (glyph == nullptr)
+			continue;
+
+		if (glyph->Visible) {
+
+			texts_.resize(texts_.size() + 4); // 按quad原语绘制
+			TextVbo* buf = texts_.data() + texts_.size() - 4;
+
+			// 文字框的4个顶点对齐glyph
+			buf[0].pos = toNdc_(orig + hScale * glyph->X0 + vScale * glyph->Y0); // top-left
+			buf[1].pos = toNdc_(orig + hScale * glyph->X1 + vScale * glyph->Y0); // top-right
+			buf[2].pos = toNdc_(orig + hScale * glyph->X1 + vScale * glyph->Y1); // bottom-right
+			buf[3].pos = toNdc_(orig + hScale * glyph->X0 + vScale * glyph->Y1); // bottom-left
+
+			// 文字框的纹理坐标
+			float u1 = glyph->U0;
+			float v1 = glyph->V0;
+			float u2 = glyph->U1;
+			float v2 = glyph->V1;
+
+			buf[0].uv = { u1, v1 };
+			buf[1].uv = { u2, v1 };
+			buf[2].uv = { u2, v2 };
+			buf[3].uv = { u1, v2 };
+
+			for (int i = 0; i < 4; i++)
+				buf[i].clr = clr_;
+		}
+
+		orig += hDir * glyph->AdvanceX;
+	}
 }

@@ -14,6 +14,13 @@ class KcImOglPaint : public KcImPaint
 
 public:
 
+	struct TextVbo
+	{
+		point3f pos;
+		point2f uv;
+		color4f clr;
+	};
+
 	using super_::super_;
 
 	void beginPaint() override;
@@ -27,16 +34,14 @@ public:
 
 	void drawLineStrip(point_getter fn, unsigned count) override;
 
+	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
 private:
-
-	void pushRenderObject_(KcRenderObject* obj);
-
-	void setGlViewport_(const rect_t& rc);
 
 	point3 toNdc_(const point3& pt) const;
 
 private:
-	std::vector<std::unique_ptr<KcRenderObject>> objs_;
-	std::vector<std::function<void(void)>> fns_;
+	std::vector<std::unique_ptr<KcRenderObject>> objs_; // 绘制plottables
+	std::vector<std::function<void(void)>> fns_; // 绘制其他点线
+	std::vector<TextVbo> texts_; // 绘制文本
 };
