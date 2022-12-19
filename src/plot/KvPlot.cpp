@@ -107,6 +107,9 @@ void KvPlot::update()
 
 	updateLayout_(paint_->viewport());
 
+	paint_->setViewport(layout_->innerRect()); // 此处压入innerRect，与KcCoord3d配合抑制fixPlotView_修正plot3d的视口偏移
+	                                           // TODO: 更优雅和通用的实现
+
 	auto locals = fixPlotView_(); // 此处有locals个矩阵入栈，后续须pop
 
 	coord_->draw(paint_.get());
@@ -133,7 +136,8 @@ void KvPlot::update()
 		colorBar_->draw(paint_.get());
 
 	// debug drawing
-	drawLayoutRect_();
+	if (showLayoutRect_)
+	    drawLayoutRect_();
 
 	paint_->endPaint();
 }

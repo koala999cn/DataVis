@@ -103,6 +103,7 @@ private:
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
 	bool showLegend_{ false };
 	bool showColorBar_{ true };
+	bool showLayoutRect_{ false }; // for debug
 
 	std::unique_ptr<KcLayoutGrid> layout_;
 };

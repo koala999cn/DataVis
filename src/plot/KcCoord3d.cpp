@@ -125,6 +125,7 @@ void KcCoord3d::forPlane(std::function<bool(KcCoordPlane& plane)> fn) const
 
 KcCoord3d::rect_t KcCoord3d::getPlotRect() const
 {
+	return outterRect(); // TODO: 暂时忽略留白，返回outterRect，否则KvPlot检测到plotRect与viewport会修正偏移，致使3d渲染出问题
 	return innerRect();
 }
 
