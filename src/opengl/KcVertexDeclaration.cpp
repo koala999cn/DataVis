@@ -61,6 +61,8 @@ unsigned KcVertexDeclaration::texCoordCount() const
 
 void KcVertexDeclaration::declare() const
 {
+	auto stride = calcVertexSize(); // 这个很重要，调试了一晚上才发现。TODO：下一步可优化，避免每次都计算
+
 	for (unsigned i = 0; i < attributeCount(); i++) {
 		auto& attr = getAttribute(i);
 		glEnableVertexAttribArray(attr.location());
@@ -76,6 +78,6 @@ void KcVertexDeclaration::declare() const
 		}
 
 		glVertexAttribPointer(attr.location(), attr.componentCount(), type, 
-			attr.normalized() ? GL_TRUE : GL_FALSE, 0, (void*)attr.offset()); // TODO: stride
+			attr.normalized() ? GL_TRUE : GL_FALSE, stride, (void*)attr.offset());
 	}
 }

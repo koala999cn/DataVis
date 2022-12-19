@@ -42,16 +42,16 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderColorUV()
 {
 	const static char* vertex_shader_color_uv =
 		"uniform mat4 mvpMat;\n"
-		"in vec3 position;\n"
-		"in vec2 uv;\n"
-		"in vec4 color;\n"
+		"layout (location = 0) in vec3 iPosition;\n"
+		"layout (location = 1) in vec2 iUV;\n"
+		"layout (location = 2) in vec4 iColor;\n"
 		"out vec2 Frag_UV;\n"
 		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_Position = mvpMat * vec4(position, 1);\n"
-		"    Frag_UV = uv;\n"
-		"    Frag_Color = color;\n"
+		"    gl_Position = mvpMat * vec4(iPosition, 1);\n"
+		"    Frag_UV = iUV;\n"
+		"    Frag_Color = iColor;\n"
 		"}\n";
 
 	if (vertexShaderColorUV_ == nullptr) {

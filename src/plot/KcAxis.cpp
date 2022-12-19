@@ -115,7 +115,8 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 			// 即可在世界坐标绘制，也可在屏幕坐标绘制
 			KeAlignment align = labelAlignment_(paint, paint->currentCoord() == KvPaint::k_coord_screen);
 
-			paint->drawText(labelAchors[i], label.c_str(), align);
+			//paint->drawText(labelAchors[i], label.c_str(), align);
+			paint->drawText(labelAchors[i], vec3::unitX(), -vec3::unitY(), label.c_str());
 		}
 	}
 

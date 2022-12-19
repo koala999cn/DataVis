@@ -76,6 +76,7 @@ namespace kPrivate
 
 void KcImOglPaint::beginPaint()
 {
+	texts_.clear();
 	fns_.clear();
 	objs_.clear();
 	super_::beginPaint();
@@ -94,8 +95,25 @@ void KcImOglPaint::endPaint()
 			dl->AddCallback(kPrivate::oglDrawFns, &fns_);
 
 		// 绘制text
-		if (!texts_.empty())
-			dl->AddCallback(kPrivate::oglDrawText, &texts_);
+		if (!texts_.empty()) {
+			auto obj = new KcRenderObject(KcRenderObject::k_quads, KsShaderManager::singleton().programColorUV());
+
+			auto decl = std::make_shared<KcVertexDeclaration>();
+			KcVertexAttribute attrPos(0, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_position);
+			KcVertexAttribute attrUv(1, KcVertexAttribute::k_float2, sizeof(float) * 3, KcVertexAttribute::k_texcoord);
+			KcVertexAttribute attrClr(2, KcVertexAttribute::k_float4, sizeof(float) * 5, KcVertexAttribute::k_diffuse);
+			decl->pushAttribute(attrPos);
+			decl->pushAttribute(attrUv);
+			decl->pushAttribute(attrClr);
+			assert(decl->calcVertexSize() == sizeof(texts_[0]));
+
+			auto vbo = std::make_shared<KcGpuBuffer>();
+			vbo->setData(texts_.data(), texts_.size() * sizeof(texts_[0]), KcGpuBuffer::k_stream_draw);
+
+			obj->setVbo(vbo, decl);
+			obj->setProjMatrix(float4x4<>::identity());
+			objs_.emplace_back(obj);
+		}
 
 		// 绘制plottables
 		if (!objs_.empty())
@@ -115,6 +133,7 @@ KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 	// opengl固定管线默认NDC是左手系，p的结果是右手系，所以需要给z值取反???
 	return { p.x(), p.y(), p.z() };
 }
+
 
 void KcImOglPaint::drawPoint(const point3& pt)
 {
@@ -215,15 +234,14 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 	auto font = ImGui::GetFont();
 	auto eos = text + strlen(text);
 
-	auto hScale = 1.0 / unprojectv(hDir).length();
-	auto vScale = 1.0 / unprojectv(vDir).length();
+	auto hScale = 1.0 / projectv(hDir).length();
+	auto vScale = 1.0 / projectv(vDir).length();
 	auto height = vDir * font->FontSize * vScale; // 每行文字的高度. 暂时只支持单行渲染，该变量用不上
 
 	auto s = text;
 	auto orig = topLeft;
 	texts_.reserve(texts_.size() + (eos - text) * 4);
 	while (s < eos) {
-		// Decode and advance source
 		unsigned int c = (unsigned int)*s;
 		if (c < 0x80) {
 			s += 1;
@@ -249,14 +267,20 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 
 		if (glyph->Visible) {
 
-			texts_.resize(texts_.size() + 4); // 按quad原语绘制
-			TextVbo* buf = texts_.data() + texts_.size() - 4;
+			auto curPos = texts_.size();
+			texts_.resize(curPos + 4); // 按quad图元绘制
+			TextVbo* buf = texts_.data() + curPos;
 
 			// 文字框的4个顶点对齐glyph
-			buf[0].pos = toNdc_(orig + hScale * glyph->X0 + vScale * glyph->Y0); // top-left
-			buf[1].pos = toNdc_(orig + hScale * glyph->X1 + vScale * glyph->Y0); // top-right
-			buf[2].pos = toNdc_(orig + hScale * glyph->X1 + vScale * glyph->Y1); // bottom-right
-			buf[3].pos = toNdc_(orig + hScale * glyph->X0 + vScale * glyph->Y1); // bottom-left
+			auto dx1 = hDir * (hScale * glyph->X0);
+			auto dy1 = vDir * (vScale * glyph->Y0);
+			auto dx2 = hDir * (hScale * glyph->X1);
+			auto dy2 = vDir * (vScale * glyph->Y1);
+
+			buf[0].pos = toNdc_(orig + dx1 + dy1); // top-left
+			buf[1].pos = toNdc_(orig + dx2 + dy1); // top-right
+			buf[2].pos = toNdc_(orig + dx2 + dy2); // bottom-right
+			buf[3].pos = toNdc_(orig + dx1 + dy2); // bottom-left
 
 			// 文字框的纹理坐标
 			float u1 = glyph->U0;
@@ -273,6 +297,6 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 				buf[i].clr = clr_;
 		}
 
-		orig += hDir * glyph->AdvanceX;
+		orig += hDir * glyph->AdvanceX * hScale;
 	}
 }
