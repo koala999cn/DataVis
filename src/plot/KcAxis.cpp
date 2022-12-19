@@ -278,7 +278,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 	margs.right() = u.x();
 	margs.bottom() = l.y(); // 由于计算所用矢量都是世界坐标系，所以不用交换bottom和top
 	margs.top() = u.y();
-	assert(margs.geAll({ 0, 0, 0, 0 }));
+	assert(margs.ge({ 0, 0, 0, 0 }));
 
 	paint->popCoord();
 
@@ -291,7 +291,7 @@ bool KcAxis::tickAndLabelInSameSide_() const
 	KtLine<float_t> line(point3(0), end() - start());
 	auto tickSide = line.whichSide(tickOrient_);
 	auto labelSide = line.whichSide(labelOrient_);
-	return (tickSide * labelSide).geAll(point3(0));
+	return (tickSide * labelSide).ge(point3(0));
 }
 
 

@@ -49,7 +49,7 @@ public:
 	operator T* () { return data(); }
 
 	// return ture when this[i] < rhs[i] for all i
-	bool ltAll(const KtArray& rhs) const {
+	bool lt(const KtArray& rhs) const {
 		for (unsigned i = 0; i < size(); i++)
 			if (at(i) >= rhs.at(i))
 				return false;
@@ -57,7 +57,7 @@ public:
 	}
 
 	// return ture when this[i] > rhs[i] for all i
-	bool gtAll(const KtArray& rhs) const {
+	bool gt(const KtArray& rhs) const {
 		for (unsigned i = 0; i < size(); i++)
 			if (at(i) <= rhs.at(i))
 				return false;
@@ -65,7 +65,7 @@ public:
 	}
 
 	// return ture when this[i] <= rhs[i] for all i
-	bool leAll(const KtArray& rhs) const {
+	bool le(const KtArray& rhs) const {
 		for (unsigned i = 0; i < size(); i++)
 			if (at(i) > rhs.at(i))
 				return false;
@@ -73,17 +73,23 @@ public:
 	}
 
 	// return ture when this[i] >= rhs[i] for all i
-	bool geAll(const KtArray& rhs) const {
+	bool ge(const KtArray& rhs) const {
 		for (unsigned i = 0; i < size(); i++)
 			if (at(i) < rhs.at(i))
 				return false;
 		return true;
 	}
 
+	bool bewteen(const KtArray& low, const KtArray& high) const {
+		return ge(low) && le(high);
+	}
+
+	// 取this和pt各维度的高值
 	void makeCeil(const KtArray& pt) {
 		*this = ceil(*this, pt);
 	}
 
+	// 取this和pt各维度的低值
 	void makeFloor(const KtArray& pt) {
 		*this = floor(*this, pt);
 	}
@@ -93,6 +99,7 @@ public:
 		return o;
 	}
 
+	// 取pt1和pt2各维度的高值
 	static KtArray ceil(const KtArray& pt1, const KtArray& pt2) {
 		KtArray pt;
 		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
@@ -101,6 +108,7 @@ public:
 		return pt;
 	}
 
+	// 取pt1和pt2各维度的低值
 	static KtArray floor(const KtArray& pt1, const KtArray& pt2) {
 		KtArray pt;
 		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
