@@ -110,6 +110,7 @@ void KvPlot::update()
 	paint_->setViewport(layout_->innerRect()); // 此处压入innerRect，与KcCoord3d配合抑制fixPlotView_修正plot3d的视口偏移
 	                                           // TODO: 更优雅和通用的实现
 
+	// 修正视口偏移（主要针对plot2d，把它的坐标系lower点移到视口的左下角）
 	auto locals = fixPlotView_(); // 此处有locals个矩阵入栈，后续须pop
 
 	coord_->draw(paint_.get());

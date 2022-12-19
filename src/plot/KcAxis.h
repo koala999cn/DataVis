@@ -196,6 +196,9 @@ private:
 
 	size_t calcSize_(void* cxt) const final;
 
+	// 计算在3d空间绘制文本所需的3个参数：topLeft, hDir, vDir
+	void calcLabelPos_(KvPaint*, const std::string_view& label, const point3& anchor, point3& topLeft, point3& hDir, point3& vDir) const;
+
 private:
 	KeType type_;
 	std::string title_;
@@ -224,4 +227,24 @@ private:
 	int dimSwapped_; 
 	bool main_{ true }; // 是否主坐标轴
 	bool inv_{ false }; // 是否反转坐标轴
+
+	// 以下成员操纵label-box的layout和pose
+	
+	// 初始状态下，label-box位于刻度线与坐标轴构成的平面上
+	// 
+	// label-box的布局与姿态调整都相对anchor点进行
+	// 当label位于坐标轴的左侧，其anchor点位于label-box的right-center
+	// 当label位于坐标轴的右侧，其anchor点位于label-box的left-center
+	// 当lebel位于坐标轴的下侧，其anchor点位于label-box的top-center
+	// 当lebel位于坐标轴的上侧，其anchor点位于label-box的bottom-center
+	// 在不考虑labelPadding_的情况下，若label与tick同侧，anchor点与刻度线的末端重合，否则与刻度点重合
+	
+	// 该变量确定label-box的初始布局状态
+	bool labelVertical_{ false }; // 若true， label文本竖排列，文本顺着+y/-z轴方向延展
+	                              // 若false，lebel文本横排列，文本顺着+x轴方向延展
+
+	// 该变量确定label-box相对于初始布局的姿态变化
+	point3 pose_{ 0, 0, 0 }; // pose_[0]表示偏航yaw，即绕着label-box平面的垂线（过anchor点）的旋转角度
+	                         // pose_[1]表示俯仰pitch，即绕着平行于坐标轴的直线（过anchor点）的旋转角度
+	                         // pose_[2]表示翻滚roll，即绕着坐标轴的垂线（过anchor点）的旋转角度
 };

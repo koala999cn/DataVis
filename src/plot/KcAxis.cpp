@@ -109,14 +109,11 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		// TODO: paint->setFont();
 		paint->setColor(labelColor());
 		auto& labels = scale->labels();
+		point3 topLeft, hDir, vDir;
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
-
-			// 即可在世界坐标绘制，也可在屏幕坐标绘制
-			KeAlignment align = labelAlignment_(paint, paint->currentCoord() == KvPaint::k_coord_screen);
-
-			//paint->drawText(labelAchors[i], label.c_str(), align);
-			paint->drawText(labelAchors[i], vec3::unitX(), -vec3::unitY(), label.c_str());
+			calcLabelPos_(paint, label, labelAchors[i], topLeft, hDir, vDir);
+			paint->drawText(topLeft, hDir, vDir, label.c_str());
 		}
 	}
 
@@ -351,4 +348,20 @@ KcAxis::KeType KcAxis::typeReal() const
 
 	// TODO: 暂时只考虑二维情况
 	return KeType(swapType[type_][swapped() ? 1 : 0]);
+}
+
+
+// TODO: 更好的实现方案？
+void KcAxis::calcLabelPos_(KvPaint* paint, const std::string_view& label, const point3& anchor, point3& topLeft, point3& hDir, point3& vDir) const
+{
+	// 即可在世界坐标绘制，也可在屏幕坐标绘制
+    KeAlignment align = labelAlignment_(paint, paint->currentCoord() == KvPaint::k_coord_screen);
+
+	auto anchorInScreen = paint->projectp(anchor);
+	auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, paint->textSize(label.data()), align);
+	auto topLeftInScreen = point3(rc.lower().x(), rc.lower().y(), anchorInScreen.z());
+
+	topLeft = paint->unprojectp(topLeftInScreen);
+	hDir = vec3::unitX();
+	vDir = -vec3::unitY();
 }
