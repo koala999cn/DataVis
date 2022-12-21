@@ -20,7 +20,7 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 	dim[KcAxis::k_left] = dim[KcAxis::k_right] = 1;
 
 	// 初始化4根主坐标轴
-	for (unsigned i = 0; i < 4; i++)
+	for (unsigned i = 0; i < 4; i++) 
 		axes_[i].emplace_back(new KcAxis(KcAxis::KeType(i), dim[i], true));
 
 	setExtents({ lower.x(), lower.y(), -1 }, { upper.x(), upper.y(), 1 });
@@ -34,8 +34,9 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 	axes_[KcAxis::k_top].front()->tickOrient() =
 		axes_[KcAxis::k_top].front()->labelOrient() = KcAxis::vec3::unitY();
 
+	static const char* title[] = { "X", "Y" };
 	for (unsigned i = 0; i < 4; i++)
-		axes_[i].front()->showTick() = true, axes_[i].front()->showLabel() = true;
+		axes_[i].front()->title() = title[axes_[i].front()->dim()];
 
 	axes_[KcAxis::k_right].front()->visible() = false;
 	axes_[KcAxis::k_top].front()->visible() = false;

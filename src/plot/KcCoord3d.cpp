@@ -57,8 +57,11 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 	axes_[KcAxis::k_ceil_left]->tickOrient() = 
 		axes_[KcAxis::k_ceil_left]->labelOrient() = -KcAxis::vec3::unitX();
 
-	for(unsigned i = 0; i < std::size(axes_); i++)
-	    axes_[i]->visible() = false;
+	static const char* title[] = { "X", "Y", "Z" };
+	for (unsigned i = 0; i < std::size(axes_); i++) {
+		axes_[i]->visible() = false;
+		axes_[i]->title() = title[axes_[i]->dim()];
+	}
 
 	axes_[KcAxis::k_near_bottom]->visible() = true;
 	axes_[KcAxis::k_near_left]->visible() = true;

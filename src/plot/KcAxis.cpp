@@ -58,9 +58,15 @@ void KcAxis::draw(KvPaint* paint) const
 		paint->drawLine(start(), end()); // 物理坐标
 	}
 
-	// draw ticks
+	// draw ticks & label
 	if (showTick() || showLabel())
 		drawTicks_(paint);
+	else
+		titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ / paint->projectv(labelOrient_).length();
+
+	// draw title
+	if (showTitle() && !title().empty())
+		drawTitle_(paint);
 }
 
 
@@ -85,22 +91,29 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 
 	paint->apply(tickCxt_);
 
-	std::vector<point3> labelAchors;
+	std::vector<point3> labelAnchors;
 	bool sameSide = tickAndLabelInSameSide_();
 	if (showLabel())
-		labelAchors.resize(ticks.size());
+		labelAnchors.resize(ticks.size());
+
+	if (showTitle()) {
+		titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ * labelPaddingPerPixel;
+
+		if (sameSide && showTick())
+			titleAnchor_ += tickOrient_ * tickCxt_.length * tickLenPerPixel;
+	}
 
 	for (unsigned i = 0; i < ticks.size(); i++) {
 		auto anchor = tickPos(ticks[i]);
 
-		if (showTick())
-		    drawTick_(paint, anchor, tickCxt_.length * tickLenPerPixel);
+		if (showTick()) 
+			drawTick_(paint, anchor, tickCxt_.length * tickLenPerPixel);
 
 		if (showLabel()) {
-			labelAchors[i] = anchor + labelOrient_ * labelPadding_ * labelPaddingPerPixel;
+			labelAnchors[i] = anchor + labelOrient_ * labelPadding_ * labelPaddingPerPixel;
 
 			if (sameSide && showTick())
-				labelAchors[i] += tickOrient_ * tickCxt_.length * tickLenPerPixel;
+				labelAnchors[i] += tickOrient_ * tickCxt_.length * tickLenPerPixel;
 		}
 	}
 
@@ -109,11 +122,29 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		// TODO: paint->setFont();
 		paint->setColor(labelColor());
 		auto& labels = scale->labels();
-		point3 topLeft, hDir, vDir;
+		point3 topLeft;
+		vec3 hDir, vDir;
+		point2 maxLabelSize(0);
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
-			calcLabelPos_(paint, label, labelAchors[i], topLeft, hDir, vDir);
+			calcLabelPos_(paint, label, labelAnchors[i], topLeft, hDir, vDir);
 			paint->drawText(topLeft, hDir, vDir, label.c_str());
+
+			if (showTitle())
+				maxLabelSize = point2::ceil(maxLabelSize, paint->textSize(label.c_str()));
+		}
+
+		if (showTitle()) {
+
+			vec3 h = hDir * maxLabelSize.x();
+			vec3 v = vDir * maxLabelSize.y();
+			
+			h = h.projectedTo(labelOrient_);
+			v = v.projectedTo(labelOrient_);
+		
+			auto maxSqLen = std::max(h.squaredLength(), v.squaredLength());
+		
+			titleAnchor_ += labelOrient_ * (std::sqrt(maxSqLen) + labelPadding_ ) * labelPaddingPerPixel;
 		}
 	}
 
@@ -259,9 +290,28 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 		}
 	}
 
-	if (showTitle()) {
-		//margins += paint->textSize(title_.c_str()).x();
-		//margins += titlePadding_;
+	if (showTitle() && !title().empty()) {
+		auto sz = paint->textSize(title_.c_str());
+		switch (typeReal()) {
+		case KcAxis::k_left:
+			box.lower().x() -= sz.x() + titlePadding_;
+			break;
+
+		case KcAxis::k_right:
+			box.upper().x() += sz.x() + titlePadding_;
+			break;
+
+		case KcAxis::k_bottom:
+			box.lower().y() -= sz.y() + titlePadding_;
+			break;
+
+		case KcAxis::k_top:
+			box.upper().y() += sz.y() + titlePadding_;
+			break;
+
+		default:
+			assert(false);
+		}
 	}
 
 	aabb_t outter(box.lower(), box.upper());
@@ -347,6 +397,8 @@ KcAxis::KeType KcAxis::typeReal() const
 	};
 
 	// TODO: 暂时只考虑二维情况
+	assert(dimReal_ < 2 && dimSwapped_ < 2);
+	
 	return KeType(swapType[type_][swapped() ? 1 : 0]);
 }
 
@@ -364,4 +416,12 @@ void KcAxis::calcLabelPos_(KvPaint* paint, const std::string_view& label, const 
 	topLeft = paint->unprojectp(topLeftInScreen);
 	hDir = vec3::unitX();
 	vDir = -vec3::unitY();
+}
+
+
+void KcAxis::drawTitle_(KvPaint* paint) const
+{
+	point3 topLeft, hDir, vDir;
+	calcLabelPos_(paint, title_.c_str(), titleAnchor_, topLeft, hDir, vDir);
+	paint->drawText(topLeft, hDir, vDir, title_.c_str());
 }

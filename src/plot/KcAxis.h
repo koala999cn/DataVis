@@ -187,6 +187,7 @@ public:
 	KeType typeReal() const; // 考虑swap，返回axis的真实方位布局
 
 private:
+	void drawTitle_(KvPaint*) const;
 	void drawTicks_(KvPaint*) const; // 绘制所有刻度
 	void drawTick_(KvPaint*, const point3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
 	
@@ -228,7 +229,7 @@ private:
 	bool main_{ true }; // 是否主坐标轴
 	bool inv_{ false }; // 是否反转坐标轴
 
-	// 以下成员操纵label-box的layout和pose
+	// 以下成员操纵label-box的layout和pose（TODO）
 	
 	// 初始状态下，label-box位于刻度线与坐标轴构成的平面上
 	// 
@@ -247,4 +248,11 @@ private:
 	point3 pose_{ 0, 0, 0 }; // pose_[0]表示偏航yaw，即绕着label-box平面的垂线（过anchor点）的旋转角度
 	                         // pose_[1]表示俯仰pitch，即绕着平行于坐标轴的直线（过anchor点）的旋转角度
 	                         // pose_[2]表示翻滚roll，即绕着坐标轴的垂线（过anchor点）的旋转角度
+
+
+	// 以下为尺寸计算缓存的临时变量
+	std::vector<point2> labelSize_;
+	mutable point2 titleSize_;
+	mutable point3 titleAnchor_; // title文本框的top-left坐标
+	vec3 hDir_, vDir_; // label文本的水平和垂直延展方向
 };
