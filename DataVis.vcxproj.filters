@@ -70,10 +70,10 @@
     <ClCompile Include="src\base\KuFileUtil.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KvScaler.cpp">
+    <ClCompile Include="src\plot\KvTicker.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcLinearScaler.cpp">
+    <ClCompile Include="src\plot\KcLinearTicker.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\imgui\imgui.cpp">
@@ -552,10 +552,10 @@
     <ClInclude Include="src\base\KtVector4.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KvScaler.h">
+    <ClInclude Include="src\plot\KvTicker.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcLinearScaler.h">
+    <ClInclude Include="src\plot\KcLinearTicker.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcCoordPlane.h">

@@ -1,6 +1,6 @@
 #include "KcAxis.h"
 #include <assert.h>
-#include "KcLinearScaler.h"
+#include "KcLinearTicker.h"
 #include "KvPaint.h"
 #include "KtuMath.h"
 #include "KtLine.h"
@@ -27,18 +27,18 @@ KcAxis::KcAxis(KeType type, int dim, bool main)
 
 	//labelFont_, titleFont_; // TODO:
 
-	scaler_ = std::make_shared<KcLinearScaler>();
+	ticker_ = std::make_shared<KcLinearTicker>();
 }
 
-std::shared_ptr<KvScaler> KcAxis::scaler() const
+std::shared_ptr<KvTicker> KcAxis::ticker() const
 {
-	return scaler_;
+	return ticker_;
 }
 
 
-void KcAxis::setScaler(std::shared_ptr<KvScaler> scale)
+void KcAxis::setTicker(std::shared_ptr<KvTicker> tic)
 {
-	scaler_ = scale;
+	ticker_ = tic;
 }
 
 
@@ -64,8 +64,10 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 		titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ / paint->projectv(labelOrient_).length();
 
 	// draw title
-	if (realShowTitle)
+	if (realShowTitle) {
+		paint->setColor(titleColor());
 		drawLabel_(paint, title_, titleAnchor_, calcBox);
+	}
 }
 
 
@@ -76,9 +78,8 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	if (length() == 0)
 		return; // TODO: draw or not draw ? draw what ??
 
-	auto scale = scaler();
-	scale->generate(lower(), upper(), showSubtick(), showLabel());
-	const auto& ticks = scale->ticks();
+	ticker()->generate(lower(), upper(), showSubtick(), showLabel());
+	const auto& ticks = ticker()->ticks();
 
 	assert(KtuMath<float_t>::almostEqual(tickOrient().length(), 1));
 
@@ -121,7 +122,7 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 
 		// TODO: paint->setFont();
 		paint->setColor(labelColor());
-		auto& labels = scale->labels();
+		auto& labels = ticker()->labels();
 		point2 maxLabelSize(0);
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
@@ -146,7 +147,7 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	}
 
 	// minor
-	auto& subticks = scale->subticks();
+	auto& subticks = ticker()->subticks();
 	if (showSubtick() && !subticks.empty()) {
 		
 		paint->apply(subtickCxt_);

@@ -1,17 +1,17 @@
-#include "KcLinearScaler.h"
+#include "KcLinearTicker.h"
 #include <cmath>
 #include <assert.h>
 #include "KtuMath.h"
 
 
-KcLinearScaler::KcLinearScaler()
+KcLinearTicker::KcLinearTicker()
 {
     mantissi_ = //{ 1, 2, 2.5, 5, 10 }; 
      { 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0, 8.0, 10.0 };
 }
 
 
-void KcLinearScaler::generate(double lower, double upper, bool genSubticks, bool genLabels)
+void KcLinearTicker::generate(double lower, double upper, bool genSubticks, bool genLabels)
 {
 	if (lower >= upper)
 		return;
@@ -51,7 +51,7 @@ void KcLinearScaler::generate(double lower, double upper, bool genSubticks, bool
 }
 
 
-unsigned KcLinearScaler::autoRange_(double& lower, double& upper)
+unsigned KcLinearTicker::autoRange_(double& lower, double& upper)
 {
     assert(upper > lower);
 
@@ -68,7 +68,7 @@ unsigned KcLinearScaler::autoRange_(double& lower, double& upper)
 }
 
 
-double KcLinearScaler::getTickStep_(double lower, double upper) const
+double KcLinearTicker::getTickStep_(double lower, double upper) const
 {
     if (tickCount() <= 1)
         return upper - lower;
@@ -83,7 +83,7 @@ double KcLinearScaler::getTickStep_(double lower, double upper) const
 }
 
 
-void KcLinearScaler::trimTicks_(double lower, double upper, std::vector<double>& ticks)
+void KcLinearTicker::trimTicks_(double lower, double upper, std::vector<double>& ticks)
 {
     // TODO: ”≈ªØ
     while (!ticks.empty() && ticks.front() < lower)

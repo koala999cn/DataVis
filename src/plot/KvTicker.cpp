@@ -1,8 +1,8 @@
-#include "KvScaler.h"
+#include "KvTicker.h"
 #include <regex>
 
 
-KvScaler::KvScaler()
+KvTicker::KvTicker()
 {
 	tickCount_ = 5;
 	subtickCount_ = 4;
@@ -10,13 +10,13 @@ KvScaler::KvScaler()
 }
 
 
-KvScaler::~KvScaler()
+KvTicker::~KvTicker()
 {
 
 }
 
 
-std::string KvScaler::genLabel_(double val) const
+std::string KvTicker::genLabel_(double val) const
 {
 	char buf[64];
 	sprintf_s(buf, format_.c_str(), val);

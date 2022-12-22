@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 #include "KvRenderable.h"
-#include "KvScaler.h"
+#include "KvTicker.h"
 #include "KtColor.h"
 #include "KtVector3.h"
 #include "KpContext.h"
@@ -160,8 +160,8 @@ public:
 	//QFont titleFont() const { return titleFont_; }
 	//void setTitleFont(QFont font) { titleFont_ = font; }
 
-	std::shared_ptr<KvScaler> scaler() const;
-	void setScaler(std::shared_ptr<KvScaler> scale);
+	std::shared_ptr<KvTicker> ticker() const;
+	void setTicker(std::shared_ptr<KvTicker> tic);
 
 	// NB：布局之后（即调用calcSize之后），该函数才能返回有效值
 	aabb_t boundingBox() const override {
@@ -227,7 +227,7 @@ private:
 	vec3 labelOrient_;
 	bool tickBothSide_{ false };
 
-	std::shared_ptr<KvScaler> scaler_;
+	std::shared_ptr<KvTicker> ticker_;
 
 	int dimReal_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴?（用来显示colorbar）
 	int dimSwapped_; 

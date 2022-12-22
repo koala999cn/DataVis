@@ -1,11 +1,11 @@
 #pragma once
-#include "KvScaler.h"
+#include "KvTicker.h"
 
 
-class KcLinearScaler : public KvScaler
+class KcLinearTicker : public KvTicker
 {
 public:
-	KcLinearScaler();
+	KcLinearTicker();
 
 	void generate(double lower, double upper, bool genSubticks, bool genLabels) override;
 
