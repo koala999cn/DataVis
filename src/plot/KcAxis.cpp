@@ -216,16 +216,16 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 	switch (typeReal())
 	{
 	case KcAxis::k_left:
-		return { calcMargins(paint).left(), 0 };
+		return { std::max<float_t>(calcMargins(paint).left(), baselineCxt_.width), 0 };
 
 	case KcAxis::k_right:
-		return { calcMargins(paint).right(), 0 };
+		return { std::max<float_t>(calcMargins(paint).right(), baselineCxt_.width), 0 };
 
 	case KcAxis::k_bottom:
-		return { 0, calcMargins(paint).bottom() };
+		return { 0, std::max<float_t>(calcMargins(paint).bottom(), baselineCxt_.width) };
 
 	case KcAxis::k_top:
-		return { 0, calcMargins(paint).top() };
+		return { 0, std::max<float_t>(calcMargins(paint).top(), baselineCxt_.width) };
 
 	default:
 		break;
