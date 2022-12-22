@@ -65,6 +65,13 @@ void KvPaint::drawRect(const point3& lower, const point3& upper)
 }
 
 
+void KvPaint::drawBox(const point3& lower, const point3& upper)
+{
+	// TODO: 
+	drawRect(lower, upper);
+}
+
+
 void KvPaint::fillQuad(point3 pts[4])
 {
 	fillTriangle(pts);

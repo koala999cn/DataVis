@@ -42,35 +42,34 @@ void KcAxis::setScaler(std::shared_ptr<KvScaler> scale)
 }
 
 
-KcAxis::aabb_t KcAxis::boundingBox() const
-{
-	return { start(), end() };
-}
-
-
-void KcAxis::draw(KvPaint* paint) const
+void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 {
 	assert(visible());
 
+	if (calcBox)
+		box_ = aabb_t(start(), end());
+
 	// draw baseline
-	if (showBaseline()) {
+	if (showBaseline() && !calcBox) {
 		paint->apply(baselineCxt_);
 		paint->drawLine(start(), end()); // 物理坐标
 	}
 
+	auto realShowTitle = showTitle() && !title().empty();
+
 	// draw ticks & label
 	if (showTick() || showLabel())
-		drawTicks_(paint);
-	else
+		drawTicks_(paint, calcBox);
+	else if (realShowTitle)
 		titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ / paint->projectv(labelOrient_).length();
 
 	// draw title
-	if (showTitle() && !title().empty())
-		drawTitle_(paint);
+	if (realShowTitle)
+		drawLabel_(paint, title_, titleAnchor_, calcBox);
 }
 
 
-void KcAxis::drawTicks_(KvPaint* paint) const
+void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 {
 	assert(showTick() || showLabel());
 
@@ -89,7 +88,8 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 	float_t tickLenPerPixel = 1 / tl.length();
 	float_t labelPaddingPerPixel = 1 / ll.length();
 
-	paint->apply(tickCxt_);
+	if (!calcBox)
+	    paint->apply(tickCxt_);
 
 	std::vector<point3> labelAnchors;
 	bool sameSide = tickAndLabelInSameSide_();
@@ -107,7 +107,7 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		auto anchor = tickPos(ticks[i]);
 
 		if (showTick()) 
-			drawTick_(paint, anchor, tickCxt_.length * tickLenPerPixel);
+			drawTick_(paint, anchor, tickCxt_.length * tickLenPerPixel, calcBox);
 
 		if (showLabel()) {
 			labelAnchors[i] = anchor + labelOrient_ * labelPadding_ * labelPaddingPerPixel;
@@ -122,25 +122,22 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		// TODO: paint->setFont();
 		paint->setColor(labelColor());
 		auto& labels = scale->labels();
-		point3 topLeft;
-		vec3 hDir, vDir;
 		point2 maxLabelSize(0);
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
-			calcLabelPos_(paint, label, labelAnchors[i], topLeft, hDir, vDir);
-			paint->drawText(topLeft, hDir, vDir, label.c_str());
+			drawLabel_(paint, label, labelAnchors[i], calcBox);
 
 			if (showTitle())
 				maxLabelSize = point2::ceil(maxLabelSize, paint->textSize(label.c_str()));
 		}
 
-		if (showTitle()) {
+		if (showTitle() || calcBox) {
 
-			vec3 h = hDir * maxLabelSize.x();
-			vec3 v = vDir * maxLabelSize.y();
+			vec3 h = vec3::unitX() * maxLabelSize.x(); // TODO: hDir
+			vec3 v = vec3::unitY() * maxLabelSize.y(); // TODO: vDir
 			
-			h = h.projectedTo(labelOrient_);
-			v = v.projectedTo(labelOrient_);
+			h = h.projectedTo(ll);
+			v = v.projectedTo(ll);
 		
 			auto maxSqLen = std::max(h.squaredLength(), v.squaredLength());
 		
@@ -156,15 +153,21 @@ void KcAxis::drawTicks_(KvPaint* paint) const
 		double subtickLen = subtickCxt_.length * tickLenPerPixel;
 
 		for (unsigned i = 0; i < subticks.size(); i++) 
-			drawTick_(paint, tickPos(subticks[i]), subtickLen);
+			drawTick_(paint, tickPos(subticks[i]), subtickLen, calcBox);
 	}
 }
 
 
-void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length) const
+void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length, bool calcBox) const
 {
 	auto d = tickOrient() * length;
-	paint->drawLine(tickBothSide() ? anchor - d : anchor, anchor + d);
+	if (!calcBox)
+		paint->drawLine(tickBothSide() ? anchor - d : anchor, anchor + d);
+	else {
+		box_.merge(anchor + d);
+		if (tickBothSide())
+			box_.merge(anchor - d);
+	}
 }
 
 
@@ -235,99 +238,22 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 // draw则在世界坐标系进行实际绘制，paint在执行绘制指令时负责坐标转换
 KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 {
-	//if (!visible() || length() == 0)
-	//	return { 0, 0, 0, 0 };
+	if (!visible() || length() == 0)
+		return { 0, 0, 0, 0 };
 
-	paint->pushCoord(KvPaint::k_coord_screen); // 所有计算在屏幕坐标下进行
+	draw_(paint, true);
 
-	auto tickOrient = paint->projectv(tickOrient_).normalize();
+	aabb_t ibox(paint->projectp(start()), paint->projectp(end()));
+	aabb_t obox(paint->projectp(box_.lower()), paint->projectp(box_.upper()));
+	auto l = ibox.lower() - obox.lower();
+	auto u = obox.upper() - ibox.upper();
 
-	vec3 tickLen(0); // tick的长度矢量
-	if (showTick())
-		tickLen = tickOrient * tickCxt_.length;
-
-	auto scale = scaler();
-	scale->generate(lower(), upper(), false, showLabel());
-	auto& ticks = scale->ticks();
-
-	vec3 dir = paint->projectv((end() - start()).normalize()); // 坐标轴的方向矢量
-	point3 lowerPt(0), upperPt(lowerPt + dir * length()); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
-	aabb_t box(lowerPt, upperPt);
-
-	if (showBaseline()) {
-		auto w = baselineCxt_.width;
-		if (typeReal() == k_left || typeReal() == k_bottom)
-			w = -w;
-		box.merge({ w, w, w });
-	}
-
-	if (showTick() && !ticks.empty())	{
-		// 合并第一个和最后一个tick的box
-		float_t pos[2];
-		pos[0] = kPrivate::remap(ticks.front(), lower(), upper(), 0., length(), inversed());
-		pos[1] = kPrivate::remap(ticks.back(), lower(), upper(), 0., length(), inversed());
-		for (int i = 0; i < 2; i++)
-			box.merge(lowerPt + dir * pos[i] + tickLen);
-	}
-
-	
-	if (showLabel()) { // 合并各label的box
-
-		// 判断label和tick是否在坐标轴的同侧
-		bool sameSide = tickAndLabelInSameSide_();
-		auto& labels = scale->labels();
-
-		for (unsigned i = 0; i < ticks.size(); i++) {
-			auto pos = kPrivate::remap(ticks[i], lower(), upper(), 0., length(), inversed());
-			auto labelAchors = lowerPt + dir * pos;
-			if (sameSide)
-				labelAchors += tickOrient * tickCxt_.length;
-
-			labelAchors += paint->projectv(labelOrient_).normalize() * labelPadding_;
-
-			auto labelText = i < labels_.size() ? labels_[i] : labels[i];
-			box.merge(textBox_(paint, labelAchors, labelText));
-		}
-	}
-
-	if (showTitle() && !title().empty()) {
-		auto sz = paint->textSize(title_.c_str());
-		switch (typeReal()) {
-		case KcAxis::k_left:
-			box.lower().x() -= sz.x() + titlePadding_;
-			break;
-
-		case KcAxis::k_right:
-			box.upper().x() += sz.x() + titlePadding_;
-			break;
-
-		case KcAxis::k_bottom:
-			box.lower().y() -= sz.y() + titlePadding_;
-			break;
-
-		case KcAxis::k_top:
-			box.upper().y() += sz.y() + titlePadding_;
-			break;
-
-		default:
-			assert(false);
-		}
-	}
-
-	aabb_t outter(box.lower(), box.upper());
-	aabb_t inner(lowerPt, upperPt);
-	
-	auto l = inner.lower() - outter.lower();
-	auto u = outter.upper() - inner.upper();
-	
 	KtMargins<KcAxis::float_t> margs;
 	margs.left() = l.x();
 	margs.right() = u.x();
-	margs.bottom() = l.y(); // 由于计算所用矢量都是世界坐标系，所以不用交换bottom和top
-	margs.top() = u.y();
+	margs.bottom() = u.y();
+	margs.top() = l.y();
 	assert(margs.ge({ 0, 0, 0, 0 }));
-
-	paint->popCoord();
 
 	return margs;
 }
@@ -339,24 +265,6 @@ bool KcAxis::tickAndLabelInSameSide_() const
 	auto tickSide = line.whichSide(tickOrient_);
 	auto labelSide = line.whichSide(labelOrient_);
 	return (tickSide * labelSide).ge(point3(0));
-}
-
-
-KcAxis::aabb_t KcAxis::textBox_(KvPaint* paint, const point3& anchor, const std::string& text) const
-{
-	auto r = KuLayoutUtil::anchorAlignedRect({ anchor.x(), anchor.y() },
-		paint->textSize(text.c_str()), labelAlignment_(paint, true));
-
-	return { 
-		{ r.lower().x(), r.lower().y(), anchor.z() }, 
-		{ r.upper().x(), r.upper().y(), anchor.z() } 
-	};
-
-	// 此处r为屏幕坐标，需要转换为视图坐标
-	//auto yLower = 2 * anchor.y() - r.upper().y();
-	//auto yUpper = 2 * anchor.y() - r.lower().y();
-
-	//return { { r.lower().x(), yLower, anchor.z() }, { r.upper().x(), yUpper, anchor.z() } };
 }
 
 
@@ -411,17 +319,27 @@ void KcAxis::calcLabelPos_(KvPaint* paint, const std::string_view& label, const 
 
 	auto anchorInScreen = paint->projectp(anchor);
 	auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, paint->textSize(label.data()), align);
-	auto topLeftInScreen = point3(rc.lower().x(), rc.lower().y(), anchorInScreen.z());
+	auto topLeftInScreen = point3(rc.lower().x(), rc.lower().y(), anchorInScreen.z()); // TODO: 这种转换应该不是完美的
 
 	topLeft = paint->unprojectp(topLeftInScreen);
-	hDir = vec3::unitX();
-	vDir = -vec3::unitY();
+	hDir = paint->unprojectv(vec3::unitX());
+	vDir = paint->unprojectv(vec3::unitY());
 }
 
 
-void KcAxis::drawTitle_(KvPaint* paint) const
+void KcAxis::drawLabel_(KvPaint* paint, const std::string_view& label, const point3& anchor, bool calcBox) const
 {
 	point3 topLeft, hDir, vDir;
-	calcLabelPos_(paint, title_.c_str(), titleAnchor_, topLeft, hDir, vDir);
-	paint->drawText(topLeft, hDir, vDir, title_.c_str());
+	calcLabelPos_(paint, label.data(), anchor, topLeft, hDir, vDir);
+	if (!calcBox) {
+		paint->drawText(topLeft, hDir, vDir, label.data());
+	}
+	else {
+		auto sz = paint->textSize(label.data());
+		auto h = paint->projectv(hDir) * sz.x();
+		auto v = paint->projectv(vDir) * sz.y();
+		h = paint->unprojectv(h);
+		v = paint->unprojectv(v);
+		box_.merge({ topLeft, topLeft + h + v });
+	}
 }

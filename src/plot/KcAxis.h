@@ -163,9 +163,14 @@ public:
 	std::shared_ptr<KvScaler> scaler() const;
 	void setScaler(std::shared_ptr<KvScaler> scale);
 
-	aabb_t boundingBox() const override;
+	// NB：布局之后（即调用calcSize之后），该函数才能返回有效值
+	aabb_t boundingBox() const override {
+		return box_; 
+	}
 
-	void draw(KvPaint*) const override;
+	void draw(KvPaint* paint) const override {
+		return draw_(paint, false);
+	}
 
 	// 根据tick的数值，返回tick在坐标轴上的的3维坐标（世界坐标）
 	point3 tickPos(double val) const;
@@ -187,13 +192,13 @@ public:
 	KeType typeReal() const; // 考虑swap，返回axis的真实方位布局
 
 private:
-	void drawTitle_(KvPaint*) const;
-	void drawTicks_(KvPaint*) const; // 绘制所有刻度
-	void drawTick_(KvPaint*, const point3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
-	
+	void draw_(KvPaint*, bool calcBox) const;
+	void drawTicks_(KvPaint*, bool calcBox) const; // 绘制所有刻度
+	void drawTick_(KvPaint*, const point3& anchor, double length, bool calcBox) const; // 绘制单条刻度线，兼容主刻度与副刻度
+	void drawLabel_(KvPaint* paint, const std::string_view& label, const point3& anchor, bool calcBox) const;
+
 	int labelAlignment_(KvPaint* paint, bool toggleTopBottom) const; // 根据label的orientation判定label的alignment
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
-	aabb_t textBox_(KvPaint*, const point3& anchor, const std::string& text) const;
 
 	size_t calcSize_(void* cxt) const final;
 
@@ -255,4 +260,5 @@ private:
 	mutable point2 titleSize_;
 	mutable point3 titleAnchor_; // title文本框的top-left坐标
 	vec3 hDir_, vDir_; // label文本的水平和垂直延展方向
+	mutable aabb_t box_; // 预计算的aabb
 };

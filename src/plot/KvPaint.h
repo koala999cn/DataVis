@@ -82,6 +82,8 @@ public:
 
 	virtual void drawRect(const point3& lower, const point3& upper);
 
+	virtual void drawBox(const point3& lower, const point3& upper);
+
 	virtual void fillTriangle(point3 pts[3]) = 0;
 
 	virtual void fillTriangle(point3 pts[3], color_t clrs[3]) = 0;
