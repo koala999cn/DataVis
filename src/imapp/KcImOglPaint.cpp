@@ -23,7 +23,7 @@ namespace kPrivate
 		glLoadIdentity();
 
 		KcImOglPaint* paint = (KcImOglPaint*)cmd->UserCallbackData;
-		auto rc = paint->viewport();
+		auto rc = paint->viewport(); // NB: 确保在一个更新周期内，viewport保持不变
 		auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
 		glViewport(rc.lower().x(), y0, rc.width(), rc.height());
 	}
@@ -64,7 +64,7 @@ namespace kPrivate
 		obj.draw();
 	}
 
-	// color和width已设置好，此处主要设置style
+	// color和width已设置好，此处主要设置style(TODO)
 	void oglLine(int style, const KcImOglPaint::point3& from, const KcImOglPaint::point3& to)
 	{
 		glBegin(GL_LINES);
@@ -72,53 +72,50 @@ namespace kPrivate
 		glVertex3f(to.x(), to.y(), to.z());
 		glEnd();
 	}
+
+	void oglDrawRenderList(const ImDrawList*, const ImDrawCmd* cmd)
+	{
+		auto paint = (KcImOglPaint*)cmd->UserCallbackData;
+		paint->drawRenderList_();
+	}
 }
+
+
+KcImOglPaint::KcImOglPaint(camera_type& cam)
+	: super_(cam)
+{
+	curViewport_ = -1;
+	curClipBox_ = -1;
+}
+
 
 void KcImOglPaint::beginPaint()
 {
-	texts_.clear();
-	fns_.clear();
-	objs_.clear();
+	renderList_.clear();
+
+	viewportHistList_.clear();
+	clipRectHistList_.clear();
+	
+	viewportHistList_.push_back(viewport());
+	curViewport_ = 0;
+
+	auto crmin = ImGui::GetWindowDrawList()->GetClipRectMin();
+	auto crmax = ImGui::GetWindowDrawList()->GetClipRectMax();
+	clipRectHistList_.emplace_back(point2(crmin.x, crmin.y), point2(crmax.x, crmax.y));
+	clipRectStack_.push_back(0);
+	
+	clipBoxHistList_.clear();
+	curClipBox_ = -1;
+
 	super_::beginPaint();
 }
 
 
 void KcImOglPaint::endPaint()
 {
-	if (!fns_.empty() || !objs_.empty()) {
+	if (!renderList_.empty()) {
 		auto dl = ImGui::GetWindowDrawList();
-
-		dl->AddCallback(kPrivate::oglSetRenderState, this);
-
-		// 绘制零散点线
-		if (!fns_.empty())
-			dl->AddCallback(kPrivate::oglDrawFns, &fns_);
-
-		// 绘制text
-		if (!texts_.empty()) {
-			auto obj = new KcRenderObject(KcRenderObject::k_quads, KsShaderManager::singleton().programColorUV());
-
-			auto decl = std::make_shared<KcVertexDeclaration>();
-			KcVertexAttribute attrPos(0, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_position);
-			KcVertexAttribute attrUv(1, KcVertexAttribute::k_float2, sizeof(float) * 3, KcVertexAttribute::k_texcoord);
-			KcVertexAttribute attrClr(2, KcVertexAttribute::k_float4, sizeof(float) * 5, KcVertexAttribute::k_diffuse);
-			decl->pushAttribute(attrPos);
-			decl->pushAttribute(attrUv);
-			decl->pushAttribute(attrClr);
-			assert(decl->calcVertexSize() == sizeof(texts_[0]));
-
-			auto vbo = std::make_shared<KcGpuBuffer>();
-			vbo->setData(texts_.data(), texts_.size() * sizeof(texts_[0]), KcGpuBuffer::k_stream_draw);
-
-			obj->setVbo(vbo, decl);
-			obj->setProjMatrix(float4x4<>::identity());
-			objs_.emplace_back(obj);
-		}
-
-		// 绘制plottables
-		if (!objs_.empty())
-		    dl->AddCallback(kPrivate::oglDrawVbos, &objs_);
-
+		dl->AddCallback(kPrivate::oglDrawRenderList, this);
 		dl->AddCallback(ImDrawCallback_ResetRenderState, nullptr); // 让imgui恢复渲染状态
 	}
 
@@ -156,7 +153,7 @@ void KcImOglPaint::drawPoint(const point3& pt)
 
 	};
 
-	fns_.push_back(drawFn);
+	currentRenderList().fns.push_back(drawFn);
 }
 
 
@@ -178,7 +175,8 @@ void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
 	obj->setColor(clr_);
 	obj->setSize(pointSize_);
 	obj->setProjMatrix(camera_.getMvpMat());
-	objs_.emplace_back(obj);
+
+	currentRenderList().objs.emplace_back(obj);
 }
 
 
@@ -203,7 +201,7 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 
 	};
 
-	fns_.push_back(drawFn);
+	currentRenderList().fns.push_back(drawFn);
 }
 
 
@@ -225,7 +223,7 @@ void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 	obj->setColor(clr_);
 	obj->setWidth(lineWidth_);
 	obj->setProjMatrix(camera_.getMvpMat());
-	objs_.emplace_back(obj);
+	currentRenderList().objs.emplace_back(obj);
 }
 
 
@@ -240,7 +238,8 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 
 	auto s = text;
 	auto orig = topLeft;
-	texts_.reserve(texts_.size() + (eos - text) * 4);
+	auto& texts = currentRenderList().texts;
+	texts.reserve(texts.size() + (eos - text) * 4);
 	while (s < eos) {
 		unsigned int c = (unsigned int)*s;
 		if (c < 0x80) {
@@ -267,9 +266,9 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 
 		if (glyph->Visible) {
 
-			auto curPos = texts_.size();
-			texts_.resize(curPos + 4); // 按quad图元绘制
-			TextVbo* buf = texts_.data() + curPos;
+			auto curPos = texts.size();
+			texts.resize(curPos + 4); // 按quad图元绘制
+			TextVbo* buf = texts.data() + curPos;
 
 			// 文字框的4个顶点对齐glyph
 			auto dx1 = hDir * (hScale * glyph->X0);
@@ -298,5 +297,186 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 		}
 
 		orig += hDir * glyph->AdvanceX * hScale;
+	}
+}
+
+
+void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
+{
+	if (!rl.texts.empty()) {
+		auto obj = new KcRenderObject(KcRenderObject::k_quads, 
+			KsShaderManager::singleton().programColorUV());
+
+		auto decl = std::make_shared<KcVertexDeclaration>();
+		KcVertexAttribute attrPos(0, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_position);
+		KcVertexAttribute attrUv(1, KcVertexAttribute::k_float2, sizeof(float) * 3, KcVertexAttribute::k_texcoord);
+		KcVertexAttribute attrClr(2, KcVertexAttribute::k_float4, sizeof(float) * 5, KcVertexAttribute::k_diffuse);
+		decl->pushAttribute(attrPos);
+		decl->pushAttribute(attrUv);
+		decl->pushAttribute(attrClr);
+		assert(decl->calcVertexSize() == sizeof(rl.texts[0]));
+
+		auto vbo = std::make_shared<KcGpuBuffer>();
+		vbo->setData(rl.texts.data(), rl.texts.size() * sizeof(rl.texts[0]), KcGpuBuffer::k_stream_draw);
+
+		obj->setVbo(vbo, decl);
+		obj->setProjMatrix(float4x4<>::identity());
+		rl.objs.emplace_back(obj);
+	}
+}
+
+
+void KcImOglPaint::setViewport(const rect_t& vp)
+{
+	auto pos = std::find(viewportHistList_.cbegin(), viewportHistList_.cend(), vp);
+	if (pos == viewportHistList_.cend()) {
+		curViewport_ = viewportHistList_.size();
+		viewportHistList_.push_back(vp);
+	}
+	else {
+		curViewport_ = std::distance(viewportHistList_.cbegin(), pos);
+	}
+
+	super_::setViewport(vp);
+}
+
+
+void KcImOglPaint::pushClipRect(const rect_t& cr)
+{
+	auto pos = std::find(clipRectHistList_.cbegin(), clipRectHistList_.cend(), cr);
+	if (pos == clipRectHistList_.cend()) {
+		clipRectStack_.push_back(clipRectHistList_.size());
+		clipRectHistList_.push_back(cr);
+	}
+	else {
+		clipRectStack_.push_back(std::distance(clipRectHistList_.cbegin(), pos));
+	}
+
+	super_::pushClipRect(cr); // TODO: 该调用后续可以去掉，不改动ImGui的渲染状态
+}
+
+
+void KcImOglPaint::popClipRect()
+{
+	clipRectStack_.pop_back();
+
+	super_::popClipRect();
+}
+
+
+void KcImOglPaint::enableClipBox(point3 lower, point3 upper)
+{
+	auto pos = std::find(clipBoxHistList_.cbegin(), clipBoxHistList_.cend(), aabb_t(lower, upper));
+	if (pos == clipBoxHistList_.cend()) {
+		curClipBox_ = clipBoxHistList_.size();
+		clipBoxHistList_.emplace_back(lower, upper);
+	}
+	else {
+		curClipBox_ = std::distance(clipBoxHistList_.cbegin(), pos);
+	}
+}
+
+
+void KcImOglPaint::disableClipBox()
+{
+	curClipBox_ = -1;
+}
+
+
+KcImOglPaint::KpRenderList_& KcImOglPaint::currentRenderList()
+{
+	auto curClipRect = clipRectStack_.empty() ? -1 : clipRectStack_.back();
+	return renderList_[kRenderState_(curViewport_, curClipRect, curClipBox_)];
+}
+
+
+void KcImOglPaint::drawRenderList_()
+{
+	unsigned viewport(-1), clipRect(-1), clipBox(-1);
+	for (auto& rd : renderList_) {
+		auto& state = rd.first;
+		if (std::get<0>(state) != viewport) {
+			viewport = std::get<0>(state);
+			glViewport_(viewport);
+		}
+		if (std::get<1>(state) != clipRect) {
+			clipRect = std::get<1>(state);
+			glScissor_(clipRect);
+		}
+		if (std::get<2>(state) != clipBox) {
+			clipBox = std::get<2>(state);
+			glClipPlane_(clipBox);
+		}
+
+		auto& rl = rd.second;
+
+		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		for (auto& i : rl.fns)
+			i();
+
+		pushTextVbo_(rl);
+		for (auto& i : rl.objs)
+			i->draw();
+	}
+}
+
+
+void KcImOglPaint::glViewport_(unsigned id)
+{
+	if (id != -1) {
+		assert(id < viewportHistList_.size());
+		auto& rc = viewportHistList_[id];
+		auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
+		glViewport(rc.lower().x(), y0, rc.width(), rc.height());
+	}
+}
+
+
+void KcImOglPaint::glScissor_(unsigned id)
+{
+	if (id != -1) {
+		assert(id < clipRectHistList_.size());
+		auto& rc = clipRectHistList_[id];
+		auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
+		glScissor(rc.lower().x(), y0, rc.width(), rc.height());
+	}
+}
+
+
+void KcImOglPaint::glClipPlane_(unsigned id)
+{
+	static constexpr unsigned planes[] = {
+		GL_CLIP_PLANE0,
+		GL_CLIP_PLANE1,
+		GL_CLIP_PLANE2,
+		GL_CLIP_PLANE3,
+		GL_CLIP_PLANE4,
+		GL_CLIP_PLANE5
+	};
+
+	if (id != -1) {
+		assert(id < clipBoxHistList_.size());
+		auto& aabb = clipBoxHistList_[id];
+		GLdouble clipPlane[4]{ 0 };
+		for (int i = 0; i < 3; i++) {
+			clipPlane[i] = 1; clipPlane[3] = aabb.lower()[i];
+			glClipPlane(planes[2 * i], clipPlane);
+			glEnable(planes[2 * i]);
+
+			clipPlane[i] = -1; clipPlane[3] = aabb.upper()[i];
+			glClipPlane(planes[2 * i + 1], clipPlane);
+			glEnable(planes[2 * i + 1]);
+
+			clipPlane[i] = 0;
+		}
+	}
+	else {
+		for(unsigned i = 0; i < std::size(planes); i++)
+		    glDisable(planes[i]);
 	}
 }

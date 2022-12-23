@@ -7,9 +7,10 @@
 #include "layout/KuLayoutHelper.h"
 
 
-KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
+KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, char dim)
 	: paint_(paint)
 	, coord_(coord)
+	, dim_(dim)
 {
 	legend_ = new KcLegend;
 	colorBar_ = nullptr;
@@ -99,7 +100,7 @@ void KvPlot::update()
 
 	auto axisSwapped = coord_->axisSwapped();
 	if (axisSwapped)
-		paint_->pushLocal(coord_->axisSwapMatrix());
+		paint_->pushLocal(coord_->axisSwapMatrix()); // 先压入坐标轴交换矩阵，autoProject_要用
 
 	autoProject_();
 
@@ -119,7 +120,13 @@ void KvPlot::update()
 	if (axisInversed)
 		paint_->pushLocal(coord_->axisInverseMatrix());
 
+	if (dim() == 3)
+		paint_->enableClipBox(coord_->lower(), coord_->upper());
+
 	drawPlottables_();
+
+	if (dim() == 3)
+		paint_->disableClipBox();
 
 	if (axisInversed)
 		paint_->popLocal();
@@ -146,6 +153,9 @@ void KvPlot::update()
 
 int KvPlot::fixPlotView_()
 {
+	if (dim() != 2)
+		return 0; // 只对plot2d进行修正
+
 	auto rcCanvas = paint_->viewport();
 	auto rcPlot = coord_->getPlotRect();
 	if (rcPlot == rcCanvas)
@@ -268,13 +278,13 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 
 void KvPlot::drawPlottables_()
 {
-	//paint_->pushClipRect(paint_->viewport()); // 设置clipRect，防止plottables超出范围
+	paint_->pushClipRect(coord_->getPlotRect()); // 设置clipRect，防止plottables超出范围
 
 	for (int idx = 0; idx < plottableCount(); idx++)
 		if (plottableAt(idx)->visible())
 			plottableAt(idx)->draw(paint_.get());
 
-	//paint_->popClipRect();
+	paint_->popClipRect();
 }
 
 

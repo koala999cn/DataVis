@@ -21,7 +21,7 @@ class KvPlot
 	using margins_t = KtMargins<float>;
 
 public:
-	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
+	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, char dim);
 	~KvPlot();
 
 	virtual void setVisible(bool b) = 0;
@@ -72,6 +72,8 @@ public:
 	void setMargins(const margins_t& m);
 	void setMargins(float l, float t, float r, float b);
 
+	char dim() const { return dim_; }
+
 private:
 	virtual void autoProject_() = 0;
 
@@ -100,10 +102,12 @@ private:
 
 	KpBrush bkgnd_;
 
+	std::unique_ptr<KcLayoutGrid> layout_;
+
+	char dim_{ 3 }; // 取值2或3，用来标记this是plot2d还是plot3d
+
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
 	bool showLegend_{ false };
 	bool showColorBar_{ true };
 	bool showLayoutRect_{ false }; // for debug
-
-	std::unique_ptr<KcLayoutGrid> layout_;
 };

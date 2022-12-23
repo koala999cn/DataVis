@@ -48,6 +48,10 @@ public:
 	virtual void popCoord() = 0;
 	virtual KeCoordType currentCoord() const = 0;
 
+	// 启用由3维坐标系的6个坐标平面构成的clipPlane
+	virtual void enableClipBox(point3 lower, point3 upper) = 0;
+	virtual void disableClipBox() = 0;
+
 	// project local point/vector to screen point/vector
 	virtual point4 project(const point4& pt) const = 0;
 

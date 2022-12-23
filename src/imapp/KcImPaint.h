@@ -6,9 +6,8 @@
 
 class KcImPaint : public KvPaint
 {
-	using camera_type = KtProjector<float_t>;
-	
 public:
+	using camera_type = KtProjector<float_t>;
 
 	KcImPaint(camera_type& cam);
 
