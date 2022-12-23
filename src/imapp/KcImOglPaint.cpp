@@ -13,57 +13,6 @@
 
 namespace kPrivate
 {
-	void oglSetRenderState(const ImDrawList* parent_list, const ImDrawCmd* cmd)
-	{
-		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		KcImOglPaint* paint = (KcImOglPaint*)cmd->UserCallbackData;
-		auto rc = paint->viewport(); // NB: 确保在一个更新周期内，viewport保持不变
-		auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
-		glViewport(rc.lower().x(), y0, rc.width(), rc.height());
-	}
-
-	void oglDrawVbos(const ImDrawList* parent_list, const ImDrawCmd* cmd)
-	{
-		auto objs = (std::vector<std::unique_ptr<KcRenderObject>>*)cmd->UserCallbackData;
-		for (auto& i : *objs)
-			i->draw();
-	}
-
-	void oglDrawFns(const ImDrawList* parent_list, const ImDrawCmd* cmd)
-	{
-		auto fns = (std::vector<std::function<void(void)>>*)cmd->UserCallbackData;
-		for (auto& i : *fns)
-			i();
-	}
-
-	void oglDrawText(const ImDrawList* parent_list, const ImDrawCmd* cmd)
-	{
-		auto vtx = (std::vector<KcImOglPaint::TextVbo>*)cmd->UserCallbackData;
-
-		auto obj = KcRenderObject(KcRenderObject::k_quads, KsShaderManager::singleton().programColorUV());
-
-		auto decl = std::make_shared<KcVertexDeclaration>();
-		KcVertexAttribute attrPos(0, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_position);
-		KcVertexAttribute attrUv(1, KcVertexAttribute::k_float2, sizeof(float) * 3, KcVertexAttribute::k_texcoord);
-		KcVertexAttribute attrClr(2, KcVertexAttribute::k_float4, sizeof(float) * 5, KcVertexAttribute::k_diffuse);
-		decl->pushAttribute(attrPos);
-		decl->pushAttribute(attrUv);
-		decl->pushAttribute(attrClr);
-
-		auto vbo = std::make_shared<KcGpuBuffer>();
-		vbo->setData(vtx->data(), vtx->size() * sizeof(KcImOglPaint::TextVbo), KcGpuBuffer::k_stream_draw);
-
-		obj.setVbo(vbo, decl);
-		obj.setProjMatrix(float4x4<>::identity());
-		obj.draw();
-	}
-
 	// color和width已设置好，此处主要设置style(TODO)
 	void oglLine(int style, const KcImOglPaint::point3& from, const KcImOglPaint::point3& to)
 	{
@@ -162,8 +111,7 @@ void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
 	auto obj = new KcPointObject;
 
 	auto decl = std::make_shared<KcVertexDeclaration>();
-	KcVertexAttribute attr(0, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_position);
-	decl->pushAttribute(attr);
+	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 
 	auto vbo = std::make_shared<KcGpuBuffer>();
 	std::vector<point3f> vtx;
@@ -210,8 +158,7 @@ void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 	auto obj = new KcLineObject(KcRenderObject::k_line_strip);
 
 	auto decl = std::make_shared<KcVertexDeclaration>();
-	KcVertexAttribute attr(0, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_position);
-	decl->pushAttribute(attr);
+	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 
 	auto vbo = std::make_shared<KcGpuBuffer>();
 	std::vector<point3f> vtx;
@@ -308,12 +255,9 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 			KsShaderManager::singleton().programColorUV());
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
-		KcVertexAttribute attrPos(0, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_position);
-		KcVertexAttribute attrUv(1, KcVertexAttribute::k_float2, sizeof(float) * 3, KcVertexAttribute::k_texcoord);
-		KcVertexAttribute attrClr(2, KcVertexAttribute::k_float4, sizeof(float) * 5, KcVertexAttribute::k_diffuse);
-		decl->pushAttribute(attrPos);
-		decl->pushAttribute(attrUv);
-		decl->pushAttribute(attrClr);
+		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+		decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_texcoord);
+		decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
 		assert(decl->calcVertexSize() == sizeof(rl.texts[0]));
 
 		auto vbo = std::make_shared<KcGpuBuffer>();

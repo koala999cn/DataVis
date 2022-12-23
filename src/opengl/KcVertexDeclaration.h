@@ -13,6 +13,8 @@ public:
 		attrs_.push_back(attr);
 	}
 
+	void pushAttribute(KcVertexAttribute::KeFormat fmt, KcVertexAttribute::KeSemantic semantic, unsigned semanticIndex = 0);
+
 	KcVertexAttribute& getAttribute(unsigned idx) { return attrs_[idx]; }
 	const KcVertexAttribute& getAttribute(unsigned idx) const { return attrs_[idx]; }
 

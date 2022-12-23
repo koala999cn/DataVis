@@ -3,6 +3,13 @@
 #include <assert.h>
 
 
+void KcVertexDeclaration::pushAttribute(KcVertexAttribute::KeFormat fmt, KcVertexAttribute::KeSemantic semantic, unsigned semanticIndex)
+{
+	pushAttribute(KcVertexAttribute(attributeCount(), fmt, calcVertexSize(), 
+		semantic, semanticIndex)); // TODO: semanticIndex也可以推算出来
+}
+
+
 const KcVertexAttribute* KcVertexDeclaration::findAttribute(KcVertexAttribute::KeSemantic semantic, unsigned semanticIdx) const
 {
 	for(unsigned i = 0; i < attributeCount(); i++) {
