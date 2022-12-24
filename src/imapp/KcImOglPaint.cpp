@@ -87,8 +87,7 @@ void KcImOglPaint::drawPoint(const point3& pt)
 	auto ptSize = pointSize_;
 	auto p = toNdc_(pt);
 
-	auto vp = viewport();
-	auto drawFn = [clr, ptSize, p, vp, this]() {
+	auto drawFn = [clr, ptSize, p]() {
 
 		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
 		glPointSize(ptSize);
@@ -123,6 +122,10 @@ void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
 	obj->setColor(clr_);
 	obj->setSize(pointSize_);
 	obj->setProjMatrix(camera_.getMvpMat());
+	if (curClipBox_ != -1) {
+		auto& box = clipBoxHistList_[curClipBox_];
+		obj->setClipBox({ box.lower(), box.upper() });
+	}
 
 	currentRenderList().objs.emplace_back(obj);
 }
@@ -133,11 +136,10 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 	auto clr = clr_;
 	auto lnWidth = lineWidth_;
 	auto style = lineStyle_;
-	auto vp = viewport();
 	auto pt0 = toNdc_(from);
 	auto pt1 = toNdc_(to);
 
-	auto drawFn = [clr, lnWidth, pt0, pt1, style, vp, this]() {
+	auto drawFn = [clr, lnWidth, pt0, pt1, style]() {
 
 		glLineWidth(lnWidth);
 		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
@@ -286,6 +288,7 @@ void KcImOglPaint::setViewport(const rect_t& vp)
 		curViewport_ = std::distance(viewportHistList_.cbegin(), pos);
 	}
 
+	assert(viewportHistList_[curViewport_] == vp);
 	super_::setViewport(vp);
 }
 
@@ -341,7 +344,12 @@ KcImOglPaint::KpRenderList_& KcImOglPaint::currentRenderList()
 
 void KcImOglPaint::drawRenderList_()
 {
-	unsigned viewport(-1), clipRect(-1), clipBox(-1);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	unsigned viewport(-1), clipRect(-1), clipBox(-2);
 	for (auto& rd : renderList_) {
 		auto& state = rd.first;
 		if (std::get<0>(state) != viewport) {
@@ -360,10 +368,6 @@ void KcImOglPaint::drawRenderList_()
 		auto& rl = rd.second;
 
 		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
 
 		for (auto& i : rl.fns)
 			i();
@@ -377,23 +381,23 @@ void KcImOglPaint::drawRenderList_()
 
 void KcImOglPaint::glViewport_(unsigned id)
 {
-	if (id != -1) {
-		assert(id < viewportHistList_.size());
-		auto& rc = viewportHistList_[id];
-		auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
-		glViewport(rc.lower().x(), y0, rc.width(), rc.height());
-	}
+	assert(id != -1);
+
+	assert(id < viewportHistList_.size());
+	auto& rc = viewportHistList_[id];
+	auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
+	glViewport(rc.lower().x(), y0, rc.width(), rc.height());
 }
 
 
 void KcImOglPaint::glScissor_(unsigned id)
 {
-	if (id != -1) {
-		assert(id < clipRectHistList_.size());
-		auto& rc = clipRectHistList_[id];
-		auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
-		glScissor(rc.lower().x(), y0, rc.width(), rc.height());
-	}
+	assert(id != -1);
+
+	assert(id < clipRectHistList_.size());
+	auto& rc = clipRectHistList_[id];
+	auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
+	glScissor(rc.lower().x(), y0, rc.width(), rc.height());
 }
 
 

@@ -25,10 +25,12 @@ void KcRenderObject::draw() const
 	vbo_->bind(); // 激活vbo
 	vtxDecl_->declare(); // 声明vbo数据规格
 	prog_->useProgram(); // 激活shader
-	glUniformMatrix4fv(0, 1, GL_TRUE, projMat_.data());
 
+	// 给shader的uniform赋值
+	auto loc = prog_->getUniformLocation("mvpMat");
+	glUniformMatrix4fv(loc, 1, GL_TRUE, projMat_.data());
 	GLint enableClip = !clipBox_.isNull();
-	auto loc = prog_->getUniformLocation("iEnableClip");
+	loc = prog_->getUniformLocation("iEnableClip");
 	glUniform1i(loc, enableClip);
 	if (enableClip) {
 		loc = prog_->getUniformLocation("vClipLower");
@@ -36,7 +38,6 @@ void KcRenderObject::draw() const
 		loc = prog_->getUniformLocation("vClipUpper");
 		glUniform3f(loc, clipBox_.upper().x(), clipBox_.upper().y(), clipBox_.upper().z());
 	}
-
 
 	glDrawArrays(glModes[type_], 0, vbo_->bytesCount() / vtxDecl_->calcVertexSize());
 }
