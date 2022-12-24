@@ -170,6 +170,11 @@ void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 	obj->setColor(clr_);
 	obj->setWidth(lineWidth_);
 	obj->setProjMatrix(camera_.getMvpMat());
+	if (curClipBox_ != -1) {
+		auto& box = clipBoxHistList_[curClipBox_];
+		obj->setClipBox({ box.lower(), box.upper() });
+	}
+
 	currentRenderList().objs.emplace_back(obj);
 }
 
@@ -406,9 +411,9 @@ void KcImOglPaint::glClipPlane_(unsigned id)
 	if (id != -1) {
 		assert(id < clipBoxHistList_.size());
 		auto& aabb = clipBoxHistList_[id];
-		GLdouble clipPlane[4]{ 0 };
+		GLdouble clipPlane[4] = { 0 };
 		for (int i = 0; i < 3; i++) {
-			clipPlane[i] = 1; clipPlane[3] = aabb.lower()[i];
+			clipPlane[i] = 1; clipPlane[3] = -aabb.lower()[i];
 			glClipPlane(planes[2 * i], clipPlane);
 			glEnable(planes[2 * i]);
 

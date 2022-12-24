@@ -27,5 +27,16 @@ void KcRenderObject::draw() const
 	prog_->useProgram(); // ¼¤»îshader
 	glUniformMatrix4fv(0, 1, GL_TRUE, projMat_.data());
 
+	GLint enableClip = !clipBox_.isNull();
+	auto loc = prog_->getUniformLocation("iEnableClip");
+	glUniform1i(loc, enableClip);
+	if (enableClip) {
+		loc = prog_->getUniformLocation("vClipLower");
+		glUniform3f(loc, clipBox_.lower().x(), clipBox_.lower().y(), clipBox_.lower().z());
+		loc = prog_->getUniformLocation("vClipUpper");
+		glUniform3f(loc, clipBox_.upper().x(), clipBox_.upper().y(), clipBox_.upper().z());
+	}
+
+
 	glDrawArrays(glModes[type_], 0, vbo_->bytesCount() / vtxDecl_->calcVertexSize());
 }

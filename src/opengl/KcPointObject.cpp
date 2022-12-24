@@ -19,6 +19,7 @@ void KcPointObject::draw() const
     //glEnable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     prog_->useProgram();
-    glUniform4f(1, pointColor_[0], pointColor_[1], pointColor_[2], pointColor_[3]);
+    auto loc = prog_->getUniformLocation("vColor");
+    glUniform4f(loc, pointColor_[0], pointColor_[1], pointColor_[2], pointColor_[3]);
     super_::draw();
 }

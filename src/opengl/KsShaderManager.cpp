@@ -20,18 +20,33 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderMono()
 {
 	const static char* vertex_shader_mono =
 		"uniform mat4 mvpMat;\n"
+		"uniform int  iEnableClip;\n"
+		"uniform vec3 vClipLower;\n"
+		"uniform vec3 vClipUpper;\n"
 		"uniform vec4 vColor;\n"
-		"in vec3 position;\n"
+		"in vec3 iPosition;\n"
 		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_Position = mvpMat * vec4(position, 1);\n"
+		"    gl_Position = mvpMat * vec4(iPosition, 1);\n"
 		"    Frag_Color = vColor;\n"
+		"    if (iEnableClip != 0)\n"
+	    "    {\n"
+		"        gl_ClipDistance[0] = iPosition.x - vClipLower.x;\n"
+		"        gl_ClipDistance[1] = iPosition.y - vClipLower.y;\n"
+		"        gl_ClipDistance[2] = iPosition.z - vClipLower.z;\n"
+		"        gl_ClipDistance[3] = vClipUpper.x - iPosition.x;\n"
+		"        gl_ClipDistance[4] = vClipUpper.y - iPosition.y;\n"
+		"        gl_ClipDistance[5] = vClipUpper.z - iPosition.z;\n"
+		"    }\n"
 		"}\n";
 
 	if (vertexShaderMono_ == nullptr) {
 		vertexShaderMono_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_mono);
-		assert(vertexShaderMono_->compileStatus());
+		if (!vertexShaderMono_->compileStatus()) {
+			auto info = vertexShaderMono_->infoLog();
+			assert(false && info.c_str());
+		}
 	}
 
 	return vertexShaderMono_;
