@@ -873,7 +873,7 @@
     <ClInclude Include="src\op\KvOpSampled1dHelper.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KuGeometryFactory.h">
+    <ClInclude Include="src\plot\KuPrimitiveFactory.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KtGeometry.h">

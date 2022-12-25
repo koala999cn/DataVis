@@ -402,7 +402,7 @@
     <ClInclude Include="src\plot\KtColor.h" />
     <ClInclude Include="src\plot\KtMargins.h" />
     <ClInclude Include="src\plot\KuColorUtil.h" />
-    <ClInclude Include="src\plot\KuGeometryFactory.h" />
+    <ClInclude Include="src\plot\KuPrimitiveFactory.h" />
     <ClInclude Include="src\plot\KuThemeParser.h" />
     <ClInclude Include="src\plot\KvCoord.h" />
     <ClInclude Include="src\plot\KvPaint.h" />

@@ -43,10 +43,7 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderMono()
 
 	if (vertexShaderMono_ == nullptr) {
 		vertexShaderMono_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_mono);
-		if (!vertexShaderMono_->compileStatus()) {
-			auto info = vertexShaderMono_->infoLog();
-			assert(false && info.c_str());
-		}
+		assert(vertexShaderMono_->compileStatus());
 	}
 
 	return vertexShaderMono_;

@@ -1,32 +1,21 @@
 #pragma once
 #include <vector>
-#include "KtPoint.h"
 
 
-template<typename VTX_ELEMENT_TYPE, typename IDX_TYPE>
+template<typename VTX_TYPE, typename IDX_TYPE>
 class KtGeometry
 {
 public:
-	using vertex_element_t = VTX_ELEMENT_TYPE;
-	using vertex_t = KtPoint<VTX_ELEMENT_TYPE, 3>;
+	using vertex_t = VTX_TYPE;
 	using index_t = IDX_TYPE;
-
 
 	void reserve(unsigned vxtCount, unsigned idxCount) {
 		vtx_.reserve(vxtCount), idx_.reserve(idxCount);
 	}
 
-	void shrink_to_fit() {
-		vtx_.shrink_to_fit(), idx_.shrink_to_fit();
-	}
-
-	// 压入顶点，返回顶点索引
-	void pushVertex(const vertex_t& pt) {
-		vtx_.push_back(pt);
-	}
-
-	void pushVertex(vertex_element_t x, vertex_element_t y, vertex_element_t z) {
-		vtx_.emplace_back(x, y, z);
+	vertex_t* newVertex(unsigned extra) {
+		vtx_.resize(vtx_.size() + extra);
+		return vtx_.data() + vtx_.size() - extra;
 	}
 
 	unsigned vertexCount() const {
@@ -46,8 +35,13 @@ public:
 	}
 
 
-	void pushIndex(index_t idx) {
-		idx_.push_back(idx);
+	bool hasIndex() const {
+		return !idx.empty();
+	}
+
+	index_t* newIndex(unsigned extra) {
+		idx_.resize(idx_.size() + extra);
+		return idx_.data() + idx_.size() - extra;
 	}
 
 	unsigned indexCount() const {
@@ -65,6 +59,7 @@ public:
 	index_t* indexBuffer() {
 		return idx_.data();
 	}
+
 
 private:
 	std::vector<vertex_t> vtx_;
