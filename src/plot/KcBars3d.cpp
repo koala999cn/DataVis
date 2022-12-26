@@ -1,5 +1,6 @@
 #include "KcBars3d.h"
-#include "KuGeometryFactory.h"
+#include "KuPrimitiveFactory.h"
+#include "KtGeometryImpl.h"
 #include "KvData.h"
 
 
@@ -21,6 +22,14 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 
 	bool drawFill = fill_.style != KpBrush::k_none && majorColor(0).a() != 0;
 	bool drawBorder = border_.style != KpPen::k_none && minorColor().a() != 0 && minorColor() != majorColor(0);
+
+	struct KpVtxBuffer_
+	{
+		point3f pos;
+		point3f normal;
+	};
+
+	auto gemo = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_triangles);
 
 	for (unsigned i = 0; i < count; i++) {
 		auto pt0 = getter(i);

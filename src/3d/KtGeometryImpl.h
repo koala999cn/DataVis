@@ -1,13 +1,16 @@
 #pragma once
 #include <vector>
+#include "KvGeometry.h"
 
 
 template<typename VTX_TYPE, typename IDX_TYPE>
-class KtGeometry
+class KtGeometryImpl : public KvGeometry
 {
 public:
 	using vertex_t = VTX_TYPE;
 	using index_t = IDX_TYPE;
+
+	KtGeometryImpl(KePrimitiveType type) : type_(type) {}
 
 	void reserve(unsigned vxtCount, unsigned idxCount) {
 		vtx_.reserve(vxtCount), idx_.reserve(idxCount);
@@ -18,7 +21,7 @@ public:
 		return vtx_.data() + vtx_.size() - extra;
 	}
 
-	unsigned vertexCount() const {
+	unsigned vertexCount() const override {
 		return vtx_.size();
 	}
 
@@ -26,7 +29,7 @@ public:
 		return vtx_.at(idx);
 	}
 
-	const vertex_t* vertexBuffer() const {
+	void* vertexBuffer() const override {
 		return vtx_.data();
 	}
 
@@ -44,7 +47,7 @@ public:
 		return idx_.data() + idx_.size() - extra;
 	}
 
-	unsigned indexCount() const {
+	unsigned indexCount() const override {
 		return idx_.size();
 	}
 
@@ -52,7 +55,7 @@ public:
 		return idx_.at(idx);
 	}
 
-	index_t* indexBuffer() const {
+	void* indexBuffer() const override {
 		return idx_.data();
 	}
 
@@ -61,7 +64,12 @@ public:
 	}
 
 
+	KePrimitiveType type() const override { returnt type_; }
+
+	unsigned indexSize() const override { return sizeof(index_t); }
+
 private:
+	KePrimitiveType type_;
 	std::vector<vertex_t> vtx_;
 	std::vector<index_t> idx_;
 };

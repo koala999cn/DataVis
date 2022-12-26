@@ -258,7 +258,7 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
 	if (!rl.texts.empty()) {
-		auto obj = new KcRenderObject(KcRenderObject::k_quads, 
+		auto obj = new KcRenderObject(k_quads, 
 			KsShaderManager::singleton().programColorUV());
 
 		auto decl = std::make_shared<KcVertexDeclaration>();

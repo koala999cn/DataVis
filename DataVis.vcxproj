@@ -52,7 +52,7 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;$(SolutionDir)src/3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -67,7 +67,7 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;$(SolutionDir)src/3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -256,29 +256,33 @@
     <ClInclude Include="3rdparty\imgui\misc\cpp\imgui_stdlib.h" />
     <ClInclude Include="3rdparty\imnodes\imnodes.h" />
     <ClInclude Include="3rdparty\imnodes\imnodes_internal.h" />
+    <ClInclude Include="src\3d\KePrimitiveType.h" />
+    <ClInclude Include="src\3d\KtAABB.h" />
+    <ClInclude Include="src\3d\KtGeometryImpl.h" />
+    <ClInclude Include="src\3d\KtLine.h" />
+    <ClInclude Include="src\3d\KtLineS2d.h" />
+    <ClInclude Include="src\3d\KtMatrix3.h" />
+    <ClInclude Include="src\3d\KtMatrix4.h" />
+    <ClInclude Include="src\3d\KtPlane.h" />
+    <ClInclude Include="src\3d\KtPoint.h" />
+    <ClInclude Include="src\3d\KtProjector3d.h" />
+    <ClInclude Include="src\3d\KtQuaternion.h" />
+    <ClInclude Include="src\3d\KtTrackballController.h" />
+    <ClInclude Include="src\3d\KtVector3.h" />
+    <ClInclude Include="src\3d\KtVector4.h" />
+    <ClInclude Include="src\3d\KuPrimitiveFactory.h" />
+    <ClInclude Include="src\3d\KvGeometry.h" />
     <ClInclude Include="src\audio\KcAudio.h" />
     <ClInclude Include="src\audio\KcAudioDevice.h" />
     <ClInclude Include="src\audio\KcAudioRender.h" />
     <ClInclude Include="src\audio\KgAudioFile.h" />
     <ClInclude Include="src\base\KtHolder.h" />
     <ClInclude Include="src\base\bimap.h" />
-    <ClInclude Include="src\base\KtProjector3d.h" />
-    <ClInclude Include="src\base\KtAABB.h" />
     <ClInclude Include="src\base\KtArray.h" />
-    <ClInclude Include="src\base\KtLine.h" />
-    <ClInclude Include="src\base\KtLineS2d.h" />
-    <ClInclude Include="src\base\KtMatrix3.h" />
-    <ClInclude Include="src\base\KtMatrix4.h" />
     <ClInclude Include="src\base\KtObservable.h" />
-    <ClInclude Include="src\base\KtPlane.h" />
-    <ClInclude Include="src\base\KtPoint.h" />
-    <ClInclude Include="src\base\KtQuaternion.h" />
     <ClInclude Include="src\base\KtSingleton.h" />
-    <ClInclude Include="src\base\KtTrackballController.h" />
     <ClInclude Include="src\base\KtUId.h" />
     <ClInclude Include="src\base\KtuMath.h" />
-    <ClInclude Include="src\base\KtVector3.h" />
-    <ClInclude Include="src\base\KtVector4.h" />
     <ClInclude Include="src\base\KuFileUtil.h" />
     <ClInclude Include="src\base\KuLex.h" />
     <ClInclude Include="src\base\KuPathUtil.h" />
@@ -370,6 +374,7 @@
     <ClInclude Include="src\opengl\KcVertexDeclaration.h" />
     <ClInclude Include="src\opengl\KcVertexAttribute.h" />
     <ClInclude Include="src\opengl\KsShaderManager.h" />
+    <ClInclude Include="src\opengl\KvVertexBuffer.h" />
     <ClInclude Include="src\op\KcOpFbank.h" />
     <ClInclude Include="src\op\KcOpFIR.h" />
     <ClInclude Include="src\op\KcOpFraming.h" />
@@ -395,14 +400,12 @@
     <ClInclude Include="src\plot\KcColorMap.h" />
     <ClInclude Include="src\plot\KcLineFilled.h" />
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
-    <ClInclude Include="src\plot\KtGeometry.h" />
     <ClInclude Include="src\plot\KtGradient.h" />
     <ClInclude Include="src\plot\KpContext.h" />
     <ClInclude Include="src\plot\KsThemeManager.h" />
     <ClInclude Include="src\plot\KtColor.h" />
     <ClInclude Include="src\plot\KtMargins.h" />
     <ClInclude Include="src\plot\KuColorUtil.h" />
-    <ClInclude Include="src\plot\KuPrimitiveFactory.h" />
     <ClInclude Include="src\plot\KuThemeParser.h" />
     <ClInclude Include="src\plot\KvCoord.h" />
     <ClInclude Include="src\plot\KvPaint.h" />

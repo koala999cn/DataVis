@@ -10,7 +10,7 @@ class KcLineObject : public KcRenderObject
 
 public:
 
-	KcLineObject(KeType type = k_line_strip);
+	KcLineObject(KePrimitiveType type = k_line_strip);
 
 	void setColor(const float4& clr) {
 		lineColor_ = clr;
