@@ -3,7 +3,8 @@
 #include <functional>
 #include "KvRenderable.h"
 #include "KpContext.h"
-#include "KtGeometry.h"
+#include "KvGeometry.h"
+#include "KcVertexDeclaration.h"
 #include "KtMatrix4.h"
 #include "KtQuaternion.h"
 
@@ -21,7 +22,8 @@ public:
 	using point4 = KtPoint<float_t, 4>;
 	using mat4 = KtMatrix4<float_t>;
 	using point_getter = std::function<point3(unsigned)>;
-	using geom_ptr = std::shared_ptr<KtGeometry<float_t, unsigned>>;
+	using geom_ptr = std::shared_ptr<KvGeometry>;
+	using vtx_decl_ptr = std::shared_ptr<KcVertexDeclaration>;
 
 	virtual void beginPaint() = 0;
 	virtual void endPaint() = 0;
@@ -113,7 +115,7 @@ public:
 	// @anchor: 文本框的锚点。文本框按align方式对齐于anchor
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
 
-	virtual void drawGeom(geom_ptr geom) = 0;
+	virtual void drawGeom(vtx_decl_ptr decl, geom_ptr geom) = 0;
 
 
 	// 一些尺寸计算函数

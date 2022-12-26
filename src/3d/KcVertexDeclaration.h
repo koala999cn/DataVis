@@ -22,12 +22,14 @@ public:
 
 	unsigned attributeCount() const { return attrs_.size(); }
 
-	unsigned calcVertexSize() const; // 计算输入布局所占字节的大小
+	unsigned vertexSize() const; // 计算输入布局所占字节的大小
 
 	bool hasSemantic(KcVertexAttribute::KeSemantic semantic) const;
 
 	// 顶点元素中是否含有颜色值
 	bool hasColor() const;
+
+	bool hasNormal() const;
 
 	// 顶点元素中纹理坐标元素的数目
 	unsigned texCoordCount() const;

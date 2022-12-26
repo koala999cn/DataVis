@@ -8,6 +8,7 @@
 class KuPrimitiveFactory
 {
 public:
+
 	using point3 = std::array<double, 3>;
 
 	enum KeType
@@ -21,7 +22,7 @@ public:
 	};
 
 
-	template<int type, typename T = float, bool CCW = false>
+	template<int TYPE, typename T = float, bool CCW = false>
 	static int makeBox(const point3& lower, const point3& upper, void* obuf, unsigned stride = 0);
 
 
@@ -44,8 +45,10 @@ int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* 
 	 6-----7
 	*/
 
+	const T* MESH_IDX;
+
 	if constexpr (CCW) {
-		static constexpr T MESH_IDX[] = {
+		static constexpr T MESH_IDX_[] = {
 			3, 0, 1, 1, 2, 3,
 			7, 6, 0, 0, 3, 7,
 			4, 5, 6, 6, 7, 4,
@@ -53,9 +56,10 @@ int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* 
 			7, 3, 2, 2, 4, 7,
 			0, 6, 5, 5, 1, 0
 		};
+		MESH_IDX = MESH_IDX_;
 	}
 	else {
-		static constexpr T MESH_IDX[] = {
+		static constexpr T MESH_IDX_[] = {
 			1, 0, 3, 3, 2, 1,
 			0, 6, 7, 7, 3, 0,
 			6, 5, 4, 4, 7, 6,
@@ -63,6 +67,7 @@ int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* 
 			2, 3, 7, 7, 4, 2,
 			5, 6, 0, 0, 1, 5
 		};
+		MESH_IDX = MESH_IDX_;
 	}
 
 	static constexpr T EDGE_IDX[] = {
@@ -75,9 +80,9 @@ int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* 
 		assert(stride == 0 || stride == sizeof(T));
 
 		if (obuf)
-			std::copy(std::cbegin(MESH_IDX), std::cend(MESH_IDX), (T*)obuf);
+			std::copy(MESH_IDX, MESH_IDX + 36, (T*)obuf);
 
-		return std::size(MESH_IDX);
+		return 36;
 	}
 	else if constexpr (TYPE == k_edge_index) {
 		assert(stride == 0 || stride == sizeof(T));
@@ -89,12 +94,13 @@ int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* 
 	}
 	else {
 		if (obuf == nullptr)
-			return corns.size();
+			return 8;
 
 		char* buf = (char*)obuf;
 
-		if constexpr (type == k_position) {
-			auto aabb = KtAABB<T, 3>(lower, upper);
+		if constexpr (TYPE == k_position) {
+			auto aabb = KtAABB<T>(KtPoint<T, 3>(lower[0], lower[1], lower[2]), 
+				KtPoint<T, 3>(upper[0], upper[1], upper[2]));
 			auto corns = aabb.allCorners();
 			constexpr int point_size = sizeof(T) * 3;
 			assert(sizeof(corns[0]) == point_size);
@@ -109,7 +115,8 @@ int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* 
 			}
 		}
 		else if constexpr (TYPE == k_normal) {
-			auto aabb = KtAABB<T, 3>(lower, upper);
+			auto aabb = KtAABB<T, 3>(KtPoint<T, 3>(lower[0], lower[1], lower[2]),
+				KtPoint<T, 3>(upper[0], upper[1], upper[2]));
 			auto corns = aabb.allCorners();
 			constexpr int point_size = sizeof(T) * 3;
 			assert(sizeof(corns[0]) == point_size);
@@ -127,13 +134,13 @@ int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* 
 				buf += stride;
 			}
 		}
-		else if consteval (TYPE == k_texcoord) {
+		else if constexpr (TYPE == k_texcoord) {
 			static_assert(false, "TODO");
 		}
 		else {
 			static_assert(false, "unknown type");
 		}
 
-		return corns.size();
+		return 8;
 	}
 }

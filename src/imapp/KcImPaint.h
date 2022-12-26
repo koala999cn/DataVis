@@ -63,7 +63,7 @@ public:
 
 	void drawText(const point3& anchor, const char* text, int align) override;
 
-	void drawGeom(geom_ptr geom) override;
+	//void drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 
 	point2 textSize(const char* text) const override;
 

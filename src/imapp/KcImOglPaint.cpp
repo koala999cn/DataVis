@@ -2,12 +2,13 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "glad.h"
+#include "KcVertexDeclaration.h"
 #include "opengl/KcGlslProgram.h"
 #include "opengl/KcGlslShader.h"
 #include "opengl/KcGpuBuffer.h"
-#include "opengl/KcVertexDeclaration.h"
 #include "opengl/KcPointObject.h"
 #include "opengl/KcLineObject.h"
+#include "opengl/KcLightenObject.h"
 #include "opengl/KsShaderManager.h"
 
 
@@ -118,7 +119,7 @@ void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
 		vtx.push_back(fn(i));
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
-	obj->setVbo(vbo, decl);
+	obj->setVBO(vbo, decl);
 	obj->setColor(clr_);
 	obj->setSize(pointSize_);
 	obj->setProjMatrix(camera_.getMvpMat());
@@ -157,7 +158,7 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 
 void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 {
-	auto obj = new KcLineObject(KcRenderObject::k_line_strip);
+	auto obj = new KcLineObject(k_line_strip);
 
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -168,7 +169,7 @@ void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 		vtx.push_back(fn(i));
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
-	obj->setVbo(vbo, decl);
+	obj->setVBO(vbo, decl);
 	obj->setColor(clr_);
 	obj->setWidth(lineWidth_);
 	obj->setProjMatrix(camera_.getMvpMat());
@@ -258,22 +259,56 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
 	if (!rl.texts.empty()) {
-		auto obj = new KcRenderObject(k_quads, 
-			KsShaderManager::singleton().programColorUV());
+		auto obj = new KcRenderObject(k_quads);
+		obj->setShader(KsShaderManager::singleton().programColorUV());
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 		decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_texcoord);
 		decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
-		assert(decl->calcVertexSize() == sizeof(rl.texts[0]));
+		assert(decl->vertexSize() == sizeof(rl.texts[0]));
 
 		auto vbo = std::make_shared<KcGpuBuffer>();
 		vbo->setData(rl.texts.data(), rl.texts.size() * sizeof(rl.texts[0]), KcGpuBuffer::k_stream_draw);
 
-		obj->setVbo(vbo, decl);
+		obj->setVBO(vbo, decl);
 		obj->setProjMatrix(float4x4<>::identity());
 		rl.objs.emplace_back(obj);
 	}
+}
+
+
+void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
+{
+	assert(geom->vertexSize() == decl->vertexSize());
+
+	bool hasNormal = decl->hasNormal();
+
+	KcRenderObject* obj = hasNormal ? new KcLightenObject(geom->type()) : new KcRenderObject(geom->type());
+
+	if (hasNormal) {
+		//((KcLightenObject*)obj)->setNormalMatrix(camera_.getNormalMatrix());
+		((KcLightenObject*)obj)->setNormalMatrix(mat4::identity());
+	}
+
+	auto vbo = std::make_shared<KcGpuBuffer>();
+	vbo->setData(geom->vertexData(), geom->vertexCount() * geom->vertexSize(), KcGpuBuffer::k_stream_draw);
+
+	obj->setVBO(vbo, decl);
+	if (geom->indexCount() > 0) {
+		auto ibo = std::make_shared<KcGpuBuffer>(KcGpuBuffer::k_index_buffer);
+		ibo->setData(geom->indexData(), geom->indexCount() * geom->indexSize(), KcGpuBuffer::k_stream_draw);
+		obj->setIBO(ibo, geom->indexCount());
+	}
+
+	obj->setColor(clr_);
+	obj->setProjMatrix(camera_.getMvpMat());
+	if (curClipBox_ != -1) {
+		auto& box = clipBoxHistList_[curClipBox_];
+		obj->setClipBox({ box.lower(), box.upper() });
+	}
+
+	currentRenderList().objs.emplace_back(obj);
 }
 
 

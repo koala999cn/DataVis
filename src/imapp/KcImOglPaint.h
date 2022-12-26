@@ -47,6 +47,9 @@ public:
 
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
+	void drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
+
+
 	// 内部函数，由ImGui回调，以绘制renderList_保存的渲染对象
 	void drawRenderList_();
 

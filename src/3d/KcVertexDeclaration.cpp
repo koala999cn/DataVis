@@ -5,7 +5,7 @@
 
 void KcVertexDeclaration::pushAttribute(KcVertexAttribute::KeFormat fmt, KcVertexAttribute::KeSemantic semantic, unsigned semanticIndex)
 {
-	pushAttribute(KcVertexAttribute(attributeCount(), fmt, calcVertexSize(), 
+	pushAttribute(KcVertexAttribute(attributeCount(), fmt, vertexSize(), 
 		semantic, semanticIndex)); // TODO: semanticIndex也可以推算出来
 }
 
@@ -22,7 +22,7 @@ const KcVertexAttribute* KcVertexDeclaration::findAttribute(KcVertexAttribute::K
 }
 
 
-unsigned KcVertexDeclaration::calcVertexSize() const
+unsigned KcVertexDeclaration::vertexSize() const
 {
 	unsigned s(0);
 	for (unsigned i = 0; i < attributeCount(); i++)
@@ -54,6 +54,17 @@ bool KcVertexDeclaration::hasColor() const
 }
 
 
+bool KcVertexDeclaration::hasNormal() const
+{
+	for (unsigned i = 0; i < attributeCount(); i++) {
+		if (getAttribute(i).semantic() == KcVertexAttribute::k_normal)
+			return true;
+	}
+
+	return false;
+}
+
+
 unsigned KcVertexDeclaration::texCoordCount() const
 {
 	unsigned c(0);
@@ -68,7 +79,7 @@ unsigned KcVertexDeclaration::texCoordCount() const
 
 void KcVertexDeclaration::declare() const
 {
-	auto stride = calcVertexSize(); // 这个很重要，调试了一晚上才发现。TODO：下一步可优化，避免每次都计算
+	auto stride = vertexSize(); // 这个很重要，调试了一晚上才发现。TODO：下一步可优化，避免每次都计算
 
 	for (unsigned i = 0; i < attributeCount(); i++) {
 		auto& attr = getAttribute(i);
@@ -85,6 +96,6 @@ void KcVertexDeclaration::declare() const
 		}
 
 		glVertexAttribPointer(attr.location(), attr.componentCount(), type, 
-			attr.normalized() ? GL_TRUE : GL_FALSE, stride, (void*)attr.offset());
+			attr.normalized() ? GL_TRUE : GL_FALSE, stride, ((char*)0) + attr.offset());
 	}
 }

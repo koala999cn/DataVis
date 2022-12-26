@@ -21,11 +21,16 @@ public:
 	using program_ptr = std::shared_ptr<KcGlslProgram>;
 
 	// attr = pos
-	// uniform = color
+	// uniform = matMvp + vColor
 	shader_ptr vertexShaderMono();
 
 	// attr = pos + uv + color
+	// uniform = matMvp
 	shader_ptr vertexShaderColorUV();
+
+	// attr = pos + normal
+	// uniform = matMvp + matNormal + vColor
+	shader_ptr vertexShaderMonoLight();
 
 	// out-color = in-color
 	shader_ptr fragShaderNaive();
@@ -39,6 +44,8 @@ public:
 	// vertexShaderColorUV_ + fragShaderColorUV_
 	program_ptr programColorUV();
 
+	// vertexShaderMonoLight_ + fragShaderNaive_
+	program_ptr programMonoLight();
 
 private:
 	KsShaderManager();
@@ -52,9 +59,11 @@ private:
 	
 	shader_ptr vertexShaderMono_;
 	shader_ptr vertexShaderColorUV_;
+	shader_ptr vertexShaderMonoLight_;
 	shader_ptr fragShaderNaive_;
 	shader_ptr fragShaderColorUV_;
 
 	program_ptr progMono_; 
 	program_ptr progColorUV_; 
+	program_ptr progMonoLight_;
 };

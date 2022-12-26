@@ -7,7 +7,7 @@
 KcGlslShader::KcGlslShader(KeType type, const std::string_view& path_or_source)
     : type_(type)
 {
-	if (KuPathUtil::exist(path_or_source)) {
+	if (KuPathUtil::isLegalFileName(path_or_source.data()) && KuPathUtil::exist(path_or_source)) {
         path_ = path_or_source;
         source_ = KuFileUtil::readAsString(path_);
 	}

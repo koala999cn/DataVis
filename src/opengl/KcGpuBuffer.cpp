@@ -3,6 +3,20 @@
 #include "glad.h"
 
 
+namespace kPrivate
+{
+    GLenum oglBufferType(KcGpuBuffer::KeType type)
+    {
+        constexpr static GLenum oglType[] = {
+            GL_ARRAY_BUFFER,
+            GL_ELEMENT_ARRAY_BUFFER
+        };
+
+        return oglType[type];
+    }
+}
+
+
 void KcGpuBuffer::create_()
 {
     if (handle() == 0) {
@@ -25,13 +39,13 @@ void KcGpuBuffer::destroy()
 
 void KcGpuBuffer::bind() const
 {
-    glBindBuffer(GL_ARRAY_BUFFER, handle());
+    bind_(handle());
 }
 
 
 void KcGpuBuffer::setData(const void* data, unsigned bytes, KeUsage usage)
 {
-    const static GLenum glUsages[] = {
+    constexpr static GLenum glUsages[] = {
         GL_STREAM_DRAW,  
         GL_STREAM_READ,   
         GL_STREAM_COPY,   
@@ -45,15 +59,14 @@ void KcGpuBuffer::setData(const void* data, unsigned bytes, KeUsage usage)
 
     create_();
 
-    // we use the GL_ARRAY_BUFFER slot to send the data for no special reason
-    GLuint last_array_buffer; 
-    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, (GLint*)&last_array_buffer);
+   auto lastBinding = binding_();
 
-    glBindBuffer(GL_ARRAY_BUFFER, handle()); 
-    glBufferData(GL_ARRAY_BUFFER, bytes, data, glUsages[usage]);
+   bind();
 
-    if (last_array_buffer != handle())
-        glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer); // TODO: 是否这种恢复模式？
+    glBufferData(kPrivate::oglBufferType(type_), bytes, data, glUsages[usage]);
+
+    if (lastBinding != handle())
+        bind_(lastBinding); // TODO: 是否这种恢复模式？
 
     bytes_ = bytes;
     usage_ = usage;
@@ -65,20 +78,20 @@ void KcGpuBuffer::setSubData(const void* data, unsigned bytes, int offset)
     assert(handle() && data);
     assert(bytes + offset <= bytesCount());
 
-    GLuint last_array_buffer;
-    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, (GLint*)&last_array_buffer);
+    auto lastBinding = binding_();
 
-    glBindBuffer(GL_ARRAY_BUFFER, handle()); 
-    glBufferSubData(GL_ARRAY_BUFFER, offset, bytes, data); 
+    bind();
 
-    if (last_array_buffer != handle())
-        glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+    glBufferSubData(kPrivate::oglBufferType(type_), offset, bytes, data); 
+
+    if (lastBinding != handle())
+        bind_(lastBinding); 
 }
 
 
 void* KcGpuBuffer::map(KeAccess access)
 {
-    const static GLenum glAccess[] = {
+    constexpr static GLenum glAccess[] = {
         GL_READ_ONLY,
         GL_WRITE_ONLY,
         GL_READ_WRITE
@@ -86,14 +99,14 @@ void* KcGpuBuffer::map(KeAccess access)
 
     create_();
 
-    GLuint last_array_buffer;
-    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, (GLint*)&last_array_buffer);
+    auto lastBinding = binding_();
 
-    glBindBuffer(GL_ARRAY_BUFFER, handle()); 
-    void* ptr = glMapBuffer(GL_ARRAY_BUFFER, glAccess[access]);
+    bind();
 
-    if (last_array_buffer != handle())
-        glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+    void* ptr = glMapBuffer(kPrivate::oglBufferType(type_), glAccess[access]);
+
+    if (lastBinding != handle())
+        bind_(lastBinding);
 
     return ptr;
 }
@@ -103,15 +116,34 @@ bool KcGpuBuffer::unmap()
 {
     assert(handle());
 
-    GLuint last_array_buffer;
-    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, (GLint*)&last_array_buffer);
+    auto lastBinding = binding_();
 
-    glBindBuffer(GL_ARRAY_BUFFER, handle());
+    bind();
 
-    bool ok = glUnmapBuffer(GL_ARRAY_BUFFER) == GL_TRUE;
+    bool ok = glUnmapBuffer(kPrivate::oglBufferType(type_)) == GL_TRUE;
 
-    if (last_array_buffer != handle())
-        glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+    if (lastBinding != handle())
+        bind_(lastBinding);
 
     return true;
+}
+
+
+unsigned int KcGpuBuffer::binding_() const
+{
+    constexpr static GLenum bindingFlag[] = {
+        GL_ARRAY_BUFFER_BINDING,
+        GL_ELEMENT_ARRAY_BUFFER_BINDING
+    };
+
+    GLuint last_binding;
+    glGetIntegerv(bindingFlag[type_], (GLint*)&last_binding);
+
+    return last_binding;
+}
+
+
+void KcGpuBuffer::bind_(unsigned int id) const
+{
+    glBindBuffer(kPrivate::oglBufferType(type_), id);
 }

@@ -29,11 +29,11 @@ public:
 		return vtx_.at(idx);
 	}
 
-	void* vertexBuffer() const override {
-		return vtx_.data();
+	void* vertexData() const override {
+		return const_cast<vertex_t*>(vtx_.data());
 	}
 
-	vertex_t* vertexBuffer() {
+	vertex_t* vertexData() {
 		return vtx_.data();
 	}
 
@@ -55,16 +55,18 @@ public:
 		return idx_.at(idx);
 	}
 
-	void* indexBuffer() const override {
+	void* indexData() const override {
+		return const_cast<index_t*>(idx_.data());
+	}
+
+	index_t* indexData() {
 		return idx_.data();
 	}
 
-	index_t* indexBuffer() {
-		return idx_.data();
-	}
 
+	KePrimitiveType type() const override { return type_; }
 
-	KePrimitiveType type() const override { returnt type_; }
+	unsigned vertexSize() const override { return sizeof(vertex_t); }
 
 	unsigned indexSize() const override { return sizeof(index_t); }
 

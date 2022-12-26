@@ -439,12 +439,6 @@
     <ClCompile Include="src\opengl\KcGpuBuffer.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
-    <ClCompile Include="src\opengl\KcVertexDeclaration.cpp">
-      <Filter>opengl</Filter>
-    </ClCompile>
-    <ClCompile Include="src\opengl\KcVertexAttribute.cpp">
-      <Filter>opengl</Filter>
-    </ClCompile>
     <ClCompile Include="src\opengl\KcRenderObject.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
@@ -455,6 +449,15 @@
       <Filter>opengl</Filter>
     </ClCompile>
     <ClCompile Include="src\opengl\KcPointObject.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3d\KcVertexAttribute.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3d\KcVertexDeclaration.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcLightenObject.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
   </ItemGroup>
@@ -972,12 +975,6 @@
     <ClInclude Include="src\opengl\KcGpuBuffer.h">
       <Filter>opengl</Filter>
     </ClInclude>
-    <ClInclude Include="src\opengl\KcVertexDeclaration.h">
-      <Filter>opengl</Filter>
-    </ClInclude>
-    <ClInclude Include="src\opengl\KcVertexAttribute.h">
-      <Filter>opengl</Filter>
-    </ClInclude>
     <ClInclude Include="src\opengl\KcRenderObject.h">
       <Filter>opengl</Filter>
     </ClInclude>
@@ -1040,6 +1037,15 @@
     </ClInclude>
     <ClInclude Include="src\3d\KtVector4.h">
       <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KcVertexAttribute.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KcVertexDeclaration.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcLightenObject.h">
+      <Filter>opengl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

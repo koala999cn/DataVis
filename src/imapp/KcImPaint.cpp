@@ -323,8 +323,8 @@ void KcImPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
 	drawList->PrimUnreserve(0, noninters);
 }
 
-
-void KcImPaint::drawGeom(geom_ptr geom)
+#if 0
+void KcImPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	drawList->PrimReserve(geom->indexCount(), geom->vertexCount());
@@ -341,7 +341,7 @@ void KcImPaint::drawGeom(geom_ptr geom)
 	for (unsigned i = 0; i < geom->indexCount(); i++)
 		drawList->PrimWriteIdx(geom->indexAt(i) + vtxIdx0);
 }
-
+#endif
 
 void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 {

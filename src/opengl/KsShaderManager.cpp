@@ -19,16 +19,16 @@ KsShaderManager::~KsShaderManager()
 KsShaderManager::shader_ptr KsShaderManager::vertexShaderMono()
 {
 	const static char* vertex_shader_mono =
-		"uniform mat4 mvpMat;\n"
+		"uniform mat4 matMvp;\n"
+		"uniform vec4 vColor;\n"
 		"uniform int  iEnableClip;\n"
 		"uniform vec3 vClipLower;\n"
-		"uniform vec3 vClipUpper;\n"
-		"uniform vec4 vColor;\n"
+		"uniform vec3 vClipUpper;\n"	
 		"in vec3 iPosition;\n"
 		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_Position = mvpMat * vec4(iPosition, 1);\n"
+		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
 		"    Frag_Color = vColor;\n"
 		"    if (iEnableClip != 0)\n"
 	    "    {\n"
@@ -53,7 +53,7 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderMono()
 KsShaderManager::shader_ptr KsShaderManager::vertexShaderColorUV()
 {
 	const static char* vertex_shader_color_uv =
-		"uniform mat4 mvpMat;\n"
+		"uniform mat4 matMvp;\n"
 		"layout (location = 0) in vec3 iPosition;\n"
 		"layout (location = 1) in vec2 iUV;\n"
 		"layout (location = 2) in vec4 iColor;\n"
@@ -61,7 +61,7 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderColorUV()
 		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_Position = mvpMat * vec4(iPosition, 1);\n"
+		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
 		"    Frag_UV = iUV;\n"
 		"    Frag_Color = iColor;\n"
 		"}\n";
@@ -72,6 +72,47 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderColorUV()
 	}
 
 	return vertexShaderColorUV_;
+}
+
+
+KsShaderManager::shader_ptr KsShaderManager::vertexShaderMonoLight()
+{
+	const static char* vertex_shader_mono_light =
+		"uniform mat4 matMvp;\n"
+		"uniform mat4 matNormal;\n"
+		"uniform vec4 vColor;\n"
+		"uniform int  iEnableClip;\n"
+		"uniform vec3 vClipLower;\n"
+		"uniform vec3 vClipUpper;\n"
+		"in vec3 iPosition;\n"
+		"in vec3 iNormal;\n"
+		"out vec4 Frag_Color;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
+		"    vec3 vNorm = normalize(matNormal * vec4(iNormal, 0)).xyz;\n"
+		"    vec3 vLightDir = vec3(1.0, 1.0, 1.0);\n"
+		"    float fDot = max(0.0, dot(vNorm, vLightDir));\n"
+		"    Frag_Color.rgb = vColor.rgb * fDot;\n"
+		"    Frag_Color.a = vColor.a;\n"
+		"    if (iEnableClip != 0)\n"
+		"    {\n"
+		"        gl_ClipDistance[0] = iPosition.x - vClipLower.x;\n"
+		"        gl_ClipDistance[1] = iPosition.y - vClipLower.y;\n"
+		"        gl_ClipDistance[2] = iPosition.z - vClipLower.z;\n"
+		"        gl_ClipDistance[3] = vClipUpper.x - iPosition.x;\n"
+		"        gl_ClipDistance[4] = vClipUpper.y - iPosition.y;\n"
+		"        gl_ClipDistance[5] = vClipUpper.z - iPosition.z;\n"
+		"    }\n"
+		"}\n";
+
+	if (vertexShaderMonoLight_ == nullptr) {
+		vertexShaderMonoLight_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_mono_light);
+		auto log = vertexShaderMonoLight_->infoLog();
+		assert(vertexShaderMonoLight_->compileStatus());
+	}
+
+	return vertexShaderMonoLight_;
 }
 
 
@@ -138,4 +179,19 @@ KsShaderManager::program_ptr KsShaderManager::programColorUV()
 	}
 
 	return progColorUV_;
+}
+
+
+KsShaderManager::program_ptr KsShaderManager::programMonoLight()
+{
+	if (progMonoLight_ == nullptr) {
+		progMonoLight_ = std::make_shared<KcGlslProgram>();
+		progMonoLight_->attachShader(vertexShaderMonoLight());
+		progMonoLight_->attachShader(fragShaderNaive());
+		progMonoLight_->link();
+		auto info = progMonoLight_->infoLog();
+		assert(progMonoLight_->linked() && progMonoLight_->linkStatus());
+	}
+
+	return progMonoLight_;
 }

@@ -7,9 +7,15 @@ class KcGpuBuffer
 {
 public:
 
-    ~KcGpuBuffer() {
-        destroy();
-    }
+    enum KeType
+    {
+        k_vertex_buffer, // vbo
+        k_index_buffer // ibo
+    };
+
+    KcGpuBuffer(KeType type = k_vertex_buffer) : type_(type) {}
+
+    ~KcGpuBuffer() { destroy(); }
 
     unsigned int handle() const { return handle_; }
 
@@ -71,8 +77,12 @@ private:
 
     void create_();
 
-private:
+    unsigned int binding_() const;
 
+    void bind_(unsigned int id) const;
+
+private:
+    KeType type_;
     unsigned int handle_{ 0 };
     unsigned bytes_{ 0 };
     KeUsage usage_{ k_static_draw };
