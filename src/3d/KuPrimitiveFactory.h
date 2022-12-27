@@ -26,6 +26,17 @@ public:
 	static int makeBox(const point3& lower, const point3& upper, void* obuf, unsigned stride = 0);
 
 
+	// 生成grid的quads索引
+	// 
+	// grid由nx*ny个顶点构成，顶点排列存储顺序如下：
+	// 0,  1,      ..., ny-1,
+	// ny, ny + 1, ..., 2*ny-1,
+	// ...
+	// (nx-1)*ny, ..., nx*ny-1
+	//
+	template<typename IDX_TYPE = unsigned, bool CCW = false>
+	static int makeIndexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf);
+
 private:
 	KuPrimitiveFactory() = delete;
 };
@@ -143,4 +154,33 @@ int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* 
 
 		return 8;
 	}
+}
+
+
+template<typename IDX_TYPE, bool CCW>
+int KuPrimitiveFactory::makeIndexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf)
+{
+	int count = (nx - 1) * (ny - 1) * 4; // 构成grid的quads数量
+
+	if (obuf) {
+		for(unsigned i = 1; i < nx; i++)
+			for (unsigned j = 1; j < ny; j++) {
+
+				if constexpr (!CCW) {
+					*obuf++ = static_cast<IDX_TYPE>((i - 1) * ny + (j - 1));
+					*obuf++ = static_cast<IDX_TYPE>((i - 1) * ny + j);
+					*obuf++ = static_cast<IDX_TYPE>(i * ny + j);
+					*obuf++ = static_cast<IDX_TYPE>(i * ny + (j - 1));
+				}
+				else {
+					*obuf++ = static_cast<IDX_TYPE>((i - 1) * ny + (j - 1));
+					*obuf++ = static_cast<IDX_TYPE>(i * ny + (j - 1));
+					*obuf++ = static_cast<IDX_TYPE>(i * ny + j);
+					*obuf++ = static_cast<IDX_TYPE>((i - 1) * ny + j);	
+				}
+
+			}
+	}
+
+	return count;
 }

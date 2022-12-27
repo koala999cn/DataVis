@@ -460,6 +460,9 @@
     <ClCompile Include="src\opengl\KcLightenObject.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcSurface.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1046,6 +1049,9 @@
     </ClInclude>
     <ClInclude Include="src\opengl\KcLightenObject.h">
       <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcSurface.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

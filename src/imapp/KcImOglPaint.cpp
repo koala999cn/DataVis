@@ -79,8 +79,6 @@ void KcImOglPaint::endPaint()
 KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 {
 	auto p = camera_.localToNdc(pt);
-
-	// opengl固定管线默认NDC是左手系，p的结果是右手系，所以需要给z值取反???
 	return { p.x(), p.y(), p.z() };
 }
 
@@ -263,7 +261,7 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
 	if (!rl.texts.empty()) {
 		auto obj = new KcRenderObject(k_quads);
-		obj->setShader(KsShaderManager::singleton().programColorUV());
+		obj->setShader(KsShaderManager::singleton().programSmoothUV());
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -286,6 +284,7 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 	assert(geom->vertexSize() == decl->vertexSize());
 
 	bool hasNormal = decl->hasNormal();
+	bool hasColor = decl->hasColor();
 
 	KcRenderObject* obj = hasNormal ? new KcLightenObject(geom->type()) : new KcRenderObject(geom->type());
 
@@ -293,8 +292,11 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 		//((KcLightenObject*)obj)->setNormalMatrix(camera_.getNormalMatrix());
 		((KcLightenObject*)obj)->setNormalMatrix(mat4::identity());
 	}
+	else if (hasColor) {
+		obj->setShader(KsShaderManager::singleton().programSmooth());
+	}
 	else {
-		obj->setShader(KsShaderManager::singleton().programMono()); // 设置缺省的shader
+		obj->setShader(KsShaderManager::singleton().programFlat()); // 设置缺省的shader
 	}
 
 	auto vbo = std::make_shared<KcGpuBuffer>();
@@ -389,7 +391,7 @@ void KcImOglPaint::drawRenderList_()
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST); // 与depthTest的初值对应
 
 	unsigned viewport(-1), clipRect(-1), clipBox(-2);
 	bool depthTest(false);

@@ -6,7 +6,7 @@
 KcLineObject::KcLineObject(KePrimitiveType type)
     : super_(type)
 {
-    prog_ = KsShaderManager::singleton().programMono();
+    prog_ = KsShaderManager::singleton().programFlat();
 }
 
 

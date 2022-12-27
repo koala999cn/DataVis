@@ -10,7 +10,7 @@ KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
 	updateSpec_();
-	valueRange_ = data->valueRange();
+	valueRange_ = data ? data->valueRange() : kRange(0, 0);
 }
 
 
