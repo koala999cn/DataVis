@@ -391,7 +391,8 @@ void KcImOglPaint::drawRenderList_()
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
 
-	unsigned viewport(-1), clipRect(-1), clipBox(-2), depthTest(false);
+	unsigned viewport(-1), clipRect(-1), clipBox(-2);
+	bool depthTest(false);
 	for (auto& rd : renderList_) {
 		auto& state = rd.first;
 		if (std::get<0>(state) != viewport) {
