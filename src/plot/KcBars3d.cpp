@@ -30,10 +30,15 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 		point3f normal;
 	};
 
-	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_triangles);
+	auto mesh = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_triangles);
 	auto vtxPerBox = 8;
-	auto idxPerBox = 36;
-	geom->reserve(vtxPerBox * count, idxPerBox * count);
+	auto idxPerBoxMesh = 36;
+	mesh->reserve(vtxPerBox * count, idxPerBoxMesh* count);
+
+	auto edge = std::make_shared<KtGeometryImpl<point3f, unsigned>>(k_lines);
+	auto idxPerBoxEdge = 24;
+	if (drawBorder)
+		edge->reserve(vtxPerBox * count, idxPerBoxEdge * count);
 
 	for (unsigned i = 0; i < count; i++) {
 		auto pt0 = getter(i);
@@ -48,28 +53,43 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 			pt1 = { pt0.x() - xw, pt0.y() - yw, baseLine_ };
 		}
 
-		unsigned idxBase = geom->vertexCount();
-		char* vtxBuf = (char*)geom->newVertex(vtxPerBox);
+		unsigned idxBase = mesh->vertexCount();
+		char* vtxBuf = (char*)mesh->newVertex(vtxPerBox);
 		KuPrimitiveFactory::makeBox<KuPrimitiveFactory::k_position, float>(pt1, pt0, vtxBuf, sizeof(KpVtxBuffer_));
 		KuPrimitiveFactory::makeBox<KuPrimitiveFactory::k_normal, float>(pt1, pt0, vtxBuf + sizeof(point3f), sizeof(KpVtxBuffer_));
 
-		auto* idxBuf = geom->newIndex(idxPerBox);
+		auto* idxBuf = mesh->newIndex(idxPerBoxMesh);
 		KuPrimitiveFactory::makeBox<KuPrimitiveFactory::k_mesh_index, unsigned>(pt1, pt0, idxBuf);
-		for (unsigned i = 0; i < idxPerBox; i++)
+		for (unsigned i = 0; i < idxPerBoxMesh; i++)
 			idxBuf[i] += idxBase;
+
+		if (drawBorder) {
+			vtxBuf = (char*)edge->newVertex(vtxPerBox);
+			KuPrimitiveFactory::makeBox<KuPrimitiveFactory::k_position, float>(pt1, pt0, vtxBuf);
+
+			idxBuf = edge->newIndex(idxPerBoxEdge);
+			KuPrimitiveFactory::makeBox<KuPrimitiveFactory::k_edge_index, unsigned>(pt1, pt0, idxBuf);
+			for (unsigned i = 0; i < idxPerBoxEdge; i++)
+				idxBuf[i] += idxBase;
+		}
 	}
 
 	if (drawFill) {
 		paint->apply(fill_);
+		paint->enableDepthTest(true);
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_normal);
-		paint->drawGeom(decl, geom);
+		paint->drawGeom(decl, mesh);
+		paint->enableDepthTest(false);
 	}
 
-	// TODO:
-	//if (drawBorder) {
-	//	paint->apply(border_);
-	//	paint->drawRect(pt0, pt1);
-	//}
+	if (drawBorder) { // TODO:
+		paint->apply(border_);
+		//paint->enableDepthTest(true);
+		auto decl = std::make_shared<KcVertexDeclaration>();
+		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+		paint->drawGeom(decl, edge);
+		//paint->enableDepthTest(false);
+	}
 }

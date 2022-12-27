@@ -34,6 +34,10 @@ public:
 	void enableClipBox(point3 lower, point3 upper) override;
 	void disableClipBox() override;
 
+	void enableDepthTest(bool b) override {
+		depthTest_ = b;
+	}
+
 	void beginPaint() override;
 	void endPaint() override;
 
@@ -61,16 +65,20 @@ private:
 
 	// render states stacks
 
-	std::vector<rect_t> viewportHistList_;
-	std::vector<rect_t> clipRectHistList_;
-	std::vector<aabb_t> clipBoxHistList_;
+	std::vector<rect_t> viewportHistList_; // 视口列表
+	std::vector<rect_t> clipRectHistList_; // 裁剪rect列表
+	std::vector<aabb_t> clipBoxHistList_; // 三维空间裁剪box列表
 
 	std::vector<unsigned> clipRectStack_;
 	unsigned curViewport_; // -1表示未设置
-	unsigned curClipBox_;
+	unsigned curClipBox_; 
+	bool depthTest_; // 启动深度测试？
 
-	// 使用tuple保存对以上3个堆栈的索引组
-	using kRenderState_ = std::tuple<unsigned, unsigned, unsigned>;
+	// [0]: viewport idx
+	// [1]: clipRect idx
+	// [2]: clipBox idx
+	// [3]: depth test
+	using kRenderState_ = std::tuple<unsigned, unsigned, unsigned, bool>;
 
 	struct KpRenderList_
 	{
@@ -81,11 +89,6 @@ private:
 
 	// 按渲染状态排序的待渲染列表
 	std::map<kRenderState_, KpRenderList_> renderList_;
-
-	//std::vector<unsigned> glLists_; // 保存用来启动clipBox的显示列表id
-	//unsigned clipBox_{ 0 }; // 保存当前的clipBox状态，对应于glLists_的索引
-	                        // 可通过glCallList(glLists_[clipBox_])启用相应的clipBox，0表示禁用
-
 
 private:
 	KpRenderList_& currentRenderList();

@@ -36,6 +36,7 @@ KcImOglPaint::KcImOglPaint(camera_type& cam)
 {
 	curViewport_ = -1;
 	curClipBox_ = -1;
+	depthTest_ = false;
 }
 
 
@@ -56,6 +57,8 @@ void KcImOglPaint::beginPaint()
 	
 	clipBoxHistList_.clear();
 	curClipBox_ = -1;
+
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	super_::beginPaint();
 }
@@ -290,6 +293,9 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 		//((KcLightenObject*)obj)->setNormalMatrix(camera_.getNormalMatrix());
 		((KcLightenObject*)obj)->setNormalMatrix(mat4::identity());
 	}
+	else {
+		obj->setShader(KsShaderManager::singleton().programMono()); // …Ë÷√»± °µƒshader
+	}
 
 	auto vbo = std::make_shared<KcGpuBuffer>();
 	vbo->setData(geom->vertexData(), geom->vertexCount() * geom->vertexSize(), KcGpuBuffer::k_stream_draw);
@@ -373,7 +379,7 @@ void KcImOglPaint::disableClipBox()
 KcImOglPaint::KpRenderList_& KcImOglPaint::currentRenderList()
 {
 	auto curClipRect = clipRectStack_.empty() ? -1 : clipRectStack_.back();
-	return renderList_[kRenderState_(curViewport_, curClipRect, curClipBox_)];
+	return renderList_[kRenderState_(curViewport_, curClipRect, curClipBox_, depthTest_)];
 }
 
 
@@ -383,8 +389,9 @@ void KcImOglPaint::drawRenderList_()
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	glDisable(GL_DEPTH_TEST);
 
-	unsigned viewport(-1), clipRect(-1), clipBox(-2);
+	unsigned viewport(-1), clipRect(-1), clipBox(-2), depthTest(false);
 	for (auto& rd : renderList_) {
 		auto& state = rd.first;
 		if (std::get<0>(state) != viewport) {
@@ -398,6 +405,14 @@ void KcImOglPaint::drawRenderList_()
 		if (std::get<2>(state) != clipBox) {
 			clipBox = std::get<2>(state);
 			glClipPlane_(clipBox);
+		}
+		if (std::get<3>(state) != depthTest) {
+			depthTest = std::get<3>(state);
+			if (depthTest) {
+				glEnable(GL_DEPTH_TEST);
+			}
+			else
+			    glDisable(GL_DEPTH_TEST);
 		}
 
 		auto& rl = rd.second;

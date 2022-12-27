@@ -54,6 +54,8 @@ public:
 	virtual void enableClipBox(point3 lower, point3 upper) = 0;
 	virtual void disableClipBox() = 0;
 
+	virtual void enableDepthTest(bool b) = 0;
+
 	// project local point/vector to screen point/vector
 	virtual point4 project(const point4& pt) const = 0;
 
