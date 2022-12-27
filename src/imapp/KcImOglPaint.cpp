@@ -10,20 +10,26 @@
 #include "opengl/KcLineObject.h"
 #include "opengl/KcLightenObject.h"
 #include "opengl/KsShaderManager.h"
+#include "plot/KpContext.h"
 
 
 namespace kPrivate
 {
-	// color和width已设置好，此处主要设置style(TODO)
-	void oglLine(int style, const KcImOglPaint::point3& from, const KcImOglPaint::point3& to)
+	static int lineStipple(int lineStyle)
 	{
-		glBegin(GL_LINES);
-		glVertex3f(from.x(), from.y(), from.z());
-		glVertex3f(to.x(), to.y(), to.z());
-		glEnd();
+		switch (lineStyle)
+		{
+		case KpPen::k_dot:   return 0xAAAA; 
+		case KpPen::k_dash:  return 0xCCCC; 
+		case KpPen::k_dash4: return 0xF0F0; 
+		case KpPen::k_dash8: return 0xFF00; 
+		case KpPen::k_dash_dot: return 0xF840; 
+		case KpPen::k_dash_dot_dot: return 0xF888; 
+		}
+		return 0xFFFF;
 	}
 
-	void oglDrawRenderList(const ImDrawList*, const ImDrawCmd* cmd)
+	static void oglDrawRenderList(const ImDrawList*, const ImDrawCmd* cmd)
 	{
 		auto paint = (KcImOglPaint*)cmd->UserCallbackData;
 		paint->drawRenderList_();
@@ -151,8 +157,18 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 		//glHint(GL_LINE_SMOOTH, GL_NICEST);
 		//glEnable(GL_BLEND);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		kPrivate::oglLine(style, pt0, pt1);
-
+		if (style == KpPen::k_solid) {
+			glDisable(GL_LINE_STIPPLE);
+		}
+		else {
+			glEnable(GL_LINE_STIPPLE);
+			glLineStipple(1, kPrivate::lineStipple(style));
+		}
+		
+		glBegin(GL_LINES);
+		glVertex3f(pt0.x(), pt0.y(), pt0.z());
+		glVertex3f(pt1.x(), pt1.y(), pt1.z());
+		glEnd();
 	};
 
 	currentRenderList().fns.push_back(drawFn);
