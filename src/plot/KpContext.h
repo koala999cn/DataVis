@@ -14,11 +14,12 @@ public:
 	{
 		k_none,
 		k_solid,
-		k_dash,
 		k_dot,
+		k_dash,
+		k_dash4,
+		k_dash8,
 		k_dash_dot,
-		k_dash_dot_dot,
-		k_dash_dot_dash
+		k_dash_dot_dot
 	};
 
 	int style{ k_solid };
