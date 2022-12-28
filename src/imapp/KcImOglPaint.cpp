@@ -3,6 +3,7 @@
 #include "imgui_internal.h"
 #include "glad.h"
 #include "KcVertexDeclaration.h"
+#include "KtLineS2d.h"
 #include "opengl/KcGlslProgram.h"
 #include "opengl/KcGlslShader.h"
 #include "opengl/KcGpuBuffer.h"
@@ -127,15 +128,8 @@ void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
 	obj->setVBO(vbo, decl);
-	obj->setColor(clr_);
 	obj->setSize(pointSize_);
-	obj->setProjMatrix(camera_.getMvpMat());
-	if (curClipBox_ != -1) {
-		auto& box = clipBoxHistList_[curClipBox_];
-		obj->setClipBox({ box.lower(), box.upper() });
-	}
-
-	currentRenderList().objs.emplace_back(obj);
+	pushRenderObject_(obj);
 }
 
 
@@ -187,12 +181,87 @@ void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
 	obj->setVBO(vbo, decl);
-	obj->setColor(clr_);
 	obj->setWidth(lineWidth_);
+	pushRenderObject_(obj);
+}
+
+
+void KcImOglPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
+{
+	// 构造vbo
+
+	auto vbo = std::make_shared<KcGpuBuffer>();
+	
+	std::vector<float3> vtx;
+	vtx.reserve((count - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+
+	auto p00 = fn1(0);
+	auto p01 = fn2(0);
+
+	assert(p00.z() == p01.z()); // 要求各点都在一个z平面上
+
+	for (unsigned i = 1; i < count; i++) {
+		auto p10 = fn1(i);
+		auto p11 = fn2(i);
+
+		using point2 = KtPoint<float_t, 2>;
+		KtLineS2d<float_t> ln0((const point2&)p00, (const point2&)p10);
+		KtLineS2d<float_t> ln1((const point2&)p01, (const point2&)p11);
+		auto pt = ln0.intersects(ln1);
+		if (pt) { // 相交
+
+			float3 ptm(pt->x(), pt->y(), p00.z());
+
+			vtx.push_back(p01);
+			vtx.push_back(p00);
+			vtx.push_back(ptm);
+
+			vtx.push_back(p10);
+			vtx.push_back(p11);
+			vtx.push_back(ptm);
+		}
+		else { // 不相交
+			vtx.push_back(p01);
+			vtx.push_back(p00);
+			vtx.push_back(p10);
+
+			vtx.push_back(p10);
+			vtx.push_back(p11);
+			vtx.push_back(p01);
+		}
+
+		p00 = p10, p01 = p11;
+	}
+
+	vbo->setData(vtx.data(), vtx.size() * sizeof(float3), KcGpuBuffer::k_stream_draw);
+
+	auto obj = new KcRenderObject(k_triangles);
+
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+
+	obj->setVBO(vbo, decl);
+	pushRenderObject_(obj);
+}
+
+
+void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
+{
+	assert(obj->vbo() && obj->vertexDecl());
+
+	obj->setColor(clr_);
 	obj->setProjMatrix(camera_.getMvpMat());
 	if (curClipBox_ != -1) {
 		auto& box = clipBoxHistList_[curClipBox_];
 		obj->setClipBox({ box.lower(), box.upper() });
+	}
+
+	if (obj->shader() == nullptr) { // 自动设置shader
+		auto decl = obj->vertexDecl();
+		if (!decl->hasColor())
+			obj->setShader(KsShaderManager::singleton().programFlat());
+		else
+			obj->setShader(KsShaderManager::singleton().programSmooth());
 	}
 
 	currentRenderList().objs.emplace_back(obj);
@@ -308,12 +377,6 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 		//((KcLightenObject*)obj)->setNormalMatrix(camera_.getNormalMatrix());
 		((KcLightenObject*)obj)->setNormalMatrix(mat4::identity());
 	}
-	else if (hasColor) {
-		obj->setShader(KsShaderManager::singleton().programSmooth());
-	}
-	else {
-		obj->setShader(KsShaderManager::singleton().programFlat()); // 设置缺省的shader
-	}
 
 	auto vbo = std::make_shared<KcGpuBuffer>();
 	vbo->setData(geom->vertexData(), geom->vertexCount() * geom->vertexSize(), KcGpuBuffer::k_stream_draw);
@@ -325,14 +388,7 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 		obj->setIBO(ibo, geom->indexCount());
 	}
 
-	obj->setColor(clr_);
-	obj->setProjMatrix(camera_.getMvpMat());
-	if (curClipBox_ != -1) {
-		auto& box = clipBoxHistList_[curClipBox_];
-		obj->setClipBox({ box.lower(), box.upper() });
-	}
-
-	currentRenderList().objs.emplace_back(obj);
+	pushRenderObject_(obj);
 }
 
 

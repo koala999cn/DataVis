@@ -23,12 +23,28 @@ public:
 		: type_(rhs.type_), prog_(rhs.prog_), vbo_(rhs.vbo_), ibo_(rhs.ibo_), 
 		vtxDecl_(rhs.vtxDecl_), indexCount_(rhs.indexCount_) {}
 
+	std::shared_ptr<KcGlslProgram> shader() const {
+		return prog_;
+	}
+
 	void setShader(std::shared_ptr<KcGlslProgram> prog) {
 		prog_ = prog;
 	}
 
+	std::shared_ptr<KcGpuBuffer> vbo() const {
+		return vbo_;
+	}
+
+	std::shared_ptr<KcVertexDeclaration> vertexDecl() const {
+		return vtxDecl_;
+	}
+
 	void setVBO(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl) {
 		vbo_ = vbo, vtxDecl_ = vtxDecl;
+	}
+
+	std::shared_ptr<KcGpuBuffer> ibo() const {
+		return ibo_;
 	}
 
 	void setIBO(std::shared_ptr<KcGpuBuffer> ibo, unsigned idxCount) {

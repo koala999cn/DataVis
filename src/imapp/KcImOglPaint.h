@@ -53,6 +53,7 @@ public:
 
 	void drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 
+	void fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 
 	// 内部函数，由ImGui回调，以绘制renderList_保存的渲染对象
 	void drawRenderList_();
@@ -61,6 +62,8 @@ private:
 
 	point3 toNdc_(const point3& pt) const;
 	
+	void pushRenderObject_(KcRenderObject* obj);
+
 private:
 
 	// render states stacks
