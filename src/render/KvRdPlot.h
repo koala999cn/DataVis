@@ -5,6 +5,7 @@
 #include "KuStrUtil.h"
 
 class KvPlot;
+class KcAxis;
 class KvPlottable;
 class KvDataProvider;
 class KvThemedPlot;
@@ -65,6 +66,8 @@ protected:
 	virtual void showThemeProperty_();
 
 	virtual void showCoordProperty_();
+
+	    virtual void ShowAxisProperty_(KcAxis&);
 
 	virtual void showLegendProperty_();
 	

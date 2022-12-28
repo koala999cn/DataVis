@@ -4,6 +4,8 @@
 #include "KvDiscreted.h"
 #include "KcSampled2d.h"
 #include "layout/KeAlignment.h"
+#include "misc/cpp/imgui_stdlib.h"
+#include "plot/KpContext.h"
 
 
 namespace kPrivate
@@ -64,6 +66,19 @@ namespace kPrivate
         }
 
         return headers;
+    }
+
+    static void switchAlign(KeAlignment& curAlign, int newAlign)
+    {
+        if (curAlign.location() == newAlign)
+            curAlign.toggleAlginFirst();
+        else
+            curAlign.setLocation(newAlign);
+
+        if (curAlign & KeAlignment::k_hcenter)
+            curAlign.setAlignFirst(KeAlignment::k_vert_first);
+        else if (curAlign & KeAlignment::k_vcenter)
+            curAlign.setAlignFirst(KeAlignment::k_horz_first);
     }
 
 }
@@ -274,23 +289,51 @@ namespace ImGuiX
         return res;
     }
 
-
-    static void switchAlign(KeAlignment& curAlign, int newAlign)
+    bool treePush(const char* label, bool defaultOpen)
     {
-        if (curAlign.location() == newAlign)
-            curAlign.toggleAlginFirst();
-        else
-            curAlign.setLocation(newAlign);
+        return ImGui::TreeNodeEx(label, 
+            defaultOpen ? ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_FramePadding
+                        : ImGuiTreeNodeFlags_FramePadding);
+    }
 
-        if (curAlign & KeAlignment::k_hcenter)
-            curAlign.setAlignFirst(KeAlignment::k_vert_first);
-        else if (curAlign & KeAlignment::k_vcenter)
-            curAlign.setAlignFirst(KeAlignment::k_horz_first);
+    void treePop()
+    {
+        ImGui::TreePop();
+    }
+
+    bool cbTreePush(const char* label, bool* show, bool* open)
+    {
+        std::string node("##N"); node += label;
+        *open = treePush(node.c_str(), *open);
+        ImGui::SameLine();
+        return ImGui::Checkbox(label, show);
+    }
+
+    void cbTreePop()
+    {
+        ImGui::TreePop();
+    }
+
+    bool cbInputText(const char* label, bool* show, std::string* text)
+    {
+        std::string box("##I"); box += label;
+        bool res = prefixCheckbox(box.c_str(), show);
+        res |= ImGui::InputText(label, text);
+        ImGui::PopItemWidth();
+        return res;
+    }
+
+    bool cbiTreePush(const char* label, bool* show, std::string* text, bool* open)
+    {
+        std::string node("##N"); node += label;
+        *open = treePush(node.c_str(), *open);
+        ImGui::SameLine();
+        return cbInputText(label, show, text);
     }
 
     bool alignment(const char* label, KeAlignment& loc)
     {
-        if (ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_FramePadding)) {
+        if (treePush(label, false)) {
 
             ImVec2 itemSize(ImGui::CalcTextSize("Outter").x * 2, 0);
 
@@ -298,18 +341,18 @@ namespace ImGuiX
             int spacing = 12;
 
             if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NW" : "WN", itemSize)) 
-                switchAlign(loc, KeAlignment::k_left | KeAlignment::k_top);
+                kPrivate::switchAlign(loc, KeAlignment::k_left | KeAlignment::k_top);
             ImGui::SameLine(0, spacing);
 
             if (ImGui::Button("N", itemSize)) 
-                switchAlign(loc, KeAlignment::k_top | KeAlignment::k_hcenter);
+                kPrivate::switchAlign(loc, KeAlignment::k_top | KeAlignment::k_hcenter);
             ImGui::SameLine(0, spacing);
 
             if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NE" : "EN", itemSize))
-                switchAlign(loc, KeAlignment::k_right | KeAlignment::k_top);
+                kPrivate::switchAlign(loc, KeAlignment::k_right | KeAlignment::k_top);
 
             if (ImGui::Button("W", itemSize)) 
-                switchAlign(loc, KeAlignment::k_left | KeAlignment::k_vcenter);
+                kPrivate::switchAlign(loc, KeAlignment::k_left | KeAlignment::k_vcenter);
             ImGui::SameLine(0, spacing);
 
             if (ImGui::Button(outter ? "Out" : "In", itemSize))
@@ -317,24 +360,37 @@ namespace ImGuiX
             ImGui::SameLine(0, spacing);
 
             if (ImGui::Button("E", itemSize))
-                switchAlign(loc, KeAlignment::k_right | KeAlignment::k_vcenter);
+                kPrivate::switchAlign(loc, KeAlignment::k_right | KeAlignment::k_vcenter);
 
             if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SW" : "WS", itemSize))
-                switchAlign(loc, KeAlignment::k_left | KeAlignment::k_bottom);
+                kPrivate::switchAlign(loc, KeAlignment::k_left | KeAlignment::k_bottom);
             ImGui::SameLine(0, spacing);
 
             if (ImGui::Button("S", itemSize))
-                switchAlign(loc, KeAlignment::k_bottom | KeAlignment::k_hcenter);
+                kPrivate::switchAlign(loc, KeAlignment::k_bottom | KeAlignment::k_hcenter);
             ImGui::SameLine(0, spacing);
 
             if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SE" : "ES", itemSize))
-                switchAlign(loc, KeAlignment::k_right | KeAlignment::k_bottom);
+                kPrivate::switchAlign(loc, KeAlignment::k_right | KeAlignment::k_bottom);
 
-            ImGui::TreePop();
+            treePop();
 
             return true;
         }
 
         return false;
     }
+
+    bool pen(KpPen* cxt)
+    {
+        ImGui::PushID(cxt);
+
+        bool res = ImGui::SliderFloat("Width", &cxt->width, 0.1, 5.0, "%.1f");
+        res |= ImGui::ColorEdit4("Color", cxt->color);
+        ;
+        ImGui::PopID();
+
+        return res;
+    }
+
 }

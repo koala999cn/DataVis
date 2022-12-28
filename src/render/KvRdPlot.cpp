@@ -20,20 +20,6 @@
 #include "KcSampled2d.h"
 
 
-namespace kPrivate
-{
-	bool TreePush(const char* label)
-	{
-		return ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_FramePadding);
-	}
-
-	void TreePop()
-	{
-		ImGui::TreePop();
-	}
-}
-
-
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
 	: KvDataRender(name)
 	, plot_(plot)
@@ -247,7 +233,7 @@ void KvRdPlot::showProperySet()
 
 void KvRdPlot::showPlotProperty_()
 {
-	if (kPrivate::TreePush("Plot")) {
+	if (ImGuiX::treePush("Plot", true)) {
 		bool vis = plot_->visible();
 		if (ImGuiX::prefixCheckbox("##Plot", &vis))
 			plot_->setVisible(vis);
@@ -260,7 +246,7 @@ void KvRdPlot::showPlotProperty_()
 
 		auto& coord = plot_->coord();
 		const char* label[] = { "Invert X", "Invert Y", "Invert Z" };
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < plot_->dim(); i++) {
 			bool inv = coord.axisInversed(i);
 			if (ImGui::Checkbox(label[i], &inv))
 				coord.inverseAxis(i, inv);
@@ -268,14 +254,15 @@ void KvRdPlot::showPlotProperty_()
 
 		const char* swapStr[] = { "No Swap", "Swap XY", "Swap XZ", "Swap YZ" };
 		if (ImGui::BeginCombo("Swap Axes", swapStr[coord.axisSwapped()])) {
-			for (unsigned i = 0; i < std::size(swapStr); i++)
+			unsigned c = plot_->dim() > 2 ? std::size(swapStr) : plot_->dim();
+			for (unsigned i = 0; i < c; i++)
 				if (ImGui::Selectable(swapStr[i], i == coord.axisSwapped()))
 					coord.swapAxis(KvCoord::KeAxisSwapStatus(i));
 
 			ImGui::EndCombo();
 		}
 
-		kPrivate::TreePop();
+		ImGuiX::treePop();
 	}
 }
 
@@ -286,7 +273,7 @@ void KvRdPlot::showThemeProperty_()
 	if (themeMgr.empty())
 		return;
 
-	if (!kPrivate::TreePush("Design"))
+	if (!ImGuiX::treePush("Design", true))
 		return;
 
 	auto groups = themeMgr.listGroups();
@@ -342,13 +329,13 @@ void KvRdPlot::showThemeProperty_()
 		ImGui::EndCombo();
 	}
 
-	kPrivate::TreePop();
+	ImGuiX::treePop();
 }
 
 
 void KvRdPlot::showCoordProperty_()
 {
-	if (!kPrivate::TreePush("Axes"))
+	if (!ImGuiX::treePush("Axes", true))
 		return;
 
 	auto lower = point3f(plot_->coord().lower());
@@ -359,25 +346,98 @@ void KvRdPlot::showCoordProperty_()
 			speed.at(i) = 1;
 
 	bool extendsChanged(false);
-	if (ImGui::DragFloatRange2("X", &lower.x(), &upper.x(), speed.x()))
-		extendsChanged = true;
-	if (ImGui::DragFloatRange2("Y", &lower.y(), &upper.y(), speed.y()))
-		extendsChanged = true;
-	if (ImGui::DragFloatRange2("Z", &lower.z(), &upper.z(), speed.z()))
-		extendsChanged = true;
+	static const char* axisName[] = { "X", "Y", "Z" };
+	for (char i = 0; i < plot_->dim(); i++) {
+		if (ImGui::DragFloatRange2(axisName[i], &lower[i], &upper[i], speed[i]))
+			extendsChanged = true;
+	}
 
 	if (extendsChanged) {
 		plot_->coord().setExtents(lower, upper);
 		plot_->autoFit() = false;
 	}
 
-	kPrivate::TreePop();
+	plot_->coord().forAxis([this](KcAxis& axis) {
+		ShowAxisProperty_(axis);
+		return true;
+		});
+
+	ImGuiX::treePop();
+}
+
+
+void KvRdPlot::ShowAxisProperty_(KcAxis& axis)
+{
+	static const char* name[] = { "X", "Y", "Z" };
+	static const char* loc[] = {
+		"near-left",
+		"near-right",
+		"near-bottom",
+		"near-top",
+
+		"far-left",
+		"far-right",
+		"far-bottom",
+		"far-top",
+
+		"floor-left",
+		"floor-right",
+		"ceil-left",
+		"ceil-right",
+	};
+
+	std::string label = name[axis.dim()]; label += "["; label += loc[axis.type()]; label += "]";
+	
+	bool open = false;
+	ImGuiX::cbTreePush(label.c_str(), &axis.visible(), &open);
+	if (!open) return;
+
+	ImGui::PushID(&axis);
+
+	open = false;
+	ImGuiX::cbTreePush("Baseline", &axis.showBaseline(), &open);
+	if (open) {
+		ImGuiX::pen(&axis.baselineContext());
+		ImGuiX::cbTreePop();
+	}
+
+	open = false;
+	ImGuiX::cbTreePush("Title", &axis.showTitle(), &open);
+	if (open) {
+		ImGui::InputText("Text", &axis.title());
+		ImGui::ColorEdit4("Color##title", axis.titleColor());
+		ImGuiX::cbTreePop();
+	}
+
+	open = false;
+	ImGuiX::cbTreePush("Tick", &axis.showTick(), &open);
+	if (open) {
+		ImGuiX::pen(&axis.tickContext());
+		ImGuiX::cbTreePop();
+	}
+
+	open = false;
+	ImGuiX::cbTreePush("Subtick", &axis.showSubtick(), &open);
+	if (open) {
+		ImGuiX::pen(&axis.subtickContext());
+		ImGuiX::cbTreePop();
+	}
+
+	open = false;
+	ImGuiX::cbTreePush("Label", &axis.showLabel(), &open);
+	if (open) {
+		ImGui::ColorEdit4("Color##label", axis.labelColor());
+		ImGuiX::cbTreePop();
+	}
+
+	ImGui::PopID();
+	ImGuiX::cbTreePop();
 }
 
 
 void KvRdPlot::showLegendProperty_()
 {
-	if (!kPrivate::TreePush("Legend"))
+	if (!ImGuiX::treePush("Legend", true))
 		return;
 
 	ImGui::Checkbox("Show", &plot_->showLegend());
@@ -385,14 +445,14 @@ void KvRdPlot::showLegendProperty_()
 	auto& loc = plot_->legend()->location();
 	ImGuiX::alignment("Alignment", loc);
 
-	kPrivate::TreePop();
+	ImGuiX::treePop();
 }
 
 
 
 void KvRdPlot::showColorBarProperty_()
 {
-	if (!kPrivate::TreePush("ColorBar"))
+	if (!ImGuiX::treePush("ColorBar", true))
 		return;
 
 	ImGui::Checkbox("Show", &plot_->showColorBar());
@@ -400,7 +460,7 @@ void KvRdPlot::showColorBarProperty_()
 	auto& loc = plot_->colorBar()->location();
 	ImGuiX::alignment("Alignment", loc);
 
-	kPrivate::TreePop();
+	ImGuiX::treePop();
 }
 
 
@@ -408,7 +468,7 @@ void KvRdPlot::showPlottableProperty_()
 {
 	if (plot_->plottableCount() > 0) {
 
-		if (!kPrivate::TreePush("Plottable(s)"))
+		if (!ImGuiX::treePush("Plottable(s)", false))
 			return;
 
 		for (unsigned idx = 0; idx < plot_->plottableCount(); idx++) {
@@ -450,7 +510,7 @@ void KvRdPlot::showPlottableProperty_()
 			}
 		}
 
-		kPrivate::TreePop();
+		ImGuiX::treePop();
 	}
 }
 
