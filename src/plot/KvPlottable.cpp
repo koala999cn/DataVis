@@ -66,7 +66,7 @@ void KvPlottable::draw(KvPaint* paint) const
 			return;
 		
 		for (unsigned i = 0; i < cont->dim(); i++)
-			samp->reset(0, cont->range(i).low(), cont->length(i) / sampCount_[i]);
+			samp->reset(i, cont->range(i).low(), cont->length(i) / sampCount_[i]);
 
 		disc = samp;
 	}

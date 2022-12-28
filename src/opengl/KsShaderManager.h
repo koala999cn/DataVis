@@ -20,32 +20,41 @@ public:
 	using shader_ptr = std::shared_ptr<KcGlslShader>;
 	using program_ptr = std::shared_ptr<KcGlslProgram>;
 
+	// 所有顶点同色，颜色值由uniform变量vColor确定
 	// attr = pos
 	// uniform = matMvp + vColor
-	shader_ptr vertexShaderMono();
+	shader_ptr vertexShaderFlat();
 
-	// attr = pos + uv + color
+	// 各顶点异色，颜色值由attribute确定
+	// attr = pos + color
 	// uniform = matMvp
-	shader_ptr vertexShaderColorUV();
+	shader_ptr vertexShaderSmooth();
+
+	// attr = pos + color + uv
+	// uniform = matMvp
+	shader_ptr vertexShaderSmoothUV();
 
 	// attr = pos + normal
 	// uniform = matMvp + matNormal + vColor
-	shader_ptr vertexShaderMonoLight();
+	shader_ptr vertexShaderFlatLight();
 
 	// out-color = in-color
-	shader_ptr fragShaderNaive();
+	shader_ptr fragShaderFlat();
 
 	// out-color = in-color * tex(uv)
-	shader_ptr fragShaderColorUV();
+	shader_ptr fragShaderSmoothUV();
 
-	// vertexShaderMono_ + fragShaderNaive_
-	program_ptr programMono();
+	// vertexShaderFlat + fragShaderFlat
+	program_ptr programFlat();
 
-	// vertexShaderColorUV_ + fragShaderColorUV_
-	program_ptr programColorUV();
+	// vertexShaderSmooth + fragShaderFlat
+	program_ptr programSmooth();
 
-	// vertexShaderMonoLight_ + fragShaderNaive_
-	program_ptr programMonoLight();
+	// vertexShaderSmoothUV + fragShaderSmoothUV
+	program_ptr programSmoothUV();
+
+	// vertexShaderFlatLight + fragShaderFlat
+	program_ptr programFlatLight();
 
 private:
 	KsShaderManager();
@@ -57,13 +66,15 @@ private:
 
 private:
 	
-	shader_ptr vertexShaderMono_;
-	shader_ptr vertexShaderColorUV_;
-	shader_ptr vertexShaderMonoLight_;
-	shader_ptr fragShaderNaive_;
-	shader_ptr fragShaderColorUV_;
+	shader_ptr vertexShaderFlat_;
+	shader_ptr vertexShaderSmooth_;
+	shader_ptr vertexShaderSmoothUV_;
+	shader_ptr vertexShaderFlatLight_;
+	shader_ptr fragShaderFlat_;
+	shader_ptr fragShaderSmoothUV_;
 
-	program_ptr progMono_; 
-	program_ptr progColorUV_; 
-	program_ptr progMonoLight_;
+	program_ptr progFlat_; 
+	program_ptr progSmooth_;
+	program_ptr progSmoothUV_; 
+	program_ptr progFlatLight_;
 };

@@ -6,7 +6,7 @@
 KcPointObject::KcPointObject()
     : super_(k_points)
 {
-    prog_ = KsShaderManager::singleton().programMono();
+    prog_ = KsShaderManager::singleton().programFlat();
 }
 
 

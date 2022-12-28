@@ -3,6 +3,7 @@
 #include "plot/KcGraph.h"
 #include "plot/KcScatter.h"
 #include "plot/KcBars3d.h"
+#include "plot/KcSurface.h"
 #include "plot/KvCoord.h" // TODO: 此处不该引用KvCoord文件
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
@@ -71,7 +72,7 @@ void KcRdPlot3d::showProperySet()
 
 unsigned KcRdPlot3d::supportPlottableTypes_() const
 {
-	return 3;
+	return 4;
 }
 
 
@@ -83,6 +84,8 @@ int KcRdPlot3d::plottableType_(KvPlottable* plt) const
 		return 1;
 	else if (dynamic_cast<KcBars3d*>(plt))
 		return 2;
+	else if (dynamic_cast<KcSurface*>(plt))
+		return 3;
 
 	return -1;
 }
@@ -93,7 +96,7 @@ const char* KcRdPlot3d::plottableTypeStr_(int iType) const
 	assert(iType < supportPlottableTypes_());
 
 	static const char* pltTypes[] = {
-		"graph", "scatter", "bar"
+		"graph", "scatter", "bar", "surface"
 	};
 
 	return pltTypes[iType];
@@ -112,6 +115,9 @@ KvPlottable* KcRdPlot3d::newPlottable_(int iType, const std::string& name)
 
 	case 2:
 		return new KcBars3d(name);
+
+	case 3:
+		return new KcSurface(name);
 	}
 
 	return nullptr;
