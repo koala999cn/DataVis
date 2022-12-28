@@ -185,11 +185,10 @@ public:
 	bool inversed() const { return inv_; }
 	void setInversed(bool inv) { inv_ = inv; }
 
-	bool swapped() const { return dimReal_ != dimSwapped_; }
-	void setSwapped(int dimSwap) { dimSwapped_ = dimSwap; }
-
-	int dimSwapped() const { return dimSwapped_; } // 返回交换的坐标轴维度
 	KeType typeReal() const; // 考虑swap，返回axis的真实方位布局
+
+	// 内部使用
+	void setSwapped_(int dimSwap) { dimSwapped_ = dimSwap; }
 
 private:
 	void draw_(KvPaint*, bool calcBox) const;

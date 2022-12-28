@@ -209,7 +209,7 @@ KcAxis::point3 KcAxis::tickPos(double val) const
 
 KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 {
-	assert(visible() && length() > 0);
+	assert(visible() && length() > 0 && dimReal_ < 2);
 
 	auto paint = (KvPaint*)cxt;
 
@@ -271,44 +271,43 @@ bool KcAxis::tickAndLabelInSameSide_() const
 
 KcAxis::KeType KcAxis::typeReal() const
 {
-	// 可逆的类型交换数组
-	//constexpr static int swapType[4][3][3] = {
-		/// KcAxis::k_near_left
-		//{
-		//	/*dim0*/ { KcAxis::k_near_left, KcAxis::k_near_bottom, -1 },
-		//	/*dim1*/ { KcAxis::k_near_left, KcAxis::k_near_bottom, -1 },
-		//},
-		/// KcAxis::k_near_right
-
-		/// KcAxis::k_near_bottom
-
-		/// KcAxis::k_near_top
-	//};
-	
-	//return swapType[type_][dimReal_][dimSwapped_];
-	
-	constexpr static int swapType[][4] = {
-			/* swap_none */          /* swap_xy */           /* swap_xz */        /* swap_yz */
-		{ KcAxis::k_near_left,   KcAxis::k_near_bottom, -1,                    KcAxis::k_ceil_left   },
-		{ KcAxis::k_near_right,  KcAxis::k_near_top ,   -1,                    KcAxis::k_ceil_right  },
-		{ KcAxis::k_near_bottom, KcAxis::k_near_left,   KcAxis::k_floor_right, -1                    },
-		{ KcAxis::k_near_top,    KcAxis::k_near_right,  KcAxis::k_ceil_right,  -1                    },
-
-		{ KcAxis::k_far_left,    KcAxis::k_far_bottom, -1,                     KcAxis::k_floor_left  },
-		{ KcAxis::k_far_right,   KcAxis::k_far_top,    -1,                     KcAxis::k_floor_right },
-		{ KcAxis::k_far_bottom,  KcAxis::k_far_left,   KcAxis::k_floor_left,   -1                    },
-		{ KcAxis::k_far_top,     KcAxis::k_far_right,  KcAxis::k_ceil_left,    -1                    },
-
-		{ KcAxis::k_floor_left,  -1,                   KcAxis::k_far_bottom,   KcAxis::k_far_left   },
-		{ KcAxis::k_floor_right, -1,                   KcAxis::k_near_bottom,  KcAxis::k_far_right  },
-		{ KcAxis::k_ceil_left,   -1,                   KcAxis::k_far_top,      KcAxis::k_near_left  },
-		{ KcAxis::k_ceil_right,  -1,                   KcAxis::k_near_top,     KcAxis::k_near_right }
+	enum KeSwapKind
+	{
+		swap_none,
+		swap_xy,
+		swap_xz,
+		swap_yz
 	};
 
-	// TODO: 暂时只考虑二维情况
-	assert(dimReal_ < 2 && dimSwapped_ < 2);
+	// 根据dimReal_和dimSwapped_获取swapKind
+	// 使用[dimReal_][dimSwapped_ + 1]索引
+	constexpr static int swapKind[3][4] = {
+		{ swap_yz, swap_none, swap_xy, swap_xz },
+		{ swap_xz, swap_xy, swap_none, swap_yz },
+		{ swap_xy, swap_xz, swap_yz, swap_none }
+	};
 	
-	return KeType(swapType[type_][swapped() ? 1 : 0]);
+	// NB：另外两个维度的坐标轴交换，也会影响当前坐标轴的方位。目前尚未实现交换情况下的方位一致性
+	constexpr static int swapType[][4] = {
+			/* swap_none */          /* swap_xy */           /* swap_xz */        /* swap_yz */
+		{ KcAxis::k_near_left,   KcAxis::k_near_bottom, KcAxis::k_far_right,   KcAxis::k_ceil_left   },
+		{ KcAxis::k_near_right,  KcAxis::k_near_top ,   KcAxis::k_far_left,    KcAxis::k_ceil_right  },
+		{ KcAxis::k_near_bottom, KcAxis::k_near_left,   KcAxis::k_floor_right, KcAxis::k_far_top     },
+		{ KcAxis::k_near_top,    KcAxis::k_near_right,  KcAxis::k_ceil_right,  KcAxis::k_far_bottom  },
+
+		{ KcAxis::k_far_left,    KcAxis::k_far_bottom,  KcAxis::k_near_right,  KcAxis::k_floor_left  },
+		{ KcAxis::k_far_right,   KcAxis::k_far_top,     KcAxis::k_near_left,   KcAxis::k_floor_right },
+		{ KcAxis::k_far_bottom,  KcAxis::k_far_left,    KcAxis::k_floor_left,  KcAxis::k_near_top    },
+		{ KcAxis::k_far_top,     KcAxis::k_far_right,   KcAxis::k_ceil_left,   KcAxis::k_near_bottom },
+
+		{ KcAxis::k_floor_left,  KcAxis::k_ceil_right,  KcAxis::k_far_bottom,  KcAxis::k_far_left    },
+		{ KcAxis::k_floor_right, KcAxis::k_ceil_left,   KcAxis::k_near_bottom, KcAxis::k_far_right   },
+		{ KcAxis::k_ceil_left,   KcAxis::k_floor_right, KcAxis::k_far_top,     KcAxis::k_near_left   },
+		{ KcAxis::k_ceil_right,  KcAxis::k_floor_left,  KcAxis::k_near_top,    KcAxis::k_near_right  }
+	};
+	
+	auto t = swapType[type_][swapKind[dimReal_][dimSwapped_ + 1]];
+	return KeType(t);
 }
 
 

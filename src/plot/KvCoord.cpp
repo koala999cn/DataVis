@@ -232,15 +232,16 @@ void KvCoord::swapAxis(KeAxisSwapStatus status)
 	if (swapStatus_ == status)
 		return;
 
+	// NB: -1表示另外两个维度有交换
 	constexpr static int swapped[][3] = {
 		{ 0, 1, 2 }, // k_axis_swap_none
-		{ 1, 0, 2 }, // k_axis_swap_xy
-		{ 2, 1, 0 }, // k_axis_swap_xz
-		{ 0, 2, 1 }  // k_axis_swap_yz
+		{ 1, 0, -1 }, // k_axis_swap_xy
+		{ 2, -1, 0 }, // k_axis_swap_xz
+		{ -1, 2, 1 }  // k_axis_swap_yz
 	};
 
 	forAxis([status](KcAxis& axis) {
-		axis.setSwapped(swapped[status][axis.dim()]);
+		axis.setSwapped_(swapped[status][axis.dim()]);
 		return true;
 		});
 

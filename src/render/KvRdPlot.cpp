@@ -242,9 +242,29 @@ void KvRdPlot::showPlotProperty_()
 
 		ImGui::ColorEdit4("Background", plot_->background().color);
 
-		ImGui::Checkbox("Auto Fit", &plot_->autoFit());
-
 		auto& coord = plot_->coord();
+
+		if (ImGuiX::treePush("Range", true)) {
+			ImGui::Checkbox("Auto Fit", &plot_->autoFit());
+
+			auto lower = point3f(coord.lower());
+			auto upper = point3f(coord.upper());
+			auto speed = (upper - lower) * 0.1;
+			for (unsigned i = 0; i < speed.size(); i++)
+				if (speed.at(i) == 0)
+					speed.at(i) = 1;
+
+			static const char* axisName[] = { "X", "Y", "Z" };
+			for (char i = 0; i < plot_->dim(); i++) {
+				if (ImGui::DragFloatRange2(axisName[i], &lower[i], &upper[i], speed[i])) {
+					coord.setExtents(lower, upper);
+					plot_->autoFit() = false;
+				}
+			}
+
+			ImGuiX::treePop();
+		}
+
 		const char* label[] = { "Invert X", "Invert Y", "Invert Z" };
 		for (int i = 0; i < plot_->dim(); i++) {
 			bool inv = coord.axisInversed(i);
@@ -335,27 +355,8 @@ void KvRdPlot::showThemeProperty_()
 
 void KvRdPlot::showCoordProperty_()
 {
-	if (!ImGuiX::treePush("Axes", true))
+	if (!ImGuiX::treePush("Axes", false))
 		return;
-
-	auto lower = point3f(plot_->coord().lower());
-	auto upper = point3f(plot_->coord().upper());
-	auto speed = (upper - lower) * 0.1;
-	for (unsigned i = 0; i < speed.size(); i++)
-		if (speed.at(i) == 0)
-			speed.at(i) = 1;
-
-	bool extendsChanged(false);
-	static const char* axisName[] = { "X", "Y", "Z" };
-	for (char i = 0; i < plot_->dim(); i++) {
-		if (ImGui::DragFloatRange2(axisName[i], &lower[i], &upper[i], speed[i]))
-			extendsChanged = true;
-	}
-
-	if (extendsChanged) {
-		plot_->coord().setExtents(lower, upper);
-		plot_->autoFit() = false;
-	}
 
 	plot_->coord().forAxis([this](KcAxis& axis) {
 		ShowAxisProperty_(axis);
@@ -386,7 +387,7 @@ void KvRdPlot::ShowAxisProperty_(KcAxis& axis)
 		"ceil-right",
 	};
 
-	std::string label = name[axis.dim()]; label += "["; label += loc[axis.type()]; label += "]";
+	std::string label = name[axis.dim()]; label += " ["; label += loc[axis.typeReal()]; label += "]";
 	
 	bool open = false;
 	ImGuiX::cbTreePush(label.c_str(), &axis.visible(), &open);
