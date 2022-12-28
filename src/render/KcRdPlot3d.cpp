@@ -6,15 +6,7 @@
 #include "plot/KvCoord.h" // TODO: 此处不该引用KvCoord文件
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
-#include "imgui.h"
-
-
-namespace kPrivate
-{
-	bool TreePush(const char* label);
-
-	void TreePop();
-}
+#include "imguix.h"
 
 
 KcRdPlot3d::KcRdPlot3d()
@@ -43,7 +35,7 @@ void KcRdPlot3d::showProperySet()
 {
 	super_::showProperySet();
 
-	if (!kPrivate::TreePush("Projection"))
+	if (!ImGuiX::treePush("Projection", true))
 		return;
 
 	auto plot3d = std::dynamic_pointer_cast<KvPlot3d>(plot_);
@@ -73,7 +65,7 @@ void KcRdPlot3d::showProperySet()
 		orient = quatd(rot);
 	}
 
-	kPrivate::TreePop();
+	ImGuiX::treePop();
 }
 
 

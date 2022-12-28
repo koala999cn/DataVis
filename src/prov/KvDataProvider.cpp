@@ -1,6 +1,6 @@
 ﻿#include "KvDataProvider.h"
 #include <assert.h>
-#include "imgui.h"
+#include "imguix.h"
 #include "imapp/KcImDataView.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
@@ -167,13 +167,13 @@ void KvDataProvider::showProperySet()
 			std::string label = "Size(total = ";
 			label += KuStrUtil::toString(total(outPort));
 			label += ")";
-			if (kPrivate::TreePush(label.c_str())) {
+			if (ImGuiX::treePush(label.c_str(), true)) {
 				for (kIndex i = 0; i < dim(outPort); i++) {
 					std::string label("Dim");
 					label += KuStrUtil::toString(i + 1);
 					ImGui::LabelText(label.c_str(), "%d", size(outPort, i));
 				}
-				kPrivate::TreePop();
+				ImGuiX::treePop();
 			}
 		}
 	}
@@ -184,13 +184,13 @@ void KvDataProvider::showProperySet()
 			ImGui::LabelText("Step", "%g", step(outPort, 0));
 			ImGui::LabelText("Frequency", "%g", 1.0 / step(outPort, 0));
 		}
-		else if (kPrivate::TreePush("Step")) {
+		else if (ImGuiX::treePush("Step", true)) {
 			for (kIndex i = 0; i < dim(outPort); i++) {
 				std::string label("Dim");
 				label += KuStrUtil::toString(i + 1);
 				ImGui::LabelText(label.c_str(), "%g", step(outPort, i));
 			}
-			kPrivate::TreePop();
+			ImGuiX::treePop();
 		}
 	}
 
@@ -200,14 +200,14 @@ void KvDataProvider::showProperySet()
 		ImGui::LabelText("Value Range", "%g - %g",
 			range(outPort, dim(outPort)).low(), range(outPort, dim(outPort)).high());
 	}
-	else if (kPrivate::TreePush("Range")) {
+	else if (ImGuiX::treePush("Range", true)) {
 		for (kIndex i = 0; i <= dim(outPort); i++) {
 			std::string label("Dim");
 			label += KuStrUtil::toString(i + 1);
 			ImGui::LabelText(label.c_str(), "%g - %g", 
 				range(outPort, i).low(), range(outPort, i).high());
 		}
-		kPrivate::TreePop();
+		ImGuiX::treePop();
 	}
 }
 
