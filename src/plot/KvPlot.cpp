@@ -84,6 +84,7 @@ void KvPlot::removeAllPlottables()
 {
 	assert(legend_);
 	if (colorBar_) {
+		KuLayoutHelper::take(colorBar_);
 		delete colorBar_;
 		colorBar_ = nullptr;
 	}

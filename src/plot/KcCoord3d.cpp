@@ -171,6 +171,13 @@ void KcCoord3d::placeElement(KvLayoutElement* ele, KeAlignment loc)
 	assert(!isAncestorOf(ele));
 
 	ele->align() = loc; // TODO： 并不完全一致，暂时简单处理
+
+	for(unsigned i = 0; i < layCoord_->size(); i++)
+		if (layCoord_->getAt(i) == 0) {
+			layCoord_->setAt(i, ele);
+			return;
+		}
+
 	layCoord_->append(ele);
 }
 
