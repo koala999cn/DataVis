@@ -67,7 +67,7 @@ protected:
 
 	virtual void showCoordProperty_();
 
-	    virtual void ShowAxisProperty_(KcAxis&);
+	    virtual void showAxisProperty_(KcAxis&);
 
 	virtual void showLegendProperty_();
 	

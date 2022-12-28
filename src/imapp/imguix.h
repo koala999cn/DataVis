@@ -70,5 +70,5 @@ namespace ImGuiX
 
 	bool cbInputText(const char* label, bool* show, std::string* text);
 
-	bool pen(KpPen* cxt);
+	bool pen(KpPen* cxt, bool showStyle);
 }

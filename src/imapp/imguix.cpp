@@ -381,13 +381,31 @@ namespace ImGuiX
         return false;
     }
 
-    bool pen(KpPen* cxt)
+    bool pen(KpPen* cxt, bool showStyle)
     {
         ImGui::PushID(cxt);
 
-        bool res = ImGui::SliderFloat("Width", &cxt->width, 0.1, 5.0, "%.1f");
+        bool res = false;
+        
+        if (showStyle) {
+            static const char* styles[] = {
+                "none", "solid", "dot", "dash", 
+                "dash4", "dash8", "dash dot", "dash dot dot"
+            };
+
+            if (ImGui::BeginCombo("Style", styles[cxt->style])) {
+                for (unsigned i = 0; i < std::size(styles); i++) {
+                    if (ImGui::Selectable(styles[i], i == cxt->style))
+                        cxt->style = i;
+                }
+
+                ImGui::EndCombo();
+            }
+        }
+
+        res |= ImGui::SliderFloat("Width", &cxt->width, 0.1, 5.0, "%.1f px");
         res |= ImGui::ColorEdit4("Color", cxt->color);
-        ;
+  
         ImGui::PopID();
 
         return res;

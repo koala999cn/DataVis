@@ -359,7 +359,7 @@ void KvRdPlot::showCoordProperty_()
 		return;
 
 	plot_->coord().forAxis([this](KcAxis& axis) {
-		ShowAxisProperty_(axis);
+		showAxisProperty_(axis);
 		return true;
 		});
 
@@ -367,7 +367,19 @@ void KvRdPlot::showCoordProperty_()
 }
 
 
-void KvRdPlot::ShowAxisProperty_(KcAxis& axis)
+namespace kPrivate
+{
+	void tickContext(KcAxis::KpTickContext& cxt)
+	{
+		ImGuiX::pen(&cxt, false); // no style. tick始终使用solid线条
+
+		ImGui::PushID(&cxt);
+		ImGui::SliderFloat("Length", &cxt.length, 0, 10, "%0.1f px");
+		ImGui::PopID();
+	}
+}
+
+void KvRdPlot::showAxisProperty_(KcAxis& axis)
 {
 	static const char* name[] = { "X", "Y", "Z" };
 	static const char* loc[] = {
@@ -398,7 +410,7 @@ void KvRdPlot::ShowAxisProperty_(KcAxis& axis)
 	open = false;
 	ImGuiX::cbTreePush("Baseline", &axis.showBaseline(), &open);
 	if (open) {
-		ImGuiX::pen(&axis.baselineContext());
+		ImGuiX::pen(&axis.baselineContext(), true);
 		ImGuiX::cbTreePop();
 	}
 
@@ -413,14 +425,14 @@ void KvRdPlot::ShowAxisProperty_(KcAxis& axis)
 	open = false;
 	ImGuiX::cbTreePush("Tick", &axis.showTick(), &open);
 	if (open) {
-		ImGuiX::pen(&axis.tickContext());
+		kPrivate::tickContext(axis.tickContext());
 		ImGuiX::cbTreePop();
 	}
 
 	open = false;
 	ImGuiX::cbTreePush("Subtick", &axis.showSubtick(), &open);
 	if (open) {
-		ImGuiX::pen(&axis.subtickContext());
+		kPrivate::tickContext(axis.subtickContext());
 		ImGuiX::cbTreePop();
 	}
 

@@ -50,7 +50,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 		box_ = aabb_t(start(), end());
 
 	// draw baseline
-	if (showBaseline() && !calcBox) {
+	if (showBaseline() && baselineCxt_.style != KpPen::k_none && !calcBox) {
 		paint->apply(baselineCxt_);
 		paint->drawLine(start(), end()); // ÎïÀí×ø±ê
 	}

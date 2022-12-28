@@ -57,7 +57,7 @@ public:
 
 	struct KpTickContext : public KpPen
 	{
-		double length;
+		float length;
 
 		KpPen& operator=(const KpPen& pen) {
 			style = pen.style;
