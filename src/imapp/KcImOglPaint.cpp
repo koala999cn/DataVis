@@ -44,6 +44,7 @@ KcImOglPaint::KcImOglPaint(camera_type& cam)
 	curViewport_ = -1;
 	curClipBox_ = -1;
 	depthTest_ = false;
+	antialiasing_ = false;
 }
 
 
@@ -117,10 +118,6 @@ void KcImOglPaint::drawPoint(const point3& pt)
 
 		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
 		glPointSize(ptSize);
-		glEnable(GL_POINT_SMOOTH);
-		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_POINTS);
 		glVertex3f(p.x(), p.y(), p.z());
 		glEnd();
@@ -162,10 +159,7 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 
 		glLineWidth(lnWidth);
 		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
-		//glEnable(GL_LINE_SMOOTH);
-		//glHint(GL_LINE_SMOOTH, GL_NICEST);
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		if (style == KpPen::k_solid) {
 			glDisable(GL_LINE_STIPPLE);
 		}
@@ -481,6 +475,19 @@ void KcImOglPaint::drawRenderList_()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST); // 与depthTest的初值对应
+
+	if (antialiasing()) {
+		glEnable(GL_POINT_SMOOTH);
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_LINE_SMOOTH);
+		glHint(GL_LINE_SMOOTH, GL_NICEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else {
+		glDisable(GL_POINT_SMOOTH);
+		glDisable(GL_LINE_SMOOTH);
+	}
 
 	unsigned viewport(-1), clipRect(-1), clipBox(-2);
 	bool depthTest(false);

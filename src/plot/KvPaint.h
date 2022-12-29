@@ -54,7 +54,12 @@ public:
 	virtual void enableClipBox(point3 lower, point3 upper) = 0;
 	virtual void disableClipBox() = 0;
 
-	virtual void enableDepthTest(bool b) = 0;
+	virtual void enableDepthTest(bool b) = 0; // 开启/关闭深度测试
+	virtual bool depthTest() const = 0; // 是否开启了深度测试
+
+	virtual void enableAntialiasing(bool b) = 0; // 开启/关闭反走样
+	virtual bool antialiasing() const = 0; // 是否开启了反走样
+
 
 	// project local point/vector to screen point/vector
 	virtual point4 project(const point4& pt) const = 0;

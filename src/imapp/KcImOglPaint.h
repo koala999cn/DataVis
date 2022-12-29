@@ -34,9 +34,11 @@ public:
 	void enableClipBox(point3 lower, point3 upper) override;
 	void disableClipBox() override;
 
-	void enableDepthTest(bool b) override {
-		depthTest_ = b;
-	}
+	void enableDepthTest(bool b) override { depthTest_ = b; }
+	bool depthTest() const override { return depthTest_; }
+
+	void enableAntialiasing(bool b) override { antialiasing_ = b; }
+	bool antialiasing() const override { return antialiasing_; }
 
 	void beginPaint() override;
 	void endPaint() override;
@@ -76,6 +78,7 @@ private:
 	unsigned curViewport_; // -1表示未设置
 	unsigned curClipBox_; 
 	bool depthTest_; // 启动深度测试？
+	bool antialiasing_;
 
 	// [0]: viewport idx
 	// [1]: clipRect idx

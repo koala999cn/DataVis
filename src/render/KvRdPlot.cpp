@@ -13,6 +13,7 @@
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
 #include "plot/KvCoord.h"
+#include "plot/KvPaint.h"
 #include "plot/KcLegend.h"
 #include "plot/KcColorBar.h"
 #include "KvNode.h"
@@ -241,6 +242,10 @@ void KvRdPlot::showPlotProperty_()
 		ImGui::PopItemWidth(); // match for prefixCheckbox
 
 		ImGui::ColorEdit4("Background", plot_->background().color);
+
+		bool anti = plot_->paint().antialiasing();
+		if (ImGui::Checkbox("Antialiasing", &anti))
+			plot_->paint().enableAntialiasing(anti);
 
 		auto& coord = plot_->coord();
 
