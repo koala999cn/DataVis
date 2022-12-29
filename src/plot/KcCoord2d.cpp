@@ -78,17 +78,6 @@ void KcCoord2d::forPlane(std::function<bool(KcCoordPlane& plane)> fn) const
 }
 
 
-void KcCoord2d::draw(KvPaint* paint) const
-{
-	if (visible()) {
-		auto oldVp = paint->viewport();
-		//paint->setViewport(plane_->innerRect());
-		KvCoord::draw(paint);
-		//paint->setViewport(oldVp); // restore the old viewport
-	}
-}
-
-
 KtMargins<KcCoord2d::float_t> KcCoord2d::calcMargins_(KvPaint* paint) const
 {
 	auto l = axes_[KcAxis::k_left].front()->calcMargins(paint);

@@ -266,8 +266,8 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 			legend_->addItem(addedPlt);
 		}
 		else {
-			assert(colorBar_ == nullptr); // TODO: 多通道数据
-			if (colorBar_) {
+			// assert(colorBar_ == nullptr); 
+			if (colorBar_) { // TODO: 如何处理多个color-bar？
 				KuLayoutHelper::take(colorBar_);
 				delete colorBar_;
 			}

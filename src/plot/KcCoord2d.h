@@ -31,8 +31,6 @@ public:
 
 	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;
 
-	void draw(KvPaint*) const final;
-
 	axis_list& axes(int type) { return axes_[type]; }
 
 private:
