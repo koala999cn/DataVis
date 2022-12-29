@@ -2,6 +2,7 @@
 #include "imapp/KcImPlot3d.h"
 #include "plot/KcGraph.h"
 #include "plot/KcScatter.h"
+#include "plot/KcLineFilled.h"
 #include "plot/KcBars3d.h"
 #include "plot/KcSurface.h"
 #include "plot/KvCoord.h" // TODO: 此处不该引用KvCoord文件
@@ -72,7 +73,7 @@ void KcRdPlot3d::showProperySet()
 
 unsigned KcRdPlot3d::supportPlottableTypes_() const
 {
-	return 4;
+	return 5;
 }
 
 
@@ -82,10 +83,12 @@ int KcRdPlot3d::plottableType_(KvPlottable* plt) const
 		return 0;
 	else if (dynamic_cast<KcScatter*>(plt))
 		return 1;
-	else if (dynamic_cast<KcBars3d*>(plt))
+	else if (dynamic_cast<KcLineFilled*>(plt))
 		return 2;
-	else if (dynamic_cast<KcSurface*>(plt))
+	else if (dynamic_cast<KcBars3d*>(plt))
 		return 3;
+	else if (dynamic_cast<KcSurface*>(plt))
+		return 4;
 
 	return -1;
 }
@@ -96,7 +99,7 @@ const char* KcRdPlot3d::plottableTypeStr_(int iType) const
 	assert(iType < supportPlottableTypes_());
 
 	static const char* pltTypes[] = {
-		"graph", "scatter", "bar", "surface"
+		"graph", "scatter", "line-filled", "bar", "surface"
 	};
 
 	return pltTypes[iType];
@@ -114,11 +117,32 @@ KvPlottable* KcRdPlot3d::newPlottable_(int iType, const std::string& name)
 		return new KcScatter(name);
 
 	case 2:
-		return new KcBars3d(name);
+		return new KcLineFilled(name);
 
 	case 3:
+		return new KcBars3d(name);
+
+	case 4:
 		return new KcSurface(name);
 	}
 
 	return nullptr;
+}
+
+
+bool KcRdPlot3d::plottableMatchData_(int iType, const KvData& d) const
+{
+	switch (iType)
+	{
+	case 2:
+		return d.dim() == 1;
+
+	case 4:
+		return d.dim() == 2;
+
+	default:
+		break;
+	}
+
+	return true;
 }

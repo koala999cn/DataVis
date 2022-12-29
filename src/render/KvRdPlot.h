@@ -98,6 +98,9 @@ protected:
 	// 创建第iType类型的plottable
 	virtual KvPlottable* newPlottable_(int iType, const std::string& name) = 0;
 
+	// 第iType类型的plottable是否支持KvData数据
+	virtual bool plottableMatchData_(int iType, const KvData& d) const { return true; }
+
 	////////////////////////////////////////////////////
 
 

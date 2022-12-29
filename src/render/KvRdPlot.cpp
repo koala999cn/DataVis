@@ -531,10 +531,13 @@ void KvRdPlot::showPlottableProperty_()
 void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 {
 	int type = plottableType_(plot_->plottableAt(idx));
+	auto data = plot_->plottableAt(idx)->data();
 
 	if (ImGui::BeginCombo("Type", plottableTypeStr_(type))) {
-		for (int i = 0; i < supportPlottableTypes_(); i++)
-			if (ImGui::Selectable(plottableTypeStr_(i), i == type)) {
+
+		for (int i = 0; i < supportPlottableTypes_(); i++) {
+			int flags = plottableMatchData_(i, *data) ? 0 : ImGuiSelectableFlags_Disabled;
+			if (ImGui::Selectable(plottableTypeStr_(i), i == type, flags)) {
 				auto oldPlt = plot_->plottableAt(idx);
 				auto newPlt = newPlottable_(i, oldPlt->name());
 
@@ -544,7 +547,7 @@ void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 					majorColors[c] = oldPlt->majorColor(c);
 				newPlt->setMajorColors(majorColors);
 				if (newPlt->minorColorNeeded() && oldPlt->minorColorNeeded())
-				    newPlt->setMinorColor(oldPlt->minorColor());
+					newPlt->setMinorColor(oldPlt->minorColor());
 
 				// clone the data
 				newPlt->setData(oldPlt->data());
@@ -557,6 +560,7 @@ void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 
 				plot_->setPlottableAt(idx, newPlt);
 			}
+		}
 
 		ImGui::EndCombo();
 	}

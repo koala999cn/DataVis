@@ -214,8 +214,8 @@ private:
 	KpPen baselineCxt_;
 	KpTickContext tickCxt_, subtickCxt_;
 
-	double labelPadding_{ 2 }; 
-	double titlePadding_{ 2 };
+	float labelPadding_{ 2 }; 
+	float titlePadding_{ 2 };
 
 	color4f labelColor_{ 0, 0, 0, 1 }, titleColor_{ 0, 0, 0, 1 };
 
