@@ -379,7 +379,25 @@ namespace kPrivate
 		ImGuiX::pen(&cxt, false); // no style. tick始终使用solid线条
 
 		ImGui::PushID(&cxt);
-		ImGui::SliderFloat("Length", &cxt.length, 0, 10, "%0.1f px");
+
+		const static char* side[] = { "inside", "outside", "bothside" };
+		if (ImGui::BeginCombo("Side", side[cxt.side])) {
+			for (unsigned i = 0; i < std::size(side); i++)
+				if (ImGui::Selectable(side[i], i == cxt.side))
+					cxt.side = KcAxis::KeTickSide(i);
+			ImGui::EndCombo();
+		}
+
+		ImGui::SliderFloat("Length", &cxt.length, 0, 25, "%0.1f px");
+
+		float yaw = KtuMath<float_t>::rad2Deg(cxt.yaw);
+		if (ImGui::SliderFloat("Yaw", &yaw, -90, 90, "%.f deg"))
+			cxt.yaw = KtuMath<float_t>::deg2Rad(yaw);
+
+		float pitch = KtuMath<float_t>::rad2Deg(cxt.pitch);
+		if (ImGui::SliderFloat("Pitch", &pitch, -90, 90, "%.f deg"))
+			cxt.pitch = KtuMath<float_t>::deg2Rad(pitch);
+
 		ImGui::PopID();
 	}
 }

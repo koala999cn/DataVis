@@ -4,6 +4,7 @@
 #include "KvPaint.h"
 #include "KtuMath.h"
 #include "KtLine.h"
+#include "KtMatrix3.h"
 #include "layout/KeAlignment.h"
 #include "layout/KuLayoutUtil.h"
 
@@ -57,10 +58,20 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 
 	auto realShowTitle = showTitle() && !title().empty();
 
+	// tickOrient_和labelOrient_只计算一次
+	if (realShowTitle || showTick() || showLabel()) {
+		// TODO: if (calcBox) plot3d的时候不会调用计算模式
+		tickOrient_ = calcTickOrient_();
+		if (paint->currentCoord() == KvPaint::k_coord_screen)
+			tickOrient_.y() *= -1; // TODO: 有无更好的方法
+		labelOrient_ = tickCxt_.side == k_inside ? -tickOrient_ : tickOrient_;
+	}
+
+
 	// draw ticks & label
 	if (showTick() || showLabel())
 		drawTicks_(paint, calcBox);
-	else if (realShowTitle)
+	else if (realShowTitle) 
 		titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ / paint->projectv(labelOrient_).length();
 
 	// draw title
@@ -68,6 +79,41 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 		paint->setColor(titleColor());
 		drawLabel_(paint, title_, titleAnchor_, calcBox);
 	}
+}
+
+
+KcAxis::vec3 KcAxis::calcTickOrient_() const
+{
+	// 12根坐标轴的默认外向朝向
+	static const vec3 baseOrient[] = {
+		-KcAxis::vec3::unitX(), // k_near_left
+		KcAxis::vec3::unitX(),  // k_near_right
+		-KcAxis::vec3::unitY(), // k_near_bottom
+		KcAxis::vec3::unitY(),  // k_near_top
+
+		-KcAxis::vec3::unitX(), // k_far_left
+		KcAxis::vec3::unitX(),  // k_far_right
+		-KcAxis::vec3::unitY(), // k_far_bottom
+		KcAxis::vec3::unitY(),  // k_far_top
+
+		-KcAxis::vec3::unitX(), // k_floor_left
+		KcAxis::vec3::unitX(),  // k_floor_right
+		-KcAxis::vec3::unitX(), // k_ceil_left
+		KcAxis::vec3::unitX()   // k_ceil_right
+	};
+
+	vec3 orient = (tickCxt_.side == k_inside) ? -baseOrient[typeReal()] : baseOrient[typeReal()];
+
+	// 处理姿态旋转yaw和pitch
+
+	auto vAxis = (end() - start()).getNormalize(); // 坐标轴方向矢量
+	KtMatrix3<float_t> mat;
+	mat.fromAngleAxis(tickCxt_.pitch, vAxis); // 绕坐标轴旋转pitch弧度
+	orient = mat * orient;
+	
+	auto vPrep = orient.cross(vAxis); // 刻度线和坐标轴的垂直矢量
+	mat.fromAngleAxis(tickCxt_.yaw, vPrep.getNormalize());
+	return (mat * orient).getNormalize();
 }
 
 
@@ -81,7 +127,6 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	ticker()->generate(lower(), upper(), showSubtick(), showLabel());
 	const auto& ticks = ticker()->ticks();
 
-	assert(KtuMath<float_t>::almostEqual(tickOrient().length(), 1));
 
 	// 计算屏幕坐标1个像素尺度，相当于世界坐标多少个单位长度
 	auto tl = paint->projectv(tickOrient_);
@@ -161,12 +206,12 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 
 void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length, bool calcBox) const
 {
-	auto d = tickOrient() * length;
+	auto d = tickOrient_ * length;
 	if (!calcBox)
-		paint->drawLine(tickBothSide() ? anchor - d : anchor, anchor + d);
+		paint->drawLine(tickCxt_.side == k_bothside ? anchor - d : anchor, anchor + d);
 	else {
 		box_.merge(anchor + d);
-		if (tickBothSide())
+		if (tickCxt_.side == k_bothside)
 			box_.merge(anchor - d);
 	}
 }
@@ -306,6 +351,8 @@ KcAxis::KeType KcAxis::typeReal() const
 		{ KcAxis::k_ceil_right,  KcAxis::k_floor_left,  KcAxis::k_near_top,    KcAxis::k_near_right  }
 	};
 	
+	if (dimReal_ == -1) return type_; // color-bar的坐标轴，无交换
+
 	auto t = swapType[type_][swapKind[dimReal_][dimSwapped_ + 1]];
 	return KeType(t);
 }

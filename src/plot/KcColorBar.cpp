@@ -124,13 +124,9 @@ KcColorBar::size_t KcColorBar::calcSize_(void* cxt) const
     }
 
     if (location() & KeAlignment::k_horz_first) {
-        axis_->tickOrient() = axis_->labelOrient() =
-            (location() & KeAlignment::k_right) ? KcAxis::vec3::unitX() : -KcAxis::vec3::unitX();
         axis_->setType(location() & KeAlignment::k_right ? KcAxis::k_right : KcAxis::k_left);
     }
     else {
-        axis_->tickOrient() = axis_->labelOrient() =
-            (location() & KeAlignment::k_bottom) ? KcAxis::vec3::unitY() : -KcAxis::vec3::unitY();
         axis_->setType(location() & KeAlignment::k_bottom ? KcAxis::k_bottom : KcAxis::k_top);
     }
 

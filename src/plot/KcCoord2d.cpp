@@ -25,15 +25,6 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 
 	setExtents({ lower.x(), lower.y(), -1 }, { upper.x(), upper.y(), 1 });
 
-	axes_[KcAxis::k_left].front()->tickOrient() =
-		axes_[KcAxis::k_left].front()->labelOrient() = -KcAxis::vec3::unitX();
-	axes_[KcAxis::k_right].front()->tickOrient() =
-		axes_[KcAxis::k_right].front()->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_bottom].front()->tickOrient() =
-		axes_[KcAxis::k_bottom].front()->labelOrient() = -KcAxis::vec3::unitY();
-	axes_[KcAxis::k_top].front()->tickOrient() =
-		axes_[KcAxis::k_top].front()->labelOrient() = KcAxis::vec3::unitY();
-
 	static const char* title[] = { "X", "Y" };
 	for (unsigned i = 0; i < 4; i++)
 		axes_[i].front()->title() = title[axes_[i].front()->dim()];

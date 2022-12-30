@@ -30,33 +30,6 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 
 	setExtents(lower, upper);
 
-	axes_[KcAxis::k_far_bottom]->tickOrient() = 
-		axes_[KcAxis::k_far_bottom]->labelOrient() = -KcAxis::vec3::unitY();
-	axes_[KcAxis::k_far_top]->tickOrient() = 
-		axes_[KcAxis::k_far_top]->labelOrient() = KcAxis::vec3::unitY();
-	axes_[KcAxis::k_near_top]->tickOrient() = 
-		axes_[KcAxis::k_near_top]->labelOrient() = KcAxis::vec3::unitY();
-	axes_[KcAxis::k_near_bottom]->tickOrient() = 
-		axes_[KcAxis::k_near_bottom]->labelOrient() = -KcAxis::vec3::unitY();
-
-	axes_[KcAxis::k_far_left]->tickOrient() = 
-		axes_[KcAxis::k_far_left]->labelOrient() = -KcAxis::vec3::unitX();
-	axes_[KcAxis::k_far_right]->tickOrient() = 
-		axes_[KcAxis::k_far_right]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_near_right]->tickOrient() = 
-		axes_[KcAxis::k_near_right]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_near_left]->tickOrient() = 
-		axes_[KcAxis::k_near_left]->labelOrient() = -KcAxis::vec3::unitX();
-
-	axes_[KcAxis::k_floor_left]->tickOrient() =
-		axes_[KcAxis::k_floor_left]->labelOrient() = -KcAxis::vec3::unitX();
-	axes_[KcAxis::k_floor_right]->tickOrient() = 
-		axes_[KcAxis::k_floor_right]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_ceil_right]->tickOrient() = 
-		axes_[KcAxis::k_ceil_right]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_ceil_left]->tickOrient() = 
-		axes_[KcAxis::k_ceil_left]->labelOrient() = -KcAxis::vec3::unitX();
-
 	static const char* title[] = { "X", "Y", "Z" };
 	for (unsigned i = 0; i < std::size(axes_); i++) {
 		axes_[i]->visible() = false;

@@ -48,16 +48,25 @@ public:
 		k_top = k_near_top
 	};
 
-	enum KeTickOrient
+	enum KeTextLayout
 	{
-		k_x, k_neg_x, k_bi_x,
-		k_y, k_neg_y, k_bi_y,
-		k_z, k_neg_z, k_bi_z
+		k_horz_top, // 标准横板，文字头部在上侧，底部在下侧
+		k_horz_bottom, // 上下倒置的横版，文字头部在下侧，底部在上侧
+		k_vert_left, // 竖版，文字头部在左侧，底部在右侧
+		k_vert_right // 竖版，文字头部在右侧，底部在左侧
+	};
+
+	enum KeTickSide
+	{
+		k_inside, k_outside, k_bothside
 	};
 
 	struct KpTickContext : public KpPen
 	{
-		float length;
+		float length{ 5 };
+		KeTickSide side{ k_outside };
+		float yaw{ 0 }; // 绕坐标轴与tick的垂直线的旋转角度（弧度）
+		float pitch{ 0 }; // 基于基准位置，绕坐标轴的旋转角度（弧度）
 
 		KpPen& operator=(const KpPen& pen) {
 			style = pen.style;
@@ -84,14 +93,14 @@ public:
 		start_ = st, end_ = ed;
 	}
 
-	const vec3& tickOrient() const { return tickOrient_; }
-	vec3& tickOrient() { return tickOrient_; }
+	//const vec3& tickOrient() const { return tickOrient_; }
+	//vec3& tickOrient() { return tickOrient_; }
 
-	const vec3& labelOrient() const { return labelOrient_; }
-	vec3& labelOrient() { return labelOrient_; }
+	//const vec3& labelOrient() const { return labelOrient_; }
+	//vec3& labelOrient() { return labelOrient_; }
 
-	bool tickBothSide() const { return tickBothSide_; }
-	bool& tickBothSide() { return tickBothSide_; }
+	//bool tickBothSide() const { return tickBothSide_; }
+	//bool& tickBothSide() { return tickBothSide_; }
 
 	/// range 
 
@@ -196,6 +205,9 @@ private:
 	void drawTick_(KvPaint*, const point3& anchor, double length, bool calcBox) const; // 绘制单条刻度线，兼容主刻度与副刻度
 	void drawLabel_(KvPaint* paint, const std::string_view& label, const point3& anchor, bool calcBox) const;
 
+	// 计算tick的朝向
+	vec3 calcTickOrient_() const;
+
 	int labelAlignment_(KvPaint* paint, bool toggleTopBottom) const; // 根据label的orientation判定label的alignment
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
 
@@ -214,27 +226,8 @@ private:
 	KpPen baselineCxt_;
 	KpTickContext tickCxt_, subtickCxt_;
 
-	float labelPadding_{ 2 }; 
-	float titlePadding_{ 2 };
-
-	color4f labelColor_{ 0, 0, 0, 1 }, titleColor_{ 0, 0, 0, 1 };
-
-	//QFont labelFont_, titleFont_;
-
-	point3 start_, end_;
-	vec3 tickOrient_;
-	vec3 labelOrient_;
-	bool tickBothSide_{ false };
-
-	std::shared_ptr<KvTicker> ticker_;
-
-	int dimReal_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴?（用来显示colorbar）
-	int dimSwapped_; 
-	bool main_{ true }; // 是否主坐标轴
-	bool inv_{ false }; // 是否反转坐标轴
-
-	// 以下成员操纵label-box的layout和pose（TODO）
-	
+	// label的上下文
+	// 
 	// 初始状态下，label-box位于刻度线与坐标轴构成的平面上
 	// 
 	// label-box的布局与姿态调整都相对anchor点进行
@@ -243,18 +236,37 @@ private:
 	// 当lebel位于坐标轴的下侧，其anchor点位于label-box的top-center
 	// 当lebel位于坐标轴的上侧，其anchor点位于label-box的bottom-center
 	// 在不考虑labelPadding_的情况下，若label与tick同侧，anchor点与刻度线的末端重合，否则与刻度点重合
-	
-	// 该变量确定label-box的初始布局状态
-	bool labelVertical_{ false }; // 若true， label文本竖排列，文本顺着+y/-z轴方向延展
-	                              // 若false，lebel文本横排列，文本顺着+x轴方向延展
 
-	// 该变量确定label-box相对于初始布局的姿态变化
-	point3 pose_{ 0, 0, 0 }; // pose_[0]表示偏航yaw，即绕着label-box平面的垂线（过anchor点）的旋转角度
-	                         // pose_[1]表示俯仰pitch，即绕着平行于坐标轴的直线（过anchor点）的旋转角度
-	                         // pose_[2]表示翻滚roll，即绕着坐标轴的垂线（过anchor点）的旋转角度
+	float labelPadding_{ 2 }; 
+	KeTextLayout labelLayout_{ k_horz_top };
+	color4f labelColor_{ 0, 0, 0, 1 };
+	bool labelBillboard_{ true }; // 以公告牌模式显示label，此时label的hDir始终超向屏幕的右侧，vDir始终朝向屏幕的下侧
+	//KpFont labelFont_;
+	float labelYaw_{ 0 }; // 绕label-box平面的垂线（过anchor点）的旋转角度（弧度），labelBillboard_为false时有效
+	float labelPitch_{ 0 }; //绕坐标轴的旋转角度（弧度），labelBillboard_为false时有效
+
+	// title的上下文
+
+	float titlePadding_{ 2 };
+	KeTextLayout titleLayout_{ k_horz_top };
+	color4f titleColor_{ 0, 0, 0, 1 };
+	//KpFont titleFont_;
+
+	point3 start_, end_;
+	//bool tickBothSide_{ false };
+
+	std::shared_ptr<KvTicker> ticker_;
+
+	int dimReal_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴?（用来显示colorbar）
+	int dimSwapped_; 
+	bool main_{ true }; // 是否主坐标轴
+	bool inv_{ false }; // 是否反转坐标轴
 
 
 	// 以下为尺寸计算缓存的临时变量
+	//
+	mutable vec3 tickOrient_;
+	mutable vec3 labelOrient_;
 	std::vector<point2> labelSize_;
 	mutable point2 titleSize_;
 	mutable point3 titleAnchor_; // title文本框的top-left坐标
