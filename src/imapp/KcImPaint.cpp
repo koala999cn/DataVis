@@ -10,12 +10,13 @@
 
 KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
 {
-	coords_.push_back(k_coord_world);
+	coords_.push_back(k_coord_local);
 }
 
 
 void KcImPaint::beginPaint()
 {
+	assert(coords_.size() == 1 && coords_.back() == k_coord_local);
 	camera_.updateProjectMatrixs();
 }
 
@@ -23,6 +24,7 @@ void KcImPaint::beginPaint()
 void KcImPaint::endPaint()
 {
 	// depth sorting
+	assert(coords_.size() == 1 && coords_.back() == k_coord_local);
 }
 
 
@@ -86,11 +88,17 @@ KcImPaint::point4 KcImPaint::project(const point4& pt) const
 {
 	switch (coords_.back())
 	{
-	case k_coord_world:
+	case k_coord_local:
 		return camera_.localToScreen(pt);
 
-	case k_coord_screen:
+	case k_coord_world:
+		return camera_.worldToScreen(pt);
+
+	case k_coord_local_screen:
 		return camera_.localToWorld(pt); // 仅执行局部变换
+
+	case k_coord_screen:
+		return pt;
 
 	default:
 		break;
@@ -105,11 +113,17 @@ KcImPaint::point4 KcImPaint::unproject(const point4& pt) const
 {
 	switch (coords_.back())
 	{
-	case k_coord_world:
+	case k_coord_local:
 		return camera_.screenToLocal(pt);
 
-	case k_coord_screen:
+	case k_coord_world:
+		return camera_.screenToWorld(pt);
+
+	case k_coord_local_screen:
 		return camera_.worldToLocal(pt); // 仅执行局部变换
+
+	case k_coord_screen:
+		return pt;
 
 	default:
 		break;

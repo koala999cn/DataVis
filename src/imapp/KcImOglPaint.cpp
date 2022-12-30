@@ -88,19 +88,33 @@ KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 {
 	switch (currentCoord())
 	{
-	case k_coord_world:
+	case k_coord_local:
 	{
 		auto p = camera_.localToNdc(pt);
 		p.z() = KtuMath<float_t>::clamp(p.z(), -1, 1); // FIXME: plot2d在此处z会超差，导致坐标轴线条无法显示
 		return { p.x(), p.y(), p.z() };
 	}
 
+	case k_coord_world:
+	{
+		auto p = camera_.worldToNdc(pt);
+		p.z() = KtuMath<float_t>::clamp(p.z(), -1, 1); // FIXME: plot2d在此处z会超差，导致坐标轴线条无法显示
+		return { p.x(), p.y(), p.z() };
+	}
+
 	case k_coord_screen:
+	{
+		auto p = camera_.screenToNdc(pt);
+		return { p.x(), p.y(), p.z() };
+	}
+
+	case k_coord_local_screen:
 	{
 		auto p = camera_.localToWorld(pt);
 		p = camera_.screenToNdc(p);
 		return { p.x(), p.y(), p.z() };
 	}
+
 	}
 
 	assert(false);

@@ -255,9 +255,11 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 		}
 		else {
 			assert(colorBar_);
-			KuLayoutHelper::take(colorBar_);
-			if (colorBar_) delete colorBar_;
-			colorBar_ = nullptr;
+			if (colorBar_) {
+				KuLayoutHelper::take(colorBar_);
+				if (colorBar_) delete colorBar_;
+				colorBar_ = nullptr;
+			}
 		}
 	}
 
@@ -266,7 +268,7 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 			legend_->addItem(addedPlt);
 		}
 		else {
-			// assert(colorBar_ == nullptr); 
+			assert(colorBar_ == nullptr); 
 			if (colorBar_) { // TODO: 如何处理多个color-bar？
 				KuLayoutHelper::take(colorBar_);
 				delete colorBar_;

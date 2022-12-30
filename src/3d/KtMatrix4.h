@@ -618,7 +618,7 @@ template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
 KtMatrix4<KReal, ROW_MAJOR>::projectPerspective(KReal fovyInDegree, KReal aspectRatio, KReal znear, KReal zfar)
 {
 	KReal ymax, xmax;
-	ymax = znear * std::tan(fovyInDegree * KtuMath<KReal>::pi / 180);
+	ymax = znear * std::tan(KtuMath<KReal>::deg2Rad(fovyInDegree));
 	xmax = ymax * aspectRatio;
 	return projectFrustum(-xmax, xmax, -ymax, ymax, znear, zfar);
 }
