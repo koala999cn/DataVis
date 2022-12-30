@@ -113,7 +113,10 @@ KcAxis::vec3 KcAxis::calcTickOrient_() const
 	
 	auto vPrep = orient.cross(vAxis); // 刻度线和坐标轴的垂直矢量
 	mat.fromAngleAxis(tickCxt_.yaw, vPrep.getNormalize());
-	return (mat * orient).getNormalize();
+	orient = mat * orient;
+	orient.normalize();
+
+	return orient;
 }
 
 

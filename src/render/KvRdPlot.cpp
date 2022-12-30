@@ -388,7 +388,7 @@ namespace kPrivate
 			ImGui::EndCombo();
 		}
 
-		ImGui::SliderFloat("Length", &cxt.length, 0, 25, "%0.1f px");
+		ImGui::SliderFloat("Length", &cxt.length, 0, 25, "%.1f px");
 
 		float yaw = KtuMath<float_t>::rad2Deg(cxt.yaw);
 		if (ImGui::SliderFloat("Yaw", &yaw, -90, 90, "%.f deg"))
