@@ -33,6 +33,8 @@ public:
 
 	point4 localToWorld(const point4& pt) const override;
 
+	point4 worldToLocal(const point4& pt) const override;
+
 	void setColor(const color_t& clr) override;
 
 	void setPointSize(float_t size) override;

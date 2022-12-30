@@ -206,7 +206,7 @@ private:
 	void drawLabel_(KvPaint* paint, const std::string_view& label, const point3& anchor, bool calcBox) const;
 
 	// 计算tick的朝向
-	vec3 calcTickOrient_() const;
+	vec3 calcTickOrient_(KvPaint*) const;
 
 	int labelAlignment_(KvPaint* paint, bool toggleTopBottom) const; // 根据label的orientation判定label的alignment
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧

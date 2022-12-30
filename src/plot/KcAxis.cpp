@@ -61,7 +61,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// tickOrient_和labelOrient_只计算一次
 	if (realShowTitle || showTick() || showLabel()) {
 		// TODO: if (calcBox) plot3d的时候不会调用计算模式
-		tickOrient_ = calcTickOrient_();
+		tickOrient_ = calcTickOrient_(paint);
 		if (paint->currentCoord() == KvPaint::k_coord_screen)
 			tickOrient_.y() *= -1; // TODO: 有无更好的方法
 		labelOrient_ = tickCxt_.side == k_inside ? -tickOrient_ : tickOrient_;
@@ -82,7 +82,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 }
 
 
-KcAxis::vec3 KcAxis::calcTickOrient_() const
+KcAxis::vec3 KcAxis::calcTickOrient_(KvPaint* paint) const
 {
 	// 12根坐标轴的默认外向朝向
 	static const vec3 baseOrient[] = {
@@ -102,11 +102,12 @@ KcAxis::vec3 KcAxis::calcTickOrient_() const
 		KcAxis::vec3::unitX()   // k_ceil_right
 	};
 
+	// 处理姿态旋转yaw和pitch（变换到世界坐标系进行旋转）
+
 	vec3 orient = (tickCxt_.side == k_inside) ? -baseOrient[typeReal()] : baseOrient[typeReal()];
-
-	// 处理姿态旋转yaw和pitch
-
-	auto vAxis = (end() - start()).getNormalize(); // 坐标轴方向矢量
+	// 此处的orient为世界坐标
+	
+	auto vAxis = paint->localToWorldV(end() - start()).getNormalize(); // 坐标轴方向矢量
 	KtMatrix3<float_t> mat;
 	mat.fromAngleAxis(tickCxt_.pitch, vAxis); // 绕坐标轴旋转pitch弧度
 	orient = mat * orient;
@@ -114,9 +115,8 @@ KcAxis::vec3 KcAxis::calcTickOrient_() const
 	auto vPrep = orient.cross(vAxis); // 刻度线和坐标轴的垂直矢量
 	mat.fromAngleAxis(tickCxt_.yaw, vPrep.getNormalize());
 	orient = mat * orient;
-	orient.normalize();
 
-	return orient;
+	return paint->worldToLocalV(orient).getNormalize(); // 变换回局部坐标系
 }
 
 
