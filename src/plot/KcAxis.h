@@ -138,14 +138,11 @@ public:
 		showTitle_ = true, showLabel_ = true;
 	}
 
-	const std::string& title() const { return title_; }
-	std::string& title() { return title_; }
-
-	const std::vector<std::string>& labels() const { return labels_; }
-	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
-
 	const KpPen& baselineContext() const { return baselineCxt_; }
 	KpPen& baselineContext() { return baselineCxt_; }
+
+	std::shared_ptr<KvTicker> ticker() const;
+	void setTicker(std::shared_ptr<KvTicker> tic);
 
 	const KpTickContext& tickContext() const { return tickCxt_; }
 	KpTickContext& tickContext() { return tickCxt_; }
@@ -153,24 +150,49 @@ public:
 	const KpTickContext& subtickContext() const { return subtickCxt_; }
 	KpTickContext& subtickContext() { return subtickCxt_; }
 
-	/// colors
+	/// title properties
 
-	const color4f& titleColor() const { return titleColor_; }
-	color4f& titleColor() { return titleColor_; }
-
-	const color4f& labelColor() const { return labelColor_; }
-	color4f& labelColor() { return labelColor_; }
-
-	/// fonts
-
-	//QFont labelFont() const { return labelFont_; }
-	//void setLabelFont(QFont font) { labelFont_ = font; }
+	const std::string& title() const { return title_; }
+	std::string& title() { return title_; }
 
 	//QFont titleFont() const { return titleFont_; }
 	//void setTitleFont(QFont font) { titleFont_ = font; }
 
-	std::shared_ptr<KvTicker> ticker() const;
-	void setTicker(std::shared_ptr<KvTicker> tic);
+	const color4f& titleColor() const { return titleColor_; }
+	color4f& titleColor() { return titleColor_; }
+
+	float titlePadding() const { return titlePadding_; }
+	float& titlePadding() { return titlePadding_; }
+
+	KeTextLayout titleLayout() const { return titleLayout_; }
+	KeTextLayout& titleLayout() { return titleLayout_; }
+
+	/// label properties
+
+	const std::vector<std::string>& labels() const { return labels_; }
+	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
+
+	//QFont labelFont() const { return labelFont_; }
+	//void setLabelFont(QFont font) { labelFont_ = font; }
+
+	const color4f& labelColor() const { return labelColor_; }
+	color4f& labelColor() { return labelColor_; }
+
+	float labelPadding() const { return labelPadding_; }
+	float& labelPadding() { return labelPadding_; }
+
+	KeTextLayout labelLayout() const { return labelLayout_; }
+	KeTextLayout& labelLayout() { return labelLayout_; }
+
+	bool labelBillboard() const { return labelBillboard_; }
+	bool& labelBillboard() { return labelBillboard_; }
+
+	float labelYaw() const { return labelYaw_; }
+	float& labelYaw() { return labelYaw_; }
+
+	float labelPitch() const { return labelPitch_; }
+	float& labelPitch() { return labelPitch_; }
+
 
 	// NB：布局之后（即调用calcSize之后），该函数才能返回有效值
 	aabb_t boundingBox() const override {
@@ -253,7 +275,6 @@ private:
 	//KpFont titleFont_;
 
 	point3 start_, end_;
-	//bool tickBothSide_{ false };
 
 	std::shared_ptr<KvTicker> ticker_;
 

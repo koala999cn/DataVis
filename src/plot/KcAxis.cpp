@@ -364,16 +364,30 @@ KcAxis::KeType KcAxis::typeReal() const
 // TODO: 更好的实现方案？
 void KcAxis::calcLabelPos_(KvPaint* paint, const std::string_view& label, const point3& anchor, point3& topLeft, point3& hDir, point3& vDir) const
 {
-	// 即可在世界坐标绘制，也可在屏幕坐标绘制
-    KeAlignment align = labelAlignment_(paint, paint->currentCoord() == KvPaint::k_coord_screen);
+	auto textBox = paint->textSize(label.data());
+	if (labelLayout_ == k_vert_left || labelLayout_ == k_vert_right)
+		std::swap(textBox.x(), textBox.y());
 
-	auto anchorInScreen = paint->projectp(anchor);
-	auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, paint->textSize(label.data()), align);
-	auto topLeftInScreen = point3(rc.lower().x(), rc.lower().y(), anchorInScreen.z()); // TODO: 这种转换应该不是完美的
+	if (labelBillboard_) { // 公告牌模式，文字始终顺着+x轴延展
 
-	topLeft = paint->unprojectp(topLeftInScreen);
-	hDir = paint->unprojectv(vec3::unitX());
-	vDir = paint->unprojectv(vec3::unitY());
+		bool toggle = paint->currentCoord() == KvPaint::k_coord_screen || paint->currentCoord() == KvPaint::k_coord_local_screen;
+		KeAlignment align = labelAlignment_(paint, toggle);
+
+		auto anchorInScreen = paint->projectp(anchor);
+		auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, textBox, align);
+		auto topLeftInScreen = point3(rc.lower().x(), rc.lower().y(), anchorInScreen.z()); // TODO: 这种转换应该不是完美的
+
+		topLeft = paint->unprojectp(topLeftInScreen);
+
+		hDir = paint->unprojectv(vec3::unitX());
+		vDir = paint->unprojectv(vec3::unitY());
+	}
+	else {
+		hDir = (end() - start()).getNormalize();
+		if (dim() > 0) hDir *= -1;
+		vDir = labelOrient_;
+		topLeft = anchor - hDir * (textBox.x() / 2) / paint->projectv(hDir).length();
+	}
 }
 
 

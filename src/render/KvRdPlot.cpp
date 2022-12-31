@@ -462,6 +462,7 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	open = false;
 	ImGuiX::cbTreePush("Label", &axis.showLabel(), &open);
 	if (open) {
+		ImGui::Checkbox("Billboard", &axis.labelBillboard());
 		ImGui::ColorEdit4("Color##label", axis.labelColor());
 		ImGuiX::cbTreePop();
 	}
