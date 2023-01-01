@@ -278,8 +278,8 @@ private:
 
 	std::shared_ptr<KvTicker> ticker_;
 
-	int dimReal_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴?（用来显示colorbar）
-	int dimSwapped_; 
+	int dimReal_; // 0表示x轴，1表示y轴，2表示z轴，-1表示不参与交换的数据轴（用来显示colorbar）
+	int dimSwapped_; // -1表示另外两个维度的坐标轴交换
 	bool main_{ true }; // 是否主坐标轴
 	bool inv_{ false }; // 是否反转坐标轴
 

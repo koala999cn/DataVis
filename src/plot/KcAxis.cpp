@@ -375,16 +375,43 @@ void KcAxis::calcLabelPos_(KvPaint* paint, const std::string_view& label, const 
 
 		auto anchorInScreen = paint->projectp(anchor);
 		auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, textBox, align);
-		auto topLeftInScreen = point3(rc.lower().x(), rc.lower().y(), anchorInScreen.z()); // TODO: 这种转换应该不是完美的
+		point3 topLeftInScreen;
+
+		switch (labelLayout_)
+		{
+		case KcAxis::k_horz_top: // 缺省布局
+			topLeftInScreen = point3(rc.lower().x(), rc.lower().y(), anchorInScreen.z()); 
+			hDir = paint->unprojectv(vec3::unitX());
+			vDir = paint->unprojectv(vec3::unitY());
+			break;
+
+		case KcAxis::k_horz_bottom: // 上下颠倒，topLeft调整到右下角
+			topLeftInScreen = point3(rc.upper().x(), rc.upper().y(), anchorInScreen.z());
+			hDir = paint->unprojectv(-vec3::unitX());
+			vDir = paint->unprojectv(-vec3::unitY());
+			break;
+
+		case KcAxis::k_vert_left: // 竖版布局，topLeft调整到左下角
+			topLeftInScreen = point3(rc.lower().x(), rc.upper().y(), anchorInScreen.z());
+			hDir = paint->unprojectv(-vec3::unitY());
+			vDir = paint->unprojectv(vec3::unitX());
+			break;
+
+		case KcAxis::k_vert_right:// 竖版布局，topLeft调整到右上角
+			topLeftInScreen = point3(rc.upper().x(), rc.lower().y(), anchorInScreen.z());
+			hDir = paint->unprojectv(vec3::unitY());
+			vDir = paint->unprojectv(-vec3::unitX());
+			break;
+
+		default:
+			break;
+		}
 
 		topLeft = paint->unprojectp(topLeftInScreen);
-
-		hDir = paint->unprojectv(vec3::unitX());
-		vDir = paint->unprojectv(vec3::unitY());
 	}
 	else {
 		hDir = (end() - start()).getNormalize();
-		if (dim() > 0) hDir *= -1;
+		if (dimSwapped_ > 0) hDir *= -1; // TODO: swap_yz模式下，文字还是反的
 		vDir = labelOrient_;
 		topLeft = anchor - hDir * (textBox.x() / 2) / paint->projectv(hDir).length();
 	}

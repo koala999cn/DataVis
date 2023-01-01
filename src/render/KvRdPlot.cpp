@@ -463,6 +463,20 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	ImGuiX::cbTreePush("Label", &axis.showLabel(), &open);
 	if (open) {
 		ImGui::Checkbox("Billboard", &axis.labelBillboard());
+
+		static const char* layouts[] = {
+			"standard",
+			"upside down",
+			"vertical left",
+			"vertical rigth"
+		};
+		if (ImGui::BeginCombo("Layout", layouts[axis.labelLayout()])) {
+			for (unsigned i = 0; i < std::size(layouts); i++)
+				if (ImGui::Selectable(layouts[i], i == axis.labelLayout()))
+					axis.labelLayout() = KcAxis::KeTextLayout(i);
+			ImGui::EndCombo();
+		}
+
 		ImGui::ColorEdit4("Color##label", axis.labelColor());
 		ImGuiX::cbTreePop();
 	}
