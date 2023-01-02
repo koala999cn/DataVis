@@ -297,6 +297,9 @@ void KtProjector<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
 
 	nsMat_ = vsMat_ * nvMat_;
 	wsMat_ = nsMat_ * vpMat_;
+
+	vsMatR_.reset();
+	nsMatR_.reset();
 }
 
 
@@ -304,10 +307,13 @@ template<typename KREAL, bool ROW_MAJOR>
 void KtProjector<KREAL, ROW_MAJOR>::updateProjectMatrixs()
 {
 	vpMat_ = projMat_ * viewMat_;
-	vpMatR_.reset();
-	resetModelRelatedMats_();
-
 	wsMat_ = nsMat_ * vpMat_;
+
+	vpMatR_.reset();
+	viewMatR_.reset();
+	projMatR_.reset();
+
+	resetModelRelatedMats_();
 }
 
 
@@ -317,14 +323,8 @@ void KtProjector<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
 	mvMat_.reset();
 	mvpMat_.reset();
 	mMatR_.reset();
-	viewMatR_.reset();
-	projMatR_.reset();
 	mvMatR_.reset();
 	mvpMatR_.reset();
-	vpMatR_.reset();
-
-	vsMatR_.reset();
-	nsMatR_.reset();
 }
 
 
