@@ -20,8 +20,6 @@ public:
 	KcCoord3d();
 	KcCoord3d(const point3& lower, const point3& upper);
 
-	aabb_t boundingBox() const override;
-
 	void forAxis(std::function<bool(KcAxis& axis)>) const override;
 
 	void forPlane(std::function<bool(KcCoordPlane& plane)>) const override;

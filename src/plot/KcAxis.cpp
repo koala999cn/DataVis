@@ -71,12 +71,14 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// draw ticks & label
 	if (showTick() || showLabel())
 		drawTicks_(paint, calcBox);
-	else if (realShowTitle) 
-		titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ / paint->projectv(labelOrient_).length();
+	//else if (realShowTitle) 
+	//	titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ / paint->projectv(labelOrient_).length();
 
 	// draw title
 	if (realShowTitle) {
 		paint->setColor(titleContext().color);
+		if (calcBox)
+			titleAnchor_ = calcTitleAnchor_(paint);
 		drawText_(paint, title_, titleCxt_, titleAnchor_, calcBox);
 	}
 }
@@ -145,12 +147,12 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	if (showLabel())
 		labelAnchors.resize(ticks.size());
 
-	if (showTitle()) {
+/*	if (showTitle()) {
 		titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ * labelPaddingPerPixel;
 
 		if (sameSide && showTick())
 			titleAnchor_ += tickOrient_ * tickCxt_.length * tickLenPerPixel;
-	}
+	}*/
 
 	for (unsigned i = 0; i < ticks.size(); i++) {
 		auto anchor = tickPos(ticks[i]);
@@ -176,10 +178,11 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
 			drawText_(paint, label, labelCxt_, labelAnchors[i], calcBox);
 
-			if (showTitle())
-				maxLabelSize = point2::ceil(maxLabelSize, paint->textSize(label.c_str()));
+			//if (showTitle())
+			//	maxLabelSize = point2::ceil(maxLabelSize, paint->textSize(label.c_str()));
 		}
 
+		/*
 		if (showTitle() || calcBox) {
 
 			vec3 h = vec3::unitX() * maxLabelSize.x(); // TODO: hDir
@@ -191,7 +194,7 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 			auto maxSqLen = std::max(h.squaredLength(), v.squaredLength());
 		
 			titleAnchor_ += labelOrient_ * (std::sqrt(maxSqLen) + labelPadding_ ) * labelPaddingPerPixel;
-		}
+		}*/
 	}
 
 	// minor
@@ -257,28 +260,32 @@ KcAxis::point3 KcAxis::tickPos(double val) const
 
 KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 {
-	assert(visible() && length() > 0 && dimReal_ < 2);
+	assert(visible());
 
-	auto paint = (KvPaint*)cxt;
+	if (length() > 0) {
 
-	switch (typeReal())
-	{
-	case KcAxis::k_left:
-		return { std::max<float_t>(calcMargins(paint).left(), baselineCxt_.width), 0 };
+		auto paint = (KvPaint*)cxt;
+		auto marg = calcMargins(paint);
 
-	case KcAxis::k_right:
-		return { std::max<float_t>(calcMargins(paint).right(), baselineCxt_.width), 0 };
+		switch (typeReal())
+		{
+		case KcAxis::k_left:
+			return { std::max<float_t>(marg.left(), baselineCxt_.width), 0 };
 
-	case KcAxis::k_bottom:
-		return { 0, std::max<float_t>(calcMargins(paint).bottom(), baselineCxt_.width) };
+		case KcAxis::k_right:
+			return { std::max<float_t>(marg.right(), baselineCxt_.width), 0 };
 
-	case KcAxis::k_top:
-		return { 0, std::max<float_t>(calcMargins(paint).top(), baselineCxt_.width) };
+		case KcAxis::k_bottom:
+			return { 0, std::max<float_t>(marg.bottom(), baselineCxt_.width) };
 
-	default:
-		break;
+		case KcAxis::k_top:
+			return { 0, std::max<float_t>(marg.top(), baselineCxt_.width) };
+
+		default:
+			break;
+		}
 	}
-	
+
 	return { 0, 0 };
 }
 
@@ -302,7 +309,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 	margs.right() = u.x();
 	margs.bottom() = u.y();
 	margs.top() = l.y();
-	assert(margs.ge({ 0, 0, 0, 0 }));
+	//assert(margs.ge({ 0, 0, 0, 0 }));
 
 	return margs;
 }
@@ -376,8 +383,8 @@ void KcAxis::calcTextPos_(KvPaint* paint, const std::string_view& label, const K
 		auto anchorInScreen = paint->projectp(anchor);
 		auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, textBox, align);
 		topLeft = paint->unprojectp({ rc.lower().x(), rc.lower().y(), anchorInScreen.z() });
-		hDir = paint->unprojectv(vec3::unitX());
-		vDir = paint->unprojectv(vec3::unitY());
+		hDir = paint->unprojectv(vec3::unitX()).getNormalize();
+		vDir = paint->unprojectv(vec3::unitY()).getNormalize();
 	}
 	else {
 		vDir = labelOrient_;
@@ -428,6 +435,9 @@ void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTe
 	point3 topLeft;
 	vec3 hDir, vDir;
 	calcTextPos_(paint, label.data(), cxt, anchor, topLeft, hDir, vDir);
+	assert(KtuMath<float_t>::almostEqual(1.0, hDir.length()));
+	assert(KtuMath<float_t>::almostEqual(1.0, vDir.length()));
+
 	if (!calcBox) {
 		paint->drawText(topLeft, hDir, vDir, label.data());
 	}
@@ -437,4 +447,19 @@ void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTe
 		auto v = vDir * sz.y() / paint->projectv(vDir).length();
 		box_.merge({ topLeft, topLeft + h + v });
 	}
+}
+
+
+KcAxis::point3 KcAxis::calcTitleAnchor_(KvPaint* paint) const
+{
+	auto center = (start() + end()) / 2;
+
+	aabb_t inner(start(), end());
+	auto low = box_.lower() - inner.lower();
+	auto up = box_.upper() - inner.upper();
+	point3 dir = labelOrient_.getNormalize();
+	for (int i = 0; i < 3; i++)
+		dir[i] = KtuMath<float_t>::sign(dir[i]) * std::max(dir[i] * low[i], dir[i] * up[i]);
+
+	return center + dir;
 }

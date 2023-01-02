@@ -81,7 +81,7 @@ public:
 		KpFont font;
 		color4f color{ 0, 0, 0, 1 };
 		KeTextLayout layout{ k_horz_top };
-		bool billboard{ false }; // 是否以公告牌模式显示text，若true则text的hDir始终超向屏幕的右侧，vDir始终朝向屏幕的下侧
+		bool billboard{ true }; // 是否以公告牌模式显示text，若true则text的hDir始终超向屏幕的右侧，vDir始终朝向屏幕的下侧
 		float yaw{ 0 }; // 绕text-box平面的垂线（过中心点）的旋转角度（弧度）
 		float pitch{ 0 }; // 绕hDir或vDir的旋转角度（弧度）
 	};
@@ -203,18 +203,20 @@ public:
 	void setSwapped_(int dimSwap) { dimSwapped_ = dimSwap; }
 
 private:
+	size_t calcSize_(void* cxt) const final;
+
 	void draw_(KvPaint*, bool calcBox) const;
 	void drawTicks_(KvPaint*, bool calcBox) const; // 绘制所有刻度
 	void drawTick_(KvPaint*, const point3& anchor, double length, bool calcBox) const; // 绘制单条刻度线，兼容主刻度与副刻度
 	void drawText_(KvPaint* paint, const std::string_view& label, const KpTextContext& cxt, const point3& anchor, bool calcBox) const;
 
-	// 计算tick的朝向
-	vec3 calcTickOrient_(KvPaint*) const;
-
 	int labelAlignment_(KvPaint* paint, bool toggleTopBottom) const; // 根据label的orientation判定label的alignment
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
 
-	size_t calcSize_(void* cxt) const final;
+	// 计算tick的朝向
+	vec3 calcTickOrient_(KvPaint*) const;
+
+	point3 calcTitleAnchor_(KvPaint*) const;
 
 	// 计算在3d空间绘制文本所需的3个参数：topLeft, hDir, vDir
 	void calcTextPos_(KvPaint*, const std::string_view& label, const KpTextContext& cxt, 

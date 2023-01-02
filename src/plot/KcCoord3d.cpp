@@ -77,12 +77,6 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 }
 
 
-KcCoord3d::aabb_t KcCoord3d::boundingBox() const
-{
-	return { lower(), upper() };
-}
-
-
 void KcCoord3d::forAxis(std::function<bool(KcAxis& axis)> fn) const
 {
 	for (unsigned i = 0; i < std::size(axes_); i++)
@@ -111,10 +105,16 @@ KcCoord3d::size_t KcCoord3d::calcSize_(void* cxt) const
 
 	layCoord_->calcSize(cxt);
 
+	forAxis([cxt](KcAxis& axis) {
+		if (axis.visible())
+		    axis.calcSize(cxt);
+		return true;
+		});
+
 	if (!layCoord_->empty()) { // 需要时才计算rcCoord_
 
-		aabb_t box(lower(), upper());
-		auto corns = box.allCorners();
+		auto corns = boundingBox().allCorners();
+		rcCoord_.setNull();
 
 		for (auto& i : corns) {
 			i = ((KvPaint*)cxt)->projectp(i);

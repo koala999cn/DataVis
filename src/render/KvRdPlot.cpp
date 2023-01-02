@@ -287,6 +287,8 @@ void KvRdPlot::showPlotProperty_()
 			ImGui::EndCombo();
 		}
 
+		ImGui::Checkbox("Show Layout Rect", &plot_->showLayoutRect());
+
 		ImGuiX::treePop();
 	}
 }

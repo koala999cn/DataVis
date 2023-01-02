@@ -46,6 +46,9 @@ public:
 	bool showColorBar() const { return showColorBar_; }
 	bool& showColorBar() { return showColorBar_; }
 
+	bool showLayoutRect() const { return showLayoutRect_; }
+	bool& showLayoutRect() { return showLayoutRect_; }
+
 	KvPaint& paint() { return *paint_.get(); }
 	KvCoord& coord() { return *coord_.get(); }
 

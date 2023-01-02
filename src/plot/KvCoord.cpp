@@ -134,7 +134,18 @@ void KvCoord::draw(KvPaint* paint) const
 
 KvCoord::aabb_t KvCoord::boundingBox() const
 {
-	auto l = lower(), u = upper();
+	aabb_t box(lower(), upper());
+
+	// NB: 增加axis的aabb之后，会影响投影矩阵的设置
+	// NB: 此外，很多其他对方对KvCoord::boundingBox的语义认知都是{ lower, upper }
+	//forAxis([&box](KcAxis& axis) {
+	//	if (axis.visible())
+	//		box.merge(axis.boundingBox());
+	//	return true;
+	//	});
+
+	auto& l = box.lower();
+	auto& u = box.upper();
 
 	switch (swapStatus_)
 	{
@@ -154,7 +165,7 @@ KvCoord::aabb_t KvCoord::boundingBox() const
 		break;
 	}
 
-	return { l, u };
+	return box;
 }
 
 

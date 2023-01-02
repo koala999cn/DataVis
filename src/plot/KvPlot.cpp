@@ -154,8 +154,10 @@ void KvPlot::update()
 
 int KvPlot::fixPlotView_()
 {
-	if (dim() != 2)
+	if (dim() != 2) {
+		assert(paint_->viewport() == coord_->getPlotRect());
 		return 0; // 只对plot2d进行修正
+	}
 
 	auto rcCanvas = paint_->viewport();
 	auto rcPlot = coord_->getPlotRect();
@@ -254,7 +256,7 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 			legend_->removeItem(removedPlt);
 		}
 		else {
-			assert(colorBar_);
+			//assert(colorBar_); // TODO:
 			if (colorBar_) {
 				KuLayoutHelper::take(colorBar_);
 				if (colorBar_) delete colorBar_;
@@ -268,7 +270,7 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 			legend_->addItem(addedPlt);
 		}
 		else {
-			assert(colorBar_ == nullptr); 
+			//assert(colorBar_ == nullptr); 
 			if (colorBar_) { // TODO: 如何处理多个color-bar？
 				KuLayoutHelper::take(colorBar_);
 				delete colorBar_;
