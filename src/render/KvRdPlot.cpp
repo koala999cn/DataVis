@@ -400,6 +400,40 @@ namespace kPrivate
 
 		ImGui::PopID();
 	}
+
+	void textContext(KcAxis::KpTextContext& cxt, bool showYawAndPitch)
+	{
+		ImGui::PushID(&cxt);
+
+		ImGui::Checkbox("Billboard", &cxt.billboard);
+
+		static const char* layouts[] = {
+			"standard",
+			"upside down",
+			"vertical left",
+			"vertical rigth"
+		};
+		if (ImGui::BeginCombo("Layout", layouts[cxt.layout])) {
+			for (unsigned i = 0; i < std::size(layouts); i++)
+				if (ImGui::Selectable(layouts[i], i == cxt.layout))
+					cxt.layout = KcAxis::KeTextLayout(i);
+			ImGui::EndCombo();
+		}
+
+		ImGui::ColorEdit4("Color##label", cxt.color);
+
+		if (showYawAndPitch) {
+			float yaw = KtuMath<float_t>::rad2Deg(cxt.yaw);
+			if (ImGui::SliderFloat("Yaw", &yaw, -90, 90, "%.f deg"))
+				cxt.yaw = KtuMath<float_t>::deg2Rad(yaw);
+
+			float pitch = KtuMath<float_t>::rad2Deg(cxt.pitch);
+			if (ImGui::SliderFloat("Pitch", &pitch, -90, 90, "%.f deg"))
+				cxt.pitch = KtuMath<float_t>::deg2Rad(pitch);
+		}
+
+		ImGui::PopID();
+	}
 }
 
 void KvRdPlot::showAxisProperty_(KcAxis& axis)
@@ -441,7 +475,7 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	ImGuiX::cbTreePush("Title", &axis.showTitle(), &open);
 	if (open) {
 		ImGui::InputText("Text", &axis.title());
-		ImGui::ColorEdit4("Color##title", axis.titleColor());
+		kPrivate::textContext(axis.titleContext(), false);
 		ImGuiX::cbTreePop();
 	}
 
@@ -462,22 +496,7 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	open = false;
 	ImGuiX::cbTreePush("Label", &axis.showLabel(), &open);
 	if (open) {
-		ImGui::Checkbox("Billboard", &axis.labelBillboard());
-
-		static const char* layouts[] = {
-			"standard",
-			"upside down",
-			"vertical left",
-			"vertical rigth"
-		};
-		if (ImGui::BeginCombo("Layout", layouts[axis.labelLayout()])) {
-			for (unsigned i = 0; i < std::size(layouts); i++)
-				if (ImGui::Selectable(layouts[i], i == axis.labelLayout()))
-					axis.labelLayout() = KcAxis::KeTextLayout(i);
-			ImGui::EndCombo();
-		}
-
-		ImGui::ColorEdit4("Color##label", axis.labelColor());
+		kPrivate::textContext(axis.labelContext(), true);
 		ImGuiX::cbTreePop();
 	}
 

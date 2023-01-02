@@ -76,8 +76,8 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 
 	// draw title
 	if (realShowTitle) {
-		paint->setColor(titleColor());
-		drawLabel_(paint, title_, titleAnchor_, calcBox);
+		paint->setColor(titleContext().color);
+		drawText_(paint, title_, titleCxt_, titleAnchor_, calcBox);
 	}
 }
 
@@ -169,12 +169,12 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	if (showLabel()) {
 
 		// TODO: paint->setFont();
-		paint->setColor(labelColor());
+		paint->setColor(labelContext().color);
 		auto& labels = ticker()->labels();
 		point2 maxLabelSize(0);
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
-			drawLabel_(paint, label, labelAnchors[i], calcBox);
+			drawText_(paint, label, labelCxt_, labelAnchors[i], calcBox);
 
 			if (showTitle())
 				maxLabelSize = point2::ceil(maxLabelSize, paint->textSize(label.c_str()));
@@ -339,19 +339,19 @@ KcAxis::KeType KcAxis::typeReal() const
 	constexpr static int swapType[][4] = {
 			/* swap_none */          /* swap_xy */           /* swap_xz */        /* swap_yz */
 		{ KcAxis::k_near_left,   KcAxis::k_near_bottom, KcAxis::k_far_right,   KcAxis::k_ceil_left   },
-		{ KcAxis::k_near_right,  KcAxis::k_near_top ,   KcAxis::k_far_left,    KcAxis::k_ceil_right  },
+		{ KcAxis::k_near_right,  KcAxis::k_near_top ,   KcAxis::k_near_right,  KcAxis::k_ceil_right  },
 		{ KcAxis::k_near_bottom, KcAxis::k_near_left,   KcAxis::k_floor_right, KcAxis::k_far_top     },
-		{ KcAxis::k_near_top,    KcAxis::k_near_right,  KcAxis::k_ceil_right,  KcAxis::k_far_bottom  },
+		{ KcAxis::k_near_top,    KcAxis::k_near_right,  KcAxis::k_ceil_right,  KcAxis::k_near_top  },
 
-		{ KcAxis::k_far_left,    KcAxis::k_far_bottom,  KcAxis::k_near_right,  KcAxis::k_floor_left  },
+		{ KcAxis::k_far_left,    KcAxis::k_far_bottom,  KcAxis::k_far_left,    KcAxis::k_floor_left  },
 		{ KcAxis::k_far_right,   KcAxis::k_far_top,     KcAxis::k_near_left,   KcAxis::k_floor_right },
-		{ KcAxis::k_far_bottom,  KcAxis::k_far_left,    KcAxis::k_floor_left,  KcAxis::k_near_top    },
+		{ KcAxis::k_far_bottom,  KcAxis::k_far_left,    KcAxis::k_floor_left,  KcAxis::k_far_bottom    },
 		{ KcAxis::k_far_top,     KcAxis::k_far_right,   KcAxis::k_ceil_left,   KcAxis::k_near_bottom },
 
-		{ KcAxis::k_floor_left,  KcAxis::k_ceil_right,  KcAxis::k_far_bottom,  KcAxis::k_far_left    },
+		{ KcAxis::k_floor_left,  KcAxis::k_floor_left,  KcAxis::k_far_bottom,  KcAxis::k_far_left    },
 		{ KcAxis::k_floor_right, KcAxis::k_ceil_left,   KcAxis::k_near_bottom, KcAxis::k_far_right   },
 		{ KcAxis::k_ceil_left,   KcAxis::k_floor_right, KcAxis::k_far_top,     KcAxis::k_near_left   },
-		{ KcAxis::k_ceil_right,  KcAxis::k_floor_left,  KcAxis::k_near_top,    KcAxis::k_near_right  }
+		{ KcAxis::k_ceil_right,  KcAxis::k_ceil_right,  KcAxis::k_near_top,    KcAxis::k_near_right  }
 	};
 	
 	if (dimReal_ == -1) return type_; // color-bar的坐标轴，无交换
@@ -361,76 +361,80 @@ KcAxis::KeType KcAxis::typeReal() const
 }
 
 
-// TODO: 更好的实现方案？
-void KcAxis::calcLabelPos_(KvPaint* paint, const std::string_view& label, const point3& anchor, point3& topLeft, point3& hDir, point3& vDir) const
+void KcAxis::calcTextPos_(KvPaint* paint, const std::string_view& label, const KpTextContext& cxt, 
+	const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const
 {
 	auto textBox = paint->textSize(label.data());
-	if (labelLayout_ == k_vert_left || labelLayout_ == k_vert_right)
+	if (cxt.layout == k_vert_left || cxt.layout == k_vert_right)
 		std::swap(textBox.x(), textBox.y());
 
-	if (labelBillboard_) { // 公告牌模式，文字始终顺着+x轴延展
+	if (cxt.billboard) { // 公告牌模式，文字始终顺着+x轴延展
 
 		bool toggle = paint->currentCoord() == KvPaint::k_coord_screen || paint->currentCoord() == KvPaint::k_coord_local_screen;
 		KeAlignment align = labelAlignment_(paint, toggle);
 
 		auto anchorInScreen = paint->projectp(anchor);
 		auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, textBox, align);
-		point3 topLeftInScreen;
-
-		switch (labelLayout_)
-		{
-		case KcAxis::k_horz_top: // 缺省布局
-			topLeftInScreen = point3(rc.lower().x(), rc.lower().y(), anchorInScreen.z()); 
-			hDir = paint->unprojectv(vec3::unitX());
-			vDir = paint->unprojectv(vec3::unitY());
-			break;
-
-		case KcAxis::k_horz_bottom: // 上下颠倒，topLeft调整到右下角
-			topLeftInScreen = point3(rc.upper().x(), rc.upper().y(), anchorInScreen.z());
-			hDir = paint->unprojectv(-vec3::unitX());
-			vDir = paint->unprojectv(-vec3::unitY());
-			break;
-
-		case KcAxis::k_vert_left: // 竖版布局，topLeft调整到左下角
-			topLeftInScreen = point3(rc.lower().x(), rc.upper().y(), anchorInScreen.z());
-			hDir = paint->unprojectv(-vec3::unitY());
-			vDir = paint->unprojectv(vec3::unitX());
-			break;
-
-		case KcAxis::k_vert_right:// 竖版布局，topLeft调整到右上角
-			topLeftInScreen = point3(rc.upper().x(), rc.lower().y(), anchorInScreen.z());
-			hDir = paint->unprojectv(vec3::unitY());
-			vDir = paint->unprojectv(-vec3::unitX());
-			break;
-
-		default:
-			break;
-		}
-
-		topLeft = paint->unprojectp(topLeftInScreen);
+		topLeft = paint->unprojectp({ rc.lower().x(), rc.lower().y(), anchorInScreen.z() });
+		hDir = paint->unprojectv(vec3::unitX());
+		vDir = paint->unprojectv(vec3::unitY());
 	}
 	else {
-		hDir = (end() - start()).getNormalize();
-		if (dimSwapped_ > 0) hDir *= -1; // TODO: swap_yz模式下，文字还是反的
 		vDir = labelOrient_;
+		hDir = (end() - start()).getNormalize();
+
+		vec3 h = paint->projectv(hDir);
+		vec3 v = paint->projectv(vDir);
+		auto zDir = h.cross(v);
+		if (zDir.z() < 0)
+			hDir *= -1; // 修正hDir，确保文字在三维空间的可读性
+
 		topLeft = anchor - hDir * (textBox.x() / 2) / paint->projectv(hDir).length();
 	}
+
+	textBox /= point2d(paint->projectv(hDir).length(), paint->projectv(vDir).length());
+
+	fixTextLayout_(cxt.layout, textBox, topLeft, hDir, vDir);
 }
 
 
-void KcAxis::drawLabel_(KvPaint* paint, const std::string_view& label, const point3& anchor, bool calcBox) const
+void KcAxis::fixTextLayout_(KeTextLayout lay, const size_t& textBox, point3& topLeft, vec3& hDir, vec3& vDir)
 {
-	point3 topLeft, hDir, vDir;
-	calcLabelPos_(paint, label.data(), anchor, topLeft, hDir, vDir);
+	switch (lay)
+	{
+	case KcAxis::k_horz_bottom: // 上下颠倒，topLeft调整到右下角
+		topLeft += hDir * textBox.x() + vDir * textBox.y();
+		hDir *= -1; vDir *= -1;
+		break;
+
+	case KcAxis::k_vert_left: // 竖版布局，topLeft调整到左下角
+		topLeft += vDir * textBox.y();
+		std::swap(hDir, vDir); hDir *= -1;
+		break;
+
+	case KcAxis::k_vert_right:// 竖版布局，topLeft调整到右上角
+		topLeft += hDir * textBox.x();
+		std::swap(hDir, vDir); vDir *= -1;
+		break;
+
+	case KcAxis::k_horz_top: // 缺省布局，不作调整
+	default:
+		break;
+	}
+}
+
+void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTextContext& cxt, const point3& anchor, bool calcBox) const
+{
+	point3 topLeft;
+	vec3 hDir, vDir;
+	calcTextPos_(paint, label.data(), cxt, anchor, topLeft, hDir, vDir);
 	if (!calcBox) {
 		paint->drawText(topLeft, hDir, vDir, label.data());
 	}
 	else {
 		auto sz = paint->textSize(label.data());
-		auto h = paint->projectv(hDir) * sz.x();
-		auto v = paint->projectv(vDir) * sz.y();
-		h = paint->unprojectv(h);
-		v = paint->unprojectv(v);
+		auto h = hDir * sz.x() / paint->projectv(hDir).length();
+		auto v = vDir * sz.y() / paint->projectv(vDir).length();
 		box_.merge({ topLeft, topLeft + h + v });
 	}
 }

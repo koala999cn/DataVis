@@ -168,9 +168,9 @@ void KcThemedPlotImpl_::applyTextColor(int level, std::function<color4f(const co
 	if (level & k_axis) {
 		forAxis_(level, [level, op](KcAxis& axis) {
 			if (level & k_label)
-				axis.labelColor() = op(axis.labelColor());
+				axis.labelContext().color = op(axis.labelContext().color);
 			if (level & k_title)
-				axis.titleColor() = op(axis.titleColor());
+				axis.titleContext().color = op(axis.titleContext().color);
 			return true;
 			});
 	}

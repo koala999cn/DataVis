@@ -76,6 +76,16 @@ public:
 		}
 	};
 
+	struct KpTextContext
+	{
+		KpFont font;
+		color4f color{ 0, 0, 0, 1 };
+		KeTextLayout layout{ k_horz_top };
+		bool billboard{ false }; // 是否以公告牌模式显示text，若true则text的hDir始终超向屏幕的右侧，vDir始终朝向屏幕的下侧
+		float yaw{ 0 }; // 绕text-box平面的垂线（过中心点）的旋转角度（弧度）
+		float pitch{ 0 }; // 绕hDir或vDir的旋转角度（弧度）
+	};
+
 	KcAxis(KeType type, int dim, bool main);
 
 	KeType type() const { return type_; }
@@ -93,14 +103,6 @@ public:
 		start_ = st, end_ = ed;
 	}
 
-	//const vec3& tickOrient() const { return tickOrient_; }
-	//vec3& tickOrient() { return tickOrient_; }
-
-	//const vec3& labelOrient() const { return labelOrient_; }
-	//vec3& labelOrient() { return labelOrient_; }
-
-	//bool tickBothSide() const { return tickBothSide_; }
-	//bool& tickBothSide() { return tickBothSide_; }
 
 	/// range 
 
@@ -155,43 +157,22 @@ public:
 	const std::string& title() const { return title_; }
 	std::string& title() { return title_; }
 
-	//QFont titleFont() const { return titleFont_; }
-	//void setTitleFont(QFont font) { titleFont_ = font; }
-
-	const color4f& titleColor() const { return titleColor_; }
-	color4f& titleColor() { return titleColor_; }
-
 	float titlePadding() const { return titlePadding_; }
 	float& titlePadding() { return titlePadding_; }
 
-	KeTextLayout titleLayout() const { return titleLayout_; }
-	KeTextLayout& titleLayout() { return titleLayout_; }
+	KpTextContext titleContext() const { return titleCxt_; }
+	KpTextContext& titleContext() { return titleCxt_; }
 
 	/// label properties
 
 	const std::vector<std::string>& labels() const { return labels_; }
 	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
 
-	//QFont labelFont() const { return labelFont_; }
-	//void setLabelFont(QFont font) { labelFont_ = font; }
-
-	const color4f& labelColor() const { return labelColor_; }
-	color4f& labelColor() { return labelColor_; }
-
 	float labelPadding() const { return labelPadding_; }
 	float& labelPadding() { return labelPadding_; }
 
-	KeTextLayout labelLayout() const { return labelLayout_; }
-	KeTextLayout& labelLayout() { return labelLayout_; }
-
-	bool labelBillboard() const { return labelBillboard_; }
-	bool& labelBillboard() { return labelBillboard_; }
-
-	float labelYaw() const { return labelYaw_; }
-	float& labelYaw() { return labelYaw_; }
-
-	float labelPitch() const { return labelPitch_; }
-	float& labelPitch() { return labelPitch_; }
+	KpTextContext labelContext() const { return labelCxt_; }
+	KpTextContext& labelContext() { return labelCxt_; }
 
 
 	// NB：布局之后（即调用calcSize之后），该函数才能返回有效值
@@ -225,7 +206,7 @@ private:
 	void draw_(KvPaint*, bool calcBox) const;
 	void drawTicks_(KvPaint*, bool calcBox) const; // 绘制所有刻度
 	void drawTick_(KvPaint*, const point3& anchor, double length, bool calcBox) const; // 绘制单条刻度线，兼容主刻度与副刻度
-	void drawLabel_(KvPaint* paint, const std::string_view& label, const point3& anchor, bool calcBox) const;
+	void drawText_(KvPaint* paint, const std::string_view& label, const KpTextContext& cxt, const point3& anchor, bool calcBox) const;
 
 	// 计算tick的朝向
 	vec3 calcTickOrient_(KvPaint*) const;
@@ -236,7 +217,11 @@ private:
 	size_t calcSize_(void* cxt) const final;
 
 	// 计算在3d空间绘制文本所需的3个参数：topLeft, hDir, vDir
-	void calcLabelPos_(KvPaint*, const std::string_view& label, const point3& anchor, point3& topLeft, point3& hDir, point3& vDir) const;
+	void calcTextPos_(KvPaint*, const std::string_view& label, const KpTextContext& cxt, 
+		const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const;
+
+	// 根据layout修正topLeft、hDir & vDir
+	static void fixTextLayout_(KeTextLayout lay, const size_t& textBox, point3& topLeft, vec3& hDir, vec3& vDir);
 
 private:
 	KeType type_;
@@ -260,19 +245,12 @@ private:
 	// 在不考虑labelPadding_的情况下，若label与tick同侧，anchor点与刻度线的末端重合，否则与刻度点重合
 
 	float labelPadding_{ 2 }; 
-	KeTextLayout labelLayout_{ k_horz_top };
-	color4f labelColor_{ 0, 0, 0, 1 };
-	bool labelBillboard_{ true }; // 以公告牌模式显示label，此时label的hDir始终超向屏幕的右侧，vDir始终朝向屏幕的下侧
-	//KpFont labelFont_;
-	float labelYaw_{ 0 }; // 绕label-box平面的垂线（过anchor点）的旋转角度（弧度），labelBillboard_为false时有效
-	float labelPitch_{ 0 }; //绕坐标轴的旋转角度（弧度），labelBillboard_为false时有效
+	KpTextContext labelCxt_;
 
 	// title的上下文
 
 	float titlePadding_{ 2 };
-	KeTextLayout titleLayout_{ k_horz_top };
-	color4f titleColor_{ 0, 0, 0, 1 };
-	//KpFont titleFont_;
+	KpTextContext titleCxt_;
 
 	point3 start_, end_;
 
