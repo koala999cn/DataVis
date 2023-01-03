@@ -47,38 +47,42 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 {
 	assert(visible());
 
-	if (calcBox)
-		box_ = aabb_t(start(), end());
-
 	// draw baseline
-	if (showBaseline() && baselineCxt_.style != KpPen::k_none && !calcBox) {
-		paint->apply(baselineCxt_);
-		paint->drawLine(start(), end()); // 物理坐标
+	if (showBaseline() && baselineCxt_.style != KpPen::k_none) {
+		if (!calcBox) {
+			paint->apply(baselineCxt_);
+			paint->drawLine(start(), end()); // 物理坐标
+		}
+		else {
+			box_ = aabb_t(start(), end());
+		}
 	}
 
 	auto realShowTitle = showTitle() && !title().empty();
 
 	// tickOrient_和labelOrient_只计算一次
 	if (realShowTitle || showTick() || showLabel()) {
-		// TODO: if (calcBox) plot3d的时候不会调用计算模式
-		tickOrient_ = calcTickOrient_(paint);
-		if (paint->currentCoord() == KvPaint::k_coord_screen)
-			tickOrient_.y() *= -1; // TODO: 有无更好的方法
-		labelOrient_ = tickCxt_.side == k_inside ? -tickOrient_ : tickOrient_;
+		if (calcBox) {
+			tickOrient_ = calcTickOrient_(paint);
+			if (paint->currentCoord() == KvPaint::k_coord_screen)
+				tickOrient_.y() *= -1; // TODO: 有无更好的方法
+			labelOrient_ = tickCxt_.side == k_inside ? -tickOrient_ : tickOrient_;
+		}
 	}
 
 
 	// draw ticks & label
 	if (showTick() || showLabel())
 		drawTicks_(paint, calcBox);
-	//else if (realShowTitle) 
-	//	titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ / paint->projectv(labelOrient_).length();
 
 	// draw title
 	if (realShowTitle) {
-		paint->setColor(titleContext().color);
+		
 		if (calcBox)
-			titleAnchor_ = calcTitleAnchor_(paint);
+			titleAnchor_ = calcTitleAnchor_(paint); // NB: 确保每次渲染只计算一次
+		else
+			paint->setColor(titleContext().color);
+
 		drawText_(paint, title_, titleCxt_, titleAnchor_, calcBox);
 	}
 }
@@ -147,13 +151,6 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	if (showLabel())
 		labelAnchors.resize(ticks.size());
 
-/*	if (showTitle()) {
-		titleAnchor_ = (start() + end()) / 2 + labelOrient_ * titlePadding_ * labelPaddingPerPixel;
-
-		if (sameSide && showTick())
-			titleAnchor_ += tickOrient_ * tickCxt_.length * tickLenPerPixel;
-	}*/
-
 	for (unsigned i = 0; i < ticks.size(); i++) {
 		auto anchor = tickPos(ticks[i]);
 
@@ -177,24 +174,7 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
 			drawText_(paint, label, labelCxt_, labelAnchors[i], calcBox);
-
-			//if (showTitle())
-			//	maxLabelSize = point2::ceil(maxLabelSize, paint->textSize(label.c_str()));
 		}
-
-		/*
-		if (showTitle() || calcBox) {
-
-			vec3 h = vec3::unitX() * maxLabelSize.x(); // TODO: hDir
-			vec3 v = vec3::unitY() * maxLabelSize.y(); // TODO: vDir
-			
-			h = h.projectedTo(ll);
-			v = v.projectedTo(ll);
-		
-			auto maxSqLen = std::max(h.squaredLength(), v.squaredLength());
-		
-			titleAnchor_ += labelOrient_ * (std::sqrt(maxSqLen) + labelPadding_ ) * labelPaddingPerPixel;
-		}*/
 	}
 
 	// minor
