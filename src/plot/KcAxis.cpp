@@ -68,10 +68,8 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// tickOrient_和labelOrient_只计算一次
 	if (realShowTitle || showTick() || showLabel()) {
 		//if (calcBox) {
-			tickOrient_ = calcTickOrient_(paint);
-			if (paint->currentCoord() == KvPaint::k_coord_screen)
-				tickOrient_.y() *= -1; // TODO: 有无更好的方法
-			labelOrient_ = tickCxt_.side == k_inside ? -tickOrient_ : tickOrient_;
+			calcTickOrient_(paint);
+			calcLabelOrient_(paint);
 		//}
 	}
 
@@ -86,16 +84,16 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 		if (!calcBox)
 			paint->setColor(titleContext().color);
 
-		titleAnchor_ = calcTitleAnchor_(paint); 
+		calcTitleAnchor_(paint); 
 		drawText_(paint, title_, titleCxt_, titleAnchor_, calcBox);
 	}
 }
 
 
-KcAxis::vec3 KcAxis::calcTickOrient_(KvPaint* paint) const
+KcAxis::vec3 KcAxis::outsideOrient_() const
 {
 	// 12根坐标轴的默认外向朝向
-	static const vec3 baseOrient[] = {
+	static const vec3 outsideOrient[] = {
 		-KcAxis::vec3::unitX(), // k_near_left
 		KcAxis::vec3::unitX(),  // k_near_right
 		-KcAxis::vec3::unitY(), // k_near_bottom
@@ -112,21 +110,59 @@ KcAxis::vec3 KcAxis::calcTickOrient_(KvPaint* paint) const
 		KcAxis::vec3::unitX()   // k_ceil_right
 	};
 
-	// 处理姿态旋转yaw和pitch（变换到世界坐标系进行旋转）
+	return outsideOrient[typeReal()];
+}
 
-	vec3 orient = (tickCxt_.side == k_inside) ? -baseOrient[typeReal()] : baseOrient[typeReal()];
+
+KcAxis::vec3 KcAxis::insideOrient_() const
+{
+	return -outsideOrient_();
+}
+
+
+KcAxis::vec3 KcAxis::axisOrient_() const
+{
+	return (end() - start()).getNormalize();
+}
+
+
+void KcAxis::calcTickOrient_(KvPaint* paint) const
+{
 	// 此处的orient为世界坐标
-	
-	auto vAxis = paint->localToWorldV(end() - start()).getNormalize(); // 坐标轴方向矢量
+	vec3 tickOrient = (tickCxt_.side == k_inside) ? insideOrient_() : outsideOrient_();
+
+	auto vAxis = paint->localToWorldV(axisOrient_()); // 坐标轴方向矢量
 	KtMatrix3<float_t> mat;
 	mat.fromAngleAxis(tickCxt_.pitch, vAxis); // 绕坐标轴旋转pitch弧度
-	orient = mat * orient;
+	tickOrient = mat * tickOrient;
 	
-	auto vPrep = orient.cross(vAxis); // 刻度线和坐标轴的垂直矢量
+	auto vPrep = tickOrient.cross(vAxis); // 刻度线和坐标轴的垂直矢量
 	mat.fromAngleAxis(tickCxt_.yaw, vPrep.getNormalize());
-	orient = mat * orient;
+	tickOrient = mat * tickOrient;
 
-	return paint->worldToLocalV(orient).getNormalize(); // 变换回局部坐标系
+	tickOrient_ = paint->worldToLocalV(tickOrient).getNormalize(); // 变换回局部坐标系
+
+	if (paint->currentCoord() == KvPaint::k_coord_screen)
+		tickOrient_.y() *= -1; // TODO: 有无更好的方法
+}
+
+
+void KcAxis::calcLabelOrient_(KvPaint* paint) const
+{
+	labelOrient_ = tickCxt_.side == k_inside ? -tickOrient_ : tickOrient_;
+
+	// 将labelOrient_变换为垂直于axis的方向
+	auto axisOrient = axisOrient_();
+	labelOrient_ = axisOrient.cross(labelOrient_);
+	labelOrient_ = labelOrient_.cross(axisOrient).getNormalize();
+
+	// NB:确保label始终朝外侧（当tickOrient与axisOrient平行时，labelOrient_可能指向内侧）
+	if (labelOrient_.dot(outsideOrient_()) < 0)
+		labelOrient_ *= -1;
+
+	KtMatrix3<float_t> mat;
+	mat.fromAngleAxis(labelCxt_.pitch, axisOrient);
+	labelOrient_ = mat * labelOrient_;
 }
 
 
@@ -174,9 +210,9 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 		auto& labels = ticker()->labels();
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
-			paint->setPointSize(3);
-			paint->drawPoint(labelAnchors[i]); // for debug
 			drawText_(paint, label, labelCxt_, labelAnchors[i], calcBox);
+			//paint->setPointSize(3);
+			//paint->drawPoint(labelAnchors[i]); // for debug
 		}
 	}
 
@@ -211,10 +247,12 @@ int KcAxis::labelAlignment_(KvPaint* paint) const
 	auto axisOrient = paint->projectv(end() - start());
 	auto labelOrient = paint->projectv(labelOrient_); // TODO: 区分label和title
 
-	if (std::abs(axisOrient.x()) < std::abs(axisOrient.y()))
+	if (std::abs(axisOrient.x()) < std::abs(axisOrient.y())) {
 		return labelOrient.x() > 0 ? KeAlignment::k_left : KeAlignment::k_right;
-	else
+	}
+	else {
 		return labelOrient.y() > 0 ? KeAlignment::k_top : KeAlignment::k_bottom;
+	}
 }
 
 
@@ -353,16 +391,17 @@ void KcAxis::calcTextPos_(KvPaint* paint, const std::string_view& label, const K
 
 	if (cxt.billboard) { // 公告牌模式，文字始终顺着+x轴延展
 
+		hDir = paint->unprojectv(vec3::unitX()).getNormalize();
+		vDir = paint->unprojectv(vec3::unitY()).getNormalize();
+
 		auto align = labelAlignment_(paint);
 		auto anchorInScreen = paint->projectp(anchor);
 		auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, textBox, align);
 		topLeft = paint->unprojectp({ rc.lower().x(), rc.lower().y(), anchorInScreen.z() });
-		hDir = paint->unprojectv(vec3::unitX()).getNormalize();
-		vDir = paint->unprojectv(vec3::unitY()).getNormalize();
 	}
 	else {
 		vDir = labelOrient_;
-		hDir = (end() - start()).getNormalize();
+		hDir = axisOrient_();
 
 		vec3 h = paint->projectv(hDir);
 		vec3 v = paint->projectv(vDir);
@@ -409,7 +448,16 @@ void KcAxis::fixTextLayout_(KeTextLayout lay, const size_t& textBox, point3& top
 
 void KcAxis::fixTextRotation_(const KpTextContext& cxt, const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const
 {
+	auto vAxis = axisOrient_();
+	KtMatrix3<float_t> mat;
 
+	mat.fromAngleAxis(cxt.yaw, hDir.cross(vDir).normalize());
+
+	hDir = mat * hDir;
+	vDir = mat * vDir; 
+	//vDir = hDir.cross(vDir).cross(hDir);
+	assert(KtuMath<float_t>::almostEqual(hDir.dot(vDir), 0));
+	topLeft = anchor + mat * (topLeft - anchor);
 }
 
 
@@ -433,19 +481,22 @@ void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTe
 }
 
 
-KcAxis::point3 KcAxis::calcTitleAnchor_(KvPaint* paint) const
+void KcAxis::calcTitleAnchor_(KvPaint* paint) const
 {
 	auto center = (start() + end()) / 2;
 
 	aabb_t inner(start(), end());
 	auto low = box_.lower() - inner.lower();
 	auto up = box_.upper() - inner.upper();
-	point3 dir = labelOrient_;
+	auto orient = labelOrient_;
+	point3 shift;
 	for (int i = 0; i < 3; i++)
-		dir[i] = KtuMath<float_t>::sign(dir[i]) * std::max(dir[i] * low[i], dir[i] * up[i]);
+		shift[i] = std::max(orient[i] * low[i], orient[i] * up[i]);
+
+	titleAnchor_ = center + orient * shift;
 
 	// 加上padding
-	dir += labelOrient_ * titlePadding_ / paint->projectv(labelOrient_).length();
+	titleAnchor_ += orient * titlePadding_ / paint->projectv(orient).length();
 
-	return center + dir;
+	// paint->drawBox(box_.lower(), box_.upper()); // for debug
 }

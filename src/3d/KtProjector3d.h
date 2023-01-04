@@ -292,8 +292,8 @@ void KtProjector<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
 	}
 
 	// x, y方向各偏移0.5，相当于作round
-	vsMat_.m03() += 0.5;
-	vsMat_.m13() += 0.5;
+	//vsMat_.m03() += 0.5;
+	//vsMat_.m13() += 0.5;
 
 	nsMat_ = vsMat_ * nvMat_;
 	wsMat_ = nsMat_ * vpMat_;

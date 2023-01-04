@@ -243,38 +243,18 @@ void KvRdPlot::showPlotProperty_()
 
 		ImGui::ColorEdit4("Background", plot_->background().color);
 
-		bool anti = plot_->paint().antialiasing();
-		if (ImGui::Checkbox("Antialiasing", &anti))
-			plot_->paint().enableAntialiasing(anti);
-
 		auto& coord = plot_->coord();
-
-		if (ImGuiX::treePush("Range", true)) {
-			ImGui::Checkbox("Auto Fit", &plot_->autoFit());
-
-			auto lower = point3f(coord.lower());
-			auto upper = point3f(coord.upper());
-			auto speed = (upper - lower) * 0.1;
-			for (unsigned i = 0; i < speed.size(); i++)
-				if (speed.at(i) == 0)
-					speed.at(i) = 1;
-
-			static const char* axisName[] = { "X", "Y", "Z" };
-			for (char i = 0; i < plot_->dim(); i++) {
-				if (ImGui::DragFloatRange2(axisName[i], &lower[i], &upper[i], speed[i])) {
-					coord.setExtents(lower, upper);
-					plot_->autoFit() = false;
-				}
+		auto lower = point3f(coord.lower());
+		auto upper = point3f(coord.upper());
+		auto speed = (upper - lower) * 0.1;
+		for (unsigned i = 0; i < speed.size(); i++)
+			if (speed.at(i) == 0) speed.at(i) = 1;
+		static const char* axisName[] = { "X Range", "Y Range", "Z Range" };
+		for (char i = 0; i < plot_->dim(); i++) {
+			if (ImGui::DragFloatRange2(axisName[i], &lower[i], &upper[i], speed[i])) {
+				coord.setExtents(lower, upper);
+				plot_->autoFit() = false;
 			}
-
-			ImGuiX::treePop();
-		}
-
-		const char* label[] = { "Invert X", "Invert Y", "Invert Z" };
-		for (int i = 0; i < plot_->dim(); i++) {
-			bool inv = coord.axisInversed(i);
-			if (ImGui::Checkbox(label[i], &inv))
-				coord.inverseAxis(i, inv);
 		}
 
 		const char* swapStr[] = { "No Swap", "Swap XY", "Swap XZ", "Swap YZ" };
@@ -286,6 +266,18 @@ void KvRdPlot::showPlotProperty_()
 
 			ImGui::EndCombo();
 		}
+
+		ImGui::Checkbox("Auto Fit", &plot_->autoFit());
+		const char* label[] = { "Invert X", "Invert Y", "Invert Z" };
+		for (int i = 0; i < plot_->dim(); i++) {
+			bool inv = coord.axisInversed(i);
+			if (ImGui::Checkbox(label[i], &inv))
+				coord.inverseAxis(i, inv);
+		}
+
+		bool anti = plot_->paint().antialiasing();
+		if (ImGui::Checkbox("Antialiasing", &anti))
+			plot_->paint().enableAntialiasing(anti);
 
 		ImGui::Checkbox("Show Layout Rect", &plot_->showLayoutRect());
 
@@ -376,18 +368,20 @@ void KvRdPlot::showCoordProperty_()
 
 namespace kPrivate
 {
-	void tickContext(KcAxis::KpTickContext& cxt)
+	void tickContext(KcAxis::KpTickContext& cxt, bool showSide)
 	{
 		ImGuiX::pen(&cxt, false); // no style. tick始终使用solid线条
 
 		ImGui::PushID(&cxt);
 
-		const static char* side[] = { "inside", "outside", "bothside" };
-		if (ImGui::BeginCombo("Side", side[cxt.side])) {
-			for (unsigned i = 0; i < std::size(side); i++)
-				if (ImGui::Selectable(side[i], i == cxt.side))
-					cxt.side = KcAxis::KeTickSide(i);
-			ImGui::EndCombo();
+		if (showSide) {
+			const static char* side[] = { "inside", "outside", "bothside" };
+			if (ImGui::BeginCombo("Side", side[cxt.side])) {
+				for (unsigned i = 0; i < std::size(side); i++)
+					if (ImGui::Selectable(side[i], i == cxt.side))
+						cxt.side = KcAxis::KeTickSide(i);
+				ImGui::EndCombo();
+			}
 		}
 
 		ImGui::SliderFloat("Length", &cxt.length, 0, 25, "%.1f px");
@@ -478,20 +472,21 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	if (open) {
 		ImGui::InputText("Text", &axis.title());
 		kPrivate::textContext(axis.titleContext(), false);
+		ImGui::DragFloat("Padding", &axis.titlePadding(), 1, 0, 20, "%.f px");
 		ImGuiX::cbTreePop();
 	}
 
 	open = false;
 	ImGuiX::cbTreePush("Tick", &axis.showTick(), &open);
 	if (open) {
-		kPrivate::tickContext(axis.tickContext());
+		kPrivate::tickContext(axis.tickContext(), true);
 		ImGuiX::cbTreePop();
 	}
 
 	open = false;
 	ImGuiX::cbTreePush("Subtick", &axis.showSubtick(), &open);
 	if (open) {
-		kPrivate::tickContext(axis.subtickContext());
+		kPrivate::tickContext(axis.subtickContext(), false);
 		ImGuiX::cbTreePop();
 	}
 
@@ -499,6 +494,7 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	ImGuiX::cbTreePush("Label", &axis.showLabel(), &open);
 	if (open) {
 		kPrivate::textContext(axis.labelContext(), true);
+		ImGui::DragFloat("Padding", &axis.labelPadding(), 1, 0, 20, "%.f px");
 		ImGuiX::cbTreePop();
 	}
 

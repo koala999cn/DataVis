@@ -205,6 +205,10 @@ public:
 private:
 	size_t calcSize_(void* cxt) const final;
 
+	vec3 outsideOrient_() const;
+	vec3 insideOrient_() const;
+	vec3 axisOrient_() const;
+
 	void draw_(KvPaint*, bool calcBox) const;
 	void drawTicks_(KvPaint*, bool calcBox) const; // 绘制所有刻度
 	void drawTick_(KvPaint*, const point3& anchor, double length, bool calcBox) const; // 绘制单条刻度线，兼容主刻度与副刻度
@@ -214,9 +218,12 @@ private:
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
 
 	// 计算tick的朝向
-	vec3 calcTickOrient_(KvPaint*) const;
+	void calcTickOrient_(KvPaint*) const;
 
-	point3 calcTitleAnchor_(KvPaint*) const;
+	// 计算label的朝向. 须在calcTickOrient_之后调用
+	void calcLabelOrient_(KvPaint*) const;
+
+	void calcTitleAnchor_(KvPaint*) const;
 
 	// 计算在3d空间绘制文本所需的3个参数：topLeft, hDir, vDir
 	void calcTextPos_(KvPaint*, const std::string_view& label, const KpTextContext& cxt, 

@@ -384,7 +384,7 @@ KcImPaint::point2 KcImPaint::textSize(const char* text) const
 ImVec2 KcImPaint::project_(const point3& pt, bool round) const
 {
 	auto pos = projectp(pt);
-	return round ? ImVec2(int(pos.x()), int(pos.y())) : ImVec2(pos.x(), pos.y());
+	return round ? ImVec2(std::round(pos.x()), std::round(pos.y())) : ImVec2(pos.x(), pos.y());
 }
 
 
