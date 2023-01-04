@@ -210,7 +210,7 @@ private:
 	void drawTick_(KvPaint*, const point3& anchor, double length, bool calcBox) const; // 绘制单条刻度线，兼容主刻度与副刻度
 	void drawText_(KvPaint* paint, const std::string_view& label, const KpTextContext& cxt, const point3& anchor, bool calcBox) const;
 
-	int labelAlignment_(KvPaint* paint, bool toggleTopBottom) const; // 根据label的orientation判定label的alignment
+	int labelAlignment_(KvPaint* paint) const; // 根据label的orientation判定label的alignment
 	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
 
 	// 计算tick的朝向
@@ -224,6 +224,9 @@ private:
 
 	// 根据layout修正topLeft、hDir & vDir
 	static void fixTextLayout_(KeTextLayout lay, const size_t& textBox, point3& topLeft, vec3& hDir, vec3& vDir);
+
+	// 处理文本的旋转（yaw & pitch）
+	void fixTextRotation_(const KpTextContext& cxt, const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const;
 
 private:
 	KeType type_;

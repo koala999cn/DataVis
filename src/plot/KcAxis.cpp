@@ -142,10 +142,8 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 
 
 	// 计算屏幕坐标1个像素尺度，相当于世界坐标多少个单位长度
-	auto tl = paint->projectv(tickOrient_);
-	auto ll = paint->projectv(labelOrient_);
-	float_t tickLenPerPixel = 1 / tl.length();
-	float_t labelPaddingPerPixel = 1 / ll.length();
+	float_t tickLenPerPixel = 1. / paint->projectv(tickOrient_).length();
+	float_t labelPaddingPerPixel = 1. / paint->projectv(labelOrient_).length();
 
 	if (!calcBox)
 	    paint->apply(tickCxt_);
@@ -174,9 +172,10 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 		// TODO: paint->setFont();
 		paint->setColor(labelContext().color);
 		auto& labels = ticker()->labels();
-		point2 maxLabelSize(0);
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
+			paint->setPointSize(3);
+			paint->drawPoint(labelAnchors[i]); // for debug
 			drawText_(paint, label, labelCxt_, labelAnchors[i], calcBox);
 		}
 	}
@@ -207,22 +206,15 @@ void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length, bool
 }
 
 
-int KcAxis::labelAlignment_(KvPaint* paint, bool toggleTopBottom) const
+int KcAxis::labelAlignment_(KvPaint* paint) const
 {
-	int align(0);
-	auto labelOrient = paint->localToWorldV(labelOrient_); // labelOrient_
+	auto axisOrient = paint->projectv(end() - start());
+	auto labelOrient = paint->projectv(labelOrient_); // TODO: 区分label和title
 
-	if (labelOrient.x() > 0)
-		align |= KeAlignment::k_left;
-	else if (labelOrient.x() < 0)
-		align |= KeAlignment::k_right;
-
-	if (labelOrient.y() > 0 || labelOrient.z() < 0 )
-		align |= toggleTopBottom ? KeAlignment::k_top : KeAlignment::k_bottom;
-	else if (labelOrient.y() < 0 || labelOrient.z() > 0)
-		align |= toggleTopBottom ? KeAlignment::k_bottom : KeAlignment::k_top;
-
-	return align;
+	if (std::abs(axisOrient.x()) < std::abs(axisOrient.y()))
+		return labelOrient.x() > 0 ? KeAlignment::k_left : KeAlignment::k_right;
+	else
+		return labelOrient.y() > 0 ? KeAlignment::k_top : KeAlignment::k_bottom;
 }
 
 
@@ -361,9 +353,7 @@ void KcAxis::calcTextPos_(KvPaint* paint, const std::string_view& label, const K
 
 	if (cxt.billboard) { // 公告牌模式，文字始终顺着+x轴延展
 
-		bool toggle = paint->currentCoord() == KvPaint::k_coord_screen || paint->currentCoord() == KvPaint::k_coord_local_screen;
-		KeAlignment align = labelAlignment_(paint, toggle);
-
+		auto align = labelAlignment_(paint);
 		auto anchorInScreen = paint->projectp(anchor);
 		auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, textBox, align);
 		topLeft = paint->unprojectp({ rc.lower().x(), rc.lower().y(), anchorInScreen.z() });
@@ -383,9 +373,11 @@ void KcAxis::calcTextPos_(KvPaint* paint, const std::string_view& label, const K
 		topLeft = anchor - hDir * (textBox.x() / 2) / paint->projectv(hDir).length();
 	}
 
+	// fixTextLayout_需要textBox为世界坐标尺寸，此处进行变换
 	textBox /= point2d(paint->projectv(hDir).length(), paint->projectv(vDir).length());
-
 	fixTextLayout_(cxt.layout, textBox, topLeft, hDir, vDir);
+
+	fixTextRotation_(cxt, anchor, topLeft, hDir, vDir);
 }
 
 
@@ -413,6 +405,13 @@ void KcAxis::fixTextLayout_(KeTextLayout lay, const size_t& textBox, point3& top
 		break;
 	}
 }
+
+
+void KcAxis::fixTextRotation_(const KpTextContext& cxt, const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const
+{
+
+}
+
 
 void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTextContext& cxt, const point3& anchor, bool calcBox) const
 {
