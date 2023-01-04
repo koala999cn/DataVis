@@ -47,27 +47,32 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 {
 	assert(visible());
 
+	// NB: 无论calcBox是否为true，都须重新计算box_
+	// 因为计算布局（calcBox为true）和真实绘制（calcBox为false）时，
+	// 变化矩阵堆栈可能不同，特别是后者可能新压入了scale矩阵，
+	// 这就到这前期计算的box_和其他与世界坐标相关的长度和位置不可用
+	box_.setNull();
+
 	// draw baseline
 	if (showBaseline() && baselineCxt_.style != KpPen::k_none) {
 		if (!calcBox) {
 			paint->apply(baselineCxt_);
 			paint->drawLine(start(), end()); // 物理坐标
 		}
-		else {
-			box_ = aabb_t(start(), end());
-		}
+
+		box_ = aabb_t(start(), end());
 	}
 
 	auto realShowTitle = showTitle() && !title().empty();
 
 	// tickOrient_和labelOrient_只计算一次
 	if (realShowTitle || showTick() || showLabel()) {
-		if (calcBox) {
+		//if (calcBox) {
 			tickOrient_ = calcTickOrient_(paint);
 			if (paint->currentCoord() == KvPaint::k_coord_screen)
 				tickOrient_.y() *= -1; // TODO: 有无更好的方法
 			labelOrient_ = tickCxt_.side == k_inside ? -tickOrient_ : tickOrient_;
-		}
+		//}
 	}
 
 
@@ -78,11 +83,10 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// draw title
 	if (realShowTitle) {
 		
-		if (calcBox)
-			titleAnchor_ = calcTitleAnchor_(paint); // NB: 确保每次渲染只计算一次
-		else
+		if (!calcBox)
 			paint->setColor(titleContext().color);
 
+		titleAnchor_ = calcTitleAnchor_(paint); 
 		drawText_(paint, title_, titleCxt_, titleAnchor_, calcBox);
 	}
 }
@@ -195,11 +199,11 @@ void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length, bool
 	auto d = tickOrient_ * length;
 	if (!calcBox)
 		paint->drawLine(tickCxt_.side == k_bothside ? anchor - d : anchor, anchor + d);
-	else {
+	//else {
 		box_.merge(anchor + d);
 		if (tickCxt_.side == k_bothside)
 			box_.merge(anchor - d);
-	}
+	//}
 }
 
 
@@ -421,12 +425,12 @@ void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTe
 	if (!calcBox) {
 		paint->drawText(topLeft, hDir, vDir, label.data());
 	}
-	else {
+	//else {
 		auto sz = paint->textSize(label.data());
 		auto h = hDir * sz.x() / paint->projectv(hDir).length();
 		auto v = vDir * sz.y() / paint->projectv(vDir).length();
 		box_.merge({ topLeft, topLeft + h + v });
-	}
+	//}
 }
 
 
@@ -437,9 +441,12 @@ KcAxis::point3 KcAxis::calcTitleAnchor_(KvPaint* paint) const
 	aabb_t inner(start(), end());
 	auto low = box_.lower() - inner.lower();
 	auto up = box_.upper() - inner.upper();
-	point3 dir = labelOrient_.getNormalize();
+	point3 dir = labelOrient_;
 	for (int i = 0; i < 3; i++)
 		dir[i] = KtuMath<float_t>::sign(dir[i]) * std::max(dir[i] * low[i], dir[i] * up[i]);
+
+	// 加上padding
+	dir += labelOrient_ * titlePadding_ / paint->projectv(labelOrient_).length();
 
 	return center + dir;
 }

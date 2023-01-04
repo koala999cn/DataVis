@@ -28,7 +28,7 @@
 3. 给数据加时间戳stamp
 
 ## FIXME
-1. 使用layout系统后，plot的axis留白出现问题 --> 主要因为布局计算之后压入了缩放矩阵，而前期计算的anchor和contentSize（世界坐标）却没有正常缩放
+1. 使用layout系统后，plot的axis留白出现问题 --> tick-label超出coord的innerRect区域
 2. 三维坐标系下，虚线的绘制（ImGui）在旋转到特定方向时会出现错位 --> 使用opengl绘制后，该问题没再出现，估计由于计算误差引起
 3. 加载大的text数据文件很慢
 4. 坐标轴刻度旋转时出现突变
