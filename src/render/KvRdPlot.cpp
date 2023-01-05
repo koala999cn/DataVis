@@ -243,6 +243,10 @@ void KvRdPlot::showPlotProperty_()
 
 		ImGui::ColorEdit4("Background", plot_->background().color);
 
+		auto margs = plot_->margins();
+		if (ImGuiX::margins("Margins", margs))
+			plot_->setMargins(margs);
+
 		auto& coord = plot_->coord();
 		auto lower = point3f(coord.lower());
 		auto upper = point3f(coord.upper());
@@ -370,7 +374,7 @@ namespace kPrivate
 {
 	void tickContext(KcAxis::KpTickContext& cxt, bool subtick)
 	{
-		ImGuiX::pen(&cxt, false); // no style. tick始终使用solid线条
+		ImGuiX::pen(cxt, false); // no style. tick始终使用solid线条
 
 		ImGui::PushID(&cxt);
 
@@ -463,7 +467,7 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	open = false;
 	ImGuiX::cbTreePush("Baseline", &axis.showBaseline(), &open);
 	if (open) {
-		ImGuiX::pen(&axis.baselineContext(), true);
+		ImGuiX::pen(axis.baselineContext(), true);
 		ImGuiX::cbTreePop();
 	}
 

@@ -3,6 +3,7 @@
 #include <vector>
 #include <functional>
 #include "../plot/KtColor.h"
+#include "../plot/KtMargins.h"
 
 class KvData;
 class KpPen;
@@ -70,5 +71,9 @@ namespace ImGuiX
 
 	bool cbInputText(const char* label, bool* show, std::string* text);
 
-	bool pen(KpPen* cxt, bool showStyle);
+	bool pen(KpPen& cxt, bool showStyle);
+
+	bool margins(const char* label, KtMargins<float>& m);
+
+	bool margins(const char* label, KtMargins<double>& m);
 }

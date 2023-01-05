@@ -86,12 +86,14 @@ namespace kPrivate
 
 namespace ImGuiX
 {
+    using namespace ImGui;
+
 	void AddLineDashed(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness, unsigned int num_segments, unsigned int on_segments, unsigned int off_segments)
 	{
         if ((col >> 24) == 0)
             return;
 
-        auto dl = ImGui::GetWindowDrawList();
+        auto dl = GetWindowDrawList();
         int on = 0, off = 0;
         ImVec2 dir = (b - a) / num_segments;
         for (int i = 0; i <= num_segments; i++)
@@ -123,11 +125,11 @@ namespace ImGuiX
     void drawColorBar(std::vector<color4f>& colors, const ImVec2& startPos, const ImVec2& blockSize, float blockSpace)
     {
         float step = blockSize.x + blockSpace;
-        ImGui::Dummy(ImVec2(colors.size() * step - blockSpace, blockSize.y));
+        Dummy(ImVec2(colors.size() * step - blockSpace, blockSize.y));
         auto blockMin = startPos;
         for (unsigned i = 0; i < colors.size(); i++) {
             auto blockMax = blockMin + blockSize;
-            ImGui::GetWindowDrawList()->AddRectFilled(
+            GetWindowDrawList()->AddRectFilled(
                 blockMin, blockMax, ImColor((ImVec4&)colors[i]));
             blockMin.x += step;
         }
@@ -219,16 +221,16 @@ namespace ImGuiX
             if (c == 0) { // show the row-index
                 if (type == KuDataUtil::k_sampled_2d) {
                     if (r == 0)
-                        ImGui::Text("dy");
+                        Text("dy");
                     else 
-                        ImGui::Text("%d", r);
+                        Text("%d", r);
                 }
                 else {
-                    ImGui::Text("%d", r + 1);
+                    Text("%d", r + 1);
                 }
             }
             else {
-                ImGui::Text("%g", fn(r, c - 1));
+                Text("%g", fn(r, c - 1));
             }
         };
 
@@ -241,8 +243,8 @@ namespace ImGuiX
         unsigned freezeCols, unsigned freeszRows,
         const std::vector<std::string>& headers)
     {
-        const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("ABC").x;
-        const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
+        const float TEXT_BASE_WIDTH = CalcTextSize("ABC").x;
+        const float TEXT_BASE_HEIGHT = GetTextLineHeightWithSpacing();
         const static ImGuiTableFlags flags =
             ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY |
             ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
@@ -251,75 +253,75 @@ namespace ImGuiX
         if (cols > 64)
             cols = 64; // TODO: ImGui要求总列数不超过64
 
-        if (ImGui::BeginTable("LargeTable", cols, flags)) {
+        if (BeginTable("LargeTable", cols, flags)) {
 
-            ImGui::TableSetupScrollFreeze(freezeCols, freeszRows);
+            TableSetupScrollFreeze(freezeCols, freeszRows);
 
             if (!headers.empty()) {
                 for (unsigned c = 0; c < cols; c++)
-                    ImGui::TableSetupColumn(headers[c].c_str());
-                ImGui::TableHeadersRow();
+                    TableSetupColumn(headers[c].c_str());
+                TableHeadersRow();
             }
 
             ImGuiListClipper clipper;
             clipper.Begin(rows);
             while (clipper.Step()) {
                 for (int r = clipper.DisplayStart; r < clipper.DisplayEnd; r++) {
-                    ImGui::TableNextRow();
+                    TableNextRow();
                     for (int c = 0; c < cols; c++) 
-                        if (ImGui::TableSetColumnIndex(c))
+                        if (TableSetColumnIndex(c))
                             fnShow(r, c);
                 }
             }
 
-            ImGui::EndTable();
+            EndTable();
         }
     }
 
 
     bool prefixCheckbox(const char* label, bool* v)
     {
-        auto w = ImGui::CalcItemWidth();
+        auto w = CalcItemWidth();
 
-        bool res = ImGui::Checkbox(label, v);
+        bool res = Checkbox(label, v);
 
-        ImGui::PushItemWidth(w - ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x);
-        ImGui::SameLine();
+        PushItemWidth(w - GetItemRectSize().x - GetStyle().ItemSpacing.x);
+        SameLine();
 
         return res;
     }
 
     bool treePush(const char* label, bool defaultOpen)
     {
-        return ImGui::TreeNodeEx(label, 
+        return TreeNodeEx(label, 
             defaultOpen ? ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_FramePadding
                         : ImGuiTreeNodeFlags_FramePadding);
     }
 
     void treePop()
     {
-        ImGui::TreePop();
+        TreePop();
     }
 
     bool cbTreePush(const char* label, bool* show, bool* open)
     {
         std::string node("##N"); node += label;
         *open = treePush(node.c_str(), *open);
-        ImGui::SameLine();
-        return ImGui::Checkbox(label, show);
+        SameLine();
+        return Checkbox(label, show);
     }
 
     void cbTreePop()
     {
-        ImGui::TreePop();
+        TreePop();
     }
 
     bool cbInputText(const char* label, bool* show, std::string* text)
     {
         std::string box("##I"); box += label;
         bool res = prefixCheckbox(box.c_str(), show);
-        res |= ImGui::InputText(label, text);
-        ImGui::PopItemWidth();
+        res |= InputText(label, text);
+        PopItemWidth();
         return res;
     }
 
@@ -327,7 +329,7 @@ namespace ImGuiX
     {
         std::string node("##N"); node += label;
         *open = treePush(node.c_str(), *open);
-        ImGui::SameLine();
+        SameLine();
         return cbInputText(label, show, text);
     }
 
@@ -335,42 +337,42 @@ namespace ImGuiX
     {
         if (treePush(label, false)) {
 
-            ImVec2 itemSize(ImGui::CalcTextSize("Outter").x * 2, 0);
+            ImVec2 itemSize(CalcTextSize("Outter").x * 2, 0);
 
             bool outter = loc.outter();
             int spacing = 12;
 
-            if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NW" : "WN", itemSize)) 
+            if (Button(loc & KeAlignment::k_vert_first ? "NW" : "WN", itemSize)) 
                 kPrivate::switchAlign(loc, KeAlignment::k_left | KeAlignment::k_top);
-            ImGui::SameLine(0, spacing);
+            SameLine(0, spacing);
 
-            if (ImGui::Button("N", itemSize)) 
+            if (Button("N", itemSize)) 
                 kPrivate::switchAlign(loc, KeAlignment::k_top | KeAlignment::k_hcenter);
-            ImGui::SameLine(0, spacing);
+            SameLine(0, spacing);
 
-            if (ImGui::Button(loc & KeAlignment::k_vert_first ? "NE" : "EN", itemSize))
+            if (Button(loc & KeAlignment::k_vert_first ? "NE" : "EN", itemSize))
                 kPrivate::switchAlign(loc, KeAlignment::k_right | KeAlignment::k_top);
 
-            if (ImGui::Button("W", itemSize)) 
+            if (Button("W", itemSize)) 
                 kPrivate::switchAlign(loc, KeAlignment::k_left | KeAlignment::k_vcenter);
-            ImGui::SameLine(0, spacing);
+            SameLine(0, spacing);
 
-            if (ImGui::Button(outter ? "Out" : "In", itemSize))
+            if (Button(outter ? "Out" : "In", itemSize))
                 loc.toggleSide();
-            ImGui::SameLine(0, spacing);
+            SameLine(0, spacing);
 
-            if (ImGui::Button("E", itemSize))
+            if (Button("E", itemSize))
                 kPrivate::switchAlign(loc, KeAlignment::k_right | KeAlignment::k_vcenter);
 
-            if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SW" : "WS", itemSize))
+            if (Button(loc & KeAlignment::k_vert_first ? "SW" : "WS", itemSize))
                 kPrivate::switchAlign(loc, KeAlignment::k_left | KeAlignment::k_bottom);
-            ImGui::SameLine(0, spacing);
+            SameLine(0, spacing);
 
-            if (ImGui::Button("S", itemSize))
+            if (Button("S", itemSize))
                 kPrivate::switchAlign(loc, KeAlignment::k_bottom | KeAlignment::k_hcenter);
-            ImGui::SameLine(0, spacing);
+            SameLine(0, spacing);
 
-            if (ImGui::Button(loc & KeAlignment::k_vert_first ? "SE" : "ES", itemSize))
+            if (Button(loc & KeAlignment::k_vert_first ? "SE" : "ES", itemSize))
                 kPrivate::switchAlign(loc, KeAlignment::k_right | KeAlignment::k_bottom);
 
             treePop();
@@ -381,9 +383,9 @@ namespace ImGuiX
         return false;
     }
 
-    bool pen(KpPen* cxt, bool showStyle)
+    bool pen(KpPen& cxt, bool showStyle)
     {
-        ImGui::PushID(cxt);
+        PushID(&cxt);
 
         bool res = false;
         
@@ -393,22 +395,76 @@ namespace ImGuiX
                 "dash4", "dash8", "dash dot", "dash dot dot"
             };
 
-            if (ImGui::BeginCombo("Style", styles[cxt->style])) {
+            if (BeginCombo("Style", styles[cxt.style])) {
                 for (unsigned i = 0; i < std::size(styles); i++) {
-                    if (ImGui::Selectable(styles[i], i == cxt->style))
-                        cxt->style = i;
+                    if (Selectable(styles[i], i == cxt.style))
+                        cxt.style = i;
                 }
 
-                ImGui::EndCombo();
+                EndCombo();
             }
         }
 
-        res |= ImGui::SliderFloat("Width", &cxt->width, 0.1, 5.0, "%.1f px");
-        res |= ImGui::ColorEdit4("Color", cxt->color);
+        res |= SliderFloat("Width", &cxt.width, 0.1, 5.0, "%.1f px");
+        res |= ColorEdit4("Color", cxt.color);
   
-        ImGui::PopID();
+        PopID();
 
         return res;
+    }
+
+
+    template<typename T>
+    bool margins_(const char* label, KtMargins<T>& m)
+    {
+        BeginGroup();
+        PushID(&m);
+
+        const ImGuiStyle& style = ImGui::GetStyle();
+        const float w_full = CalcItemWidth();
+        const float w_inputs = w_full;
+        constexpr int components = 4;
+        const float w_item_one = std::max(1.0f, std::floorf((w_inputs - (style.ItemInnerSpacing.x) * (components - 1)) / (float)components));
+        const float w_item_last = std::max(1.0f, std::floorf(w_inputs - (w_item_one + style.ItemInnerSpacing.x) * (components - 1)));
+
+        bool value_changed = false;
+        static const char* ids[4] = { "##L", "##T", "##R", "##B" };
+        static const char* fmt_table_[4] = {
+            "L:%.f px", "T:%.f px", "R:%.f px", "B:%.f px"
+        };
+        static const T min_ = 0.;
+        static const T max_ = 30.;
+
+        int dataType;
+        if constexpr (std::is_same_v<T, float>)
+            dataType = ImGuiDataType_Float;
+        else
+            dataType = ImGuiDataType_Double;
+
+        for (int n = 0; n < components; n++) {
+            SetNextItemWidth((n + 1 < components) ? w_item_one : w_item_last);
+            value_changed |= DragScalar(ids[n], dataType, &m[n], 1.0f, &min_, &max_, fmt_table_[n]);
+            SameLine(0, style.ItemInnerSpacing.x);
+        }
+
+        SameLine(0.0f, style.ItemInnerSpacing.x);
+        ImGui::Text(label);
+
+        PopID();
+        EndGroup();
+
+        return value_changed;
+    }
+
+    bool margins(const char* label, KtMargins<float>& m)
+    {
+        return margins_<float>(label, m);
+    }
+
+
+    bool margins(const char* label, KtMargins<double>& m)
+    {
+        return margins_<double>(label, m);
     }
 
 }
