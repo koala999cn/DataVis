@@ -115,7 +115,7 @@ public:
 	}
 	KtPoint& operator/=(T factor) {
 		for (unsigned i = 0; i < size(); i++)
-			at[i] = at(i) / factor;
+			at(i) = at(i) / factor;
 		return *this;
 	}
 
