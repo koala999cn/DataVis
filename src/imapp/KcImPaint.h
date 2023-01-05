@@ -6,9 +6,8 @@
 
 class KcImPaint : public KvPaint
 {
-	using camera_type = KtProjector<float_t>;
-	
 public:
+	using camera_type = KtProjector<float_t>;
 
 	KcImPaint(camera_type& cam);
 
@@ -33,6 +32,8 @@ public:
 	point4 unproject(const point4& pt) const override;
 
 	point4 localToWorld(const point4& pt) const override;
+
+	point4 worldToLocal(const point4& pt) const override;
 
 	void setColor(const color_t& clr) override;
 
@@ -64,11 +65,11 @@ public:
 
 	void drawText(const point3& anchor, const char* text, int align) override;
 
-	void drawGeom(geom_ptr geom) override;
+	//void drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 
 	point2 textSize(const char* text) const override;
 
-private:
+protected:
 	ImVec2 project_(const point3& pt, bool round = false) const;
 
 	static ImColor imColor(const color_t& clr) {
@@ -85,14 +86,12 @@ private:
 	void drawLinePattern_(const ImVec2& from, const ImVec2& to, const std::vector<int>& pat);
 
 
-private:
+protected:
 	camera_type& camera_;
 	color_t clr_{ 0, 0, 0, 1 };
 	float_t lineWidth_{ 1 };
 	int lineStyle_{ 0 };
-	float_t pointSize_{ 2 };
-
-	KtMatrix4<float_t> vp_; // ×ø±ê±ä»»¾ØÕó
+	float_t pointSize_{ 1 };
 
 	std::vector<int> coords_; // ×ø±êÏµ¶ÑÕ»
 };

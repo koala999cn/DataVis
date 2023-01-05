@@ -141,21 +141,22 @@ void KcLayoutGrid::arrangeColStack_(const rect_t& rc)
 	super_::arrange_(rc, 0); // 初始化iRect_
 
 	auto unusedSpace = iRect_.width();
-	auto fixedSpace = expectRoom()[0];
+	auto fixedSpace = contentSize()[0];
 	auto extraSpace = std::max(0., unusedSpace - fixedSpace);
 
 	auto spacePerShare = extraShares()[0] ? extraSpace / extraShares()[0] : 0;
 
 	rect_t rcItem = iRect_;
-	rcItem.upper()[1] = rcItem.lower()[1]; // 屏蔽另一个维度
+	rcItem.setExtent(1, 0); // 屏蔽另一个维度
 	for (unsigned c = 0; c < cols(); c++) {
 		// 支持fixd-item和squeezed-item的混合体
-		auto itemSpace = szCols_[c].first + szCols_[c].second * spacePerShare;
-
-		rcItem.upper()[0] = rcItem.lower()[0] + itemSpace;
+		rcItem.setExtent(0, szCols_[c].first + szCols_[c].second * spacePerShare);
 
 		for (unsigned r = 0; r < rows(); r++) {
-			auto ele = rowAt(r)->getAt(c);
+			// TODO: 此处没有调用rowAt(r)的arrange，所以rowAt(r)的x维度尺寸为0
+			// rowAt(r)->arrange_(rcItem, 0); 
+
+			auto ele = rowAt(r)->getAt(c); 
 			if (ele) ele->arrange(rcItem);
 		}
 

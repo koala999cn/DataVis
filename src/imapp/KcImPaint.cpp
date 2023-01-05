@@ -10,12 +10,13 @@
 
 KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
 {
-	coords_.push_back(k_coord_world);
+	coords_.push_back(k_coord_local);
 }
 
 
 void KcImPaint::beginPaint()
 {
+	assert(coords_.size() == 1 && coords_.back() == k_coord_local);
 	camera_.updateProjectMatrixs();
 }
 
@@ -23,6 +24,7 @@ void KcImPaint::beginPaint()
 void KcImPaint::endPaint()
 {
 	// depth sorting
+	assert(coords_.size() == 1 && coords_.back() == k_coord_local);
 }
 
 
@@ -86,11 +88,17 @@ KcImPaint::point4 KcImPaint::project(const point4& pt) const
 {
 	switch (coords_.back())
 	{
+	case k_coord_local:
+		return camera_.localToScreen(pt).homogenize(); // NB: 透视投影须作归一化
+
 	case k_coord_world:
-		return camera_.localToScreen(pt);
+		return camera_.worldToScreen(pt).homogenize(); // NB: 透视投影须作归一化
+
+	case k_coord_local_screen:
+		return camera_.localToWorld(pt); // 仅执行局部变换
 
 	case k_coord_screen:
-		return camera_.localToWorld(pt); // 仅执行局部变换
+		return pt;
 
 	default:
 		break;
@@ -105,11 +113,17 @@ KcImPaint::point4 KcImPaint::unproject(const point4& pt) const
 {
 	switch (coords_.back())
 	{
+	case k_coord_local:
+		return camera_.screenToLocal(pt).homogenize();
+
 	case k_coord_world:
-		return camera_.screenToLocal(pt);
+		return camera_.screenToWorld(pt).homogenize();
+
+	case k_coord_local_screen:
+		return camera_.worldToLocal(pt); // 仅执行局部变换
 
 	case k_coord_screen:
-		return camera_.worldToLocal(pt); // 仅执行局部变换
+		return pt;
 
 	default:
 		break;
@@ -123,6 +137,12 @@ KcImPaint::point4 KcImPaint::unproject(const point4& pt) const
 KcImPaint::point4 KcImPaint::localToWorld(const point4& pt) const
 {
 	return camera_.localToWorld(pt);
+}
+
+
+KcImPaint::point4 KcImPaint::worldToLocal(const point4& pt) const
+{
+	return camera_.worldToLocal(pt);
 }
 
 
@@ -323,8 +343,8 @@ void KcImPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
 	drawList->PrimUnreserve(0, noninters);
 }
 
-
-void KcImPaint::drawGeom(geom_ptr geom)
+#if 0
+void KcImPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	drawList->PrimReserve(geom->indexCount(), geom->vertexCount());
@@ -341,7 +361,7 @@ void KcImPaint::drawGeom(geom_ptr geom)
 	for (unsigned i = 0; i < geom->indexCount(); i++)
 		drawList->PrimWriteIdx(geom->indexAt(i) + vtxIdx0);
 }
-
+#endif
 
 void KcImPaint::drawText(const point3& anchor, const char* text, int align)
 {
@@ -364,7 +384,7 @@ KcImPaint::point2 KcImPaint::textSize(const char* text) const
 ImVec2 KcImPaint::project_(const point3& pt, bool round) const
 {
 	auto pos = projectp(pt);
-	return round ? ImVec2(int(pos.x()), int(pos.y())) : ImVec2(pos.x(), pos.y());
+	return round ? ImVec2(std::round(pos.x()), std::round(pos.y())) : ImVec2(pos.x(), pos.y());
 }
 
 

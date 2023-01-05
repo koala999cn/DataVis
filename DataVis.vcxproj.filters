@@ -40,6 +40,12 @@
     <Filter Include="layout">
       <UniqueIdentifier>{042ff681-4dc1-456c-bc11-8be0a9bc789c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="opengl">
+      <UniqueIdentifier>{6c8e049e-5599-45c4-9e5a-62bc4d398592}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3d">
+      <UniqueIdentifier>{666b7f16-b2fc-4731-b7b5-a079c519e0b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KgHist.cpp">
@@ -67,10 +73,10 @@
     <ClCompile Include="src\base\KuFileUtil.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KvScaler.cpp">
+    <ClCompile Include="src\plot\KvTicker.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcLinearScaler.cpp">
+    <ClCompile Include="src\plot\KcLinearTicker.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="3rdparty\imgui\imgui.cpp">
@@ -421,6 +427,42 @@
     <ClCompile Include="src\layout\KuLayoutUtil.cpp">
       <Filter>layout</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KcImOglPaint.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcGlslProgram.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcGlslShader.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcGpuBuffer.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcRenderObject.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcLineObject.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KsShaderManager.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcPointObject.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3d\KcVertexAttribute.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3d\KcVertexDeclaration.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl\KcLightenObject.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KcSurface.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -513,16 +555,10 @@
     <ClInclude Include="src\plot\KvRenderable.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtVector3.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtVector4.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KvScaler.h">
+    <ClInclude Include="src\plot\KvTicker.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcLinearScaler.h">
+    <ClInclude Include="src\plot\KcLinearTicker.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcCoordPlane.h">
@@ -531,17 +567,8 @@
     <ClInclude Include="src\dsp\KtMultiArray.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtPoint.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtAABB.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="src\plot\KcGraph.h">
       <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtMatrix3.h">
-      <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\imgui\imconfig.h">
       <Filter>3rdparty\imgui</Filter>
@@ -651,19 +678,7 @@
     <ClInclude Include="src\prov\KcPvData.h">
       <Filter>prov</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtMatrix4.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtQuaternion.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="src\base\KtArray.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtProjector3d.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtPlane.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcImPlot3d.h">
@@ -671,9 +686,6 @@
     </ClInclude>
     <ClInclude Include="src\plot\KvPaint.h">
       <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtTrackballController.h">
-      <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcImPaint.h">
       <Filter>imapp</Filter>
@@ -728,9 +740,6 @@
     </ClInclude>
     <ClInclude Include="src\plot\KtMargins.h">
       <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtLine.h">
-      <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KsThemeManager.h">
       <Filter>plot</Filter>
@@ -831,20 +840,11 @@
     <ClInclude Include="src\op\KcOpSampler.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtLineS2d.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KvExcitor.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\op\KvOpSampled1dHelper.h">
       <Filter>op</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KuGeometryFactory.h">
-      <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KtGeometry.h">
-      <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\minmax.h">
       <Filter>dsp</Filter>
@@ -965,6 +965,93 @@
     </ClInclude>
     <ClInclude Include="src\layout\KuLayoutUtil.h">
       <Filter>layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcImOglPaint.h">
+      <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcGlslProgram.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcGlslShader.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcGpuBuffer.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcRenderObject.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcLineObject.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KsShaderManager.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcPointObject.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KvVertexBuffer.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KePrimitiveType.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtGeometryImpl.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KuPrimitiveFactory.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KvGeometry.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtAABB.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtLine.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtLineS2d.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtMatrix3.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtMatrix4.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtPlane.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtPoint.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtProjector3d.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtQuaternion.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtTrackballController.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtVector3.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KtVector4.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KcVertexAttribute.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3d\KcVertexDeclaration.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcLightenObject.h">
+      <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcSurface.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -80,55 +80,55 @@
         "right": {
           "visible": true,
           "baseline": true,
-          "label": null,
+          "text": null,
           "tick": null
         },
         "top": {
           "visible": true,
           "baseline": true,
-          "label": null,
+          "text": null,
           "tick": null
         },
         "far-left": {
           "visible": true,
           "baseline": true,
-          "label": null,
+          "text": null,
           "tick": null
         },
         "far-right": {
           "visible": true,
           "baseline": true,
-          "label": null,
+          "text": null,
           "tick": null
         },
         "far-bottom": {
           "visible": true,
           "baseline": true,
-          "label": null,
+          "text": null,
           "tick": null
         },
         "far-top": {
           "visible": true,
           "baseline": true,
-          "label": null,
+          "text": null,
           "tick": null
         },
         "floor-left": {
           "visible": true,
           "baseline": true,
-          "label": null,
+          "text": null,
           "tick": null
         },
         "ceil-left": {
           "visible": true,
           "baseline": true,
-          "label": null,
+          "text": null,
           "tick": null
         },
         "ceil-right": {
           "visible": true,
           "baseline": true,
-          "label": null,
+          "text": null,
           "tick": null
         }
       },

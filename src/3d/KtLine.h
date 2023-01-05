@@ -2,7 +2,8 @@
 #include "KtVector3.h"
 
 // 直线：L(t) = B + tM
-template<class KReal>
+// @RAY: true表示为射线，即line只向dir_方向延展
+template<class KReal, bool RAY = false>
 class KtLine
 {
 	using point3 = KtPoint<KReal, 3>;
@@ -22,6 +23,8 @@ public:
 
 	const vec3& dir() const { return dir_; }
 	vec3& dir() { return dir_; }
+
+	constexpr bool isRay() const { return RAY; }
 
 	point3 pointAt(KReal t) { return point_ + dir_ * t; }
 
@@ -49,8 +52,8 @@ protected:
 
 // 点P和直线L(t)=B+tM之间的距离D = |P-(B+t0M)|
 // 其中t0 = M(P-B)/(MM)
-template<class KReal>
-KReal KtLine<KReal>::squaredDistanceTo(const point3& pt)
+template<class KReal, bool RAY>
+KReal KtLine<KReal, RAY>::squaredDistanceTo(const point3& pt)
 {
 	auto diff = pt - point_; // P-B
 	auto t0 = diff.dot(dir_); // M(P-B)
@@ -70,8 +73,8 @@ KReal KtLine<KReal>::squaredDistanceTo(const point3& pt)
 // s = (be-cd)/(ac-b^2), t = (bd-ae)/(ac-b^2), 
 // 如果ac-b^2 = 0, 两条直线平行，此时不矢一般性可取：
 // s = -d/a, t = 0
-template<class KReal>
-KReal KtLine<KReal>::squaredDistanceTo(const KtLine<KReal>& l)
+template<class KReal, bool RAY>
+KReal KtLine<KReal, RAY>::squaredDistanceTo(const KtLine<KReal, RAY>& l)
 {
 	auto diff = point_ - l.point();
 	KReal a = dir().squaredLength();

@@ -102,21 +102,21 @@ void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 		dy = disc->range(1).length() / disc->size(disc->dim() > 1 ? 1 : 0);
 
 	auto half_dx = dx / 2;
-	auto hfalf_dy = dy /2 ;
+	auto half_dy = dy /2 ;
 
 	for (unsigned i = 0; i < disc->size(); i++) {
 		auto pt = disc->pointAt(i, 0);
 		paint->setColor(mapValueToColor_(pt.back()));
-		paint->fillRect({ pt[0] - half_dx, pt[1] - hfalf_dy, 0 },
-			{ pt[0] + half_dx, pt[1] + hfalf_dy, 0 });
+		paint->fillRect({ pt[0] - half_dx, pt[1] - half_dy, 0 },
+			{ pt[0] + half_dx, pt[1] + half_dy, 0 });
 	}
 
 	if (showBorder_ && clrBorder_.a() != 0) {
 		paint->setColor(clrBorder_);
 		for (unsigned i = 0; i < disc->size(); i++) {
 			auto pt = disc->pointAt(i, 0);
-			paint->drawRect({ pt[0] - half_dx, pt[1] - hfalf_dy, 0 },
-				{ pt[0] + half_dx, pt[1] + hfalf_dy, 0 });
+			paint->drawRect({ pt[0] - half_dx, pt[1] - half_dy, 0 },
+				{ pt[0] + half_dx, pt[1] + half_dy, 0 });
 		}
 	}
 

@@ -7,6 +7,9 @@
 class KvData;
 class KvDiscreted;
 
+// 可绘制对象的抽象类
+// 内置实现对连续数据的采样，派生类只须绘制离散数据
+
 class KvPlottable : public KvRenderable
 {
 public:

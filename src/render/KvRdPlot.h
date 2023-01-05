@@ -5,6 +5,7 @@
 #include "KuStrUtil.h"
 
 class KvPlot;
+class KcAxis;
 class KvPlottable;
 class KvDataProvider;
 class KvThemedPlot;
@@ -66,6 +67,8 @@ protected:
 
 	virtual void showCoordProperty_();
 
+	    virtual void showAxisProperty_(KcAxis&);
+
 	virtual void showLegendProperty_();
 	
 	virtual void showColorBarProperty_();
@@ -94,6 +97,9 @@ protected:
 
 	// 创建第iType类型的plottable
 	virtual KvPlottable* newPlottable_(int iType, const std::string& name) = 0;
+
+	// 第iType类型的plottable是否支持KvData数据
+	virtual bool plottableMatchData_(int iType, const KvData& d) const { return true; }
 
 	////////////////////////////////////////////////////
 

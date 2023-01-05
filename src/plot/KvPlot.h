@@ -4,6 +4,7 @@
 #include "KvPlottable.h"
 #include "KpContext.h"
 #include "KtAABB.h"
+#include "KtMargins.h"
 
 
 class KvPaint; // 用来执行具体的plot绘制
@@ -17,9 +18,10 @@ class KcLayoutGrid;
 class KvPlot
 {
 	using rect_t = KtAABB<double, 2>;
+	using margins_t = KtMargins<float>;
 
 public:
-	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord);
+	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, char dim);
 	~KvPlot();
 
 	virtual void setVisible(bool b) = 0;
@@ -44,6 +46,9 @@ public:
 	bool showColorBar() const { return showColorBar_; }
 	bool& showColorBar() { return showColorBar_; }
 
+	bool showLayoutRect() const { return showLayoutRect_; }
+	bool& showLayoutRect() { return showLayoutRect_; }
+
 	KvPaint& paint() { return *paint_.get(); }
 	KvCoord& coord() { return *coord_.get(); }
 
@@ -66,6 +71,11 @@ public:
 
 	void removeAllPlottables();
 
+	margins_t margins() const;
+	void setMargins(const margins_t& m);
+	void setMargins(float l, float t, float r, float b);
+
+	char dim() const { return dim_; }
 
 private:
 	virtual void autoProject_() = 0;
@@ -79,6 +89,13 @@ private:
 
 	void drawPlottables_();
 
+	// 修正绘图视口的偏移和缩放（对plot2d很重要）
+	// 返回压入的local变换矩阵数量
+	int fixPlotView_();
+
+	// 绘制各布局元素的外边框，用于debug使用
+	void drawLayoutRect_();
+
 private:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
 	std::shared_ptr<KvCoord> coord_; // 由用户创建并传入
@@ -88,9 +105,12 @@ private:
 
 	KpBrush bkgnd_;
 
+	std::unique_ptr<KcLayoutGrid> layout_;
+
+	char dim_{ 3 }; // 取值2或3，用来标记this是plot2d还是plot3d
+
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
 	bool showLegend_{ false };
 	bool showColorBar_{ true };
-
-	std::unique_ptr<KcLayoutGrid> layout_;
+	bool showLayoutRect_{ false }; // for debug
 };

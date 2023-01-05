@@ -379,8 +379,8 @@ KReal KtQuaternion<KReal>::roll()
 {
 	// roll = atan2(localy.z, localy.y);
 
-	KReal dx = 2 * v.x;
-	KReal dz = 2 * v.z;
+	KReal dx = 2 * x();
+	KReal dz = 2 * z();
 
 	return std::atan2(dz * y() + dx * w(), 1 - dx * x() - dz * z());
 }
@@ -391,8 +391,8 @@ KReal KtQuaternion<KReal>::yaw()
 {
 	// yaw = atan2(localx.y, localx.x);
 
-	KReal dy = 2 * v.y;
-	KReal dz = 2 * v.z;
+	KReal dy = 2 * y();
+	KReal dz = 2 * z();
  
 	return std::atan2(dy * x() + dz * w(), 1 - dy * y() - dz * z());
 }

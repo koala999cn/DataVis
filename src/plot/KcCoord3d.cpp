@@ -30,35 +30,11 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 
 	setExtents(lower, upper);
 
-	axes_[KcAxis::k_far_bottom]->tickOrient() = 
-		axes_[KcAxis::k_far_bottom]->labelOrient() = -KcAxis::vec3::unitY();
-	axes_[KcAxis::k_far_top]->tickOrient() = 
-		axes_[KcAxis::k_far_top]->labelOrient() = KcAxis::vec3::unitY();
-	axes_[KcAxis::k_near_top]->tickOrient() = 
-		axes_[KcAxis::k_near_top]->labelOrient() = KcAxis::vec3::unitY();
-	axes_[KcAxis::k_near_bottom]->tickOrient() = 
-		axes_[KcAxis::k_near_bottom]->labelOrient() = -KcAxis::vec3::unitY();
-
-	axes_[KcAxis::k_far_left]->tickOrient() = 
-		axes_[KcAxis::k_far_left]->labelOrient() = -KcAxis::vec3::unitX();
-	axes_[KcAxis::k_far_right]->tickOrient() = 
-		axes_[KcAxis::k_far_right]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_near_right]->tickOrient() = 
-		axes_[KcAxis::k_near_right]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_near_left]->tickOrient() = 
-		axes_[KcAxis::k_near_left]->labelOrient() = -KcAxis::vec3::unitX();
-
-	axes_[KcAxis::k_floor_left]->tickOrient() =
-		axes_[KcAxis::k_floor_left]->labelOrient() = -KcAxis::vec3::unitX();
-	axes_[KcAxis::k_floor_right]->tickOrient() = 
-		axes_[KcAxis::k_floor_right]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_ceil_right]->tickOrient() = 
-		axes_[KcAxis::k_ceil_right]->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_ceil_left]->tickOrient() = 
-		axes_[KcAxis::k_ceil_left]->labelOrient() = -KcAxis::vec3::unitX();
-
-	for(unsigned i = 0; i < std::size(axes_); i++)
-	    axes_[i]->visible() = false;
+	static const char* title[] = { "X", "Y", "Z" };
+	for (unsigned i = 0; i < std::size(axes_); i++) {
+		axes_[i]->visible() = false;
+		axes_[i]->title() = title[axes_[i]->dim()];
+	}
 
 	axes_[KcAxis::k_near_bottom]->visible() = true;
 	axes_[KcAxis::k_near_left]->visible() = true;
@@ -101,12 +77,6 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 }
 
 
-KcCoord3d::aabb_t KcCoord3d::boundingBox() const
-{
-	return { lower(), upper() };
-}
-
-
 void KcCoord3d::forAxis(std::function<bool(KcAxis& axis)> fn) const
 {
 	for (unsigned i = 0; i < std::size(axes_); i++)
@@ -135,10 +105,16 @@ KcCoord3d::size_t KcCoord3d::calcSize_(void* cxt) const
 
 	layCoord_->calcSize(cxt);
 
+	forAxis([cxt](KcAxis& axis) {
+		if (axis.visible())
+		    axis.calcSize(cxt);
+		return true;
+		});
+
 	if (!layCoord_->empty()) { // 需要时才计算rcCoord_
 
-		aabb_t box(lower(), upper());
-		auto corns = box.allCorners();
+		auto corns = boundingBox().allCorners();
+		rcCoord_.setNull();
 
 		for (auto& i : corns) {
 			i = ((KvPaint*)cxt)->projectp(i);
@@ -168,6 +144,13 @@ void KcCoord3d::placeElement(KvLayoutElement* ele, KeAlignment loc)
 	assert(!isAncestorOf(ele));
 
 	ele->align() = loc; // TODO： 并不完全一致，暂时简单处理
+
+	for(unsigned i = 0; i < layCoord_->size(); i++)
+		if (layCoord_->getAt(i) == 0) {
+			layCoord_->setAt(i, ele);
+			return;
+		}
+
 	layCoord_->append(ele);
 }
 

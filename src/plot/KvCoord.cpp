@@ -134,7 +134,18 @@ void KvCoord::draw(KvPaint* paint) const
 
 KvCoord::aabb_t KvCoord::boundingBox() const
 {
-	auto l = lower(), u = upper();
+	aabb_t box(lower(), upper());
+
+	// NB: 增加axis的aabb之后，会影响投影矩阵的设置
+	// NB: 此外，很多其他对方对KvCoord::boundingBox的语义认知都是{ lower, upper }
+	//forAxis([&box](KcAxis& axis) {
+	//	if (axis.visible())
+	//		box.merge(axis.boundingBox());
+	//	return true;
+	//	});
+
+	auto& l = box.lower();
+	auto& u = box.upper();
 
 	switch (swapStatus_)
 	{
@@ -154,7 +165,7 @@ KvCoord::aabb_t KvCoord::boundingBox() const
 		break;
 	}
 
-	return { l, u };
+	return box;
 }
 
 
@@ -232,15 +243,16 @@ void KvCoord::swapAxis(KeAxisSwapStatus status)
 	if (swapStatus_ == status)
 		return;
 
+	// NB: -1表示另外两个维度有交换
 	constexpr static int swapped[][3] = {
 		{ 0, 1, 2 }, // k_axis_swap_none
-		{ 1, 0, 2 }, // k_axis_swap_xy
-		{ 2, 1, 0 }, // k_axis_swap_xz
-		{ 0, 2, 1 }  // k_axis_swap_yz
+		{ 1, 0, -1 }, // k_axis_swap_xy
+		{ 2, -1, 0 }, // k_axis_swap_xz
+		{ -1, 2, 1 }  // k_axis_swap_yz
 	};
 
 	forAxis([status](KcAxis& axis) {
-		axis.setSwapped(swapped[status][axis.dim()]);
+		axis.setSwapped_(swapped[status][axis.dim()]);
 		return true;
 		});
 

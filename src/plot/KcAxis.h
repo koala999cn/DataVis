@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 #include "KvRenderable.h"
-#include "KvScaler.h"
+#include "KvTicker.h"
 #include "KtColor.h"
 #include "KtVector3.h"
 #include "KpContext.h"
@@ -48,16 +48,25 @@ public:
 		k_top = k_near_top
 	};
 
-	enum KeTickOrient
+	enum KeTextLayout
 	{
-		k_x, k_neg_x, k_bi_x,
-		k_y, k_neg_y, k_bi_y,
-		k_z, k_neg_z, k_bi_z
+		k_horz_top, // 标准横板，文字头部在上侧，底部在下侧
+		k_horz_bottom, // 上下倒置的横版，文字头部在下侧，底部在上侧
+		k_vert_left, // 竖版，文字头部在左侧，底部在右侧
+		k_vert_right // 竖版，文字头部在右侧，底部在左侧
+	};
+
+	enum KeTickSide
+	{
+		k_inside, k_outside, k_bothside
 	};
 
 	struct KpTickContext : public KpPen
 	{
-		double length;
+		float length{ 5 };
+		KeTickSide side{ k_outside };
+		float yaw{ 0 }; // 绕坐标轴与tick的垂直线的旋转角度（弧度）
+		float pitch{ 0 }; // 基于基准位置，绕坐标轴的旋转角度（弧度）
 
 		KpPen& operator=(const KpPen& pen) {
 			style = pen.style;
@@ -65,6 +74,16 @@ public:
 			color = pen.color;
 			return *this;
 		}
+	};
+
+	struct KpTextContext
+	{
+		KpFont font;
+		color4f color{ 0, 0, 0, 1 };
+		KeTextLayout layout{ k_horz_top };
+		bool billboard{ true }; // 是否以公告牌模式显示text，若true则text的hDir始终超向屏幕的右侧，vDir始终朝向屏幕的下侧
+		float yaw{ 0 }; // 绕text-box平面的垂线（过中心点）的旋转角度（弧度）
+		float pitch{ 0 }; // 绕hDir或vDir的旋转角度（弧度）
 	};
 
 	KcAxis(KeType type, int dim, bool main);
@@ -84,14 +103,6 @@ public:
 		start_ = st, end_ = ed;
 	}
 
-	const vec3& tickOrient() const { return tickOrient_; }
-	vec3& tickOrient() { return tickOrient_; }
-
-	const vec3& labelOrient() const { return labelOrient_; }
-	vec3& labelOrient() { return labelOrient_; }
-
-	bool tickBothSide() const { return tickBothSide_; }
-	bool& tickBothSide() { return tickBothSide_; }
 
 	/// range 
 
@@ -129,14 +140,11 @@ public:
 		showTitle_ = true, showLabel_ = true;
 	}
 
-	const std::string& title() const { return title_; }
-	std::string& title() { return title_; }
-
-	const std::vector<std::string>& labels() const { return labels_; }
-	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
-
 	const KpPen& baselineContext() const { return baselineCxt_; }
 	KpPen& baselineContext() { return baselineCxt_; }
+
+	std::shared_ptr<KvTicker> ticker() const;
+	void setTicker(std::shared_ptr<KvTicker> tic);
 
 	const KpTickContext& tickContext() const { return tickCxt_; }
 	KpTickContext& tickContext() { return tickCxt_; }
@@ -144,28 +152,37 @@ public:
 	const KpTickContext& subtickContext() const { return subtickCxt_; }
 	KpTickContext& subtickContext() { return subtickCxt_; }
 
-	/// colors
+	/// title properties
 
-	const color4f& titleColor() const { return titleColor_; }
-	color4f& titleColor() { return titleColor_; }
+	const std::string& title() const { return title_; }
+	std::string& title() { return title_; }
 
-	const color4f& labelColor() const { return labelColor_; }
-	color4f& labelColor() { return labelColor_; }
+	float titlePadding() const { return titlePadding_; }
+	float& titlePadding() { return titlePadding_; }
 
-	/// fonts
+	KpTextContext titleContext() const { return titleCxt_; }
+	KpTextContext& titleContext() { return titleCxt_; }
 
-	//QFont labelFont() const { return labelFont_; }
-	//void setLabelFont(QFont font) { labelFont_ = font; }
+	/// label properties
 
-	//QFont titleFont() const { return titleFont_; }
-	//void setTitleFont(QFont font) { titleFont_ = font; }
+	const std::vector<std::string>& labels() const { return labels_; }
+	void setLabels(const std::vector<std::string>& ls) { labels_ = ls; }
 
-	std::shared_ptr<KvScaler> scaler() const;
-	void setScaler(std::shared_ptr<KvScaler> scale);
+	float labelPadding() const { return labelPadding_; }
+	float& labelPadding() { return labelPadding_; }
 
-	aabb_t boundingBox() const override;
+	KpTextContext labelContext() const { return labelCxt_; }
+	KpTextContext& labelContext() { return labelCxt_; }
 
-	void draw(KvPaint*) const override;
+
+	// NB：布局之后（即调用calcSize之后），该函数才能返回有效值
+	aabb_t boundingBox() const override {
+		return box_; 
+	}
+
+	void draw(KvPaint* paint) const override {
+		return draw_(paint, false);
+	}
 
 	// 根据tick的数值，返回tick在坐标轴上的的3维坐标（世界坐标）
 	point3 tickPos(double val) const;
@@ -180,21 +197,46 @@ public:
 	bool inversed() const { return inv_; }
 	void setInversed(bool inv) { inv_ = inv; }
 
-	bool swapped() const { return dimReal_ != dimSwapped_; }
-	void setSwapped(int dimSwap) { dimSwapped_ = dimSwap; }
-
-	int dimSwapped() const { return dimSwapped_; } // 返回交换的坐标轴维度
 	KeType typeReal() const; // 考虑swap，返回axis的真实方位布局
 
-private:
-	void drawTicks_(KvPaint*) const; // 绘制所有刻度
-	void drawTick_(KvPaint*, const point3& anchor, double length) const; // 绘制单条刻度线，兼容主刻度与副刻度
-	
-	int labelAlignment_(KvPaint* paint, bool toggleTopBottom) const; // 根据label的orientation判定label的alignment
-	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
-	aabb_t textBox_(KvPaint*, const point3& anchor, const std::string& text) const;
+	// 内部使用
+	void setSwapped_(int dimSwap) { dimSwapped_ = dimSwap; }
 
+private:
 	size_t calcSize_(void* cxt) const final;
+
+	vec3 outsideOrient_() const;
+	vec3 insideOrient_() const;
+	vec3 axisOrient_() const;
+
+	// 计算在世界坐标方向o上，1个屏幕单位（即1像素）相当于多少世界单位
+	static float_t orientScale_(KvPaint*, const vec3& o);
+
+	void draw_(KvPaint*, bool calcBox) const;
+	void drawTicks_(KvPaint*, bool calcBox) const; // 绘制所有刻度
+	void drawTick_(KvPaint*, const point3& anchor, double length, bool calcBox) const; // 绘制单条刻度线，兼容主刻度与副刻度
+	void drawText_(KvPaint* paint, const std::string_view& label, const KpTextContext& cxt, const point3& anchor, bool calcBox) const;
+
+	int labelAlignment_(KvPaint* paint) const; // 根据label的orientation判定label的alignment
+	bool tickAndLabelInSameSide_() const; // 判断tick与tick-label是否位于坐标轴的同侧
+
+	// 计算tick的朝向
+	void calcTickOrient_(KvPaint*) const;
+
+	// 计算label的朝向. 须在calcTickOrient_之后调用
+	void calcLabelOrient_(KvPaint*) const;
+
+	void calcTitleAnchor_(KvPaint*) const;
+
+	// 计算在3d空间绘制文本所需的3个参数：topLeft, hDir, vDir
+	void calcTextPos_(KvPaint*, const std::string_view& label, const KpTextContext& cxt, 
+		const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const;
+
+	// 根据layout修正topLeft、hDir & vDir
+	static void fixTextLayout_(KeTextLayout lay, const size_t& textBox, point3& topLeft, vec3& hDir, vec3& vDir);
+
+	// 处理文本的旋转（yaw & pitch）
+	void fixTextRotation_(const KpTextContext& cxt, const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const;
 
 private:
 	KeType type_;
@@ -206,22 +248,42 @@ private:
 	KpPen baselineCxt_;
 	KpTickContext tickCxt_, subtickCxt_;
 
-	double labelPadding_{ 2 }; 
-	double titlePadding_{ 2 };
+	// label的上下文
+	// 
+	// 初始状态下，label-box位于刻度线与坐标轴构成的平面上
+	// 
+	// label-box的布局与姿态调整都相对anchor点进行
+	// 当label位于坐标轴的左侧，其anchor点位于label-box的right-center
+	// 当label位于坐标轴的右侧，其anchor点位于label-box的left-center
+	// 当lebel位于坐标轴的下侧，其anchor点位于label-box的top-center
+	// 当lebel位于坐标轴的上侧，其anchor点位于label-box的bottom-center
+	// 在不考虑labelPadding_的情况下，若label与tick同侧，anchor点与刻度线的末端重合，否则与刻度点重合
 
-	color4f labelColor_{ 0, 0, 0, 1 }, titleColor_{ 0, 0, 0, 1 };
+	float labelPadding_{ 2 }; 
+	KpTextContext labelCxt_;
 
-	//QFont labelFont_, titleFont_;
+	// title的上下文
+
+	float titlePadding_{ 2 };
+	KpTextContext titleCxt_;
 
 	point3 start_, end_;
-	vec3 tickOrient_;
-	vec3 labelOrient_;
-	bool tickBothSide_{ false };
 
-	std::shared_ptr<KvScaler> scaler_;
+	std::shared_ptr<KvTicker> ticker_;
 
-	int dimReal_; // 0表示x轴，1表示y轴，2表示z轴，-1表示数据轴?（用来显示colorbar）
-	int dimSwapped_; 
+	int dimReal_; // 0表示x轴，1表示y轴，2表示z轴，-1表示不参与交换的数据轴（用来显示colorbar）
+	int dimSwapped_; // -1表示另外两个维度的坐标轴交换
 	bool main_{ true }; // 是否主坐标轴
 	bool inv_{ false }; // 是否反转坐标轴
+
+
+	// 以下为尺寸计算缓存的临时变量
+	//
+	mutable vec3 tickOrient_;
+	mutable vec3 labelOrient_;
+	std::vector<point2> labelSize_;
+	mutable point2 titleSize_;
+	mutable point3 titleAnchor_; // title文本框的top-left坐标
+	vec3 hDir_, vDir_; // label文本的水平和垂直延展方向
+	mutable aabb_t box_; // 预计算的aabb
 };

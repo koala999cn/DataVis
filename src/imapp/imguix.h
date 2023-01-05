@@ -5,6 +5,7 @@
 #include "../plot/KtColor.h"
 
 class KvData;
+class KpPen;
 class KeAlignment;
 
 // imguiµÄÀ©Õ¹º¯Êý
@@ -54,4 +55,20 @@ namespace ImGuiX
 	bool prefixCheckbox(const char* label, bool* v);
 
 	bool alignment(const char* label, KeAlignment& align);
+
+	bool treePush(const char* label, bool defaultOpen);
+
+	void treePop();
+
+	// treenode + checkbox + label
+	bool cbTreePush(const char* label, bool* show, bool* open);
+
+	void cbTreePop();
+
+	// treenode + checkbox + text-editor + label
+	bool cbiTreePush(const char* label, bool* show, std::string* text, bool* open);
+
+	bool cbInputText(const char* label, bool* show, std::string* text);
+
+	bool pen(KpPen* cxt, bool showStyle);
 }

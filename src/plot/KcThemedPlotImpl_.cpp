@@ -63,11 +63,8 @@ void KcThemedPlotImpl_::applyBorder(int level, const KpPen&)
 
 KtMargins<float> KcThemedPlotImpl_::margins(int level) const
 {
-	if (level == k_plot) {
-		auto plot2d = dynamic_cast<KvPlot2d*>(&plot_);
-		if (plot2d)
-			return plot2d->margins();
-	}
+	if (level == k_plot) 
+		return plot_.margins();
 
 	return KtMargins<float>();
 }
@@ -75,12 +72,8 @@ KtMargins<float> KcThemedPlotImpl_::margins(int level) const
 
 void KcThemedPlotImpl_::applyMargins(int level, const KtMargins<float>& margins)
 {
-	if (level == k_plot) {
-		auto plot2d = dynamic_cast<KvPlot2d*>(&plot_);
-		if (plot2d)
-			plot2d->margins() = margins;
-	}
-	
+	if (level == k_plot) 
+		plot_.setMargins(margins);
 }
 
 
@@ -175,9 +168,9 @@ void KcThemedPlotImpl_::applyTextColor(int level, std::function<color4f(const co
 	if (level & k_axis) {
 		forAxis_(level, [level, op](KcAxis& axis) {
 			if (level & k_label)
-				axis.labelColor() = op(axis.labelColor());
+				axis.labelContext().color = op(axis.labelContext().color);
 			if (level & k_title)
-				axis.titleColor() = op(axis.titleColor());
+				axis.titleContext().color = op(axis.titleContext().color);
 			return true;
 			});
 	}

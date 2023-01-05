@@ -2,19 +2,13 @@
 #include "imapp/KcImPlot3d.h"
 #include "plot/KcGraph.h"
 #include "plot/KcScatter.h"
+#include "plot/KcLineFilled.h"
 #include "plot/KcBars3d.h"
+#include "plot/KcSurface.h"
 #include "plot/KvCoord.h" // TODO: 此处不该引用KvCoord文件
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
-#include "imgui.h"
-
-
-namespace kPrivate
-{
-	bool TreePush(const char* label);
-
-	void TreePop();
-}
+#include "imguix.h"
 
 
 KcRdPlot3d::KcRdPlot3d()
@@ -43,7 +37,7 @@ void KcRdPlot3d::showProperySet()
 {
 	super_::showProperySet();
 
-	if (!kPrivate::TreePush("Projection"))
+	if (!ImGuiX::treePush("Projection", true))
 		return;
 
 	auto plot3d = std::dynamic_pointer_cast<KvPlot3d>(plot_);
@@ -64,22 +58,22 @@ void KcRdPlot3d::showProperySet()
 	orient.toRotateMatrix(rot);
 	point3d angle;
 	rot.toEulerAngleXYZ(angle);
-	angle *= 180 / KtuMath<double>::pi;
+	angle *= KtuMath<double>::rad2Deg(1);
 	minVal = -180;
 	maxVal = 180;
-	if(ImGui::DragScalarN("Rotation", ImGuiDataType_Double, angle, 3, 0.5, &minVal, &maxVal, "%.1fdeg")) {
-		angle *= KtuMath<double>::pi / 180;
+	if(ImGui::DragScalarN("Rotation", ImGuiDataType_Double, angle, 3, 0.5, &minVal, &maxVal, "%.1f deg")) {
+		angle *= KtuMath<double>::deg2Rad(1);
 		rot.fromEulerAngleXYZ(angle);
 		orient = quatd(rot);
 	}
 
-	kPrivate::TreePop();
+	ImGuiX::treePop();
 }
 
 
 unsigned KcRdPlot3d::supportPlottableTypes_() const
 {
-	return 3;
+	return 5;
 }
 
 
@@ -89,8 +83,12 @@ int KcRdPlot3d::plottableType_(KvPlottable* plt) const
 		return 0;
 	else if (dynamic_cast<KcScatter*>(plt))
 		return 1;
-	else if (dynamic_cast<KcBars3d*>(plt))
+	else if (dynamic_cast<KcLineFilled*>(plt))
 		return 2;
+	else if (dynamic_cast<KcBars3d*>(plt))
+		return 3;
+	else if (dynamic_cast<KcSurface*>(plt))
+		return 4;
 
 	return -1;
 }
@@ -101,7 +99,7 @@ const char* KcRdPlot3d::plottableTypeStr_(int iType) const
 	assert(iType < supportPlottableTypes_());
 
 	static const char* pltTypes[] = {
-		"graph", "scatter", "bar"
+		"graph", "scatter", "line-filled", "bar", "surface"
 	};
 
 	return pltTypes[iType];
@@ -119,8 +117,32 @@ KvPlottable* KcRdPlot3d::newPlottable_(int iType, const std::string& name)
 		return new KcScatter(name);
 
 	case 2:
+		return new KcLineFilled(name);
+
+	case 3:
 		return new KcBars3d(name);
+
+	case 4:
+		return new KcSurface(name);
 	}
 
 	return nullptr;
+}
+
+
+bool KcRdPlot3d::plottableMatchData_(int iType, const KvData& d) const
+{
+	switch (iType)
+	{
+	case 2:
+		return d.dim() == 1;
+
+	case 4:
+		return d.dim() == 2;
+
+	default:
+		break;
+	}
+
+	return true;
 }

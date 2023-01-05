@@ -1,5 +1,5 @@
 #include "KcImPlot2d.h"
-#include "KcImPaint.h"
+#include "KcImOglPaint.h"
 #include "plot/KcAxis.h"
 #include "plot/KcCoord2d.h"
 #include "KuStrUtil.h"
@@ -7,7 +7,7 @@
 
 KcImPlot2d::KcImPlot2d(const std::string_view& name)
     : KvImWindow(name)
-    , KvPlot2d(std::make_shared<KcImPaint>(camera_), std::make_shared<KcCoord2d>())
+    , KvPlot2d(std::make_shared<KcImOglPaint>(camera_), std::make_shared<KcCoord2d>())
 {
     minSize_[0] = 180, minSize_[1] = 180;
     dynamic_ = true;
@@ -24,9 +24,7 @@ void KcImPlot2d::updateImpl_()
         // 更新摄像机的视图
         auto pos = ImGui::GetWindowPos();
         auto sz = ImGui::GetWindowSize();
-        KvPaint::rect_t vp({ pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y });
-        vp.shrink({ margins_.left(), margins_.bottom() }, { margins_.right(), margins_.top() });
-        paint().setViewport(vp);
+        paint().setViewport({ { pos.x, pos.y }, { pos.x + sz.x, pos.y + sz.y } });
 
         // 绘制数据图
         KvPlot2d::update();

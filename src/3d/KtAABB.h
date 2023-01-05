@@ -84,7 +84,7 @@ public:
 	/** Sets both minimum and maximum extents at once.
 	*/
 	void setExtents(const point_t& lower, const point_t& upper) {
-		assert(lower.leAll(upper));
+		assert(lower.le(upper));
 		lower_ = lower, upper_ = upper;
 	}
 
@@ -192,24 +192,42 @@ public:
 		return *this;
 	}
 
-	KtAABB& shrink(const point_t& lw, const point_t& up) {
+	KtAABB& deflate(const point_t& lw, const point_t& up) {
 		lower_ += lw, upper_ -= up;
 		return *this;
 	}
 
-	KtAABB& shrink(const KtAABB& d) {
-		shrink(d.lower(), d.upper());
+	KtAABB& deflate(const KtAABB& d) {
+		deflate(d.lower(), d.upper());
 		return *this;
 	}
 
-	KtAABB& expand(const point_t& lw, const point_t& up) {
+	KtAABB& deflate(float_t dx, float_t dy) {
+		point_t d(dx, dy);
+		return deflate(d, d);
+	}
+
+	KtAABB& deflate(float_t d) {
+		return deflate(d, d);
+	}
+
+	KtAABB& inflate(const point_t& lw, const point_t& up) {
 		lower_ -= lw, upper_ += up;
 		return *this;
 	}
 
-	KtAABB& expand(const KtAABB& d) {
+	KtAABB& inflate(const KtAABB& d) {
 		expand(d.lower(), d.upper());
 		return *this;
+	}
+
+	KtAABB& inflate(float_t dx, float_t dy) {
+		point_t d(dx, dy);
+		return inflate(d, d);
+	}
+
+	KtAABB& inflate(float_t d) {
+		return inflate(d, d);
 	}
 
 	KtAABB& shift(const point_t& d) {

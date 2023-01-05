@@ -71,6 +71,14 @@ public:
     }
 
 
+    static constexpr KREAL deg2Rad(KREAL d) {
+        return d * (pi / 180);
+    }
+
+    static constexpr KREAL rad2Deg(KREAL r) {
+        return r * (180 / pi);
+    }
+
     static KREAL mid(KREAL left, KREAL right) { return (left + right) / 2; }
 
     // 返回left和right在log域的中值

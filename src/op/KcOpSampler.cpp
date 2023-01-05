@@ -1,16 +1,9 @@
 ﻿#include "KcOpSampler.h"
 #include "dsp/KcSampler.h"
-#include "imgui.h"
+#include "imguix.h"
 #include "KuStrUtil.h"
 #include "KtSampling.h"
 #include "KtuMath.h"
-
-namespace kPrivate
-{
-    bool TreePush(const char* label);
-
-    void TreePop();
-}
 
 
 KcOpSampler::KcOpSampler()
@@ -144,7 +137,7 @@ void KcOpSampler::showProperySet()
             }
         }
         else {
-            if (kPrivate::TreePush("Sample Count")) {
+            if (ImGuiX::treePush("Sample Count", true)) {
                 for (kIndex i = 0; i < dim(0); i++) {
                     std::string label("Dim");
                     label += KuStrUtil::toString(i + 1);
@@ -154,7 +147,7 @@ void KcOpSampler::showProperySet()
                         sampleCountChanged_();
                     }
                 }
-                kPrivate::TreePop();
+                ImGuiX::treePop();
             }
         }
     }
@@ -169,7 +162,7 @@ void KcOpSampler::showProperySet()
             }
         }
         else {
-            if (kPrivate::TreePush("Sample Rate")) {
+            if (ImGuiX::treePush("Sample Rate", true)) {
                 for (kIndex i = 0; i < dim(0); i++) {
                     std::string label("Dim");
                     label += KuStrUtil::toString(i + 1);
@@ -180,7 +173,7 @@ void KcOpSampler::showProperySet()
                         sampleCountChanged_();
                     }
                 }
-                kPrivate::TreePop();
+                ImGuiX::treePop();
             }
         }
     }

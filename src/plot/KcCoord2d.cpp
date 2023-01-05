@@ -20,22 +20,14 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 	dim[KcAxis::k_left] = dim[KcAxis::k_right] = 1;
 
 	// 初始化4根主坐标轴
-	for (unsigned i = 0; i < 4; i++)
+	for (unsigned i = 0; i < 4; i++) 
 		axes_[i].emplace_back(new KcAxis(KcAxis::KeType(i), dim[i], true));
 
 	setExtents({ lower.x(), lower.y(), -1 }, { upper.x(), upper.y(), 1 });
 
-	axes_[KcAxis::k_left].front()->tickOrient() =
-		axes_[KcAxis::k_left].front()->labelOrient() = -KcAxis::vec3::unitX();
-	axes_[KcAxis::k_right].front()->tickOrient() =
-		axes_[KcAxis::k_right].front()->labelOrient() = KcAxis::vec3::unitX();
-	axes_[KcAxis::k_bottom].front()->tickOrient() =
-		axes_[KcAxis::k_bottom].front()->labelOrient() = -KcAxis::vec3::unitY();
-	axes_[KcAxis::k_top].front()->tickOrient() =
-		axes_[KcAxis::k_top].front()->labelOrient() = KcAxis::vec3::unitY();
-
+	static const char* title[] = { "X", "Y" };
 	for (unsigned i = 0; i < 4; i++)
-		axes_[i].front()->showTick() = true, axes_[i].front()->showLabel() = true;
+		axes_[i].front()->title() = title[axes_[i].front()->dim()];
 
 	axes_[KcAxis::k_right].front()->visible() = false;
 	axes_[KcAxis::k_top].front()->visible() = false;
@@ -74,17 +66,6 @@ void KcCoord2d::forAxis(std::function<bool(KcAxis& axis)> fn) const
 void KcCoord2d::forPlane(std::function<bool(KcCoordPlane& plane)> fn) const
 {
 	fn(*plane_);
-}
-
-
-void KcCoord2d::draw(KvPaint* paint) const
-{
-	if (visible()) {
-		auto oldVp = paint->viewport();
-		paint->setViewport(plane_->innerRect());
-		KvCoord::draw(paint);
-		paint->setViewport(oldVp); // restore the old viewport
-	}
 }
 
 

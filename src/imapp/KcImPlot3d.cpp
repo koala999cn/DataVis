@@ -1,12 +1,12 @@
 #include "KcImPlot3d.h"
-#include "KcImPaint.h"
+#include "KcImOglPaint.h"
 #include "imgui.h"
 #include "plot/KcCoord3d.h"
 #include "KuStrUtil.h"
 
 
 KcImPlot3d::KcImPlot3d(const std::string_view& name)
-    : KvPlot3d(std::make_shared<KcImPaint>(camera_), std::make_shared<KcCoord3d>())
+    : KvPlot3d(std::make_shared<KcImOglPaint>(camera_), std::make_shared<KcCoord3d>())
     , KvImWindow(name)
     , trackball_(orient_)
 {

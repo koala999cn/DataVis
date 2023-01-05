@@ -1,9 +1,10 @@
 #include "KcAxis.h"
 #include <assert.h>
-#include "KcLinearScaler.h"
+#include "KcLinearTicker.h"
 #include "KvPaint.h"
 #include "KtuMath.h"
 #include "KtLine.h"
+#include "KtQuaternion.h"
 #include "layout/KeAlignment.h"
 #include "layout/KuLayoutUtil.h"
 
@@ -27,134 +28,237 @@ KcAxis::KcAxis(KeType type, int dim, bool main)
 
 	//labelFont_, titleFont_; // TODO:
 
-	scaler_ = std::make_shared<KcLinearScaler>();
+	ticker_ = std::make_shared<KcLinearTicker>();
 }
 
-std::shared_ptr<KvScaler> KcAxis::scaler() const
+std::shared_ptr<KvTicker> KcAxis::ticker() const
 {
-	return scaler_;
+	return ticker_;
 }
 
 
-void KcAxis::setScaler(std::shared_ptr<KvScaler> scale)
+void KcAxis::setTicker(std::shared_ptr<KvTicker> tic)
 {
-	scaler_ = scale;
+	ticker_ = tic;
 }
 
 
-KcAxis::aabb_t KcAxis::boundingBox() const
-{
-	return { start(), end() };
-}
-
-
-void KcAxis::draw(KvPaint* paint) const
+void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 {
 	assert(visible());
 
+	// NB: 无论calcBox是否为true，都须重新计算box_
+	// 因为计算布局（calcBox为true）和真实绘制（calcBox为false）时，
+	// 变化矩阵堆栈可能不同，特别是后者可能新压入了scale矩阵，
+	// 这就到这前期计算的box_和其他与世界坐标相关的长度和位置不可用
+	box_.setNull();
+
 	// draw baseline
-	if (showBaseline()) {
-		paint->apply(baselineCxt_);
-		paint->drawLine(start(), end()); // 物理坐标
+	if (showBaseline() && baselineCxt_.style != KpPen::k_none) {
+		if (!calcBox) {
+			paint->apply(baselineCxt_);
+			paint->drawLine(start(), end()); // 物理坐标
+		}
+
+		box_ = aabb_t(start(), end());
 	}
 
-	// draw ticks
+	auto realShowTitle = showTitle() && !title().empty();
+
+	// tickOrient_和labelOrient_只计算一次
+	if (realShowTitle || showTick() || showLabel()) {
+		//if (calcBox) {
+			calcTickOrient_(paint);
+			calcLabelOrient_(paint);
+		//}
+	}
+
+
+	// draw ticks & label
 	if (showTick() || showLabel())
-		drawTicks_(paint);
+		drawTicks_(paint, calcBox);
+
+	// draw title
+	if (realShowTitle) {
+		
+		if (!calcBox)
+			paint->setColor(titleContext().color);
+
+		calcTitleAnchor_(paint); 
+		drawText_(paint, title_, titleCxt_, titleAnchor_, calcBox);
+	}
 }
 
 
-void KcAxis::drawTicks_(KvPaint* paint) const
+KcAxis::vec3 KcAxis::outsideOrient_() const
+{
+	// 12根坐标轴的默认外向朝向
+	static const vec3 outsideOrient[] = {
+		-KcAxis::vec3::unitX(), // k_near_left
+		KcAxis::vec3::unitX(),  // k_near_right
+		-KcAxis::vec3::unitY(), // k_near_bottom
+		KcAxis::vec3::unitY(),  // k_near_top
+
+		-KcAxis::vec3::unitX(), // k_far_left
+		KcAxis::vec3::unitX(),  // k_far_right
+		-KcAxis::vec3::unitY(), // k_far_bottom
+		KcAxis::vec3::unitY(),  // k_far_top
+
+		-KcAxis::vec3::unitX(), // k_floor_left
+		KcAxis::vec3::unitX(),  // k_floor_right
+		-KcAxis::vec3::unitX(), // k_ceil_left
+		KcAxis::vec3::unitX()   // k_ceil_right
+	};
+
+	return outsideOrient[typeReal()];
+}
+
+
+KcAxis::vec3 KcAxis::insideOrient_() const
+{
+	return -outsideOrient_();
+}
+
+
+KcAxis::vec3 KcAxis::axisOrient_() const
+{
+	return (end() - start()).getNormalize();
+}
+
+
+void KcAxis::calcTickOrient_(KvPaint* paint) const
+{
+	// 此处的orient为世界坐标
+	vec3 tickOrient = (tickCxt_.side == k_inside) ? insideOrient_() : outsideOrient_();
+
+	auto vAxis = paint->localToWorldV(axisOrient_()).normalize(); // 坐标轴方向矢量
+	KtQuaternion<float_t> quatPitch(tickCxt_.pitch, vAxis); // 绕坐标轴旋转pitch弧度
+	tickOrient = quatPitch * tickOrient;
+	
+	auto vPrep = tickOrient.cross(vAxis).normalize(); // 刻度线和坐标轴的垂直矢量
+	KtQuaternion<float_t> quatYaw(tickCxt_.yaw, vPrep);
+	tickOrient = quatYaw * tickOrient;
+
+	tickOrient_ = paint->worldToLocalV(tickOrient).normalize(); // 变换回局部坐标系
+
+	if (paint->currentCoord() == KvPaint::k_coord_screen)
+		tickOrient_.y() *= -1; // TODO: 有无更好的方法
+}
+
+
+void KcAxis::calcLabelOrient_(KvPaint* paint) const
+{
+	labelOrient_ = tickCxt_.side == k_inside ? -tickOrient_ : tickOrient_;
+
+	// 将labelOrient_变换为垂直于axis的方向
+	auto axisOrient = axisOrient_();
+	labelOrient_ = axisOrient.cross(labelOrient_);
+	labelOrient_ = labelOrient_.cross(axisOrient).getNormalize();
+
+	// NB:确保label始终朝外侧（当tickOrient与axisOrient平行时，labelOrient_可能指向内侧）
+	if (labelOrient_.dot(outsideOrient_()) < 0)
+		labelOrient_ *= -1;
+
+	KtMatrix3<float_t> mat;
+	mat.fromAngleAxis(labelCxt_.pitch, axisOrient);
+	labelOrient_ = mat * labelOrient_;
+}
+
+
+KcAxis::float_t KcAxis::orientScale_(KvPaint* paint, const vec3& o)
+{
+	assert(KtuMath<float_t>::almostEqual(o.length(), 1.0));
+	return 1. / paint->projectv(o).length();
+}
+
+
+void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 {
 	assert(showTick() || showLabel());
 
 	if (length() == 0)
 		return; // TODO: draw or not draw ? draw what ??
 
-	auto scale = scaler();
-	scale->generate(lower(), upper(), showSubtick(), showLabel());
-	const auto& ticks = scale->ticks();
+	ticker()->generate(lower(), upper(), showSubtick(), showLabel());
+	const auto& ticks = ticker()->ticks();
 
-	assert(KtuMath<float_t>::almostEqual(tickOrient().length(), 1));
 
 	// 计算屏幕坐标1个像素尺度，相当于世界坐标多少个单位长度
-	auto tl = paint->projectv(tickOrient_);
-	auto ll = paint->projectv(labelOrient_);
-	float_t tickLenPerPixel = 1 / tl.length();
-	float_t labelPaddingPerPixel = 1 / ll.length();
+	float_t tickOrientScale = orientScale_(paint, tickOrient_);
+	float_t labelOrientScale = orientScale_(paint, labelOrient_);
 
-	paint->apply(tickCxt_);
+	if (!calcBox)
+	    paint->apply(tickCxt_);
 
-	std::vector<point3> labelAchors;
+	std::vector<point3> labelAnchors;
 	bool sameSide = tickAndLabelInSameSide_();
 	if (showLabel())
-		labelAchors.resize(ticks.size());
+		labelAnchors.resize(ticks.size());
 
 	for (unsigned i = 0; i < ticks.size(); i++) {
 		auto anchor = tickPos(ticks[i]);
 
-		if (showTick())
-		    drawTick_(paint, anchor, tickCxt_.length * tickLenPerPixel);
+		if (showTick()) 
+			drawTick_(paint, anchor, tickCxt_.length * tickOrientScale, calcBox);
 
 		if (showLabel()) {
-			labelAchors[i] = anchor + labelOrient_ * labelPadding_ * labelPaddingPerPixel;
+			labelAnchors[i] = anchor + labelOrient_ * labelPadding_ * labelOrientScale;
 
 			if (sameSide && showTick())
-				labelAchors[i] += tickOrient_ * tickCxt_.length * tickLenPerPixel;
+				labelAnchors[i] += tickOrient_ * tickCxt_.length * tickOrientScale;
 		}
 	}
 
 	if (showLabel()) {
 
 		// TODO: paint->setFont();
-		paint->setColor(labelColor());
-		auto& labels = scale->labels();
+		paint->setColor(labelContext().color);
+		auto& labels = ticker()->labels();
 		for (unsigned i = 0; i < ticks.size(); i++) {
 			auto label = i < labels_.size() ? labels_[i] : labels[i];
-
-			// 即可在世界坐标绘制，也可在屏幕坐标绘制
-			KeAlignment align = labelAlignment_(paint, paint->currentCoord() == KvPaint::k_coord_screen);
-
-			paint->drawText(labelAchors[i], label.c_str(), align);
+			drawText_(paint, label, labelCxt_, labelAnchors[i], calcBox);
+			//paint->setPointSize(3);
+			//paint->drawPoint(labelAnchors[i]); // for debug
 		}
 	}
 
 	// minor
-	auto& subticks = scale->subticks();
+	auto& subticks = ticker()->subticks();
 	if (showSubtick() && !subticks.empty()) {
 		
 		paint->apply(subtickCxt_);
-		double subtickLen = subtickCxt_.length * tickLenPerPixel;
+		double subtickLen = subtickCxt_.length * tickOrientScale;
 
 		for (unsigned i = 0; i < subticks.size(); i++) 
-			drawTick_(paint, tickPos(subticks[i]), subtickLen);
+			drawTick_(paint, tickPos(subticks[i]), subtickLen, calcBox);
 	}
 }
 
 
-void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length) const
+void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length, bool calcBox) const
 {
-	auto d = tickOrient() * length;
-	paint->drawLine(tickBothSide() ? anchor - d : anchor, anchor + d);
+	auto d = tickOrient_ * length;
+	if (!calcBox)
+		paint->drawLine(tickCxt_.side == k_bothside ? anchor - d : anchor, anchor + d);
+	//else {
+		box_.merge(anchor + d);
+		if (tickCxt_.side == k_bothside)
+			box_.merge(anchor - d);
+	//}
 }
 
 
-int KcAxis::labelAlignment_(KvPaint* paint, bool toggleTopBottom) const
+int KcAxis::labelAlignment_(KvPaint* paint) const
 {
-	int align(0);
-	auto labelOrient = paint->localToWorldV(labelOrient_); // labelOrient_
+	auto axisOrient = paint->projectv(end() - start());
+	auto labelOrient = paint->projectv(labelOrient_); // TODO: 区分label和title
 
-	if (labelOrient.x() > 0)
-		align |= KeAlignment::k_left;
-	else if (labelOrient.x() < 0)
-		align |= KeAlignment::k_right;
-
-	if (labelOrient.y() > 0 || labelOrient.z() < 0 )
-		align |= toggleTopBottom ? KeAlignment::k_top : KeAlignment::k_bottom;
-	else if (labelOrient.y() < 0 || labelOrient.z() > 0)
-		align |= toggleTopBottom ? KeAlignment::k_bottom : KeAlignment::k_top;
-
-	return align;
+	if (std::abs(axisOrient.x()) < std::abs(axisOrient.y())) {
+		return labelOrient.x() > 0 ? KeAlignment::k_left : KeAlignment::k_right;
+	}
+	else {
+		return labelOrient.y() > 0 ? KeAlignment::k_top : KeAlignment::k_bottom;
+	}
 }
 
 
@@ -176,28 +280,32 @@ KcAxis::point3 KcAxis::tickPos(double val) const
 
 KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 {
-	assert(visible() && length() > 0);
+	assert(visible());
 
-	auto paint = (KvPaint*)cxt;
+	if (length() > 0) {
 
-	switch (typeReal())
-	{
-	case KcAxis::k_left:
-		return { calcMargins(paint).left(), 0 };
+		auto paint = (KvPaint*)cxt;
+		auto marg = calcMargins(paint);
 
-	case KcAxis::k_right:
-		return { calcMargins(paint).right(), 0 };
+		switch (typeReal())
+		{
+		case KcAxis::k_left:
+			return { std::max<float_t>(marg.left(), baselineCxt_.width), 0 };
 
-	case KcAxis::k_bottom:
-		return { 0, calcMargins(paint).bottom() };
+		case KcAxis::k_right:
+			return { std::max<float_t>(marg.right(), baselineCxt_.width), 0 };
 
-	case KcAxis::k_top:
-		return { 0, calcMargins(paint).top() };
+		case KcAxis::k_bottom:
+			return { 0, std::max<float_t>(marg.bottom(), baselineCxt_.width) };
 
-	default:
-		break;
+		case KcAxis::k_top:
+			return { 0, std::max<float_t>(marg.top(), baselineCxt_.width) };
+
+		default:
+			break;
+		}
 	}
-	
+
 	return { 0, 0 };
 }
 
@@ -206,80 +314,22 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 // draw则在世界坐标系进行实际绘制，paint在执行绘制指令时负责坐标转换
 KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 {
-	//if (!visible() || length() == 0)
-	//	return { 0, 0, 0, 0 };
+	if (!visible() || length() == 0)
+		return { 0, 0, 0, 0 };
 
-	paint->pushCoord(KvPaint::k_coord_screen); // 所有计算在屏幕坐标下进行
+	draw_(paint, true);
 
-	auto tickOrient = paint->projectv(tickOrient_);
+	aabb_t ibox(paint->projectp(start()), paint->projectp(end()));
+	aabb_t obox(paint->projectp(box_.lower()), paint->projectp(box_.upper()));
+	auto l = ibox.lower() - obox.lower();
+	auto u = obox.upper() - ibox.upper();
 
-	vec3 tickLen(0); // tick的长度矢量
-	if (showTick())
-		tickLen = tickOrient * tickCxt_.length;
-
-	auto scale = scaler();
-	scale->generate(lower(), upper(), false, showLabel());
-	auto& ticks = scale->ticks();
-
-	vec3 dir = paint->projectv((end() - start()).normalize()); // 坐标轴的方向矢量
-	point3 lowerPt(0), upperPt(lowerPt + dir * length()); // 由于目前不知start与end的实际值，以range为基础构建虚拟坐标系
-	aabb_t box(lowerPt, upperPt);
-
-	if (showBaseline()) {
-		auto w = baselineCxt_.width;
-		if (typeReal() == k_left || typeReal() == k_bottom)
-			w = -w;
-		box.merge({ w, w, w });
-	}
-
-	if (showTick() && !ticks.empty())	{
-		// 合并第一个和最后一个tick的box
-		float_t pos[2];
-		pos[0] = kPrivate::remap(ticks.front(), lower(), upper(), 0., length(), inversed());
-		pos[1] = kPrivate::remap(ticks.back(), lower(), upper(), 0., length(), inversed());
-		for (int i = 0; i < 2; i++)
-			box.merge(lowerPt + dir * pos[i] + tickLen);
-	}
-
-	
-	if (showLabel()) { // 合并各label的box
-
-		// 判断label和tick是否在坐标轴的同侧
-		bool sameSide = tickAndLabelInSameSide_();
-		auto& labels = scale->labels();
-
-		for (unsigned i = 0; i < ticks.size(); i++) {
-			auto pos = kPrivate::remap(ticks[i], lower(), upper(), 0., length(), inversed());
-			auto labelAchors = lowerPt + dir * pos;
-			if (sameSide)
-				labelAchors += tickOrient * tickCxt_.length;
-
-			labelAchors += paint->projectv(labelOrient_) * labelPadding_;
-
-			auto labelText = i < labels_.size() ? labels_[i] : labels[i];
-			box.merge(textBox_(paint, labelAchors, labelText));
-		}
-	}
-
-	if (showTitle()) {
-		//margins += paint->textSize(title_.c_str()).x();
-		//margins += titlePadding_;
-	}
-
-	aabb_t outter(box.lower(), box.upper());
-	aabb_t inner(lowerPt, upperPt);
-	
-	auto l = inner.lower() - outter.lower();
-	auto u = outter.upper() - inner.upper();
-	
 	KtMargins<KcAxis::float_t> margs;
 	margs.left() = l.x();
 	margs.right() = u.x();
-	margs.bottom() = l.y(); // 由于计算所用矢量都是世界坐标系，所以不用交换bottom和top
-	margs.top() = u.y();
-	assert(margs.geAll({ 0, 0, 0, 0 }));
-
-	paint->popCoord();
+	margs.bottom() = u.y();
+	margs.top() = l.y();
+	//assert(margs.ge({ 0, 0, 0, 0 }));
 
 	return margs;
 }
@@ -290,64 +340,178 @@ bool KcAxis::tickAndLabelInSameSide_() const
 	KtLine<float_t> line(point3(0), end() - start());
 	auto tickSide = line.whichSide(tickOrient_);
 	auto labelSide = line.whichSide(labelOrient_);
-	return (tickSide * labelSide).geAll(point3(0));
-}
-
-
-KcAxis::aabb_t KcAxis::textBox_(KvPaint* paint, const point3& anchor, const std::string& text) const
-{
-	auto r = KuLayoutUtil::anchorAlignedRect({ anchor.x(), anchor.y() },
-		paint->textSize(text.c_str()), labelAlignment_(paint, true));
-
-	return { 
-		{ r.lower().x(), r.lower().y(), anchor.z() }, 
-		{ r.upper().x(), r.upper().y(), anchor.z() } 
-	};
-
-	// 此处r为屏幕坐标，需要转换为视图坐标
-	//auto yLower = 2 * anchor.y() - r.upper().y();
-	//auto yUpper = 2 * anchor.y() - r.lower().y();
-
-	//return { { r.lower().x(), yLower, anchor.z() }, { r.upper().x(), yUpper, anchor.z() } };
+	return (tickSide * labelSide).ge(point3(0));
 }
 
 
 KcAxis::KeType KcAxis::typeReal() const
 {
-	// 可逆的类型交换数组
-	//constexpr static int swapType[4][3][3] = {
-		/// KcAxis::k_near_left
-		//{
-		//	/*dim0*/ { KcAxis::k_near_left, KcAxis::k_near_bottom, -1 },
-		//	/*dim1*/ { KcAxis::k_near_left, KcAxis::k_near_bottom, -1 },
-		//},
-		/// KcAxis::k_near_right
-
-		/// KcAxis::k_near_bottom
-
-		/// KcAxis::k_near_top
-	//};
-	
-	//return swapType[type_][dimReal_][dimSwapped_];
-	
-	constexpr static int swapType[][4] = {
-			/* swap_none */          /* swap_xy */           /* swap_xz */        /* swap_yz */
-		{ KcAxis::k_near_left,   KcAxis::k_near_bottom, -1,                    KcAxis::k_ceil_left   },
-		{ KcAxis::k_near_right,  KcAxis::k_near_top ,   -1,                    KcAxis::k_ceil_right  },
-		{ KcAxis::k_near_bottom, KcAxis::k_near_left,   KcAxis::k_floor_right, -1                    },
-		{ KcAxis::k_near_top,    KcAxis::k_near_right,  KcAxis::k_ceil_right,  -1                    },
-
-		{ KcAxis::k_far_left,    KcAxis::k_far_bottom, -1,                     KcAxis::k_floor_left  },
-		{ KcAxis::k_far_right,   KcAxis::k_far_top,    -1,                     KcAxis::k_floor_right },
-		{ KcAxis::k_far_bottom,  KcAxis::k_far_left,   KcAxis::k_floor_left,   -1                    },
-		{ KcAxis::k_far_top,     KcAxis::k_far_right,  KcAxis::k_ceil_left,    -1                    },
-
-		{ KcAxis::k_floor_left,  -1,                   KcAxis::k_far_bottom,   KcAxis::k_far_left   },
-		{ KcAxis::k_floor_right, -1,                   KcAxis::k_near_bottom,  KcAxis::k_far_right  },
-		{ KcAxis::k_ceil_left,   -1,                   KcAxis::k_far_top,      KcAxis::k_near_left  },
-		{ KcAxis::k_ceil_right,  -1,                   KcAxis::k_near_top,     KcAxis::k_near_right }
+	enum KeSwapKind
+	{
+		swap_none,
+		swap_xy,
+		swap_xz,
+		swap_yz
 	};
 
-	// TODO: 暂时只考虑二维情况
-	return KeType(swapType[type_][swapped() ? 1 : 0]);
+	// 根据dimReal_和dimSwapped_获取swapKind
+	// 使用[dimReal_][dimSwapped_ + 1]索引
+	constexpr static int swapKind[3][4] = {
+		{ swap_yz, swap_none, swap_xy, swap_xz },
+		{ swap_xz, swap_xy, swap_none, swap_yz },
+		{ swap_xy, swap_xz, swap_yz, swap_none }
+	};
+	
+	// NB：另外两个维度的坐标轴交换，也会影响当前坐标轴的方位。目前尚未实现交换情况下的方位一致性
+	constexpr static int swapType[][4] = {
+			/* swap_none */          /* swap_xy */           /* swap_xz */        /* swap_yz */
+		{ KcAxis::k_near_left,   KcAxis::k_near_bottom, KcAxis::k_far_right,   KcAxis::k_ceil_left   },
+		{ KcAxis::k_near_right,  KcAxis::k_near_top ,   KcAxis::k_near_right,  KcAxis::k_ceil_right  },
+		{ KcAxis::k_near_bottom, KcAxis::k_near_left,   KcAxis::k_floor_right, KcAxis::k_far_top     },
+		{ KcAxis::k_near_top,    KcAxis::k_near_right,  KcAxis::k_ceil_right,  KcAxis::k_near_top  },
+
+		{ KcAxis::k_far_left,    KcAxis::k_far_bottom,  KcAxis::k_far_left,    KcAxis::k_floor_left  },
+		{ KcAxis::k_far_right,   KcAxis::k_far_top,     KcAxis::k_near_left,   KcAxis::k_floor_right },
+		{ KcAxis::k_far_bottom,  KcAxis::k_far_left,    KcAxis::k_floor_left,  KcAxis::k_far_bottom    },
+		{ KcAxis::k_far_top,     KcAxis::k_far_right,   KcAxis::k_ceil_left,   KcAxis::k_near_bottom },
+
+		{ KcAxis::k_floor_left,  KcAxis::k_floor_left,  KcAxis::k_far_bottom,  KcAxis::k_far_left    },
+		{ KcAxis::k_floor_right, KcAxis::k_ceil_left,   KcAxis::k_near_bottom, KcAxis::k_far_right   },
+		{ KcAxis::k_ceil_left,   KcAxis::k_floor_right, KcAxis::k_far_top,     KcAxis::k_near_left   },
+		{ KcAxis::k_ceil_right,  KcAxis::k_ceil_right,  KcAxis::k_near_top,    KcAxis::k_near_right  }
+	};
+	
+	if (dimReal_ == -1) return type_; // color-bar的坐标轴，无交换
+
+	auto t = swapType[type_][swapKind[dimReal_][dimSwapped_ + 1]];
+	return KeType(t);
+}
+
+
+void KcAxis::calcTextPos_(KvPaint* paint, const std::string_view& label, const KpTextContext& cxt, 
+	const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const
+{
+	auto textBox = paint->textSize(label.data());
+	if (cxt.layout == k_vert_left || cxt.layout == k_vert_right)
+		std::swap(textBox.x(), textBox.y());
+	
+	if (cxt.billboard) { // 公告牌模式，文字始终顺着+x轴延展
+
+		hDir = paint->unprojectv(vec3::unitX()).normalize();
+		vDir = paint->unprojectv(vec3::unitY()).normalize();
+
+		auto align = labelAlignment_(paint);
+		auto anchorInScreen = paint->projectp(anchor);
+		auto rc = KuLayoutUtil::anchorAlignedRect({ anchorInScreen.x(), anchorInScreen.y() }, textBox, align);
+		topLeft = paint->unprojectp({ rc.lower().x(), rc.lower().y(), anchorInScreen.z() });
+	}
+	else {
+		vDir = labelOrient_;
+		hDir = axisOrient_();
+
+		vec3 h = paint->projectv(hDir);
+		vec3 v = paint->projectv(vDir);
+		auto zDir = h.cross(v);
+		if (zDir.z() < 0)
+			hDir *= -1; // 修正hDir，确保文字在三维空间的可读性
+
+		topLeft = anchor - hDir * (textBox.x() / 2) * orientScale_(paint, hDir);
+	}
+
+	// fixTextLayout_需要textBox为世界坐标尺寸，此处进行变换
+	textBox *= point2(orientScale_(paint, hDir), orientScale_(paint, vDir));
+	fixTextLayout_(cxt.layout, textBox, topLeft, hDir, vDir);
+
+	fixTextRotation_(cxt, anchor, topLeft, hDir, vDir);
+
+	if (cxt.billboard && cxt.yaw) {
+		// 调整vDir，确保与hDir在屏幕坐标系下垂直
+		vec3 hDirS = paint->projectv(hDir);
+		vec3 vDirS = paint->projectv(vDir);
+		vDirS = hDirS.cross(vDirS).cross(hDirS);
+		vDir = paint->unprojectv(vDirS).normalize();
+	}
+}
+
+
+void KcAxis::fixTextLayout_(KeTextLayout lay, const size_t& textBox, point3& topLeft, vec3& hDir, vec3& vDir)
+{
+	switch (lay)
+	{
+	case KcAxis::k_horz_bottom: // 上下颠倒，topLeft调整到右下角
+		topLeft += hDir * textBox.x() + vDir * textBox.y();
+		hDir *= -1; vDir *= -1;
+		break;
+
+	case KcAxis::k_vert_left: // 竖版布局，topLeft调整到左下角
+		topLeft += vDir * textBox.y();
+		std::swap(hDir, vDir); hDir *= -1;
+		break;
+
+	case KcAxis::k_vert_right:// 竖版布局，topLeft调整到右上角
+		topLeft += hDir * textBox.x();
+		std::swap(hDir, vDir); vDir *= -1;
+		break;
+
+	case KcAxis::k_horz_top: // 缺省布局，不作调整
+	default:
+		break;
+	}
+}
+
+
+void KcAxis::fixTextRotation_(const KpTextContext& cxt, const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const
+{
+	if (cxt.yaw == 0)
+		return;
+
+	KtQuaternion<float_t> quat(cxt.yaw, vDir.cross(hDir).normalize());
+
+	auto yaw = quat.yaw();
+
+	hDir = (quat * hDir).normalize();
+	vDir = (quat * vDir).normalize();
+	//assert(KtuMath<float_t>::almostEqual(hDir.dot(vDir), 0));
+	topLeft = anchor + quat * (topLeft - anchor);
+}
+
+
+void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTextContext& cxt, const point3& anchor, bool calcBox) const
+{
+	point3 topLeft;
+	vec3 hDir, vDir;
+	calcTextPos_(paint, label.data(), cxt, anchor, topLeft, hDir, vDir);
+	assert(KtuMath<float_t>::almostEqual(1.0, hDir.length()));
+	assert(KtuMath<float_t>::almostEqual(1.0, vDir.length()));
+
+	if (!calcBox) {
+		paint->drawText(topLeft, hDir, vDir, label.data());
+	}
+	//else {
+		auto sz = paint->textSize(label.data());
+		auto h = hDir * sz.x() * orientScale_(paint, hDir);
+		auto v = vDir * sz.y() * orientScale_(paint, vDir);
+		box_.merge({ topLeft, topLeft + h + v });
+	//}
+}
+
+
+void KcAxis::calcTitleAnchor_(KvPaint* paint) const
+{
+	auto center = (start() + end()) / 2;
+
+	aabb_t inner(start(), end());
+	auto low = box_.lower() - inner.lower();
+	auto up = box_.upper() - inner.upper();
+	auto orient = labelOrient_;
+	point3 shift;
+	for (int i = 0; i < 3; i++)
+		shift[i] = std::max(orient[i] * low[i], orient[i] * up[i]);
+
+	titleAnchor_ = center + orient * shift;
+
+	// 加上padding
+	titleAnchor_ += orient * titlePadding_ * orientScale_(paint, orient);
+
+	// paint->drawBox(box_.lower(), box_.upper()); // for debug
 }

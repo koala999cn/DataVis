@@ -4,7 +4,7 @@
 
 
 KvPlot3d::KvPlot3d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
-	: KvPlot(paint, coord)
+	: KvPlot(paint, coord, 3)
 {
     mat3d<> rot;
     rot.fromEulerAngleXYZ(0.316, -0.595, 0);

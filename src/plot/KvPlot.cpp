@@ -7,9 +7,10 @@
 #include "layout/KuLayoutHelper.h"
 
 
-KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
+KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, char dim)
 	: paint_(paint)
 	, coord_(coord)
+	, dim_(dim)
 {
 	legend_ = new KcLegend;
 	colorBar_ = nullptr;
@@ -83,6 +84,7 @@ void KvPlot::removeAllPlottables()
 {
 	assert(legend_);
 	if (colorBar_) {
+		KuLayoutHelper::take(colorBar_);
 		delete colorBar_;
 		colorBar_ = nullptr;
 	}
@@ -97,29 +99,44 @@ void KvPlot::update()
 	if (autoFit_ && !plottables_.empty())
 		fitData();
 
-	//paint_->pushLocal(coord().localMatrix()); // 坐标轴的反转和交换矩阵，autoProject_需要用到
-
 	auto axisSwapped = coord_->axisSwapped();
 	if (axisSwapped)
-		paint_->pushLocal(coord_->axisSwapMatrix());
+		paint_->pushLocal(coord_->axisSwapMatrix()); // 先压入坐标轴交换矩阵，autoProject_要用
+
+	auto oRect = paint_->viewport();
+	auto iRect = oRect;
+	auto margs = margins();
+	iRect.deflate({ margs.left(), margs.top() }, { margs.right(), margs.bottom() });
+	//paint_->setViewport(iRect);
 
 	autoProject_();
 
 	paint_->beginPaint();
 
-	auto rcCanvas = paint_->viewport();
-	updateLayout_(rcCanvas);
+	updateLayout_(oRect);
+	assert(layout_->innerRect() == iRect);
 
-	coord().draw(paint_.get());
-	
-	auto rcPlot = coord().getPlotRect();
-	paint_->setViewport(rcPlot); // plottable绘制需要设定plot视图，以便按世界坐标执行绘制操作
+	paint_->setViewport(layout_->innerRect()); // 此处压入innerRect，与KcCoord3d配合抑制fixPlotView_修正plot3d的视口偏移
+	                                           // TODO: 更优雅和通用的实现
+
+	// 修正视口偏移（主要针对plot2d，把它的坐标系lower点移到视口的左下角）
+	auto locals = fixPlotView_(); // 此处有locals个矩阵入栈，后续须pop
+
+	//paint_->setViewport(coord_->getPlotRect());
+
+	coord_->draw(paint_.get());
 
 	auto axisInversed = coord_->axisInversed();
 	if (axisInversed)
 		paint_->pushLocal(coord_->axisInverseMatrix());
 
+	if (dim() == 3)
+		paint_->enableClipBox(coord_->lower(), coord_->upper());
+
 	drawPlottables_();
+
+	if (dim() == 3)
+		paint_->disableClipBox();
 
 	if (axisInversed)
 		paint_->popLocal();
@@ -127,7 +144,8 @@ void KvPlot::update()
 	if (axisSwapped)
 		paint_->popLocal();
 
-	//paint_->popLocal(); // 后续绘制基于屏幕坐标，不再反转和交换坐标，弹出变换矩阵
+	for (int i = 0; i < locals; i++)
+	    paint_->popLocal();
 
 	if (realShowLegend_()) 
 		legend_->draw(paint_.get());
@@ -135,9 +153,56 @@ void KvPlot::update()
 	if (realShowColorBar_())
 		colorBar_->draw(paint_.get());
 
-	paint_->setViewport(rcCanvas); // 恢复原视口
+	// debug drawing
+	if (showLayoutRect_)
+	    drawLayoutRect_();
 
 	paint_->endPaint();
+}
+
+
+int KvPlot::fixPlotView_()
+{
+	if (dim() != 2) {
+		assert(paint_->viewport() == coord_->getPlotRect());
+		return 0; // 只对plot2d进行修正
+	}
+
+	auto rcCanvas = paint_->viewport();
+	auto rcPlot = coord_->getPlotRect();
+	if (rcPlot == rcCanvas)
+		return 0;
+		
+	// 绘图区域相对于画布（窗口视图）的缩放比例
+	KvPaint::point3 scale = { rcPlot.width() / rcCanvas.width(),
+								rcPlot.height() / rcCanvas.height(), 1 };
+	//if (coord_->axisSwapped() == KvCoord::k_axis_swap_xy)
+	//	std::swap(scale.x(), scale.y());
+	scale = paint_->localToWorldV(scale); // 等价于上述坐标轴交换代码，此处使用更通用的变换方法
+	auto scaleMat = KvPaint::mat4::buildScale(scale);
+	paint_->pushLocal(scaleMat);
+
+	// 把世界坐标系的lower点偏移到rcPlot的左下点
+	auto lower = paint_->unprojectp({ rcPlot.lower().x(), rcPlot.upper().y() });
+	auto shiftMat = KvPaint::mat4::buildTanslation(lower - coord_->lower());
+	
+	/////////////////////////////////////////////////////////////////////////
+	// 上述偏移等价于以下代码
+	// 绘图区域相对于画布（窗口视图）的偏移，屏幕坐标下的像素值
+	//KvPaint::point2 shift = { rcPlot.lower().x() - rcCanvas.lower().x(),
+	//							rcPlot.upper().y() - rcCanvas.upper().y() };
+	//auto shift3d = paint_->unprojectv(shift); // 转换到世界坐标
+	// 此外，由于缩放变换是相对于原点进行的，这就造成了坐标系的lower点产生了偏移，需要进一步修正
+	//shift3d += (coord_->lower() - coord_->lower() * scale);
+	//auto shiftMat = KvPaint::mat4::buildTanslation(shift3d);
+	//////////////////////////////////////////////////////////////////////////
+
+	paint_->pushLocal(shiftMat);
+
+	//assert(std::floor(paint_->projectp(coord_->lower()).x()) == rcPlot.lower().x());
+	//assert(std::floor(paint_->projectp(coord_->lower()).y()) == rcPlot.upper().y());
+
+	return 2;
 }
 
 
@@ -200,9 +265,12 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 			legend_->removeItem(removedPlt);
 		}
 		else {
-			assert(colorBar_);
-			if (colorBar_) delete colorBar_;
-			colorBar_ = nullptr;
+			//assert(colorBar_); // TODO:
+			if (colorBar_) {
+				KuLayoutHelper::take(colorBar_);
+				if (colorBar_) delete colorBar_;
+				colorBar_ = nullptr;
+			}
 		}
 	}
 
@@ -211,7 +279,11 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 			legend_->addItem(addedPlt);
 		}
 		else {
-			assert(colorBar_ == nullptr);
+			//assert(colorBar_ == nullptr); 
+			if (colorBar_) { // TODO: 如何处理多个color-bar？
+				KuLayoutHelper::take(colorBar_);
+				delete colorBar_;
+			}
 			colorBar_ = new KcColorBar(addedPlt);
 		}
 	}
@@ -220,13 +292,62 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 
 void KvPlot::drawPlottables_()
 {
-	paint_->pushClipRect(paint_->viewport()); // 设置clipRect，防止plottables超出范围
-	//paint_->pushLocal(coord().localMatrix());
+	paint_->pushClipRect(coord_->getPlotRect()); // 设置clipRect，防止plottables超出范围
 
 	for (int idx = 0; idx < plottableCount(); idx++)
 		if (plottableAt(idx)->visible())
 			plottableAt(idx)->draw(paint_.get());
 
-	//paint_->popLocal();
 	paint_->popClipRect();
+}
+
+
+void KvPlot::setMargins(const margins_t& m)
+{ 
+	rect_t rc;
+	rc.lower() = { m.left(), m.top() }; // TODO: 
+	rc.upper() = { m.right(), m.bottom() };
+	
+	layout_->setMargins(rc); 
+}
+
+
+void KvPlot::setMargins(float l, float t, float r, float b)
+{
+	return setMargins({ l, t, r, b });
+}
+
+
+KvPlot::margins_t KvPlot::margins() const
+{ 
+	auto rc = layout_->margins();
+	margins_t m;
+	m.left() = rc.lower().x();
+	m.right() = rc.upper().x();
+	m.top() = rc.lower().y();
+	m.bottom() = rc.upper().y();
+	return m; 
+}
+
+
+#include <queue>
+void KvPlot::drawLayoutRect_()
+{
+	std::queue<KvLayoutElement*> eles; // 待绘制布局元素
+	eles.push(layout_.get());
+
+	paint_->pushCoord(KvPaint::k_coord_screen);
+	paint_->setColor({ 1,0,0,1 });
+	
+	while (!eles.empty()) {
+		auto e = eles.front(); eles.pop();
+		paint_->drawRect(e->outterRect());
+		auto c = dynamic_cast<KvLayoutContainer*>(e);
+		if (c) {
+			for (auto& i : c->elements())
+				if (i) eles.push(i.get());
+		}
+	}
+
+	paint_->popCoord();
 }

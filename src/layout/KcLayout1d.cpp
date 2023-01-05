@@ -64,7 +64,7 @@ void KcLayout1d::arrangeOverlay_(const rect_t& rc, int dim)
 {
 	__super::arrange_(rc, dim);
 	auto rcLay = rc;
-	rcLay.upper()[!dim] = rcLay.lower()[!dim]; // 屏蔽另一个维度
+	rcLay.setExtent(!dim, 0); // 屏蔽另一个维度
 	for (auto& i : elements())
 		if (i) i->arrange(rcLay);
 }
@@ -75,14 +75,14 @@ void KcLayout1d::arrangeStack_(const rect_t& rc, int dim)
 	__super::arrange_(rc, dim);
 
 	auto unusedSpace = iRect_.upper()[dim] - iRect_.lower()[dim];
-	auto fixedSpace = expectRoom()[dim];
+	auto fixedSpace = contentSize()[dim]; // 此处不可再用expectRoom，否则留白要多算一次，因为传入的rc已扣除了留白
 	auto extraSpace = std::max(0., unusedSpace - fixedSpace);
 
 	// TODO: 1. 暂时使用均匀分配策略; 2. 未考虑extraShares == 0时，仍有extraSpace的情况
 	auto spacePerShare = extraShares()[dim] ? extraSpace / extraShares()[dim] : 0;
 
 	rect_t rcItem = iRect_;
-	rcItem.upper()[!dim] = rcItem.lower()[!dim]; // 屏蔽另一个维度
+	rcItem.setExtent(!dim, 0); // 屏蔽另一个维度
 	for (auto& i : elements()) {
 		if (i == nullptr)
 			continue;
@@ -90,7 +90,7 @@ void KcLayout1d::arrangeStack_(const rect_t& rc, int dim)
 		// 支持fixd-item和squeezed-item的混合体
 		auto itemSpace = i->expectRoom()[dim] + i->extraShares()[dim] * spacePerShare;
 
-		rcItem.upper()[dim] = rcItem.lower()[dim] + itemSpace;
+		rcItem.setExtent(dim, itemSpace);
 		i->arrange(rcItem);
 
 		rcItem.lower() = rcItem.upper();

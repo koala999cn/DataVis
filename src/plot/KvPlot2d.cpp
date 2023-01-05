@@ -2,6 +2,13 @@
 #include "KvCoord.h"
 
 
+KvPlot2d::KvPlot2d(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord)
+    : KvPlot(paint, coord, 2)
+{
+    setMargins(15, 15, 15, 15);
+}
+
+
 void KvPlot2d::autoProject_()
 {
     auto box = coord().boundingBox();

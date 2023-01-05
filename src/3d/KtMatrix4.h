@@ -67,7 +67,15 @@ public:
 			m3.m10(), m3.m11(), m3.m12(), 0,
 			m3.m20(), m3.m21(), m3.m22(), 0,
 			       0,        0,        0, 1 ) {}
-		
+	
+	template<class T, bool R>
+	KtMatrix4(const KtMatrix4<T, R>& rhs) {
+		m00() = rhs.m00(), m01() = rhs.m01(), m02() = rhs.m02(), m03() = rhs.m03(),
+		m10() = rhs.m10(), m11() = rhs.m11(), m12() = rhs.m12(), m13() = rhs.m13(),
+		m20() = rhs.m20(), m21() = rhs.m21(), m22() = rhs.m22(), m23() = rhs.m23(),
+		m30() = rhs.m30(), m31() = rhs.m31(), m32() = rhs.m32(), m33() = rhs.m33();
+	}
+
 	static mat4 zero() {
 		return mat4();
 	}
@@ -610,7 +618,7 @@ template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
 KtMatrix4<KReal, ROW_MAJOR>::projectPerspective(KReal fovyInDegree, KReal aspectRatio, KReal znear, KReal zfar)
 {
 	KReal ymax, xmax;
-	ymax = znear * std::tan(fovyInDegree * KtuMath<KReal>::pi / 180);
+	ymax = znear * std::tan(KtuMath<KReal>::deg2Rad(fovyInDegree));
 	xmax = ymax * aspectRatio;
 	return projectFrustum(-xmax, xmax, -ymax, ymax, znear, zfar);
 }
