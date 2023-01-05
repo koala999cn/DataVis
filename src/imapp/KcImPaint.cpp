@@ -89,10 +89,10 @@ KcImPaint::point4 KcImPaint::project(const point4& pt) const
 	switch (coords_.back())
 	{
 	case k_coord_local:
-		return camera_.localToScreen(pt);
+		return camera_.localToScreen(pt).homogenize(); // NB: 透视投影须作归一化
 
 	case k_coord_world:
-		return camera_.worldToScreen(pt);
+		return camera_.worldToScreen(pt).homogenize(); // NB: 透视投影须作归一化
 
 	case k_coord_local_screen:
 		return camera_.localToWorld(pt); // 仅执行局部变换
@@ -114,10 +114,10 @@ KcImPaint::point4 KcImPaint::unproject(const point4& pt) const
 	switch (coords_.back())
 	{
 	case k_coord_local:
-		return camera_.screenToLocal(pt);
+		return camera_.screenToLocal(pt).homogenize();
 
 	case k_coord_world:
-		return camera_.screenToWorld(pt);
+		return camera_.screenToWorld(pt).homogenize();
 
 	case k_coord_local_screen:
 		return camera_.worldToLocal(pt); // 仅执行局部变换

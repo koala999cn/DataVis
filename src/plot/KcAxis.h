@@ -209,6 +209,9 @@ private:
 	vec3 insideOrient_() const;
 	vec3 axisOrient_() const;
 
+	// 计算在世界坐标方向o上，1个屏幕单位（即1像素）相当于多少世界单位
+	static float_t orientScale_(KvPaint*, const vec3& o);
+
 	void draw_(KvPaint*, bool calcBox) const;
 	void drawTicks_(KvPaint*, bool calcBox) const; // 绘制所有刻度
 	void drawTick_(KvPaint*, const point3& anchor, double length, bool calcBox) const; // 绘制单条刻度线，兼容主刻度与副刻度

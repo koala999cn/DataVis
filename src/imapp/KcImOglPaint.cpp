@@ -4,6 +4,7 @@
 #include "glad.h"
 #include "KcVertexDeclaration.h"
 #include "KtLineS2d.h"
+#include "KtuMath.h"
 #include "opengl/KcGlslProgram.h"
 #include "opengl/KcGlslShader.h"
 #include "opengl/KcGpuBuffer.h"
@@ -41,10 +42,7 @@ namespace kPrivate
 KcImOglPaint::KcImOglPaint(camera_type& cam)
 	: super_(cam)
 {
-	curViewport_ = -1;
-	curClipBox_ = -1;
-	depthTest_ = false;
-	antialiasing_ = false;
+
 }
 
 
@@ -83,7 +81,7 @@ void KcImOglPaint::endPaint()
 	super_::endPaint();
 }
 
-#include "KtuMath.h"
+
 KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 {
 	switch (currentCoord())

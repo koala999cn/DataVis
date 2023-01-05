@@ -137,11 +137,13 @@ public:
 	// 点投影
 	point3 projectp(const point3& pt) const {
 		auto r = project(point4(pt.x(), pt.y(), pt.z(), 1));
+		assert(r.w() == 1);
 		return { r.x(), r.y(), r.z() };
 	}
 
 	point3 unprojectp(const point3& pt) const {
 		auto r = unproject(point4(pt.x(), pt.y(), pt.z(), 1));
+		assert(r.w() == 1); // NB: 透视投影模式下，须对结果归一化
 		return { r.x(), r.y(), r.z() };
 	}
 
@@ -162,18 +164,19 @@ public:
 
 	// 矢量投影
 	point3 projectv(const point3& v) const {
-		auto r = project(point4(v.x(), v.y(), v.z(), 0));
-		return { r.x(), r.y(), r.z() };
+		//auto r = project(point4(v.x(), v.y(), v.z(), 0));
+		//return { r.x(), r.y(), r.z() };
+		return projectp(v) - projectp(point3(0)); // TODO: 透视投影模式下，不能直接使用上述代码
 	}
 
 	point3 unprojectv(const point3& pt) const {
-		auto r = unproject(point4(pt.x(), pt.y(), pt.z(), 0));
-		return { r.x(), r.y(), r.z() };
+		//auto r = unproject(point4(pt.x(), pt.y(), pt.z(), 0));
+		//return { r.x(), r.y(), r.z() };
+		return unprojectp(pt) - unprojectp(point3(0)); // TODO: 透视投影模式下，不能直接使用上述代码
 	}
 
 	point3 unprojectv(const point2& pt) const {
-		auto r = unproject(point4(pt.x(), pt.y(), 0, 0));
-		return { r.x(), r.y(), r.z() };
+		return unprojectv(point3(pt.x(), pt.y(), 0));
 	}
 
 	point3 localToWorldV(const point3& v) const {

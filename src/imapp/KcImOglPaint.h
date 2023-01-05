@@ -75,10 +75,10 @@ private:
 	std::vector<aabb_t> clipBoxHistList_; // 三维空间裁剪box列表
 
 	std::vector<unsigned> clipRectStack_;
-	unsigned curViewport_; // -1表示未设置
-	unsigned curClipBox_; 
-	bool depthTest_; // 启动深度测试？
-	bool antialiasing_;
+	unsigned curViewport_{ unsigned(-1) }; // -1表示未设置
+	unsigned curClipBox_{ unsigned(-1) };
+	bool depthTest_{ false }; // 启动深度测试？
+	bool antialiasing_{ false };
 
 	// [0]: viewport idx
 	// [1]: clipRect idx

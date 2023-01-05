@@ -165,6 +165,13 @@ void KcAxis::calcLabelOrient_(KvPaint* paint) const
 }
 
 
+KcAxis::float_t KcAxis::orientScale_(KvPaint* paint, const vec3& o)
+{
+	assert(KtuMath<float_t>::almostEqual(o.length(), 1.0));
+	return 1. / paint->projectv(o).length();
+}
+
+
 void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 {
 	assert(showTick() || showLabel());
@@ -177,8 +184,8 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 
 
 	// 计算屏幕坐标1个像素尺度，相当于世界坐标多少个单位长度
-	float_t tickLenPerPixel = 1. / paint->projectv(tickOrient_).length();
-	float_t labelPaddingPerPixel = 1. / paint->projectv(labelOrient_).length();
+	float_t tickOrientScale = orientScale_(paint, tickOrient_);
+	float_t labelOrientScale = orientScale_(paint, labelOrient_);
 
 	if (!calcBox)
 	    paint->apply(tickCxt_);
@@ -192,13 +199,13 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 		auto anchor = tickPos(ticks[i]);
 
 		if (showTick()) 
-			drawTick_(paint, anchor, tickCxt_.length * tickLenPerPixel, calcBox);
+			drawTick_(paint, anchor, tickCxt_.length * tickOrientScale, calcBox);
 
 		if (showLabel()) {
-			labelAnchors[i] = anchor + labelOrient_ * labelPadding_ * labelPaddingPerPixel;
+			labelAnchors[i] = anchor + labelOrient_ * labelPadding_ * labelOrientScale;
 
 			if (sameSide && showTick())
-				labelAnchors[i] += tickOrient_ * tickCxt_.length * tickLenPerPixel;
+				labelAnchors[i] += tickOrient_ * tickCxt_.length * tickOrientScale;
 		}
 	}
 
@@ -220,7 +227,7 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	if (showSubtick() && !subticks.empty()) {
 		
 		paint->apply(subtickCxt_);
-		double subtickLen = subtickCxt_.length * tickLenPerPixel;
+		double subtickLen = subtickCxt_.length * tickOrientScale;
 
 		for (unsigned i = 0; i < subticks.size(); i++) 
 			drawTick_(paint, tickPos(subticks[i]), subtickLen, calcBox);
@@ -387,11 +394,11 @@ void KcAxis::calcTextPos_(KvPaint* paint, const std::string_view& label, const K
 	auto textBox = paint->textSize(label.data());
 	if (cxt.layout == k_vert_left || cxt.layout == k_vert_right)
 		std::swap(textBox.x(), textBox.y());
-
+	
 	if (cxt.billboard) { // 公告牌模式，文字始终顺着+x轴延展
 
-		hDir = paint->unprojectv(vec3::unitX()).getNormalize();
-		vDir = paint->unprojectv(vec3::unitY()).getNormalize();
+		hDir = paint->unprojectv(vec3::unitX()).normalize();
+		vDir = paint->unprojectv(vec3::unitY()).normalize();
 
 		auto align = labelAlignment_(paint);
 		auto anchorInScreen = paint->projectp(anchor);
@@ -408,11 +415,11 @@ void KcAxis::calcTextPos_(KvPaint* paint, const std::string_view& label, const K
 		if (zDir.z() < 0)
 			hDir *= -1; // 修正hDir，确保文字在三维空间的可读性
 
-		topLeft = anchor - hDir * (textBox.x() / 2) / paint->projectv(hDir).length();
+		topLeft = anchor - hDir * (textBox.x() / 2) * orientScale_(paint, hDir);
 	}
 
 	// fixTextLayout_需要textBox为世界坐标尺寸，此处进行变换
-	textBox /= point2d(paint->projectv(hDir).length(), paint->projectv(vDir).length());
+	textBox *= point2(orientScale_(paint, hDir), orientScale_(paint, vDir));
 	fixTextLayout_(cxt.layout, textBox, topLeft, hDir, vDir);
 
 	fixTextRotation_(cxt, anchor, topLeft, hDir, vDir);
@@ -482,8 +489,8 @@ void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTe
 	}
 	//else {
 		auto sz = paint->textSize(label.data());
-		auto h = hDir * sz.x() / paint->projectv(hDir).length();
-		auto v = vDir * sz.y() / paint->projectv(vDir).length();
+		auto h = hDir * sz.x() * orientScale_(paint, hDir);
+		auto v = vDir * sz.y() * orientScale_(paint, vDir);
 		box_.merge({ topLeft, topLeft + h + v });
 	//}
 }
@@ -504,7 +511,7 @@ void KcAxis::calcTitleAnchor_(KvPaint* paint) const
 	titleAnchor_ = center + orient * shift;
 
 	// 加上padding
-	titleAnchor_ += orient * titlePadding_ / paint->projectv(orient).length();
+	titleAnchor_ += orient * titlePadding_ * orientScale_(paint, orient);
 
 	// paint->drawBox(box_.lower(), box_.upper()); // for debug
 }

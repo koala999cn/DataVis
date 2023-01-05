@@ -368,13 +368,15 @@ void KvRdPlot::showCoordProperty_()
 
 namespace kPrivate
 {
-	void tickContext(KcAxis::KpTickContext& cxt, bool showSide)
+	void tickContext(KcAxis::KpTickContext& cxt, bool subtick)
 	{
 		ImGuiX::pen(&cxt, false); // no style. tick始终使用solid线条
 
 		ImGui::PushID(&cxt);
 
-		if (showSide) {
+		ImGui::SliderFloat("Length", &cxt.length, 0, 25, "%.1f px");
+
+		if (!subtick) {
 			const static char* side[] = { "inside", "outside", "bothside" };
 			if (ImGui::BeginCombo("Side", side[cxt.side])) {
 				for (unsigned i = 0; i < std::size(side); i++)
@@ -382,17 +384,15 @@ namespace kPrivate
 						cxt.side = KcAxis::KeTickSide(i);
 				ImGui::EndCombo();
 			}
+
+			float yaw = KtuMath<float_t>::rad2Deg(cxt.yaw);
+			if (ImGui::SliderFloat("Yaw", &yaw, -90, 90, "%.f deg"))
+				cxt.yaw = KtuMath<float_t>::deg2Rad(yaw);
+
+			float pitch = KtuMath<float_t>::rad2Deg(cxt.pitch);
+			if (ImGui::SliderFloat("Pitch", &pitch, -90, 90, "%.f deg"))
+				cxt.pitch = KtuMath<float_t>::deg2Rad(pitch);
 		}
-
-		ImGui::SliderFloat("Length", &cxt.length, 0, 25, "%.1f px");
-
-		float yaw = KtuMath<float_t>::rad2Deg(cxt.yaw);
-		if (ImGui::SliderFloat("Yaw", &yaw, -90, 90, "%.f deg"))
-			cxt.yaw = KtuMath<float_t>::deg2Rad(yaw);
-
-		float pitch = KtuMath<float_t>::rad2Deg(cxt.pitch);
-		if (ImGui::SliderFloat("Pitch", &pitch, -90, 90, "%.f deg"))
-			cxt.pitch = KtuMath<float_t>::deg2Rad(pitch);
 
 		ImGui::PopID();
 	}
@@ -479,14 +479,14 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	open = false;
 	ImGuiX::cbTreePush("Tick", &axis.showTick(), &open);
 	if (open) {
-		kPrivate::tickContext(axis.tickContext(), true);
+		kPrivate::tickContext(axis.tickContext(), false);
 		ImGuiX::cbTreePop();
 	}
 
 	open = false;
 	ImGuiX::cbTreePush("Subtick", &axis.showSubtick(), &open);
 	if (open) {
-		kPrivate::tickContext(axis.subtickContext(), false);
+		kPrivate::tickContext(axis.subtickContext(), true);
 		ImGuiX::cbTreePop();
 	}
 

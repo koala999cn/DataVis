@@ -82,7 +82,7 @@ public:
 	vec4 worldToClip(const vec4& pt) const { return vpMat_ * pt; }
 	vec4 worldToNdc(const vec4& pt) const { return clipToNdc(worldToClip(pt)); }
 	vec4 worldToViewport(const vec4& pt) const { return clipToViewport(worldToClip(pt)); }
-	vec4 worldToScreen(const vec4& pt) const { return (wsMat_* pt).homogenize(); }
+	vec4 worldToScreen(const vec4& pt) const { return wsMat_ * pt; }
 
 	vec4 eyeToLocal(const vec4& pt) const { return getMvMatR_() * pt; }
 	vec4 eyeToWorld(const vec4& pt) const { return getViewMatR_() * pt; }
@@ -95,15 +95,16 @@ public:
 	vec4 clipToWorld(const vec4& pt) const { return getVpMatR_() * pt; }
 	vec4 clipToEye(const vec4& pt) const { return getProjMatR_() * pt; }
 	vec4 clipToNdc(const vec4& pt) const { return vec4(pt).homogenize(); }
+
 	vec4 clipToViewport(const vec4& pt) const { return ndcToViewport(clipToNdc(pt)); }
 	vec4 clipToScreen(const vec4& pt) const { return ndcToScreen(clipToNdc(pt)); }
 
 	vec4 ndcToLocal(const vec4& pt) const { return clipToLocal(ndcToClip(pt)); }
 	vec4 ndcToWorld(const vec4& pt) const { return clipToWorld(ndcToClip(pt)); }
 	vec4 ndcToEye(const vec4& pt) const { return clipToEye(ndcToClip(pt)); }
-	vec4 ndcToClip(const vec4& pt) const { return pt; } // 不知道w值，只能返回原值
+	vec4 ndcToClip(const vec4& pt) const { return pt; }
 	vec4 ndcToViewport(const vec4& pt) const { return nvMat_ * pt; }
-	vec4 ndcToScreen(const vec4& pt) const { return nsMat_ * pt; }
+	vec4 ndcToScreen(const vec4& pt) const {  return nsMat_ * pt; }
 
 	vec4 viewportToLocal(const vec4& pt) const { return ndcToLocal(viewportToNdc(pt)); }
 	vec4 viewportToWorld(const vec4& pt) const { return ndcToWorld(viewportToNdc(pt)); }
