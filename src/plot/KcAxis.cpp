@@ -4,7 +4,7 @@
 #include "KvPaint.h"
 #include "KtuMath.h"
 #include "KtLine.h"
-#include "KtMatrix3.h"
+#include "KtQuaternion.h"
 #include "layout/KeAlignment.h"
 #include "layout/KuLayoutUtil.h"
 
@@ -131,16 +131,15 @@ void KcAxis::calcTickOrient_(KvPaint* paint) const
 	// 此处的orient为世界坐标
 	vec3 tickOrient = (tickCxt_.side == k_inside) ? insideOrient_() : outsideOrient_();
 
-	auto vAxis = paint->localToWorldV(axisOrient_()); // 坐标轴方向矢量
-	KtMatrix3<float_t> mat;
-	mat.fromAngleAxis(tickCxt_.pitch, vAxis); // 绕坐标轴旋转pitch弧度
-	tickOrient = mat * tickOrient;
+	auto vAxis = paint->localToWorldV(axisOrient_()).normalize(); // 坐标轴方向矢量
+	KtQuaternion<float_t> quatPitch(tickCxt_.pitch, vAxis); // 绕坐标轴旋转pitch弧度
+	tickOrient = quatPitch * tickOrient;
 	
-	auto vPrep = tickOrient.cross(vAxis); // 刻度线和坐标轴的垂直矢量
-	mat.fromAngleAxis(tickCxt_.yaw, vPrep.getNormalize());
-	tickOrient = mat * tickOrient;
+	auto vPrep = tickOrient.cross(vAxis).normalize(); // 刻度线和坐标轴的垂直矢量
+	KtQuaternion<float_t> quatYaw(tickCxt_.yaw, vPrep);
+	tickOrient = quatYaw * tickOrient;
 
-	tickOrient_ = paint->worldToLocalV(tickOrient).getNormalize(); // 变换回局部坐标系
+	tickOrient_ = paint->worldToLocalV(tickOrient).normalize(); // 变换回局部坐标系
 
 	if (paint->currentCoord() == KvPaint::k_coord_screen)
 		tickOrient_.y() *= -1; // TODO: 有无更好的方法
@@ -417,6 +416,14 @@ void KcAxis::calcTextPos_(KvPaint* paint, const std::string_view& label, const K
 	fixTextLayout_(cxt.layout, textBox, topLeft, hDir, vDir);
 
 	fixTextRotation_(cxt, anchor, topLeft, hDir, vDir);
+
+	if (cxt.billboard && cxt.yaw) {
+		// 调整vDir，确保与hDir在屏幕坐标系下垂直
+		vec3 hDirS = paint->projectv(hDir);
+		vec3 vDirS = paint->projectv(vDir);
+		vDirS = hDirS.cross(vDirS).cross(hDirS);
+		vDir = paint->unprojectv(vDirS).normalize();
+	}
 }
 
 
@@ -448,16 +455,17 @@ void KcAxis::fixTextLayout_(KeTextLayout lay, const size_t& textBox, point3& top
 
 void KcAxis::fixTextRotation_(const KpTextContext& cxt, const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const
 {
-	auto vAxis = axisOrient_();
-	KtMatrix3<float_t> mat;
+	if (cxt.yaw == 0)
+		return;
 
-	mat.fromAngleAxis(cxt.yaw, hDir.cross(vDir).normalize());
+	KtQuaternion<float_t> quat(cxt.yaw, vDir.cross(hDir).normalize());
 
-	hDir = mat * hDir;
-	vDir = mat * vDir; 
-	//vDir = hDir.cross(vDir).cross(hDir);
-	assert(KtuMath<float_t>::almostEqual(hDir.dot(vDir), 0));
-	topLeft = anchor + mat * (topLeft - anchor);
+	auto yaw = quat.yaw();
+
+	hDir = (quat * hDir).normalize();
+	vDir = (quat * vDir).normalize();
+	//assert(KtuMath<float_t>::almostEqual(hDir.dot(vDir), 0));
+	topLeft = anchor + quat * (topLeft - anchor);
 }
 
 
