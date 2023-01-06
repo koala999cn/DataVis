@@ -8,7 +8,6 @@
 KcImPlot3d::KcImPlot3d(const std::string_view& name)
     : KvPlot3d(std::make_shared<KcImOglPaint>(camera_), std::make_shared<KcCoord3d>())
     , KvImWindow(name)
-    , trackball_(orient_)
 {
     minSize_[0] = 240, minSize_[1] = 240;
     dynamic_ = true;

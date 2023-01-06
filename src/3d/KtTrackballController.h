@@ -17,8 +17,6 @@ class KtTrackballController
 
 public:
 
-	KtTrackballController(quat& orient) : orient_(orient) {}
-
     // 初始化一次track操作
     // @pos: 当前鼠标移动位置(屏幕坐标)
     // @pivot: 方位角变换的支点（屏幕坐标），此处假定为trackball的中心点
@@ -38,7 +36,6 @@ private:
 	vec3 project_(const point2& pt) const;
 
 private:
-	quat& orient_; // 待操控的方位角
 
     // trackball的参数：支点与半径
     point2 pivot_{ 0, 0 };
