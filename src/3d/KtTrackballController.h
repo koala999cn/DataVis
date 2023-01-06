@@ -30,7 +30,7 @@ public:
     }
 
 	// 核心算法，根据新的屏幕坐标操纵Trackball，更新方位角
-	void steer(KREAL dx, KREAL dy);
+    quat steer(KREAL dx, KREAL dy);
 
 private:
 
@@ -51,7 +51,7 @@ private:
 
 
 template<typename KREAL>
-void KtTrackballController<KREAL>::steer(KREAL dx, KREAL dy)
+typename KtTrackballController<KREAL>::quat KtTrackballController<KREAL>::steer(KREAL dx, KREAL dy)
 {
     auto curPos = lastPos_ + point2(dx, dy) * rotateSpeed_;
     auto curPos3d = project_(curPos);
@@ -59,8 +59,7 @@ void KtTrackballController<KREAL>::steer(KREAL dx, KREAL dy)
     quat rot(lastPos3d_, curPos3d);
     lastPos_ = curPos;
     lastPos3d_ = curPos3d;
-    orient_ = rot * orient_;
-    orient_.normalize();
+    return rot;
 }
 
 

@@ -239,7 +239,7 @@ KtQuaternion<KReal> KtQuaternion<KReal>::inverse() const
 	return KtQuaternion<KReal>(w * invNorm, -v * invNorm);
 }
 
-// 单位四元数q = cos(A)+u*sin(A)，其中u为旋转轴，2A为旋转角度
+// 单位四元数q = cos(A/2)+u*sin(A/2)，其中u为旋转轴，A为旋转角度
 // ==> A = 2*acos(w)
 // ==> u = (x, y, z)/sqrt(1-w^2)
 template<class KReal>
@@ -253,11 +253,11 @@ void KtQuaternion<KReal>::toAngleAxis(KReal& angle, vec3& axis) const
 	}
 	else {
 		assert(std::abs(w()) < 1);
-		angle = 2 * std::acos(w);
-		auto factor = 1 / kMath::sqrt(1 - w() * w()); // = 1.0f/sin(fAngle)
-		axis.x = x() * factor;
-		axis.y = y() * factor;
-		axis.z = z() * factor;
+		angle = 2 * std::acos(w()); // 因 w = cos(A/2) ==> A = acos(w) * 2
+		auto factor = 1 / std::sqrt(1 - w() * w()); // == 1.0f/sin(angle/2)
+		axis.x() = x() * factor;
+		axis.y() = y() * factor;
+		axis.z() = z() * factor;
 	}
 }
 

@@ -45,14 +45,29 @@ void KcImPlot3d::handleMouseInput_()
 {
     // 处理鼠标drag事件，转动trackball，更新摄像机方位角
     if (ImGui::IsMouseClicked(0)) {
+        KtVector4<float_t> pivot(coord().center(), 1);
+        if (coord().axisInversed()) // NB: 由于此处paint的变换矩阵堆栈尚未构建（update没有调用），所以手动处理坐标轴交换，下同
+            pivot = coord().axisSwapMatrix() * pivot;
+
         auto mousePos = ImGui::GetMousePos();
-        auto pivot = camera_.worldToScreen(coord().center());
         auto sz = ImGui::GetWindowSize();
         trackball_.reset({ mousePos.x, mousePos.y }, { pivot.x(), pivot.y() }, { sz.x / 2, sz.y / 2 });
     }
+
     if (ImGui::IsMouseDragging(0)) {
         auto d = ImGui::GetMouseDragDelta(0);
-        trackball_.steer(d.x, d.y);
+        auto q = trackball_.steer(d.x, d.y);
+
+        if (coord().axisInversed()) {
+            float_t angle;
+            KtVector3<float_t> v;
+            q.toAngleAxis(angle, v);
+            auto v4 = coord().axisSwapMatrix() * KtVector4<float_t>(v, 0);
+            q = quat(angle, vec3(v4.x(), v4.y(), v4.z()));
+        }
+
+        orient_ = q * orient_;
+        orient_.normalize();
     }
 
     // 处理鼠标wheel事件，实现缩放功能
