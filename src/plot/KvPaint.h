@@ -127,6 +127,9 @@ public:
 
 	virtual void drawGeom(vtx_decl_ptr decl, geom_ptr geom) = 0;
 
+	// 抓取渲染缓存区数据到data.
+	// data大小 = rc.width() * rc.height * 4
+	virtual void grab(int x, int y, int width, int height, void* data) = 0;
 
 	// 一些尺寸计算函数
 

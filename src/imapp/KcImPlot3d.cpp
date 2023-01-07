@@ -2,7 +2,9 @@
 #include "KcImOglPaint.h"
 #include "imgui.h"
 #include "plot/KcCoord3d.h"
+#include "plot/KvPaint.h"
 #include "KuStrUtil.h"
+#include "KuPlotContextMenu.h"
 
 
 KcImPlot3d::KcImPlot3d(const std::string_view& name)
@@ -16,9 +18,6 @@ KcImPlot3d::KcImPlot3d(const std::string_view& name)
 
 void KcImPlot3d::updateImpl_()
 {
-    // 设置窗口背景为plot的背景色
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, (const ImVec4&)background().color); // TODO: check the style
-
     if (ImGui::BeginChild("##", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove)) {
 
         // 更新摄像机的视图
@@ -32,11 +31,14 @@ void KcImPlot3d::updateImpl_()
 
         // 绘制3d数据图
         KvPlot3d::update();
+
+        // context menu
+        if (ImGui::IsMouseClicked(1))
+            KuPlotContextMenu::open();
+        KuPlotContextMenu::update(this);
     }
 
     ImGui::EndChild();
-
-    ImGui::PopStyleColor();
 }
 
 

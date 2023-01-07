@@ -3,6 +3,7 @@
 #include "plot/KcAxis.h"
 #include "plot/KcCoord2d.h"
 #include "KuStrUtil.h"
+#include "KuPlotContextMenu.h"
 
 
 KcImPlot2d::KcImPlot2d(const std::string_view& name)
@@ -16,9 +17,6 @@ KcImPlot2d::KcImPlot2d(const std::string_view& name)
 
 void KcImPlot2d::updateImpl_()
 {
-    // 设置窗口背景为plot的背景色
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, (const ImVec4&)background().color);
-
     if (ImGui::BeginChild("##", ImVec2(0, 0), false, ImGuiWindowFlags_NoMove)) {
 
         // 更新摄像机的视图
@@ -28,11 +26,14 @@ void KcImPlot2d::updateImpl_()
 
         // 绘制数据图
         KvPlot2d::update();
+
+        // context menu
+        if (ImGui::IsMouseClicked(1))
+            KuPlotContextMenu::open();
+        KuPlotContextMenu::update(this);
     }
 
     ImGui::EndChild();
-
-    ImGui::PopStyleColor();
 }
 
 

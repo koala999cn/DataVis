@@ -122,7 +122,10 @@ void KvPlot::update()
 	// 修正视口偏移（主要针对plot2d，把它的坐标系lower点移到视口的左下角）
 	auto locals = fixPlotView_(); // 此处有locals个矩阵入栈，后续须pop
 
-	//paint_->setViewport(coord_->getPlotRect());
+	paint_->pushCoord(KvPaint::k_coord_screen);
+	paint_->apply(background());
+	paint_->fillRect(oRect);
+	paint_->popCoord();
 
 	coord_->draw(paint_.get());
 

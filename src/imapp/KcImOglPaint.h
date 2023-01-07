@@ -57,6 +57,9 @@ public:
 
 	void fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 
+	void grab(int x, int y, int width, int height, void* data) override;
+
+
 	// 内部函数，由ImGui回调，以绘制renderList_保存的渲染对象
 	void drawRenderList_();
 

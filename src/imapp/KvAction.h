@@ -41,6 +41,8 @@ public:
 
 	// 几个状态有关函数
 
+	void reset(KeState s) { state_ = s; }
+
 	KeState state() const { return state_; }
 
 	bool ready() const { 

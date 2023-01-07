@@ -594,3 +594,10 @@ void KcImOglPaint::glClipPlane_(unsigned id)
 		    glDisable(planes[i]);
 	}
 }
+
+
+void KcImOglPaint::grab(int x, int y, int width, int height, void* data)
+{
+	y = ImGui::GetMainViewport()->Size.y - y - height;
+	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+}

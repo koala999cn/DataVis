@@ -168,6 +168,7 @@
     <ClCompile Include="src\imapp\KgImWindowManager.cpp" />
     <ClCompile Include="src\imapp\KgModuleManager.cpp" />
     <ClCompile Include="src\imapp\KgPipeline.cpp" />
+    <ClCompile Include="src\imapp\KuPlotContextMenu.cpp" />
     <ClCompile Include="src\imapp\KvImModalWindow.cpp" />
     <ClCompile Include="src\imapp\KvImWindow.cpp" />
     <ClCompile Include="src\imapp\KsImApp.cpp" />
@@ -353,6 +354,7 @@
     <ClInclude Include="src\imapp\KgModuleManager.h" />
     <ClInclude Include="src\imapp\KgPipeline.h" />
     <ClInclude Include="src\imapp\KtActionInsertNode.h" />
+    <ClInclude Include="src\imapp\KuPlotContextMenu.h" />
     <ClInclude Include="src\imapp\KvAction.h" />
     <ClInclude Include="src\imapp\KvImModalWindow.h" />
     <ClInclude Include="src\imapp\KvImWindow.h" />
