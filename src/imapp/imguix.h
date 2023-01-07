@@ -7,6 +7,7 @@
 
 class KvData;
 class KpPen;
+class KpBrush;
 class KeAlignment;
 
 // imguiµÄÀ©Õ¹º¯Êý
@@ -72,6 +73,8 @@ namespace ImGuiX
 	bool cbInputText(const char* label, bool* show, std::string* text);
 
 	bool pen(KpPen& cxt, bool showStyle);
+
+	bool brush(KpBrush& cxt, bool showStyle);
 
 	bool margins(const char* label, KtMargins<float>& m);
 

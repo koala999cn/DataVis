@@ -19,22 +19,36 @@ public:
 	KeAlignment location() const { return location_; }
 	KeAlignment& location() { return location_; }
 
+	bool showBorder() const { return showBorder_; }
+	bool& showBorder() { return showBorder_; }
+
+	const KpPen& borderPen() const { return border_; }
+	KpPen& borderPen() { return border_; }
+
+	float barWidth() const { return barWidth_; }
+	float& barWidth() { return barWidth_; }
+
+	float barLength() const { return barLength_; }
+	float& barLength() { return barLength_; }
+
+	const KcAxis& axis() const { return *axis_; }
+	KcAxis& axis() { return *axis_; }
+
 private:
 
 	size_t calcSize_(void*) const final;
 
 private:
 
+	bool showBorder_{ true };
 	KpPen border_;
 
-	int barWidth_{ 24 }; // 像素值
-	int barLength_{ 0 }; // 像素值. 0表示延展与coord-plane对齐
+	float barWidth_{ 24 }; // 像素值
+	float barLength_{ 0 }; // 像素值. 0表示延展与coord-plane对齐
 	int ticks_{ 0 }; // 0表示autotick
 
 	KvPlottable* plt_;
 	KeAlignment location_; // colorbar的位置
-
-	bool showBorder_{ true };
 	
 	std::unique_ptr<KcAxis> axis_; // 用于绘制tick和label
 };

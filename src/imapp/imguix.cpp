@@ -414,6 +414,34 @@ namespace ImGuiX
     }
 
 
+    bool brush(KpBrush& cxt, bool showStyle)
+    {
+        PushID(&cxt);
+
+        bool res = false;
+
+        if (showStyle) {
+            static const char* styles[] = {
+                "none", "solid"
+            };
+
+            if (BeginCombo("Style", styles[cxt.style])) {
+                for (unsigned i = 0; i < std::size(styles); i++) {
+                    if (Selectable(styles[i], i == cxt.style))
+                        cxt.style = i;
+                }
+
+                EndCombo();
+            }
+        }
+
+        res |= ColorEdit4("Color", cxt.color);
+
+        PopID();
+
+        return res;
+    }
+
     template<typename T>
     bool margins_(const char* label, KtMargins<T>& m)
     {

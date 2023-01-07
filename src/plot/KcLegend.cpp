@@ -7,13 +7,16 @@ KcLegend::KcLegend()
     : super_("Legend")
 {
     align() = location_ = KeAlignment::k_right | KeAlignment::k_top | KeAlignment::k_horz_first | KeAlignment::k_outter;
-    setMargins({ point_t(7, 5), point_t(7, 5) });
+    
+    innerMargins_.lower() = point_t(7, 5);
+    innerMargins_.upper() = point_t(7, 4);
+    setMargins(innerMargins_);
 }
 
 
 KcLegend::size_t KcLegend::calcSize_(void* cxt) const
 {
-    point2f legSize = innerMargin_ * 2;
+    point2f legSize = innerMargins_.lower() + innerMargins_.upper();
 
     if (items_.empty())
         return legSize;
@@ -32,9 +35,9 @@ KcLegend::size_t KcLegend::calcSize_(void* cxt) const
 }
 
 
-KcLegend::point2i KcLegend::maxLabelSize_(KvPaint* paint) const
+point2f KcLegend::maxLabelSize_(KvPaint* paint) const
 {
-    point2i maxSize(0, 0);
+    point2f maxSize(0, 0);
 
     for (unsigned i = 0; i < items_.size(); ++i) {
         auto& label = items_[i]->name();
@@ -66,14 +69,23 @@ KcLegend::point2i KcLegend::layouts_() const
 
 void KcLegend::draw(KvPaint* paint) const
 {
+    assert(visible());
+
     using point3 = KvPaint::point3;
 
     // 配置paint，以便在legned的局部空间执行绘制操作
     paint->pushCoord(KvPaint::k_coord_screen);
     // TODO; 设置clipRect
     
-    paint->apply(border_);
-    paint->drawRect(iRect_);
+    if (showBkgnd_ && bkgnd_.visible()) {
+        paint->apply(bkgnd_);
+        paint->fillRect(iRect_);
+    }
+
+    if (showBorder_ && border_.visible()) {
+        paint->apply(border_);
+        paint->drawRect(iRect_);
+    }
 
     if (!items_.empty()) {
 
@@ -84,7 +96,7 @@ void KcLegend::draw(KvPaint* paint) const
         auto lay = layouts_();
         assert(lay.x() > 0 && lay.y() > 0);
 
-        auto itemPos = iRect_.lower() + innerMargin_;
+        auto itemPos = iRect_.lower() + innerMargins_.lower();
         unsigned rowStride = lay.y(), colStride = lay.x();
 
         rect_t itemRect(itemPos, itemPos + itemSize);
@@ -129,6 +141,9 @@ void KcLegend::drawItem_(KvPaint* paint, KvPlottable* item, const rect_t& rc) co
 
 KcLegend::aabb_t KcLegend::boundingBox() const
 {
-    assert(false); // TODO:
-    return {};
+    auto& rc = outterRect();
+    return { 
+        { rc.lower().x(), rc.lower().y(), 0 }, 
+        { rc.upper().x(), rc.upper().y(), 0 } 
+    };
 }

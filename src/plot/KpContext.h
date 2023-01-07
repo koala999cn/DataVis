@@ -30,6 +30,10 @@ public:
 		static KpPen nullPen{ k_none, 0, color4f(0) };
 		return nullPen;
 	}
+
+	bool visible() const {
+		return style != k_none && color.a() != 0;
+	}
 };
 
 
@@ -49,6 +53,10 @@ public:
 	static const KpBrush& null() {
 		static KpBrush nullBrush{ k_none, color4f(0) };
 		return nullBrush;
+	}
+
+	bool visible() const {
+		return style != k_none && color.a() != 0;
 	}
 };
 

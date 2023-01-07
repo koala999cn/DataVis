@@ -434,6 +434,56 @@ namespace kPrivate
 
 		ImGui::PopID();
 	}
+
+	void axis(const char* label, KcAxis& ax)
+	{
+		bool open = false;
+		ImGuiX::cbTreePush(label, &ax.visible(), &open);
+		if (!open) return;
+
+		ImGui::PushID(&ax);
+
+		open = false;
+		ImGuiX::cbTreePush("Baseline", &ax.showBaseline(), &open);
+		if (open) {
+			ImGuiX::pen(ax.baselineContext(), true);
+			ImGuiX::cbTreePop();
+		}
+
+		open = false;
+		ImGuiX::cbTreePush("Title", &ax.showTitle(), &open);
+		if (open) {
+			ImGui::InputText("Text", &ax.title());
+			kPrivate::textContext(ax.titleContext(), false);
+			ImGui::DragFloat("Padding", &ax.titlePadding(), 1, 0, 20, "%.f px");
+			ImGuiX::cbTreePop();
+		}
+
+		open = false;
+		ImGuiX::cbTreePush("Tick", &ax.showTick(), &open);
+		if (open) {
+			kPrivate::tickContext(ax.tickContext(), false);
+			ImGuiX::cbTreePop();
+		}
+
+		open = false;
+		ImGuiX::cbTreePush("Subtick", &ax.showSubtick(), &open);
+		if (open) {
+			kPrivate::tickContext(ax.subtickContext(), true);
+			ImGuiX::cbTreePop();
+		}
+
+		open = false;
+		ImGuiX::cbTreePush("Label", &ax.showLabel(), &open);
+		if (open) {
+			kPrivate::textContext(ax.labelContext(), true);
+			ImGui::DragFloat("Padding", &ax.labelPadding(), 1, 0, 20, "%.f px");
+			ImGuiX::cbTreePop();
+		}
+
+		ImGui::PopID();
+		ImGuiX::cbTreePop();
+	}
 }
 
 void KvRdPlot::showAxisProperty_(KcAxis& axis)
@@ -457,82 +507,112 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	};
 
 	std::string label = name[axis.dim()]; label += " ["; label += loc[axis.typeReal()]; label += "]";
-	
+	kPrivate::axis(label.c_str(), axis);
+}
+
+
+namespace kPrivate
+{
+	template<typename T>
+	KtMargins<T> rect2Margins(const KtAABB<T, 2>& rc) 
+	{
+		return { rc.lower().x(), rc.lower().y(), rc.upper().x(), rc.upper().y() };
+	}
+
+	template<typename T>
+	KtAABB<T, 2> margins2Rect(const KtMargins<T>& m)
+	{
+		KtAABB<T, 2> rc;
+		rc.lower() = { m.left(), m.top() }; // NB: 此处不能使用构造函数，否则会自动调整大小
+		rc.upper() = { m.right(), m.bottom() };
+		return rc;
+	}
+}
+
+void KvRdPlot::showLegendProperty_()
+{
 	bool open = false;
-	ImGuiX::cbTreePush(label.c_str(), &axis.visible(), &open);
+	ImGuiX::cbTreePush("Legend", &plot_->showLegend(), &open);
 	if (!open) return;
 
-	ImGui::PushID(&axis);
+	auto legend = plot_->legend();
+	ImGui::PushID(legend);
+
+	ImGui::DragFloat2("Icon Size", legend->iconSize(), 1, 1, 36, "%.f");
+
+	ImGui::DragFloat2("Item Spacing", legend->itemSpacing(), 1, 0, 32, "%.f");
+
+	ImGui::DragFloat("Icon Text Padding", &legend->iconTextPadding(), 1, 0, 32, "%.f");
+
+	auto omargs = kPrivate::rect2Margins(legend->margins());
+	if (ImGuiX::margins("Outter Margins", omargs))
+		legend->setMargins(kPrivate::margins2Rect(omargs));
+
+	auto imargs = kPrivate::rect2Margins(legend->innerMargins());
+	if (ImGuiX::margins("Inner Margins", imargs))
+		legend->innerMargins() = kPrivate::margins2Rect(imargs);
+
+	ImGui::ColorEdit4("Text Color", legend->textColor());
+
+	ImGui::DragInt("Warps", &legend->warps(), 1, std::numeric_limits<int>::max());
+	ImGui::Checkbox("Row Major", &legend->rowMajor());
+
+	ImGuiX::alignment("Alignment", legend->location());
 
 	open = false;
-	ImGuiX::cbTreePush("Baseline", &axis.showBaseline(), &open);
+	ImGuiX::cbTreePush("Border", &legend->showBorder(), &open);
 	if (open) {
-		ImGuiX::pen(axis.baselineContext(), true);
+		ImGuiX::pen(legend->borderPen(), true);
 		ImGuiX::cbTreePop();
 	}
 
 	open = false;
-	ImGuiX::cbTreePush("Title", &axis.showTitle(), &open);
+	ImGuiX::cbTreePush("Background", &legend->showBkgnd(), &open);
 	if (open) {
-		ImGui::InputText("Text", &axis.title());
-		kPrivate::textContext(axis.titleContext(), false);
-		ImGui::DragFloat("Padding", &axis.titlePadding(), 1, 0, 20, "%.f px");
+		ImGuiX::brush(legend->bkgndBrush(), true);
 		ImGuiX::cbTreePop();
 	}
 
-	open = false;
-	ImGuiX::cbTreePush("Tick", &axis.showTick(), &open);
-	if (open) {
-		kPrivate::tickContext(axis.tickContext(), false);
-		ImGuiX::cbTreePop();
-	}
-
-	open = false;
-	ImGuiX::cbTreePush("Subtick", &axis.showSubtick(), &open);
-	if (open) {
-		kPrivate::tickContext(axis.subtickContext(), true);
-		ImGuiX::cbTreePop();
-	}
-
-	open = false;
-	ImGuiX::cbTreePush("Label", &axis.showLabel(), &open);
-	if (open) {
-		kPrivate::textContext(axis.labelContext(), true);
-		ImGui::DragFloat("Padding", &axis.labelPadding(), 1, 0, 20, "%.f px");
-		ImGuiX::cbTreePop();
-	}
 
 	ImGui::PopID();
+
 	ImGuiX::cbTreePop();
 }
 
 
-void KvRdPlot::showLegendProperty_()
-{
-	if (!ImGuiX::treePush("Legend", true))
-		return;
-
-	ImGui::Checkbox("Show", &plot_->showLegend());
-
-	auto& loc = plot_->legend()->location();
-	ImGuiX::alignment("Alignment", loc);
-
-	ImGuiX::treePop();
-}
-
-
-
 void KvRdPlot::showColorBarProperty_()
 {
-	if (!ImGuiX::treePush("ColorBar", true))
-		return;
+	bool open{ false };
+	ImGuiX::cbTreePush("ColorBar", &plot_->showColorBar(), &open);
+	if (!open) return;
 
-	ImGui::Checkbox("Show", &plot_->showColorBar());
+	auto colorbar = plot_->colorBar();
 
-	auto& loc = plot_->colorBar()->location();
+	ImGui::PushID(colorbar);
+
+	ImGui::DragFloat("Bar Width", &colorbar->barWidth(), 1, 1, 64, "%.f");
+
+	ImGui::DragFloat("Bar Length", &colorbar->barLength(), 1, 0, 1024, "%.f");
+
+	auto margs = kPrivate::rect2Margins(colorbar->margins());
+	if (ImGuiX::margins("Margins", margs))
+		colorbar->setMargins(kPrivate::margins2Rect(margs));
+
+	auto& loc = colorbar->location();
 	ImGuiX::alignment("Alignment", loc);
 
-	ImGuiX::treePop();
+	open = false;
+	ImGuiX::cbTreePush("Border", &colorbar->showBorder(), &open);
+	if (open) {
+		ImGuiX::pen(colorbar->borderPen(), true);
+		ImGuiX::cbTreePop();
+	}
+
+	kPrivate::axis("Axis", colorbar->axis());
+
+	ImGui::PopID();
+
+	ImGuiX::cbTreePop();
 }
 
 
