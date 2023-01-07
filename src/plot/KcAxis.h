@@ -205,8 +205,8 @@ public:
 private:
 	size_t calcSize_(void* cxt) const final;
 
-	vec3 outsideOrient_() const;
-	vec3 insideOrient_() const;
+	vec3 outsideOrient_(KvPaint*) const;
+	vec3 insideOrient_(KvPaint*) const;
 	vec3 axisOrient_() const;
 
 	// 计算在世界坐标方向o上，1个屏幕单位（即1像素）相当于多少世界单位

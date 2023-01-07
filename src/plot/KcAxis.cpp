@@ -51,7 +51,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// 因为计算布局（calcBox为true）和真实绘制（calcBox为false）时，
 	// 变化矩阵堆栈可能不同，特别是后者可能新压入了scale矩阵，
 	// 这就到这前期计算的box_和其他与世界坐标相关的长度和位置不可用
-	box_.setNull();
+	box_.setExtents(point3(0), point3(0));
 
 	// draw baseline
 	if (showBaseline() && baselineCxt_.style != KpPen::k_none) {
@@ -90,7 +90,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 }
 
 
-KcAxis::vec3 KcAxis::outsideOrient_() const
+KcAxis::vec3 KcAxis::outsideOrient_(KvPaint* paint) const
 {
 	// 12根坐标轴的默认外向朝向
 	static const vec3 outsideOrient[] = {
@@ -110,13 +110,18 @@ KcAxis::vec3 KcAxis::outsideOrient_() const
 		KcAxis::vec3::unitX()   // k_ceil_right
 	};
 
-	return outsideOrient[typeReal()];
+	auto o = outsideOrient[typeReal()];
+	if (paint->currentCoord() == KvPaint::k_coord_screen ||
+		paint->currentCoord() == KvPaint::k_coord_local_screen)
+		o.y() *= -1; // TODO: 有无更好的方法
+
+	return o;
 }
 
 
-KcAxis::vec3 KcAxis::insideOrient_() const
+KcAxis::vec3 KcAxis::insideOrient_(KvPaint* paint) const
 {
-	return -outsideOrient_();
+	return -outsideOrient_(paint);
 }
 
 
@@ -129,20 +134,21 @@ KcAxis::vec3 KcAxis::axisOrient_() const
 void KcAxis::calcTickOrient_(KvPaint* paint) const
 {
 	// 此处的orient为世界坐标
-	vec3 tickOrient = (tickCxt_.side == k_inside) ? insideOrient_() : outsideOrient_();
+	vec3 tickOrient = (tickCxt_.side == k_inside) ? insideOrient_(paint) : outsideOrient_(paint);
 
 	auto vAxis = paint->localToWorldV(axisOrient_()).normalize(); // 坐标轴方向矢量
-	KtQuaternion<float_t> quatPitch(tickCxt_.pitch, vAxis); // 绕坐标轴旋转pitch弧度
-	tickOrient = quatPitch * tickOrient;
+	if (tickCxt_.pitch != 0) {
+		KtQuaternion<float_t> quatPitch(tickCxt_.pitch, vAxis); // 绕坐标轴旋转pitch弧度
+		tickOrient = quatPitch * tickOrient;
+	}
 	
-	auto vPrep = tickOrient.cross(vAxis).normalize(); // 刻度线和坐标轴的垂直矢量
-	KtQuaternion<float_t> quatYaw(tickCxt_.yaw, vPrep);
-	tickOrient = quatYaw * tickOrient;
+	if (tickCxt_.yaw != 0) {
+		auto vPrep = tickOrient.cross(vAxis).normalize(); // 刻度线和坐标轴的垂直矢量
+		KtQuaternion<float_t> quatYaw(tickCxt_.yaw, vPrep);
+		tickOrient = quatYaw * tickOrient;
+	}
 
 	tickOrient_ = paint->worldToLocalV(tickOrient).normalize(); // 变换回局部坐标系
-
-	if (paint->currentCoord() == KvPaint::k_coord_screen)
-		tickOrient_.y() *= -1; // TODO: 有无更好的方法
 }
 
 
@@ -156,12 +162,14 @@ void KcAxis::calcLabelOrient_(KvPaint* paint) const
 	labelOrient_ = labelOrient_.cross(axisOrient).getNormalize();
 
 	// NB:确保label始终朝外侧（当tickOrient与axisOrient平行时，labelOrient_可能指向内侧）
-	if (labelOrient_.dot(outsideOrient_()) < 0)
+	if (labelOrient_.dot(outsideOrient_(paint)) < 0)
 		labelOrient_ *= -1;
 
-	KtMatrix3<float_t> mat;
-	mat.fromAngleAxis(labelCxt_.pitch, axisOrient);
-	labelOrient_ = mat * labelOrient_;
+	if (labelCxt_.pitch != 0) {
+		KtMatrix3<float_t> mat;
+		mat.fromAngleAxis(labelCxt_.pitch, axisOrient);
+		labelOrient_ = mat * labelOrient_;
+	}
 }
 
 
