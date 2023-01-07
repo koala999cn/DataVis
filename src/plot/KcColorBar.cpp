@@ -125,13 +125,15 @@ KcColorBar::size_t KcColorBar::calcSize_(void* cxt) const
 
     if (location() & KeAlignment::k_horz_first) {
         axis_->setType(location() & KeAlignment::k_right ? KcAxis::k_right : KcAxis::k_left);
+        axis_->setExtent(KcAxis::point3(0), KcAxis::point3(0, 1, 0));
     }
     else {
         axis_->setType(location() & KeAlignment::k_bottom ? KcAxis::k_bottom : KcAxis::k_top);
+        axis_->setExtent(KcAxis::point3(0), KcAxis::point3(1, 0, 0));
     }
 
     KvPaint* paint = (KvPaint*)cxt;
-    paint->pushCoord(KvPaint::k_coord_screen);
+    paint->pushCoord(KvPaint::k_coord_screen);       
     auto mar = axis_->calcMargins((KvPaint*)cxt);
     paint->popCoord();
 
