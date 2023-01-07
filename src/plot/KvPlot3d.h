@@ -29,8 +29,8 @@ public:
 	bool ortho() const { return ortho_; }
 	bool& ortho() { return ortho_; }
 
-	bool isometric() const { return isometric_; }
-	bool& isometric() { return isometric_; }
+	bool isotropic() const { return isotropic_; }
+	bool& isotropic() { return isotropic_; }
 
 	float_t zoom() const { return zoom_; }
 	float_t& zoom() { return zoom_; }
@@ -57,6 +57,6 @@ protected:
 	point3 shift_{ 0, 0, 0 };
 	quat orient_{ 0, 0, 0, 1 }; // 摄像机的方位
 
-	bool isometric_{ false }; // 若true，则保持坐标系的等比性，即各轴的单元长度保持一致
+	bool isotropic_{ false }; // 若true，则保持坐标系的等比性，即各轴的单元长度保持一致
 	                          // 若false，则优先考虑布局美观性，坐标系的初始透视结果始终为正方形（后续可通过scale_参数进行拉伸）
 };

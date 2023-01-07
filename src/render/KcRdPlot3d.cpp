@@ -44,7 +44,7 @@ void KcRdPlot3d::showProperySet()
 
 	ImGui::Checkbox("Ortho", &plot3d->ortho());
 
-	ImGui::Checkbox("Isometric", &plot3d->isometric());
+	ImGui::Checkbox("Isotropic", &plot3d->isotropic());
 	
 	double minVal(0.1), maxVal(10);
 	static const char* format = "%.3f";
