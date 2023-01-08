@@ -111,9 +111,14 @@ KcAxis::vec3 KcAxis::outsideOrient_(KvPaint* paint) const
 	};
 
 	auto o = outsideOrient[typeReal()];
+
+	// NB: 自由坐标轴在绘制的时候可能local为空，但在updateLayout的时候，local变换阵仍然存在，所以此处作一判断
+	if (dimReal_ != -1) // dimReal_ == -1代表自由坐标轴，它始终使用世界坐标，不变换
+	    o = paint->worldToLocalV(o); // 处理坐标轴交换
+
 	if (paint->currentCoord() == KvPaint::k_coord_screen ||
 		paint->currentCoord() == KvPaint::k_coord_local_screen)
-		o.y() *= -1; // TODO: 有无更好的方法
+		o.y() *= -1; // 屏幕坐标系中的y轴翻转
 
 	return o;
 }
@@ -127,16 +132,17 @@ KcAxis::vec3 KcAxis::insideOrient_(KvPaint* paint) const
 
 KcAxis::vec3 KcAxis::axisOrient_() const
 {
-	return (end() - start()).getNormalize();
+	return (end() - start()).normalize();
 }
 
 
 void KcAxis::calcTickOrient_(KvPaint* paint) const
 {
-	// 此处的orient为世界坐标
 	vec3 tickOrient = (tickCxt_.side == k_inside) ? insideOrient_(paint) : outsideOrient_(paint);
 
-	auto vAxis = paint->localToWorldV(axisOrient_()).normalize(); // 坐标轴方向矢量
+	assert(tickOrient.dot(axisOrient_()) == 0);
+
+	auto vAxis = axisOrient_(); // 坐标轴方向矢量
 	if (tickCxt_.pitch != 0) {
 		KtQuaternion<float_t> quatPitch(tickCxt_.pitch, vAxis); // 绕坐标轴旋转pitch弧度
 		tickOrient = quatPitch * tickOrient;
@@ -148,7 +154,7 @@ void KcAxis::calcTickOrient_(KvPaint* paint) const
 		tickOrient = quatYaw * tickOrient;
 	}
 
-	tickOrient_ = paint->worldToLocalV(tickOrient).normalize(); // 变换回局部坐标系
+	tickOrient_ = tickOrient.normalize(); 
 }
 
 
@@ -159,7 +165,7 @@ void KcAxis::calcLabelOrient_(KvPaint* paint) const
 	// 将labelOrient_变换为垂直于axis的方向
 	auto axisOrient = axisOrient_();
 	labelOrient_ = axisOrient.cross(labelOrient_);
-	labelOrient_ = labelOrient_.cross(axisOrient).getNormalize();
+	labelOrient_ = labelOrient_.cross(axisOrient).normalize();
 
 	// NB:确保label始终朝外侧（当tickOrient与axisOrient平行时，labelOrient_可能指向内侧）
 	if (labelOrient_.dot(outsideOrient_(paint)) < 0)
