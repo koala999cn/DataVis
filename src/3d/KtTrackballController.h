@@ -74,6 +74,6 @@ KtVector3<KREAL> KtTrackballController<KREAL>::project_(const point2& pt) const
     // 在归一化情况下，r=1
     KREAL len2 = npt.squaredLength();
     KREAL z = len2 <= 0.5 ? std::sqrt(1 - len2) : 0.5 / std::sqrt(len2);
-    return vec3(npt.x(), npt.y(), z).getNormalize();
+    return vec3(npt.x(), npt.y(), z).normalize();
 }
 

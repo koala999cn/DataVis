@@ -44,33 +44,6 @@ void KcImPlot3d::updateImpl_()
 
 void KcImPlot3d::handleMouseInput_()
 {
-    // 处理鼠标drag事件，转动trackball，更新摄像机方位角
-    if (ImGui::IsMouseClicked(0)) {
-        KtVector4<float_t> pivot(coord().center(), 1);
-        if (coord().axisInversed()) // NB: 由于此处paint的变换矩阵堆栈尚未构建（update没有调用），所以手动处理坐标轴交换，下同
-            pivot = coord().axisSwapMatrix() * pivot;
-
-        auto mousePos = ImGui::GetMousePos();
-        auto sz = ImGui::GetWindowSize();
-        trackball_.reset({ mousePos.x, mousePos.y }, { pivot.x(), pivot.y() }, { sz.x / 2, sz.y / 2 });
-    }
-
-    if (ImGui::IsMouseDragging(0)) {
-        auto d = ImGui::GetMouseDragDelta(0);
-        auto q = trackball_.steer(d.x, d.y);
-
-        if (coord().axisInversed()) {
-            float_t angle;
-            KtVector3<float_t> v;
-            q.toAngleAxis(angle, v);
-            auto v4 = coord().axisSwapMatrix() * KtVector4<float_t>(v, 0);
-            q = quat(angle, vec3(v4.x(), v4.y(), v4.z()));
-        }
-
-        orient_ = q * orient_;
-        orient_.normalize();
-    }
-
     // 处理鼠标wheel事件，实现缩放功能
     ImGuiIO& io = ImGui::GetIO();
     if (io.MouseWheel != 0) {
@@ -84,18 +57,35 @@ void KcImPlot3d::handleMouseInput_()
         if (io.KeyCtrl) // 当同时按下CTRL键时，仅缩放坐标系range
             coord().zoom(factor);
         else // 否则缩放plot
-           zoom_ *= factor;
+            zoom_ *= factor;
     }
 
-    if (ImGui::IsMouseDragging(1)) {
+    // 处理鼠标drag事件，转动trackball，更新摄像机方位角
+    if (ImGui::IsMouseClicked(0)) {
+        // NB: 始终以窗口中心点为pivot，而非世界坐标系的中心点
+        auto mousePos = ImGui::GetMousePos();
+        auto winPos = ImGui::GetWindowPos();
         auto sz = ImGui::GetWindowSize();
-        auto d = ImGui::GetMouseDragDelta(1);
-        auto dx = d.x / sz.x;
-        auto dy = -d.y / sz.y; // 屏幕的y轴坐标与视图的y轴坐标反向，此处取-d.y
+        trackball_.reset({ mousePos.x, mousePos.y }, { winPos.x + sz.x / 2, winPos.y + sz.y / 2 }, { sz.x / 2, sz.y / 2 });
+    }
 
-        auto box = coord().boundingBox();
-        auto delta = box.size() * point3(dx, dy, 0);
-        shift_ += delta * 0.1f;
+    if (ImGui::IsMouseDragging(0)) {
+        auto d = ImGui::GetMouseDragDelta(0);
+
+        if (io.KeyShift) {
+            auto sz = ImGui::GetWindowSize();
+            auto dx = d.x / sz.x;
+            auto dy = -d.y / sz.y; // 屏幕的y轴坐标与视图的y轴坐标反向，此处取-d.y
+
+            auto box = coord().boundingBox();
+            auto delta = box.size() * point3(dx, dy, 0);
+            shift_ += delta * 0.1f;
+        }
+        else {          
+            auto q = trackball_.steer(d.x, d.y);
+            orient_ = q * orient_;
+            orient_.normalize();
+        }
     }
 }
 
