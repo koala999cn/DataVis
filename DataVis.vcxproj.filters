@@ -466,6 +466,9 @@
     <ClCompile Include="src\imapp\KuPlotContextMenu.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\opengl\KcEdgedObject.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1058,6 +1061,9 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KuPlotContextMenu.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcEdgedObject.h">
+      <Filter>opengl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

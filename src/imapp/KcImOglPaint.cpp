@@ -10,6 +10,7 @@
 #include "opengl/KcGpuBuffer.h"
 #include "opengl/KcPointObject.h"
 #include "opengl/KcLineObject.h"
+#include "opengl/KcEdgedObject.h"
 #include "opengl/KcLightenObject.h"
 #include "opengl/KsShaderManager.h"
 #include "plot/KpContext.h"
@@ -387,18 +388,21 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 }
 
 
-void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
+void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge)
 {
 	assert(geom->vertexSize() == decl->vertexSize());
 
 	bool hasNormal = decl->hasNormal();
 	bool hasColor = decl->hasColor();
 
-	KcRenderObject* obj = hasNormal ? new KcLightenObject(geom->type()) : new KcRenderObject(geom->type());
+	KcEdgedObject* obj = new KcEdgedObject(geom->type());
+	obj->setColor(clr_);
+	obj->setEdgeWidth(lineWidth_);
+	obj->setFilled(fill); obj->setEdged(showEdge);
+		// TODO: hasNormal ? new KcLightenObject(geom->type()) : new KcRenderObject(geom->type());
 
 	if (hasNormal) {
-		//((KcLightenObject*)obj)->setNormalMatrix(camera_.getNormalMatrix());
-		((KcLightenObject*)obj)->setNormalMatrix(mat4::identity());
+		// TODO: ((KcLightenObject*)obj)->setNormalMatrix(camera_.getNormalMatrix());
 	}
 
 	auto vbo = std::make_shared<KcGpuBuffer>();

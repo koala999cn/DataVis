@@ -53,7 +53,7 @@ public:
 
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
-	void drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
+	void drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) override;
 
 	void fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 

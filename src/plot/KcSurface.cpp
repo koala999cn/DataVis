@@ -20,8 +20,8 @@ void KcSurface::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 		point4f clr;
 	};
 
-	auto mesh = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
-	auto vtx = mesh->newVertex(nx* ny);
+	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
+	auto vtx = geom->newVertex(nx* ny);
 	auto vtxBuf = vtx;
 
 	for(unsigned i = 0; i < nx; i++)
@@ -33,7 +33,7 @@ void KcSurface::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 		}
 
 	auto idxCount = KuPrimitiveFactory::makeIndexGrid<unsigned>(nx, ny, nullptr);
-	auto idxBuf = mesh->newIndex(idxCount);
+	auto idxBuf = geom->newIndex(idxCount);
 	KuPrimitiveFactory::makeIndexGrid<unsigned>(nx, ny, idxBuf);
 
 	auto decl = std::make_shared<KcVertexDeclaration>();
@@ -41,6 +41,6 @@ void KcSurface::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
 
 	paint->enableDepthTest(true);
-	paint->drawGeom(decl, mesh);
+	paint->drawGeom(decl, geom, true, true);
 	paint->enableDepthTest(false);
 }

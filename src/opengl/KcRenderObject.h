@@ -66,6 +66,12 @@ public:
 	virtual void draw() const;
 
 protected:
+
+	void bindVbo_() const;
+	void setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) const;
+	void drawVbo_() const;
+
+protected:
 	KePrimitiveType type_;
 	std::shared_ptr<KcGlslProgram> prog_;
 	std::shared_ptr<KcGpuBuffer> vbo_, ibo_;

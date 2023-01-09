@@ -181,6 +181,7 @@
     <ClCompile Include="src\layout\KuLayoutHelper.cpp" />
     <ClCompile Include="src\layout\KuLayoutUtil.cpp" />
     <ClCompile Include="src\layout\KvLayoutElement.cpp" />
+    <ClCompile Include="src\opengl\KcEdgedObject.cpp" />
     <ClCompile Include="src\opengl\KcGpuBuffer.cpp" />
     <ClCompile Include="src\opengl\KcGlslProgram.cpp" />
     <ClCompile Include="src\opengl\KcGlslShader.cpp" />
@@ -371,6 +372,7 @@
     <ClInclude Include="src\layout\KuLayoutUtil.h" />
     <ClInclude Include="src\layout\KvLayoutContainer.h" />
     <ClInclude Include="src\layout\KvLayoutElement.h" />
+    <ClInclude Include="src\opengl\KcEdgedObject.h" />
     <ClInclude Include="src\opengl\KcGlslProgram.h" />
     <ClInclude Include="src\opengl\KcGlslShader.h" />
     <ClInclude Include="src\opengl\KcGpuBuffer.h" />

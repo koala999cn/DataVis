@@ -125,7 +125,7 @@ public:
 	// @anchor: 文本框的锚点。文本框按align方式对齐于anchor
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
 
-	virtual void drawGeom(vtx_decl_ptr decl, geom_ptr geom) = 0;
+	virtual void drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) = 0;
 
 	// 抓取渲染缓存区数据到data.
 	// data大小 = rc.width() * rc.height * 4
