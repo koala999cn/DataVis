@@ -39,7 +39,7 @@ v0.4版对底层代码作了较大重构，主要有4方面：
 | [glfw](https://github.com/glfw/glfw) | ImGui依赖 | 单独编译 |
 | [imnodes](https://github.com/Nelarius/imnodes) | 节点编辑器 | 内联 |
 | [ImFileDialog](https://github.com/dfranx/ImFileDialog) | 文件对话框 | 内联 |
-| [stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h) | ImFileDialog依赖 | 内联 |
+| [stb](https://github.com/nothings/stb) | 图片读写支持 | 内联 |
 | [glad](https://github.com/Dav1dde/glad) | ImFileDialog依赖 | 单独编译 |
 | [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 内联 |
 | [blitz](https://github.com/blitzpp/blitz/) | 多维数组支持 | 内联 |
