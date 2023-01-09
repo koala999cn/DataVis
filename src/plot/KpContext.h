@@ -32,7 +32,7 @@ public:
 	}
 
 	bool visible() const {
-		return style != k_none && color.a() != 0;
+		return style != k_none && color.a() > 0 && width > 0;
 	}
 };
 
@@ -56,7 +56,7 @@ public:
 	}
 
 	bool visible() const {
-		return style != k_none && color.a() != 0;
+		return style != k_none && color.a() > 0;
 	}
 };
 
