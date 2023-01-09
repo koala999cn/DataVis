@@ -8,14 +8,16 @@
 KcCoord3d::KcCoord3d()
 	: KcCoord3d(point3(0), point3(1))
 {
-	putAt(0, 0, new KcLayoutOverlay); // 此处压入一个dummy元素，否则零元素的grid布局尺寸始终为0
-	layCoord_ = std::make_unique<KcLayoutOverlay>();
+
 }
 
 
 KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 	: KvCoord("CoordSystem3d")
 {
+	putAt(0, 0, new KcLayoutOverlay); // 此处压入一个dummy元素，否则零元素的grid布局尺寸始终为0
+	layCoord_ = std::make_unique<KcLayoutOverlay>();
+
 	int dim[12];
 	dim[KcAxis::k_near_top] = dim[KcAxis::k_near_bottom] 
 		= dim[KcAxis::k_far_top] = dim[KcAxis::k_far_bottom] = 0;
@@ -113,7 +115,15 @@ KcCoord3d::size_t KcCoord3d::calcSize_(void* cxt) const
 
 	if (!layCoord_->empty()) { // 需要时才计算rcCoord_
 
-		auto corns = boundingBox().allCorners();
+		auto aabb = KtAABB<float_t, 3>(lower(), upper());
+		//forAxis([&aabb](KcAxis& axis) {
+		//	if (axis.visible())
+		//		aabb.merge(axis.boundingBox());
+		//	return true;
+		//	});
+		// TODO: boundingBox返回局部坐标还是世界坐标？？？
+
+		auto corns = aabb.allCorners();
 		rcCoord_.setNull();
 
 		for (auto& i : corns) {
