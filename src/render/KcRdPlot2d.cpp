@@ -3,7 +3,7 @@
 #include "plot/KcColorMap.h"
 #include "plot/KcBubble2d.h"
 #include "prov/KvDataProvider.h"
-#include "imgui.h"
+#include "imguix.h"
 
 
 KcRdPlot2d::KcRdPlot2d()
@@ -100,11 +100,20 @@ void KcRdPlot2d::showPlottableSpecificProperty_(unsigned idx)
     if (plottableType_(plt) == 0) { // color-map
         auto cmap = dynamic_cast<KcColorMap*>(plt);
         ImGui::DragFloatRange2("Map Range", &cmap->mapLower(), &cmap->mapUpper());
-        ImGui::Checkbox("Show Border", &cmap->showBorder());
-        ImGui::Checkbox("Show Text", &cmap->showText());
-        if (cmap->showText()) {
+
+        bool open(false);
+        ImGuiX::cbTreePush("Border", &cmap->showBorder(), &open);
+        if (open) {
+            ImGuiX::pen(cmap->borderPen(), true);
+            ImGuiX::cbTreePop();
+        }
+
+        open = false;
+        ImGuiX::cbTreePush("Text", &cmap->showText(), &open);
+        if (open) {
             ImGui::ColorEdit4("Text Color", cmap->textColor());
             ImGui::ShowFontSelector("Font");
+            ImGuiX::cbTreePop();
         }
     }
 }

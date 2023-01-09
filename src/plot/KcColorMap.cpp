@@ -51,13 +51,13 @@ void KcColorMap::setMajorColors(const std::vector<color4f>& majors)
 
 color4f KcColorMap::minorColor() const
 {
-	return clrBorder_;
+	return borderPen_.color;
 }
 
 
 void KcColorMap::setMinorColor(const color4f& minor)
 {
-	clrBorder_ = minor;
+	borderPen_.color = minor;
 }
 
 
@@ -111,8 +111,8 @@ void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 			{ pt[0] + half_dx, pt[1] + half_dy, 0 });
 	}
 
-	if (showBorder_ && clrBorder_.a() != 0) {
-		paint->setColor(clrBorder_);
+	if (showBorder_ && borderPen_.visible()) {
+		paint->apply(borderPen_);
 		for (unsigned i = 0; i < disc->size(); i++) {
 			auto pt = disc->pointAt(i, 0);
 			paint->drawRect({ pt[0] - half_dx, pt[1] - half_dy, 0 },

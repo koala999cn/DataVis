@@ -44,6 +44,9 @@ public:
 	bool showBorder() const { return showBorder_; }
 	bool& showBorder() { return showBorder_; }
 
+	const KpPen& borderPen() const { return borderPen_; }
+	KpPen& borderPen() { return borderPen_; }
+
 protected:
 
 	void drawDiscreted_(KvPaint*, KvDiscreted*) const override;
@@ -56,7 +59,7 @@ private:
 	KtGradient<float_t, color4f> mapper_;
 
 	bool showBorder_{ false };
-	color4f clrBorder_{ 0 };
+	KpPen borderPen_;
 
 	bool showText_{ false };
 	color4f clrText_{ 1, 0, 0, 1 };
