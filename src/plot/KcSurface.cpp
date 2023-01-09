@@ -32,9 +32,9 @@ void KcSurface::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 			++vtxBuf;
 		}
 
-	auto idxCount = KuPrimitiveFactory::makeIndexGrid<unsigned>(nx, ny, nullptr);
+	auto idxCount = KuPrimitiveFactory::indexGrid<unsigned>(nx, ny, nullptr);
 	auto idxBuf = geom->newIndex(idxCount);
-	KuPrimitiveFactory::makeIndexGrid<unsigned>(nx, ny, idxBuf);
+	KuPrimitiveFactory::indexGrid<unsigned>(nx, ny, idxBuf);
 
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);

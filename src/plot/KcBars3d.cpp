@@ -33,10 +33,11 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 		//point3f normal; // TODO: lighting
 	};
 
-	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_triangles);
-	auto vtxPerBox = 8;
-	auto idxPerBoxgeom = 36;
-	geom->reserve(vtxPerBox * count, idxPerBoxgeom* count);
+	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
+	auto vtxCount = KuPrimitiveFactory::makeBox<float>(point3d(0), point3d(0), nullptr);
+	auto idxCount = KuPrimitiveFactory::indexBox<unsigned>(nullptr);
+	assert(idxCount == 6 * 4); // 断言索引为quad类型
+	geom->reserve(vtxCount* count, idxCount* count);
 
 	for (unsigned i = 0; i < count; i++) {
 		auto pt0 = getter(i);
@@ -52,15 +53,14 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 		}
 
 		unsigned idxBase = geom->vertexCount();
-		auto vtxBuf = geom->newVertex(vtxPerBox);
-		KuPrimitiveFactory::makeBox<KuPrimitiveFactory::k_position, float>(pt1, pt0, vtxBuf, sizeof(KpVtxBuffer_));
-		//KuPrimitiveFactory::makeBox<KuPrimitiveFactory::k_normal, float>(pt1, pt0, vtxBuf + sizeof(point3f), sizeof(KpVtxBuffer_));
-		for (unsigned i = 0; i < vtxPerBox; i++)
+		auto vtxBuf = geom->newVertex(vtxCount);
+		KuPrimitiveFactory::makeBox<float>(pt1, pt0, vtxBuf, sizeof(KpVtxBuffer_));
+		for (unsigned i = 0; i < vtxCount; i++)
 			vtxBuf[i].color = fill_.color;
 
-		auto idxBuf = geom->newIndex(idxPerBoxgeom);
-		KuPrimitiveFactory::makeBox<KuPrimitiveFactory::k_mesh_index, unsigned>(pt1, pt0, idxBuf);
-		for (unsigned i = 0; i < idxPerBoxgeom; i++)
+		auto idxBuf = geom->newIndex(idxCount);
+		KuPrimitiveFactory::indexBox<unsigned>(idxBuf);
+		for (unsigned i = 0; i < idxCount; i++)
 			idxBuf[i] += idxBase;
 	}
 
@@ -68,7 +68,6 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
-	//decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_normal);
 	paint->drawGeom(decl, geom, drawFill, drawBorder);
 	paint->enableDepthTest(false);
 }
