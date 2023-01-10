@@ -473,6 +473,10 @@ namespace kPrivate
 		open = false;
 		ImGuiX::cbTreePush("Tick", &ax.showTick(), &open);
 		if (open) {
+			int ticks = ax.ticker()->tickCount();
+			if (ImGui::DragInt("Count", &ticks, 1, 0, 1024))
+				ax.ticker()->setTickCount(ticks);
+
 			kPrivate::tickContext(ax.tickContext(), false);
 			ImGuiX::cbTreePop();
 		}
@@ -480,6 +484,10 @@ namespace kPrivate
 		open = false;
 		ImGuiX::cbTreePush("Subtick", &ax.showSubtick(), &open);
 		if (open) {
+			int subticks = ax.ticker()->subtickCount();
+			if (ImGui::DragInt("Count", &subticks, 1, 0, 1024))
+				ax.ticker()->setSubtickCount(subticks);
+
 			kPrivate::tickContext(ax.subtickContext(), true);
 			ImGuiX::cbTreePop();
 		}
@@ -487,6 +495,11 @@ namespace kPrivate
 		open = false;
 		ImGuiX::cbTreePush("Label", &ax.showLabel(), &open);
 		if (open) {
+			// TODO: 需要有个机制判断format的有效性，否则程序会crack
+			//auto fmt = ax.ticker()->labelFormat();
+			//if (ImGui::InputText("Format", &fmt))
+			//	ax.ticker()->setLabelFormat(fmt);
+
 			kPrivate::textContext(ax.labelContext(), true);
 			ImGui::DragFloat("Padding", &ax.labelPadding(), 1, 0, 20, "%.f px");
 			ImGuiX::cbTreePop();
