@@ -12,7 +12,7 @@
 7. axis的反向设置 --> ok
 8. 中文字体显示 --> ok（暂时使用imgui的中文字体支持 ）
 9. opengl加速 --> ok
-10. 导出图片
+10. 导出图片 --> ok
 11. 导出矢量图
 12. auto-fold layout
 13. subplot
