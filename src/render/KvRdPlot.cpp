@@ -13,6 +13,7 @@
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
 #include "plot/KvCoord.h"
+#include "plot/KcCoordPlane.h"
 #include "plot/KvPaint.h"
 #include "plot/KcLegend.h"
 #include "plot/KcColorBar.h"
@@ -358,15 +359,25 @@ void KvRdPlot::showThemeProperty_()
 
 void KvRdPlot::showCoordProperty_()
 {
-	if (!ImGuiX::treePush("Axes", false))
-		return;
+	if (ImGuiX::treePush("Axes", false)) {
 
-	plot_->coord().forAxis([this](KcAxis& axis) {
-		showAxisProperty_(axis);
-		return true;
-		});
+		plot_->coord().forAxis([this](KcAxis& axis) {
+			showAxisProperty_(axis);
+			return true;
+			});
 
-	ImGuiX::treePop();
+		ImGuiX::treePop();
+	}
+
+	if (ImGuiX::treePush("Planes", false)) {
+
+		plot_->coord().forPlane([this](KcCoordPlane& plane) {
+			showPlaneProperty_(plane);
+			return true;
+			});
+
+		ImGuiX::treePop();
+	}
 }
 
 
@@ -508,6 +519,49 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 
 	std::string label = name[axis.dim()]; label += " ["; label += loc[axis.typeReal()]; label += "]";
 	kPrivate::axis(label.c_str(), axis);
+}
+
+
+void KvRdPlot::showPlaneProperty_(KcCoordPlane& plane)
+{
+	static const char* loc[] = {
+		"X-Y Back",
+		"X-Y Front",
+		"Y-Z Left",
+		"Y-Z Right",
+		"X-Z Ceil",
+		"X- Z Floor"
+	};
+
+	bool open = false;
+
+	if (plot_->dim() > 2) {
+		ImGuiX::cbTreePush(loc[plane.type()], &plane.visible(), &open);
+		if (!open) return;
+	}
+
+	ImGui::PushID(&plane);
+
+	ImGuiX::brush(plane.background(), false);
+
+	open = false;
+	ImGuiX::cbTreePush("Major Grid", &plane.majorVisible(), &open);
+	if (open) {
+		ImGuiX::pen(plane.majorLine(), true);
+		ImGuiX::cbTreePop();
+	}
+
+	open = false;
+	ImGuiX::cbTreePush("Minor Grid", &plane.minorVisible(), &open);
+	if (open) {
+		ImGuiX::pen(plane.minorLine(), true);
+		ImGuiX::cbTreePop();
+	}
+
+	ImGui::PopID();
+
+	if (plot_->dim() > 2) 
+	    ImGuiX::cbTreePop();
 }
 
 

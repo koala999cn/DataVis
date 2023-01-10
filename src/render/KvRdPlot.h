@@ -6,6 +6,7 @@
 
 class KvPlot;
 class KcAxis;
+class KcCoordPlane;
 class KvPlottable;
 class KvDataProvider;
 class KvThemedPlot;
@@ -68,6 +69,8 @@ protected:
 	virtual void showCoordProperty_();
 
 	    virtual void showAxisProperty_(KcAxis&);
+
+		virtual void showPlaneProperty_(KcCoordPlane&);
 
 	virtual void showLegendProperty_();
 	

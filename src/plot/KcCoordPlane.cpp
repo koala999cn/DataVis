@@ -38,14 +38,14 @@ void KcCoordPlane::draw(KvPaint* paint) const
 {
 	assert(visible());
 
-	if (bkgnd_.style != KpBrush::k_none) {
-		paint->apply(background());
+	if (bkgnd_.visible()) {
+		paint->apply(bkgnd_);
 		point3 pts[4] = { horz_[0]->start(), horz_[0]->end(), horz_[1]->end(), horz_[1]->start() };
 		paint->fillQuad(pts);
 	}
 
-	bool showMajor = majorVisible() && majorLineCxt_.style != KpPen::k_none;
-	bool showMinor = minorVisible() && minorLineCxt_.style != KpPen::k_none;
+	bool showMajor = majorVisible() && majorLineCxt_.visible();
+	bool showMinor = minorVisible() && minorLineCxt_.visible();
 
 	axis_ptr axes[] = {
 		horz_[0], horz_[1], vert_[0], vert_[1]
