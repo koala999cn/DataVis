@@ -508,6 +508,22 @@ namespace kPrivate
 		ImGui::PopID();
 		ImGuiX::cbTreePop();
 	}
+
+	void gridMode(int& mode)
+	{
+		static const char* modeName[] = {
+			"horizontal only",
+			"vertical only",
+			"both"
+		};
+
+		if (ImGui::BeginCombo("Mode", modeName[mode - 1])) {
+			for (unsigned i = 0; i < std::size(modeName); i++)
+				if (ImGui::Selectable(modeName[i], i == mode - 1))
+					mode = i + 1;
+			ImGui::EndCombo();
+		}
+	}
 }
 
 void KvRdPlot::showAxisProperty_(KcAxis& axis)
@@ -560,6 +576,7 @@ void KvRdPlot::showPlaneProperty_(KcCoordPlane& plane)
 	open = false;
 	ImGuiX::cbTreePush("Major Grid", &plane.majorVisible(), &open);
 	if (open) {
+		kPrivate::gridMode(plane.majorMode());
 		ImGuiX::pen(plane.majorLine(), true);
 		ImGuiX::cbTreePop();
 	}
@@ -567,6 +584,7 @@ void KvRdPlot::showPlaneProperty_(KcCoordPlane& plane)
 	open = false;
 	ImGuiX::cbTreePush("Minor Grid", &plane.minorVisible(), &open);
 	if (open) {
+		kPrivate::gridMode(plane.minorMode());
 		ImGuiX::pen(plane.minorLine(), true);
 		ImGuiX::cbTreePop();
 	}

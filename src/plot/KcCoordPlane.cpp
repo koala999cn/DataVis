@@ -56,14 +56,18 @@ void KcCoordPlane::draw(KvPaint* paint) const
 
 	if (showMajor) {
 		paint->apply(majorLineCxt_);
-		drawMajors_(paint, horz_[0], horz_[1]);
-		drawMajors_(paint, vert_[0], vert_[1]);
+		if (majorMode_ & k_grid_vert)
+		    drawMajors_(paint, horz_[0], horz_[1]);
+		if (majorMode_ & k_grid_horz)
+		    drawMajors_(paint, vert_[0], vert_[1]);
 	}
 
 	if (showMinor) {
 		paint->apply(minorLineCxt_);
-		drawMinors_(paint, horz_[0], horz_[1]);
-		drawMinors_(paint, vert_[0], vert_[1]);
+		if (minorMode_ & k_grid_vert)
+		    drawMinors_(paint, horz_[0], horz_[1]);
+		if (minorMode_ & k_grid_horz)
+		    drawMinors_(paint, vert_[0], vert_[1]);
 	}
 }
 

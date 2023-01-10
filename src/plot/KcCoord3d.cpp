@@ -53,12 +53,12 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 		axes_[KcAxis::k_near_left], axes_[KcAxis::k_near_right]);
 
 	planes_[KcCoordPlane::k_left] = std::make_shared<KcCoordPlane>(KcCoordPlane::k_left,
-		axes_[KcAxis::k_far_left], axes_[KcAxis::k_near_left],
-		axes_[KcAxis::k_floor_left], axes_[KcAxis::k_ceil_left]);
+		axes_[KcAxis::k_floor_left], axes_[KcAxis::k_ceil_left],
+		axes_[KcAxis::k_far_left], axes_[KcAxis::k_near_left]);
 
 	planes_[KcCoordPlane::k_right] = std::make_shared<KcCoordPlane>(KcCoordPlane::k_right,
-		axes_[KcAxis::k_far_right], axes_[KcAxis::k_near_right],
-		axes_[KcAxis::k_floor_right], axes_[KcAxis::k_ceil_right]);
+		axes_[KcAxis::k_floor_right], axes_[KcAxis::k_ceil_right],
+		axes_[KcAxis::k_far_right], axes_[KcAxis::k_near_right]);
 
 	planes_[KcCoordPlane::k_ceil] = std::make_shared<KcCoordPlane>(KcCoordPlane::k_ceil,
 		axes_[KcAxis::k_far_top], axes_[KcAxis::k_near_top],

@@ -31,6 +31,14 @@ public:
 		k_floor,
 	};
 
+	enum KeGridMode
+	{
+		k_grid_horz = 0x01,
+		k_grid_vert = 0x02,
+		k_grid_both = k_grid_horz | k_grid_vert
+	};
+
+
 	KcCoordPlane(KePlaneType type, axis_ptr h0, axis_ptr h1, axis_ptr v0, axis_ptr v1);
 
 	KePlaneType type() const { return type_; }
@@ -40,6 +48,12 @@ public:
 
 	bool minorVisible() const { return minorVisible_; }
 	bool& minorVisible() { return minorVisible_; }
+
+	int majorMode() const { return majorMode_; }
+	int& majorMode() { return majorMode_; }
+
+	int minorMode() const { return minorMode_; }
+	int& minorMode() { return minorMode_; }
 
 	const KpPen& majorLine() const { return majorLineCxt_; }
 	KpPen& majorLine() { return majorLineCxt_; }
@@ -67,5 +81,6 @@ private:
 	axis_ptr horz_[2], vert_[2]; // 构成grid平面的4根坐标轴，水平2根、垂直2根
 	bool majorVisible_{ false }, minorVisible_{ false };
 	KpPen majorLineCxt_, minorLineCxt_;
+	int majorMode_{ k_grid_both }, minorMode_{ k_grid_both };
 	KpBrush bkgnd_;
 };

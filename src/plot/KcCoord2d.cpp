@@ -33,10 +33,11 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 	axes_[KcAxis::k_top].front()->visible() = false;
 
 	// FIXME: 为了兼容3d，此处使用k_back类型，实际应为k_front
-	plane_ = std::make_shared<KcCoordPlane>(KcCoordPlane::k_back, axes_[KcAxis::k_left].front(),
-		axes_[KcAxis::k_right].front(),
+	plane_ = std::make_shared<KcCoordPlane>(KcCoordPlane::k_back,
 		axes_[KcAxis::k_bottom].front(),
-		axes_[KcAxis::k_top].front());
+		axes_[KcAxis::k_top].front(),
+		axes_[KcAxis::k_left].front(),
+		axes_[KcAxis::k_right].front());
 
 	putAt(0, 0, plane_.get());
 }
