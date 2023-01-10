@@ -305,6 +305,12 @@ void KvPlot::drawPlottables_()
 }
 
 
+KvPlot::rect_t KvPlot::canvasRect() const
+{
+	return layout_->outterRect();
+}
+
+
 void KvPlot::setMargins(const margins_t& m)
 { 
 	rect_t rc;

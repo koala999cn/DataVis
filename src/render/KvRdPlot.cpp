@@ -244,6 +244,12 @@ void KvRdPlot::showPlotProperty_()
 
 		ImGui::ColorEdit4("Background", plot_->background().color);
 
+		auto rc = plot_->canvasRect();
+		int width = std::round(rc.width()), height = std::round(rc.height());
+		ImGui::BeginDisabled();
+		ImGui::DragIntRange2("Canvas", &width, &height);
+		ImGui::EndDisabled();
+
 		auto margs = plot_->margins();
 		if (ImGuiX::margins("Margins", margs))
 			plot_->setMargins(margs);

@@ -71,6 +71,8 @@ public:
 
 	void removeAllPlottables();
 
+	rect_t canvasRect() const;
+
 	margins_t margins() const;
 	void setMargins(const margins_t& m);
 	void setMargins(float l, float t, float r, float b);
