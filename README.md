@@ -1,4 +1,4 @@
-# DataVis
+# DataVis - 基于ImGui的流数据分析与可视化软件（DSP & Visualization）
 
 ## 介绍
 
