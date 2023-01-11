@@ -4,9 +4,11 @@
 
 void KcScatter::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, unsigned) const
 {
-	paint->apply(scatBrush_);
-	paint->setPointSize(size_);
-	paint->drawPoints(getter, count);
+	paint->apply(marker_);
+	
+	bool outline = showOutline_ && marker_.hasOutline() 
+		&& marker_.outline != marker_.fill && marker_.outline.a() > 0;
+	paint->drawMarkers(getter, count, outline);
 }
 
 
@@ -30,24 +32,24 @@ unsigned KcScatter::majorColors() const
 
 color4f KcScatter::majorColor(unsigned idx) const
 {
-	return scatBrush_.color;
+	return marker_.fill;
 }
 
 
 void KcScatter::setMajorColors(const std::vector<color4f>& majors)
 {
 	assert(majors.size() == 1);
-	scatBrush_.color = majors.front();
+	marker_.fill = majors.front();
 }
 
 
 color4f KcScatter::minorColor() const
 {
-	return scatPen_.color;
+	return marker_.outline;
 }
 
 
 void KcScatter::setMinorColor(const color4f& minor)
 {
-	scatPen_.color = minor;
+	marker_.outline = minor;
 }

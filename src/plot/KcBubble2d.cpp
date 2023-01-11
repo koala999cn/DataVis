@@ -33,10 +33,10 @@ void KcBubble2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 		auto pt = disc->pointAt(i, 0);
 		auto val = pt.back();
 		if (enableSizeInterp_)
-			paint->setPointSize(mapValueToSize_(val));
+			paint->setMarkerSize(mapValueToSize_(val));
 		if (enableColorInterp_)
 			paint->setColor(mapValueToColor_(val));
 
-		paint->drawPoint({ pt[0], pt[1], 0 });
+		paint->drawMarker({ pt[0], pt[1], 0 });
 	}
 }

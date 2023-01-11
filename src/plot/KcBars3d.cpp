@@ -34,14 +34,14 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 	};
 
 	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
-	auto vtxCount = KuPrimitiveFactory::makeBox<float>(point3d(0), point3d(0), nullptr);
+	auto vtxCount = KuPrimitiveFactory::makeBox<float>(point3f(0), point3f(0), nullptr);
 	auto idxCount = KuPrimitiveFactory::indexBox<unsigned>(nullptr);
 	assert(idxCount == 6 * 4); // 断言索引为quad类型
 	geom->reserve(vtxCount* count, idxCount* count);
 
 	for (unsigned i = 0; i < count; i++) {
 		auto pt0 = getter(i);
-		point3 pt1;
+		decltype(pt0) pt1;
 
 		if (dim == 1) {
 			pt0.x() += xw * 0.5; pt0.z() += yw * 0.5;
@@ -54,7 +54,7 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, un
 
 		unsigned idxBase = geom->vertexCount();
 		auto vtxBuf = geom->newVertex(vtxCount);
-		KuPrimitiveFactory::makeBox<float>(pt1, pt0, vtxBuf, sizeof(KpVtxBuffer_));
+		KuPrimitiveFactory::makeBox<float>(point3f(pt1), point3f(pt0), vtxBuf, sizeof(KpVtxBuffer_));
 		for (unsigned i = 0; i < vtxCount; i++)
 			vtxBuf[i].color = fill_.color;
 

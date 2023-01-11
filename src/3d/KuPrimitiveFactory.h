@@ -10,7 +10,8 @@ class KuPrimitiveFactory
 {
 public:
 
-	using point3 = std::array<double, 3>;
+	template<typename T>
+	using point3 = std::array<T, 3>;
 
 	// 生成box的8个顶点
 	// @T: 顶点的基本数据类型，每个顶点位置由T[3]构成
@@ -18,7 +19,7 @@ public:
 	// @stride: obuf中每个顶点位置的字节跨度. =0表示连续取址
 	// 返回生成的顶点数
 	template<typename T>
-	static int makeBox(const point3& lower, const point3& upper, void* obuf, unsigned stride = 0);
+	static int makeBox(const point3<T>& lower, const point3<T>& upper, void* obuf, unsigned stride = 0);
 
 	// 生成box的quads索引，返回生成的索引数
 	// @obuf: 输出缓存，可为null
@@ -37,13 +38,17 @@ public:
 	template<typename IDX_TYPE = unsigned, bool CCW = false>
 	static int indexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf);
 
+	// 构建10点circle
+	template<typename T>
+	static int makeCircle10(const point3<T>& center, T radius, void* obuf, unsigned stride = 0);
+
 private:
 	KuPrimitiveFactory() = delete;
 };
 
 
 template<typename T>
-int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* obuf, unsigned stride)
+int KuPrimitiveFactory::makeBox(const point3<T>& lower, const point3<T>& upper, void* obuf, unsigned stride)
 {
 	constexpr int vtxCount = 8;
 
@@ -60,7 +65,7 @@ int KuPrimitiveFactory::makeBox(const point3& lower, const point3& upper, void* 
 
 		char* buf = (char*)obuf;
 
-		for (unsigned i = 0; i < corns.size(); i++) {
+		for (unsigned i = 0; i < vtxCount; i++) {
 			auto pt = (std::array<T, 3>*)buf;
 			*pt = corns[i];
 			buf += stride;
@@ -169,4 +174,42 @@ int KuPrimitiveFactory::indexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf)
 	}
 
 	return indexCount;
+}
+
+
+template<typename T>
+int KuPrimitiveFactory::makeCircle10(const point3<T>& center, T radius, void* obuf, unsigned stride)
+{
+	static constexpr std::array<T, 2> circle[] = { 
+		{ 1.0f, 0.0f }, 
+		{ 0.809017f, 0.58778524f },
+		{ 0.30901697f, 0.95105654f },
+		{ -0.30901703f, 0.9510565f },
+		{ -0.80901706f, 0.5877852f },
+		{ -1.0f, 0.0f },
+		{ -0.80901694f, -0.58778536f },
+		{ -0.3090171f, -0.9510565f },
+		{ 0.30901712f, -0.9510565f },
+		{ 0.80901694f, -0.5877853f }
+	};
+
+	constexpr int vtxCount = std::size(circle);
+
+	if (obuf) {
+
+		if (stride == 0)
+			stride = sizeof(T) * 3;
+
+		char* buf = (char*)obuf;
+
+		for (unsigned i = 0; i < vtxCount; i++) {
+			auto pt = (T*)buf;
+			for (int j = 0; j < 2; j++)
+			    pt[j] = center[j] + radius * circle[i][j];
+			pt[2] = center[2]; // 始终在x-y平面构建circle，z坐标与原点相同
+			buf += stride;
+		}
+	}
+
+	return vtxCount;
 }

@@ -43,9 +43,9 @@ public:
 	void beginPaint() override;
 	void endPaint() override;
 
-	void drawPoint(const point3& pt) override;
+	void drawMarker(const point3& pt) override;
 
-	void drawPoints(point_getter fn, unsigned count) override;
+	void drawMarkers(point_getter fn, unsigned count, bool outline) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
@@ -59,6 +59,10 @@ public:
 
 	void grab(int x, int y, int width, int height, void* data) override;
 
+	bool inScreenCoord() const {
+		return currentCoord() == k_coord_screen ||
+			currentCoord() == k_coord_local_screen;
+	}
 
 	// 内部函数，由ImGui回调，以绘制renderList_保存的渲染对象
 	void drawRenderList_();
@@ -68,6 +72,17 @@ private:
 	point3 toNdc_(const point3& pt) const;
 	
 	void pushRenderObject_(KcRenderObject* obj);
+
+	KcRenderObject* lastRenderObject_();
+
+	void drawPoints_(point_getter fn, unsigned count);
+
+	void drawCircles_(point_getter fn, unsigned count, bool outline);
+
+	void drawQuadMarkers_(point_getter fn, unsigned count, const point2 quad[4], bool outline);
+
+	void drawTriMarkers_(point_getter fn, unsigned count, const point2 tri[3], bool outline);
+
 
 private:
 

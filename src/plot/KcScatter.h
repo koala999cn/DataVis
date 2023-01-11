@@ -28,12 +28,17 @@ public:
 
 	void setMinorColor(const color4f& minor) override;
 
+	bool showOutline() const { return showOutline_; }
+	bool& showOutline() { return showOutline_; }
+
+	const KpMarker& marker() const { return marker_; }
+	KpMarker& marker() { return marker_; }
+
 private:
 
 	void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const override;
 
 protected:
-	KpPen scatPen_;
-	KpBrush scatBrush_;
-	float size_{ 1 };
+	KpMarker marker_;
+	bool showOutline_{ true };
 };

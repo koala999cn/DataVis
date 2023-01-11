@@ -37,13 +37,17 @@ public:
 
 	void setColor(const color_t& clr) override;
 
-	void setPointSize(float_t size) override;
+	void setSecondaryColor(const color_t& clr) override;
+
+	void setMarkerSize(float_t size) override;
+
+	void setMarkerType(int type) override;
 
 	void setLineWidth(float_t width) override;
 
 	void setLineStyle(int style) override;
 
-	void drawPoint(const point3& pos) override;
+	void drawMarker(const point3& pos) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
@@ -89,9 +93,11 @@ protected:
 protected:
 	camera_type& camera_;
 	color_t clr_{ 0, 0, 0, 1 };
+	color_t secondaryClr_{ 0, 0, 0, 0 };
 	float_t lineWidth_{ 1 };
 	int lineStyle_{ 0 };
-	float_t pointSize_{ 1 };
+	float_t markerSize_{ 1 };
+	int markerType_{ 0 };
 
 	std::vector<int> coords_; // ×ø±êÏµ¶ÑÕ»
 };

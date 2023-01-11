@@ -65,6 +65,7 @@ void KcRenderObject::drawVbo_() const
 	if (ibo_ && indexCount_ > 0) {
 		ibo_->bind();
 		auto idxSize = ibo_->bytesCount() / indexCount_;
+		assert(idxSize <= 4);
 		GLenum type = (idxSize == 4) ? GL_UNSIGNED_INT : (idxSize == 2) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
 		glDrawElements(glModes[type_], indexCount_, type, 0);
 	}

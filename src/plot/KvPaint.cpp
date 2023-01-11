@@ -2,20 +2,20 @@
 #include "layout/KeAlignment.h"
 
 
-void KvPaint::drawPoints(const point3 pts[], unsigned count)
+void KvPaint::drawMarkers(const point3 pts[], unsigned count, bool outline)
 {
 	auto getter = [pts](unsigned idx) {
 		return pts[idx];
 	};
 
-	drawPoints(getter, count);
+	drawMarkers(getter, count, outline);
 }
 
 
-void KvPaint::drawPoints(point_getter fn, unsigned count)
+void KvPaint::drawMarkers(point_getter fn, unsigned count, bool outline)
 {
 	for (unsigned i = 0; i < count; i++)
-		drawPoint(fn(i));
+		drawMarker(fn(i));
 }
 
 
@@ -105,4 +105,16 @@ void KvPaint::apply(const KpBrush& cxt)
 void KvPaint::apply(const KpFont& cxt)
 {
 	// TODO:
+}
+
+
+void KvPaint::apply(const KpMarker& cxt)
+{
+	setMarkerType(cxt.type);
+	setMarkerSize(cxt.size);
+	setLineWidth(cxt.weight);
+	setLineStyle(KpPen::k_solid);
+	setColor(cxt.fill); // NB: fill始终是主色，当marker可填充时，fill为填充色，否则fill为线条色
+	if (cxt.hasOutline())
+		setSecondaryColor(cxt.outline);
 }

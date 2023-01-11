@@ -14,6 +14,8 @@
 #include "opengl/KcLightenObject.h"
 #include "opengl/KsShaderManager.h"
 #include "plot/KpContext.h"
+#include "KuPrimitiveFactory.h"
+#include "KtGeometryImpl.h"
 
 
 namespace kPrivate
@@ -121,10 +123,10 @@ KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 }
 
 
-void KcImOglPaint::drawPoint(const point3& pt)
+void KcImOglPaint::drawMarker(const point3& pt)
 {
 	auto clr = clr_;
-	auto ptSize = pointSize_;
+	auto ptSize = markerSize_;
 	auto p = toNdc_(pt);
 
 	auto drawFn = [clr, ptSize, p]() {
@@ -141,7 +143,7 @@ void KcImOglPaint::drawPoint(const point3& pt)
 }
 
 
-void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
+void KcImOglPaint::drawPoints_(point_getter fn, unsigned count)
 {
 	auto obj = new KcPointObject;
 
@@ -155,8 +157,200 @@ void KcImOglPaint::drawPoints(point_getter fn, unsigned count)
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
 	obj->setVBO(vbo, decl);
-	obj->setSize(pointSize_);
+	obj->setSize(markerSize_);
 	pushRenderObject_(obj);
+}
+
+
+void KcImOglPaint::drawCircles_(point_getter fn, unsigned count, bool outline)
+{
+	int segments = 10;
+	auto geom = std::make_shared<KtGeometryImpl<point3f, unsigned>>(k_triangles);
+	geom->reserve(count * (segments + 1)/*加上1个圆点*/, count * segments * 3);
+
+	for (unsigned i = 0; i < count; i++) {
+		auto idxBase = geom->vertexCount();
+		auto vtxBuf = geom->newVertex(segments + 1);
+		auto pt = projectp(fn(i));
+		*vtxBuf++ = pt;
+		KuPrimitiveFactory::makeCircle10<float>(point3f(pt), markerSize_, vtxBuf);
+
+		auto idxBuf = geom->newIndex(segments * 3);
+		for (int i = 1; i < segments; i++) {
+			*idxBuf++ = idxBase; // 圆点
+			*idxBuf++ = idxBase + i;
+			*idxBuf++ = idxBase + i + 1;
+		}
+
+		*idxBuf++ = idxBase; // 圆点
+		*idxBuf++ = idxBase + segments;
+		*idxBuf++ = idxBase + 1;
+	}
+
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+	pushCoord(k_coord_screen);
+	drawGeom(decl, geom, true, false);
+
+	if (outline) { // 描边
+		auto obj = lastRenderObject_();
+		auto vbo = obj->vbo(); // 共用vbo
+		auto edgeObj = new KcLineObject(k_lines);
+		edgeObj->setVBO(vbo, decl);
+		edgeObj->setWidth(lineWidth_);
+
+		// 构建边的index缓存
+		auto markerCount = geom->vertexCount() / (segments + 1);
+		std::vector<std::uint32_t> edgeIdx(markerCount * segments * 2);
+		unsigned idxBase = 0;
+		auto edgeIdxBuf = edgeIdx.data();
+		for (int i = 0; i < markerCount; i++) {
+			// idxBase为圆点，索引从idxBase + 1开始
+			for (unsigned j = idxBase + 1; j < idxBase + segments; j++) {
+				*edgeIdxBuf++ = j;
+				*edgeIdxBuf++ = j + 1;
+			}
+			*edgeIdxBuf++ = idxBase + segments;
+			*edgeIdxBuf++ = idxBase + 1;
+
+			idxBase += segments + 1;
+		}
+
+		auto idxBuf = std::make_shared<KcGpuBuffer>(KcGpuBuffer::k_index_buffer);
+		idxBuf->setData(edgeIdx.data(), edgeIdx.size() * 4, KcGpuBuffer::k_stream_draw);
+		edgeObj->setIBO(idxBuf, edgeIdx.size());
+
+		auto oldClr = clr_;
+		clr_ = secondaryClr_;
+		pushRenderObject_(edgeObj);
+		clr_ = oldClr;
+	}
+
+	popCoord();
+}
+
+
+namespace kPrivate
+{
+	template<int N>
+	void drawPolyMarkers_(KvPaint& paint, KvPaint::point_getter fn, unsigned count, 
+		const KvPaint::point2 poly[N], float markerSize, bool outline)
+	{
+		KePrimitiveType type;
+		if constexpr (N == 2)
+			type = k_lines;
+		else if constexpr (N == 3)
+			type = k_triangles;
+		else if constexpr (N == 4)
+			type = k_quads;
+		else
+			type = k_polygon;
+
+		auto geom = std::make_shared<KtGeometryImpl<point3f, unsigned>>(type);
+		geom->reserve(count * N, 0);
+
+		KvPaint::point3 vtx[N];
+		for (int i = 0; i < N; i++) {
+			auto pt = poly[i] * markerSize;
+			vtx[i] = { pt.x(), pt.y(), 0 };
+		}
+
+		for (unsigned i = 0; i < count; i++) {
+			auto vtxBuf = geom->newVertex(N);
+			auto pt = paint.projectp(fn(i));
+			for (int i = 0; i < N; i++)
+				vtxBuf[i] = pt + vtx[i];
+		}
+
+		auto decl = std::make_shared<KcVertexDeclaration>();
+		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+		paint.pushCoord(KvPaint::k_coord_screen);
+		paint.drawGeom(decl, geom, true, outline);
+		paint.popCoord();
+	}
+}
+
+void KcImOglPaint::drawQuadMarkers_(point_getter fn, unsigned count, const point2 quad[4], bool outline)
+{
+	kPrivate::drawPolyMarkers_<4>(*this, fn, count, quad, markerSize_, outline);
+}
+
+
+void KcImOglPaint::drawTriMarkers_(point_getter fn, unsigned count, const point2 tri[3], bool outline)
+{
+	kPrivate::drawPolyMarkers_<3>(*this, fn, count, tri, markerSize_, outline);
+}
+
+
+void KcImOglPaint::drawMarkers(point_getter fn, unsigned count, bool outline)
+{
+	switch (markerType_)
+	{
+	case KpMarker::k_dot:
+		drawPoints_(fn, count);
+		break;
+
+	case KpMarker::k_square:
+	{
+		static const point2 square[] = {
+			point2(std::sqrt(2.) / 2, std::sqrt(2.) / 2),
+			point2(std::sqrt(2.) / 2,-std::sqrt(2.) / 2),
+			point2(-std::sqrt(2.) / 2,-std::sqrt(2.) / 2),
+			point2(-std::sqrt(2.) / 2,std::sqrt(2.) / 2)
+		};
+		drawQuadMarkers_(fn, count, square, outline);
+	}
+		break;
+
+	case KpMarker::k_diamond:
+	{
+		static const point2 diamond[] = {
+			point2(1, 0), point2(0, -1), point2(-1, 0), point2(0, 1)
+		};
+		drawQuadMarkers_(fn, count, diamond, outline);
+	}
+		break;
+
+	case KpMarker::k_left:
+	{
+		static const point2 left[] = {
+			point2(-1, 0), point2(0.5, std::sqrt(3.) / 2), point2(0.5, -std::sqrt(3.) / 2)
+		};
+		drawTriMarkers_(fn, count, left, outline);
+	}
+		break;
+
+	case KpMarker::k_right:
+	{
+		static const point2 right[] = {
+			point2(1, 0), point2(-0.5, std::sqrt(3.) / 2), point2(-0.5, -std::sqrt(3.) / 2)
+		};
+		drawTriMarkers_(fn, count, right, outline);
+	}
+		break;
+
+	case KpMarker::k_up:
+	{
+		static const point2 up[] = {
+			point2(std::sqrt(3.) / 2, 0.5f), point2(0,-1), point2(-std::sqrt(3.) / 2, 0.5f)
+		};
+		drawTriMarkers_(fn, count, up, outline);
+	}
+		break;
+
+	case KpMarker::k_down:
+	{
+		static const point2 down[] = {
+			point2(std::sqrt(3.) / 2, -0.5f), point2(0, 1), point2(-std::sqrt(3.) / 2, -0.5f)
+		};
+		drawTriMarkers_(fn, count, down, outline);
+	}
+		break;
+
+	default:
+		drawCircles_(fn, count, outline);
+		break;
+	};
 }
 
 
@@ -274,8 +468,30 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 	assert(obj->vbo() && obj->vertexDecl());
 
 	obj->setColor(clr_);
-	obj->setProjMatrix(camera_.getMvpMat());
-	if (curClipBox_ != -1) {
+	switch (currentCoord())
+	{
+	case k_coord_local:
+		obj->setProjMatrix(camera_.getMvpMat());
+		break;
+
+	case k_coord_world:
+		obj->setProjMatrix(camera_.getVpMatrix());
+		break;
+	
+	case k_coord_screen:
+		obj->setProjMatrix(camera_.getNsMatR_());
+		break;
+
+	case k_coord_local_screen:
+		assert(false);
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+	
+	if (curClipBox_ != -1 && !inScreenCoord()) { // 屏幕坐标系不考虑clipBox
 		auto& box = clipBoxHistList_[curClipBox_];
 		obj->setClipBox({ box.lower(), box.upper() });
 	}
@@ -289,6 +505,12 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 	}
 
 	currentRenderList().objs.emplace_back(obj);
+}
+
+
+KcRenderObject* KcImOglPaint::lastRenderObject_()
+{
+	return currentRenderList().objs.back().get();
 }
 
 

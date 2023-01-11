@@ -6,6 +6,44 @@
 // 一些绘制元素的上下文属性
 
 
+class KpMarker
+{
+public:
+
+	enum KeType
+	{
+		k_none,      // no marker
+		k_dot,       // a point marker
+		// TODO: k_ball,      // a 3d-ball marker (no outline)
+		k_circle,    // a circle marker
+		k_square,    // a square maker
+		k_diamond,   // a diamond marker
+		k_up,        // an upward-pointing triangle marker
+		k_down,      // an downward-pointing triangle marker
+		k_left,      // an leftward-pointing triangle marker
+		k_right,     // an rightward-pointing triangle marker
+		k_cross,     // a cross marker (not fillable)
+		k_plus,      // a plus marker (not fillable)
+		k_asterisk,  // a asterisk marker (not fillable)
+		k_count
+	};
+
+	int type{ k_square };
+	float size{ 5 }; // the size of marker
+	color4f fill{ 0, 0, 0, 1 };
+	color4f outline{ 0, 0, 0, 1 }; // 仅当hasOutline为真时，该成员才有意义
+	float weight{ 1 }; // the width of outline
+
+	bool fillable() const {
+		return type >= k_dot && type <= k_right;
+	}
+
+	bool hasOutline() const {
+		return type >= k_circle && type <= k_right;
+	}
+};
+
+
 class KpPen
 {
 public:

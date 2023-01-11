@@ -152,9 +152,21 @@ void KcImPaint::setColor(const color_t& clr)
 }
 
 
-void KcImPaint::setPointSize(double size)
+void KcImPaint::setSecondaryColor(const color_t& clr)
 {
-	pointSize_ = size;
+	secondaryClr_ = clr;
+}
+
+
+void KcImPaint::setMarkerSize(double size)
+{
+	markerSize_ = size;
+}
+
+
+void KcImPaint::setMarkerType(int type)
+{
+	markerType_ = type;
 }
 
 
@@ -170,10 +182,10 @@ void KcImPaint::setLineStyle(int style)
 }
 
 
-void KcImPaint::drawPoint(const point3& pos)
+void KcImPaint::drawMarker(const point3& pos)
 {
 	auto drawList = ImGui::GetWindowDrawList();
-	drawList->AddCircleFilled(project_(pos), pointSize_ * 0.5, color_());
+	drawList->AddCircleFilled(project_(pos), markerSize_ * 0.5, color_());
 }
 
 

@@ -74,17 +74,21 @@ public:
 
 	virtual void setColor(const color_t& clr) = 0;
 
-	virtual void setPointSize(double size) = 0;
+	virtual void setSecondaryColor(const color_t& clr) = 0;
+
+	virtual void setMarkerSize(double size) = 0;
+
+	virtual void setMarkerType(int type) = 0;
 
 	virtual void setLineWidth(double width) = 0;
 
 	virtual void setLineStyle(int style) = 0;
 
-	virtual void drawPoint(const point3& pt) = 0;
+	virtual void drawMarker(const point3& pt) = 0;
 
-	virtual void drawPoints(const point3 pts[], unsigned count);
+	virtual void drawMarkers(const point3 pts[], unsigned count, bool outline);
 
-	virtual void drawPoints(point_getter fn, unsigned count);
+	virtual void drawMarkers(point_getter fn, unsigned count, bool outline);
 
 	virtual void drawLine(const point3& from, const point3& to) = 0;
 
@@ -233,4 +237,6 @@ public:
 	void apply(const KpBrush& cxt);
 
 	void apply(const KpFont& cxt);
+
+	void apply(const KpMarker& cxt);
 };
