@@ -50,6 +50,8 @@ public:
 	const mat4& projMatrix() const { return projMat_; }
 	mat4& projMatrix() { return projMat_; }
 
+	const mat4& getVpMatrix() const { return vpMat_; }
+
 	// get the model-view matrix
 	const mat4& getMvMat() const;
 
@@ -120,14 +122,6 @@ public:
 	vec4 screenToNdc(const vec4& pt) const { return getNsMatR_() * pt; }
 	vec4 screenToViewport(const vec4& pt) const { return getVsMatR_() * pt; }
 
-	// 基于NDC的坐标轴翻转实现，仅对2d有效，
-	// bool axisInversed(int dim) const { return invAxis_[dim]; }
-	// void setAxisInversed(int dim, bool inv = true);
-
-private:
-
-	void resetModelRelatedMats_();
-
 	const mat4& getMMatR_() const {
 		if (!mMatR_)
 			mMatR_ = localMatStack_.back().getInverse();
@@ -181,6 +175,11 @@ private:
 			nsMatR_ = nsMat_.getInverse();
 		return nsMatR_.value();
 	}
+
+
+private:
+
+	void resetModelRelatedMats_();
 
 
 private:
