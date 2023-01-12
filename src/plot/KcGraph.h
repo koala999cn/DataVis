@@ -27,6 +27,9 @@ public:
 
 	void setMinorColor(const color4f& minor) override;
 
+	const KpPen& linePen() const { return lineCxt_; }
+	KpPen& linePen() { return lineCxt_; }
+
 private:
 
 	void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const final;

@@ -88,7 +88,7 @@ namespace ImGuiX
 {
     using namespace ImGui;
 
-	void AddLineDashed(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness, unsigned int num_segments, unsigned int on_segments, unsigned int off_segments)
+	void addLineDashed(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness, unsigned int num_segments, unsigned int on_segments, unsigned int off_segments)
 	{
         if ((col >> 24) == 0)
             return;
@@ -333,6 +333,8 @@ namespace ImGuiX
         return cbInputText(label, show, text);
     }
 
+    void cbiTreePop() { cbTreePop(); }
+
     bool alignment(const char* label, KeAlignment& loc)
     {
         if (treePush(label, false)) {
@@ -394,15 +396,7 @@ namespace ImGuiX
                 "none", "solid", "dot", "dash", 
                 "dash4", "dash8", "dash dot", "dash dot dot"
             };
-
-            if (BeginCombo("Style", styles[cxt.style])) {
-                for (unsigned i = 0; i < std::size(styles); i++) {
-                    if (Selectable(styles[i], i == cxt.style))
-                        cxt.style = i;
-                }
-
-                EndCombo();
-            }
+            res |= combo("Style", styles, cxt.style);
         }
 
         res |= SliderFloat("Width", &cxt.width, 0.1, 5.0, "%.1f px");
@@ -424,15 +418,7 @@ namespace ImGuiX
             static const char* styles[] = {
                 "none", "solid"
             };
-
-            if (BeginCombo("Style", styles[cxt.style])) {
-                for (unsigned i = 0; i < std::size(styles); i++) {
-                    if (Selectable(styles[i], i == cxt.style))
-                        cxt.style = i;
-                }
-
-                EndCombo();
-            }
+            res |= combo("Style", styles, cxt.style);
         }
 
         res |= ColorEdit4("Color", cxt.color);
@@ -493,6 +479,43 @@ namespace ImGuiX
     bool margins(const char* label, KtMargins<double>& m)
     {
         return margins_<double>(label, m);
+    }
+
+    bool marker(KpMarker& cxt)
+    {
+        PushID(&cxt);
+        bool res = false;
+
+        static const char* types[] = {
+            "dot",    
+            // "ball",  
+            "circle",
+            "square",
+            "diamond",
+            "up",
+            "down",
+            "left",
+            "right",
+            "cross",
+            "plus",
+            "asterisk"
+        };
+
+        res |= combo("Scatter", types, cxt.type);    
+        res |= ImGui::DragFloat("Size", &cxt.size, 0.1, 0.1, 10, "%.1f");
+        res |= ImGui::ColorEdit4("Color##Fill", cxt.fill);
+        if (cxt.hasOutline()) {
+            bool open(false);
+            res |= cbTreePush("Outline", &cxt.showOutline, &open);
+            if (open) {
+                res |= ImGui::DragFloat("Weight", &cxt.weight, 0.1, 0.1, 5, "%.1f");
+                res |= ImGui::ColorEdit4("Color##Outline", cxt.outline);
+                cbTreePop();
+            }
+        }
+
+        PopID();
+        return res;
     }
 
 }

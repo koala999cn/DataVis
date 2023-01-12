@@ -6,7 +6,7 @@
 #include "plot/KcLineFilled.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
-#include "imgui.h"
+#include "imguix.h"
 
 
 KcRdPlot1d::KcRdPlot1d()
@@ -78,4 +78,44 @@ KvPlottable* KcRdPlot1d::newPlottable_(int iType, const std::string& name)
 	}
 
 	return nullptr;
+}
+
+
+namespace kPrivate
+{
+	void showPlottableSpecificProperty1d(KvPlottable* plt)
+	{
+		if (dynamic_cast<KcLineFilled*>(plt)) {
+			auto fill = dynamic_cast<KcLineFilled*>(plt);
+			ImGuiX::brush(fill->fillBrush(), false); // 隐藏brush的style选项，始终fill
+			if (ImGuiX::treePush("Line", false)) {
+				ImGuiX::pen(fill->linePen(), true);
+				ImGuiX::treePop();
+			}
+		}
+		else if (dynamic_cast<KcScatter*>(plt)) {
+			auto scat = dynamic_cast<KcScatter*>(plt);
+			ImGuiX::marker(scat->marker());
+		}
+		else if (dynamic_cast<KcGraph*>(plt)) {
+			auto graph = dynamic_cast<KcGraph*>(plt);
+			ImGuiX::pen(graph->linePen(), true);
+		}
+		else if (dynamic_cast<KcBars2d*>(plt)) {
+			auto bars = dynamic_cast<KcBars2d*>(plt);
+			ImGuiX::brush(bars->fillBrush(), true);
+			ImGui::SliderFloat("Width Ratio", &bars->barWidthRatio(), 0.01, 1.0, "%.2f");
+			ImGui::DragFloat("Base Line", &bars->baseLine());
+			if (ImGuiX::treePush("Border", false)) {
+				ImGuiX::pen(bars->borderPen(), true);
+				ImGuiX::treePop();
+			}
+		}
+	}
+}
+
+void KcRdPlot1d::showPlottableSpecificProperty_(unsigned idx)
+{
+	auto plt = plot_->plottableAt(idx);
+	kPrivate::showPlottableSpecificProperty1d(plt);
 }

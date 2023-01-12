@@ -25,5 +25,7 @@ private:
 	KvPlottable* newPlottable_(int iType, const std::string& name) final;
 
 	bool plottableMatchData_(int iType, const KvData& d) const final;
+
+	void showPlottableSpecificProperty_(unsigned idx) final;
 };
 

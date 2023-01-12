@@ -94,11 +94,13 @@ bool KcRdPlot2d::permitInput(int dataSpec, unsigned inPort) const
 }
 
 
-void KcRdPlot2d::showPlottableSpecificProperty_(unsigned idx)
+namespace kPrivate
 {
-    auto plt = plot_->plottableAt(idx);
-    if (plottableType_(plt) == 0) { // color-map
+    void showPlottableSpecificProperty2d(KvPlottable* plt)
+    {
         auto cmap = dynamic_cast<KcColorMap*>(plt);
+        assert(cmap);
+
         ImGui::DragFloatRange2("Map Range", &cmap->mapLower(), &cmap->mapUpper());
 
         bool open(false);
@@ -116,4 +118,10 @@ void KcRdPlot2d::showPlottableSpecificProperty_(unsigned idx)
             ImGuiX::cbTreePop();
         }
     }
+}
+
+void KcRdPlot2d::showPlottableSpecificProperty_(unsigned idx)
+{
+    auto plt = plot_->plottableAt(idx);
+    kPrivate::showPlottableSpecificProperty2d(plt);
 }

@@ -8,6 +8,7 @@
 class KvData;
 class KpPen;
 class KpBrush;
+class KpMarker;
 class KeAlignment;
 
 // imgui的扩展函数
@@ -32,7 +33,7 @@ inline ImVec2 operator/(const ImVec2& a, float f) {
 namespace ImGuiX
 {
 	// reference https://github.com/ocornut/imgui/pull/1118
-	void AddLineDashed(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness = 1.0f, unsigned int segments = 10, unsigned int on_segments = 1, unsigned int off_segments = 1);
+	void addLineDashed(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness = 1.0f, unsigned int segments = 10, unsigned int on_segments = 1, unsigned int off_segments = 1);
 
 	// @startPos: 绘制的起始位置
 	// @blockSize: 每个色块的尺寸
@@ -70,13 +71,32 @@ namespace ImGuiX
 	// treenode + checkbox + text-editor + label
 	bool cbiTreePush(const char* label, bool* show, std::string* text, bool* open);
 
+	void cbiTreePop();
+
 	bool cbInputText(const char* label, bool* show, std::string* text);
 
 	bool pen(KpPen& cxt, bool showStyle);
 
 	bool brush(KpBrush& cxt, bool showStyle);
 
+	bool marker(KpMarker& cxt);
+
 	bool margins(const char* label, KtMargins<float>& m);
 
 	bool margins(const char* label, KtMargins<double>& m);
+
+	template<int N>
+	bool combo(const char* label, const char*(&enums)[N], int& val) {
+		bool select_changed = false;
+		if (ImGui::BeginCombo(label, enums[val])) {
+			for (unsigned i = 0; i < N; i++)
+				if (ImGui::Selectable(enums[i], i == val)) {
+					val = i;
+					select_changed = true;
+				}
+			ImGui::EndCombo();
+		}
+
+		return select_changed;
+	}
 }

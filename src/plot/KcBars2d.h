@@ -14,11 +14,6 @@ public:
 
 	KcBars2d(const std::string_view& name);
 
-	// bar的宽度设置，取值[0, 1]
-	// 若取1，则bars之间无空隙；若取0.5，则bar的宽度与bars之间的空隙相同。
-	float_t barWidthRatio() const { return barWidthRatio_; }
-	float_t& barWidthRatio() { return barWidthRatio_; }
-
 	aabb_t boundingBox() const override;
 
 	unsigned majorColorsNeeded() const override;
@@ -35,6 +30,20 @@ public:
 
 	void setMinorColor(const color4f& minor) override;
 
+	// bar的宽度设置，取值[0, 1]
+	// 若取1，则bars之间无空隙；若取0.5，则bar的宽度与bars之间的空隙相同。
+	float barWidthRatio() const { return barWidthRatio_; }
+	float& barWidthRatio() { return barWidthRatio_; }
+
+	float baseLine() const { return baseLine_; }
+	float& baseLine() { return baseLine_; }
+
+	const KpBrush& fillBrush() const { return fill_; }
+	KpBrush& fillBrush() { return fill_; }
+
+	const KpPen& borderPen() const { return border_; }
+	KpPen& borderPen() { return border_; }
+
 protected:
 
 	void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const override;
@@ -45,6 +54,6 @@ protected:
 protected:
 	KpPen border_;
 	KpBrush fill_;
-	float_t barWidthRatio_{ 0.5 };
-	float_t baseLine_{ 0 }; // bar的底线
+	float barWidthRatio_{ 0.5f };
+	float baseLine_{ 0 }; // bar的底线
 };

@@ -7,7 +7,7 @@
 KcBars2d::KcBars2d(const std::string_view& name)
 	: super_(name)
 {
-	border_.color = color4f(0, 0, 0, 1); // default no border 
+	border_.color = color4f(0, 0, 0, 0); // default no border 
 }
 
 

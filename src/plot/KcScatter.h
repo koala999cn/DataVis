@@ -28,9 +28,6 @@ public:
 
 	void setMinorColor(const color4f& minor) override;
 
-	bool showOutline() const { return showOutline_; }
-	bool& showOutline() { return showOutline_; }
-
 	const KpMarker& marker() const { return marker_; }
 	KpMarker& marker() { return marker_; }
 
@@ -40,5 +37,4 @@ private:
 
 protected:
 	KpMarker marker_;
-	bool showOutline_{ true };
 };

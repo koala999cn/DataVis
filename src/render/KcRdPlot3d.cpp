@@ -146,3 +146,21 @@ bool KcRdPlot3d::plottableMatchData_(int iType, const KvData& d) const
 
 	return true;
 }
+
+
+namespace kPrivate
+{
+	void showPlottableSpecificProperty1d(KvPlottable* plt);
+	void showPlottableSpecificProperty2d(KvPlottable* plt);
+}
+
+void KcRdPlot3d::showPlottableSpecificProperty_(unsigned idx)
+{
+	auto plt = plot_->plottableAt(idx);
+	if (dynamic_cast<KcSurface*>(plt)) {
+		kPrivate::showPlottableSpecificProperty2d(plt);
+	}
+	else {
+		kPrivate::showPlottableSpecificProperty1d(plt);
+	}
+}

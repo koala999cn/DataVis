@@ -6,7 +6,7 @@ void KcScatter::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, u
 {
 	paint->apply(marker_);
 	
-	bool outline = showOutline_ && marker_.hasOutline() 
+	bool outline = marker_.showOutline && marker_.hasOutline()
 		&& marker_.outline != marker_.fill && marker_.outline.a() > 0;
 	paint->drawMarkers(getter, count, outline);
 }
@@ -20,7 +20,7 @@ unsigned KcScatter::majorColorsNeeded() const
 
 bool KcScatter::minorColorNeeded() const
 {
-	return true;
+	return marker_.hasOutline() && marker_.showOutline;
 }
 
 
