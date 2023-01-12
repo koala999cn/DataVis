@@ -462,7 +462,7 @@ namespace ImGuiX
         }
 
         SameLine(0.0f, style.ItemInnerSpacing.x);
-        ImGui::Text(label);
+        Text(label);
 
         PopID();
         EndGroup();
@@ -502,14 +502,14 @@ namespace ImGuiX
         };
 
         res |= combo("Scatter", types, cxt.type);    
-        res |= ImGui::DragFloat("Size", &cxt.size, 0.1, 0.1, 10, "%.1f");
-        res |= ImGui::ColorEdit4("Color##Fill", cxt.fill);
+        res |= DragFloat("Size", &cxt.size, 0.1, 0.1, 10, "%.1f");
+        res |= ColorEdit4("Color##Fill", cxt.fill);
         if (cxt.hasOutline()) {
             bool open(false);
             res |= cbTreePush("Outline", &cxt.showOutline, &open);
             if (open) {
-                res |= ImGui::DragFloat("Weight", &cxt.weight, 0.1, 0.1, 5, "%.1f");
-                res |= ImGui::ColorEdit4("Color##Outline", cxt.outline);
+                res |= DragFloat("Weight", &cxt.weight, 0.1, 0.1, 5, "%.1f px");
+                res |= ColorEdit4("Color##Outline", cxt.outline);
                 cbTreePop();
             }
         }
