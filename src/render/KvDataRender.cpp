@@ -11,7 +11,8 @@ bool KvDataRender::onNewLink(KcPortNode* from, KcPortNode* to)
 	assert(to->index() < inPorts());
 
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(from->parent().lock());
-	return prov && permitInput(prov->spec(from->index()), to->index());
+	return prov && !working_() // 运行时不接受新的链接
+		&& permitInput(prov->spec(from->index()), to->index());
 }
 
 

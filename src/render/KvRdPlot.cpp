@@ -107,7 +107,7 @@ bool KvRdPlot::onNewLink(KcPortNode* from, KcPortNode* to)
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
 	assert(prov);
 
-	return !working_(); // 运行时不接受新的链接
+	return super_::onNewLink(from, to); 
 }
 
 
