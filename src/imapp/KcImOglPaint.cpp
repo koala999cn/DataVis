@@ -496,9 +496,9 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 		obj->setClipBox({ box.lower(), box.upper() });
 	}
 
+
 	if (obj->shader() == nullptr) { // ×Ô¶¯ÉèÖÃshader
-		auto decl = obj->vertexDecl();
-		if (!decl->hasColor())
+		if (!obj->vertexDecl()->hasColor())
 			obj->setShader(KsShaderManager::singleton().programFlat());
 		else
 			obj->setShader(KsShaderManager::singleton().programSmooth());
@@ -621,6 +621,9 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool sh
 	obj->setColor(clr_);
 	obj->setEdgeWidth(lineWidth_);
 	obj->setFilled(fill); obj->setEdged(showEdge);
+	if (showEdge && !hasColor)
+		obj->setEdgeColor(secondaryClr_);
+
 		// TODO: hasNormal ? new KcLightenObject(geom->type()) : new KcRenderObject(geom->type());
 
 	if (hasNormal) {

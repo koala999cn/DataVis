@@ -40,7 +40,11 @@ void KcSurface::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
 
+	bool showEdge = showBorder() && borderPen().visible();
+	if (showEdge) 
+		paint->apply(borderPen());
+
 	paint->enableDepthTest(true);
-	paint->drawGeom(decl, geom, true, true);
+	paint->drawGeom(decl, geom, true, showEdge);
 	paint->enableDepthTest(false);
 }
