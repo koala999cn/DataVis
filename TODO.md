@@ -16,6 +16,10 @@
 11. 导出矢量图
 12. auto-fold layout
 13. subplot
+14. graph的line-style
+15. bar2d的opengl加速
+16.单独把heapmap成类（有text属性项）
+17.统筹考虑plottable的颜色问题（flat vs smooth vs gradiant）
 
 ## theme
 1. 更多theme，SCI等
@@ -34,3 +38,5 @@
 4. 坐标轴刻度旋转时出现突变
 5. 3d透视投影模式下，坐标轴的刻度线和文字全部消失 --> ok（一是矢量投影算法问题，二是逆变换未作归一化）
 6. plot3d在交换坐标轴后，或者在透视投影模式下，鼠标操控坐标系姿态出现问题 --> ok
+7. plottable不可见/可见设置时的legend同步
+8.colormap的border属性项有效性
