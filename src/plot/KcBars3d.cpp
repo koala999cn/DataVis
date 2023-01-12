@@ -15,7 +15,7 @@ KcBars3d::aabb_t KcBars3d::boundingBox() const
 }
 
 
-void KcBars3d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, unsigned) const
+void KcBars3d::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned) const
 {
 	auto dim = data()->dim();
 	auto xw = barWidth_(0);

@@ -6,14 +6,8 @@
 #include "KuPrimitiveFactory.h"
 
 
-void KcSurface::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
+void KcSurface::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, unsigned ny, unsigned ch) const
 {
-	auto samp = dynamic_cast<KvSampled*>(disc);
-	assert(samp && samp->dim() == 2);
-
-	auto nx = samp->size(0);
-	auto ny = samp->size(1);
-
 	struct KpVtxBuffer_
 	{
 		point3f pos;
@@ -26,9 +20,10 @@ void KcSurface::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 
 	for(unsigned i = 0; i < nx; i++)
 		for (unsigned j = 0; j < ny; j++) {
-			auto pt = samp->point(i, j, 0);
+			auto pt = getter(i, j);
+			assert(pt.size() > 2);
 			vtxBuf->pos = point3f(pt[0], pt[1], pt[2]);
-			vtxBuf->clr = mapValueToColor_(pt[2]);
+			vtxBuf->clr = mapValueToColor_(pt.back()); // TODO: 可以选择色彩插值的维度
 			++vtxBuf;
 		}
 

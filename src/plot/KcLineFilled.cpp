@@ -4,9 +4,9 @@
 #include <assert.h>
 
 
-void KcLineFilled::drawImpl_(KvPaint* paint, point_getter getter1, unsigned count, unsigned ch) const
+void KcLineFilled::drawImpl_(KvPaint* paint, point_getter1 getter1, unsigned count, unsigned ch) const
 {
-	point_getter getter2 = [getter1](unsigned i) {
+	point_getter1 getter2 = [getter1](unsigned i) {
 		auto pt = getter1(i);
 		pt.y() = 0;
 		return pt;

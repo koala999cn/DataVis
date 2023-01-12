@@ -11,7 +11,7 @@ KcBars2d::KcBars2d(const std::string_view& name)
 }
 
 
-void KcBars2d::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, unsigned) const
+void KcBars2d::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned) const
 {
 	auto barWidth = barWidth_();
 	bool drawFill = fill_.style != KpBrush::k_none && majorColor(0).a() != 0;

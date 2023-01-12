@@ -205,7 +205,7 @@
     <ClCompile Include="src\plot\KcAxis.cpp" />
     <ClCompile Include="src\plot\KcBars2d.cpp" />
     <ClCompile Include="src\plot\KcBars3d.cpp" />
-    <ClCompile Include="src\plot\KcBubble2d.cpp" />
+    <ClCompile Include="src\plot\KcBubble.cpp" />
     <ClCompile Include="src\plot\KcColorBar.cpp" />
     <ClCompile Include="src\plot\KcCoord2d.cpp" />
     <ClCompile Include="src\plot\KcCoord3d.cpp" />
@@ -213,7 +213,7 @@
     <ClCompile Include="src\plot\KcCoordPlane.cpp" />
     <ClCompile Include="src\plot\KcLegend.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
-    <ClCompile Include="src\plot\KcColorMap.cpp" />
+    <ClCompile Include="src\plot\KcHeatMap.cpp" />
     <ClCompile Include="src\plot\KcLineFilled.cpp" />
     <ClCompile Include="src\plot\KcScatter.cpp" />
     <ClCompile Include="src\plot\KcSurface.cpp" />
@@ -229,6 +229,7 @@
     <ClCompile Include="src\plot\KvPlot3d.cpp" />
     <ClCompile Include="src\plot\KvPlottable.cpp" />
     <ClCompile Include="src\plot\KvPlottable1d.cpp" />
+    <ClCompile Include="src\plot\KvPlottable2d.cpp" />
     <ClCompile Include="src\plot\KvThemedPlot.cpp" />
     <ClCompile Include="src\plot\KvTicker.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -396,7 +397,7 @@
     <ClInclude Include="src\op\KvOpSampled1dHelper.h" />
     <ClInclude Include="src\plot\KcBars2d.h" />
     <ClInclude Include="src\plot\KcBars3d.h" />
-    <ClInclude Include="src\plot\KcBubble2d.h" />
+    <ClInclude Include="src\plot\KcBubble.h" />
     <ClInclude Include="src\plot\KcColorBar.h" />
     <ClInclude Include="src\plot\KcCoord2d.h" />
     <ClInclude Include="src\plot\KcCoordPlane.h" />
@@ -404,7 +405,7 @@
     <ClInclude Include="src\plot\KcLinearTicker.h" />
     <ClInclude Include="src\plot\KcAxis.h" />
     <ClInclude Include="src\plot\KcGraph.h" />
-    <ClInclude Include="src\plot\KcColorMap.h" />
+    <ClInclude Include="src\plot\KcHeatMap.h" />
     <ClInclude Include="src\plot\KcLineFilled.h" />
     <ClInclude Include="src\plot\KcSurface.h" />
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
@@ -421,6 +422,7 @@
     <ClInclude Include="src\plot\KvPlot2d.h" />
     <ClInclude Include="src\plot\KvPlottable1d.h" />
     <ClInclude Include="src\plot\KcScatter.h" />
+    <ClInclude Include="src\plot\KvPlottable2d.h" />
     <ClInclude Include="src\plot\KvThemedPlot.h" />
     <ClInclude Include="src\plot\KvTicker.h" />
     <ClInclude Include="src\plot\KcCoord3d.h" />

@@ -45,17 +45,17 @@ public:
 
 	void drawMarker(const point3& pt) override;
 
-	void drawMarkers(point_getter fn, unsigned count, bool outline) override;
+	void drawMarkers(point_getter1 fn, unsigned count, bool outline) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
-	void drawLineStrip(point_getter fn, unsigned count) override;
+	void drawLineStrip(point_getter1 fn, unsigned count) override;
 
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
 	void drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) override;
 
-	void fillBetween(point_getter line1, point_getter line2, unsigned count) override;
+	void fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
 
 	void grab(int x, int y, int width, int height, void* data) override;
 
@@ -75,13 +75,13 @@ private:
 
 	KcRenderObject* lastRenderObject_();
 
-	void drawPoints_(point_getter fn, unsigned count);
+	void drawPoints_(point_getter1 fn, unsigned count);
 
-	void drawCircles_(point_getter fn, unsigned count, bool outline);
+	void drawCircles_(point_getter1 fn, unsigned count, bool outline);
 
-	void drawQuadMarkers_(point_getter fn, unsigned count, const point2 quad[4], bool outline);
+	void drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4], bool outline);
 
-	void drawTriMarkers_(point_getter fn, unsigned count, const point2 tri[3], bool outline);
+	void drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3], bool outline);
 
 
 private:

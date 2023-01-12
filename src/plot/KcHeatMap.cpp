@@ -1,67 +1,10 @@
-#include "KcColorMap.h"
-#include "KvPaint.h"
-#include "KvData.h"
-#include "KcSampled2d.h"
-#include "KtuMath.h"
+#include "KcHeatMap.h"
+#include "KvDiscreted.h"
 #include "KuStrUtil.h"
+#include "KvPaint.h"
 
 
-KcColorMap::KcColorMap(const std::string_view& name)
-	: super_(name)
-{
-	mapper_.setAt(0, color4f(0, 0, 0, 1));
-	mapper_.setAt(1, color4f(1, 1, 1, 1));
-}
-
-
-unsigned KcColorMap::majorColorsNeeded() const
-{
-	return -1;
-}
-
-
-bool KcColorMap::minorColorNeeded() const
-{
-	return 1;
-}
-
-
-unsigned KcColorMap::majorColors() const
-{
-	return mapper_.numStops();
-}
-
-
-color4f KcColorMap::majorColor(unsigned idx) const
-{
-	return mapper_.stopAt(idx).second;
-}
-
-
-void KcColorMap::setMajorColors(const std::vector<color4f>& majors)
-{
-	mapper_.reset();
-
-	std::vector<float_t> vals(majors.size());
-	KtuMath<float_t>::linspace(0, 1, 0, vals.data(), majors.size());
-	for (unsigned i = 0; i < majors.size(); i++)
-		mapper_.setAt(vals[i], majors[i]);
-}
-
-
-color4f KcColorMap::minorColor() const
-{
-	return borderPen_.color;
-}
-
-
-void KcColorMap::setMinorColor(const color4f& minor)
-{
-	borderPen_.color = minor;
-}
-
-
-KcColorMap::aabb_t KcColorMap::boundingBox() const
+KcHeatMap::aabb_t KcHeatMap::boundingBox() const
 {
 	auto aabb = super_::boundingBox();
 
@@ -92,8 +35,9 @@ KcColorMap::aabb_t KcColorMap::boundingBox() const
 }
 
 
-void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
+void KcHeatMap::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, unsigned ny, unsigned channels) const
 {
+	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
 	auto dx = disc->step(0);
 	auto dy = disc->dim() > 1 ? disc->step(1) : 0;
 	if (dx <= 0)
@@ -102,7 +46,7 @@ void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 		dy = disc->range(1).length() / disc->size(disc->dim() > 1 ? 1 : 0);
 
 	auto half_dx = dx / 2;
-	auto half_dy = dy /2 ;
+	auto half_dy = dy / 2 ;
 
 	for (unsigned i = 0; i < disc->size(); i++) {
 		auto pt = disc->pointAt(i, 0);
@@ -111,8 +55,8 @@ void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 			{ pt[0] + half_dx, pt[1] + half_dy, 0 });
 	}
 
-	if (showBorder_ && borderPen_.visible()) {
-		paint->apply(borderPen_);
+	if (showBorder() && borderPen().visible()) {
+		paint->apply(borderPen());
 		for (unsigned i = 0; i < disc->size(); i++) {
 			auto pt = disc->pointAt(i, 0);
 			paint->drawRect({ pt[0] - half_dx, pt[1] - half_dy, 0 },
@@ -132,11 +76,3 @@ void KcColorMap::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 		}
 	}
 }
-
-
-color4f KcColorMap::mapValueToColor_(float_t val) const
-{
-	auto factor = KtuMath<float_t>::remap<true>(val, mapLower_, mapUpper_);
-	return mapper_.getAt(factor);
-}
-

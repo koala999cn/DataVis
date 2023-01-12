@@ -125,6 +125,7 @@ KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 
 void KcImOglPaint::drawMarker(const point3& pt)
 {
+	/*
 	auto clr = clr_;
 	auto ptSize = markerSize_;
 	auto p = toNdc_(pt);
@@ -139,11 +140,14 @@ void KcImOglPaint::drawMarker(const point3& pt)
 
 	};
 
-	currentRenderList().fns.push_back(drawFn);
+	currentRenderList().fns.push_back(drawFn);*/
+
+	// TODO:
+	super_::drawMarker(pt);
 }
 
 
-void KcImOglPaint::drawPoints_(point_getter fn, unsigned count)
+void KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 {
 	auto obj = new KcPointObject;
 
@@ -162,7 +166,7 @@ void KcImOglPaint::drawPoints_(point_getter fn, unsigned count)
 }
 
 
-void KcImOglPaint::drawCircles_(point_getter fn, unsigned count, bool outline)
+void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count, bool outline)
 {
 	int segments = 10;
 	auto geom = std::make_shared<KtGeometryImpl<point3f, unsigned>>(k_triangles);
@@ -233,7 +237,7 @@ void KcImOglPaint::drawCircles_(point_getter fn, unsigned count, bool outline)
 namespace kPrivate
 {
 	template<int N, bool forceLines = false>
-	void drawPolyMarkers_(KvPaint& paint, KvPaint::point_getter fn, unsigned count, 
+	void drawPolyMarkers_(KvPaint& paint, KvPaint::point_getter1 fn, unsigned count, 
 		const KvPaint::point2 poly[N], float markerSize, bool outline)
 	{
 		KePrimitiveType type;
@@ -270,19 +274,19 @@ namespace kPrivate
 	}
 }
 
-void KcImOglPaint::drawQuadMarkers_(point_getter fn, unsigned count, const point2 quad[4], bool outline)
+void KcImOglPaint::drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4], bool outline)
 {
 	kPrivate::drawPolyMarkers_<4>(*this, fn, count, quad, markerSize_, outline);
 }
 
 
-void KcImOglPaint::drawTriMarkers_(point_getter fn, unsigned count, const point2 tri[3], bool outline)
+void KcImOglPaint::drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3], bool outline)
 {
 	kPrivate::drawPolyMarkers_<3>(*this, fn, count, tri, markerSize_, outline);
 }
 
 
-void KcImOglPaint::drawMarkers(point_getter fn, unsigned count, bool outline)
+void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 {
 	static const double SQRT_2_2 = std::sqrt(2.) / 2.;
 	static const double SQRT_3_2 = std::sqrt(3.) / 2.;
@@ -420,7 +424,7 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 }
 
 
-void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
+void KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
 {
 	auto obj = new KcLineObject(k_line_strip);
 
@@ -439,7 +443,7 @@ void KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 }
 
 
-void KcImOglPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
+void KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned count)
 {
 	// ππ‘Ïvbo
 
@@ -756,13 +760,18 @@ void KcImOglPaint::drawRenderList_()
 		glEnable(GL_POINT_SMOOTH);
 		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 		glEnable(GL_LINE_SMOOTH);
-		glHint(GL_LINE_SMOOTH, GL_NICEST);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_POLYGON_SMOOTH);
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+		//glShadeModel(GL_SMOOTH);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	else {
 		glDisable(GL_POINT_SMOOTH);
 		glDisable(GL_LINE_SMOOTH);
+		glDisable(GL_POLYGON_SMOOTH);
+		//glShadeModel(GL_FLAT);
 	}
 
 	unsigned viewport(-1), clipRect(-1), clipBox(-2);

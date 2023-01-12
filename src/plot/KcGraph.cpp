@@ -4,7 +4,7 @@
 #include <assert.h>
 
 
-void KcGraph::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, unsigned ch) const
+void KcGraph::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned ch) const
 {
 	paint->apply(lineCxt_);
 

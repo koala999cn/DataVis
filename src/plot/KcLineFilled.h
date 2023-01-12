@@ -32,7 +32,7 @@ public:
 
 private:
 
-	void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const final;
+	void drawImpl_(KvPaint*, point_getter1, unsigned, unsigned) const final;
 
 private:
 	KpPen lineCxt_;

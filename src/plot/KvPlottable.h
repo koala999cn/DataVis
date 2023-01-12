@@ -63,6 +63,12 @@ public:
 
 	////////////////////////////////////////////////////////////////
 
+	float_t defaultZ() const { return defaultZ_; }
+	float_t& defaultZ() { return defaultZ_; }
+
+	float_t stepZ() const { return stepZ_; }
+	float_t& stepZ() { return stepZ_; }
+
 private:
 
 	virtual void drawDiscreted_(KvPaint*, KvDiscreted*) const = 0;
@@ -75,4 +81,9 @@ private:
 	std::vector<unsigned> sampCount_{ std::vector<unsigned>({ 1000 }) }; 
 
 	std::array<std::unique_ptr<KcAxis>, 3> selfAxes_; // 用于分离坐标轴，缺省为null，表示使用主坐标轴
+
+	// 以下成员仅对二维数据有效
+
+	float_t defaultZ_{ 0 }; // 二维数据的z轴将被置为该值
+	float_t stepZ_{ 1 }; // 多通道二维数据的z轴偏移。若须将多通道数据显示在一个z平面，置该值为0
 };

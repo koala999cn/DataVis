@@ -8,7 +8,7 @@
 class KcBars3d : public KcBars2d
 {
 	using super_ = KcBars2d;
-	using KvPlottable1d::point_getter;
+	using KvPlottable1d::point_getter1;
 
 public:
 
@@ -18,5 +18,5 @@ public:
 
 private:
 
-	void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const override;
+	void drawImpl_(KvPaint*, point_getter1, unsigned, unsigned) const override;
 };

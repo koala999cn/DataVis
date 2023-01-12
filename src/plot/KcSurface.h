@@ -1,17 +1,21 @@
 #pragma once
-#include "KcColorMap.h"
+#include "KvPlottable2d.h"
 
 
-// 绘制sampled2d数据的3d曲面
+// 绘制grid(sampled2d)数据的quads曲面
 
-class KcSurface : public KcColorMap
+class KcSurface : public KvPlottable2d
 {
-	using super_ = KcColorMap;
+	using super_ = KvPlottable2d;
 
 public:
 	using super_::super_;
 
+private:
+	void drawImpl_(KvPaint*, point_getter2, unsigned nx, unsigned ny, unsigned channels) const final;
 
 private:
-	void drawDiscreted_(KvPaint*, KvDiscreted*) const final;
+	bool flat_{ false }; // 是否使用flat模式渲染. 若true，每个quad使用同色渲染
+	unsigned flatIdx_{ 0 }; // flat模式下，用于渲染quad的顶点序号
+	                        // 即，对于每个quad，使用该quad的第flatIdx_顶点的颜色渲染整个quad
 };

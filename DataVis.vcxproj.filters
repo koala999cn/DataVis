@@ -295,7 +295,7 @@
     <ClCompile Include="src\op\KcOpHist.cpp">
       <Filter>op</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcColorMap.cpp">
+    <ClCompile Include="src\plot\KcHeatMap.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\render\KcRdPlot2d.cpp">
@@ -310,7 +310,7 @@
     <ClCompile Include="src\plot\KcBars3d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcBubble2d.cpp">
+    <ClCompile Include="src\plot\KcBubble.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KcLineFilled.cpp">
@@ -468,6 +468,9 @@
     </ClCompile>
     <ClCompile Include="src\opengl\KcEdgedObject.cpp">
       <Filter>opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KvPlottable2d.cpp">
+      <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -822,7 +825,7 @@
     <ClInclude Include="src\op\KcOpHist.h">
       <Filter>op</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcColorMap.h">
+    <ClInclude Include="src\plot\KcHeatMap.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\render\KcRdPlot2d.h">
@@ -834,7 +837,7 @@
     <ClInclude Include="src\plot\KcBars3d.h">
       <Filter>plot</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KcBubble2d.h">
+    <ClInclude Include="src\plot\KcBubble.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcLineFilled.h">
@@ -1064,6 +1067,9 @@
     </ClInclude>
     <ClInclude Include="src\opengl\KcEdgedObject.h">
       <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvPlottable2d.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

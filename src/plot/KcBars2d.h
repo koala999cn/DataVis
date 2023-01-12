@@ -8,7 +8,7 @@
 class KcBars2d : public KvPlottable1d
 {
 	using super_ = KvPlottable1d;
-	using super_::point_getter;
+	using super_::point_getter1;
 
 public:
 
@@ -46,7 +46,7 @@ public:
 
 protected:
 
-	void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const override;
+	void drawImpl_(KvPaint*, point_getter1, unsigned, unsigned) const override;
 
 	// 计算单个bar的宽度（世界坐标）
 	float_t barWidth_(unsigned dim = 0) const;

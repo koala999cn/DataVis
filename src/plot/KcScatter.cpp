@@ -2,7 +2,7 @@
 #include "plot/KvPaint.h"
 
 
-void KcScatter::drawImpl_(KvPaint* paint, point_getter getter, unsigned count, unsigned) const
+void KcScatter::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned) const
 {
 	paint->apply(marker_);
 	

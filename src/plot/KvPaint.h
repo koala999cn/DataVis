@@ -21,7 +21,8 @@ public:
 	using point3 = KtPoint<float_t, 3>;
 	using point4 = KtPoint<float_t, 4>;
 	using mat4 = KtMatrix4<float_t>;
-	using point_getter = std::function<point3(unsigned)>;
+	using point_getter1 = std::function<point3(unsigned)>;
+	using point_getter2 = std::function<point3(unsigned, unsigned)>;
 	using geom_ptr = std::shared_ptr<KvGeometry>;
 	using vtx_decl_ptr = std::shared_ptr<KcVertexDeclaration>;
 
@@ -88,17 +89,17 @@ public:
 
 	virtual void drawMarkers(const point3 pts[], unsigned count, bool outline);
 
-	virtual void drawMarkers(point_getter fn, unsigned count, bool outline);
+	virtual void drawMarkers(point_getter1 fn, unsigned count, bool outline);
 
 	virtual void drawLine(const point3& from, const point3& to) = 0;
 
 	virtual void drawLineStrip(const point3 pts[], unsigned count);
 
-	virtual void drawLineStrip(point_getter fn, unsigned count);
+	virtual void drawLineStrip(point_getter1 fn, unsigned count);
 
 	virtual void drawLineLoop(const point3 pts[], unsigned count);
 
-	virtual void drawLineLoop(point_getter fn, unsigned count);
+	virtual void drawLineLoop(point_getter1 fn, unsigned count);
 
 	virtual void drawRect(const point3& lower, const point3& upper);
 
@@ -114,9 +115,9 @@ public:
 
 	virtual void fillQuad(point3 pts[4], color_t clrs[4]);
 
-	virtual void fillConvexPoly(point_getter fn, unsigned count) = 0;
+	virtual void fillConvexPoly(point_getter1 fn, unsigned count) = 0;
 
-	virtual void fillBetween(point_getter line1, point_getter line2, unsigned count) = 0;
+	virtual void fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) = 0;
 
 	// 实现文本在三维平面的绘制
 	// @topLeft: 文本框的左上点位置

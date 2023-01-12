@@ -8,7 +8,7 @@
 class KcScatter : public KvPlottable1d
 {
 	using super_ = KvPlottable1d;
-	using super_::point_getter;
+	using super_::point_getter1;
 
 public:
 
@@ -33,7 +33,7 @@ public:
 
 private:
 
-	void drawImpl_(KvPaint*, point_getter, unsigned, unsigned) const override;
+	void drawImpl_(KvPaint*, point_getter1, unsigned, unsigned) const override;
 
 protected:
 	KpMarker marker_;
