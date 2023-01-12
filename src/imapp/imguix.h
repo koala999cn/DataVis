@@ -89,14 +89,13 @@ namespace ImGuiX
 	bool combo(const char* label, const char*(&enums)[N], int& val) {
 		bool select_changed = false;
 		if (ImGui::BeginCombo(label, enums[val])) {
-			for (unsigned i = 0; i < N; i++)
-				if (ImGui::Selectable(enums[i], i == val)) {
-					val = i;
-					select_changed = true;
-				}
+			for (unsigned i = 0; i < N; i++) {
+				if (ImGui::Selectable(enums[i], i == val)) 
+					val = i, select_changed = true;
+				if (i == val) ImGui::SetItemDefaultFocus();
+			}
 			ImGui::EndCombo();
 		}
-
 		return select_changed;
 	}
 }

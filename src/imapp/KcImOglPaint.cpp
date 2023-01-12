@@ -232,19 +232,19 @@ void KcImOglPaint::drawCircles_(point_getter fn, unsigned count, bool outline)
 
 namespace kPrivate
 {
-	template<int N>
+	template<int N, bool forceLines = false>
 	void drawPolyMarkers_(KvPaint& paint, KvPaint::point_getter fn, unsigned count, 
 		const KvPaint::point2 poly[N], float markerSize, bool outline)
 	{
 		KePrimitiveType type;
-		if constexpr (N == 2)
+		if constexpr (forceLines)
 			type = k_lines;
 		else if constexpr (N == 3)
 			type = k_triangles;
 		else if constexpr (N == 4)
 			type = k_quads;
 		else
-			type = k_polygon;
+			type = k_lines;
 
 		auto geom = std::make_shared<KtGeometryImpl<point3f, unsigned>>(type);
 		geom->reserve(count * N, 0);
@@ -284,6 +284,9 @@ void KcImOglPaint::drawTriMarkers_(point_getter fn, unsigned count, const point2
 
 void KcImOglPaint::drawMarkers(point_getter fn, unsigned count, bool outline)
 {
+	static const double SQRT_2_2 = std::sqrt(2.) / 2.;
+	static const double SQRT_3_2 = std::sqrt(3.) / 2.;
+
 	switch (markerType_)
 	{
 	case KpMarker::k_dot:
@@ -293,10 +296,10 @@ void KcImOglPaint::drawMarkers(point_getter fn, unsigned count, bool outline)
 	case KpMarker::k_square:
 	{
 		static const point2 square[] = {
-			point2(std::sqrt(2.) / 2, std::sqrt(2.) / 2),
-			point2(std::sqrt(2.) / 2,-std::sqrt(2.) / 2),
-			point2(-std::sqrt(2.) / 2,-std::sqrt(2.) / 2),
-			point2(-std::sqrt(2.) / 2,std::sqrt(2.) / 2)
+			point2(SQRT_2_2, SQRT_2_2),
+			point2(SQRT_2_2, -SQRT_2_2),
+			point2(-SQRT_2_2, -SQRT_2_2),
+			point2(-SQRT_2_2, SQRT_2_2)
 		};
 		drawQuadMarkers_(fn, count, square, outline);
 	}
@@ -314,7 +317,7 @@ void KcImOglPaint::drawMarkers(point_getter fn, unsigned count, bool outline)
 	case KpMarker::k_left:
 	{
 		static const point2 left[] = {
-			point2(-1, 0), point2(0.5, std::sqrt(3.) / 2), point2(0.5, -std::sqrt(3.) / 2)
+			point2(-1, 0), point2(0.5, SQRT_3_2), point2(0.5, -SQRT_3_2)
 		};
 		drawTriMarkers_(fn, count, left, outline);
 	}
@@ -323,7 +326,7 @@ void KcImOglPaint::drawMarkers(point_getter fn, unsigned count, bool outline)
 	case KpMarker::k_right:
 	{
 		static const point2 right[] = {
-			point2(1, 0), point2(-0.5, std::sqrt(3.) / 2), point2(-0.5, -std::sqrt(3.) / 2)
+			point2(1, 0), point2(-0.5, SQRT_3_2), point2(-0.5, -SQRT_3_2)
 		};
 		drawTriMarkers_(fn, count, right, outline);
 	}
@@ -332,7 +335,7 @@ void KcImOglPaint::drawMarkers(point_getter fn, unsigned count, bool outline)
 	case KpMarker::k_up:
 	{
 		static const point2 up[] = {
-			point2(std::sqrt(3.) / 2, 0.5f), point2(0,-1), point2(-std::sqrt(3.) / 2, 0.5f)
+			point2(SQRT_3_2, 0.5f), point2(0,-1), point2(-SQRT_3_2, 0.5f)
 		};
 		drawTriMarkers_(fn, count, up, outline);
 	}
@@ -341,9 +344,41 @@ void KcImOglPaint::drawMarkers(point_getter fn, unsigned count, bool outline)
 	case KpMarker::k_down:
 	{
 		static const point2 down[] = {
-			point2(std::sqrt(3.) / 2, -0.5f), point2(0, 1), point2(-std::sqrt(3.) / 2, -0.5f)
+			point2(SQRT_3_2, -0.5f), point2(0, 1), point2(-SQRT_3_2, -0.5f)
 		};
 		drawTriMarkers_(fn, count, down, outline);
+	}
+		break;
+
+	case KpMarker::k_cross:
+	{
+		static const point2 cross[4] = { 
+			point2(-SQRT_2_2,-SQRT_2_2),
+			point2(SQRT_2_2,SQRT_2_2),
+			point2(SQRT_2_2,-SQRT_2_2),
+			point2(-SQRT_2_2,SQRT_2_2) 
+		};
+		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, cross, markerSize_, outline);
+	}
+	    break;
+	case KpMarker::k_plus:
+	{
+		static const point2 plus[4] = { point2(-1, 0), point2(1, 0), point2(0, -1), point2(0, 1) };
+		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, plus, markerSize_, outline);
+	}
+	    break;
+
+	case KpMarker::k_asterisk:
+	{
+		static const point2 asterisk[6] = { 
+			point2(-SQRT_3_2, -0.5f), 
+			point2(SQRT_3_2, 0.5f),  
+			point2(-SQRT_3_2, 0.5f),
+			point2(SQRT_3_2, -0.5f),
+			point2(0, -1), 
+			point2(0, 1) 
+		};
+		kPrivate::drawPolyMarkers_<6>(*this, fn, count, asterisk, markerSize_, outline);
 	}
 		break;
 
