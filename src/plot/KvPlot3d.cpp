@@ -22,7 +22,10 @@ void KvPlot3d::autoProject_()
 
     auto zoom = zoom_; // 全局缩放标量，不作处理
     auto scale = paint().localToWorldV(scale_); // 有可能交换了坐标轴，此处要交换回来，否则会缩放被交换的其他坐标轴
-    auto shift = shift_; // 使用全局坐标，否则在反转和交换坐标轴的情况下，有违用户操作常识
+    paint().pushCoord(KvPaint::k_coord_world);
+    assert(shift_.z() == 0);
+    auto shift = paint().unprojectv(shift_); // 偏移使用全局坐标，否则在反转和交换坐标轴的情况下，有违用户操作常识
+    paint().popCoord();
     if (!isotropic_) {
         zoom *= 2 * radius / sqrt(3.);
         auto factor = upper - lower;
@@ -34,7 +37,7 @@ void KvPlot3d::autoProject_()
     scale *= zoom;
 
     // 先平移至AABB中心点，再缩放，再旋转，最后处理用户设定的平移
-    mat4 viewMat = mat4::buildTanslation(shift)
+    mat4 viewMat = mat4::buildTanslation(shift * scale) // NB: 若不作scale，尺寸短的坐标轴移动非常慢
         * mat4::buildRotation(orient_)
         * mat4::buildScale(scale)
         * mat4::buildTanslation(-center);

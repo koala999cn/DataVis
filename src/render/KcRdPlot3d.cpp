@@ -50,9 +50,8 @@ void KcRdPlot3d::showProperySet()
 	static const char* format = "%.3f";
 	ImGui::DragScalar("Zoom", ImGuiDataType_Double, &plot3d->zoom(), 0.01, &minVal, &maxVal, format);
 	ImGui::DragScalarN("Scale", ImGuiDataType_Double, plot3d->scale(), 3, 0.01, &minVal, &maxVal, format);
-	ImGui::DragScalarN("Shift", ImGuiDataType_Double, plot3d->shift(), 3, 
-		plot_->coord().boundingBox().width() * 0.01, 0, 0, format);
-	
+	ImGui::DragScalarN("Shift", ImGuiDataType_Double, plot3d->shift(), 2, 1, 0, 0, "%.1 px");
+
 	auto& orient = plot3d->orient();
 	mat3d<> rot;
 	orient.toRotateMatrix(rot);

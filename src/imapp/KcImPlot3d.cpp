@@ -73,13 +73,9 @@ void KcImPlot3d::handleMouseInput_()
         auto d = ImGui::GetMouseDragDelta(0);
 
         if (io.KeyShift) {
+            constexpr float shiftSpeed = 0.1f;
             auto sz = ImGui::GetWindowSize();
-            auto dx = d.x / sz.x;
-            auto dy = -d.y / sz.y; // 屏幕的y轴坐标与视图的y轴坐标反向，此处取-d.y
-
-            auto box = coord().boundingBox();
-            auto delta = box.size() * point3(dx, dy, 0);
-            shift_ += delta * 0.1f;
+            shift_ += { d.x * shiftSpeed, d.y * shiftSpeed, 0 }; // shift_为屏幕坐标，直接运算
         }
         else {          
             auto q = trackball_.steer(d.x, d.y);
