@@ -199,7 +199,7 @@ private:
 
     // 临时矩阵变量
 
-	mat4 vpMat_; // proj * view
+	mat4 vpMat_{ mat4::identity() }; // proj * view
 	mutable std::optional<mat4> mvMat_; // view * model
 	mutable std::optional<mat4> mvpMat_; // proj * view * model
 	mutable std::optional<mat4> mMatR_; // (model)-1
@@ -232,7 +232,7 @@ private:
 	bool invVpX_{ false }; // false表示从左至右为正向
 	bool invVpY_{ true }; // true表示从上至下为正向，兼容显示屏
 
-	mat4 wsMat_; // 从world到screen的转换矩阵，进一步将二次矩阵运算压减到一次
+	mat4 wsMat_{ mat4::identity() }; // 从world到screen的转换矩阵，进一步将二次矩阵运算压减到一次
 
 	// bool invAxis_[3]{ false, false, false }; // 各坐标轴的翻转状态
 };
