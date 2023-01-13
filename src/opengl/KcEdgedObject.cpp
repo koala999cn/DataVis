@@ -8,7 +8,7 @@
 KcEdgedObject::KcEdgedObject(KePrimitiveType type)
     : super_(type)
 {
-    edgeShader_ = KsShaderManager::singleton().programFlat(); // 设置缺省的edge渲染程序
+    edgeShader_ = KsShaderManager::singleton().progMono(); // 设置缺省的edge渲染程序
 }
 
 

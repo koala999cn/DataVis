@@ -40,6 +40,9 @@ public:
 	void enableAntialiasing(bool b) override { antialiasing_ = b; }
 	bool antialiasing() const override { return antialiasing_; }
 
+	void setFlatShading(bool b) override { flatShading_ = b; }
+	bool flatShading() const override { return flatShading_; }
+	
 	void beginPaint() override;
 	void endPaint() override;
 
@@ -97,6 +100,7 @@ private:
 	unsigned curClipBox_{ unsigned(-1) };
 	bool depthTest_{ false }; // ∆Ù∂Ø…Ó∂»≤‚ ‘£ø
 	bool antialiasing_{ false };
+	bool flatShading_{ false };
 
 	// [0]: viewport idx
 	// [1]: clipRect idx

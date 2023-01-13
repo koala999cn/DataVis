@@ -2,6 +2,7 @@
 #include "KvDiscreted.h"
 #include "KvContinued.h"
 #include "KcSampler.h"
+#include "KvPaint.h"
 
 
 KvPlottable::KvPlottable(const std::string_view& name)
@@ -93,6 +94,7 @@ void KvPlottable::draw(KvPaint* paint) const
 	}
 
 	assert(disc);
+	paint->setFlatShading(flatShading());
 	drawDiscreted_(paint, disc.get());
 }
 

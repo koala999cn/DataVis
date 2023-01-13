@@ -62,6 +62,8 @@ public:
 	virtual void enableAntialiasing(bool b) = 0; // 开启/关闭反走样
 	virtual bool antialiasing() const = 0; // 是否开启了反走样
 
+	virtual bool flatShading() const = 0;
+	virtual void setFlatShading(bool b) = 0;
 
 	// project local point/vector to screen point/vector
 	virtual point4 project(const point4& pt) const = 0;

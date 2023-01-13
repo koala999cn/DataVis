@@ -20,41 +20,47 @@ public:
 	using shader_ptr = std::shared_ptr<KcGlslShader>;
 	using program_ptr = std::shared_ptr<KcGlslProgram>;
 
+	// 单色顶点着色，总是flat模式
 	// 所有顶点同色，颜色值由uniform变量vColor确定
 	// attr = pos
 	// uniform = matMvp + vColor
-	shader_ptr vertexShaderFlat();
+	shader_ptr vsMono();
 
+	// 多色顶点着色，区分flat和smooth模式
 	// 各顶点异色，颜色值由attribute确定
 	// attr = pos + color
 	// uniform = matMvp
-	shader_ptr vertexShaderSmooth();
+	shader_ptr vsColor(bool flat);
 
+	// 多色+纹理顶点着色，区分flat和smooth模式
 	// attr = pos + color + uv
 	// uniform = matMvp
-	shader_ptr vertexShaderSmoothUV();
+	shader_ptr vsColorUV(bool flat);
 
+	// 单色光照着色，区分flat和smooth模式
 	// attr = pos + normal
 	// uniform = matMvp + matNormal + vColor
-	shader_ptr vertexShaderFlatLight();
+	shader_ptr vsMonoLight(bool flat);
 
-	// out-color = in-color
-	shader_ptr fragShaderFlat();
+	// 直通片段着色，out-color = in-color
+	// 区分flat和smooth模式
+	shader_ptr fsNavie(bool flat);
 
+	// 多色 + 纹理片段着色，区分flat和smooth模式
 	// out-color = in-color * tex(uv)
-	shader_ptr fragShaderSmoothUV();
+	shader_ptr fsColorUV(bool flat);
 
-	// vertexShaderFlat + fragShaderFlat
-	program_ptr programFlat();
+	// vsMono() + fsNavie(true)
+	program_ptr progMono();
 
-	// vertexShaderSmooth + fragShaderFlat
-	program_ptr programSmooth();
+	// vsColor(flat) + fsNavie(flat)
+	program_ptr progColor(bool flat);
 
-	// vertexShaderSmoothUV + fragShaderSmoothUV
-	program_ptr programSmoothUV();
+	// vsColorUV(flat) + fsColorUV(flat)
+	program_ptr progColorUV(bool flat);
 
-	// vertexShaderFlatLight + fragShaderFlat
-	program_ptr programFlatLight();
+	// vsMonoLight(flat) + fsNavie(flat)
+	program_ptr progMonoLight(bool flat);
 
 private:
 	KsShaderManager();
@@ -63,18 +69,21 @@ private:
 	KsShaderManager(const KsShaderManager&) = delete;
 	void operator=(const KsShaderManager&) = delete;
 
+	// 2个帮助函数
+	static shader_ptr createShader_(int type, const char* source, bool flat);
+	static program_ptr createProg_(program_ptr& out, const shader_ptr& vs, const shader_ptr& fs);
 
 private:
 	
-	shader_ptr vertexShaderFlat_;
-	shader_ptr vertexShaderSmooth_;
-	shader_ptr vertexShaderSmoothUV_;
-	shader_ptr vertexShaderFlatLight_;
-	shader_ptr fragShaderFlat_;
-	shader_ptr fragShaderSmoothUV_;
+	shader_ptr vsMono_;
+	shader_ptr vsColor_[2];
+	shader_ptr vsColorUV_[2];
+	shader_ptr vsMonoLight_[2];
+	shader_ptr fsNavie_[2];
+	shader_ptr fsColorUV_[2];
 
-	program_ptr progFlat_; 
-	program_ptr progSmooth_;
-	program_ptr progSmoothUV_; 
-	program_ptr progFlatLight_;
+	program_ptr progMono_;
+	program_ptr progColor_[2];
+	program_ptr progColorUV_[2]; 
+	program_ptr progMonoLight_[2];
 };

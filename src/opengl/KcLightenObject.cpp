@@ -8,7 +8,7 @@
 KcLightenObject::KcLightenObject(KePrimitiveType type)
     : super_(type)
 {
-    prog_ = KsShaderManager::singleton().programFlatLight();
+    prog_ = KsShaderManager::singleton().progMonoLight(false); // TODO: flat shading ?
 }
 
 

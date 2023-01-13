@@ -538,9 +538,9 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 
 	if (obj->shader() == nullptr) { // 自动设置shader
 		if (!obj->vertexDecl()->hasColor())
-			obj->setShader(KsShaderManager::singleton().programFlat());
+			obj->setShader(KsShaderManager::singleton().progMono());
 		else
-			obj->setShader(KsShaderManager::singleton().programSmooth());
+			obj->setShader(KsShaderManager::singleton().progColor(flatShading()));
 	}
 
 	currentRenderList().objs.emplace_back(obj);
@@ -631,7 +631,7 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
 	if (!rl.texts.empty()) {
 		auto obj = new KcRenderObject(k_quads);
-		obj->setShader(KsShaderManager::singleton().programSmoothUV());
+		obj->setShader(KsShaderManager::singleton().progColorUV(false)); // 文字渲染始终使用flat模式
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);

@@ -16,16 +16,16 @@ KsShaderManager::~KsShaderManager()
 }
 
 
-KsShaderManager::shader_ptr KsShaderManager::vertexShaderFlat()
+KsShaderManager::shader_ptr KsShaderManager::vsMono()
 {
-	const static char* vertex_shader_flat =
+	const static char* vertex_shader_mono =
 		"uniform mat4 matMvp;\n"
 		"uniform vec4 vColor;\n"
 		"uniform int  iEnableClip;\n"
 		"uniform vec3 vClipLower;\n"
 		"uniform vec3 vClipUpper;\n"	
 		"in vec3 iPosition;\n"
-		"out vec4 Frag_Color;\n"
+		"flat out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
@@ -41,26 +41,26 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderFlat()
 		"    }\n"
 		"}\n";
 
-	if (vertexShaderFlat_ == nullptr) {
-		vertexShaderFlat_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_flat);
-		auto info = vertexShaderFlat_->infoLog();
-		assert(vertexShaderFlat_->compileStatus());
+	if (vsMono_ == nullptr) {
+		vsMono_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_mono);
+		auto info = vsMono_->infoLog();
+		assert(vsMono_->compileStatus());
 	}
 
-	return vertexShaderFlat_;
+	return vsMono_;
 }
 
 
-KsShaderManager::shader_ptr KsShaderManager::vertexShaderSmooth()
+KsShaderManager::shader_ptr KsShaderManager::vsColor(bool flat)
 {
-	const static char* vertex_shader_smooth =
+	const static char* vertex_shader_color =
+		"out vec4 Frag_Color;\n"
 		"uniform mat4 matMvp;\n"
 		"uniform int  iEnableClip;\n"
 		"uniform vec3 vClipLower;\n"
 		"uniform vec3 vClipUpper;\n"
 		"in vec3 iPosition;\n"
 		"in vec4 iColor;\n"
-		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
@@ -76,25 +76,25 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderSmooth()
 		"    }\n"
 		"}\n";
 
-	if (vertexShaderSmooth_ == nullptr) {
-		vertexShaderSmooth_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_smooth);
-		auto info = vertexShaderSmooth_->infoLog();
-		assert(vertexShaderSmooth_->compileStatus());
+	if (vsColor_[flat] == nullptr) {
+		vsColor_[flat] = createShader_(KcGlslShader::k_shader_vertex, vertex_shader_color, flat);
+		auto info = vsColor_[flat]->infoLog();
+		assert(vsColor_[flat]->compileStatus());
 	}
 
-	return vertexShaderSmooth_;
+	return vsColor_[flat];
 }
 
 
-KsShaderManager::shader_ptr KsShaderManager::vertexShaderSmoothUV()
+KsShaderManager::shader_ptr KsShaderManager::vsColorUV(bool flat)
 {
-	const static char* vertex_shader_smooth_uv =
+	const static char* vertex_shader_color_uv =
+		"out vec4 Frag_Color;\n"
+		"out vec2 Frag_UV;\n"
 		"uniform mat4 matMvp;\n"
 		"layout (location = 0) in vec3 iPosition;\n"
 		"layout (location = 1) in vec2 iUV;\n"
 		"layout (location = 2) in vec4 iColor;\n"
-		"out vec2 Frag_UV;\n"
-		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
@@ -102,19 +102,20 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderSmoothUV()
 		"    Frag_Color = iColor;\n"
 		"}\n";
 
-	if (vertexShaderSmoothUV_ == nullptr) {
-		vertexShaderSmoothUV_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_smooth_uv);
-		auto info = vertexShaderSmoothUV_->infoLog();
-		assert(vertexShaderSmoothUV_->compileStatus());
+	if (vsColorUV_[flat] == nullptr) {
+		vsColorUV_[flat] = createShader_(KcGlslShader::k_shader_vertex, vertex_shader_color_uv, flat);
+		auto info = vsColorUV_[flat]->infoLog();
+		assert(vsColorUV_[flat]->compileStatus());
 	}
 
-	return vertexShaderSmoothUV_;
+	return vsColorUV_[flat];
 }
 
 
-KsShaderManager::shader_ptr KsShaderManager::vertexShaderFlatLight()
+KsShaderManager::shader_ptr KsShaderManager::vsMonoLight(bool flat)
 {
-	const static char* vertex_shader_flat_light =
+	const static char* vertex_shader_mono_light =
+		"out vec4 Frag_Color;\n"
 		"uniform mat4 matMvp;\n"
 		"uniform mat4 matNormal;\n"
 		"uniform vec4 vColor;\n"
@@ -123,7 +124,6 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderFlatLight()
 		"uniform vec3 vClipUpper;\n"
 		"in vec3 iPosition;\n"
 		"in vec3 iNormal;\n"
-		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
@@ -143,106 +143,104 @@ KsShaderManager::shader_ptr KsShaderManager::vertexShaderFlatLight()
 		"    }\n"
 		"}\n";
 
-	if (vertexShaderFlatLight_ == nullptr) {
-		vertexShaderFlatLight_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_flat_light);
-		auto info = vertexShaderFlatLight_->infoLog();
-		assert(vertexShaderFlatLight_->compileStatus());
+	if (vsMonoLight_[flat] == nullptr) {
+		vsMonoLight_[flat] = createShader_(KcGlslShader::k_shader_vertex, vertex_shader_mono_light, flat);
+		auto info = vsMonoLight_[flat]->infoLog();
+		assert(vsMonoLight_[flat]->compileStatus());
 	}
 
-	return vertexShaderFlatLight_;
+	return vsMonoLight_[flat];
 }
 
 
-KsShaderManager::shader_ptr KsShaderManager::fragShaderFlat()
+KsShaderManager::shader_ptr KsShaderManager::fsNavie(bool flat)
 {
-	const static char* frag_shader_flat =
-		"varying vec4 Frag_Color;\n"
+	const static char* frag_shader_navie =
+		"in vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_FragColor = Frag_Color;\n"
 		"}\n";
 
-	if (fragShaderFlat_ == nullptr) {
-		fragShaderFlat_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_fragment, frag_shader_flat);
-		assert(fragShaderFlat_->compileStatus());
+	if (fsNavie_[flat] == nullptr) {
+		fsNavie_[flat] = createShader_(KcGlslShader::k_shader_fragment, frag_shader_navie, flat);
+		assert(fsNavie_[flat]->compileStatus());
 	}
 
-	return fragShaderFlat_;
+	return fsNavie_[flat];
 }
 
 
-KsShaderManager::shader_ptr KsShaderManager::fragShaderSmoothUV()
+KsShaderManager::shader_ptr KsShaderManager::fsColorUV(bool flat)
 {
-	const static char* frag_shader_smooth_uv =
-	    "uniform sampler2D Texture;\n"
-		"varying vec2 Frag_UV;\n"
-		"varying vec4 Frag_Color;\n"
+	const static char* frag_shader_color_uv =
+		"in vec4 Frag_Color;\n"
+		"in vec2 Frag_UV;\n"
+	    "uniform sampler2D Texture;\n"	
 		"void main()\n"
 		"{\n"
 		"    gl_FragColor = Frag_Color * texture2D(Texture, Frag_UV.st);\n"
 		"}\n";
 
-	if (fragShaderSmoothUV_ == nullptr) {
-		fragShaderSmoothUV_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_fragment, frag_shader_smooth_uv);
-		assert(fragShaderSmoothUV_->compileStatus());
+	if (fsColorUV_[flat] == nullptr) {
+		fsColorUV_[flat] = createShader_(KcGlslShader::k_shader_fragment, frag_shader_color_uv, flat);
+		assert(fsColorUV_[flat]->compileStatus());
 	}
 
-	return fragShaderSmoothUV_;
+	return fsColorUV_[flat];
 }
 
 
-KsShaderManager::program_ptr KsShaderManager::programFlat()
+KsShaderManager::program_ptr KsShaderManager::progMono()
 {
-	if (progFlat_ == nullptr) {
-		progFlat_ = std::make_shared<KcGlslProgram>();
-		progFlat_->attachShader(vertexShaderFlat());
-		progFlat_->attachShader(fragShaderFlat());
-		progFlat_->link();
-		assert(progFlat_->linked() && progFlat_->linkStatus());
-	}
-
-	return progFlat_;
+	return createProg_(progMono_, vsMono(), fsNavie(true));
 }
 
 
-KsShaderManager::program_ptr KsShaderManager::programSmooth()
+KsShaderManager::program_ptr KsShaderManager::progColor(bool flat)
 {
-	if (progSmooth_ == nullptr) {
-		progSmooth_ = std::make_shared<KcGlslProgram>();
-		progSmooth_->attachShader(vertexShaderSmooth());
-		progSmooth_->attachShader(fragShaderFlat());
-		progSmooth_->link();
-		assert(progSmooth_->linked() && progSmooth_->linkStatus());
-	}
-
-	return progSmooth_;
+	return createProg_(progColor_[flat], vsColor(flat), fsNavie(flat));
 }
 
 
-KsShaderManager::program_ptr KsShaderManager::programSmoothUV()
+KsShaderManager::program_ptr KsShaderManager::progColorUV(bool flat)
 {
-	if (progSmoothUV_ == nullptr) {
-		progSmoothUV_ = std::make_shared<KcGlslProgram>();
-		progSmoothUV_->attachShader(vertexShaderSmoothUV());
-		progSmoothUV_->attachShader(fragShaderSmoothUV());
-		progSmoothUV_->link();
-		assert(progSmoothUV_->linked() && progSmoothUV_->linkStatus());
-	}
-
-	return progSmoothUV_;
+	return createProg_(progColorUV_[flat], vsColorUV(flat), fsColorUV(flat));
 }
 
 
-KsShaderManager::program_ptr KsShaderManager::programFlatLight()
+KsShaderManager::program_ptr KsShaderManager::progMonoLight(bool flat)
 {
-	if (progFlatLight_ == nullptr) {
-		progFlatLight_ = std::make_shared<KcGlslProgram>();
-		progFlatLight_->attachShader(vertexShaderFlatLight());
-		progFlatLight_->attachShader(fragShaderFlat());
-		progFlatLight_->link();
-		auto info = progFlatLight_->infoLog();
-		assert(progFlatLight_->linked() && progFlatLight_->linkStatus());
+	return createProg_(progMonoLight_[flat], vsMonoLight(flat), fsNavie(flat));
+}
+
+
+KsShaderManager::shader_ptr KsShaderManager::createShader_(int type, const char* source, bool flat)
+{
+	shader_ptr shader;
+
+	if (flat) { // flat模式下，增加flat关键字
+		std::string src("flat ");
+		src += source;
+		shader = std::make_shared<KcGlslShader>(KcGlslShader::KeType(type), src);
+	}
+	else {
+		shader = std::make_shared<KcGlslShader>(KcGlslShader::KeType(type), source);
 	}
 
-	return progFlatLight_;
+	return shader;
+}
+
+
+KsShaderManager::program_ptr KsShaderManager::createProg_(program_ptr& out, const shader_ptr& vs, const shader_ptr& fs)
+{
+	if (out == nullptr) {
+		out = std::make_shared<KcGlslProgram>();
+		out->attachShader(vs);
+		out->attachShader(fs);
+		out->link();
+		assert(out->linked() && out->linkStatus());
+	}
+
+	return out;
 }
