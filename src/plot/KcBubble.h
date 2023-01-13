@@ -16,8 +16,6 @@ public:
 
 	using super_::super_;
 
-	unsigned majorColorsNeeded() const override;
-
 protected:
 	using point_getter1 = typename KvPlottable1d::point_getter1;
 	virtual void drawImpl_(KvPaint*, point_getter1, unsigned count, unsigned channels) const final;
@@ -29,7 +27,4 @@ private:
 	// 根据value的大小，对bubble的尺寸进行插值
 	bool radiusAsSize_{ false }; // true表示按半径插值，否则按面积插值
 	float sizeLower_{ 3 }, 	sizeUpper_{ 33 }; // 尺寸插值范围
-
-	bool enableSizeInterp_{ true }; // 启用大小插值
- 	bool enableColorInterp_{ false }; // 启用颜色插值
 };

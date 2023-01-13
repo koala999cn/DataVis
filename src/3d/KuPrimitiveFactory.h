@@ -23,7 +23,7 @@ public:
 
 	// 生成box的quads索引，返回生成的索引数
 	// @obuf: 输出缓存，可为null
-	template<typename IDX_TYPE = unsigned, bool CCW = false>
+	template<typename IDX_TYPE = std::uint32_t, bool CCW = false>
 	static int indexBox(IDX_TYPE* obuf);
 
 	// 生成grid的quads索引，返回生成的索引数
@@ -35,7 +35,7 @@ public:
 	// ...
 	// (nx-1)*ny, ..., nx*ny-1
 	//
-	template<typename IDX_TYPE = unsigned, bool CCW = false>
+	template<typename IDX_TYPE = std::uint32_t, bool CCW = false>
 	static int indexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf);
 
 	// 构建10点circle

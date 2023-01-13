@@ -3,12 +3,6 @@
 #include "KvDiscreted.h"
 
 
-unsigned KcBubble::majorColorsNeeded() const
-{
-	return enableColorInterp_ ? super_::majorColorsNeeded() : 1;
-}
-
-
 float KcBubble::mapValueToSize_(float_t val) const
 {
 	auto vrange = data()->valueRange();
@@ -24,20 +18,20 @@ float KcBubble::mapValueToSize_(float_t val) const
 }
 
 
-void KcBubble::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned chs) const
+void KcBubble::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned ch) const
 {
-	paint->setMarkerType(KpMarker::k_circle);
+	paint->apply(marker());
+	paint->setMarkerType(KpMarker::k_circle); // 始终用circle类型绘制气泡图
 
-	if (!enableColorInterp_)
+	if (coloringMode() == k_one_color_solid)
 		paint->setColor(majorColor(0));
 
 	for (unsigned i = 0; i < count; i++) {
 		auto pt = getter(i);
-		auto val = pt[data()->dim()];
-		if (enableSizeInterp_)
-			paint->setMarkerSize(mapValueToSize_(val));
-		//if (enableColorInterp_)
-		//	paint->setColor(mapValueToColor_(val));
+		auto val = pt[data()->dim()]; // TODO: 尺寸插值的数据维度可配置
+		paint->setMarkerSize(mapValueToSize_(val));
+		if (coloringMode() != k_one_color_solid)
+			paint->setColor(mapValueToColor_(val, ch));
 		
 		paint->drawMarker({ pt[0], pt[1], pt[2] });
 	}

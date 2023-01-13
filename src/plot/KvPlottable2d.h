@@ -34,17 +34,18 @@ protected:
 
 private:
 
-	// useDefaultZ为true时调用， 退化为在x-y平面绘制colormap图（使用缺省z值）
+	// useDefaultZ为true时调用， 绘制二维的colormap图（使用缺省z值）
 	// 使用最高维度的数据值进行颜色插值
 	void draw1d_(KvPaint*, KvSampled*) const;
 
-	// useDefaultZ为false时调用， 在3维空间绘制colormap图
+	// useDefaultZ为false时调用， 绘制三维的colormap图
 	// 使用最高维度的数据值进行颜色插值
 	void draw2d_(KvPaint*, KvSampled*) const;
 
 private:
 
-	bool useDefaultZ_{ false };
+	// 该标记为真时，将用默认Z值替换原来的z值，可用来在3d空间绘制二维的colormap图
+	bool useDefaultZ_{ false }; 
 
 	bool showBorder_{ false };
 	KpPen borderPen_;
