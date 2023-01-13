@@ -84,7 +84,10 @@ public:
 
 	void draw(KvPaint*) const override;
 
+	// 返回局部坐标的aabb
 	aabb_t boundingBox() const override;
+
+	aabb_t extentsInWorld() const;
 
 private:
 

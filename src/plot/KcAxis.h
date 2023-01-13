@@ -99,6 +99,7 @@ public:
 	void setEnd(const point3& v) { end_ = v; }
 	void setEnd(float_t x, float_t y, float_t z) { end_ = point3(x, y, z); }
 
+	// NB: st, ed均为局部（原始）坐标，不考虑交换和反转
 	void setExtent(const point3& st, const point3& ed) {
 		start_ = st, end_ = ed;
 	}
@@ -175,7 +176,7 @@ public:
 	KpTextContext& labelContext() { return labelCxt_; }
 
 
-	// NB：布局之后（即调用calcSize之后），该函数才能返回有效值
+	// NB：局部坐标
 	aabb_t boundingBox() const override {
 		return box_; 
 	}
@@ -207,7 +208,9 @@ private:
 
 	vec3 outsideOrient_(KvPaint*) const;
 	vec3 insideOrient_(KvPaint*) const;
-	vec3 axisOrient_() const;
+
+	// 返回局部（原始）坐标系下的坐标轴矢量，不考虑交换和反转
+	vec3 axisOrient_() const; 
 
 	// 计算在世界坐标方向o上，1个屏幕单位（即1像素）相当于多少世界单位
 	static float_t orientScale_(KvPaint*, const vec3& o);

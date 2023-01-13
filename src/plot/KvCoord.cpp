@@ -48,6 +48,7 @@ void KvCoord::resetAxisExtent_(KcAxis& axis, bool swap) const
 	int lpos[3] = { loc[0][0], loc[0][1], loc[0][2] };
 	int upos[3] = { loc[1][0], loc[1][1], loc[1][2] };
 	if (swap) {
+		assert(false); // NB: 坐标轴的extent始终使用局部坐标，不考虑交换
 		auto d = dimOthers[axis.dim()];
 		std::swap(lpos[d[0]], lpos[d[1]]);
 		std::swap(upos[d[0]], upos[d[1]]);
@@ -136,13 +137,19 @@ KvCoord::aabb_t KvCoord::boundingBox() const
 {
 	aabb_t box(lower(), upper());
 
-	// NB: 增加axis的aabb之后，会影响投影矩阵的设置
-	// NB: 此外，很多其他对方对KvCoord::boundingBox的语义认知都是{ lower, upper }
-	//forAxis([&box](KcAxis& axis) {
-	//	if (axis.visible())
-	//		box.merge(axis.boundingBox());
-	//	return true;
-	//	});
+	forAxis([&box](KcAxis& axis) {
+		if (axis.visible())
+			box.merge(axis.boundingBox());
+		return true;
+		});
+
+	return box;
+}
+
+
+KvCoord::aabb_t KvCoord::extentsInWorld() const
+{
+	aabb_t box(lower(), upper());
 
 	auto& l = box.lower();
 	auto& u = box.upper();

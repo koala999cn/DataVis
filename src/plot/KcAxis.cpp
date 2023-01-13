@@ -50,7 +50,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// NB: 无论calcBox是否为true，都须重新计算box_
 	// 因为计算布局（calcBox为true）和真实绘制（calcBox为false）时，
 	// 变化矩阵堆栈可能不同，特别是后者可能新压入了scale矩阵，
-	// 这就到这前期计算的box_和其他与世界坐标相关的长度和位置不可用
+	// 这导致前期计算的box_和其他与世界坐标相关的长度和位置不可用
 	box_.setExtents(point3(0), point3(0));
 
 	// draw baseline
@@ -65,7 +65,6 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 
 	auto realShowTitle = showTitle() && !title().empty();
 
-	// tickOrient_和labelOrient_只计算一次
 	if (realShowTitle || showTick() || showLabel()) {
 		//if (calcBox) {
 			calcTickOrient_(paint);
@@ -110,11 +109,11 @@ KcAxis::vec3 KcAxis::outsideOrient_(KvPaint* paint) const
 		KcAxis::vec3::unitX()   // k_ceil_right
 	};
 
-	auto o = outsideOrient[typeReal()];
+	auto o = outsideOrient[type()]; // 原始（局部）坐标系下的矢量方向，不使用typeReal()
 
 	// NB: 自由坐标轴在绘制的时候可能local为空，但在updateLayout的时候，local变换阵仍然存在，所以此处作一判断
-	if (dimReal_ != -1) // dimReal_ == -1代表自由坐标轴，它始终使用世界坐标，不变换
-	    o = paint->worldToLocalV(o); // 处理坐标轴交换
+	//if (dimReal_ != -1) // dimReal_ == -1代表自由坐标轴，它始终使用世界坐标，不变换
+	//   o = paint->localToWorldV(o); // 考虑坐标轴交换情况
 
 	if (paint->currentCoord() == KvPaint::k_coord_screen ||
 		paint->currentCoord() == KvPaint::k_coord_local_screen)
@@ -333,8 +332,10 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 
 	draw_(paint, true);
 
+	// 局部坐标转换到屏幕坐标，以方便计算留白的像素值
 	aabb_t ibox(paint->projectp(start()), paint->projectp(end()));
 	aabb_t obox(paint->projectp(box_.lower()), paint->projectp(box_.upper()));
+
 	auto l = ibox.lower() - obox.lower();
 	auto u = obox.upper() - ibox.upper();
 

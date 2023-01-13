@@ -21,6 +21,8 @@ public:
 
 	virtual void draw(KvPaint*) const = 0;
 
+	// 统一语义：返回的aabb为物体局部坐标
+	// NB: this可能并不知道如何转换到世界坐标，所以统一返回局部坐标
 	virtual aabb_t boundingBox() const = 0;
 
 private:
