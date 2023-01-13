@@ -2,8 +2,9 @@
 #include "plot/KvPaint.h"
 
 
-void KcScatter::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned) const
+void KcScatter::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned ch) const
 {
+	marker_.fill = majorColor(ch);
 	paint->apply(marker_);
 	
 	bool outline = marker_.showOutline && marker_.hasOutline()
@@ -12,38 +13,7 @@ void KcScatter::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, 
 }
 
 
-unsigned KcScatter::majorColorsNeeded() const
-{
-	return 1;
-}
-
-
-bool KcScatter::minorColorNeeded() const
-{
-	return marker_.hasOutline() && marker_.showOutline;
-}
-
-
-unsigned KcScatter::majorColors() const
-{
-	return 1;
-}
-
-
-color4f KcScatter::majorColor(unsigned idx) const
-{
-	return marker_.fill;
-}
-
-
-void KcScatter::setMajorColors(const std::vector<color4f>& majors)
-{
-	assert(majors.size() == 1);
-	marker_.fill = majors.front();
-}
-
-
-color4f KcScatter::minorColor() const
+const color4f& KcScatter::minorColor() const
 {
 	return marker_.outline;
 }

@@ -755,6 +755,8 @@ void KcImOglPaint::drawRenderList_()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST); // 与depthTest的初值对应
+	if (glProvokingVertex)
+	    glProvokingVertex(GL_FIRST_VERTEX_CONVENTION); // 使用第1个顶点作为flat着色模式下面片的颜色
 
 	if (antialiasing()) {
 		glEnable(GL_POINT_SMOOTH);
@@ -763,7 +765,6 @@ void KcImOglPaint::drawRenderList_()
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-		//glShadeModel(GL_SMOOTH);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
@@ -771,7 +772,6 @@ void KcImOglPaint::drawRenderList_()
 		glDisable(GL_POINT_SMOOTH);
 		glDisable(GL_LINE_SMOOTH);
 		glDisable(GL_POLYGON_SMOOTH);
-		//glShadeModel(GL_FLAT);
 	}
 
 	unsigned viewport(-1), clipRect(-1), clipBox(-2);

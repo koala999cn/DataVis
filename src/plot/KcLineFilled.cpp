@@ -12,6 +12,7 @@ void KcLineFilled::drawImpl_(KvPaint* paint, point_getter1 getter1, unsigned cou
 		return pt;
 	};
 
+	fillCxt_.color = majorColor(ch);
 	paint->apply(fillCxt_);
 
 	if (count > 4096) { // TODO：使用降采样算法
@@ -25,38 +26,7 @@ void KcLineFilled::drawImpl_(KvPaint* paint, point_getter1 getter1, unsigned cou
 }
 
 
-unsigned KcLineFilled::majorColorsNeeded() const
-{
-	return 1;
-}
-
-
-bool KcLineFilled::minorColorNeeded() const
-{
-	return true;
-}
-
-
-unsigned KcLineFilled::majorColors() const
-{
-	return 1;
-}
-
-
-color4f KcLineFilled::majorColor(unsigned idx) const
-{
-	return fillCxt_.color;
-}
-
-
-void KcLineFilled::setMajorColors(const std::vector<color4f>& majors)
-{
-	assert(majors.size() == 1);
-	fillCxt_.color = majors.front();
-}
-
-
-color4f KcLineFilled::minorColor() const
+const color4f& KcLineFilled::minorColor() const
 {
 	return lineCxt_.color;
 }

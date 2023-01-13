@@ -35,7 +35,7 @@ KcHeatMap::aabb_t KcHeatMap::boundingBox() const
 }
 
 
-void KcHeatMap::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, unsigned ny, unsigned channels) const
+void KcHeatMap::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, unsigned ny, unsigned ch) const
 {
 	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
 	auto dx = disc->step(0);
@@ -50,7 +50,7 @@ void KcHeatMap::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, uns
 
 	for (unsigned i = 0; i < disc->size(); i++) {
 		auto pt = disc->pointAt(i, 0);
-		paint->setColor(mapValueToColor_(pt.back()));
+		paint->setColor(mapValueToColor_(pt.back(), ch));
 		paint->fillRect({ pt[0] - half_dx, pt[1] - half_dy, 0 },
 			{ pt[0] + half_dx, pt[1] + half_dy, 0 });
 	}

@@ -737,7 +737,11 @@ void KvRdPlot::showPlottableProperty_()
 			}
 
 			if (open) {
+
 				showPlottableTypeProperty_(idx);
+
+				// TODO: 此处不可直接传递plt，否则变换plottable类型时，将会引用失效的plt
+				showPlottableColoringProperty_(idx);
 				showPlottableSampCountProperty_(idx);
 				showPlottableSpecificProperty_(idx);
 				ImGuiX::cbiTreePop();
@@ -769,8 +773,8 @@ void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 				for (unsigned c = 0; c < majorColors.size(); c++)
 					majorColors[c] = oldPlt->majorColor(c);
 				newPlt->setMajorColors(majorColors);
-				if (newPlt->minorColorNeeded() && oldPlt->minorColorNeeded())
-					newPlt->setMinorColor(oldPlt->minorColor());
+				if (oldPlt->minorColor().isValid())
+				    newPlt->setMinorColor(oldPlt->minorColor());
 
 				// clone the data
 				newPlt->setData(oldPlt->data());
@@ -786,6 +790,31 @@ void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 		}
 
 		ImGui::EndCombo();
+	}
+}
+
+
+void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
+{
+	static const char* modeNames[] = {
+		"one-color solid",
+		"one-color gradiant",
+		"two-color gradiant",
+		"colorbar gradiant",
+	};
+
+	auto plt = plot_->plottableAt(idx);
+	int mode = plt->coloringMode();
+	if (ImGuiX::combo("Coloring Mode", modeNames, mode))
+		plt->setColoringMode(KvPlottable::KeColoringMode(mode));
+	
+	if (mode != KvPlottable::k_one_color_solid) {
+		ImGui::Checkbox("Flat Shading", &plt->flatShading());
+
+		auto& r = plt->colorMappingRange();
+		float low = r.first, high = r.second;
+		if (ImGui::DragFloatRange2("Color Mapping Range", &low, &high))
+			r.first = low, r.second = high;
 	}
 }
 

@@ -481,8 +481,7 @@ void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 			plot->applyMajorColors(i, clrs);
 		}
 
-		if (plot->minorColorNeeded(i))
-			plot->applyMinorColor(i, minors.front());
+		plot->applyMinorColor(i, minors.front());
 	}
 }
 

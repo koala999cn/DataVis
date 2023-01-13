@@ -16,17 +16,7 @@ public:
 
 	aabb_t boundingBox() const override;
 
-	unsigned majorColorsNeeded() const override;
-
-	bool minorColorNeeded() const override;
-
-	unsigned majorColors() const override;
-
-	color4f majorColor(unsigned idx) const override;
-
-	void setMajorColors(const std::vector<color4f>& majors) override;
-
-	color4f minorColor() const override;
+	const color4f& minorColor() const override;
 
 	void setMinorColor(const color4f& minor) override;
 
@@ -53,7 +43,7 @@ protected:
 
 protected:
 	KpPen border_;
-	KpBrush fill_;
+	mutable KpBrush fill_;
 	float barWidthRatio_{ 0.5f };
 	float baseLine_{ 0 }; // barµÄµ×Ïß
 };

@@ -35,7 +35,6 @@ public:
 
 	unsigned plottableCount() const override;
 	unsigned majorColorsNeeded(unsigned plottableIdx) const override;
-	bool minorColorNeeded(unsigned plottableIdx) const override;
 	void applyMajorColors(unsigned plottableIdx, const std::vector<color4f>& majors) override;
 	void applyMinorColor(unsigned plottableIdx, const color4f& minor) override;
 

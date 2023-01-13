@@ -58,17 +58,9 @@ KvPlottable* KcRdPlot2d::newPlottable_(int iType, const std::string& name)
 void KcRdPlot2d::onInput(KcPortNode* outPort, unsigned inPort)
 {
     super_::onInput(outPort, inPort);
-    if (plot_->autoFit()) {
-        for (unsigned i = 0; i < plot_->plottableCount(); i++) {
-            auto plt = dynamic_cast<KvPlottable2d*>(plot_->plottableAt(i));
-            if (plt) {
-                auto d = plt->data();
-                auto r = d->valueRange();
-                plt->mapLower() = r.low();
-                plt->mapUpper() = r.high();
-            }
-        }
-    }
+    if (plot_->autoFit()) 
+        for (unsigned i = 0; i < plot_->plottableCount(); i++)
+            plot_->plottableAt(i)->fitColorMappingRange();
 }
 
 
@@ -89,10 +81,8 @@ namespace kPrivate
         auto cmap = dynamic_cast<KvPlottable2d*>(plt);
         assert(cmap);
 
-        ImGui::DragFloatRange2("Map Range", &cmap->mapLower(), &cmap->mapUpper());
-
         bool open(false);
-        ImGuiX::cbTreePush("Border", &cmap->showBorder(), &open);
+        ImGuiX::cbTreePush("Edge", &cmap->showBorder(), &open);
         if (open) {
             ImGuiX::pen(cmap->borderPen(), true);
             ImGuiX::cbTreePop();

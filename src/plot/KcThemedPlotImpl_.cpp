@@ -195,12 +195,6 @@ unsigned KcThemedPlotImpl_::majorColorsNeeded(unsigned idx) const
 }
 
 
-bool KcThemedPlotImpl_::minorColorNeeded(unsigned idx) const
-{
-    return plot_.plottableAt(idx)->minorColorNeeded();
-}
-
-
 void KcThemedPlotImpl_::applyMajorColors(unsigned idx, const std::vector<color4f>& majors)
 {
     plot_.plottableAt(idx)->setMajorColors(majors);

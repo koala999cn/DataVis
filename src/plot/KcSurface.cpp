@@ -23,7 +23,7 @@ void KcSurface::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, uns
 			auto pt = getter(i, j);
 			assert(pt.size() > 2);
 			vtxBuf->pos = point3f(pt[0], pt[1], pt[2]);
-			vtxBuf->clr = mapValueToColor_(pt.back()); // TODO: 可以选择色彩插值的维度
+			vtxBuf->clr = mapValueToColor_(pt.back(), ch); // TODO: 可以选择色彩插值的维度
 			++vtxBuf;
 		}
 

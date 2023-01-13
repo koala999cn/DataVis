@@ -11,12 +11,13 @@ KcBars2d::KcBars2d(const std::string_view& name)
 }
 
 
-void KcBars2d::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned) const
+void KcBars2d::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned ch) const
 {
 	auto barWidth = barWidth_();
-	bool drawFill = fill_.style != KpBrush::k_none && majorColor(0).a() != 0;
-	bool drawBorder = border_.style != KpPen::k_none && minorColor().a() != 0 && minorColor() != majorColor(0);
-
+	fill_.color = majorColor(ch);
+	bool drawFill = fill_.visible();
+	bool drawBorder = border_.visible() && border_.color != fill_.color;
+	
 	for (unsigned i = 0; i < count; i++) {
 		auto pt0 = getter(i);
 		pt0.x() -= barWidth * 0.5;
@@ -71,38 +72,7 @@ KcBars2d::aabb_t KcBars2d::boundingBox() const
 }
 
 
-unsigned KcBars2d::majorColorsNeeded() const
-{
-	return 1;
-}
-
-
-bool KcBars2d::minorColorNeeded() const
-{
-	return true;
-}
-
-
-unsigned KcBars2d::majorColors() const
-{
-	return 1;
-}
-
-
-color4f KcBars2d::majorColor(unsigned idx) const
-{
-	return fill_.color;
-}
-
-
-void KcBars2d::setMajorColors(const std::vector<color4f>& majors)
-{
-	assert(majors.size() == 1);
-	fill_.color = majors.front();
-}
-
-
-color4f KcBars2d::minorColor() const
+const color4f& KcBars2d::minorColor() const
 {
 	return border_.color;
 }

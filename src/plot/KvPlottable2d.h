@@ -1,7 +1,6 @@
 #pragma once
 #include "KvPlottable.h"
 #include "KvPaint.h"
-#include "KtGradient.h"
 
 class KvSampled;
 
@@ -14,27 +13,11 @@ class KvPlottable2d : public KvPlottable
 
 public:
 
-	KvPlottable2d(const std::string_view& name);
+	using super_::super_;
 
-	unsigned majorColorsNeeded() const override;
-
-	unsigned majorColors() const override;
-
-	color4f majorColor(unsigned idx) const override;
-
-	void setMajorColors(const std::vector<color4f>& majors) override;
-
-	bool minorColorNeeded() const override;
-
-	color4f minorColor() const override;
+	const color4f& minorColor() const override;
 
 	void setMinorColor(const color4f& minor) override;
-
-	float mapLower() const { return mapLower_; }
-	float& mapLower() { return mapLower_; }
-
-	float mapUpper() const { return mapUpper_; }
-	float& mapUpper() { return mapUpper_; }
 
 	bool showBorder() const { return showBorder_; }
 	bool& showBorder() { return showBorder_; }
@@ -48,8 +31,6 @@ protected:
 
 	using point_getter2 = typename KvPaint::point_getter2;
 	virtual void drawImpl_(KvPaint*, point_getter2, unsigned nx, unsigned ny, unsigned channels) const = 0;
-
-	virtual color4f mapValueToColor_(float_t val) const;
 
 private:
 
@@ -67,8 +48,4 @@ private:
 
 	bool showBorder_{ false };
 	KpPen borderPen_;
-
-	float mapLower_{ 0 }, mapUpper_{ 1 }; // color mapµÄÖµÓò·¶Î§
-
-	KtGradient<float_t, color4f> mapper_;
 };

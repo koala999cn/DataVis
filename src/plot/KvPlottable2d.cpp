@@ -1,52 +1,8 @@
 #include "KvPlottable2d.h"
-#include "KvDiscreted.h"
 #include "KvSampled.h"
 
 
-KvPlottable2d::KvPlottable2d(const std::string_view& name)
-	: super_(name)
-{
-	mapper_.setAt(0, color4f(0, 0, 0, 1));
-	mapper_.setAt(1, color4f(1, 1, 1, 1));
-}
-
-
-unsigned KvPlottable2d::majorColorsNeeded() const
-{
-	return -1;
-}
-
-
-unsigned KvPlottable2d::majorColors() const
-{
-	return mapper_.numStops();
-}
-
-
-color4f KvPlottable2d::majorColor(unsigned idx) const
-{
-	return mapper_.stopAt(idx).second;
-}
-
-
-void KvPlottable2d::setMajorColors(const std::vector<color4f>& majors)
-{
-	mapper_.reset();
-
-	std::vector<float_t> vals(majors.size());
-	KtuMath<float_t>::linspace(0, 1, 0, vals.data(), majors.size());
-	for (unsigned i = 0; i < majors.size(); i++)
-		mapper_.setAt(vals[i], majors[i]);
-}
-
-
-bool KvPlottable2d::minorColorNeeded() const
-{
-	return 1;
-}
-
-
-color4f KvPlottable2d::minorColor() const
+const color4f& KvPlottable2d::minorColor() const
 {
 	return borderPen_.color;
 }
@@ -55,13 +11,6 @@ color4f KvPlottable2d::minorColor() const
 void KvPlottable2d::setMinorColor(const color4f& minor)
 {
 	borderPen_.color = minor;
-}
-
-
-color4f KvPlottable2d::mapValueToColor_(float_t val) const
-{
-	auto factor = KtuMath<float_t>::remap<true>(val, mapLower_, mapUpper_);
-	return mapper_.getAt(factor);
 }
 
 

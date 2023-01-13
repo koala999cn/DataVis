@@ -34,6 +34,28 @@ public:
 	static KtColor invalid() {
 		return { -1, -1, -1, -1 };
 	}
+
+	// 返回元素的值域范围
+	static constexpr std::pair<T, T> limits() {
+		if constexpr (std::is_floating_point_v<T>)
+			return { 0.f, 1.f };
+		else
+			return { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
+	}
+
+	KtColor& clamp() {
+		auto l = limits();
+		for (int i = 0; i < DIM; i++) 
+			at(i) = KtuMath<T>::clamp(at(i), l.first, l.second);
+		return *this;
+	}
+
+	KtColor& brighten(T b) {
+		for (int i = 0; i < 3; i++)
+			at(i) += b; // 透明度不作运算
+		clamp();
+		return *this;
+	}
 };
 
 

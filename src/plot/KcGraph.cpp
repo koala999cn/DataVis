@@ -6,6 +6,7 @@
 
 void KcGraph::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned ch) const
 {
+	lineCxt_.color = majorColor(ch);
 	paint->apply(lineCxt_);
 
 	if (count > 4096) { // TODO：使用降采样算法
@@ -19,43 +20,14 @@ void KcGraph::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, un
 }
 
 
-unsigned KcGraph::majorColorsNeeded() const
-{
-	return 1;
-}
-
-
-bool KcGraph::minorColorNeeded() const 
+const color4f& KcGraph::minorColor() const
 { 
-	return false; 
+	static auto minor = color4f::invalid();
+	return minor;
 }
 
-
-unsigned KcGraph::majorColors() const 
-{
-	return 1;
-}
-
-
-color4f KcGraph::majorColor(unsigned idx) const 
-{ 
-	return lineCxt_.color;
-}
-
-
-void KcGraph::setMajorColors(const std::vector<color4f>& majors) 
-{ 
-	assert(majors.size() == 1);
-	lineCxt_.color = majors.front();
-}
-
-
-color4f KcGraph::minorColor() const 
-{ 
-	return color4f::invalid();
-}
 
 void KcGraph::setMinorColor(const color4f& minor) 
 { 
-	assert(false);
+	// do nothing
 }
