@@ -189,8 +189,8 @@ template<class KReal>
 KtQuaternion<KReal>::KtQuaternion(const vec3& from, const vec3& to)
 {
 	// Copy, since cannot modify local
-	vec3 v0 = from.getNormalize();
-	vec3 v1 = to.getNormalize();
+	vec3 v0(from); v0.normalize();
+	vec3 v1(to);   v1.normalize();
 
 	KReal d = v0.dot(v1);
 

@@ -21,7 +21,7 @@ public:
 
 	/// 矢量运算
 
-	KReal length() const { return super_::abs(); } // 矢量长度
+	KReal length() const { return super_::length(); } // 矢量长度
 	KReal squaredLength() const { return x() * x() + y() * y() + z() * z(); }
 
 	// 使用快速算法计算长度的近似值-摘自《Tricks of the 3D game programming gurus》的第9章

@@ -172,21 +172,18 @@ public:
 		return std::sqrt(squaredLength());
 	}
 
-	T abs() const {
-		return length();
+	KtPoint& abs() {
+		for (unsigned i = 0; i < size(); i++)
+			at(i) = std::abs(at(i));
+		return *this;
 	}
 
 	// make THIS normalized
 	KtPoint& normalize() {
-		*this = getNormalize();
+		auto len = length();
+		if (len != 0) *this /= len;
 		return *this;
 	}
-
-	KtPoint getNormalize() const {
-		auto len = abs();
-		return len == 0 ? *this : *this / len;
-	}
-
 
 	// 两点之间距离
 	T squaredDistance(const KtPoint& rhs) const {
