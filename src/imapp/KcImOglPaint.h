@@ -107,7 +107,7 @@ private:
 	// [0]: viewport idx
 	// [1]: clipRect idx
 	// [2]: clipBox idx
-	using kRenderState_ = std::tuple<bool, unsigned, unsigned>;
+	using kRenderState_ = std::tuple<unsigned, unsigned, unsigned>;
 
 	struct KpRenderList_
 	{

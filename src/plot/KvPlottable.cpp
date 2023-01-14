@@ -58,8 +58,8 @@ KvPlottable::aabb_t KvPlottable::boundingBox() const
 		lower.z() = r2.low(), upper.z() = r2.high();
 	}
 	else {
-		lower.z() = defaultZ_;
-		upper.z() = defaultZ_ + stepZ_ * data_->channels();
+		lower.z() = defaultZ(0);
+		upper.z() = defaultZ(data_->channels() - 1);
 	}
 
 	return { lower, upper };

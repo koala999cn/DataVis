@@ -15,7 +15,7 @@ void KvPlottable1d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 
 void KvPlottable1d::draw1d_(KvPaint* paint, KvDiscreted* disc) const
 {
-	auto z = defaultZ();
+	float_t z;
 
 	unsigned ch(0);
 	auto getter = [&disc, &ch, &z](unsigned i) -> KvPaint::point3 {
@@ -24,8 +24,8 @@ void KvPlottable1d::draw1d_(KvPaint* paint, KvDiscreted* disc) const
 	};
 
 	for (; ch < disc->channels(); ch++) {
+		z = defaultZ(ch);
 		drawImpl_(paint, getter, disc->size(), ch);
-		z += stepZ();
 	}
 }
 

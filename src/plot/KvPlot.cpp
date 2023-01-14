@@ -187,6 +187,7 @@ int KvPlot::fixPlotView_()
 
 	// 把世界坐标系的lower点偏移到rcPlot的左下点
 	auto lower = paint_->unprojectp({ rcPlot.lower().x(), rcPlot.upper().y() });
+	lower.z() = coord_->lower().z(); // z轴不移动
 	auto shiftMat = KvPaint::mat4::buildTanslation(lower - coord_->lower());
 	
 	/////////////////////////////////////////////////////////////////////////
