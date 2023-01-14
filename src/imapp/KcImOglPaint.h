@@ -104,11 +104,10 @@ private:
 	bool antialiasing_{ false };
 	bool flatShading_{ false };
 
-	// [0]: !depth test
-	// [1]: viewport idx
-	// [2]: clipRect idx
-	// [3]: clipBox idx
-	using kRenderState_ = std::tuple<bool, unsigned, unsigned, unsigned>;
+	// [0]: viewport idx
+	// [1]: clipRect idx
+	// [2]: clipBox idx
+	using kRenderState_ = std::tuple<bool, unsigned, unsigned>;
 
 	struct KpRenderList_
 	{

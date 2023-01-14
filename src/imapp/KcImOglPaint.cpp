@@ -756,7 +756,7 @@ void KcImOglPaint::disableClipBox()
 KcImOglPaint::KpRenderList_& KcImOglPaint::currentRenderList()
 {
 	auto curClipRect = clipRectStack_.empty() ? -1 : clipRectStack_.back();
-	return renderList_[kRenderState_(!depthTest_, curViewport_, curClipRect, curClipBox_)];
+	return renderList_[kRenderState_(curViewport_, curClipRect, curClipBox_)];
 }
 
 
@@ -768,7 +768,7 @@ void KcImOglPaint::drawRenderList_()
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST); // 与depthTest的初值对应
 	if (glProvokingVertex)
-	    glProvokingVertex(GL_FIRST_VERTEX_CONVENTION); // 使用第1个顶点作为flat着色模式下面片的颜色
+	    glProvokingVertex(GL_LAST_VERTEX_CONVENTION); // 使用最后一个顶点数据作为flat着色模式下整个面片的属性
 
 	if (antialiasing()) {
 		glEnable(GL_POINT_SMOOTH);
@@ -786,41 +786,36 @@ void KcImOglPaint::drawRenderList_()
 		glDisable(GL_POLYGON_SMOOTH);
 	}
 
+	if (depthTest()) {
+		glEnable(GL_DEPTH_TEST);
+	}
+	else {
+		glDisable(GL_DEPTH_TEST);
+	}
+
 	unsigned viewport(-1), clipRect(-1), clipBox(-2); // NB: clipBox可以等于-1，所以此处初始化为-2，表示未赋值
 	bool depthTest(false);
 	for (auto& rd : renderList_) {
 		auto& state = rd.first;
-		if (std::get<1>(state) != viewport) {
-			viewport = std::get<1>(state);
+		if (std::get<0>(state) != viewport) {
+			viewport = std::get<0>(state);
 			glViewport_(viewport);
 		}
-		if (std::get<2>(state) != clipRect) {
-			clipRect = std::get<2>(state);
+		if (std::get<1>(state) != clipRect) {
+			clipRect = std::get<1>(state);
 			glScissor_(clipRect);
 		}
-		if (std::get<3>(state) != clipBox) {
-			clipBox = std::get<3>(state);
+		if (std::get<2>(state) != clipBox) {
+			clipBox = std::get<2>(state);
 			glClipPlane_(clipBox);
 		}
-		if (std::get<0>(state) == depthTest) {
-			depthTest = !std::get<0>(state);
-			if (depthTest) {
-				glEnable(GL_DEPTH_TEST);
-			}
-			else
-			    glDisable(GL_DEPTH_TEST);
-		}
-
-		auto& rl = rd.second;
 
 		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
 
-		for (auto& i : rl.fns)
-			i();
-
+		auto& rl = rd.second;
 		pushTextVbo_(rl);
-		for (auto& i : rl.objs)
-			i->draw();
+		for (auto& i : rl.fns) i();
+		for (auto& i : rl.objs) i->draw();
 	}
 }
 

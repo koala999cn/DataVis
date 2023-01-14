@@ -81,7 +81,5 @@ void KvPlottable2d::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx,
 	if (showEdge)
 		paint->apply(borderPen());
 
-	//paint->enableDepthTest(true); // TODO: ¿ÉÅäÖÃ
 	paint->drawGeom(decl, geom, true, showEdge);
-	//paint->enableDepthTest(false);
 }

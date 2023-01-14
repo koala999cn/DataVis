@@ -290,6 +290,10 @@ void KvRdPlot::showPlotProperty_()
 		if (ImGui::Checkbox("Antialiasing", &anti))
 			plot_->paint().enableAntialiasing(anti);
 
+		bool depth = plot_->paint().depthTest();
+		if (ImGui::Checkbox("Depth Test", &depth))
+			plot_->paint().enableDepthTest(depth);
+
 		ImGui::Checkbox("Show Layout Rect", &plot_->showLayoutRect());
 
 		ImGuiX::treePop();
