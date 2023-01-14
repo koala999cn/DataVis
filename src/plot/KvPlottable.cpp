@@ -94,7 +94,7 @@ void KvPlottable::draw(KvPaint* paint) const
 	}
 
 	assert(disc);
-	paint->setFlatShading(flatShading());
+	paint->enableFlatShading(flatShading());
 	drawDiscreted_(paint, disc.get());
 }
 

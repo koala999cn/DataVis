@@ -68,8 +68,6 @@ void KcImOglPaint::beginPaint()
 	clipBoxHistList_.clear();
 	curClipBox_ = -1;
 
-	glClear(GL_DEPTH_BUFFER_BIT);
-
 	super_::beginPaint();
 }
 
@@ -758,15 +756,14 @@ KcImOglPaint::KpRenderList_& KcImOglPaint::currentRenderList()
 }
 
 
-void KcImOglPaint::drawRenderList_()
+void KcImOglPaint::configOglState_()
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glDisable(GL_DEPTH_TEST); // 与depthTest的初值对应
 	if (glProvokingVertex)
-	    glProvokingVertex(GL_LAST_VERTEX_CONVENTION); // 使用最后一个顶点数据作为flat着色模式下整个面片的属性
+		glProvokingVertex(GL_LAST_VERTEX_CONVENTION); // 使用最后一个顶点数据作为flat着色模式下整个面片的属性
 
 	if (antialiasing()) {
 		glEnable(GL_POINT_SMOOTH);
@@ -786,10 +783,17 @@ void KcImOglPaint::drawRenderList_()
 
 	if (depthTest()) {
 		glEnable(GL_DEPTH_TEST);
+		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 	else {
 		glDisable(GL_DEPTH_TEST);
 	}
+}
+
+
+void KcImOglPaint::drawRenderList_()
+{
+	configOglState_();
 
 	unsigned viewport(-1), clipRect(-1), clipBox(-2); // NB: clipBox可以等于-1，所以此处初始化为-2，表示未赋值
 	for (auto& rd : renderList_) {
@@ -807,10 +811,11 @@ void KcImOglPaint::drawRenderList_()
 			glClipPlane_(clipBox);
 		}
 
-		KcGlslProgram::useProgram(0); // 禁用shader，使用固定管线绘制
-
 		auto& rl = rd.second;
 		pushTextVbo_(rl);
+
+		if (!rl.fns.empty())
+		    KcGlslProgram::useProgram(0); // 禁用shader，fns须enable固定管线
 		for (auto& i : rl.fns) i();
 		for (auto& i : rl.objs) i->draw();
 	}

@@ -40,7 +40,7 @@ public:
 	void enableAntialiasing(bool b) override { antialiasing_ = b; }
 	bool antialiasing() const override { return antialiasing_; }
 
-	void setFlatShading(bool b) override { flatShading_ = b; }
+	void enableFlatShading(bool b) override { flatShading_ = b; }
 	bool flatShading() const override { return flatShading_; }
 	
 	void beginPaint() override;
@@ -63,11 +63,6 @@ public:
 	void fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
 
 	void grab(int x, int y, int width, int height, void* data) override;
-
-	bool inScreenCoord() const {
-		return currentCoord() == k_coord_screen ||
-			currentCoord() == k_coord_local_screen;
-	}
 
 	// 内部函数，由ImGui回调，以绘制renderList_保存的渲染对象
 	void drawRenderList_();
@@ -127,4 +122,6 @@ private:
 	void glClipPlane_(unsigned id);
 	
 	void pushTextVbo_(KpRenderList_& rl); // 生成绘制文本所需的vbo
+
+	void configOglState_(); // 配置opengl属性
 };

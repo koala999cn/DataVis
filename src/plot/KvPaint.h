@@ -62,8 +62,8 @@ public:
 	virtual void enableAntialiasing(bool b) = 0; // 开启/关闭反走样
 	virtual bool antialiasing() const = 0; // 是否开启了反走样
 
-	virtual bool flatShading() const = 0;
-	virtual void setFlatShading(bool b) = 0;
+	virtual void enableFlatShading(bool b) = 0; // 开启/关闭flat着色模式
+	virtual bool flatShading() const = 0; // 是否开启了flat着色模式
 
 	// project local point/vector to screen point/vector
 	virtual point4 project(const point4& pt) const = 0;
@@ -197,6 +197,14 @@ public:
 	point3 worldToLocalV(const point3& pt) const {
 		auto r = worldToLocal(point4(pt.x(), pt.y(), pt.z(), 0));
 		return { r.x(), r.y(), r.z() };
+	}
+
+	bool inScreenCoord() const {
+		return currentCoord() == k_coord_screen || currentCoord() == k_coord_local_screen;
+	}
+
+	bool inLocalCoord() const {
+		return currentCoord() == k_coord_local || currentCoord() == k_coord_local_screen;
 	}
 
 	void drawRect(const rect_t& rc) {

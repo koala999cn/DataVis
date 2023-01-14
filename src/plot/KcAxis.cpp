@@ -115,8 +115,7 @@ KcAxis::vec3 KcAxis::outsideOrient_(KvPaint* paint) const
 	//if (dimReal_ != -1) // dimReal_ == -1代表自由坐标轴，它始终使用世界坐标，不变换
 	//   o = paint->localToWorldV(o); // 考虑坐标轴交换情况
 
-	if (paint->currentCoord() == KvPaint::k_coord_screen ||
-		paint->currentCoord() == KvPaint::k_coord_local_screen)
+	if (paint->inScreenCoord())
 		o.y() *= -1; // 屏幕坐标系中的y轴翻转
 
 	return o;
