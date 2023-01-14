@@ -78,25 +78,31 @@ namespace kPrivate
 {
     void showPlottableSpecificProperty2d(KvPlottable* plt)
     {
-        auto cmap = dynamic_cast<KvPlottable2d*>(plt);
-        assert(cmap);
+        auto plt2d = dynamic_cast<KvPlottable2d*>(plt);
+        assert(plt2d);
+
+        ImGui::Checkbox("Force default Z", &plt2d->forceDefaultZ());
 
         bool open(false);
-        ImGuiX::cbTreePush("Edge", &cmap->showBorder(), &open);
+        ImGuiX::cbTreePush("Edge", &plt2d->showBorder(), &open);
         if (open) {
-            ImGuiX::pen(cmap->borderPen(), true);
+            ImGuiX::pen(plt2d->borderPen(), true);
             ImGuiX::cbTreePop();
         }
 
-        open = false;
-        //ImGuiX::cbTreePush("Text", &cmap->showText(), &open);
-        //if (open) {
-        //    ImGui::ColorEdit4("Text Color", cmap->textColor());
-        //    ImGui::ShowFontSelector("Font");
-        //    ImGuiX::cbTreePop();
-        //}
+        auto heatmap = dynamic_cast<KcHeatMap*>(plt2d);
+        if (heatmap) {
+            open = false;
+            ImGuiX::cbTreePush("Text", &heatmap->showText(), &open);
+            if (open) {
+                ImGui::ColorEdit4("Text Color", heatmap->textColor());
+                ImGui::ShowFontSelector("Font");
+                ImGuiX::cbTreePop();
+            }
+        }
     }
 }
+
 
 void KcRdPlot2d::showPlottableSpecificProperty_(unsigned idx)
 {

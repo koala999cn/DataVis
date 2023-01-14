@@ -11,6 +11,4 @@ class KcSurface : public KvPlottable2d
 public:
 	using super_::super_;
 
-private:
-	void drawImpl_(KvPaint*, point_getter2, unsigned nx, unsigned ny, unsigned channels) const final;
 };

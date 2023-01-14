@@ -88,6 +88,8 @@ public:
 	float_t stepZ() const { return stepZ_; }
 	float_t& stepZ() { return stepZ_; }
 
+	float_t defaultZ(unsigned ch) const { return defaultZ_ + ch * stepZ_; }
+
 	////////////////////////////////////////////////////////////////
 
 	// 色彩模式支持

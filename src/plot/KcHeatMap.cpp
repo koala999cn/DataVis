@@ -4,6 +4,15 @@
 #include "KvPaint.h"
 
 
+KcHeatMap::KcHeatMap(const std::string_view& name)
+	: super_(name)
+{
+	forceDefaultZ() = true;
+	flatShading() = true;
+	setColoringMode(k_colorbar_gradiant);
+}
+
+
 KcHeatMap::aabb_t KcHeatMap::boundingBox() const
 {
 	auto aabb = super_::boundingBox();
@@ -23,12 +32,8 @@ KcHeatMap::aabb_t KcHeatMap::boundingBox() const
 			dy = sampCount(1) == 0 ? 0 : data()->range(1).length() / sampCount(1);
 		}
 
-		dx *= 0.5; dy *= 0.5;
-
-		aabb.lower().x() -= dx;
-		aabb.lower().y() -= dy;
-		aabb.upper().x() += dx;
-		aabb.upper().y() += dy;
+		// aabb膨胀(dx/2, dy/2)
+		aabb.inflate(dx/2, dy/2);
 	}
 
 	return aabb;
@@ -46,9 +51,30 @@ void KcHeatMap::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, uns
 		dy = disc->range(1).length() / disc->size(disc->dim() > 1 ? 1 : 0);
 
 	auto half_dx = dx / 2;
-	auto half_dy = dy / 2 ;
+	auto half_dy = dy / 2;
 
-	for (unsigned i = 0; i < disc->size(); i++) {
+	// quad按照顺时针排列
+	// opengl默认falt渲染模式使用最后一个顶点的数据
+	// 综上，需要将顶点向右下方偏移半个步长（x正向，y负向）
+	auto getterShift = [this, ny, getter, half_dx, half_dy](unsigned ix, unsigned iy) {
+	
+		auto xshift = half_dx;
+		auto yshift = -half_dy;
+
+		if (ix == 0) // 首列数据
+			xshift = -xshift, ix++;
+
+		if (iy == ny) // 首行数据
+			yshift = -yshift, iy--;
+
+		auto pt = getter(ix - 1, iy);
+		pt.x() += xshift, pt.y() += yshift;
+		return pt;
+	};
+
+	super_::drawImpl_(paint, getterShift, nx + 1, ny + 1, ch);
+
+/*	for (unsigned i = 0; i < disc->size(); i++) {
 		auto pt = disc->pointAt(i, 0);
 		paint->setColor(mapValueToColor_(pt.back(), ch));
 		paint->fillRect({ pt[0] - half_dx, pt[1] - half_dy, 0 },
@@ -62,17 +88,19 @@ void KcHeatMap::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, uns
 			paint->drawRect({ pt[0] - half_dx, pt[1] - half_dy, 0 },
 				{ pt[0] + half_dx, pt[1] + half_dy, 0 });
 		}
-	}
+	}*/
 
 	if (showText_ && clrText_.a() != 0) {
 		paint->setColor(clrText_);
-		auto leng = paint->projectv({ dx, -dy, 0 });
-		for (unsigned i = 0; i < disc->size(); i++) {
-			auto pt = disc->pointAt(i, 0);
-			auto text = KuStrUtil::toString(pt.back());
-			auto szText = paint->textSize(text.c_str());
-			if (szText.x() <= leng.x() && szText.y() <= leng.y())
-				paint->drawText({ pt[0], pt[1], 0 }, text.c_str(), 0);
-		}
+		auto leng = paint->projectv({ dx, dy, 0 }).abs();
+		for (unsigned ix = 0; ix < nx; ix++)
+			for (unsigned iy = 0; iy < ny; iy++) {
+				auto pt = getter(ix, iy);
+				auto text = KuStrUtil::toString(pt.back()); // TODO: 获取正确的数据
+				auto szText = paint->textSize(text.c_str());
+				pt.z() = defaultZ(ch);
+				if (szText.x() <= leng.x() && szText.y() <= leng.y())
+					paint->drawText(pt, text.c_str(), 0); // 0代表pt为中心点
+			}
 	}
 }
