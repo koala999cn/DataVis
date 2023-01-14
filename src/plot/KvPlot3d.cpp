@@ -36,11 +36,12 @@ void KvPlot3d::autoProject_()
     }
     scale *= zoom;
 
-    // 先平移至AABB中心点，再缩放，再旋转，最后处理用户设定的平移
-    mat4 viewMat = mat4::buildTanslation(shift * scale) // NB: 若不作scale，尺寸短的坐标轴移动非常慢
-        * mat4::buildRotation(orient_)
+    // 构建全局的平移、缩放、旋转矩阵
+    // NB: 若将shift放到最外侧，则须对shift作处理，以抵消缩放和旋转的影响
+    // shift *= scale; // NB: 若不作scale，尺寸短的坐标轴移动非常慢
+    mat4 viewMat = mat4::buildRotation(orient_)
         * mat4::buildScale(scale)
-        * mat4::buildTanslation(-center);
+        * mat4::buildTanslation(shift-center); // FIXME: 偏移非零时，缩放存在抖动现象
 
     if (radius == 0)
         radius = 1;
