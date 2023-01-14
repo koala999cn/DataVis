@@ -56,6 +56,8 @@ public:
 
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
+	void drawText(const point3& anchor, const char* text, int align) override;
+
 	void drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) override;
 
 	void fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
@@ -102,11 +104,11 @@ private:
 	bool antialiasing_{ false };
 	bool flatShading_{ false };
 
-	// [0]: viewport idx
-	// [1]: clipRect idx
-	// [2]: clipBox idx
-	// [3]: depth test
-	using kRenderState_ = std::tuple<unsigned, unsigned, unsigned, bool>;
+	// [0]: !depth test
+	// [1]: viewport idx
+	// [2]: clipRect idx
+	// [3]: clipBox idx
+	using kRenderState_ = std::tuple<bool, unsigned, unsigned, unsigned>;
 
 	struct KpRenderList_
 	{

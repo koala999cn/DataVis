@@ -16,6 +16,7 @@
 #include "plot/KpContext.h"
 #include "KuPrimitiveFactory.h"
 #include "KtGeometryImpl.h"
+#include "layout/KuLayoutUtil.h"
 
 
 namespace kPrivate
@@ -553,6 +554,17 @@ KcRenderObject* KcImOglPaint::lastRenderObject_()
 }
 
 
+void KcImOglPaint::drawText(const point3& anchor, const char* text, int align)
+{
+	auto szText = textSize(text);
+	auto an = projectp(anchor); // 变换到屏幕坐标计算布局
+	auto r = KuLayoutUtil::anchorAlignedRect({ an.x(), an.y() }, szText, align);
+	auto topLeft = unprojectp(point2(r.lower().x(), r.lower().y())); 
+	topLeft.z() = anchor.z();
+	drawText(topLeft, unprojectv(point3(1, 0, 0)), unprojectv(point3(0, 1, 0)), text);
+}
+
+
 void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text)
 {
 	auto font = ImGui::GetFont();
@@ -744,7 +756,7 @@ void KcImOglPaint::disableClipBox()
 KcImOglPaint::KpRenderList_& KcImOglPaint::currentRenderList()
 {
 	auto curClipRect = clipRectStack_.empty() ? -1 : clipRectStack_.back();
-	return renderList_[kRenderState_(curViewport_, curClipRect, curClipBox_, depthTest_)];
+	return renderList_[kRenderState_(!depthTest_, curViewport_, curClipRect, curClipBox_)];
 }
 
 
@@ -774,24 +786,24 @@ void KcImOglPaint::drawRenderList_()
 		glDisable(GL_POLYGON_SMOOTH);
 	}
 
-	unsigned viewport(-1), clipRect(-1), clipBox(-2);
+	unsigned viewport(-1), clipRect(-1), clipBox(-2); // NB: clipBox可以等于-1，所以此处初始化为-2，表示未赋值
 	bool depthTest(false);
 	for (auto& rd : renderList_) {
 		auto& state = rd.first;
-		if (std::get<0>(state) != viewport) {
-			viewport = std::get<0>(state);
+		if (std::get<1>(state) != viewport) {
+			viewport = std::get<1>(state);
 			glViewport_(viewport);
 		}
-		if (std::get<1>(state) != clipRect) {
-			clipRect = std::get<1>(state);
+		if (std::get<2>(state) != clipRect) {
+			clipRect = std::get<2>(state);
 			glScissor_(clipRect);
 		}
-		if (std::get<2>(state) != clipBox) {
-			clipBox = std::get<2>(state);
+		if (std::get<3>(state) != clipBox) {
+			clipBox = std::get<3>(state);
 			glClipPlane_(clipBox);
 		}
-		if (std::get<3>(state) != depthTest) {
-			depthTest = std::get<3>(state);
+		if (std::get<0>(state) == depthTest) {
+			depthTest = !std::get<0>(state);
 			if (depthTest) {
 				glEnable(GL_DEPTH_TEST);
 			}
