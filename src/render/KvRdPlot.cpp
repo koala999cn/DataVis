@@ -764,7 +764,8 @@ void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 
 		for (int i = 0; i < supportPlottableTypes_(); i++) {
 			int flags = plottableMatchData_(i, *data) ? 0 : ImGuiSelectableFlags_Disabled;
-			if (ImGui::Selectable(plottableTypeStr_(i), i == type, flags)) {
+			if (ImGui::Selectable(plottableTypeStr_(i), i == type, flags)
+				&& i != type) {
 				auto oldPlt = plot_->plottableAt(idx);
 				auto newPlt = newPlottable_(i, oldPlt->name());
 
