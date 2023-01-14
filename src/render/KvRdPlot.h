@@ -45,7 +45,7 @@ protected:
 	template<typename PLT_TYPE>
 	std::vector<KvPlottable*> createPlts_(KcPortNode* port) {
 		auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
-		if (prov->channels(port->index()) == 1)
+		if (prov->channels(port->index()) == 1 || !splitChannels_)
 			return { new PLT_TYPE(prov->name()) };
 
 		std::vector<KvPlottable*> plts;
@@ -123,6 +123,6 @@ protected:
 
 	std::pair<std::string, std::string> curTheme_[4];
 
-	bool splitChannels_{ true }; // 多通道数据是创建1个还是多个plt？ 
+	bool splitChannels_{ false }; // 多通道数据是创建1个还是多个plt？ 
 
 };
