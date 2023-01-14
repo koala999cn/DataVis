@@ -203,7 +203,7 @@ public:
 	}
 
 	KtAABB& deflate(float_t dx, float_t dy) {
-		point_t d(dx, dy);
+		point_t d(dx, dy, 0);
 		return deflate(d, d);
 	}
 
@@ -222,7 +222,7 @@ public:
 	}
 
 	KtAABB& inflate(float_t dx, float_t dy) {
-		point_t d(dx, dy);
+		point_t d(dx, dy, 0);
 		return inflate(d, d);
 	}
 
