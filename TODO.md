@@ -18,8 +18,8 @@
 13. subplot
 14. graph的line-style
 15. bar2d的opengl加速
-16.单独把heapmap成类（有text属性项）
-17.统筹考虑plottable的颜色问题（flat vs smooth vs gradiant）
+16.单独把heapmap成类（有text属性项）--> ok
+17.统筹考虑plottable的颜色问题（flat vs smooth vs gradiant）--> ok
 
 ## theme
 1. 更多theme，SCI等
@@ -41,3 +41,5 @@
 7. plottable不可见/可见设置时的legend同步
 8. colormap的border属性项有效性
 9. 当坐标系的x或y轴尺寸很小时，鼠标移动plot3d有问题 --> ok
+10. colorbar与颜色渲染模式的同步
+11. 多通道数据绘图二次启动crack
