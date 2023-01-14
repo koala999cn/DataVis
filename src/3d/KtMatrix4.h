@@ -76,6 +76,8 @@ public:
 		m30() = rhs.m30(), m31() = rhs.m31(), m32() = rhs.m32(), m33() = rhs.m33();
 	}
 
+	constexpr static bool rowMajor() { return ROW_MAJOR; }
+
 	static mat4 zero() {
 		return mat4();
 	}
@@ -640,7 +642,7 @@ KtMatrix4<KReal, ROW_MAJOR>::projectOrtho(KReal left, KReal right, KReal bottom,
 	// C = - (right + left) / (right - left)
 	// D = - (top + bottom) / (top - bottom)
 	// q = - 2 / (far - near)
-	// qn = - (far + near) / (far - near)
+	// qn = -(far + near) / (far - near)
 
 	auto A = 2 / (right - left);
 	auto B = 2 / (top - bottom);
