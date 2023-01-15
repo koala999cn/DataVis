@@ -24,11 +24,14 @@ void KvPlot2d::autoProject_()
     if (upper.z() == lower.z())
         upper.z() = lower.z() + 1; // 防止z轴尺度为0，否则构建透视矩阵含有nan值
 
+    auto depth = upper.z() - lower.z();
+    lower.z() = 5 * depth;
+    upper.z() = 400 * depth;
     auto proj = KtMatrix4<float_t>::projectOrtho(lower, upper);
 
     // 调整z轴位置，给near/far平面留出足够空间
     // NB: !!! VERY IMPORTANT !!!
-    proj = proj * mat4::buildTanslation({ 0, 0, lower.z() - 1 });
+    proj = proj * mat4::buildTanslation({ 0, 0, -7 * depth });
 
     setProjMatrix(proj);
 }
