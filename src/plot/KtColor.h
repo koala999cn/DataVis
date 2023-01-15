@@ -12,6 +12,17 @@ private:
 public:
 	using super_::super_;
 
+	// 不同类型颜色之间的转换
+	template<typename U, int E>
+	KtColor(const KtColor<U, E>& clr) {
+		for (int i = 0; i < std::min(DIM, E); i++)
+			at(i) = static_cast<T>(double(clr.at(i)) * (double(limit()) / double(clr.limit())));
+		if constexpr (DIM > E) {
+			for (int i = E; i < DIM; i++)
+				at(i) = limit();
+		}
+	}
+
 	const T& r() const { return super_::at(0); }
 	T& r() { return super_::at(0); }
 
@@ -24,29 +35,30 @@ public:
 	const T& a() const { return super_::at(3); }
 	T& a() { return super_::at(3); }
 
-	template<std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 	bool isValid() const {
-		return *this != invalid();
+		for (int i = 0; i < DIM; i++)
+			if (at(i) < 0 || at(i) > limit())
+				return false;
+
+		return true;
 	}
 
 	// 返回无效的color对象
-	template<std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 	static KtColor invalid() {
-		return { -1, -1, -1, -1 };
+		return { -1, -2, -3, -4 };
 	}
 
-	// 返回元素的值域范围
-	static constexpr std::pair<T, T> limits() {
+	// 返回元素的最大值（默认最小值为0）
+	static constexpr T limit() {
 		if constexpr (std::is_floating_point_v<T>)
-			return { 0.f, 1.f };
+			return 1.f;
 		else
-			return { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
+			return std::numeric_limits<T>::max();
 	}
 
 	KtColor& clamp() {
-		auto l = limits();
 		for (int i = 0; i < DIM; i++) 
-			at(i) = KtuMath<T>::clamp(at(i), l.first, l.second);
+			at(i) = KtuMath<T>::clamp(at(i), 0, limit());
 		return *this;
 	}
 

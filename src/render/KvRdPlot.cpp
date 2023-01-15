@@ -773,16 +773,20 @@ void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 				auto oldPlt = plot_->plottableAt(idx);
 				auto newPlt = newPlottable_(i, oldPlt->name());
 
+				// clone the data
+				newPlt->setData(oldPlt->data()); // 需要先设定data，majorColorNeeded才能返回正确的值
+
+				newPlt->setColoringMode(oldPlt->coloringMode()); // TODO:
+
 				// clone the theme
-				std::vector<color4f> majorColors(oldPlt->majorColors());
-				for (unsigned c = 0; c < majorColors.size(); c++)
-					majorColors[c] = oldPlt->majorColor(c);
-				newPlt->setMajorColors(majorColors);
+				if (newPlt->majorColorsNeeded() == oldPlt->majorColorsNeeded()) {
+					std::vector<color4f> majorColors(oldPlt->majorColors());
+					for (unsigned c = 0; c < majorColors.size(); c++)
+						majorColors[c] = oldPlt->majorColor(c);
+					newPlt->setMajorColors(majorColors);
+				}
 				if (oldPlt->minorColor().isValid())
 				    newPlt->setMinorColor(oldPlt->minorColor());
-
-				// clone the data
-				newPlt->setData(oldPlt->data());
 
 				// 同步port2Plts_
 				for (auto& i : port2Plts_)

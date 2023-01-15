@@ -3,23 +3,45 @@
 #include "KvContinued.h"
 #include "KcSampler.h"
 #include "KvPaint.h"
+#include "KgRand.h"
 
 
 KvPlottable::KvPlottable(const std::string_view& name)
 	: super_(name)
 {
-	colorBar_.setAt(0, color4f(0, 0, 0, 1));
-	colorBar_.setAt(1, color4f(1, 1, 1, 1));
+
 }
 
 
 void KvPlottable::setData(data_ptr d) 
 {
+	assert(d);
+
 	data_ = d;
 
-	if (d && d->isContinued() && d->dim() != sampCount_.size())
+	if (d->isContinued() && d->dim() != sampCount_.size())
 		sampCount_.assign(d->dim(), std::pow(1000., 1. / d->dim()));
 	
+	// 默认调色板（dracula）
+	static color4f pals[] = {
+		color3c(255, 85, 85), // #FF5555
+		color3c(255, 184, 108), // #FFB86C
+		color3c(241, 250, 108), // #F1FA8C
+		color3c(80, 250, 123), // #50FA7B
+		color3c(189, 147, 249), // #BD93F9
+		color3c(139, 233, 253), // #8BE9FD
+		color3c(255, 121, 198) // #FF79C6
+	};
+
+	if (majorColorsNeeded() != -1 && majorColors() < majorColorsNeeded()) {
+		auto end = std::begin(pals) + std::min<unsigned>(std::size(pals), majorColorsNeeded());
+		std::vector<color4f> majors(std::begin(pals), end);
+		KgRand r;
+		while (majors.size() < majorColorsNeeded())
+			majors.push_back(color4f(r.rand(0., 1.), r.rand(0., 1.), r.rand(0., 1.), 1)); // 随机色
+		setMajorColors(majors);
+	}
+
 	fitColorMappingRange();
 }
 
@@ -126,6 +148,8 @@ color4f KvPlottable::majorColor(unsigned idx) const
 
 void KvPlottable::setMajorColors(const std::vector<color4f>& majors)
 {
+	assert(majorColorsNeeded() == -1 || majorColorsNeeded() == majors.size());
+
 	colorBar_.reset();
 
 	std::vector<float_t> vals(majors.size());
