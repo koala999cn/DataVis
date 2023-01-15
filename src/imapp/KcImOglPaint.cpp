@@ -13,6 +13,7 @@
 #include "opengl/KcEdgedObject.h"
 #include "opengl/KcLightenObject.h"
 #include "opengl/KsShaderManager.h"
+#include "opengl/KuOglUtil.h"
 #include "plot/KpContext.h"
 #include "KuPrimitiveFactory.h"
 #include "KtGeometryImpl.h"
@@ -21,20 +22,6 @@
 
 namespace kPrivate
 {
-	static int lineStipple(int lineStyle)
-	{
-		switch (lineStyle)
-		{
-		case KpPen::k_dot:   return 0xAAAA; 
-		case KpPen::k_dash:  return 0xCCCC; 
-		case KpPen::k_dash4: return 0xF0F0; 
-		case KpPen::k_dash8: return 0xFF00; 
-		case KpPen::k_dash_dot: return 0xF840; 
-		case KpPen::k_dash_dot_dot: return 0xF888; 
-		}
-		return 0xFFFF;
-	}
-
 	static void oglDrawRenderList(const ImDrawList*, const ImDrawCmd* cmd)
 	{
 		auto paint = (KcImOglPaint*)cmd->UserCallbackData;
@@ -393,23 +380,16 @@ void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 void KcImOglPaint::drawLine(const point3& from, const point3& to)
 {
 	auto clr = clr_;
-	auto lnWidth = lineWidth_;
+	auto width = lineWidth_;
 	auto style = lineStyle_;
 	auto pt0 = toNdc_(from);
 	auto pt1 = toNdc_(to);
 
-	auto drawFn = [clr, lnWidth, pt0, pt1, style]() {
+	auto drawFn = [clr, width, style, pt0, pt1]() {
 
-		glLineWidth(lnWidth);
 		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
-
-		if (style == KpPen::k_solid) {
-			glDisable(GL_LINE_STIPPLE);
-		}
-		else {
-			glEnable(GL_LINE_STIPPLE);
-			glLineStipple(1, kPrivate::lineStipple(style));
-		}
+		glLineWidth(width);
+		KuOglUtil::glLineStyle(style);
 		
 		glBegin(GL_LINES);
 		glVertex3f(pt0.x(), pt0.y(), pt0.z());
@@ -436,6 +416,7 @@ void KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
 
 	obj->setVBO(vbo, decl);
 	obj->setWidth(lineWidth_);
+	obj->setStyle(lineStyle_);
 	pushRenderObject_(obj);
 }
 

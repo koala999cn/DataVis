@@ -26,8 +26,12 @@ void KcRenderObject::setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) 
 {
 	// ¸øshaderµÄuniform¸³Öµ
 	auto loc = shader->getUniformLocation("matMvp");
-	if (loc != -1)
-		glUniformMatrix4fv(loc, 1, GL_TRUE, projMat_.data());
+	if (loc != -1) {
+		if constexpr (decltype(projMat_)::rowMajor())
+		    glUniformMatrix4fv(loc, 1, GL_TRUE, projMat_.data());
+		else 
+			glUniformMatrix4fv(loc, 1, GL_FALSE, projMat_.data());
+	}
 
 	GLint enableClip = !clipBox_.isNull();
 	loc = shader->getUniformLocation("iEnableClip");

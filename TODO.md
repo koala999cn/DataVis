@@ -16,7 +16,7 @@
 11. 导出矢量图
 12. auto-fold layout
 13. subplot
-14. graph的line-style
+14. graph的line-style --> ok
 15. bar2d的opengl加速
 16.单独把heapmap成类（有text属性项）--> ok
 17.统筹考虑plottable的颜色问题（flat vs smooth vs gradiant）--> ok

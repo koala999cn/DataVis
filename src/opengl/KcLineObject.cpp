@@ -1,5 +1,6 @@
 #include "KcLineObject.h"
 #include "glad.h"
+#include "KuOglUtil.h"
 
 
 KcLineObject::KcLineObject(KePrimitiveType type)
@@ -12,7 +13,7 @@ KcLineObject::KcLineObject(KePrimitiveType type)
 void KcLineObject::draw() const
 {
     glLineWidth(lineWidth_);
-    // TODO: glLineStyle
+    KuOglUtil::glLineStyle(lineStyle_);
     super_::draw();
 }
 

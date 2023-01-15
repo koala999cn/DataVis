@@ -16,8 +16,13 @@ public:
 		lineWidth_ = w;
 	}
 
+	void setStyle(int style) {
+		lineStyle_ = style;
+	}
+
 	void draw() const override;
 
 private:
 	float lineWidth_{ 1 };
+	int lineStyle_{ 0 };
 };
