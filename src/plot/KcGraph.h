@@ -26,4 +26,5 @@ private:
 
 private:
 	mutable KpPen lineCxt_;
+	color4f clrMinor_; // 辅色，用于绘制渐变线条
 };

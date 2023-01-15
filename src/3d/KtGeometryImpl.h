@@ -3,7 +3,7 @@
 #include "KvGeometry.h"
 
 
-template<typename VTX_TYPE, typename IDX_TYPE>
+template<typename VTX_TYPE, typename IDX_TYPE = std::uint32_t>
 class KtGeometryImpl : public KvGeometry
 {
 public:

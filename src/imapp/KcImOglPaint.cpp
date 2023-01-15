@@ -642,17 +642,30 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool sh
 {
 	assert(geom->vertexSize() == decl->vertexSize());
 
+	KcRenderObject* obj = nullptr;
 	bool hasNormal = decl->hasNormal();
 	bool hasColor = decl->hasColor();
 
-	KcEdgedObject* obj = new KcEdgedObject(geom->type());
-	obj->setColor(clr_);
-	obj->setEdgeWidth(lineWidth_);
-	obj->setFilled(fill); obj->setEdged(showEdge);
-	if (showEdge && !hasColor)
-		obj->setEdgeColor(secondaryClr_);
-
-		// TODO: hasNormal ? new KcLightenObject(geom->type()) : new KcRenderObject(geom->type());
+	if (geom->type() == k_points) {
+		auto pointObj = new KcPointObject;
+		pointObj->setSize(markerSize_);
+	}
+	else if (geom->type() == k_lines 
+		|| geom->type() == k_line_strip 
+		|| geom->type() == k_line_loop) {
+		auto lineObj = new KcLineObject(geom->type());
+		lineObj->setWidth(lineWidth_);
+		lineObj->setStyle(lineStyle_);
+		obj = lineObj;
+	}
+	else {
+		KcEdgedObject* edgedObj = new KcEdgedObject(geom->type());
+		edgedObj->setEdgeWidth(lineWidth_);
+		edgedObj->setFilled(fill); edgedObj->setEdged(showEdge);
+		if (showEdge && !hasColor)
+			edgedObj->setEdgeColor(secondaryClr_);
+		obj = edgedObj;
+	}
 
 	if (hasNormal) {
 		// TODO: ((KcLightenObject*)obj)->setNormalMatrix(camera_.getNormalMatrix());
