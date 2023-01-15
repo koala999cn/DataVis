@@ -20,21 +20,21 @@ public:
 
 	aabb_t boundingBox() const override;
 
-	void addItem(KvPlottable* plt) {
-		items_.push_back(plt);
+	void addPlottable(KvPlottable* plt) {
+		plts_.push_back(plt);
 	}
 
-	void removeItem(KvPlottable* plt) {
-		auto pos = std::find(items_.cbegin(), items_.cend(), plt);
-		items_.erase(pos);
+	void removePlottable(KvPlottable* plt) {
+		auto pos = std::find(plts_.cbegin(), plts_.cend(), plt);
+		plts_.erase(pos);
 	}
 
-	unsigned itemCount() const {
-		return items_.size();
+	unsigned plottableCount() const {
+		return plts_.size();
 	}
 
 	void clear() {
-		items_.clear();
+		plts_.clear();
 	}
 
 	const margins_t& innerMargins() const { return innerMargins_; }
@@ -73,6 +73,9 @@ public:
 	int warps() const { return maxItemsPerRow_; }
 	int& warps() { return maxItemsPerRow_; }
 
+	// 计算item数，兼容多通道数据(plt中的每个通道为1个item)
+	unsigned itemCount() const;
+
 private:
 
 	size_t calcSize_(void*) const override;
@@ -82,7 +85,15 @@ private:
 
 	point2f maxLabelSize_(KvPaint* paint) const;
 
-	void drawItem_(KvPaint* paint, KvPlottable* item, const rect_t& rc) const;
+	// 绘制plt的第ch个通道item
+	void drawItem_(KvPaint* paint, KvPlottable* plt, unsigned ch, const rect_t& rc) const;
+
+	std::string itemLabel_(KvPlottable* plt, unsigned ch) const;
+
+	// 返回>=idx的下一个可见plt
+	unsigned nextVisiblePlt_(unsigned idx) const;
+
+	void drawItems_(KvPaint* paint) const;
 
 private:
 
@@ -96,10 +107,10 @@ private:
 	point2f itemSpacing_{ 8, 8 };
 	float iconTextPadding_{ 7 };
 
-	bool rowMajor_{ false }; // 若true，则item优先按行排列，否则优先按列排列
+	bool rowMajor_{ false }; // 若true，则优先按行排列，否则优先按列排列
 	int maxItemsPerRow_{ 0 }; // 每行或每列最大的item数目，超过则会换行或换列。<=0代表无限制
 
-	std::vector<KvPlottable*> items_;
+	std::vector<KvPlottable*> plts_;
 
 	KeAlignment location_; // legend的位置
 };

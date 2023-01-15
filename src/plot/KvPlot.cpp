@@ -265,8 +265,8 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 	assert(legend_);
 
 	if (removedPlt) {
-		if (removedPlt->majorColorsNeeded() != -1) {
-			legend_->removeItem(removedPlt);
+		if (removedPlt->majorColorsNeeded() > 0) {
+			legend_->removePlottable(removedPlt);
 		}
 		else {
 			//assert(colorBar_); // TODO:
@@ -279,8 +279,8 @@ void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedP
 	}
 
 	if (addedPlt) {
-		if (addedPlt->majorColorsNeeded() != -1) {
-			legend_->addItem(addedPlt);
+		if (addedPlt->majorColorsNeeded() > 0) {
+			legend_->addPlottable(addedPlt);
 		}
 		else {
 			//assert(colorBar_ == nullptr); 

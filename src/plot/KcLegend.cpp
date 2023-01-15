@@ -1,12 +1,13 @@
 #include "KcLegend.h"
 #include "KvPlottable.h"
 #include "KvPaint.h"
+#include "KuStrUtil.h"
 
 
 KcLegend::KcLegend()
     : super_("Legend")
 {
-    align() = location_ = KeAlignment::k_right | KeAlignment::k_top | KeAlignment::k_horz_first | KeAlignment::k_outter;
+    align() = location_ = KeAlignment::k_left | KeAlignment::k_top | KeAlignment::k_horz_first;
     
     innerMargins_.lower() = point_t(7, 5);
     innerMargins_.upper() = point_t(7, 4);
@@ -18,7 +19,7 @@ KcLegend::size_t KcLegend::calcSize_(void* cxt) const
 {
     point2f legSize = innerMargins_.lower() + innerMargins_.upper();
 
-    if (items_.empty())
+    if (plts_.empty())
         return legSize;
 
     auto paint = (KvPaint*)cxt;
@@ -39,10 +40,12 @@ point2f KcLegend::maxLabelSize_(KvPaint* paint) const
 {
     point2f maxSize(0, 0);
 
-    for (unsigned i = 0; i < items_.size(); ++i) {
-        auto& label = items_[i]->name();
-        auto labelSize = paint->textSize(label.c_str());
-        maxSize = maxSize.ceil(maxSize, labelSize);
+    for (unsigned i = 0; i < plts_.size(); ++i) {
+        for (unsigned ch = 0; ch < plts_[i]->majorColorsNeeded(); ch++) {
+            auto label = itemLabel_(plts_[i], ch);
+            auto labelSize = paint->textSize(label.c_str());
+            maxSize = maxSize.ceil(maxSize, labelSize);
+        }
     }
 
     return maxSize;
@@ -51,16 +54,16 @@ point2f KcLegend::maxLabelSize_(KvPaint* paint) const
 
 KcLegend::point2i KcLegend::layouts_() const
 {
-    auto itemCount = items_.size();
+    auto items = itemCount();
 
     int rows = 1;
-    int cols = itemCount;
+    int cols = items;
     if (maxItemsPerRow_ > 0) {
-        rows = (itemCount - 1) / maxItemsPerRow_ + 1;
+        rows = (items - 1) / maxItemsPerRow_ + 1;
         cols = maxItemsPerRow_;
     }
 
-    assert(rows * cols >= itemCount);
+    assert(rows * cols >= items);
     if (!rowMajor_) std::swap(rows, cols);
 
     return { rows, cols };
@@ -87,47 +90,20 @@ void KcLegend::draw(KvPaint* paint) const
         paint->drawRect(iRect_);
     }
 
-    if (!items_.empty()) {
-
-        auto itemSize = maxLabelSize_(paint);
-        itemSize.x() += iconSize_.x() + iconTextPadding_;
-        itemSize.y() = std::max(itemSize.y(), iconSize_.y());
-
-        auto lay = layouts_();
-        assert(lay.x() > 0 && lay.y() > 0);
-
-        auto itemPos = iRect_.lower() + innerMargins_.lower();
-        unsigned rowStride = lay.y(), colStride = lay.x();
-
-        rect_t itemRect(itemPos, itemPos + itemSize);
-        unsigned rowIdx = 0;
-        for (unsigned r = 0; r < lay.x(); r++, rowIdx += rowStride) {
-            auto itemIdx = rowIdx;
-            auto rcNow = itemRect;
-            for (unsigned c = 0; c < lay.y(); c++, itemIdx += colStride) {
-                drawItem_(paint, items_[itemIdx], rcNow);
-
-                rcNow.lower().x() += itemSize.x() + itemSpacing_.x();
-                rcNow.upper().x() += itemSize.x() + itemSpacing_.x();
-            }
-
-            itemRect.lower().y() += itemSize.y() + itemSpacing_.y();
-            itemRect.upper().y() += itemSize.y() + itemSpacing_.y();
-        }
-
-    }
+    if (!plts_.empty())
+        drawItems_(paint);
 
     paint->popCoord();
 }
 
 
-void KcLegend::drawItem_(KvPaint* paint, KvPlottable* item, const rect_t& rc) const
+void KcLegend::drawItem_(KvPaint* paint, KvPlottable* plt, unsigned ch, const rect_t& rc) const
 {
-    using point3 = KvPaint::point3;
+    assert(plt->visible());
 
     auto iconPos = rc.lower();
     iconPos.y() += (rc.height() - iconSize_.y()) / 2;
-    paint->setColor(item->majorColor(0));
+    paint->setColor(plt->majorColor(ch));
     paint->fillRect(iconPos, iconPos + iconSize_);
 
     auto lablePos = rc.lower();
@@ -135,7 +111,7 @@ void KcLegend::drawItem_(KvPaint* paint, KvPlottable* item, const rect_t& rc) co
     lablePos.y() += rc.height() / 2;
     paint->setColor(clrText_);
     paint->apply(fontText_);
-    paint->drawText(lablePos, item->name().c_str(), KeAlignment::k_left);
+    paint->drawText(lablePos, itemLabel_(plt, ch).c_str(), KeAlignment::k_left | KeAlignment::k_vcenter);
 }
 
 
@@ -146,4 +122,80 @@ KcLegend::aabb_t KcLegend::boundingBox() const
         { rc.lower().x(), rc.lower().y(), 0 }, 
         { rc.upper().x(), rc.upper().y(), 0 } 
     };
+}
+
+
+unsigned KcLegend::itemCount() const
+{
+    unsigned count(0);
+    for (auto i : plts_) {
+        assert(i->majorColorsNeeded() > 0);
+
+        if (i->visible()) // 忽略隐藏的plt
+            count += i->majorColorsNeeded(); // NB: 此处用主色数替代通道数(不知哪种方式兼容性更好)
+    }
+
+    return count;
+}
+
+
+std::string KcLegend::itemLabel_(KvPlottable* plt, unsigned ch) const
+{
+    assert(ch < plt->majorColorsNeeded());
+    auto label = plt->name();
+    if (plt->majorColorsNeeded() > 1) {
+        label += "-ch" + KuStrUtil::toString(ch);
+    }
+   
+    return label;
+}
+
+
+unsigned KcLegend::nextVisiblePlt_(unsigned idx) const
+{
+    while (idx < plts_.size() && !plts_[idx]->visible())
+        ++idx;
+    return idx;
+}
+
+
+void KcLegend::drawItems_(KvPaint* paint) const
+{
+    auto itemSize = maxLabelSize_(paint);
+    itemSize.x() += iconSize_.x() + iconTextPadding_;
+    itemSize.y() = std::max(itemSize.y(), iconSize_.y());
+
+    auto lay = layouts_();
+    assert(lay.x() > 0 && lay.y() > 0);
+
+    auto itemPos = iRect_.lower() + innerMargins_.lower();
+    unsigned rowStride = lay.y(), colStride = lay.x();
+
+    rect_t itemRect(itemPos, itemPos + itemSize);
+    unsigned pltIdx(nextVisiblePlt_(0)), chIdx(0); // 当前正在绘制的plt及其channel索引
+
+    const int idim = rowMajor_ ? 0 : 1; // 内侧循环维度
+    for (unsigned c = 0; c < lay[!idim]; c++) {
+
+        if (pltIdx >= plts_.size()) break;
+
+        auto rcNow = itemRect;
+        for (unsigned r = 0; r < lay[idim]; r++) { // 先填充行
+
+            if (pltIdx >= plts_.size()) break;
+
+            drawItem_(paint, plts_[pltIdx], chIdx++, rcNow);
+
+            rcNow.lower()[!idim] += itemSize[!idim] + itemSpacing_[!idim];
+            rcNow.upper()[!idim] += itemSize[!idim] + itemSpacing_[!idim];
+
+            if (chIdx >= plts_[pltIdx]->majorColorsNeeded()) {
+                chIdx = 0;
+                pltIdx = nextVisiblePlt_(++pltIdx);
+            }
+        }
+
+        itemRect.lower()[idim] += itemSize[idim] + itemSpacing_[idim];
+        itemRect.upper()[idim] += itemSize[idim] + itemSpacing_[idim];
+    }
 }
