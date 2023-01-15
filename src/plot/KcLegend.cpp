@@ -99,7 +99,7 @@ void KcLegend::draw(KvPaint* paint) const
 
 void KcLegend::drawItem_(KvPaint* paint, KvPlottable* plt, unsigned ch, const rect_t& rc) const
 {
-    assert(plt->visible());
+    assert(hasItem_(plt));
 
     auto iconPos = rc.lower();
     iconPos.y() += (rc.height() - iconSize_.y()) / 2;
@@ -128,13 +128,9 @@ KcLegend::aabb_t KcLegend::boundingBox() const
 unsigned KcLegend::itemCount() const
 {
     unsigned count(0);
-    for (auto i : plts_) {
-        assert(i->majorColorsNeeded() > 0);
-
-        if (i->visible()) // 忽略隐藏的plt
+    for (auto i : plts_) 
+        if (hasItem_(i)) // 忽略隐藏的plt和colorbar类型plt
             count += i->majorColorsNeeded(); // NB: 此处用主色数替代通道数(不知哪种方式兼容性更好)
-    }
-
     return count;
 }
 
@@ -143,17 +139,15 @@ std::string KcLegend::itemLabel_(KvPlottable* plt, unsigned ch) const
 {
     assert(ch < plt->majorColorsNeeded());
     auto label = plt->name();
-    if (plt->majorColorsNeeded() > 1) {
+    if (plt->majorColorsNeeded() > 1) 
         label += "-ch" + KuStrUtil::toString(ch);
-    }
-   
     return label;
 }
 
 
 unsigned KcLegend::nextVisiblePlt_(unsigned idx) const
 {
-    while (idx < plts_.size() && !plts_[idx]->visible())
+    while (idx < plts_.size() && !hasItem_(plts_[idx]))
         ++idx;
     return idx;
 }
@@ -198,4 +192,10 @@ void KcLegend::drawItems_(KvPaint* paint) const
         itemRect.lower()[idim] += itemSize[idim] + itemSpacing_[idim];
         itemRect.upper()[idim] += itemSize[idim] + itemSpacing_[idim];
     }
+}
+
+
+bool KcLegend::hasItem_(KvPlottable* plt) const
+{
+    return plt->visible() && plt->majorColorsNeeded() != -1;
 }

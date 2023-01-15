@@ -22,31 +22,13 @@ void KvPlottable::setData(data_ptr d)
 	if (d->isContinued() && d->dim() != sampCount_.size())
 		sampCount_.assign(d->dim(), std::pow(1000., 1. / d->dim()));
 	
-	// 默认调色板（dracula）
-	static color4f pals[] = {
-		color3c(255, 85, 85), // #FF5555
-		color3c(255, 184, 108), // #FFB86C
-		color3c(241, 250, 108), // #F1FA8C
-		color3c(80, 250, 123), // #50FA7B
-		color3c(189, 147, 249), // #BD93F9
-		color3c(139, 233, 253), // #8BE9FD
-		color3c(255, 121, 198) // #FF79C6
-	};
-
-	if (majorColorsNeeded() != -1 && majorColors() < majorColorsNeeded()) {
-		auto end = std::begin(pals) + std::min<unsigned>(std::size(pals), majorColorsNeeded());
-		std::vector<color4f> majors(std::begin(pals), end);
-		KgRand r;
-		while (majors.size() < majorColorsNeeded())
-			majors.push_back(color4f(r.rand(0., 1.), r.rand(0., 1.), r.rand(0., 1.), 1)); // 随机色
-		setMajorColors(majors);
-	}
-
-	fitColorMappingRange();
+	// TODO: 以下代码不宜放此处，主循环的每个更新周期时都会调用setData
+	updateColorMappingPalette_();
+	resetColorMappingRange();
 }
 
 
-void KvPlottable::fitColorMappingRange()
+void KvPlottable::resetColorMappingRange()
 {
 	if (coloringMode_ == k_colorbar_gradiant && data_) {
 		auto r = data_->valueRange(); // TODO: 支持定制的维度
@@ -162,7 +144,7 @@ void KvPlottable::setMajorColors(const std::vector<color4f>& majors)
 void KvPlottable::setColoringMode(KeColoringMode mode)
 {
 	coloringMode_ = mode;
-	fitColorMappingRange();
+	updateColorMappingPalette_();
 }
 
 
@@ -190,3 +172,38 @@ color4f KvPlottable::mapValueToColor_(float_t val, unsigned channel) const
 		return majorColor(channel);
 	}
 }
+
+
+void KvPlottable::updateColorMappingPalette_()
+{
+	// 默认调色板（dracula）
+	static color4f pals[] = {
+		color3c(255, 85, 85), // #FF5555
+		color3c(255, 184, 108), // #FFB86C
+		color3c(241, 250, 108), // #F1FA8C
+		color3c(80, 250, 123), // #50FA7B
+		color3c(189, 147, 249), // #BD93F9
+		color3c(139, 233, 253), // #8BE9FD
+		color3c(255, 121, 198) // #FF79C6
+	};
+
+	if (majorColorsNeeded() != -1 && majorColors() != majorColorsNeeded()) {
+		std::vector<color4f> majors;
+		for (unsigned i = 0; i < majorColors(); i++)
+			majors.push_back(majorColor(i));
+
+		if (majors.size() < majorColorsNeeded())
+			majors.insert(majors.end(), std::begin(pals), std::end(pals));
+
+		// 还不够则添加随机色
+		if (majors.size() < majorColorsNeeded()) {
+			KgRand r;
+			while (majors.size() < majorColorsNeeded())
+				majors.push_back(color4f(r.rand(0., 1.), r.rand(0., 1.), r.rand(0., 1.), 1));
+		}
+
+		majors.resize(majorColorsNeeded());
+		setMajorColors(majors);
+	}
+}
+

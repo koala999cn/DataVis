@@ -114,11 +114,14 @@ public:
 	auto& colorMappingRange() const { return colorMappingRange_; }
 	auto& colorMappingRange() { return colorMappingRange_; }
 
-	void fitColorMappingRange();
+	void resetColorMappingRange();
 
 protected:
 
 	color4f mapValueToColor_(float_t val, unsigned channel) const;
+
+	// 根据当前的coloringMode_配置主色
+	void updateColorMappingPalette_();
 
 private:
 

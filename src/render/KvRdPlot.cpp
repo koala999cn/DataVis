@@ -649,7 +649,7 @@ void KvRdPlot::showLegendProperty_()
 
 	ImGui::ColorEdit4("Text Color", legend->textColor());
 
-	ImGui::DragInt("Warps", &legend->warps(), 1, std::numeric_limits<int>::max());
+	ImGui::SliderInt("Warps", &legend->warps(), 0, legend->itemCount());
 	ImGui::Checkbox("Row Major", &legend->rowMajor());
 
 	ImGuiX::alignment("Alignment", legend->location());

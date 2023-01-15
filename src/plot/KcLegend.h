@@ -95,6 +95,9 @@ private:
 
 	void drawItems_(KvPaint* paint) const;
 
+	// 判断plt是否有需要显示的item
+	bool hasItem_(KvPlottable* plt) const;
+
 private:
 
 	bool showBorder_{ true }, showBkgnd_{ false };
