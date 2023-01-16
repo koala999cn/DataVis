@@ -808,10 +808,13 @@ void KcImOglPaint::drawRenderList_()
 		auto& rl = rd.second;
 		pushTextVbo_(rl);
 
-		if (!rl.fns.empty())
-		    KcGlslProgram::useProgram(0); // 禁用shader，fns须enable固定管线
-		for (auto& i : rl.fns) i();
 		for (auto& i : rl.objs) i->draw();
+
+		// NB: 小件元素最后绘制
+		// TODO: 在该模式下，没有plot2d所需要的layer概念，只能通过深度测试来模拟（须设置正确的z值）
+		if (!rl.fns.empty())
+			KcGlslProgram::useProgram(0); // 禁用shader，fns须enable固定管线
+		for (auto& i : rl.fns) i();
 	}
 }
 

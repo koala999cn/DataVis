@@ -2,6 +2,8 @@
 #include "KvPaint.h"
 #include "KvDiscreted.h"
 #include "KvContinued.h"
+#include "KtGeometryImpl.h"
+#include "KcVertexDeclaration.h"
 
 
 KcBars2d::KcBars2d(const std::string_view& name)
@@ -11,33 +13,64 @@ KcBars2d::KcBars2d(const std::string_view& name)
 }
 
 
-void KcBars2d::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned ch) const
+void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 {
+	assert(disc->dim() == 1); // TODO: 暂时只支持1d数据
+
 	auto barWidth = barWidth_();
-	fill_.color = majorColor(ch);
-	bool drawFill = fill_.visible();
-	bool drawBorder = border_.visible() && border_.color != fill_.color;
-	
-	for (unsigned i = 0; i < count; i++) {
-		auto pt0 = getter(i);
-		pt0.x() -= barWidth * 0.5;
-		point3 pt1(pt0.x() + barWidth, baseLine_, pt0.z());
 
-		if (drawFill) {
-			paint->apply(fill_);
-			paint->fillRect(pt0, pt1);
-		}
+	struct KpVtxBuffer_
+	{
+		point3f pos;
+		point4f clr;
+	};
 
-		if (drawBorder) {
-			paint->apply(border_);
-			paint->drawRect(pt0, pt1);
+	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
+	auto vtx = geom->newVertex(disc->size() * disc->channels() * 4);
+	auto vtxBuf = vtx;
+
+	for (unsigned i = 0; i < disc->size(); i++) {
+		for (unsigned j = 0; j < disc->channels(); j++) {
+			auto pt = disc->pointAt(i, j);
+			if (pt.size() < 3)
+				pt.push_back(defaultZ(j));
+
+			auto clr = mapValueToColor_(pt[disc->dim()], j); // TODO: 可以选择色彩插值的维度
+
+			// 第一个顶点取top-right，这样可保证最后一个顶点为top-left（quad各顶点按顺时针排列）
+			// 如此确保在flat模式下显示top-left顶点的颜色
+			vtxBuf[0].pos = point3f(pt[0] + barWidth / 2, pt[1], pt[2]);
+			vtxBuf[0].clr = clr;
+
+			vtxBuf[1].pos = point3f(pt[0] + barWidth / 2, baseLine_, pt[2]);
+			vtxBuf[1].clr = clr;
+
+			vtxBuf[2].pos = point3f(pt[0] - barWidth / 2, baseLine_, pt[2]);
+			vtxBuf[2].clr = clr;
+
+			vtxBuf[3].pos = point3f(pt[0] - barWidth / 2, pt[1], pt[2]);
+			vtxBuf[3].clr = clr;
+
+			vtxBuf += 4;;
 		}
 	}
+
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
+
+	bool showEdge = showBorder() && borderPen().visible();
+	if (showEdge)
+		paint->apply(borderPen());
+
+	paint->drawGeom(decl, geom, true, showEdge);
 }
 
 
 KcBars2d::float_t KcBars2d::barWidth_(unsigned dim) const
 {
+	assert(barWidthRatio_ > 0);
+
 	if (data()->isDiscreted()) {
 		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
 		assert(disc->size(dim) != 0);
@@ -62,7 +95,7 @@ KcBars2d::aabb_t KcBars2d::boundingBox() const
 	if (aabb.upper().y() < baseLine_)
 		aabb.upper().y() = baseLine_;
 
-	if (data()) {
+	if (!empty()) {
 		auto w = barWidth_();
 		aabb.lower().x() -= w;
 		aabb.upper().x() += w;

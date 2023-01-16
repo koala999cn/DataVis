@@ -17,9 +17,12 @@
 12. auto-fold layout
 13. subplot
 14. graph的line-style --> ok
-15. bar2d的opengl加速
+15. bar2d的opengl加速 --> ok
 16.单独把heapmap成类（有text属性项）--> ok
 17.统筹考虑plottable的颜色问题（flat vs smooth vs gradiant）--> ok
+18. stacked & grouped bar
+19. 色彩映射模式下的bar3d
+20. 可配置色彩映射的数据维度
 
 ## theme
 1. 更多theme，SCI等

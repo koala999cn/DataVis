@@ -14,7 +14,7 @@ KcBars3d::aabb_t KcBars3d::boundingBox() const
 	return aabb;
 }
 
-
+#if 0
 void KcBars3d::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned) const
 {
 	auto dim = data()->dim();
@@ -71,3 +71,4 @@ void KcBars3d::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, u
 	paint->drawGeom(decl, geom, drawFill, drawBorder);
 	paint->enableDepthTest(false);
 }
+#endif
