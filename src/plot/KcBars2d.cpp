@@ -35,7 +35,7 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 			if (pt.size() < 3)
 				pt.push_back(defaultZ(j));
 
-			auto clr = mapValueToColor_(pt[disc->dim()], j); // TODO: 可以选择色彩插值的维度
+			auto clr = mapValueToColor_(pt.data(), j);
 
 			// 第一个顶点取top-right，这样可保证最后一个顶点为top-left（quad各顶点按顺时针排列）
 			// 如此确保在flat模式下显示top-left顶点的颜色

@@ -22,16 +22,28 @@ void KvPlottable::setData(data_ptr d)
 	if (d->isContinued() && d->dim() != sampCount_.size())
 		sampCount_.assign(d->dim(), std::pow(1000., 1. / d->dim()));
 	
+	if (data_ && colorMappingDim_ > data_->dim())
+		colorMappingDim_ = data_->dim();
+
 	// TODO: 以下代码不宜放此处，主循环的每个更新周期时都会调用setData
 	updateColorMappingPalette_();
 	resetColorMappingRange();
 }
 
 
+void KvPlottable::setColorMappingDim(unsigned d)
+{
+	if (data_ && d > data_->dim())
+		d = data_->dim();
+	colorMappingDim_ = d;
+}
+
+
 void KvPlottable::resetColorMappingRange()
 {
 	if (data_) {
-		auto r = data_->valueRange(); // TODO: 支持定制的维度
+		assert(colorMappingDim() <= data_->dim());
+		auto r = data_->range(colorMappingDim());
 		colorMappingRange_ = { r.low(), r.high() };
 	}
 }
@@ -148,7 +160,7 @@ void KvPlottable::setColoringMode(KeColoringMode mode)
 }
 
 
-color4f KvPlottable::mapValueToColor_(float_t val, unsigned channel) const
+color4f KvPlottable::mapValueToColor_(float_t* valp, unsigned channel) const
 {
 	switch (coloringMode_)
 	{
@@ -156,15 +168,17 @@ color4f KvPlottable::mapValueToColor_(float_t val, unsigned channel) const
 		return majorColor(channel);
 
 	case k_one_color_gradiant:
-		return KtuMath<float_t>::remap(val, colorMappingRange_.first, colorMappingRange_.second,
+		return KtuMath<float_t>::remap(valp[colorMappingDim_],
+			colorMappingRange_.first, colorMappingRange_.second,
 			majorColor(channel), majorColor(channel).brighten(brightenCoeff_));
 
 	case k_two_color_gradiant:
-		return KtuMath<float_t>::remap(val, colorMappingRange_.first, colorMappingRange_.second,
+		return KtuMath<float_t>::remap(valp[colorMappingDim_],
+			colorMappingRange_.first, colorMappingRange_.second,
 			majorColor(channel), minorColor());
 
 	case k_colorbar_gradiant:
-		return colorBar_.getAt(KtuMath<float_t>::remap<true>(val, 
+		return colorBar_.getAt(KtuMath<float_t>::remap<true>(valp[colorMappingDim_],
 			colorMappingRange_.first, colorMappingRange_.second));
 
 	default:
@@ -203,6 +217,10 @@ void KvPlottable::updateColorMappingPalette_()
 		}
 
 		majors.resize(majorColorsNeeded());
+		setMajorColors(majors);
+	}
+	else if (majorColorsNeeded() == -1 && majorColors() == 0) {
+		std::vector<color4f> majors(std::begin(pals), std::end(pals));
 		setMajorColors(majors);
 	}
 }

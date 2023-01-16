@@ -65,7 +65,7 @@ void KvPlottable2d::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx,
 			assert(pt.size() > 2);
 			
 			vtxBuf->pos = point3f(pt[0], pt[1], forceDefaultZ_ ? defaultZ(ch) : pt[2]);
-			vtxBuf->clr = mapValueToColor_(pt.back(), ch); // TODO: 可以选择色彩插值的维度
+			vtxBuf->clr = mapValueToColor_(pt.data(), ch);
 			++vtxBuf;
 		}
 

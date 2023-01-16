@@ -35,8 +35,9 @@ void KcGraph::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, un
 		auto geom = std::make_shared<KtGeometryImpl<Vertex_>>(k_line_strip);
 		auto vtx = geom->newVertex(count);
 		for (unsigned i = 0; i < count; i++) {
-			vtx->pos = getter(i);
-			vtx->color = mapValueToColor_(vtx->pos[data()->dim()], ch); // TODO: 目前使用最高维数据插值
+			auto pt = getter(i);
+			vtx->pos = pt;
+			vtx->color = mapValueToColor_(pt.data(), ch);
 			vtx++;
 		}
 

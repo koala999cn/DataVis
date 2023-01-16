@@ -37,7 +37,8 @@ void KcRdPlot3d::showProperySet()
 {
 	super_::showProperySet();
 
-	if (!ImGuiX::treePush("Projection", true))
+	ImGui::Separator();
+	if (!ImGuiX::treePush("Projection", false))
 		return;
 
 	auto plot3d = std::dynamic_pointer_cast<KvPlot3d>(plot_);

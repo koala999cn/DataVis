@@ -117,11 +117,14 @@ public:
 	auto& colorMappingRange() const { return colorMappingRange_; }
 	auto& colorMappingRange() { return colorMappingRange_; }
 
+	unsigned colorMappingDim() const { return colorMappingDim_; }
+	void setColorMappingDim(unsigned d); // 该值很关键，使用set赋值
+
 	void resetColorMappingRange();
 
 protected:
 
-	color4f mapValueToColor_(float_t val, unsigned channel) const;
+	color4f mapValueToColor_(float_t* valp, unsigned channel) const;
 
 	// 根据当前的coloringMode_配置主色
 	void updateColorMappingPalette_();
@@ -138,10 +141,11 @@ private:
 	// 色彩管理
 	KeColoringMode coloringMode_{ k_one_color_solid };
 	KtGradient<float_t, color4f> colorBar_; // 色带
-	std::pair<float_t, float_t> colorMappingRange_; // 色彩映射的值域范围
 	bool flatShading_{ false };  // 若true，则开启flat渲染模式，否则使用smooth渲染模式
 	                             // flat模式下，使用多边形的第1个顶点对整个多边形着色
 	float brightenCoeff_{ 0.5 }; // 亮度增强系数，仅适用于k_one_color_gradiant色彩模式
+	unsigned colorMappingDim_{ 2 }; // 使用该维度的数据进行色彩映射（默认z轴）
+	std::pair<float_t, float_t> colorMappingRange_; // 色彩映射的值域范围
 
 	// 各维度的采样点数目, 仅适用于连续数据
 	std::vector<unsigned> sampCount_{ std::vector<unsigned>({ 1000 }) }; 

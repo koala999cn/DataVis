@@ -31,7 +31,7 @@ void KcBubble::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, u
 		auto val = pt[data()->dim()]; // TODO: 尺寸插值的数据维度可配置
 		paint->setMarkerSize(mapValueToSize_(val));
 		if (coloringMode() != k_one_color_solid)
-			paint->setColor(mapValueToColor_(val, ch));
+			paint->setColor(mapValueToColor_(pt.data(), ch));
 		
 		paint->drawMarker({ pt[0], pt[1], pt[2] });
 	}

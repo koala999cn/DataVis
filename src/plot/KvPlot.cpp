@@ -47,6 +47,8 @@ KvPlottable* KvPlot::plottableAt(unsigned idx)
 void KvPlot::addPlottable(KvPlottable* plt)
 {
 	plottables_.emplace_back(plt);
+
+	syncLegendAndColorbars_();
 }
 
 
@@ -57,13 +59,17 @@ void KvPlot::removePlottable(KvPlottable* plt)
 			plottables_.erase(iter);
 			break;
 		}
+
+	syncLegendAndColorbars_();
 }
 
 
 void KvPlot::setPlottableAt(unsigned idx, KvPlottable* plt)
 {
 	assert(idx < plottableCount());
-	return plottables_[idx].reset(plt);
+	plottables_[idx].reset(plt);
+
+	syncLegendAndColorbars_();
 }
 
 
@@ -71,12 +77,16 @@ void KvPlot::removePlottableAt(unsigned idx)
 {
 	assert(idx < plottableCount());
 	plottables_.erase(plottables_.begin() + idx);
+
+	syncLegendAndColorbars_();
 }
 
 
 void KvPlot::removeAllPlottables()
 {
 	plottables_.clear();
+
+	syncLegendAndColorbars_();
 }
 
 

@@ -22,7 +22,7 @@
 17.统筹考虑plottable的颜色问题（flat vs smooth vs gradiant）--> ok
 18. stacked & grouped bar
 19. 色彩映射模式下的bar3d
-20. 可配置色彩映射的数据维度
+20. 可配置色彩映射的数据维度 --> ok
 
 ## theme
 1. 更多theme，SCI等

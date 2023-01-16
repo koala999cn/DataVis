@@ -208,34 +208,34 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 void KvRdPlot::showProperySet()
 {
 	super_::showProperySet(); // show the name property
-	ImGui::Separator();
 
+	ImGui::Separator();
 	showPlotProperty_();
-	ImGui::Separator();
 
+	ImGui::Separator();
 	showThemeProperty_();
-	ImGui::Separator();
 
-	showCoordProperty_();
 	ImGui::Separator();
+	showPlottableProperty_();
+
+	ImGui::Separator();
+	showCoordProperty_();
 
 	if (plot_->legend()->itemCount() > 0) {
-		showLegendProperty_();
 		ImGui::Separator();
+		showLegendProperty_();
 	}
 
 	if (plot_->colorbarCount() > 0) {
-		showColorBarProperty_();
 		ImGui::Separator();
+		showColorBarProperty_();
 	}
-
-	showPlottableProperty_();
 }
 
 
 void KvRdPlot::showPlotProperty_()
 {
-	if (ImGuiX::treePush("Plot", true)) {
+	if (ImGuiX::treePush("Plot", false)) {
 		bool vis = plot_->visible();
 		if (ImGuiX::cbInputText("Title", &vis, &plot_->title()))
 			plot_->setVisible(vis);
@@ -305,7 +305,7 @@ void KvRdPlot::showThemeProperty_()
 	if (themeMgr.empty())
 		return;
 
-	if (!ImGuiX::treePush("Design", true))
+	if (!ImGuiX::treePush("Design", false))
 		return;
 
 	auto groups = themeMgr.listGroups();
@@ -376,6 +376,8 @@ void KvRdPlot::showCoordProperty_()
 
 		ImGuiX::treePop();
 	}
+
+	ImGui::Separator();
 
 	if (ImGuiX::treePush("Planes", false)) {
 
@@ -829,10 +831,16 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 		if (mode == KvPlottable::k_one_color_gradiant) 
 			ImGui::SliderFloat("Brighten Coeff", &plt->brightenCoeff(), -1, 1, "%.2f");
 
-		auto& r = plt->colorMappingRange();
-		float low = r.first, high = r.second;
-		if (ImGui::DragFloatRange2("Color Mapping Range", &low, &high))
-			r.first = low, r.second = high;
+		if (!plt->empty()) {
+			int dim = plt->colorMappingDim();
+			if (ImGui::SliderInt("Color Mapping Dim", &dim, 0, plt->data()->dim()))
+				plt->setColorMappingDim(dim);
+
+			auto& r = plt->colorMappingRange();
+			float low = r.first, high = r.second;
+			if (ImGui::DragFloatRange2("Color Mapping Range", &low, &high))
+				r.first = low, r.second = high;
+		}
 	}
 }
 
