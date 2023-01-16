@@ -51,8 +51,7 @@ void KvPlottable::resetColorMappingRange()
 
 bool KvPlottable::empty() const 
 {
-	return !data_ || data_->size() == 0 
-		|| data_->isContinued() && std::find(sampCount_.begin(), sampCount_.end(), 0) != sampCount_.cend();
+	return !data_ || data_->size() == 0;
 }
 
 
@@ -89,29 +88,31 @@ void KvPlottable::draw(KvPaint* paint) const
 	if (empty())
 		return;
 
-	auto d = data();
-	for (unsigned i = 0; i < d->dim(); i++)
-		if (d->length(i) == 0)
-			return;
+	auto disc = discreted_();
+	if (disc == nullptr || disc->empty())
+		return;
 
-	auto disc = std::dynamic_pointer_cast<KvDiscreted>(d);
-	if (disc == nullptr) {
-		auto cont = std::dynamic_pointer_cast<KvContinued>(d);
-		assert(cont);
-
-		auto samp = std::make_shared<KcSampler>(cont);
-		if (!samp)
-			return;
-		
-		for (unsigned i = 0; i < cont->dim(); i++)
-			samp->reset(i, cont->range(i).low(), cont->length(i) / sampCount_[i]);
-
-		disc = samp;
-	}
-
-	assert(disc);
 	paint->enableFlatShading(flatShading());
 	drawDiscreted_(paint, disc.get());
+}
+
+
+std::shared_ptr<KvDiscreted> KvPlottable::discreted_() const
+{
+	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data_);
+	if (disc == nullptr) {
+		auto cont = std::dynamic_pointer_cast<KvContinued>(data_);
+		if (cont) {
+			auto samp = std::make_shared<KcSampler>(cont);
+			if (samp) {
+				for (unsigned i = 0; i < cont->dim(); i++)
+					samp->reset(i, cont->range(i).low(), cont->length(i) / sampCount_[i]);
+				disc = samp;
+			}
+		}
+	}
+
+	return disc;
 }
 
 

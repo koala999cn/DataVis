@@ -111,7 +111,7 @@ namespace kPrivate
 			auto bars = dynamic_cast<KcBars2d*>(plt);
 			ImGuiX::brush(bars->fillBrush(), true);
 			ImGui::SliderFloat("Width Ratio", &bars->barWidthRatio(), 0.01, 1.0, "%.2f");
-			ImGui::DragFloat("Base Line", &bars->baseLine());
+			ImGui::DragFloat("Baseline", &bars->baseLine());
 			if (ImGuiX::treePush("Border", false)) {
 				ImGuiX::pen(bars->borderPen(), true);
 				ImGuiX::treePop();

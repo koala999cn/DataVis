@@ -46,6 +46,9 @@ protected:
 	// 计算单个bar的宽度（世界坐标）
 	float_t barWidth_(unsigned dim = 0) const;
 
+	// stacked模式下的y值范围
+	std::pair<float_t, float_t> stackedRange_() const;
+
 protected:
 	KpPen border_;
 	mutable KpBrush fill_;

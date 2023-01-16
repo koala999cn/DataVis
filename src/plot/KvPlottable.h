@@ -129,6 +129,10 @@ protected:
 	// 根据当前的coloringMode_配置主色
 	void updateColorMappingPalette_();
 
+	// 返回一个离散化的数据对象
+	// 如果data()成员本身为离散数据，则直接返回；否则按照sampCount_构建并返回一个采样对象
+	std::shared_ptr<KvDiscreted> discreted_() const;
+
 private:
 
 	virtual void drawDiscreted_(KvPaint*, KvDiscreted*) const = 0;

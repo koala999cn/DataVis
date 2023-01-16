@@ -15,8 +15,6 @@ KcBars2d::KcBars2d(const std::string_view& name)
 
 void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 {
-	assert(disc->dim() == 1); // TODO: 暂时只支持1d数据
-
 	auto barWidth = barWidth_();
 
 	struct KpVtxBuffer_
@@ -30,28 +28,39 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 	auto vtxBuf = vtx;
 
 	for (unsigned i = 0; i < disc->size(); i++) {
+
+		auto bottom = baseLine_;
+
 		for (unsigned j = 0; j < disc->channels(); j++) {
 			auto pt = disc->pointAt(i, j);
 			if (pt.size() < 3)
 				pt.push_back(defaultZ(j));
 
-			auto clr = mapValueToColor_(pt.data(), j);
+			auto top = bottom + pt[1];
+			auto left = pt[0] - barWidth / 2;
+			auto right = pt[0] + barWidth / 2;
 
-			// 第一个顶点取top-right，这样可保证最后一个顶点为top-left（quad各顶点按顺时针排列）
-			// 如此确保在flat模式下显示top-left顶点的颜色
-			vtxBuf[0].pos = point3f(pt[0] + barWidth / 2, pt[1], pt[2]);
-			vtxBuf[0].clr = clr;
+			// 第一个顶点取right-top，这样可保证最后一个顶点为left-top（quad各顶点按顺时针排列）
+			// 如此确保在flat模式下显示left-top顶点的颜色（保证按y轴插值时的正确性）
+			vtxBuf[0].pos = point3f(right, top, pt[2]);
+			pt[0] = right, pt[1] = top;
+			vtxBuf[0].clr = mapValueToColor_(pt.data(), j);
 
-			vtxBuf[1].pos = point3f(pt[0] + barWidth / 2, baseLine_, pt[2]);
-			vtxBuf[1].clr = clr;
+			vtxBuf[1].pos = point3f(right, bottom, pt[2]);
+			pt[1] = bottom;
+			vtxBuf[1].clr = mapValueToColor_(pt.data(), j);
 
-			vtxBuf[2].pos = point3f(pt[0] - barWidth / 2, baseLine_, pt[2]);
-			vtxBuf[2].clr = clr;
+			vtxBuf[2].pos = point3f(left, bottom, pt[2]);
+			pt[0] = left;
+			vtxBuf[2].clr = mapValueToColor_(pt.data(), j);
 
-			vtxBuf[3].pos = point3f(pt[0] - barWidth / 2, pt[1], pt[2]);
-			vtxBuf[3].clr = clr;
+			vtxBuf[3].pos = point3f(left, top, pt[2]);
+			pt[1] = top;
+			vtxBuf[3].clr = mapValueToColor_(pt.data(), j);
 
-			vtxBuf += 4;;
+			vtxBuf += 4;
+
+			bottom = top;
 		}
 	}
 
@@ -71,34 +80,29 @@ KcBars2d::float_t KcBars2d::barWidth_(unsigned dim) const
 {
 	assert(barWidthRatio_ > 0);
 
-	if (data()->isDiscreted()) {
-		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
-		assert(disc->size(dim) != 0);
+	auto disc = discreted_();
+	assert(disc && disc->size(dim) != 0);
 
-		return disc->step(dim) != 0 ?
-			disc->step(dim) * barWidthRatio_ :
-			disc->range(dim).length() / disc->size(dim) * barWidthRatio_;
-	}
-	else {
-		assert(sampCount(dim) != 0);
-		auto cont = std::dynamic_pointer_cast<KvContinued>(data());
-		return cont->range(dim).length() / sampCount(dim) * barWidthRatio_;
-	}
+	return disc->step(dim) != 0 ?
+		disc->step(dim) * barWidthRatio_ :
+		disc->range(dim).length() / disc->size(dim) * barWidthRatio_;
 }
 
 
 KcBars2d::aabb_t KcBars2d::boundingBox() const
 {
 	auto aabb = super_::boundingBox();
-	if (aabb.lower().y() > baseLine_)
-		aabb.lower().y() = baseLine_;
-	if (aabb.upper().y() < baseLine_)
-		aabb.upper().y() = baseLine_;
 
 	if (!empty()) {
 		auto w = barWidth_();
-		aabb.lower().x() -= w;
-		aabb.upper().x() += w;
+		aabb.inflate(w, 0);
+
+		if (stacked_) {
+			auto r = stackedRange_();
+			auto pt = aabb.lower();
+			pt.y() = baseLine_ + r.first; aabb.merge(pt);
+			pt.y() = baseLine_ + r.second; aabb.merge(pt);
+		}
 	}
 
 	return aabb;
@@ -115,3 +119,28 @@ void KcBars2d::setMinorColor(const color4f& minor)
 {
 	border_.color = minor;
 }
+
+
+std::pair<KcBars2d::float_t, KcBars2d::float_t> KcBars2d::stackedRange_() const
+{
+	if (data()->channels() == 1) {
+		auto r = data()->range(1);
+		return { r.low(), r.high() };
+	}
+
+	auto in(std::numeric_limits<float_t>::max());
+	auto ax(std::numeric_limits<float_t>::lowest());
+
+	auto disc = discreted_();
+	assert(disc);
+	for (unsigned i = 0; i < disc->size(); i++) {
+		float_t v(0);
+		for (unsigned ch = 0; ch < disc->channels(); ch++)
+			v += disc->pointAt(i, ch)[1];
+		if (v < in) in = v;
+		if (v > ax) ax = v;
+	}
+
+	return { in, ax };
+}
+
