@@ -32,7 +32,7 @@
 3. 给数据加时间戳stamp
 
 ## FIXME
-1. 使用layout系统后，plot的axis留白出现问题 --> tick-label超出coord的innerRect区域
+1. 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）
 2. 三维坐标系下，虚线的绘制（ImGui）在旋转到特定方向时会出现错位 --> 使用opengl绘制后，该问题没再出现，估计由于计算误差引起
 3. 加载大的text数据文件很慢
 4. 坐标轴刻度旋转时出现突变
@@ -43,4 +43,5 @@
 9. 当坐标系的x或y轴尺寸很小时，鼠标移动plot3d有问题 --> ok
 10. colorbar与颜色渲染模式的同步 --> ok
 11. 多通道数据绘图二次启动crack --> ok
-12. 窗口缩放到很小时，layout未被正确设置，导致坐标轴被剪切，plt和legend绘制到外面
+12. 窗口缩放到很小时，layout未被正确设置，导致坐标轴被剪切，plt和legend绘制到外面 --> 设置legend的clipRect后，该问题没再出现
+13. plot2d在启用深度测试的时候有问题，而且plot各元素的layer顺序有问题

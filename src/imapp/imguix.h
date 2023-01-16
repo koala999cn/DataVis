@@ -54,10 +54,7 @@ namespace ImGuiX
 	void showLargeTable(unsigned rows, unsigned cols, std::function<void(unsigned, unsigned)> fnShow, 
 		unsigned freezeCols = 1, unsigned freeszRows = 1, const std::vector<std::string>& headers = {});
 
-
-	bool prefixCheckbox(const char* label, bool* v);
-
-	bool alignment(const char* label, KeAlignment& align);
+	bool alignment(const char* label, KeAlignment& align, bool defaultOpen);
 
 	bool treePush(const char* label, bool defaultOpen);
 

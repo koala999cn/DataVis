@@ -81,6 +81,18 @@ namespace kPrivate
             curAlign.setAlignFirst(KeAlignment::k_horz_first);
     }
 
+    static bool prefixCheckbox(const char* label, bool* v)
+    {
+        auto w = ImGui::CalcItemWidth();
+
+        bool res = ImGui::Checkbox(label, v);
+
+        ImGui::PushItemWidth(w - ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x);
+        ImGui::SameLine();
+
+        return res;
+    }
+
 }
 
 
@@ -278,19 +290,6 @@ namespace ImGuiX
         }
     }
 
-
-    bool prefixCheckbox(const char* label, bool* v)
-    {
-        auto w = CalcItemWidth();
-
-        bool res = Checkbox(label, v);
-
-        PushItemWidth(w - GetItemRectSize().x - GetStyle().ItemSpacing.x);
-        SameLine();
-
-        return res;
-    }
-
     bool treePush(const char* label, bool defaultOpen)
     {
         return TreeNodeEx(label, 
@@ -319,7 +318,7 @@ namespace ImGuiX
     bool cbInputText(const char* label, bool* show, std::string* text)
     {
         std::string box("##I"); box += label;
-        bool res = prefixCheckbox(box.c_str(), show);
+        bool res = kPrivate::prefixCheckbox(box.c_str(), show);
         res |= InputText(label, text);
         PopItemWidth();
         return res;
@@ -335,9 +334,9 @@ namespace ImGuiX
 
     void cbiTreePop() { cbTreePop(); }
 
-    bool alignment(const char* label, KeAlignment& loc)
+    bool alignment(const char* label, KeAlignment& loc, bool defaultOpen)
     {
-        if (treePush(label, false)) {
+        if (treePush(label, defaultOpen)) {
 
             ImVec2 itemSize(CalcTextSize("Outter").x * 2, 0);
 

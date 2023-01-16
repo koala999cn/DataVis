@@ -237,10 +237,8 @@ void KvRdPlot::showPlotProperty_()
 {
 	if (ImGuiX::treePush("Plot", true)) {
 		bool vis = plot_->visible();
-		if (ImGuiX::prefixCheckbox("##Plot", &vis))
+		if (ImGuiX::cbInputText("Title", &vis, &plot_->title()))
 			plot_->setVisible(vis);
-		ImGui::InputText("Title", &plot_->title());
-		ImGui::PopItemWidth(); // match for prefixCheckbox
 
 		ImGui::ColorEdit4("Background", plot_->background().color);
 
@@ -634,7 +632,7 @@ void KvRdPlot::showLegendProperty_()
 
 	ImGui::Checkbox("Show", &legend->visible());
 
-	ImGuiX::alignment("Alignment", legend->location());
+	ImGuiX::alignment("Alignment", legend->location(), true);
 
 	if (ImGuiX::treePush("Layout", false)) {
 
@@ -698,7 +696,7 @@ void KvRdPlot::showColorBarProperty_()
 				colorbar->setMargins(kPrivate::margins2Rect(margs));
 
 			auto& loc = colorbar->location();
-			ImGuiX::alignment("Alignment", loc);
+			ImGuiX::alignment("Alignment", loc, false);
 
 			open = false;
 			ImGuiX::cbTreePush("Border", &colorbar->showBorder(), &open);
