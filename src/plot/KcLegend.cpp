@@ -78,7 +78,7 @@ void KcLegend::draw(KvPaint* paint) const
 
     // 配置paint，以便在legned的局部空间执行绘制操作
     paint->pushCoord(KvPaint::k_coord_screen);
-    // TODO; 设置clipRect
+    paint->pushClipRect(innerRect());
     
     if (showBkgnd_ && bkgnd_.visible()) {
         paint->apply(bkgnd_);
@@ -93,6 +93,7 @@ void KcLegend::draw(KvPaint* paint) const
     if (!plts_.empty())
         drawItems_(paint);
 
+    paint->popClipRect();
     paint->popCoord();
 }
 

@@ -6,10 +6,10 @@
 
 
 KcColorBar::KcColorBar(KvPlottable* plt)
-    : KvRenderable("ColorBar")
-    , plt_(plt)
+    : KvRenderable(plt->name()) // TODO: name无法随plt动态更新
+    , plt_(nullptr)
 {
-    assert(plt_);
+    assert(plt);
 
     align() = location_ = KeAlignment::k_right | KeAlignment::k_horz_first | KeAlignment::k_outter;
     
@@ -19,12 +19,23 @@ KcColorBar::KcColorBar(KvPlottable* plt)
     axis_->showBaseline() = false;
     axis_->showSubtick() = false;
 
-    if (plt_->data()) {
-        auto r = plt->data()->valueRange();
-        axis_->setRange(r.low(), r.high());
-    }
-    else {
-        axis_->setRange(0, 0);
+    resetPlottable(plt);
+}
+
+
+void KcColorBar::resetPlottable(KvPlottable* plt)
+{
+    if (plt != plt_) {
+        plt_ = plt;
+        name() = plt->name();
+
+        if (plt_->data()) {
+            auto r = plt->data()->valueRange();
+            axis_->setRange(r.low(), r.high());
+        }
+        else {
+            axis_->setRange(0, 0);
+        }
     }
 }
 

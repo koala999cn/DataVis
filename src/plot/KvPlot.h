@@ -40,20 +40,16 @@ public:
 	bool autoFit() const { return autoFit_; }
 	bool& autoFit() { return autoFit_; }
 
-	bool showLegend() const { return showLegend_; }
-	bool& showLegend() { return showLegend_; }
-
-	bool showColorBar() const { return showColorBar_; }
-	bool& showColorBar() { return showColorBar_; }
-
 	bool showLayoutRect() const { return showLayoutRect_; }
 	bool& showLayoutRect() { return showLayoutRect_; }
 
 	KvPaint& paint() { return *paint_.get(); }
 	KvCoord& coord() { return *coord_.get(); }
 
-	KcLegend* legend() const { return legend_; }
-	KcColorBar* colorBar() const { return colorBar_; }
+	// 用于外部获取和更改legend与colorbars的属性
+	KcLegend* legend() const { return legend_.get(); }
+	unsigned colorbarCount() const { return colorbars_.size(); }
+	KcColorBar* colorbarAt(unsigned idx) const { return colorbars_[idx].get(); }
 
 	unsigned plottableCount() const { return plottables_.size(); }
 
@@ -82,12 +78,12 @@ public:
 private:
 	virtual void autoProject_() = 0;
 
+	bool showLegend_() const;
+
 	void updateLayout_(const rect_t& rc);
 
-	bool realShowLegend_() const;
-	bool realShowColorBar_() const;
-
-	void syncLegendAndColorBar_(KvPlottable* removed, KvPlottable* added);
+	// 根据所含plottables的色彩模式重新配置legend和colorbar
+	void syncLegendAndColorbars_();
 
 	void drawPlottables_();
 
@@ -98,11 +94,14 @@ private:
 	// 绘制各布局元素的外边框，用于debug使用
 	void drawLayoutRect_();
 
+	// 将legend和colorbars元素从layout系统中移除（重新同步或者防止被layout系统效果）
+	void unlayoutLegendAndColorbars_();
+
 private:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
 	std::shared_ptr<KvCoord> coord_; // 由用户创建并传入
-	KcLegend* legend_; // 内部创建并管理
-	KcColorBar* colorBar_; // 内部创建并管理
+	std::unique_ptr<KcLegend> legend_; // 内部创建并管理
+	std::vector<std::unique_ptr<KcColorBar>> colorbars_; // 内部创建并管理，支持多个色带
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理
 
 	KpBrush bkgnd_;
@@ -112,7 +111,5 @@ private:
 	char dim_{ 3 }; // 取值2或3，用来标记this是plot2d还是plot3d
 
 	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
-	bool showLegend_{ false };
-	bool showColorBar_{ true };
 	bool showLayoutRect_{ false }; // for debug
 };

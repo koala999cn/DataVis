@@ -12,6 +12,8 @@ public:
 
 	KcColorBar(KvPlottable* plt);
 
+	void resetPlottable(KvPlottable* plt);
+
 	void draw(KvPaint*) const override;
 
 	aabb_t boundingBox() const override;

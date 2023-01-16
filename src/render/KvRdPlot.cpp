@@ -224,7 +224,7 @@ void KvRdPlot::showProperySet()
 		ImGui::Separator();
 	}
 
-	if (plot_->colorBar()) {
+	if (plot_->colorbarCount() > 0) {
 		showColorBarProperty_();
 		ImGui::Separator();
 	}
@@ -626,35 +626,36 @@ namespace kPrivate
 
 void KvRdPlot::showLegendProperty_()
 {
-	bool open = false;
-	ImGuiX::cbTreePush("Legend", &plot_->showLegend(), &open);
-	if (!open) return;
+	if (!ImGuiX::treePush("Legend", false))
+	    return;
 
 	auto legend = plot_->legend();
 	ImGui::PushID(legend);
 
-	ImGui::DragFloat2("Icon Size", legend->iconSize(), 1, 1, 36, "%.f");
-
-	ImGui::DragFloat2("Item Spacing", legend->itemSpacing(), 1, 0, 32, "%.f");
-
-	ImGui::DragFloat("Icon Text Padding", &legend->iconTextPadding(), 1, 0, 32, "%.f");
-
-	auto omargs = kPrivate::rect2Margins(legend->margins());
-	if (ImGuiX::margins("Outter Margins", omargs))
-		legend->setMargins(kPrivate::margins2Rect(omargs));
-
-	auto imargs = kPrivate::rect2Margins(legend->innerMargins());
-	if (ImGuiX::margins("Inner Margins", imargs))
-		legend->innerMargins() = kPrivate::margins2Rect(imargs);
-
-	ImGui::ColorEdit4("Text Color", legend->textColor());
-
-	ImGui::SliderInt("Warps", &legend->warps(), 0, legend->itemCount());
-	ImGui::Checkbox("Row Major", &legend->rowMajor());
+	ImGui::Checkbox("Show", &legend->visible());
 
 	ImGuiX::alignment("Alignment", legend->location());
 
-	open = false;
+	if (ImGuiX::treePush("Layout", false)) {
+
+		ImGui::DragFloat2("Icon Size", legend->iconSize(), 1, 1, 36, "%.f");
+		ImGui::DragFloat2("Item Spacing", legend->itemSpacing(), 1, 0, 32, "%.f");
+		ImGui::DragFloat("Icon Text Padding", &legend->iconTextPadding(), 1, 0, 32, "%.f");
+
+		auto omargs = kPrivate::rect2Margins(legend->margins());
+		if (ImGuiX::margins("Outter Margins", omargs))
+			legend->setMargins(kPrivate::margins2Rect(omargs));
+
+		auto imargs = kPrivate::rect2Margins(legend->innerMargins());
+		if (ImGuiX::margins("Inner Margins", imargs))
+			legend->innerMargins() = kPrivate::margins2Rect(imargs);
+
+		ImGui::ColorEdit4("Text Color", legend->textColor());
+		ImGui::SliderInt("Warps", &legend->warps(), 0, legend->itemCount());
+		ImGui::Checkbox("Row Major", &legend->rowMajor());
+	}
+	
+	bool open = false;
 	ImGuiX::cbTreePush("Border", &legend->showBorder(), &open);
 	if (open) {
 		ImGuiX::pen(legend->borderPen(), true);
@@ -670,42 +671,49 @@ void KvRdPlot::showLegendProperty_()
 
 
 	ImGui::PopID();
-
 	ImGuiX::cbTreePop();
 }
 
 
 void KvRdPlot::showColorBarProperty_()
 {
-	bool open{ false };
-	ImGuiX::cbTreePush("ColorBar", &plot_->showColorBar(), &open);
-	if (!open) return;
+	if (!ImGuiX::treePush("ColorBar(s)", false))
+		return;
 
-	auto colorbar = plot_->colorBar();
+	for (unsigned i = 0; i < plot_->colorbarCount(); i++) {
+		auto colorbar = plot_->colorbarAt(i);
 
-	ImGui::PushID(colorbar);
+		ImGui::PushID(colorbar);
 
-	ImGui::DragFloat("Bar Width", &colorbar->barWidth(), 1, 1, 64, "%.f");
+		bool open(false);
+		ImGuiX::cbTreePush(colorbar->name().c_str(), &colorbar->visible(), &open);
+		if (open) {
 
-	ImGui::DragFloat("Bar Length", &colorbar->barLength(), 1, 0, 1024, "%.f");
+			ImGui::DragFloat("Bar Width", &colorbar->barWidth(), 1, 1, 64, "%.f");
 
-	auto margs = kPrivate::rect2Margins(colorbar->margins());
-	if (ImGuiX::margins("Margins", margs))
-		colorbar->setMargins(kPrivate::margins2Rect(margs));
+			ImGui::DragFloat("Bar Length", &colorbar->barLength(), 1, 0, 1024, "%.f");
 
-	auto& loc = colorbar->location();
-	ImGuiX::alignment("Alignment", loc);
+			auto margs = kPrivate::rect2Margins(colorbar->margins());
+			if (ImGuiX::margins("Margins", margs))
+				colorbar->setMargins(kPrivate::margins2Rect(margs));
 
-	open = false;
-	ImGuiX::cbTreePush("Border", &colorbar->showBorder(), &open);
-	if (open) {
-		ImGuiX::pen(colorbar->borderPen(), true);
-		ImGuiX::cbTreePop();
+			auto& loc = colorbar->location();
+			ImGuiX::alignment("Alignment", loc);
+
+			open = false;
+			ImGuiX::cbTreePush("Border", &colorbar->showBorder(), &open);
+			if (open) {
+				ImGuiX::pen(colorbar->borderPen(), true);
+				ImGuiX::cbTreePop();
+			}
+
+			kPrivate::axis("Axis", colorbar->axis());
+
+			ImGuiX::cbTreePop();
+		}
+
+		ImGui::PopID();
 	}
-
-	kPrivate::axis("Axis", colorbar->axis());
-
-	ImGui::PopID();
 
 	ImGuiX::cbTreePop();
 }

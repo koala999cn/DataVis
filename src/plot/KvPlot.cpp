@@ -12,8 +12,7 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, c
 	, coord_(coord)
 	, dim_(dim)
 {
-	legend_ = new KcLegend;
-	colorBar_ = nullptr;
+	legend_ = std::make_unique<KcLegend>();
 
 	layout_ = std::make_unique<KcLayoutGrid>();
 	layout_->putAt(0, 0, coord_.get());
@@ -22,15 +21,19 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, c
 
 KvPlot::~KvPlot()
 {
-	if (colorBar_)
-		KuLayoutHelper::take(colorBar_);
+	unlayoutLegendAndColorbars_();
+	KuLayoutHelper::take(coord_.get());
+}
+
+
+void KvPlot::unlayoutLegendAndColorbars_()
+{
+	for (auto& i : colorbars_)
+		KuLayoutHelper::take(i.get());
 
 	assert(legend_);
-	KuLayoutHelper::take(legend_);
-	KuLayoutHelper::take(coord_.get());
-
-	delete legend_;
-	delete colorBar_;
+	KuLayoutHelper::take(legend_.get());
+	legend_->clear();
 }
 
 
@@ -44,14 +47,11 @@ KvPlottable* KvPlot::plottableAt(unsigned idx)
 void KvPlot::addPlottable(KvPlottable* plt)
 {
 	plottables_.emplace_back(plt);
-	syncLegendAndColorBar_(nullptr, plt);
 }
 
 
 void KvPlot::removePlottable(KvPlottable* plt)
 {
-	syncLegendAndColorBar_(plt, nullptr);
-
 	for (auto iter = plottables_.cbegin(); iter != plottables_.cend(); iter++)
 		if (iter->get() == plt) {
 			plottables_.erase(iter);
@@ -63,9 +63,6 @@ void KvPlot::removePlottable(KvPlottable* plt)
 void KvPlot::setPlottableAt(unsigned idx, KvPlottable* plt)
 {
 	assert(idx < plottableCount());
-
-	syncLegendAndColorBar_(plottables_[idx].get(), plt);
-
 	return plottables_[idx].reset(plt);
 }
 
@@ -73,23 +70,12 @@ void KvPlot::setPlottableAt(unsigned idx, KvPlottable* plt)
 void KvPlot::removePlottableAt(unsigned idx)
 {
 	assert(idx < plottableCount());
-
-	syncLegendAndColorBar_(plottables_[idx].get(), nullptr);
-
 	plottables_.erase(plottables_.begin() + idx);
 }
 
 
 void KvPlot::removeAllPlottables()
 {
-	assert(legend_);
-	if (colorBar_) {
-		KuLayoutHelper::take(colorBar_);
-		delete colorBar_;
-		colorBar_ = nullptr;
-	}
-
-	legend_->clear();
 	plottables_.clear();
 }
 
@@ -150,13 +136,16 @@ void KvPlot::update()
 	for (int i = 0; i < locals; i++)
 	    paint_->popLocal();
 
-	if (realShowLegend_()) 
+	// draw legend
+	if (showLegend_()) 
 		legend_->draw(paint_.get());
 
-	if (realShowColorBar_())
-		colorBar_->draw(paint_.get());
+	// draw colorbars
+	for (auto& i : colorbars_)
+		if (i->visible())
+		    i->draw(paint_.get());
 
-	// debug drawing
+	// draw for debugging
 	if (showLayoutRect_)
 	    drawLayoutRect_();
 
@@ -223,24 +212,28 @@ void KvPlot::fitData()
 }
 
 
+bool KvPlot::showLegend_() const
+{
+	return legend_->visible() && legend_->itemCount() > 0;
+}
+
+
 void KvPlot::updateLayout_(const rect_t& rc)
 {
-	assert(legend_);
-	KuLayoutHelper::take(legend_);
-	if (colorBar_)
-	    KuLayoutHelper::take(colorBar_);
+	syncLegendAndColorbars_();
 
-	if (realShowLegend_()) {
+	if (showLegend_()) {
 		auto loc = legend_->location();
 		legend_->align() = loc;
-		coord_->placeElement(legend_, loc);
+		coord_->placeElement(legend_.get(), loc);
 	}
 
-	if (realShowColorBar_()) {
-		assert(colorBar_);
-		auto loc = colorBar_->location();
-		colorBar_->align() = loc;
-		coord_->placeElement(colorBar_, loc);
+	for (auto& i : colorbars_) {
+		if (i->visible()) {
+			auto loc = i->location();
+			i->align() = loc;
+			coord_->placeElement(i.get(), loc);
+		}
 	}
 
 	layout_->calcSize(paint_.get());
@@ -248,49 +241,29 @@ void KvPlot::updateLayout_(const rect_t& rc)
 }
 
 
-bool KvPlot::realShowLegend_() const
-{
-	return showLegend_ && legend_ && legend_->itemCount() > 0;
-}
-
-
-bool KvPlot::realShowColorBar_() const
-{
-	return showColorBar_ && colorBar_;
-}
-
-
-void KvPlot::syncLegendAndColorBar_(KvPlottable* removedPlt, KvPlottable* addedPlt)
+void KvPlot::syncLegendAndColorbars_()
 {
 	assert(legend_);
+	unlayoutLegendAndColorbars_();
 
-	if (removedPlt) {
-		if (removedPlt->majorColorsNeeded() != -1) {
-			legend_->removePlottable(removedPlt);
+	unsigned colorbarCount(0); // 新构建的colorbars数量
+	for (auto& plt : plottables_) {
+		if (!plt->visible() || plt->empty())
+			continue;
+
+		if (plt->majorColorsNeeded() == -1) { // 构建新的colorbar
+			if (colorbars_.size() < colorbarCount + 1) // NB: 为了保存用户设置的状态，所以没有清空colorbars_
+				colorbars_.emplace_back(new KcColorBar(plt.get()));
+			else
+				colorbars_[colorbarCount]->resetPlottable(plt.get());
+			++colorbarCount;
 		}
-		else {
-			//assert(colorBar_); // TODO:
-			if (colorBar_) {
-				KuLayoutHelper::take(colorBar_);
-				if (colorBar_) delete colorBar_;
-				colorBar_ = nullptr;
-			}
+		else { // 添加legend的item
+			legend_->addPlottable(plt.get());
 		}
 	}
 
-	if (addedPlt) {
-		if (addedPlt->majorColorsNeeded() != -1) {
-			legend_->addPlottable(addedPlt);
-		}
-		else {
-			//assert(colorBar_ == nullptr); 
-			if (colorBar_) { // TODO: 如何处理多个color-bar？
-				KuLayoutHelper::take(colorBar_);
-				delete colorBar_;
-			}
-			colorBar_ = new KcColorBar(addedPlt);
-		}
-	}
+	colorbars_.resize(colorbarCount);
 }
 
 
