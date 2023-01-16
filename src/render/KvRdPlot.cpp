@@ -828,6 +828,9 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 	if (mode != KvPlottable::k_one_color_solid) {
 		ImGui::Checkbox("Flat Shading", &plt->flatShading());
 
+		if (mode == KvPlottable::k_one_color_gradiant) 
+			ImGui::SliderFloat("Brighten Coeff", &plt->brightenCoeff(), -1, 1, "%.2f");
+
 		auto& r = plt->colorMappingRange();
 		float low = r.first, high = r.second;
 		if (ImGui::DragFloatRange2("Color Mapping Range", &low, &high))

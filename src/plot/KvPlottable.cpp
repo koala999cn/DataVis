@@ -30,7 +30,7 @@ void KvPlottable::setData(data_ptr d)
 
 void KvPlottable::resetColorMappingRange()
 {
-	if (coloringMode_ == k_colorbar_gradiant && data_) {
+	if (data_) {
 		auto r = data_->valueRange(); // TODO: 支持定制的维度
 		colorMappingRange_ = { r.low(), r.high() };
 	}
@@ -157,7 +157,7 @@ color4f KvPlottable::mapValueToColor_(float_t val, unsigned channel) const
 
 	case k_one_color_gradiant:
 		return KtuMath<float_t>::remap(val, colorMappingRange_.first, colorMappingRange_.second,
-			majorColor(channel), majorColor(channel).brighten(0.75)); // TODO: 亮度可配置
+			majorColor(channel), majorColor(channel).brighten(brightenCoeff_));
 
 	case k_two_color_gradiant:
 		return KtuMath<float_t>::remap(val, colorMappingRange_.first, colorMappingRange_.second,
