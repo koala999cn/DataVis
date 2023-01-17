@@ -104,13 +104,13 @@ void KcLegend::drawItem_(KvPaint* paint, KvPlottable* plt, unsigned ch, const re
     assert(hasItem_(plt));
 
     auto iconPos = rc.lower();
-    iconPos.y() += (rc.height() - iconSize_.y()) / 2;
+    iconPos.y() += (rc.height() - iconSize_.y()) * 0.5;
     paint->setColor(plt->majorColor(ch));
     paint->fillRect(iconPos, iconPos + iconSize_);
 
     auto lablePos = rc.lower();
     lablePos.x() += iconSize_.x() + iconTextPadding_;
-    lablePos.y() += rc.height() / 2;
+    lablePos.y() += rc.height() * 0.5;
     paint->setColor(clrText_);
     paint->apply(fontText_);
     paint->drawText(lablePos, itemLabel_(plt, ch).c_str(), KeAlignment::k_left | KeAlignment::k_vcenter);
@@ -132,16 +132,17 @@ unsigned KcLegend::itemCount() const
     unsigned count(0);
     for (auto i : plts_) 
         if (hasItem_(i)) // 忽略隐藏的plt和colorbar类型plt
-            count += i->majorColorsNeeded(); // NB: 此处用主色数替代通道数(不知哪种方式兼容性更好)
+            count += i->majorColors();
     return count;
 }
 
 
 std::string KcLegend::itemLabel_(KvPlottable* plt, unsigned ch) const
 {
-    assert(ch < plt->majorColorsNeeded());
+    assert(plt->majorColors() == plt->majorColorsNeeded());
+    assert(ch < plt->majorColors());
     auto label = plt->name();
-    if (plt->majorColorsNeeded() > 1) 
+    if (plt->majorColors() > 1)
         label += "-ch" + KuStrUtil::toString(ch);
     return label;
 }
@@ -170,7 +171,7 @@ void KcLegend::drawItems_(KvPaint* paint) const
     rect_t itemRect(itemPos, itemPos + itemSize);
     unsigned pltIdx(nextVisiblePlt_(0)), chIdx(0); // 当前正在绘制的plt及其channel索引
 
-    const int idim = rowMajor_ ? 0 : 1; // 内侧循环维度
+    const int idim = rowMajor_ ? 1 : 0; // 内侧循环维度
     for (unsigned c = 0; c < lay[!idim]; c++) {
 
         if (pltIdx >= plts_.size()) break;

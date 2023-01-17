@@ -20,9 +20,10 @@
 15. bar2d的opengl加速 --> ok
 16.单独把heapmap成类（有text属性项）--> ok
 17.统筹考虑plottable的颜色问题（flat vs smooth vs gradiant）--> ok
-18. stacked & grouped bar
+18. stacked & grouped bar -->ok
 19. 色彩映射模式下的bar3d
 20. 可配置色彩映射的数据维度 --> ok
+21. legend支持单通道的多主色plottable --> ok
 
 ## theme
 1. 更多theme，SCI等
@@ -48,3 +49,6 @@
 11. 多通道数据绘图二次启动crack --> ok
 12. 窗口缩放到很小时，layout未被正确设置，导致坐标轴被剪切，plt和legend绘制到外面 --> 设置legend的clipRect后，该问题没再出现
 13. plot2d在启用深度测试的时候有问题，而且plot各元素的layer顺序有问题
+14. legend的warp把rowMajor搞反了 --> ok
+15. legend在外侧布局的时候仍然没有正常裁剪
+
