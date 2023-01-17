@@ -17,9 +17,10 @@ KcBars2d::KcBars2d(const std::string_view& name)
 
 void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 {
-	auto barWidth = barWidth_();
+	auto barWidth = barWidth_(); // 目前返回dx/2
+	auto clusterWidth = barWidth * barWidthRatio_; // 每簇所占的宽度（世界坐标）
 	auto easy = easyGetter_();
-	auto stackWidth = (1 - paddingGrouped_ * (easy.groups - 1)) * barWidth / easy.groups;
+	auto stackWidth = (1 - paddingGrouped_ * (easy.groups - 1)) * clusterWidth / easy.groups;
 	if (stackWidth <= 0)
 		return;
 
@@ -44,7 +45,7 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 				auto pt = easy.getter(c, g, s);
 				auto ch = stackedFirst_ ? s : g;
 				auto top = bottom + pt[ydim];
-				auto left = pt[xdim] - barWidth / 2 + g * (stackWidth + groupPadding);
+				auto left = pt[xdim] - clusterWidth / 2 + g * (stackWidth + groupPadding);
 				auto right = left + stackWidth;
 
 				// 第一个顶点取right-top，这样可保证最后一个顶点为left-top（quad各顶点按顺时针排列）
@@ -87,14 +88,10 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 
 KcBars2d::float_t KcBars2d::barWidth_(unsigned dim) const
 {
-	assert(barWidthRatio_ > 0);
-
 	auto disc = discreted_();
 	assert(disc && disc->size(dim) != 0);
 
-	return disc->step(dim) != 0 ?
-		disc->step(dim) * barWidthRatio_ :
-		disc->range(dim).length() / disc->size(dim) * barWidthRatio_;
+	return disc->step(dim) != 0 ? disc->step(dim) : disc->range(dim).length() / disc->size(dim);
 }
 
 
@@ -123,11 +120,16 @@ KcBars2d::aabb_t KcBars2d::boundingBox() const
 
 	if (!empty()) {
 		auto w = barWidth_();
-		aabb.inflate(w, 0);
+		aabb.inflate(w / 2, 0);
 
 		auto easy = easyGetter_();
 		
 		unsigned ydim = ydim_();
+		if (ydim != 1) {
+			auto r = data()->range(ydim);
+			aabb.lower().y() = r.low();
+			aabb.upper().y() = r.high();
+		}
 
 		for (unsigned c = 0; c < easy.clusters; c++) {
 			for (unsigned g = 0; g < easy.groups; g++) {
