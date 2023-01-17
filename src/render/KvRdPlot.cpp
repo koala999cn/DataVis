@@ -653,6 +653,8 @@ void KvRdPlot::showLegendProperty_()
 		ImGui::ColorEdit4("Text Color", legend->textColor());
 		ImGui::SliderInt("Warps", &legend->warps(), 0, legend->itemCount());
 		ImGui::Checkbox("Row Major", &legend->rowMajor());
+
+		ImGuiX::treePop();
 	}
 	
 	bool open = false;
