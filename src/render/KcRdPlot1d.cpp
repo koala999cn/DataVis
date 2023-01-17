@@ -109,9 +109,24 @@ namespace kPrivate
 		}
 		else if (dynamic_cast<KcBars2d*>(plt)) {
 			auto bars = dynamic_cast<KcBars2d*>(plt);
-			ImGuiX::brush(bars->fillBrush(), true);
-			ImGui::SliderFloat("Width Ratio", &bars->barWidthRatio(), 0.01, 1.0, "%.2f");
+			static const char* modes[] = {
+				"stacked first",
+				"grouped first"
+			};
+			int mode = bars->stackedFirst() ? 0 : 1;
+			if (ImGuiX::combo("Mode", modes, mode))
+				bars->stackedFirst() = (mode == 0);
+
 			ImGui::DragFloat("Baseline", &bars->baseLine());
+			ImGui::SliderFloat("Width Ratio", &bars->barWidthRatio(), 0.01, 1.0, "%.2f");
+			ImGui::SliderFloat("Stack Padding", &bars->paddingStacked(), 0.0, 1.0, "%.2f");
+			ImGui::SliderFloat("Group Padding", &bars->paddingGrouped(), 0.0, 1.0, "%.2f");
+
+			if (ImGuiX::treePush("Fill", false)) {
+				ImGuiX::brush(bars->fillBrush(), true);
+				ImGuiX::treePop();
+			}
+
 			if (ImGuiX::treePush("Border", false)) {
 				ImGuiX::pen(bars->borderPen(), true);
 				ImGuiX::treePop();

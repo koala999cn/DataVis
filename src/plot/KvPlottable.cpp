@@ -43,8 +43,16 @@ void KvPlottable::resetColorMappingRange()
 {
 	if (data_) {
 		assert(colorMappingDim() <= data_->dim());
-		auto r = data_->range(colorMappingDim());
-		colorMappingRange_ = { r.low(), r.high() };
+
+		auto d = colorMappingDim();
+		if (d < 3) {
+			auto r = boundingBox();
+			colorMappingRange_ = { r.lower()[d], r.upper()[d] };
+		}
+		else {
+			auto r = data_->range(d);
+			colorMappingRange_ = { r.low(), r.high() };
+		}
 	}
 }
 

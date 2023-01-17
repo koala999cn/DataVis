@@ -4,6 +4,8 @@
 #include "KvContinued.h"
 #include "KtGeometryImpl.h"
 #include "KcVertexDeclaration.h"
+#include "KtuMath.h"
+#include "KvSampled.h"
 
 
 KcBars2d::KcBars2d(const std::string_view& name)
@@ -16,6 +18,13 @@ KcBars2d::KcBars2d(const std::string_view& name)
 void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 {
 	auto barWidth = barWidth_();
+	auto easy = easyGetter_();
+	auto stackWidth = (1 - paddingGrouped_ * (easy.groups - 1)) * barWidth / easy.groups;
+	if (stackWidth <= 0)
+		return;
+
+	auto groupPadding = paddingGrouped_ * barWidth;
+	auto stackPadding = paddingStacked_ * barWidth;
 
 	struct KpVtxBuffer_
 	{
@@ -25,42 +34,40 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 
 	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
 	auto vtx = geom->newVertex(disc->size() * disc->channels() * 4);
-	auto vtxBuf = vtx;
 
-	for (unsigned i = 0; i < disc->size(); i++) {
+	for (unsigned c = 0; c < easy.clusters; c++) {
+		for (unsigned g = 0; g < easy.groups; g++) {
+			auto bottom = baseLine_;
+			for (unsigned s = 0; s < easy.stacks; s++) {
+				auto pt = easy.getter(c, g, s);
+				auto ch = stackedFirst_ ? s : g;
+				auto top = bottom + pt[1];
+				auto left = pt[0] - barWidth / 2 + g * (stackWidth + groupPadding);
+				auto right = left + stackWidth;
 
-		auto bottom = baseLine_;
+				// 第一个顶点取right-top，这样可保证最后一个顶点为left-top（quad各顶点按顺时针排列）
+				// 如此确保在flat模式下显示left-top顶点的颜色（保证按y轴插值时的正确性）
+				vtx[0].pos = point3f(right, top, pt[2]);
+				pt[0] = right, pt[1] = top;
+				vtx[0].clr = mapValueToColor_(pt.data(), ch);
 
-		for (unsigned j = 0; j < disc->channels(); j++) {
-			auto pt = disc->pointAt(i, j);
-			if (pt.size() < 3)
-				pt.push_back(defaultZ(j));
+				vtx[1].pos = point3f(right, bottom + stackPadding, pt[2]);
+				pt[1] = bottom;
+				vtx[1].clr = mapValueToColor_(pt.data(), ch);
 
-			auto top = bottom + pt[1];
-			auto left = pt[0] - barWidth / 2;
-			auto right = pt[0] + barWidth / 2;
+				vtx[2].pos = point3f(left, bottom + stackPadding, pt[2]);
+				pt[0] = left;
+				vtx[2].clr = mapValueToColor_(pt.data(), ch);
 
-			// 第一个顶点取right-top，这样可保证最后一个顶点为left-top（quad各顶点按顺时针排列）
-			// 如此确保在flat模式下显示left-top顶点的颜色（保证按y轴插值时的正确性）
-			vtxBuf[0].pos = point3f(right, top, pt[2]);
-			pt[0] = right, pt[1] = top;
-			vtxBuf[0].clr = mapValueToColor_(pt.data(), j);
+				vtx[3].pos = point3f(left, top, pt[2]);
+				pt[1] = top;
+				vtx[3].clr = mapValueToColor_(pt.data(), ch);
 
-			vtxBuf[1].pos = point3f(right, bottom, pt[2]);
-			pt[1] = bottom;
-			vtxBuf[1].clr = mapValueToColor_(pt.data(), j);
+				vtx += 4;
 
-			vtxBuf[2].pos = point3f(left, bottom, pt[2]);
-			pt[0] = left;
-			vtxBuf[2].clr = mapValueToColor_(pt.data(), j);
+				bottom = top;
+			}
 
-			vtxBuf[3].pos = point3f(left, top, pt[2]);
-			pt[1] = top;
-			vtxBuf[3].clr = mapValueToColor_(pt.data(), j);
-
-			vtxBuf += 4;
-
-			bottom = top;
 		}
 	}
 
@@ -72,7 +79,7 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 	if (showEdge)
 		paint->apply(borderPen());
 
-	paint->drawGeom(decl, geom, true, showEdge);
+	paint->drawGeom(decl, geom, fillBrush().visible(), showEdge);
 }
 
 
@@ -97,12 +104,31 @@ KcBars2d::aabb_t KcBars2d::boundingBox() const
 		auto w = barWidth_();
 		aabb.inflate(w, 0);
 
-		if (stacked_) {
-			auto r = stackedRange_();
-			auto pt = aabb.lower();
-			pt.y() = baseLine_ + r.first; aabb.merge(pt);
-			pt.y() = baseLine_ + r.second; aabb.merge(pt);
+		auto easy = easyGetter_();
+		
+		unsigned ydim = 1; // 作为y轴的数据维度
+		if (data()->dim() > 1) {
+			ydim = 2; // 1维度作为分组数或堆叠数
+			if (data()->dim() > 2 && data()->channels() == 1) // 1/2维度分别作为分组/堆叠、或堆叠/分组数
+				ydim = 3;
 		}
+
+		for (unsigned c = 0; c < easy.clusters; c++) {
+			for (unsigned g = 0; g < easy.groups; g++) {
+
+				// 计算1个堆叠的长度
+				float_t stackLen(0);
+				for (unsigned s = 0; s < easy.stacks; s++) {
+					auto pt = easy.getter(c, g, s);
+					stackLen += pt[ydim];
+				}
+
+				KtuMath<float_t>::uniteRange(aabb.lower().y(), aabb.upper().y(),
+					stackLen + baseLine_, stackLen + baseLine_);
+			}
+		}
+
+		KtuMath<float_t>::updateRange(baseLine_, aabb.lower().y(), aabb.upper().y()); // 确保显示baseline
 	}
 
 	return aabb;
@@ -121,26 +147,116 @@ void KcBars2d::setMinorColor(const color4f& minor)
 }
 
 
-std::pair<KcBars2d::float_t, KcBars2d::float_t> KcBars2d::stackedRange_() const
+KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 {
-	if (data()->channels() == 1) {
-		auto r = data()->range(1);
-		return { r.low(), r.high() };
-	}
+	assert(!empty());
+	
+	KpEasyGetter getter;
 
-	auto in(std::numeric_limits<float_t>::max());
-	auto ax(std::numeric_limits<float_t>::lowest());
+	auto chs = data()->channels();
 
 	auto disc = discreted_();
-	assert(disc);
-	for (unsigned i = 0; i < disc->size(); i++) {
-		float_t v(0);
-		for (unsigned ch = 0; ch < disc->channels(); ch++)
-			v += disc->pointAt(i, ch)[1];
-		if (v < in) in = v;
-		if (v > ax) ax = v;
+
+	// NB: 无论哪种分组/堆叠方式，都始终保持0维度数据在x轴，簇数目等于0维度的数据量
+	getter.clusters = disc->size(0);
+
+	// 非均匀采样数据只能按通道分组，不能堆叠（无法保证x坐标一致）
+	if (!disc->isSampled()) {
+		getter.stacks = 1;
+		getter.groups = chs;
+		getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
+			assert(stack == 0);
+			auto pt = disc->pointAt(idx, group);
+			if (pt.size() < 2)
+				pt.push_back(defaultZ(group));
+			return pt;
+		};
+
+		return getter;
 	}
 
-	return { in, ax };
-}
 
+	auto samp = std::dynamic_pointer_cast<KvSampled>(disc);
+
+	if (chs > 1) { // 优先按通道分组/堆叠
+		if (stackedFirst_) {
+			getter.stacks = chs;
+			getter.groups = samp->size(1);
+			if (samp->dim() == 1) {
+				getter.getter = [this, samp](unsigned idx, unsigned group, unsigned stack) {
+					auto pt = samp->point(idx, stack);
+					pt.push_back(defaultZ(stack));
+					return pt;
+				};
+			}
+			else {
+				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
+					return samp->point(idx, group, stack);
+				};
+			}
+		}
+		else {
+			getter.stacks = samp->size(1);
+			getter.groups = chs;
+			if (samp->dim() == 1) {
+				getter.getter = [this, samp](unsigned idx, unsigned group, unsigned stack) {
+					auto pt = samp->point(idx, group);
+					pt.push_back(defaultZ(group));
+					return pt;
+				};
+			}
+			else {
+				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
+					return samp->point(idx, stack, group);
+				};
+			}
+		}
+	}
+	else if (samp->dim() == 1) { // 单通道单维度，分组数和堆叠数均为1
+		getter.stacks = 1;
+		getter.groups = 1;
+		getter.getter = [this, samp](unsigned idx, unsigned group, unsigned stack) {
+			assert(stack == 0 && group == 0);
+			auto pt = samp->point(idx, 0);
+			pt.push_back(defaultZ(0));
+			return pt;
+
+		};
+	}
+	else { // 单通道高纬度，依高维度分组/堆叠
+		if (stackedFirst_) {
+			getter.stacks = samp->size(1);
+			getter.groups = samp->dim() > 1 ? samp->size(2) : 1;
+			if (samp->dim() == 2) {
+				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
+					return samp->point(idx, stack, 0);
+				};
+			}
+			else {
+				assert(samp->dim() > 2);
+				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
+					kIndex idxes[3] = { idx, stack, group };
+					return samp->point(idxes, 0);
+				};
+			}
+		}
+		else {
+			getter.groups = samp->size(1);
+			getter.stacks = samp->dim() > 1 ? samp->size(2) : 1;
+			if (samp->dim() == 2) {
+				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
+					return samp->point(idx, group, 0);
+				};
+			}
+			else {
+				assert(samp->dim() > 2);
+				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
+					kIndex idxes[3] = { idx, group, stack };
+					return samp->point(idxes, 0);
+				};
+			}
+		}
+	}
+
+	return getter;
+}
