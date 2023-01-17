@@ -661,6 +661,7 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool sh
 	else {
 		KcEdgedObject* edgedObj = new KcEdgedObject(geom->type());
 		edgedObj->setEdgeWidth(lineWidth_);
+		edgedObj->setEdgeStyle(lineStyle_);
 		edgedObj->setFilled(fill); edgedObj->setEdged(showEdge);
 		if (showEdge && !hasColor)
 			edgedObj->setEdgeColor(secondaryClr_);

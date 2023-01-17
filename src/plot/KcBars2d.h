@@ -23,6 +23,9 @@ public:
 
 	void setMinorColor(const color4f& minor) override;
 
+	bool showFill() const { return showFill_; }
+	bool& showFill() { return showFill_; }
+
 	bool showBorder() const { return showBorder_; }
 	bool& showBorder() { return showBorder_; }
 
@@ -78,7 +81,7 @@ private:
 	mutable KpBrush fill_;
 	float barWidthRatio_{ 0.75f }; // barWidth = barWidthRatio_ * dx
 	float baseLine_{ 0 }; // bar的底线，各bar的高度 = baseLine_ + y
-	bool showBorder_{ true };
+	bool showBorder_{ true }, showFill_{ true };
 	KpPen border_;
 	bool stackedFirst_{ false }; // stacked优先还是grouped优先
 

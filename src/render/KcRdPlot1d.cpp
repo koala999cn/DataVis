@@ -123,12 +123,16 @@ namespace kPrivate
 			ImGui::SliderFloat("Stack Padding", &bars->paddingStacked(), 0.0, 1.0, "%.2f");
 			ImGui::SliderFloat("Group Padding", &bars->paddingGrouped(), 0.0, 1.0, "%.2f");
 
-			if (ImGuiX::treePush("Fill", false)) {
+			bool open(false);
+			ImGuiX::cbTreePush("Fill", &bars->showFill(), &open);
+			if (open) {
 				ImGuiX::brush(bars->fillBrush(), true);
 				ImGuiX::treePop();
 			}
 
-			if (ImGuiX::treePush("Border", false)) {
+			open = false;
+			ImGuiX::cbTreePush("Border", &bars->showBorder(), &open);
+			if (open) {
 				ImGuiX::pen(bars->borderPen(), true);
 				ImGuiX::treePop();
 			}

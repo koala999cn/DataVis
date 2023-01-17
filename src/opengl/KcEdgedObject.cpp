@@ -3,6 +3,7 @@
 #include "KsShaderManager.h"
 #include "KcVertexDeclaration.h"
 #include "glad.h"
+#include "KuOglUtil.h"
 
 
 KcEdgedObject::KcEdgedObject(KePrimitiveType type)
@@ -36,17 +37,25 @@ void KcEdgedObject::draw() const
     if (hasEdge) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glLineWidth(edgeWidth_);
-        edgeShader_->useProgram();
-        setUniforms_(edgeShader_);
+        KuOglUtil::glLineStyle(edgeStyle_);
 
-        // 若顶点属性没有color，则主色用于fill，须另外设置edge颜色
-        if (!vtxDecl_->hasColor()) {
-            auto loc = edgeShader_->getUniformLocation("vColor");
-            if (loc != -1)
-                glUniform4f(loc, edgeColor_[0], edgeColor_[1], edgeColor_[2], edgeColor_[3]);
+        if (fill_) {
+            edgeShader_->useProgram();
+            setUniforms_(edgeShader_);
+
+            // 若顶点属性没有color，则主色用于fill，须另外设置edge颜色
+            if (!vtxDecl_->hasColor()) {
+                auto loc = edgeShader_->getUniformLocation("vColor");
+                if (loc != -1)
+                    glUniform4f(loc, edgeColor_[0], edgeColor_[1], edgeColor_[2], edgeColor_[3]);
+            }
+
+            drawVbo_(); // 使用已绑定的vbo
         }
-
-        drawVbo_(); // 使用已绑定的vbo
+        else {
+            super_::draw(); // 在只描边的情况下，使用fill配置
+        }
+        
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // 恢复渲染状态
     }
 }

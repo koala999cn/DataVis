@@ -11,12 +11,17 @@
 KcBars2d::KcBars2d(const std::string_view& name)
 	: super_(name)
 {
-	border_.color = color4f(0, 0, 0, 0); // default no border 
+	border_.color = color4f(0, 0, 0, 1);
 }
 
 
 void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 {
+	bool realShowFill = showFill() && fillBrush().visible();
+	bool realShowEdge = showBorder() && borderPen().visible();
+	if (!realShowFill && !realShowEdge)
+		return;
+
 	auto barWidth = barWidth_(); // 目前返回dx/2
 	auto clusterWidth = barWidth * barWidthRatio_; // 每簇所占的宽度（世界坐标）
 	auto easy = easyGetter_();
@@ -78,11 +83,10 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
 
-	bool showEdge = showBorder() && borderPen().visible();
-	if (showEdge)
+	if (realShowEdge)
 		paint->apply(borderPen());
 
-	paint->drawGeom(decl, geom, fillBrush().visible(), showEdge);
+	paint->drawGeom(decl, geom, realShowFill, realShowEdge);
 }
 
 
