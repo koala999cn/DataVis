@@ -23,7 +23,8 @@ std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KcPortNode* port)
 	// 根据prov自动选择图类型
 	if (prov->isScattered(port->index()))
 		return createPlts_<KcScatter>(port);
-	else if(prov->isSeries(port->index()) && prov->size(port->index(), 0) < 256)
+	else if(prov->dim(port->index()) > 1 || 
+		prov->isSeries(port->index()) && prov->size(port->index(), 0) < 256)
 		return createPlts_<KcBars2d>(port);
 	else // if (prov->isContinued() || prov->isSampled())
 		return createPlts_<KcGraph>(port);
