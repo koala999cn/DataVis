@@ -29,13 +29,8 @@ void KcColorBar::resetPlottable(KvPlottable* plt)
         plt_ = plt;
         name() = plt->name();
 
-        if (plt_->data()) {
-            auto r = plt->data()->valueRange();
-            axis_->setRange(r.low(), r.high());
-        }
-        else {
-            axis_->setRange(0, 0);
-        }
+        auto r = plt->colorMappingRange();
+        axis_->setRange(r.first, r.second);
     }
 }
 
@@ -90,6 +85,9 @@ void KcColorBar::draw(KvPaint* paint) const
     // draw the ticker
     if (axis_->visible()) {
         typename KcAxis::point3 start, end;
+
+        auto r = plt_->colorMappingRange();
+        axis_->setRange(r.first, r.second);
 
         if (align() & KeAlignment::k_horz_first) {
             if (align() & KeAlignment::k_right) { // TODO: 更优雅的定位方法
