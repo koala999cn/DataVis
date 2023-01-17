@@ -17,6 +17,8 @@ public:
 
 	aabb_t boundingBox() const override;
 
+	unsigned majorColorsNeeded() const override;
+
 	const color4f& minorColor() const override;
 
 	void setMinorColor(const color4f& minor) override;
@@ -67,6 +69,10 @@ private:
 	};
 
 	KpEasyGetter easyGetter_() const;
+
+	unsigned xdim_() const;
+
+	unsigned ydim_() const;
 
 private:
 	mutable KpBrush fill_;

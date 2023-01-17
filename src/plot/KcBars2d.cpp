@@ -34,6 +34,8 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 
 	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
 	auto vtx = geom->newVertex(disc->size() * disc->channels() * 4);
+	auto xdim = xdim_();
+	auto ydim = ydim_();
 
 	for (unsigned c = 0; c < easy.clusters; c++) {
 		for (unsigned g = 0; g < easy.groups; g++) {
@@ -41,8 +43,8 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 			for (unsigned s = 0; s < easy.stacks; s++) {
 				auto pt = easy.getter(c, g, s);
 				auto ch = stackedFirst_ ? s : g;
-				auto top = bottom + pt[1];
-				auto left = pt[0] - barWidth / 2 + g * (stackWidth + groupPadding);
+				auto top = bottom + pt[ydim];
+				auto left = pt[xdim] - barWidth / 2 + g * (stackWidth + groupPadding);
 				auto right = left + stackWidth;
 
 				// 第一个顶点取right-top，这样可保证最后一个顶点为left-top（quad各顶点按顺时针排列）
@@ -96,6 +98,25 @@ KcBars2d::float_t KcBars2d::barWidth_(unsigned dim) const
 }
 
 
+unsigned KcBars2d::xdim_() const
+{
+	return 0; // 
+}
+
+
+unsigned KcBars2d::ydim_() const
+{
+	unsigned ydim = 1; // 作为y轴的数据维度
+	if (data()->dim() > 1) {
+		ydim = 2; // 1维度作为分组数或堆叠数
+		if (data()->dim() > 2 && data()->channels() == 1) // 1/2维度分别作为分组/堆叠、或堆叠/分组数
+			ydim = 3;
+	}
+
+	return ydim;
+}
+
+
 KcBars2d::aabb_t KcBars2d::boundingBox() const
 {
 	auto aabb = super_::boundingBox();
@@ -106,12 +127,7 @@ KcBars2d::aabb_t KcBars2d::boundingBox() const
 
 		auto easy = easyGetter_();
 		
-		unsigned ydim = 1; // 作为y轴的数据维度
-		if (data()->dim() > 1) {
-			ydim = 2; // 1维度作为分组数或堆叠数
-			if (data()->dim() > 2 && data()->channels() == 1) // 1/2维度分别作为分组/堆叠、或堆叠/分组数
-				ydim = 3;
-		}
+		unsigned ydim = ydim_();
 
 		for (unsigned c = 0; c < easy.clusters; c++) {
 			for (unsigned g = 0; g < easy.groups; g++) {
@@ -132,6 +148,15 @@ KcBars2d::aabb_t KcBars2d::boundingBox() const
 	}
 
 	return aabb;
+}
+
+
+unsigned KcBars2d::majorColorsNeeded() const
+{
+	return coloringMode() == k_colorbar_gradiant ? -1
+		: (data() == nullptr ? 1 : // 数据未知，发挥1
+			data()->channels() > 1 ? data()->channels() // 多通道数据，返回通道数
+			: discreted_()->size(1)); // 单通道数据，返回size(1)
 }
 
 
