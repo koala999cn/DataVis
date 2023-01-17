@@ -61,13 +61,39 @@ public:
         return std::max(std::min(x, high), low); 
     } 
 
-
     static KREAL absMax(KREAL x, KREAL y) {
         return std::max(std::abs(x), std::abs(y));
     }
 
     static KREAL absMin(KREAL x, KREAL y) {
         return std::min(std::abs(x), std::abs(y));
+    }
+
+    template<bool CLOSED>
+    static bool inRange(KREAL x, KREAL low, KREAL high) {
+        if constexpr (CLOSED)
+            return x >= low && x <= high;
+        else
+            return x > low && x < high;
+    }
+
+    // 输入新值x，更新最小low和最大值high
+    static void updateRange(KREAL x, KREAL& low, KREAL& high) {
+        if (x < low) low = x;
+        if (x > high) high = x;
+    }
+
+    // (low0, high0) = (low0, high0) 并 (low1, high1)
+    static void uniteRange(KREAL& low0, KREAL& high0, KREAL low1, KREAL high1) {
+        if (low1 < low0) low0 = low1;
+        if (high1 > high0) high0 = high1;
+    }
+
+    // (low0, high0) = (low0, high0) 相交 (low1, high1)
+    static void intersectRange(KREAL& low0, KREAL& high0, KREAL low1, KREAL high1) {
+        if (low1 > low0) low0 = low1;
+        if (high1 < high0) high0 = high1;
+        if (low0 > high0) low0 = high0;
     }
 
 
