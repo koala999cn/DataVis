@@ -81,8 +81,6 @@ namespace kPrivate
         auto plt2d = dynamic_cast<KvPlottable2d*>(plt);
         assert(plt2d);
 
-        ImGui::Checkbox("Force default Z", &plt2d->forceDefaultZ());
-
         bool open(false);
         ImGuiX::cbTreePush("Edge", &plt2d->showBorder(), &open);
         if (open) {

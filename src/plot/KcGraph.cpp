@@ -6,10 +6,10 @@
 #include <assert.h>
 
 
-void KcGraph::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned ch) const
+void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned ch) const
 {
 	unsigned stride = count / 4096 + 1;
-	point_getter1 downsamp = [getter, stride](unsigned idx) { // TODO：使用降采样算法
+	auto downsamp = [getter, stride](unsigned idx) { // TODO：使用降采样算法
 		return getter(stride * idx);
 	};
 	
@@ -20,29 +20,30 @@ void KcGraph::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, un
 	paint->apply(lineCxt_);
 
 	if (coloringMode() == k_one_color_solid) {
-		paint->drawLineStrip(getter, count);
+		paint->drawLineStrip(toPaintGetter(getter, ch), count); // toPaintGetter按需完成z值替换
+		return;
 	}
-	else { // 构建带color的vbo
-		struct Vertex_ {
-			float3 pos;
-			float4 color;
-		};
 
-		auto decl = std::make_shared<KcVertexDeclaration>();
-		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
-		decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
+	// 构建带color的vbo
+	struct Vertex_ {
+		float3 pos;
+		float4 color;
+	};
 
-		auto geom = std::make_shared<KtGeometryImpl<Vertex_>>(k_line_strip);
-		auto vtx = geom->newVertex(count);
-		for (unsigned i = 0; i < count; i++) {
-			auto pt = getter(i);
-			vtx->pos = pt;
-			vtx->color = mapValueToColor_(pt.data(), ch);
-			vtx++;
-		}
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
 
-		paint->drawGeom(decl, geom, true, false);
+	auto geom = std::make_shared<KtGeometryImpl<Vertex_>>(k_line_strip);
+	auto vtx = geom->newVertex(count);
+	for (unsigned i = 0; i < count; i++) {
+		auto pt = getter(i);
+		vtx->pos = toPoint_(pt.data(), ch);
+		vtx->color = mapValueToColor_(pt.data(), ch);
+		vtx++;
 	}
+
+	paint->drawGeom(decl, geom, true, false);
 }
 
 

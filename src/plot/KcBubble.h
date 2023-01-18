@@ -17,8 +17,7 @@ public:
 	using super_::super_;
 
 protected:
-	using point_getter1 = typename KvPlottable1d::point_getter1;
-	virtual void drawImpl_(KvPaint*, point_getter1, unsigned count, unsigned channels) const final;
+	virtual void drawImpl_(KvPaint*, GETTER, unsigned count, unsigned channels) const final;
 
 	float mapValueToSize_(float_t val) const;
 

@@ -63,6 +63,7 @@ private:
 	struct KpEasyGetter
 	{
 		// 获取第idx簇的第group分组、第stack堆叠数据
+		// NB: 此实质为3个维度的索引
 		using GETTER = std::function<std::vector<float_t>(unsigned idx, unsigned group, unsigned stack)>;
 
 		unsigned clusters;

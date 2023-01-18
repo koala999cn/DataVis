@@ -7,7 +7,7 @@
 KcHeatMap::KcHeatMap(const std::string_view& name)
 	: super_(name)
 {
-	forceDefaultZ() = true;
+	forceDefaultZ() = true; // 在3d空间显示热图平面
 	flatShading() = true;
 	setColoringMode(k_colorbar_gradiant);
 }
@@ -40,7 +40,7 @@ KcHeatMap::aabb_t KcHeatMap::boundingBox() const
 }
 
 
-void KcHeatMap::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, unsigned ny, unsigned ch) const
+void KcHeatMap::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned ny, unsigned ch) const
 {
 	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
 	auto dx = disc->step(0);
@@ -68,7 +68,7 @@ void KcHeatMap::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, uns
 			yshift = -yshift, iy--;
 
 		auto pt = getter(ix - 1, iy);
-		pt.x() += xshift, pt.y() += yshift;
+		pt[0] += xshift, pt[1] += yshift;
 		return pt;
 	};
 
@@ -98,9 +98,9 @@ void KcHeatMap::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, uns
 				auto pt = getter(ix, iy);
 				auto text = KuStrUtil::toString(pt.back()); // TODO: 获取正确的数据
 				auto szText = paint->textSize(text.c_str());
-				pt.z() = defaultZ(ch);
+				pt[2] = defaultZ(ch);
 				if (szText.x() <= leng.x() && szText.y() <= leng.y())
-					paint->drawText(pt, text.c_str(), 0); // 0代表pt为中心点
+					paint->drawText({ pt[0], pt[1] }, text.c_str(), KeAlignment::k_vcenter | KeAlignment::k_hcenter); 
 			}
 	}
 }

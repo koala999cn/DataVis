@@ -14,7 +14,7 @@ class KvDiscreted;
 //    二是色彩模式和主色、辅色配置
 //    三是对连续数据的采样，派生类只须绘制离散数据
 //    四是分离坐标轴的设置和存储
-//    五是二维数据的缺省z坐标配置
+//    五是默认z坐标管理
 //
 
 class KvPlottable : public KvRenderable
@@ -88,6 +88,9 @@ public:
 	float_t stepZ() const { return stepZ_; }
 	float_t& stepZ() { return stepZ_; }
 
+	bool forceDefaultZ() const { return forceDefaultZ_; }
+	bool& forceDefaultZ() { return forceDefaultZ_; }
+
 	float_t defaultZ(unsigned ch) const { return defaultZ_ + ch * stepZ_; }
 
 	////////////////////////////////////////////////////////////////
@@ -124,6 +127,7 @@ public:
 
 protected:
 
+	// 确保传入的valp为数据原值，而非强制替换z之后的值
 	color4f mapValueToColor_(float_t* valp, unsigned channel) const;
 
 	// 根据当前的coloringMode_配置主色
@@ -132,6 +136,17 @@ protected:
 	// 返回一个离散化的数据对象
 	// 如果data()成员本身为离散数据，则直接返回；否则按照sampCount_构建并返回一个采样对象
 	std::shared_ptr<KvDiscreted> discreted_() const;
+
+	// 是否正在是否defaultZ，满足2个条件之一为true：
+	// 一是data_的dim等于1，始终使用defaultZ；
+	// 二是forceDefaultZ_为真
+	bool usingDefaultZ_() const;
+
+	// 根据valp构建point3对象
+	// 如果forceDefaultZ_为真，则替换valp的z值，否则用原z值
+	point3 toPoint_(float_t* valp, unsigned ch) const {
+		return { valp[0], valp[1], forceDefaultZ() ? defaultZ(ch) : valp[2] };
+	}
 
 private:
 
@@ -157,7 +172,13 @@ private:
 	// 用于分离坐标轴，缺省为null，表示使用主坐标轴
 	std::array<std::unique_ptr<KcAxis>, 3> selfAxes_; 
 
-	// 以下成员仅对二维数据有效
+	// 对Z轴的特殊处理：有2个作用：
+	// 一是对于一维数据，填补缺省的z值，以便在3d空间绘制
+	// 二是对于高维数据，替换原本的z值，以便在3d空间投影到x-y平面绘制
+
 	float_t defaultZ_{ 0 }; // 二维数据的z轴将被置为该值
 	float_t stepZ_{ 1 }; // 多通道二维数据的z轴偏移。若须将多通道数据显示在一个z平面，置该值为0
+
+	// 该标记为真时，将强制用默认Z值替换原来的z值，可用来在3d空间绘制二维的colormap图
+	bool forceDefaultZ_{ false };
 };

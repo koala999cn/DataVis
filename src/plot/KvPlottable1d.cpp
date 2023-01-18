@@ -18,9 +18,10 @@ void KvPlottable1d::draw1d_(KvPaint* paint, KvDiscreted* disc) const
 	float_t z;
 
 	unsigned ch(0);
-	auto getter = [&disc, &ch, &z](unsigned i) -> KvPaint::point3 {
+	auto getter = [&disc, &ch, &z](unsigned i) {
 		auto pt = disc->pointAt(i, ch);
-		return { pt[0], pt[1], z };
+		pt.push_back(z);
+		return pt;
 	};
 
 	for (; ch < disc->channels(); ch++) {
@@ -36,10 +37,9 @@ void KvPlottable1d::draw2d_(KvPaint* paint, KvDiscreted* disc) const
 
 	unsigned ch(0);
 	kIndex row;
-	auto getter = [&disc, &row, &ch](unsigned i) -> KvPaint::point3 {
+	auto getter = [&disc, &row, &ch](unsigned i) {
 		auto n = row * disc->size(1) * disc->channels() + i;
-		auto pt = disc->pointAt(n, ch);
-		return { pt[0], pt[1], pt[2] };
+		return disc->pointAt(n, ch);
 	};
 	
 	// NB: 与draw3d_不同之处在于，每个通道内draw2d_都逐行绘制（可绘制瀑布图）
@@ -53,11 +53,28 @@ void KvPlottable1d::draw2d_(KvPaint* paint, KvDiscreted* disc) const
 void KvPlottable1d::draw3d_(KvPaint* paint, KvDiscreted* disc) const
 {
 	unsigned ch(0);
-	auto getter = [&disc, &ch](unsigned i) -> KvPaint::point3 {
-		auto pt = disc->pointAt(i, ch);
-		return { pt[0], pt[1], pt[2] };
+	auto getter = [&disc, &ch](unsigned i) {
+		return disc->pointAt(i, ch);
 	};
 
 	for (; ch < disc->channels(); ch++) 
 		drawImpl_(paint, getter, disc->size(), ch);
+}
+
+
+typename KvPaint::point_getter1 KvPlottable1d::toPaintGetter(GETTER g, unsigned channel) const
+{
+	if (forceDefaultZ()) {
+		auto z = defaultZ(channel);
+		return [g, z](unsigned idx) {
+			auto pt = g(idx);
+			return point3(pt[0], pt[1], z);
+		};
+	}
+	else {
+		return [g](unsigned idx) {
+			auto pt = g(idx);
+			return point3(pt[0], pt[1], pt[2]);
+		};
+	}
 }

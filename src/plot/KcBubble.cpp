@@ -18,7 +18,7 @@ float KcBubble::mapValueToSize_(float_t val) const
 }
 
 
-void KcBubble::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned ch) const
+void KcBubble::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned ch) const
 {
 	paint->apply(marker());
 	paint->setMarkerType(KpMarker::k_circle); // 始终用circle类型绘制气泡图
@@ -33,6 +33,6 @@ void KcBubble::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, u
 		if (coloringMode() != k_one_color_solid)
 			paint->setColor(mapValueToColor_(pt.data(), ch));
 		
-		paint->drawMarker({ pt[0], pt[1], pt[2] });
+		paint->drawMarker(toPoint_(pt.data(), ch));
 	}
 }

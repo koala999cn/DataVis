@@ -849,7 +849,13 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 
 void KvRdPlot::showPlottableSampCountProperty_(unsigned idx)
 {
-	auto data = plot_->plottableAt(idx)->data();
+	auto plt = plot_->plottableAt(idx);
+	
+	ImGui::DragScalar("Default Z", ImGuiDataType_Double, &plt->defaultZ());
+	ImGui::DragScalar("Step Z", ImGuiDataType_Double, &plt->stepZ());
+	ImGui::Checkbox("Force default Z", &plt->forceDefaultZ());
+
+	auto data = plt->data();
 	if (data && data->isContinued()) {
 		unsigned minCount(1), maxCount(std::pow(1024 * 1024, 1. / data->dim()));
 		ImGui::DragScalarN("Sampling Count", ImGuiDataType_U32,

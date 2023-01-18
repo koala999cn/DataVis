@@ -6,19 +6,6 @@
 #include "KuPrimitiveFactory.h"
 
 
-KvPlottable2d::aabb_t KvPlottable2d::boundingBox() const
-{
-	auto box = super_::boundingBox();
-	if (!empty() && forceDefaultZ_) {
-		box.lower().z() = defaultZ();
-		box.upper().z() = defaultZ() + stepZ() * data()->channels();
-		if (stepZ() < 0)
-			std::swap(box.lower().z(), box.upper().z());
-	}
-	return box;
-}
-
-
 const color4f& KvPlottable2d::minorColor() const
 {
 	return borderPen_.color;
@@ -37,9 +24,8 @@ void KvPlottable2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 	assert(samp && samp->dim() >= 2);
 
 	unsigned ch(0);
-	auto getter = [&samp, &ch](unsigned ix, unsigned iy) -> KvPaint::point3 {
-		auto pt = samp->point(ix, iy, ch);
-		return { pt[0], pt[1], pt[2] };
+	auto getter = [&samp, &ch](unsigned ix, unsigned iy) {
+		return samp->point(ix, iy, ch);
 	};
 
 	for (; ch < samp->channels(); ch++)
@@ -47,7 +33,7 @@ void KvPlottable2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 }
 
 
-void KvPlottable2d::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx, unsigned ny, unsigned ch) const
+void KvPlottable2d::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned ny, unsigned ch) const
 {
 	struct KpVtxBuffer_
 	{
@@ -61,11 +47,10 @@ void KvPlottable2d::drawImpl_(KvPaint* paint, point_getter2 getter, unsigned nx,
 
 	for (unsigned i = 0; i < nx; i++)
 		for (unsigned j = 0; j < ny; j++) {
-			auto pt = getter(i, j);
+			auto pt = getter(i, j); // getter返回原值，未处理z值的强制替换（若需要）
 			assert(pt.size() > 2);
-			
-			vtxBuf->pos = point3f(pt[0], pt[1], forceDefaultZ_ ? defaultZ(ch) : pt[2]);
-			vtxBuf->clr = mapValueToColor_(pt.data(), ch);
+			vtxBuf->pos = toPoint_(pt.data(), ch);
+			vtxBuf->clr = mapValueToColor_(pt.data(), ch); // 传入原值
 			++vtxBuf;
 		}
 

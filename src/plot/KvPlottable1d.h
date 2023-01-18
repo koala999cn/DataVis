@@ -3,7 +3,7 @@
 #include "KvPaint.h"
 
 
-// 序列图的基类，主要处理串行数据，用于绘制折线图graph、散点图scatter、条状图bar等
+// 序列图的基类，主要处理串行数据，用于绘制折线图graph、散点图scatter等
 // 兼容2d和3d模式
 
 class KvPlottable1d : public KvPlottable
@@ -16,10 +16,15 @@ protected:
 
 	void drawDiscreted_(KvPaint*, KvDiscreted*) const override;
 
-	using point_getter1 = typename KvPaint::point_getter1;
+	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
 
 	// 为了兼容连续数据，此处增加unsigned参数，表示数据count
-	virtual void drawImpl_(KvPaint*, point_getter1, unsigned count, unsigned channels) const = 0;
+	// GETTER不作z替换（数据dim>1时），但完成z附加（数据dim=1时），确保返回的数据尺寸 >= 3
+	// 继承类须根据forceDefaultZ对GETTER返回值作二次处理（自行完成z值替换，或其他操作）
+	virtual void drawImpl_(KvPaint*, GETTER, unsigned count, unsigned channel) const = 0;
+
+	// 将GETTER变量转换为KvPaint需要的函数型
+	typename KvPaint::point_getter1 toPaintGetter(GETTER g, unsigned channel) const;
 
 private:
 

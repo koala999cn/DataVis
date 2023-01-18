@@ -21,7 +21,7 @@ public:
 
 private:
 
-	void drawImpl_(KvPaint*, point_getter2, unsigned nx, unsigned ny, unsigned c) const final;
+	void drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned c) const final;
 
 private:
 

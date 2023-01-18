@@ -160,7 +160,7 @@ KcBars2d::aabb_t KcBars2d::boundingBox() const
 unsigned KcBars2d::majorColorsNeeded() const
 {
 	return coloringMode() == k_colorbar_gradiant ? -1
-		: (data() == nullptr ? 1 : // 数据未知，发挥1
+		: (data() == nullptr ? 1 : // 数据未知，返回1
 			data()->channels() > 1 ? data()->channels() // 多通道数据，返回通道数
 			: discreted_()->size(1)); // 单通道数据，返回size(1)
 }
@@ -195,13 +195,21 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 	if (!disc->isSampled()) {
 		getter.stacks = 1;
 		getter.groups = chs;
-		getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
-			assert(stack == 0);
-			auto pt = disc->pointAt(idx, group);
-			if (pt.size() < 2)
+
+		if (data()->dim() == 1) {
+			getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
+				assert(stack == 0);
+				auto pt = disc->pointAt(idx, group);
 				pt.push_back(defaultZ(group));
-			return pt;
-		};
+				return pt;
+			};
+		}
+		else {
+			getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
+				assert(stack == 0);
+				return disc->pointAt(idx, group);
+			};
+		}
 
 		return getter;
 	}

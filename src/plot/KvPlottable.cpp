@@ -45,7 +45,7 @@ void KvPlottable::resetColorMappingRange()
 		assert(colorMappingDim() <= data_->dim());
 
 		auto d = colorMappingDim();
-		if (d < 3) {
+		if (d < 2 || d == 2 && !usingDefaultZ_()) {
 			auto r = boundingBox();
 			colorMappingRange_ = { r.lower()[d], r.upper()[d] };
 		}
@@ -76,13 +76,14 @@ KvPlottable::aabb_t KvPlottable::boundingBox() const
 	lower.x() = r0.low(), upper.x() = r0.high();
 	lower.y() = r1.low(), upper.y() = r1.high();
 
-	if (data_->dim() > 1) {
-		auto r2 = data_->range(2);
-		lower.z() = r2.low(), upper.z() = r2.high();
+	if (usingDefaultZ_()) {
+		// 不用关心lower.z与upper.z的大小，aabb构造函数会自动调整大小值
+		lower.z() = defaultZ(0);
+		upper.z() = defaultZ(data_->channels() - 1); // TODO: 此处固定使用通道数来配置z平面的数量，可考虑由用户定制
 	}
 	else {
-		lower.z() = defaultZ(0);
-		upper.z() = defaultZ(data_->channels() - 1);
+		auto r2 = data_->range(2);
+		lower.z() = r2.low(), upper.z() = r2.high();
 	}
 
 	return { lower, upper };
@@ -234,3 +235,8 @@ void KvPlottable::updateColorMappingPalette_()
 	}
 }
 
+
+bool KvPlottable::usingDefaultZ_() const
+{
+	return forceDefaultZ_ || data_->dim() == 1;
+}
