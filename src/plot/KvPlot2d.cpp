@@ -21,8 +21,14 @@ void KvPlot2d::autoProject_()
     else if (upper.z() < 0)
         upper.z() = 0;
 
+    // 防止各轴尺度为0，否则构建透视矩阵含有nan值
+    // TODO: 在其他地方统一处理，确保传入的尺度不为0
+    if (upper.x() == lower.x())
+        lower.x() -= 1, upper.x() += 1;
+    if (upper.y() == lower.y())
+        lower.y() -= 1, upper.y() += 1;
     if (upper.z() == lower.z())
-        upper.z() = lower.z() + 1; // 防止z轴尺度为0，否则构建透视矩阵含有nan值
+        upper.z() = lower.z() + 1; 
 
     auto depth = upper.z() - lower.z();
     lower.z() = 5 * depth;
