@@ -24,6 +24,7 @@
 - [ ] 色彩映射模式下的bar3d
 - [x] 可配置色彩映射的数据维度 --> ok
 - [x] legend支持单通道的多主色plottable --> ok
+- [ ] sactter图的美化问题。带轮廓线后，各scatter轮廓相互干扰，非常难看，启动深度测试又因为z-fighting也不好看。
 
 ## theme
 - [ ] 更多theme，SCI等
@@ -48,7 +49,7 @@
 - [x] colorbar与颜色渲染模式的同步 --> ok
 - [x] 多通道数据绘图二次启动crack --> ok
 - [ ] 窗口缩放到很小时，layout未被正确设置，导致坐标轴被剪切，plt和legend绘制到外面 --> 设置legend的clipRect后，该问题没再出现
-- [ ] plot2d在启用深度测试的时候有问题，而且plot各元素的layer顺序有问题
+- [x] plot2d在启用深度测试的时候有问题 --> d209879f
+- [ ] legned的border被plottable遮挡
 - [x] legend的warp把rowMajor搞反了 --> ok
-- [ ] legend在外侧布局的时候仍然没有正常裁剪
-
+- [ ] legend在外侧布局的时候仍然没有正常裁剪：一是布局问题（content尺寸超差的处理），二是部分元素仍使用ImGui绘制，未被正常剪切。
