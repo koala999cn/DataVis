@@ -24,7 +24,7 @@ void KcBubble::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned
 	paint->setMarkerType(KpMarker::k_circle); // 始终用circle类型绘制气泡图
 
 	if (coloringMode() == k_one_color_solid)
-		paint->setColor(majorColor(0));
+		paint->setColor(majorColor(ch));
 
 	for (unsigned i = 0; i < count; i++) {
 		auto pt = getter(i);

@@ -138,7 +138,7 @@ protected:
 	std::shared_ptr<KvDiscreted> discreted_() const;
 
 	// 是否正在是否defaultZ，满足2个条件之一为true：
-	// 一是data_的dim等于1，始终使用defaultZ；
+	// 一是data_的dim等于1，这种情况始终使用defaultZ填补缺失的z值；
 	// 二是forceDefaultZ_为真
 	bool usingDefaultZ_() const;
 
@@ -161,9 +161,10 @@ private:
 	KeColoringMode coloringMode_{ k_one_color_solid };
 	KtGradient<float_t, color4f> colorBar_; // 色带
 	bool flatShading_{ false };  // 若true，则开启flat渲染模式，否则使用smooth渲染模式
-	                             // flat模式下，使用多边形的第1个顶点对整个多边形着色
+	                             // flat模式下，使用多边形的最后1个顶点对整个多边形着色
+
 	float brightenCoeff_{ 0.5 }; // 亮度增强系数，仅适用于k_one_color_gradiant色彩模式
-	unsigned colorMappingDim_{ 2 }; // 使用该维度的数据进行色彩映射（默认z轴）
+	unsigned colorMappingDim_{ 2 }; // 使用该维度的数据进行色彩映射
 	std::pair<float_t, float_t> colorMappingRange_; // 色彩映射的值域范围
 
 	// 各维度的采样点数目, 仅适用于连续数据

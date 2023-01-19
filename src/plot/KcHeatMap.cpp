@@ -96,11 +96,11 @@ void KcHeatMap::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned n
 		for (unsigned ix = 0; ix < nx; ix++)
 			for (unsigned iy = 0; iy < ny; iy++) {
 				auto pt = getter(ix, iy);
-				auto text = KuStrUtil::toString(pt.back()); // TODO: 获取正确的数据
+				auto text = KuStrUtil::toString(pt[colorMappingDim()]);
 				auto szText = paint->textSize(text.c_str());
-				pt[2] = defaultZ(ch);
 				if (szText.x() <= leng.x() && szText.y() <= leng.y())
-					paint->drawText({ pt[0], pt[1] }, text.c_str(), KeAlignment::k_vcenter | KeAlignment::k_hcenter); 
+					paint->drawText(toPoint_(pt.data(), ch), text.c_str(), 
+						KeAlignment::k_vcenter | KeAlignment::k_hcenter); 
 			}
 	}
 }

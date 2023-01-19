@@ -9,7 +9,7 @@ void KcScatter::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigne
 	
 	bool outline = marker_.showOutline && marker_.hasOutline()
 		&& marker_.outline != marker_.fill && marker_.outline.a() > 0;
-	paint->drawMarkers(toPaintGetter(getter, ch), count, outline);
+	paint->drawMarkers(toPointGetter_(getter, ch), count, outline);
 }
 
 

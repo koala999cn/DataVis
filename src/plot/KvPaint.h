@@ -243,6 +243,10 @@ public:
 		drawText(point3(ach.x(), ach.y(), 0), text, align);
 	}
 
+	void drawGeomSolid(geom_ptr geom, bool fill, bool showEdge);
+
+	void drawGeomColor(geom_ptr geom, bool fill, bool showEdge);
+
 	void apply(const KpPen& cxt);
 
 	void apply(const KpBrush& cxt);

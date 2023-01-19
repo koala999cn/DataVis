@@ -2,7 +2,6 @@
 #include "KvSampled.h"
 #include "KvPaint.h"
 #include "KtGeometryImpl.h"
-#include "KcVertexDeclaration.h"
 #include "KuPrimitiveFactory.h"
 
 
@@ -58,13 +57,9 @@ void KvPlottable2d::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsign
 	auto idxBuf = geom->newIndex(idxCount);
 	KuPrimitiveFactory::indexGrid<unsigned>(nx, ny, idxBuf);
 
-	auto decl = std::make_shared<KcVertexDeclaration>();
-	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
-	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
-
 	bool showEdge = showBorder() && borderPen().visible();
 	if (showEdge)
 		paint->apply(borderPen());
 
-	paint->drawGeom(decl, geom, true, showEdge);
+	paint->drawGeomColor(geom, true, showEdge);
 }

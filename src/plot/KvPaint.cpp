@@ -1,5 +1,5 @@
 #include "KvPaint.h"
-#include "layout/KeAlignment.h"
+#include "3d/KcVertexDeclaration.h"
 
 
 void KvPaint::drawMarkers(const point3 pts[], unsigned count, bool outline)
@@ -85,6 +85,23 @@ void KvPaint::fillQuad(point3 pts[4], color_t clrs[4])
 	fillTriangle(pts, clrs);
 	std::swap(pts[0], pts[1]); std::swap(clrs[0], clrs[1]);
 	fillTriangle(pts + 1, clrs + 1);
+}
+
+
+void KvPaint::drawGeomSolid(geom_ptr geom, bool fill, bool showEdge)
+{
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+	drawGeom(decl, geom, fill, showEdge);
+}
+
+
+void KvPaint::drawGeomColor(geom_ptr geom, bool fill, bool showEdge)
+{
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
+	drawGeom(decl, geom, fill, showEdge);
 }
 
 

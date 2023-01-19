@@ -24,7 +24,7 @@ protected:
 	virtual void drawImpl_(KvPaint*, GETTER, unsigned count, unsigned channel) const = 0;
 
 	// 将GETTER变量转换为KvPaint需要的函数型
-	typename KvPaint::point_getter1 toPaintGetter(GETTER g, unsigned channel) const;
+	typename KvPaint::point_getter1 toPointGetter_(GETTER g, unsigned channel) const;
 
 private:
 

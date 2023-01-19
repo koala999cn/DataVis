@@ -95,9 +95,11 @@ namespace kPrivate
 		if (dynamic_cast<KcLineFilled*>(plt)) {
 			auto fill = dynamic_cast<KcLineFilled*>(plt);
 			ImGuiX::brush(fill->fillBrush(), false); // 隐藏brush的style选项，始终fill
-			if (ImGuiX::treePush("Line", false)) {
+			bool open(false);
+			ImGuiX::cbTreePush("Line", &fill->showLine(), &open);
+			if (open) {
 				ImGuiX::pen(fill->linePen(), true);
-				ImGuiX::treePop();
+				ImGuiX::cbTreePop();
 			}
 		}
 		else if (dynamic_cast<KcScatter*>(plt)) {

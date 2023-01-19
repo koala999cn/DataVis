@@ -186,6 +186,7 @@ void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count, bool outline)
 		auto edgeObj = new KcLineObject(k_lines);
 		edgeObj->setVBO(vbo, decl);
 		edgeObj->setWidth(lineWidth_);
+		edgeObj->setStyle(lineStyle_);
 
 		// ¹¹½¨±ßµÄindex»º´æ
 		auto markerCount = geom->vertexCount() / (segments + 1);
@@ -250,10 +251,8 @@ namespace kPrivate
 				vtxBuf[i] = pt + vtx[i];
 		}
 
-		auto decl = std::make_shared<KcVertexDeclaration>();
-		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 		paint.pushCoord(KvPaint::k_coord_screen);
-		paint.drawGeom(decl, geom, true, outline);
+		paint.drawGeomSolid(geom, true, outline);
 		paint.popCoord();
 	}
 }

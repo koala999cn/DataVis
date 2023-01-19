@@ -62,7 +62,7 @@ void KvPlottable1d::draw3d_(KvPaint* paint, KvDiscreted* disc) const
 }
 
 
-typename KvPaint::point_getter1 KvPlottable1d::toPaintGetter(GETTER g, unsigned channel) const
+typename KvPaint::point_getter1 KvPlottable1d::toPointGetter_(GETTER g, unsigned channel) const
 {
 	if (forceDefaultZ()) {
 		auto z = defaultZ(channel);

@@ -2,7 +2,6 @@
 #include "KvPaint.h"
 #include "KvData.h"
 #include "KtGeometryImpl.h"
-#include "KcVertexDeclaration.h"
 #include <assert.h>
 
 
@@ -20,7 +19,7 @@ void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned 
 	paint->apply(lineCxt_);
 
 	if (coloringMode() == k_one_color_solid) {
-		paint->drawLineStrip(toPaintGetter(getter, ch), count); // toPaintGetter按需完成z值替换
+		paint->drawLineStrip(toPointGetter_(getter, ch), count); // toPointGetter_按需完成z值替换
 		return;
 	}
 
@@ -29,10 +28,6 @@ void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned 
 		float3 pos;
 		float4 color;
 	};
-
-	auto decl = std::make_shared<KcVertexDeclaration>();
-	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
-	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
 
 	auto geom = std::make_shared<KtGeometryImpl<Vertex_>>(k_line_strip);
 	auto vtx = geom->newVertex(count);
@@ -43,7 +38,7 @@ void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned 
 		vtx++;
 	}
 
-	paint->drawGeom(decl, geom, true, false);
+	paint->drawGeomColor(geom, true, false);
 }
 
 

@@ -3,7 +3,6 @@
 #include "KvDiscreted.h"
 #include "KvContinued.h"
 #include "KtGeometryImpl.h"
-#include "KcVertexDeclaration.h"
 #include "KtuMath.h"
 #include "KvSampled.h"
 
@@ -79,14 +78,10 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 		}
 	}
 
-	auto decl = std::make_shared<KcVertexDeclaration>();
-	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
-	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
-
 	if (realShowEdge)
 		paint->apply(borderPen());
 
-	paint->drawGeom(decl, geom, realShowFill, realShowEdge);
+	paint->drawGeomColor(geom, realShowFill, realShowEdge);
 }
 
 
