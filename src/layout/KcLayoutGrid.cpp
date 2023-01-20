@@ -97,12 +97,14 @@ void KcLayoutGrid::remove(KvLayoutElement* ele)
 }
 
 
-void KcLayoutGrid::arrange(const rect_t& rc)
+void KcLayoutGrid::arrange_(int dim, float_t lower, float_t upper)
 {
 	assert(!rowMajor_);
 
-	if (rc.height()) arrangeStack_(rc, 1);
-	if (rc.width()) arrangeColStack_(rc);
+	if (dim == 1) 
+		arrangeStack_(1, lower, upper);
+	else 
+		arrangeColStack_(lower, upper);
 }
 
 
@@ -135,31 +137,38 @@ KcLayoutGrid::size_t KcLayoutGrid::calcSize_(void* cxt) const
 }
 
 
-void KcLayoutGrid::arrangeColStack_(const rect_t& rc)
+void KcLayoutGrid::arrangeColStack_(float_t lower, float_t upper)
 {
 	align_ = 0;
-	super_::arrange_(rc, 0); // 初始化iRect_
+	super_::arrange_(0, lower, upper); // 初始化iRect_
 
 	auto unusedSpace = iRect_.width();
 	auto fixedSpace = contentSize()[0];
-	auto extraSpace = std::max(0., unusedSpace - fixedSpace);
+	auto extraSpace = unusedSpace - fixedSpace;
+	auto scale = 1.0;
+	if (extraSpace < 0) {
+		assert(fixedSpace != 0);
+		extraSpace = 0;
+		scale = unusedSpace / fixedSpace;
+	}
 
 	auto spacePerShare = extraShares()[0] ? extraSpace / extraShares()[0] : 0;
 
-	rect_t rcItem = iRect_;
-	rcItem.setExtent(1, 0); // 屏蔽另一个维度
+	auto l = iRect_.lower()[0];
 	for (unsigned c = 0; c < cols(); c++) {
 		// 支持fixd-item和squeezed-item的混合体
-		rcItem.setExtent(0, szCols_[c].first + szCols_[c].second * spacePerShare);
-
+		auto itemSpace = szCols_[c].first * scale + szCols_[c].second * spacePerShare;
+		auto u = l + itemSpace;
+		
 		for (unsigned r = 0; r < rows(); r++) {
-			// TODO: 此处没有调用rowAt(r)的arrange，所以rowAt(r)的x维度尺寸为0
-			// rowAt(r)->arrange_(rcItem, 0); 
+
+			// NB: 此处没有调用rowAt(r)的arrange，所以rowAt(r)的x维度尺寸为0
+			// rowAt(r)->arrange(0, l, u); 
 
 			auto ele = rowAt(r)->getAt(c); 
-			if (ele) ele->arrange(rcItem);
+			if (ele) ele->arrange_(0, l, u);
 		}
 
-		rcItem.lower() = rcItem.upper();
+		l = u;
 	}
 }

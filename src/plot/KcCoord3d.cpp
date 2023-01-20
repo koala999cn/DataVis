@@ -136,15 +136,15 @@ KcCoord3d::size_t KcCoord3d::calcSize_(void* cxt) const
 }
 
 
-void KcCoord3d::arrange(const rect_t& rc)
+void KcCoord3d::arrange_(int dim, float_t lower, float_t upper)
 {
-	__super::arrange(rc);
+	__super::arrange_(dim, lower, upper);
 
 	if (!layCoord_->empty()) {
-		auto rcCoord = rcCoord_;
-		for (unsigned i = 0; i < 2; i++)
-			if (rc.extent(i) == 0) rcCoord.setExtent(i, 0);
-		layCoord_->arrange(rcCoord);
+		//auto rcCoord = rcCoord_;
+		//for (unsigned i = 0; i < 2; i++)
+		//	if (rc.extent(i) == 0) rcCoord.setExtent(i, 0);
+		layCoord_->arrange_(dim, lower, upper);
 	}
 }
 

@@ -180,7 +180,8 @@ void KcAxis::calcLabelOrient_(KvPaint* paint) const
 KcAxis::float_t KcAxis::orientScale_(KvPaint* paint, const vec3& o)
 {
 	assert(KtuMath<float_t>::almostEqual(o.length(), 1.0));
-	return 1. / paint->projectv(o).length();
+	auto v = paint->projectv(o).length();
+	return v > 0 ? 1. / v : 0;
 }
 
 

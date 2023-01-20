@@ -49,7 +49,7 @@ public:
 
 	void remove(KvLayoutElement* ele);
 
-	void arrange(const rect_t& rc) override;
+	void arrange_(int dim, float_t lower, float_t upper) override;
 
 protected:
 	size_t calcSize_(void* cxt) const override;
@@ -57,7 +57,7 @@ protected:
 private:
 
 	// 模拟实现0维度的arrangeStack_
-	void arrangeColStack_(const rect_t& rc);
+	void arrangeColStack_(float_t lower, float_t upper);
 
 private:
 	// calcSize的缓存变量. 用于保存每列的尺寸数据，first值为列的固定尺寸，second值为列的extra份额

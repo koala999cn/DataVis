@@ -17,10 +17,8 @@
 
 class KvLayoutElement
 {
-	using float_t = double;
-
 public:
-
+	using float_t = double;
 	using size_t = KtPoint<float_t, 2>;
 	using rect_t = KtAABB<float_t, 2>;
 	using margins_t = rect_t;
@@ -35,10 +33,13 @@ public:
 	KvLayoutElement* parent() { return parent_; }
 	void setParent(KvLayoutElement* p) { parent_ = p; }
 
-	// 调用该函数之前，须先调用calcSize
-	virtual void arrange(const rect_t& rc) {
-		if (rc.width()) arrange_(rc, 0);
-		if (rc.height()) arrange_(rc, 1);
+	// 调用arrange系列函数之前，须先调用calcSize
+
+	virtual void arrange_(int dim, float_t lower, float_t upper);
+
+	void arrange(const rect_t& rc) {
+		for (int i = 0; i < 2; i++)
+			arrange_(i, rc.lower()[i], rc.upper()[i]);
 	}
 
 	void setMargins(const margins_t& m) { margins_ = m; }
@@ -80,8 +81,6 @@ public:
 
 protected:
 	virtual size_t calcSize_(void* cxt) const = 0;
-
-	void arrange_(const rect_t& rc, int dim);
 
 protected:
 	mutable size_t contentSize_{ 0 };

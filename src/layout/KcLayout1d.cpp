@@ -1,16 +1,12 @@
 #include "KcLayout1d.h"
 
 
-void KcLayout1d::arrange(const rect_t& rc)
+void KcLayout1d::arrange_(int dim, float_t lower, float_t upper)
 {
-	if (rowMajor_) {
-        if (rc.width()) arrangeStack_(rc, 0);
-		if (rc.height()) arrangeOverlay_(rc, 1);
-	}
-	else {
-        if (rc.width()) arrangeOverlay_(rc, 0);
-        if (rc.height()) arrangeStack_(rc, 1);
-	}
+	if (rowMajor_ ^ dim == 0)
+		arrangeOverlay_(dim, lower, upper);
+	else 
+		arrangeStack_(dim, lower, upper);
 }
 
 
@@ -60,39 +56,46 @@ KcLayout1d::float_t KcLayout1d::calcSizeOverlayed_(int dim) const
 }
 
 
-void KcLayout1d::arrangeOverlay_(const rect_t& rc, int dim)
+void KcLayout1d::arrangeOverlay_(int dim, float_t lower, float_t upper)
 {
-	__super::arrange_(rc, dim);
-	auto rcLay = rc;
-	rcLay.setExtent(!dim, 0); // 屏蔽另一个维度
+	__super::arrange_(dim, lower, upper);
 	for (auto& i : elements())
-		if (i) i->arrange(rcLay);
+		if (i) i->arrange_(dim, lower, upper);
 }
 
 
-void KcLayout1d::arrangeStack_(const rect_t& rc, int dim)
+void KcLayout1d::arrangeStack_(int dim, float_t lower, float_t upper)
 {
-	__super::arrange_(rc, dim);
+	__super::arrange_(dim, lower, upper);
 
 	auto unusedSpace = iRect_.upper()[dim] - iRect_.lower()[dim];
 	auto fixedSpace = contentSize()[dim]; // 此处不可再用expectRoom，否则留白要多算一次，因为传入的rc已扣除了留白
-	auto extraSpace = std::max(0., unusedSpace - fixedSpace);
+	auto extraSpace = unusedSpace - fixedSpace;
+	
+	// NB: 处理fixedSpace > unusedSpace的情况
+	// 此处提供一个缩放因子scale，对各元素的fixedSpace进行等比缩放
+	auto scale = 1.0;
+	if (extraSpace < 0) {
+		assert(fixedSpace != 0);
+		extraSpace = 0;
+		scale = unusedSpace / fixedSpace;
+	}
 
 	// TODO: 1. 暂时使用均匀分配策略; 2. 未考虑extraShares == 0时，仍有extraSpace的情况
 	auto spacePerShare = extraShares()[dim] ? extraSpace / extraShares()[dim] : 0;
 
-	rect_t rcItem = iRect_;
-	rcItem.setExtent(!dim, 0); // 屏蔽另一个维度
+	auto l = iRect_.lower()[dim];
 	for (auto& i : elements()) {
 		if (i == nullptr)
 			continue;
 
 		// 支持fixd-item和squeezed-item的混合体
-		auto itemSpace = i->expectRoom()[dim] + i->extraShares()[dim] * spacePerShare;
+		auto expectRoom = i->expectRoom()[dim];
+		auto itemSpace = expectRoom * scale + i->extraShares()[dim] * spacePerShare;
 
-		rcItem.setExtent(dim, itemSpace);
-		i->arrange(rcItem);
+		auto u = l + itemSpace;
+		i->arrange_(dim, l, u);
 
-		rcItem.lower() = rcItem.upper();
+		l = u;
 	}
 }

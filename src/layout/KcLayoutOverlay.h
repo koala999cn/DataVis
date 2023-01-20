@@ -11,18 +11,16 @@ public:
 
 	using super_::super_;
 
-	void arrange(const rect_t& rc) final {
-		super_::arrange(rc);
+	void arrange_(int dim, float_t lower, float_t upper) override {
+		super_::arrange_(dim, lower, upper);
 
-		auto iRect = innerRect();
-		for (int i = 0; i < 2; i++)
-			if (rc.extent(i) == 0) iRect.setExtent(i, 0);
+		auto rc = innerRect();
 		for (auto& i : elements()) {
 			if (i == nullptr) continue;
 			
 			if (i->align().outter())
-				iRect = KuLayoutUtil::outterAlignedRect(rc, i->expectRoom(), i->align());
-			i->arrange(iRect);
+				rc = KuLayoutUtil::outterAlignedRect(outterRect(), i->expectRoom(), i->align());
+			i->arrange_(dim, rc.lower()[dim], rc.upper()[dim]);
 		}
 	}
 

@@ -50,6 +50,6 @@
 - [x] 多通道数据绘图二次启动crack --> ok
 - [ ] 窗口缩放到很小时，layout未被正确设置，导致坐标轴被剪切，plt和legend绘制到外面 --> 设置legend的clipRect后，该问题没再出现
 - [x] plot2d在启用深度测试的时候有问题 --> d209879f
-- [ ] legned的border被plottable遮挡
+- [ ] legned的border被plottable遮挡，且部分元素仍使用ImGui绘制，未被正常剪切。
 - [x] legend的warp把rowMajor搞反了 --> ok
-- [ ] legend在外侧布局的时候仍然没有正常裁剪：一是布局问题（content尺寸超差的处理），二是部分元素仍使用ImGui绘制，未被正常剪切。
+- [x] legend在外侧布局的时候仍然没有正常裁剪 --> 布局系统bug

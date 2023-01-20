@@ -8,14 +8,13 @@
 
 class KcLayout1d : public KvLayoutContainer
 {
-	using float_t = typename size_t::value_type;
 	using super_ = KvLayoutContainer;
 
 public:
 
 	using super_::super_;
 
-	void arrange(const rect_t& rc) override;
+	void arrange_(int dim, float_t lower, float_t upper) override;
 
 	point2i extraShares() const override {
 		return extraShares_ * shareFactor();
@@ -32,8 +31,8 @@ protected:
 	float_t calcSizeStacked_(int dim) const; // 计算各元素dim维度尺寸的累计和
 	float_t calcSizeOverlayed_(int dim) const; // 计算各元素dim维度尺寸的最大值
 
-	void arrangeStack_(const rect_t& rc, int dim);
-	void arrangeOverlay_(const rect_t& rc, int dim);
+	void arrangeStack_(int dim, float_t lower, float_t upper);
+	void arrangeOverlay_(int dim, float_t lower, float_t upper);
 
 protected:
 

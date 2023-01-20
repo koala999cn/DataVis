@@ -28,7 +28,7 @@ public:
 
 	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;
 
-	void arrange(const rect_t& rc) final;
+	void arrange_(int dim, float_t lower, float_t upper) override final;
 
 	axis_ptr& axis(int type) { return axes_[type]; }
 	axis_ptr axis(int type) const { return axes_[type]; }

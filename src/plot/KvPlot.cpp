@@ -176,8 +176,12 @@ int KvPlot::fixPlotView_()
 		return 0;
 		
 	// 绘图区域相对于画布（窗口视图）的缩放比例
-	KvPaint::point3 scale = { rcPlot.width() / rcCanvas.width(),
-								rcPlot.height() / rcCanvas.height(), 1 };
+	// NB: 当rcPlot的某个维度尺寸为0时，设置缩放因子为1
+	// （当缩放因子为0时，mvp矩阵将不可逆，造成unproject返回nan值）
+	KvPaint::point3 scale = { rcPlot.width() == 0 ? 1 : rcPlot.width() / rcCanvas.width(),
+		                      rcPlot.height() == 0 ? 1 : rcPlot.height() / rcCanvas.height(),
+							  1 };
+
 	//if (coord_->axisSwapped() == KvCoord::k_axis_swap_xy)
 	//	std::swap(scale.x(), scale.y());
 	scale = paint_->localToWorldV(scale); // 等价于上述坐标轴交换代码，此处使用更通用的变换方法
