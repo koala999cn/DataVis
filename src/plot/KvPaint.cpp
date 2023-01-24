@@ -15,7 +15,7 @@ void KvPaint::drawMarkers(const point3 pts[], unsigned count, bool outline)
 void KvPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 {
 	for (unsigned i = 0; i < count; i++)
-		drawMarker(fn(i));
+		drawMarker(fn(i), outline);
 }
 
 

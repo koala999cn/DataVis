@@ -87,7 +87,7 @@ public:
 
 	virtual void setLineStyle(int style) = 0;
 
-	virtual void drawMarker(const point3& pt) = 0;
+	virtual void drawMarker(const point3& pt, bool outline) = 0;
 
 	virtual void drawMarkers(const point3 pts[], unsigned count, bool outline);
 

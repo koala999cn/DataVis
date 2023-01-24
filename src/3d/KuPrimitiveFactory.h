@@ -11,7 +11,14 @@ class KuPrimitiveFactory
 public:
 
 	template<typename T>
+	using point2 = std::array<T, 2>;
+
+	template<typename T>
 	using point3 = std::array<T, 3>;
+
+	static inline const double SQRT_2_2 = std::sqrt(2.) / 2.;
+	static inline const double SQRT_3_2 = std::sqrt(3.) / 2.;
+
 
 	// 生成box的8个顶点
 	// @T: 顶点的基本数据类型，每个顶点位置由T[3]构成
@@ -41,6 +48,56 @@ public:
 	// 构建10点circle
 	template<typename T>
 	static int makeCircle10(const point3<T>& center, T radius, void* obuf, unsigned stride = 0);
+
+	// 返回单位长度（高为1）的上三角形的3个顶点，中心点为(0, 0)
+	template<typename T>
+	static const point2<T>* triangleUp() {
+		static const point2<T> up[] = {
+			{ T(SQRT_3_2), 0.5f }, { 0, -1 }, { -T(SQRT_3_2), 0.5f }
+		};
+		return up;
+	}
+
+	template<typename T>
+	static const point2<T>* triangleDown() {
+		static const point2<T> down[] = {
+			{ T(SQRT_3_2), -0.5f }, { 0, 1 }, { -T(SQRT_3_2), -0.5f }
+		};
+		return down;
+	}
+
+	template<typename T>
+	static const point2<T>* triangleLeft() {
+		static const point2<T> left[] = {
+			{ -1, 0 }, { 0.5, T(SQRT_3_2) }, { 0.5, -T(SQRT_3_2) }
+		};
+		return left;
+	}
+
+	template<typename T>
+	static const point2<T>* triangleRight() {
+		static const point2<T> right[] = {
+			{ 1, 0 }, { -0.5, T(SQRT_3_2) }, { -0.5, -T(SQRT_3_2) }
+		};
+		return right;
+	}
+
+	template<typename T>
+	static const point2<T>* diamond() {
+		static const point2<T> vtx[] = {
+			{ 1, 0 }, { 0, -1 }, { -1, 0 }, { 0, 1 }
+		};
+		return vtx;
+	}
+
+	template<typename T>
+	static const point2<T>* square() {
+		static const point2<T> vtx[] = {
+			{ SQRT_2_2, SQRT_2_2 }, { SQRT_2_2, -SQRT_2_2 }, 
+			{ -SQRT_2_2, -SQRT_2_2 }, { -SQRT_2_2, SQRT_2_2 }
+		};
+		return vtx;
+	}
 
 private:
 	KuPrimitiveFactory() = delete;

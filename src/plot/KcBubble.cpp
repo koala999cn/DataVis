@@ -33,6 +33,6 @@ void KcBubble::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned
 		if (coloringMode() != k_one_color_solid)
 			paint->setColor(mapValueToColor_(pt.data(), ch));
 		
-		paint->drawMarker(toPoint_(pt.data(), ch));
+		paint->drawMarker(toPoint_(pt.data(), ch), false);
 	}
 }

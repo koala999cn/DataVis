@@ -107,27 +107,9 @@ KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 }
 
 
-void KcImOglPaint::drawMarker(const point3& pt)
+void KcImOglPaint::drawMarker(const point3& pt, bool outline)
 {
-	/*
-	auto clr = clr_;
-	auto ptSize = markerSize_;
-	auto p = toNdc_(pt);
-
-	auto drawFn = [clr, ptSize, p]() {
-
-		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
-		glPointSize(ptSize);
-		glBegin(GL_POINTS);
-		glVertex3f(p.x(), p.y(), p.z());
-		glEnd();
-
-	};
-
-	currentRenderList().fns.push_back(drawFn);*/
-
-	// TODO:
-	super_::drawMarker(pt);
+	super_::drawMarker(pt, outline);
 }
 
 
@@ -257,6 +239,125 @@ namespace kPrivate
 	}
 }
 
+
+void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill,
+	const point2* outlineVtx, unsigned numOutline)
+{
+	assert(numFill > 0);
+
+	auto vbo = newColorVbo_(count * (numFill + numOutline));
+
+	std::vector<point3> vtx;
+	vtx.reserve(numFill + numOutline);
+	for (unsigned i = 0; i < numFill; i++) {
+		auto pt = fillVtx[i] * markerSize_;
+		vtx.emplace_back(pt.x(), pt.y(), 0);
+	}
+	for (unsigned i = 0; i < numOutline; i++) {
+		auto pt = outlineVtx[i] * markerSize_;
+		vtx.emplace_back(pt.x(), pt.y(), 0);
+	}
+
+
+	for (unsigned i = 0; i < count; i++) {
+		auto pt = projectp(fn(i)); // 转换到屏幕坐标
+
+		for (unsigned j = 0; j < numFill; j++) {
+			vbo->pos = pt + vtx[j];
+			vbo->clr = clr_;
+			++vbo;
+		}
+
+		for (unsigned j = 0; j < numOutline; j++) {
+			vbo->pos = pt + vtx[j + numFill];
+			vbo->clr = secondaryClr_;
+			++vbo;
+		}
+	}
+}
+
+
+void KcImOglPaint::addQuadFilled_(const point3& p0, const point3& p1, const point3& p2, const point3& p3, const float4& clr)
+{
+	auto vbo = newColorVbo_(6);
+
+	vbo[0].pos = p0; vbo[0].clr = clr;
+	vbo[1].pos = p1; vbo[1].clr = clr;
+	vbo[2].pos = p2; vbo[2].clr = clr;
+
+	vbo[3] = vbo[0];
+	vbo[4] = vbo[2];
+	vbo[5].pos = p3; vbo[5].clr = clr;
+}
+
+
+void KcImOglPaint::addLine_(const point3& pt0, const point3& pt1, const float4& clr)
+{
+	auto dp = pt1 - pt0;
+	dp.z() = 0;
+	dp.normalize();
+	dp *= lineWidth_ * 0.5;
+
+	addQuadFilled_(
+		{ pt0.x() - dp.y(), pt0.y() + dp.x(), pt0.z() },
+		{ pt0.x() + dp.y(), pt0.y() - dp.x(), pt0.z() },
+		{ pt1.x() + dp.y(), pt1.y() - dp.x(), pt1.z() },
+		{ pt1.x() - dp.y(), pt1.y() + dp.x(), pt1.z() }, clr);
+}
+
+
+void KcImOglPaint::addConvexPolyFilled_(point_getter1 fn, unsigned count, const float4& clr)
+{
+	assert(count >= 3);
+
+	auto vbo = newColorVbo_((count - 2) * 3);
+
+	vbo[0].pos = fn(0); vbo[0].clr = clr;
+	vbo[1].pos = fn(1); vbo[1].clr = clr;
+	vbo[2].pos = fn(2); vbo[2].clr = clr;
+	for (unsigned j = 3; j < count; j++) {
+		vbo[j] = vbo[0];
+		vbo[j + 1] = vbo[j - 1];
+		vbo[j + 2].pos = fn(j); vbo[j + 2].clr = clr;
+	}
+}
+
+
+void KcImOglPaint::addLineLoop_(point_getter1 fn, unsigned count, const float4& clr)
+{
+	for (unsigned j = 1; j < count; j++)
+		addLine_(fn(j - 1), fn(j), clr);
+	addLine_(fn(count - 1), fn(0), clr);
+}
+
+
+void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* vtxBuf, unsigned numVtx, bool outline)
+{
+	assert(numVtx >= 3);
+
+	std::vector<point3> vtx;
+	vtx.reserve(numVtx);
+	for (unsigned i = 0; i < numVtx; i++) {
+		auto pt = vtxBuf[i] * markerSize_;
+		vtx.emplace_back(pt.x(), pt.y(), 0);
+	}
+
+	point3 pt;
+	auto fns = [&pt, &vtx](unsigned n) {
+		return pt + vtx[n];
+	};
+
+	for (unsigned i = 0; i < count; i++) {
+		pt = projectp(fn(i)); // 转换到屏幕坐标
+
+		addConvexPolyFilled_(fns, numVtx, clr_);
+
+		if (outline)
+			addLineLoop_(fns, numVtx, secondaryClr_);
+	}
+}
+
+
 void KcImOglPaint::drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4], bool outline)
 {
 	kPrivate::drawPolyMarkers_<4>(*this, fn, count, quad, markerSize_, outline);
@@ -278,64 +379,7 @@ void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 	{
 	case KpMarker::k_dot:
 		drawPoints_(fn, count);
-		break;
-
-	case KpMarker::k_square:
-	{
-		static const point2 square[] = {
-			point2(SQRT_2_2, SQRT_2_2),
-			point2(SQRT_2_2, -SQRT_2_2),
-			point2(-SQRT_2_2, -SQRT_2_2),
-			point2(-SQRT_2_2, SQRT_2_2)
-		};
-		drawQuadMarkers_(fn, count, square, outline);
-	}
-		break;
-
-	case KpMarker::k_diamond:
-	{
-		static const point2 diamond[] = {
-			point2(1, 0), point2(0, -1), point2(-1, 0), point2(0, 1)
-		};
-		drawQuadMarkers_(fn, count, diamond, outline);
-	}
-		break;
-
-	case KpMarker::k_left:
-	{
-		static const point2 left[] = {
-			point2(-1, 0), point2(0.5, SQRT_3_2), point2(0.5, -SQRT_3_2)
-		};
-		drawTriMarkers_(fn, count, left, outline);
-	}
-		break;
-
-	case KpMarker::k_right:
-	{
-		static const point2 right[] = {
-			point2(1, 0), point2(-0.5, SQRT_3_2), point2(-0.5, -SQRT_3_2)
-		};
-		drawTriMarkers_(fn, count, right, outline);
-	}
-		break;
-
-	case KpMarker::k_up:
-	{
-		static const point2 up[] = {
-			point2(SQRT_3_2, 0.5f), point2(0,-1), point2(-SQRT_3_2, 0.5f)
-		};
-		drawTriMarkers_(fn, count, up, outline);
-	}
-		break;
-
-	case KpMarker::k_down:
-	{
-		static const point2 down[] = {
-			point2(SQRT_3_2, -0.5f), point2(0, 1), point2(-SQRT_3_2, -0.5f)
-		};
-		drawTriMarkers_(fn, count, down, outline);
-	}
-		break;
+		return;
 
 	case KpMarker::k_cross:
 	{
@@ -347,13 +391,14 @@ void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 		};
 		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, cross, markerSize_, outline);
 	}
-	    break;
+	    return;
+
 	case KpMarker::k_plus:
 	{
 		static const point2 plus[4] = { point2(-1, 0), point2(1, 0), point2(0, -1), point2(0, 1) };
 		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, plus, markerSize_, outline);
 	}
-	    break;
+	    return;
 
 	case KpMarker::k_asterisk:
 	{
@@ -367,12 +412,20 @@ void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 		};
 		kPrivate::drawPolyMarkers_<6>(*this, fn, count, asterisk, markerSize_, outline);
 	}
-		break;
+		return;
 
+	case KpMarker::k_square:
+	case KpMarker::k_diamond:
+	case KpMarker::k_left:
+	case KpMarker::k_right:
+	case KpMarker::k_up:
+	case KpMarker::k_down:
 	default:
-		drawCircles_(fn, count, outline);
 		break;
 	};
+
+	// 带outline的marker赞使用ImGui实现(issue I6B5ES)
+	super_::drawMarkers(fn, count, outline);
 }
 
 
@@ -479,10 +532,10 @@ void KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned co
 }
 
 
-void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
+void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 {
 	assert(obj->vbo() && obj->vertexDecl());
-
+	
 	obj->setColor(clr_);
 	switch (currentCoord())
 	{
@@ -520,7 +573,7 @@ void KcImOglPaint::pushRenderObject_(KcRenderObject* obj)
 			obj->setShader(KsShaderManager::singleton().progColor(flatShading()));
 	}
 
-	currentRenderList().objs.emplace_back(obj);
+	rl.objs.emplace_back(obj);
 }
 
 
@@ -582,7 +635,7 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 
 			auto curPos = texts.size();
 			texts.resize(curPos + 4); // 按quad图元绘制
-			TextVbo* buf = texts.data() + curPos;
+			auto buf = texts.data() + curPos;
 
 			// 文字框的4个顶点对齐glyph
 			auto dx1 = hDir * (hScale * glyph->X0);
@@ -619,7 +672,7 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
 	if (!rl.texts.empty()) {
 		auto obj = new KcRenderObject(k_quads);
-		obj->setShader(KsShaderManager::singleton().progColorUV(false)); // 文字渲染始终使用flat模式
+		obj->setShader(KsShaderManager::singleton().progColorUV(true)); // 文字渲染始终使用flat模式
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -633,6 +686,27 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 		obj->setVBO(vbo, decl);
 		obj->setProjMatrix(float4x4<>::identity());
 		rl.objs.emplace_back(obj);
+	}
+}
+
+
+void KcImOglPaint::pushColorVbo_(KpRenderList_& rl)
+{
+	if (!rl.tris.empty()) {
+		auto obj = new KcRenderObject(k_triangles);
+		obj->setShader(KsShaderManager::singleton().progColor(false));
+
+		auto decl = std::make_shared<KcVertexDeclaration>();
+		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+		decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
+
+		auto vbo = std::make_shared<KcGpuBuffer>();
+		vbo->setData(rl.tris.data(), rl.tris.size() * sizeof(KpColorVbo_), KcGpuBuffer::k_stream_draw);
+		obj->setVBO(vbo, decl);
+
+		pushCoord(k_coord_screen); // 确保pushRenderObject_压入屏幕坐标变换阵
+		pushRenderObject_(rl, obj);
+		popCoord();
 	}
 }
 
@@ -792,6 +866,7 @@ void KcImOglPaint::drawRenderList_()
 		if (std::get<0>(state) != viewport) {
 			viewport = std::get<0>(state);
 			glViewport_(viewport);
+			camera_.setViewport(viewportHistList_[viewport]); // 更新vp相关变换阵
 		}
 		if (std::get<1>(state) != clipRect) {
 			clipRect = std::get<1>(state);
@@ -804,6 +879,7 @@ void KcImOglPaint::drawRenderList_()
 
 		auto& rl = rd.second;
 		pushTextVbo_(rl);
+		pushColorVbo_(rl);
 
 		for (auto& i : rl.objs) i->draw();
 
@@ -876,4 +952,35 @@ void KcImOglPaint::grab(int x, int y, int width, int height, void* data)
 {
 	y = ImGui::GetMainViewport()->Size.y - y - height;
 	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+}
+
+
+KcImOglPaint::KpColorVbo_* KcImOglPaint::newColorVbo_(unsigned tris)
+{
+	auto& rl = currentRenderList();
+	auto pos = rl.tris.size();
+	rl.tris.resize(pos + tris);
+	return rl.tris.data() + pos;
+}
+
+
+void KcImOglPaint::pushTrisSoild_(const float3 pos[], unsigned c, const float4& clr)
+{
+	auto vbo = newColorVbo_(c);
+	for (unsigned i = 0; i < c; i++) {
+		vbo->pos = *pos++;
+		vbo->clr = clr;
+		++vbo;
+	}
+}
+
+
+void KcImOglPaint::pushTrisSoild_(const point2 pos[], unsigned c, const float4& clr)
+{
+	auto vbo = newColorVbo_(c);
+	for (unsigned i = 0; i < c; i++) {
+		vbo->pos = { pos->x(), pos->y(), 0 };
+		vbo->clr = clr;
+		++pos, ++vbo;
+	}
 }

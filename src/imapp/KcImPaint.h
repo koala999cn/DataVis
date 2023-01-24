@@ -47,7 +47,7 @@ public:
 
 	void setLineStyle(int style) override;
 
-	void drawMarker(const point3& pos) override;
+	void drawMarker(const point3& pos, bool outline) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
@@ -81,6 +81,7 @@ protected:
 	}
 
 	ImColor color_() const { return imColor(clr_); }
+	ImColor secondaryColor_() const { return imColor(secondaryClr_); }
 
 	void drawLine_(const ImVec2& from, const ImVec2& to);
 
@@ -89,6 +90,7 @@ protected:
 	// @pat: 直线绘制模板，长度为双数，格式为：绘制长度, 留白长度, 绘制长度, 留白长度...
 	void drawLinePattern_(const ImVec2& from, const ImVec2& to, const std::vector<int>& pat);
 
+	void addTriMarker_(const ImVec2& center, const std::array<float, 2> pts[], bool outline);
 
 protected:
 	camera_type& camera_;

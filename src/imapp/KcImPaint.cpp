@@ -6,6 +6,7 @@
 #include "imgui_internal.h"
 #include "KtLineS2d.h"
 #include "layout/KuLayoutUtil.h"
+#include "KuPrimitiveFactory.h"
 
 
 KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
@@ -182,10 +183,80 @@ void KcImPaint::setLineStyle(int style)
 }
 
 
-void KcImPaint::drawMarker(const point3& pos)
+void KcImPaint::addTriMarker_(const ImVec2& center, const std::array<float, 2> pts[], bool outline)
 {
 	auto drawList = ImGui::GetWindowDrawList();
-	drawList->AddCircleFilled(project_(pos), markerSize_ * 0.5, color_());
+	auto p0 = center + (ImVec2&)pts[0] * markerSize_;
+	auto p1 = center + (ImVec2&)pts[1] * markerSize_;
+	auto p2 = center + (ImVec2&)pts[2] * markerSize_;
+	drawList->AddTriangleFilled(p0, p1, p2, color_());
+	if (outline)
+		drawList->AddTriangle(p0, p1, p2, secondaryColor_(), lineWidth_);
+}
+
+
+void KcImPaint::drawMarker(const point3& pos, bool outline)
+{
+	auto drawList = ImGui::GetWindowDrawList();
+	auto pt = project_(pos);
+
+	switch (markerType_)
+	{
+	case KpMarker::k_dot:
+		drawList->AddCircleFilled(pt, markerSize_, color_());
+		return;
+
+	case KpMarker::k_square:
+	{
+		auto vtx = KuPrimitiveFactory::square<float>();
+		auto pmin = pt + (ImVec2&)vtx[0] * markerSize_;
+		auto pmax = pt + (ImVec2&)vtx[2] * markerSize_;
+		drawList->AddRectFilled(pmin, pmax, color_());
+		if (outline)
+			drawList->AddRect(pmin, pmax, secondaryColor_(), 0, 0, lineWidth_);
+		return;
+	}
+
+	case KpMarker::k_up:
+		addTriMarker_(pt, KuPrimitiveFactory::triangleUp<float>(), outline);
+		return;
+
+	case KpMarker::k_down:
+		addTriMarker_(pt, KuPrimitiveFactory::triangleDown<float>(), outline);
+		return;
+
+	case KpMarker::k_left:
+		addTriMarker_(pt, KuPrimitiveFactory::triangleLeft<float>(), outline);
+		return;
+
+	case KpMarker::k_right:
+		addTriMarker_(pt, KuPrimitiveFactory::triangleRight<float>(), outline);
+		return;
+
+	case KpMarker::k_diamond:
+	{
+		auto vtx = KuPrimitiveFactory::diamond<float>();
+		auto p0 = pt + (ImVec2&)vtx[0] * markerSize_;
+		auto p1 = pt + (ImVec2&)vtx[1] * markerSize_;
+		auto p2 = pt + (ImVec2&)vtx[2] * markerSize_;
+		auto p3 = pt + (ImVec2&)vtx[3] * markerSize_;
+		drawList->AddQuadFilled(p0, p1, p2, p3, color_());
+		if (outline)
+			drawList->AddQuad(p0, p1, p2, p3, secondaryColor_(), lineWidth_);
+	}
+		return;
+
+	case KpMarker::k_circle:
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+	
+	drawList->AddCircleFilled(pt, markerSize_, color_());
+	if (outline)
+		drawList->AddCircle(pt, markerSize_, secondaryColor_(), 0, lineWidth_);
 }
 
 
