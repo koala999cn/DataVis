@@ -913,7 +913,8 @@ void KcImOglPaint::glScissor_(unsigned id)
 
 	assert(id < clipRectHistList_.size());
 	auto& rc = clipRectHistList_[id];
-	auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
+	auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y() + 1; // 在交换xy轴的情况下，坐标轴基线与plt完美贴合
+	                                                                 // 不交换时plt在下方多1个像素，右方少1个像素
 	glScissor(rc.lower().x(), y0, rc.width(), rc.height());
 }
 
