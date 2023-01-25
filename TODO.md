@@ -53,3 +53,5 @@
 - [ ] legned的border被plottable遮挡，超过布局尺寸时未被正常剪切 --> 主要因为部分元素仍使用ImGui绘制
 - [x] legend的warp把rowMajor搞反了 --> ok
 - [x] legend在外侧布局的时候仍然没有正常裁剪 --> 布局系统bug（6b73a81）
+- [ ] 坐标轴基线与plt区域完美贴合的问题（line-filled区域在下方多1个像素，右方少1个像素）
+- [ ] 有时plane背景色和grid线无法正常显示，需要通过重新应用theme来出发
