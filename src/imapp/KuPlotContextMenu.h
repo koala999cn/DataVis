@@ -7,8 +7,6 @@ class KuPlotContextMenu
 {
 public:
 
-	static void open();
-
 	static void update(KvPlot*);
 
 private:

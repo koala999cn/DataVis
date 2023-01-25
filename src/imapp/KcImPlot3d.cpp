@@ -33,8 +33,6 @@ void KcImPlot3d::updateImpl_()
         KvPlot3d::update();
 
         // context menu
-        if (ImGui::IsMouseClicked(1))
-            KuPlotContextMenu::open();
         KuPlotContextMenu::update(this);
     }
 

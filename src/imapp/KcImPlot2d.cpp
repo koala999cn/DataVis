@@ -28,8 +28,6 @@ void KcImPlot2d::updateImpl_()
         KvPlot2d::update();
 
         // context menu
-        if (ImGui::IsMouseClicked(1))
-            KuPlotContextMenu::open();
         KuPlotContextMenu::update(this);
     }
 

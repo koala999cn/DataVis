@@ -9,9 +9,11 @@
 #include "stb/stb_image_write.h"
 
 
-void KuPlotContextMenu::open()
+namespace kPrivate
 {
-	ImGui::OpenPopup("##CONTEXT");
+    std::string popupId(KvPlot* plot) {
+        return "##" + KuStrUtil::toString(plot);
+    }
 }
 
 
@@ -20,10 +22,21 @@ void KuPlotContextMenu::update(KvPlot* plot)
     static int lag(0);
     static KcActionShowFileDialog fd(KcActionShowFileDialog::KeType::k_save,
         "Export As", "Image file (*.png;*.jpg;*.bmp){.png,.jpg,.bmp}");
+    static KvPlot* activePlot = nullptr;
+
+    // 当有其他窗口激活时，跳过后面的处理
+    if (activePlot && activePlot != plot)
+        return;
+
+    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) 
+        && ImGui::IsMouseReleased(ImGuiMouseButton_Right)
+        && activePlot == nullptr)
+        ImGui::OpenPopup("##CONTEXT");
 
     if (ImGui::BeginPopup("##CONTEXT")) {
         if (ImGui::MenuItem("Export to Image...")) {
             ImGui::CloseCurrentPopup();
+            activePlot = plot;
             fd.trigger();
         }
         ImGui::EndPopup();
@@ -48,6 +61,7 @@ void KuPlotContextMenu::update(KvPlot* plot)
         }
 
         lag = 0;
+        activePlot = nullptr;
     }
     else if (lag > 0)
         lag++;
@@ -56,5 +70,7 @@ void KuPlotContextMenu::update(KvPlot* plot)
         fd.update();
         if (fd.done())
             lag = 1;
+        else if (fd.cancelled())
+            activePlot = nullptr;
     }
 }
