@@ -294,6 +294,10 @@ void KvRdPlot::showPlotProperty_()
 
 		ImGui::Checkbox("Show Layout Rect", &plot_->showLayoutRect());
 
+		ImGui::BeginDisabled(working_());
+		ImGui::Checkbox("Split Channels", &splitChannels_);
+		ImGui::EndDisabled();
+
 		ImGuiX::treePop();
 	}
 }
