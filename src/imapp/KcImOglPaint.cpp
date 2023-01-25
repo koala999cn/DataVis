@@ -786,12 +786,16 @@ void KcImOglPaint::pushClipRect(const rect_t& cr)
 	else {
 		clipRectStack_.push_back(std::distance(clipRectHistList_.cbegin(), pos));
 	}
+
+	super_::pushClipRect(cr); // TODO: 当完全不用ImGui绘制时，可删除此代码
 }
 
 
 void KcImOglPaint::popClipRect()
 {
 	clipRectStack_.pop_back();
+
+	super_::popClipRect(); // TODO: 当完全不用ImGui绘制时，可删除此代码
 }
 
 
@@ -860,7 +864,7 @@ void KcImOglPaint::drawRenderList_()
 {
 	configOglState_();
 
-	unsigned viewport(-1), clipRect(0), clipBox(-2); // NB: clipBox可以等于-1，所以此处初始化为-2，表示未赋值
+	unsigned viewport(-1), clipRect(-1), clipBox(-2); // NB: clipBox可以等于-1，所以此处初始化为-2，表示未赋值
 	for (auto& rd : renderList_) {
 		auto& state = rd.first;
 		if (std::get<0>(state) != viewport) {
