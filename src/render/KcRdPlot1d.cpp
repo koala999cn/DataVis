@@ -105,6 +105,12 @@ namespace kPrivate
 		else if (dynamic_cast<KcScatter*>(plt)) {
 			auto scat = dynamic_cast<KcScatter*>(plt);
 			ImGuiX::marker(scat->marker());
+			bool open(false);
+			ImGuiX::cbTreePush("Line", &scat->showLine(), &open);
+			if (open) {
+				ImGuiX::pen(scat->linePen(), true);
+				ImGuiX::cbTreePop();
+			}
 		}
 		else if (dynamic_cast<KcGraph*>(plt)) {
 			auto graph = dynamic_cast<KcGraph*>(plt);

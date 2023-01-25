@@ -4,7 +4,15 @@
 
 void KcScatter::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned ch) const
 {
-	marker_.fill = majorColor(ch);
+	auto clr = majorColor(ch);
+
+	if (showLine_ && lineCxt_.visible()) {
+		paint->apply(lineCxt_);
+		paint->setColor(clr);
+		paint->drawLineStrip(toPointGetter_(getter, ch), count);
+	}
+
+	marker_.fill = clr;
 	paint->apply(marker_);
 	
 	bool outline = marker_.showOutline && marker_.hasOutline()
