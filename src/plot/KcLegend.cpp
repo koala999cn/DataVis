@@ -79,7 +79,11 @@ void KcLegend::draw(KvPaint* paint) const
     auto rc = paint->viewport();
     rc = rc.intersection(iRect_);
     if (rc.isNull()) return;
-    rc.inflate(1); // TODO: 若不膨胀，则右边的边框有时会被剪切掉
+
+    // NB: ogl实现对clipRect进行了修正，此处可不加1，
+    // 但由于目前使用ImGui绘制边框，所以此处加1，否则右边框有时会被裁剪掉
+    rc.upper().x() += 1; 
+
     paint->pushClipRect(rc);
 
     // 配置paint，以便在legned的局部空间执行绘制操作

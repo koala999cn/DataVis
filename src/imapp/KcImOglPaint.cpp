@@ -865,8 +865,10 @@ void KcImOglPaint::drawRenderList_()
 	configOglState_();
 
 	unsigned viewport(-1), clipRect(-1), clipBox(-2); // NB: clipBox可以等于-1，所以此处初始化为-2，表示未赋值
-	for (auto& rd : renderList_) {
-		auto& state = rd.first;
+
+	// NB: 逆序，否则坐标轴会被plottables覆盖
+	for (auto rd = renderList_.rbegin(); rd != renderList_.rend(); rd++) { 
+		auto& state = rd->first;
 		if (std::get<0>(state) != viewport) {
 			viewport = std::get<0>(state);
 			glViewport_(viewport);
@@ -881,7 +883,7 @@ void KcImOglPaint::drawRenderList_()
 			glClipPlane_(clipBox);
 		}
 
-		auto& rl = rd.second;
+		auto& rl = rd->second;
 		pushTextVbo_(rl);
 		pushColorVbo_(rl);
 
@@ -913,9 +915,8 @@ void KcImOglPaint::glScissor_(unsigned id)
 
 	assert(id < clipRectHistList_.size());
 	auto& rc = clipRectHistList_[id];
-	auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y() + 1; // 在交换xy轴的情况下，坐标轴基线与plt完美贴合
-	                                                                 // 不交换时plt在下方多1个像素，右方少1个像素
-	glScissor(rc.lower().x(), y0, rc.width(), rc.height());
+	auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
+	glScissor(rc.lower().x(), y0 + 1, rc.width() + 1, rc.height()); // 下方多1个像素，右方少1个像素，在次修正
 }
 
 
