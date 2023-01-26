@@ -582,6 +582,9 @@ void KvRdPlot::showPlaneProperty_(KcCoordPlane& plane)
 		ImGuiX::cbTreePush(loc[plane.type()], &plane.visible(), &open);
 		if (!open) return;
 	}
+	else {
+		ImGui::Checkbox("Show", &plane.visible());
+	}
 
 	ImGui::PushID(&plane);
 

@@ -30,6 +30,7 @@
 - [ ] 更多theme，SCI等
 - [ ] 进一步规范化specification
 - [ ] 完善plot2d和plot3d的layout主题
+- [ ] 各要素的可见性设置不改变linesyle和alpha等属性 
 
 ## pipeline
 - [ ] 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多
@@ -54,4 +55,4 @@
 - [x] legend的warp把rowMajor搞反了 --> ok
 - [x] legend在外侧布局的时候仍然没有正常裁剪 --> 布局系统bug（6b73a81）
 - [ ] 坐标轴基线与plt区域完美贴合的问题（line-filled区域在下方多1个像素，右方少1个像素）
-- [ ] 有时plane背景色和grid线无法正常显示，需要通过重新应用theme来出发
+- [x] 有时plane背景色和grid线无法正常显示，需要通过重新应用theme来出发 --> ok（缺少plane的可见性设置）
