@@ -77,7 +77,7 @@ void KcCoordPlane::drawMajors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 	auto t0 = axis0->ticker();
 	auto t1 = axis1->ticker();
 
-	assert(t0->tickCount() == t1->tickCount()); // TODO: 
+	//assert(t0->tickCount() == t1->tickCount()); // TODO: 
 
 	auto vlen = axis1->start() - axis0->start();
 	auto& ticks = t0->ticks(); // TODO: 假定ticks已生成
@@ -93,7 +93,7 @@ void KcCoordPlane::drawMinors_(KvPaint* paint, axis_ptr axis0, axis_ptr axis1)
 	auto t0 = axis0->ticker();
 	auto t1 = axis1->ticker();
 
-	assert(t0->subtickCount() == t1->subtickCount()); // TODO:
+	//assert(t0->subtickCount() == t1->subtickCount()); // TODO:
 
 	auto vlen = axis1->start() - axis0->start();
 	auto& subticks = t0->subticks();

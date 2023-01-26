@@ -193,8 +193,7 @@ public:
 	}
 
 	KtAABB& deflate(const point_t& lw, const point_t& up) {
-		lower_ += lw, upper_ -= up;
-		return *this;
+		return inflate(-lw, -up);
 	}
 
 	KtAABB& deflate(const KtAABB& d) {
@@ -203,12 +202,11 @@ public:
 	}
 
 	KtAABB& deflate(float_t dx, float_t dy) {
-		point_t d(dx, dy, 0);
-		return deflate(d, d);
+		return inflate(-dx, -dy);
 	}
 
 	KtAABB& deflate(float_t d) {
-		return deflate(d, d);
+		return inflate(-d);
 	}
 
 	KtAABB& inflate(const point_t& lw, const point_t& up) {
@@ -222,12 +220,14 @@ public:
 	}
 
 	KtAABB& inflate(float_t dx, float_t dy) {
-		point_t d(dx, dy, 0);
-		return inflate(d, d);
+		lower_.x() -= dx, upper_.x() += dx;
+		lower_.y() -= dy, upper_.y() += dy;
+		return *this;
 	}
 
 	KtAABB& inflate(float_t d) {
-		return inflate(d, d);
+		lower_.x() -= d, upper_.x() += d;
+		return *this;
 	}
 
 	KtAABB& shift(const point_t& d) {
@@ -385,7 +385,7 @@ KtAABB<T, DIM> KtAABB<T, DIM>::intersection(const KtAABB& rhs) const
 	auto upper = point_t::floor(upper_, rhs.upper_);
 
 	// Check intersection isn't null
-	if (lower.leAll(upper))
+	if (lower.le(upper))
 		return KtAABB(lower, upper);
 
 	return KtAABB();

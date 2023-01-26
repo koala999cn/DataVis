@@ -76,6 +76,12 @@ void KcLegend::draw(KvPaint* paint) const
 
     using point3 = KvPaint::point3;
 
+    auto rc = paint->viewport();
+    rc = rc.intersection(iRect_);
+    if (rc.isNull()) return;
+    rc.inflate(1); // TODO: 若不膨胀，则右边的边框有时会被剪切掉
+    paint->pushClipRect(rc);
+
     // 配置paint，以便在legned的局部空间执行绘制操作
     paint->pushCoord(KvPaint::k_coord_screen);
     
@@ -89,13 +95,11 @@ void KcLegend::draw(KvPaint* paint) const
         paint->drawRect(iRect_);
     }
 
-    if (!plts_.empty()) {
-        paint->pushClipRect(innerRect());
+    if (!plts_.empty()) 
         drawItems_(paint);
-        paint->popClipRect();
-    }
     
     paint->popCoord();
+    paint->popClipRect();
 }
 
 
