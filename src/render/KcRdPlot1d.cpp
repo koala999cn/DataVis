@@ -102,6 +102,26 @@ namespace kPrivate
 				ImGuiX::cbTreePop();
 			}
 		}
+		else if (dynamic_cast<KcBubble*>(plt)) {
+			auto bub = dynamic_cast<KcBubble*>(plt);
+			ImGui::DragFloatRange2("Size Range", &bub->sizeLower(), &bub->sizeUpper(), 0.1, 3, 33, "%.1f");
+
+			static const char* modeStr[] = {
+				"by Area", "by Radius"
+			};
+			int mode = bub->radiusAsSize();
+			if (ImGui::Combo("Size Interpolation Mode", &mode, modeStr, std::size(modeStr))) {
+				bub->radiusAsSize() = mode;
+			}
+
+			bool open = false;
+			ImGuiX::cbTreePush("Text", &bub->showText(), &open);
+			if (open) {
+				ImGui::ColorEdit4("Text Color", bub->textColor());
+				ImGui::ShowFontSelector("Font");
+				ImGuiX::cbTreePop();
+			}
+		}
 		else if (dynamic_cast<KcScatter*>(plt)) {
 			auto scat = dynamic_cast<KcScatter*>(plt);
 			ImGuiX::marker(scat->marker());

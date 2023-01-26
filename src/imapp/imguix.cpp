@@ -384,19 +384,25 @@ namespace ImGuiX
         return false;
     }
 
+
+    bool penStyle(const char* label, int& style)
+    {
+        static const char* styleStr[] = {
+            "none", "solid", "dot", "dash",
+            "dash4", "dash8", "dash dot", "dash dot dot"
+        };
+        return combo(label, styleStr, style);
+    }
+
+
     bool pen(KpPen& cxt, bool showStyle)
     {
         PushID(&cxt);
 
         bool res = false;
         
-        if (showStyle) {
-            static const char* styles[] = {
-                "none", "solid", "dot", "dash", 
-                "dash4", "dash8", "dash dot", "dash dot dot"
-            };
-            res |= combo("Style", styles, cxt.style);
-        }
+        if (showStyle) 
+            res |= penStyle("Style", cxt.style);
 
         res |= SliderFloat("Width", &cxt.width, 0.1, 5.0, "%.1f px");
         res |= ColorEdit4("Color", cxt.color);
@@ -480,13 +486,10 @@ namespace ImGuiX
         return margins_<double>(label, m);
     }
 
-    bool marker(KpMarker& cxt)
+    bool markerType(const char* label, int& type)
     {
-        PushID(&cxt);
-        bool res = false;
-
-        static const char* types[] = {
-            "dot",    
+        static const char* typeStr[] = {
+            "dot",
             // "ball",  
             "circle",
             "square",
@@ -500,7 +503,16 @@ namespace ImGuiX
             "asterisk"
         };
 
-        res |= combo("Scatter", types, cxt.type);    
+        return combo(label, typeStr, type);
+    }
+
+
+    bool marker(KpMarker& cxt)
+    {
+        PushID(&cxt);
+        bool res = false;
+
+        res |= markerType("Scatter", cxt.type);
         res |= DragFloat("Size", &cxt.size, 0.1, 0.1, 10, "%.1f");
         res |= ColorEdit4("Color##Fill", cxt.fill);
         if (cxt.hasOutline()) {

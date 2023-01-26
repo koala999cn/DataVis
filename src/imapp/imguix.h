@@ -72,9 +72,13 @@ namespace ImGuiX
 
 	bool cbInputText(const char* label, bool* show, std::string* text);
 
+	bool penStyle(const char* label, int& style);
+
 	bool pen(KpPen& cxt, bool showStyle);
 
 	bool brush(KpBrush& cxt, bool showStyle);
+
+	bool markerType(const char* label, int& type);
 
 	bool marker(KpMarker& cxt);
 

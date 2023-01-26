@@ -1,6 +1,7 @@
 #include "KcBubble.h"
 #include "KvPaint.h"
 #include "KvDiscreted.h"
+#include "KuStrUtil.h"
 
 
 float KcBubble::mapValueToSize_(float_t val) const
@@ -20,19 +21,35 @@ float KcBubble::mapValueToSize_(float_t val) const
 
 void KcBubble::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned ch) const
 {
-	paint->apply(marker());
-	paint->setMarkerType(KpMarker::k_circle); // 始终用circle类型绘制气泡图
+	paint->setMarkerType(KpMarker::k_circle);
 
-	if (coloringMode() == k_one_color_solid)
-		paint->setColor(majorColor(ch));
+	bool realShowText = showText_ && clrText_.a() != 0;
 
 	for (unsigned i = 0; i < count; i++) {
 		auto pt = getter(i);
 		auto val = pt[data()->dim()]; // TODO: 尺寸插值的数据维度可配置
 		paint->setMarkerSize(mapValueToSize_(val));
-		if (coloringMode() != k_one_color_solid)
-			paint->setColor(mapValueToColor_(pt.data(), ch));
-		
+		paint->setColor(mapValueToColor_(pt.data(), ch));
 		paint->drawMarker(toPoint_(pt.data(), ch), false);
+
+		if (realShowText) {
+			auto text = KuStrUtil::toString(pt[colorMappingDim()]);
+			auto szText = paint->textSize(text.c_str());
+			paint->setColor(textColor());
+			paint->drawText(toPoint_(pt.data(), ch), text.c_str(),
+				KeAlignment::k_vcenter | KeAlignment::k_hcenter);
+		}
 	}
+}
+
+
+const color4f& KcBubble::minorColor() const
+{
+	return clrMinor_;
+}
+
+
+void KcBubble::setMinorColor(const color4f& minor)
+{
+	clrMinor_ = minor;
 }

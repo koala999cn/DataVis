@@ -25,6 +25,7 @@
 - [x] 可配置色彩映射的数据维度 --> ok
 - [x] legend支持单通道的多主色plottable --> ok
 - [x] sactter图的美化问题。带轮廓线后，各scatter轮廓相互干扰，非常难看，启动深度测试又因为z-fighting也不好看。（#I6B5ES）
+- [ ] 色带的编辑
 
 ## theme
 - [ ] 更多theme，SCI等
@@ -56,3 +57,4 @@
 - [x] legend在外侧布局的时候仍然没有正常裁剪 --> 布局系统bug（6b73a81）
 - [ ] 坐标轴基线与plt区域完美贴合的问题（line-filled区域在下方多1个像素，右方少1个像素）
 - [x] 有时plane背景色和grid线无法正常显示，需要通过重新应用theme来出发 --> ok（缺少plane的可见性设置）
+- [ ] ticker数的控制存在致命bug（上下或左右或前后未同步）
