@@ -831,7 +831,7 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 
 	auto plt = plot_->plottableAt(idx);
 	int mode = plt->coloringMode();
-	if (ImGuiX::combo("Coloring Mode", modeNames, mode))
+	if (ImGui::Combo("Coloring Mode", &mode, modeNames, std::size(modeNames)))
 		plt->setColoringMode(KvPlottable::KeColoringMode(mode));
 	
 	if (mode != KvPlottable::k_one_color_solid) {

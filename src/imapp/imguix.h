@@ -86,6 +86,7 @@ namespace ImGuiX
 
 	bool margins(const char* label, KtMargins<double>& m);
 
+	/*
 	template<int N>
 	bool combo(const char* label, const char*(&enums)[N], int& val) {
 		bool select_changed = false;
@@ -99,4 +100,5 @@ namespace ImGuiX
 		}
 		return select_changed;
 	}
+	*/
 }

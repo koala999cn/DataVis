@@ -138,12 +138,12 @@ namespace kPrivate
 		}
 		else if (dynamic_cast<KcBars2d*>(plt)) {
 			auto bars = dynamic_cast<KcBars2d*>(plt);
-			static const char* modes[] = {
+			static const char* modeStr[] = {
 				"stacked first",
 				"grouped first"
 			};
 			int mode = bars->stackedFirst() ? 0 : 1;
-			if (ImGuiX::combo("Mode", modes, mode))
+			if (ImGui::Combo("Mode", &mode, modeStr, std::size(modeStr)))
 				bars->stackedFirst() = (mode == 0);
 
 			ImGui::DragFloat("Baseline", &bars->baseLine());

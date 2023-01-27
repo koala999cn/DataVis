@@ -391,7 +391,7 @@ namespace ImGuiX
             "none", "solid", "dot", "dash",
             "dash4", "dash8", "dash dot", "dash dot dot"
         };
-        return combo(label, styleStr, style);
+        return Combo(label, &style, styleStr, std::size(styleStr));
     }
 
 
@@ -420,10 +420,10 @@ namespace ImGuiX
         bool res = false;
 
         if (showStyle) {
-            static const char* styles[] = {
+            static const char* styleStr[] = {
                 "none", "solid"
             };
-            res |= combo("Style", styles, cxt.style);
+            res |= Combo("Style", &cxt.style, styleStr, std::size(styleStr));
         }
 
         res |= ColorEdit4("Color", cxt.color);
@@ -503,7 +503,7 @@ namespace ImGuiX
             "asterisk"
         };
 
-        return combo(label, typeStr, type);
+        return Combo(label, &type, typeStr, std::size(typeStr));
     }
 
 
