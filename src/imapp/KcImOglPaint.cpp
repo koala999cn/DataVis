@@ -50,10 +50,16 @@ void KcImOglPaint::beginPaint()
 	auto crmin = ImGui::GetWindowDrawList()->GetClipRectMin();
 	auto crmax = ImGui::GetWindowDrawList()->GetClipRectMax();
 	clipRectHistList_.emplace_back(point2(crmin.x, crmin.y), point2(crmax.x, crmax.y));
-	clipRectStack_.push_back(0);
+	clipRectStack_.assign(1, 0);
 	
 	clipBoxHistList_.clear();
 	curClipBox_ = -1;
+
+	// NB: 须在此处清空深度缓存
+	// 若放到configOglState_，则会与ImGui的clipRect设置冲突（原因不明），造成除legend之外的其他元素不能显示
+	// 若不调用ImGui的PushClipRect则一切正常
+	if (depthTest())
+	    glClear(GL_DEPTH_BUFFER_BIT);
 
 	super_::beginPaint();
 }
@@ -850,13 +856,10 @@ void KcImOglPaint::configOglState_()
 		glDisable(GL_POLYGON_SMOOTH);
 	}
 
-	if (depthTest()) {
+	if (depthTest()) 
 		glEnable(GL_DEPTH_TEST);
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
-	else {
+	else 
 		glDisable(GL_DEPTH_TEST);
-	}
 }
 
 
@@ -916,7 +919,7 @@ void KcImOglPaint::glScissor_(unsigned id)
 	assert(id < clipRectHistList_.size());
 	auto& rc = clipRectHistList_[id];
 	auto y0 = ImGui::GetMainViewport()->Size.y - rc.upper().y();
-	glScissor(rc.lower().x(), y0 + 1, rc.width() + 1, rc.height()); // 下方多1个像素，右方少1个像素，在次修正
+	glScissor(rc.lower().x(), y0 + 1, rc.width() + 1, rc.height()); // 下方多1个像素，右方少1个像素，在此修正
 }
 
 
