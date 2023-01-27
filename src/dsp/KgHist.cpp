@@ -1,7 +1,7 @@
 ﻿#include "KgHist.h"
 #include <assert.h>
 #include "KcSampled1d.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
@@ -10,7 +10,7 @@ void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
 
     KtSampling<kReal> samp;
     samp.resetn(numBins(), range().first, range().second, 0.5);
-    assert(KtuMath<kReal>::almostEqual(samp.dx(), binWidth(0))); // 假定线性尺度
+    assert(KuMath::almostEqual(samp.dx(), binWidth(0))); // 假定线性尺度
 
     out.resize(numBins(), in.channels());
     out.reset(0, samp.low(), samp.dx(), samp.x0ref());
@@ -79,7 +79,7 @@ void KgHist::process(const KvData& in, kReal* out)
         else { // goto next bar
 
             if (c > 0) 
-                KtuMath<kReal>::scale(out, in.channels(), kReal(1) / c);
+                KuMath::scale(out, in.channels(), kReal(1) / c);
 
             if (barRight >= range().second)
                 break;

@@ -258,13 +258,13 @@ public:
 	bool hasScale() const {
 		// check magnitude of column vectors (==local axes)
 		Real t = m00() * m00() + m10() * m10() + m20() * m20();
-		if (!KtuMath<KReal>::almostEqual(t, 1.0))
+		if (!KuMath<KReal>::almostEqual(t, 1.0))
 			return true;
 		t = m01() * m01() + m11() * m11() + m21() * m21();
-		if (!KtuMath<KReal>::almostEqual(t, 1.0))
+		if (!KuMath<KReal>::almostEqual(t, 1.0))
 			return true;
 		t = m02() * m02() + m12() * m12() + m22() * m22();
-		if (!KtuMath<KReal>::almostEqual(t, 1.0))
+		if (!KuMath<KReal>::almostEqual(t, 1.0))
 			return true;
 
 		return false;
@@ -620,7 +620,7 @@ template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
 KtMatrix4<KReal, ROW_MAJOR>::projectPerspective(KReal fovyInDegree, KReal aspectRatio, KReal znear, KReal zfar)
 {
 	KReal ymax, xmax;
-	ymax = znear * std::tan(KtuMath<KReal>::deg2Rad(fovyInDegree));
+	ymax = znear * std::tan(KuMath<KReal>::deg2Rad(fovyInDegree));
 	xmax = ymax * aspectRatio;
 	return projectFrustum(-xmax, xmax, -ymax, ymax, znear, zfar);
 }

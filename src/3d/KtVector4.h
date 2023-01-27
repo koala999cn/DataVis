@@ -8,7 +8,6 @@ class KtVector4 : public KtPoint<KReal, 4>
 {
 	using super_ = KtPoint<KReal, 4>;
 	using vec3 = KtVector3<KReal>;
-	using kMath = KtuMath<KReal>;
 
 public:
 	using super_::x;

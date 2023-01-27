@@ -1,7 +1,7 @@
 #include "KgWindowing.h"
 #include <assert.h>
 #include <cstdarg>
-#include "KtuMath.h"
+#include "KuMath.h"
 #include "wops.h"
 
 
@@ -13,7 +13,7 @@ KgWindowing::KgWindowing(unsigned frameSize, KeType type, ...)
 	auto f = functor(type, args);
 	va_end(args);
 
-	KtuMath<double>::linspace(0, 1, 0, win_.data(), frameSize);
+	KuMath::linspace(0., 1., 0., win_.data(), frameSize);
 	for (unsigned i = 0; i < frameSize; i++)
 		win_[i] = f(win_[i]);
 }
@@ -21,13 +21,13 @@ KgWindowing::KgWindowing(unsigned frameSize, KeType type, ...)
 
 void KgWindowing::process(double* x) const
 {
-	KtuMath<double>::mul(x, win_.data(), x, idim());
+	KuMath::mul(x, win_.data(), x, idim());
 }
 
 
 void KgWindowing::process(const double* in, double* out) const
 {
-	KtuMath<double>::mul(in, win_.data(), out, idim());
+	KuMath::mul(in, win_.data(), out, idim());
 }
 
 
@@ -82,7 +82,7 @@ std::function<double(double)> KgWindowing::functor(KeType type, ...)
 
 	}
 
-	return [](double) { return KtuMath<double>::nan; };
+	return [](double) { return KuMath::nan<double>(); };
 }
 
 

@@ -529,4 +529,9 @@ namespace ImGuiX
         return res;
     }
 
+
+    bool gradient(const char* label, KtGradient<float, color4f>& grad)
+    {
+        return false;
+    }
 }

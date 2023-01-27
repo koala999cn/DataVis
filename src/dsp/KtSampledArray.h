@@ -2,7 +2,7 @@
 #include <array>
 #include <blitz/array.h>
 #include "KtSampled.h"
-#include "base/KtuMath.h"
+#include "base/KuMath.h"
 
 
 // 基于blitz++多维数组实现的采样数据
@@ -61,7 +61,7 @@ public:
     // 更快速的实现
     kRange valueRange() const override {
         return array_.size() == 0 ? kRange(0, 0)
-        : KtuMath<kReal>::minmax(array_.dataFirst(), array_.size());
+        : KuMath::minmax(array_.dataFirst(), array_.size());
     }
 
 

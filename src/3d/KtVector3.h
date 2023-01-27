@@ -6,7 +6,6 @@ template<class KReal>
 class KtVector3 : public KtPoint<KReal, 3>
 {
 	using super_ = KtPoint<KReal, 3>;
-	using kMath = KtuMath<KReal>;
 
 public:
 
@@ -61,7 +60,7 @@ public:
 	// 和矢量v之间的夹角（弧度）
 	KReal angle(const KtVector3& v) const {
 		KReal f = dot(v) / length() / v.length();
-		f = kMath::clamp(f, (KReal)-1.0f, (KReal)1.0f);
+		f = KuMath::clamp(f, (KReal)-1.0f, (KReal)1.0f);
 		return std::acos(f); // radian
 	}
 
@@ -77,7 +76,7 @@ public:
 
 	// 垂直测试
 	bool isPerpendicularTo(const KtVector3& v) const { 
-		return kMath::approxEqual(dot(v), 0.0f); 
+		return KuMath::approxEqual(dot(v), 0.0f); 
 	} 
 
 	// 计算当前向量的垂直向量

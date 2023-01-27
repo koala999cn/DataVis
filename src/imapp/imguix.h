@@ -4,6 +4,8 @@
 #include <functional>
 #include "../plot/KtColor.h"
 #include "../plot/KtMargins.h"
+#include "../plot/KtGradient.h"
+
 
 class KvData;
 class KpPen;
@@ -85,6 +87,9 @@ namespace ImGuiX
 	bool margins(const char* label, KtMargins<float>& m);
 
 	bool margins(const char* label, KtMargins<double>& m);
+
+	// gradient editor
+	bool gradient(const char* label, KtGradient<float, color4f>& grad);
 
 	/*
 	template<int N>

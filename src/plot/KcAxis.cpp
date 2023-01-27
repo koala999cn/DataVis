@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "KcLinearTicker.h"
 #include "KvPaint.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include "KtLine.h"
 #include "KtQuaternion.h"
 #include "layout/KeAlignment.h"
@@ -179,7 +179,7 @@ void KcAxis::calcLabelOrient_(KvPaint* paint) const
 
 KcAxis::float_t KcAxis::orientScale_(KvPaint* paint, const vec3& o)
 {
-	assert(KtuMath<float_t>::almostEqual(o.length(), 1.0));
+	assert(KuMath::almostEqual<float_t>(o.length(), 1.0));
 	auto v = paint->projectv(o).length();
 	return v > 0 ? 1. / v : 0;
 }
@@ -280,8 +280,8 @@ namespace kPrivate
 	template<typename T1, typename T2>
 	T2 remap(const T1& x, const T1& x0, const T1& x1, const T2& y0, const T2& y1, bool inv)
 	{
-		return !inv ? KtuMath<T1>::remap<T2>(x, x0, x1, y0, y1)
-			: KtuMath<T1>::remap<T2>(x, x0, x1, y1, y0);
+		return !inv ? KuMath::remap<T1, T2>(x, x0, x1, y0, y1)
+			: KuMath::remap<T1, T2>(x, x0, x1, y1, y0);
 	}
 }
 
@@ -486,7 +486,7 @@ void KcAxis::fixTextRotation_(const KpTextContext& cxt, const point3& anchor, po
 
 	hDir = (quat * hDir).normalize();
 	vDir = (quat * vDir).normalize();
-	//assert(KtuMath<float_t>::almostEqual(hDir.dot(vDir), 0));
+	//assert(KuMath<float_t>::almostEqual(hDir.dot(vDir), 0));
 	topLeft = anchor + quat * (topLeft - anchor);
 }
 
@@ -496,8 +496,8 @@ void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTe
 	point3 topLeft;
 	vec3 hDir, vDir;
 	calcTextPos_(paint, label.data(), cxt, anchor, topLeft, hDir, vDir);
-	assert(KtuMath<float_t>::almostEqual(1.0, hDir.length()));
-	assert(KtuMath<float_t>::almostEqual(1.0, vDir.length()));
+	assert(KuMath::almostEqual(1.0, hDir.length()));
+	assert(KuMath::almostEqual(1.0, vDir.length()));
 
 	if (!calcBox) {
 		paint->drawText(topLeft, hDir, vDir, label.data());

@@ -2,7 +2,7 @@
 #include "KtVector3.h"
 #include "KtVector4.h"
 #include "KtMatrix3.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include <assert.h>
 
 
@@ -17,7 +17,6 @@ class KtQuaternion : protected KtPoint<KReal, 4>
 	using vec4 = KtVector4<KReal>;
 	template<bool ROW_MAJOR = true>
 	using mat3 = KtMatrix3<KReal, ROW_MAJOR>;
-	using kMath = KtuMath<KReal>;
 
 public:
 
@@ -58,7 +57,7 @@ public:
 	}
 
 	bool isUnit() const {
-		return kMath::almostEqual(norm(), 1);
+		return KuMath::almostEqual<KReal>(norm(), 1);
 	}
 
 	// 四元数的乘法是不可交换的
@@ -80,12 +79,12 @@ public:
 	KtQuaternion unitInverse() const { return conjugate(); }
 
 	KReal dot(const KtQuaternion& rhs) const { 
-		return kMath::dot(data(), rhs.data(), size());
+		return KuMath::dot(data(), rhs.data(), size());
 	} 
 
 	// Squared-Length
 	KReal norm() const { 
-		return kMath::sum2(data(), size());
+		return KuMath::sum2(data(), size());
 	} 
 
 	// 返回实部
@@ -174,7 +173,7 @@ KtQuaternion<KReal>::KtQuaternion(const mat3<ROW_MAJOR>& rot)
 template<class KReal>
 KtQuaternion<KReal>::KtQuaternion(KReal angle, const vec3& axis)
 {
-	assert(kMath::almostEqual(1, axis.length()));
+	assert(KuMath::almostEqual<KReal>(1, axis.length()));
 
 	KReal halfAngle = angle / 2;
 	KReal fsin = std::sin(halfAngle);
@@ -198,13 +197,13 @@ KtQuaternion<KReal>::KtQuaternion(const vec3& from, const vec3& to)
 	if (d >= 1.0f) {
 		*this = identity();
 	}
-	if (d < (kMath::eps - 1.0f)) {
+	if (d < (KuMath::eps<KReal>() - 1.0f)) {
 		// 绕任意轴旋转180度，此处选择from的垂直轴
-		*this = KtQuaternion(kMath::pi, from.perpendicular());
+		*this = KtQuaternion(KuMath::pi, from.perpendicular());
 	}
 	else {
 		KReal s = std::sqrt((1 + d) * 2);
-		assert(s > kMath::eps);
+		assert(s > KuMath::eps<KReal>());
 		auto c = v0.cross(v1) / s;
 
 		x() = c.x();
@@ -220,7 +219,7 @@ template<class KReal>
 KtQuaternion<KReal>& KtQuaternion<KReal>::normalize()
 {
 	auto n = norm();
-	if (n > kMath::eps) 
+	if (n > KuMath::eps<KReal>())
 		operator *=(1 / std::sqrt(n));
 
 	return *this;
@@ -232,7 +231,7 @@ KtQuaternion<KReal> KtQuaternion<KReal>::inverse() const
 {
 	auto n = norm();
 
-	if (kMath::almostEqual(n, 0))
+	if (KuMath::almostEqual(n, 0))
 		return zero();
 
 	auto invNorm = 1 / n;
@@ -247,7 +246,7 @@ void KtQuaternion<KReal>::toAngleAxis(KReal& angle, vec3& axis) const
 {
 	assert(isUnit());
 
-	if (kMath::almostEqual(1, std::abs(w()))) { // 旋转角为0，旋转轴可任意选择，取x轴
+	if (KuMath::almostEqual(1, std::abs(w()))) { // 旋转角为0，旋转轴可任意选择，取x轴
 		angle = 0.0f;
 		axis = vec3::unitX();
 	}

@@ -2,7 +2,7 @@
 #include <string>
 #include "bimap.h"
 #include "KvOscillator.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 namespace kPrivate
@@ -30,7 +30,7 @@ namespace kPrivate
 	class KcSine : public KvOscillator
 	{
 	public:
-		KcSine() : KvOscillator(2 * KtuMath<kReal>::pi) {}
+		KcSine() : KvOscillator(2 * KuMath::pi) {}
 
 		kReal tickImpl_(kReal phase) const final {
 			return sin(phase);

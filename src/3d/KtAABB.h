@@ -13,8 +13,6 @@ which is the maxima of all 2/3 axes.
 template<typename T, int DIM = 3>
 class KtAABB
 {
-	using kMath = KtuMath<T>;
-
 public:
 
 	using point_t = KtPoint<T, DIM>;
@@ -126,13 +124,13 @@ public:
 	/// Calculate the volume of this box
 	T volume() const {
 		auto sz = size();
-		return kMath::product(sz.data(), sz.size());
+		return KuMath::product(sz.data(), sz.size());
 	}
 
 	/** Sets the box to a 'null' value i.e. not a box.
 	*/
 	void setNull() {
-		lower_ = upper_ = point_t(kMath::nan);
+		lower_ = upper_ = point_t(KuMath::nan<T>());
 	}
 
 	/** Returns true if the box is null i.e. empty.
@@ -144,7 +142,7 @@ public:
 	/** Sets the box to 'infinite'
 	*/
 	void setInf() {
-		setExtents(point_t(-kMath::inf), point_t(kMath::inf));
+		setExtents(point_t(-KuMath::inf<T>()), point_t(KuMath::inf<T>()));
 	}
 
 	/** Returns true if the box is infinite.

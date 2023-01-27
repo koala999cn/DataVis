@@ -2,7 +2,7 @@
 #include <string>
 #include "bimap.h"
 #include "KvExcitor.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include "KgRand.h"
 
 

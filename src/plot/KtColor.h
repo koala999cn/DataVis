@@ -58,7 +58,7 @@ public:
 
 	KtColor& clamp() {
 		for (int i = 0; i < DIM; i++) 
-			at(i) = KtuMath<T>::clamp(at(i), 0, limit());
+			at(i) = KuMath::clamp<T>(at(i), 0, limit());
 		return *this;
 	}
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 // std::array的增强版，提供了多种类型的构造函数，以及元素序列的比较函数
@@ -9,7 +9,6 @@ template<typename T, int SIZE>
 class KtArray : public std::array<T, SIZE>
 {
 	using super_ = std::array<T, SIZE>;
-	using kMath = KtuMath<T>;
 
 public:
 
@@ -102,7 +101,7 @@ public:
 	// 取pt1和pt2各维度的高值
 	static KtArray ceil(const KtArray& pt1, const KtArray& pt2) {
 		KtArray pt;
-		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
+		KuMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
 			return std::max(x, y);
 			});
 		return pt;
@@ -111,7 +110,7 @@ public:
 	// 取pt1和pt2各维度的低值
 	static KtArray floor(const KtArray& pt1, const KtArray& pt2) {
 		KtArray pt;
-		kMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
+		KuMath::forEach(pt1.data(), pt2.data(), pt.data(), size(), [](T x, T y) {
 			return std::min(x, y);
 			});
 		return pt;

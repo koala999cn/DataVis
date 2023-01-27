@@ -1,6 +1,6 @@
 #pragma once
 #include "KtArray.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 
 template<typename T, int DIM>
 class KtPoint : public KtArray<T, DIM>
@@ -8,7 +8,6 @@ class KtPoint : public KtArray<T, DIM>
 private:
 	static_assert(DIM >= 2);
 	using super_ = KtArray<T, DIM>;
-	using kMath = KtuMath<T>;
 
 public:
 
@@ -46,28 +45,28 @@ public:
 
 	KtPoint operator+(const KtPoint& rhs) const {
 		KtPoint pt;
-		kMath::add(data(), rhs.data(), pt.data(), size());
+		KuMath::add(data(), rhs.data(), pt.data(), size());
 		return pt;
 	}
 	KtPoint operator-(const KtPoint& rhs) const {
 		KtPoint pt;
-		kMath::sub(data(), rhs.data(), pt.data(), size());
+		KuMath::sub(data(), rhs.data(), pt.data(), size());
 		return pt;
 	}
 	KtPoint operator*(const KtPoint& rhs) const {
 		KtPoint pt;
-		kMath::mul(data(), rhs.data(), pt.data(), size());
+		KuMath::mul(data(), rhs.data(), pt.data(), size());
 		return pt;
 	}
 	KtPoint operator/(const KtPoint& rhs) const {
 		KtPoint pt;
-		kMath::div(data(), rhs.data(), pt.data(), size());
+		KuMath::div(data(), rhs.data(), pt.data(), size());
 		return pt;
 	}
 
 	KtPoint operator+(T dc) const {
 		KtPoint pt;
-		kMath::shift(data(), pt.data(), size(), dc);
+		KuMath::shift(data(), pt.data(), size(), dc);
 		return pt;
 	}
 	KtPoint operator-(T dc) const {
@@ -75,7 +74,7 @@ public:
 	}
 	KtPoint operator*(T factor) const {
 		KtPoint pt;
-		kMath::scale(data(), pt.data(), size(), factor);
+		KuMath::scale(data(), pt.data(), size(), factor);
 		return pt;
 	}
 	KtPoint operator/(T factor) const {
@@ -86,31 +85,31 @@ public:
 	}
 
 	KtPoint& operator+=(const KtPoint& v) {
-		kMath::add(data(), v.data(), data(), size());
+		KuMath::add(data(), v.data(), data(), size());
 		return *this;
 	}
 	KtPoint& operator-=(const KtPoint& v) {
-		kMath::sub(data(), v.data(), data(), size());
+		KuMath::sub(data(), v.data(), data(), size());
 		return *this;
 	}
 	KtPoint& operator*=(const KtPoint& v) {
-		kMath::mul(data(), v.data(), data(), size());
+		KuMath::mul(data(), v.data(), data(), size());
 		return *this;
 	}
 	KtPoint& operator/=(const KtPoint& v) {
-		kMath::div(data(), v.data(), data(), size());
+		KuMath::div(data(), v.data(), data(), size());
 		return *this;
 	}
 
 	KtPoint& operator+=(T dc) {
-		kMath::shift(data(), size(), dc);
+		KuMath::shift(data(), size(), dc);
 		return *this;
 	}
 	KtPoint& operator-=(T dc) {
 		return operator+=(-dc);
 	}
 	KtPoint& operator*=(T factor) {
-		kMath::scale(data(), size(), factor);
+		KuMath::scale(data(), size(), factor);
 		return *this;
 	}
 	KtPoint& operator/=(T factor) {
@@ -149,7 +148,7 @@ public:
 
 	bool isApproxEqual(const KtPoint& rhs) const {
 		for (unsigned i = 0; i < size(); i++) {
-			if (!kMath::almostEqual(super_::at(i), rhs.at(i)))
+			if (!KuMath::almostEqual(super_::at(i), rhs.at(i)))
 				return false;
 		}
 

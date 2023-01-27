@@ -290,7 +290,7 @@
     <ClInclude Include="src\base\KtObservable.h" />
     <ClInclude Include="src\base\KtSingleton.h" />
     <ClInclude Include="src\base\KtUId.h" />
-    <ClInclude Include="src\base\KtuMath.h" />
+    <ClInclude Include="src\base\KuMath.h" />
     <ClInclude Include="src\base\KuFileUtil.h" />
     <ClInclude Include="src\base\KuLex.h" />
     <ClInclude Include="src\base\KuPathUtil.h" />

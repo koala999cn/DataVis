@@ -53,7 +53,7 @@ public:
 	template<typename T>
 	static const point2<T>* triangleUp() {
 		static const point2<T> up[] = {
-			{ T(SQRT_3_2), 0.5f }, { 0, -1 }, { -T(SQRT_3_2), 0.5f }
+			{ T(KuMath::sqrt3 / 2), 0.5f }, { 0, -1 }, { -T(KuMath::sqrt3 / 2), 0.5f }
 		};
 		return up;
 	}
@@ -61,7 +61,7 @@ public:
 	template<typename T>
 	static const point2<T>* triangleDown() {
 		static const point2<T> down[] = {
-			{ T(SQRT_3_2), -0.5f }, { 0, 1 }, { -T(SQRT_3_2), -0.5f }
+			{ T(KuMath::sqrt3 / 2), -0.5f }, { 0, 1 }, { -T(KuMath::sqrt3 / 2), -0.5f }
 		};
 		return down;
 	}
@@ -69,7 +69,7 @@ public:
 	template<typename T>
 	static const point2<T>* triangleLeft() {
 		static const point2<T> left[] = {
-			{ -1, 0 }, { 0.5, T(SQRT_3_2) }, { 0.5, -T(SQRT_3_2) }
+			{ -1, 0 }, { 0.5, T(KuMath::sqrt3 / 2) }, { 0.5, -T(KuMath::sqrt3 / 2) }
 		};
 		return left;
 	}
@@ -77,7 +77,7 @@ public:
 	template<typename T>
 	static const point2<T>* triangleRight() {
 		static const point2<T> right[] = {
-			{ 1, 0 }, { -0.5, T(SQRT_3_2) }, { -0.5, -T(SQRT_3_2) }
+			{ 1, 0 }, { -0.5, T(KuMath::sqrt3 / 2) }, { -0.5, -T(KuMath::sqrt3 / 2) }
 		};
 		return right;
 	}
@@ -93,8 +93,8 @@ public:
 	template<typename T>
 	static const point2<T>* square() {
 		static const point2<T> vtx[] = {
-			{ SQRT_2_2, SQRT_2_2 }, { SQRT_2_2, -SQRT_2_2 }, 
-			{ -SQRT_2_2, -SQRT_2_2 }, { -SQRT_2_2, SQRT_2_2 }
+			{ T(KuMath::sqrt2 / 2), T(KuMath::sqrt2 / 2) }, { T(KuMath::sqrt2 / 2), -T(KuMath::sqrt2 / 2) },
+			{ -T(KuMath::sqrt2 / 2), -T(KuMath::sqrt2 / 2) }, { -T(KuMath::sqrt2 / 2), T(KuMath::sqrt2 / 2) }
 		};
 		return vtx;
 	}

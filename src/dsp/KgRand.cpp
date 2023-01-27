@@ -1,5 +1,5 @@
 ﻿#include "KgRand.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include <assert.h>
 #if defined(__LINUX__)
 #include <sys/time.h>
@@ -91,7 +91,7 @@ std::complex<double> KgRand::gaussComplex()
 	double u1 = uniformNonZero();
 	double u2 = uniform();
 
-	return sqrt(-2 * log(u1)) * std::exp(std::complex<double>(0, 1) * 2.0 * KtuMath<double>::pi * u2);
+	return sqrt(-2 * log(u1)) * std::exp(std::complex<double>(0, 1) * double(2.0 * KuMath::pi * u2));
 }
 
 
@@ -127,8 +127,8 @@ double KgRand::gauss()
 	double u1 = uniformNonZero();
 	double u2 = uniform();
 
-	return sqrt(-2 * log(u1)) * sin(2 * KtuMath<double>::pi * u2);
-	//return sqrt(-2 * log(u1)) * cos(2*KtuMath<double>::pi*u2);
+	return sqrt(-2 * log(u1)) * sin(2 * KuMath::pi * u2);
+	//return sqrt(-2 * log(u1)) * cos(2*KuMath::pi*u2);
 }
 
 
@@ -145,7 +145,7 @@ void KgRand::gauss2(double& a, double& b)
 	auto u2 = uniform();
 
 	u1 = sqrt(-2.0f * log(u1));
-	u2 = 2.0f * KtuMath<double>::pi * u2;
+	u2 = 2.0f * KuMath::pi * u2;
 	a = u1 * cos(u2);
 	b = u1 * sin(u2);
 }
@@ -192,7 +192,7 @@ double KgRand::lognorm(double mu, double sigma)
 double KgRand::cauchy(double alpha, double beta) 
 {
 	assert(beta > 0);
-	return alpha - beta / tan(KtuMath<double>::pi * uniform());
+	return alpha - beta / tan(KuMath::pi * uniform());
 }
 
 

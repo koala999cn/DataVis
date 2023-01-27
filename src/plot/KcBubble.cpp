@@ -9,10 +9,10 @@ float KcBubble::mapValueToSize_(float_t val) const
 	auto vrange = data()->valueRange();
 
 	if (radiusAsSize_) 
-		return KtuMath<float_t>::remap<true>(val, vrange.low(), vrange.high(),
+		return KuMath::remap<float_t, true>(val, vrange.low(), vrange.high(),
 			sizeLower_, sizeUpper_);
 
-	auto factor = KtuMath<float_t>::remap<true>(val, vrange.low(), vrange.high(),
+	auto factor = KuMath::remap<float_t, true>(val, vrange.low(), vrange.high(),
 		sizeLower_ * float_t(sizeLower_), sizeUpper_ * float_t(sizeUpper_));
 
 	return std::sqrt(factor);

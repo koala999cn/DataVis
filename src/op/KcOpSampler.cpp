@@ -3,7 +3,7 @@
 #include "imguix.h"
 #include "KuStrUtil.h"
 #include "KtSampling.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 KcOpSampler::KcOpSampler()
@@ -194,7 +194,7 @@ bool KcOpSampler::onInputChanged(KcPortNode* outPort, unsigned inPort)
     auto prov = std::dynamic_pointer_cast<KvDataProvider>(outPort->parent().lock());
     assert(prov);
 
-    auto cap = KtuMath<int>::product(sampCount_.data(), sampCount_.size());
+    auto cap = KuMath::product(sampCount_.data(), sampCount_.size());
     if (cap <= 1)
         cap = 1024;
 

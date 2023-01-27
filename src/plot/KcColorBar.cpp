@@ -153,7 +153,7 @@ KcColorBar::size_t KcColorBar::calcSize_(void* cxt) const
 }
 
 
-#include "KtuMath.h"
+#include "KuMath.h"
 namespace kPrivate
 {
     void drawGradient(KvPaint* paint, const KtAABB<double, 2>& rect,
@@ -175,8 +175,7 @@ namespace kPrivate
         for (unsigned i = 1; i < grad.numStops(); i++) {
             auto& stop = grad.stopAt(i);
             clrs[2] = clrs[3] = stop.second;
-            using kMath = KtuMath<KvPaint::float_t>;
-            pts[2][dim] = pts[3][dim] = kMath::remap(stop.first, 0, 1, lower[dim], upper[dim]);
+            pts[2][dim] = pts[3][dim] = KuMath::remap(stop.first, 0., 1., lower[dim], upper[dim]);
             paint->fillQuad(pts, clrs);
 
             clrs[0] = clrs[1] = clrs[2];

@@ -414,13 +414,13 @@ namespace kPrivate
 				ImGui::EndCombo();
 			}
 
-			float yaw = KtuMath<float_t>::rad2Deg(cxt.yaw);
+			float yaw = KuMath::rad2Deg(cxt.yaw);
 			if (ImGui::SliderFloat("Yaw", &yaw, -90, 90, "%.f deg"))
-				cxt.yaw = KtuMath<float_t>::deg2Rad(yaw);
+				cxt.yaw = KuMath::deg2Rad(yaw);
 
-			float pitch = KtuMath<float_t>::rad2Deg(cxt.pitch);
+			float pitch = KuMath::rad2Deg(cxt.pitch);
 			if (ImGui::SliderFloat("Pitch", &pitch, -90, 90, "%.f deg"))
-				cxt.pitch = KtuMath<float_t>::deg2Rad(pitch);
+				cxt.pitch = KuMath::deg2Rad(pitch);
 		}
 
 		ImGui::PopID();
@@ -448,13 +448,13 @@ namespace kPrivate
 		ImGui::ColorEdit4("Color##label", cxt.color);
 
 		if (showYawAndPitch) {
-			float yaw = KtuMath<float_t>::rad2Deg(cxt.yaw);
+			float yaw = KuMath::rad2Deg(cxt.yaw);
 			if (ImGui::SliderFloat("Yaw", &yaw, -90, 90, "%.f deg"))
-				cxt.yaw = KtuMath<float_t>::deg2Rad(yaw);
+				cxt.yaw = KuMath::deg2Rad(yaw);
 
-			float pitch = KtuMath<float_t>::rad2Deg(cxt.pitch);
+			float pitch = KuMath::rad2Deg(cxt.pitch);
 			if (ImGui::SliderFloat("Pitch", &pitch, -90, 90, "%.f deg"))
-				cxt.pitch = KtuMath<float_t>::deg2Rad(pitch);
+				cxt.pitch = KuMath::deg2Rad(pitch);
 		}
 
 		ImGui::PopID();

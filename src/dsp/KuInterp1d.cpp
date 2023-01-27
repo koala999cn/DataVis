@@ -1,9 +1,7 @@
 ﻿#include "KuInterp1d.h"
 #include <assert.h>
 #include <vector>
-#include "KtuMath.h"
-
-using kMath = KtuMath<kReal>;
+#include "KuMath.h"
 
 
 kReal KuInterp1d::quad(kReal x0, kReal y0, kReal x1, kReal y1, kReal x2, kReal y2, kReal x)
@@ -93,7 +91,7 @@ kReal KuInterp1d::sinc(const kReal Y[], kIndex nx, kReal xidx, int depth, kIndex
 {
     kIndex midleft = std::floor(xidx), midright = midleft + 1;
 
-    if(nx < 1) return kMath::nan;
+    if(nx < 1) return KuMath::nan<kReal>();
     if(xidx >= nx) return Y[nx-1];
     if(xidx < 0) return Y[0];
     if(xidx == midleft) return Y[midleft];
@@ -113,25 +111,25 @@ kReal KuInterp1d::sinc(const kReal Y[], kIndex nx, kReal xidx, int depth, kIndex
     return sinc(Y + left, right - left + 1, xidx - left, stride);
 
     /*kReal y = 0; // sinc插值结果
-    kReal a = kMath::pi * (xidx - midleft);
+    kReal a = KuMath::pi * (xidx - midleft);
     kReal halfsina = 0.5 * std::sin(a);
     kReal aa = a / (xidx - left + 1);
-    kReal daa = kMath::pi / (xidx - left + 1);
+    kReal daa = KuMath::pi / (xidx - left + 1);
     for(kIndex ix = midleft; ix >= left; ix--) {
         kReal d = halfsina / a * (1 + std::cos(aa));
         y += Y[ix] * d;
-        a += kMath::pi;
+        a += KuMath::pi;
         aa += daa;
         halfsina = - halfsina;
     }
-    a = kMath::pi * (midright - xidx);
+    a = KuMath::pi * (midright - xidx);
     halfsina = 0.5 * std::sin(a);
     aa = a / (right - xidx + 1);
-    daa = kMath::pi / (right - xidx + 1);
+    daa = KuMath::pi / (right - xidx + 1);
     for(kIndex ix = midright; ix <= right; ix++) {
         auto d = halfsina / a * (1.0 + std::cos(aa));
         y += Y[ix] * d;
-        a += kMath::pi;
+        a += KuMath::pi;
         aa += daa;
         halfsina = - halfsina;
     }
@@ -150,25 +148,25 @@ kReal KuInterp1d::sinc(const kReal Y[], kIndex nx, kReal xidx, kIndex stride)
         return Y[int(xidx)];
 
     kReal y = 0; // sinc插值结果
-    kReal a = kMath::pi * frac;
+    kReal a = KuMath::pi * frac;
     kReal halfsina = 0.5 * std::sin(a);
     kReal aa = a / (xidx + 1);
-    kReal daa = kMath::pi / (xidx + 1);
+    kReal daa = KuMath::pi / (xidx + 1);
     for (int ix = int(midleft); ix >= 0; ix--) {
         kReal d = halfsina / a * (1 + std::cos(aa));
         y += Y[ix * stride] * d;
-        a += kMath::pi;
+        a += KuMath::pi;
         aa += daa;
         halfsina = -halfsina;
     }
-    a = kMath::pi * (1 - frac);
+    a = KuMath::pi * (1 - frac);
     halfsina = 0.5 * std::sin(a);
     aa = a / (nx - xidx);
-    daa = kMath::pi / (nx - xidx);
+    daa = KuMath::pi / (nx - xidx);
     for (kIndex ix = kIndex(midleft) + 1; ix < nx; ix++) {
         auto d = halfsina / a * (1.0 + std::cos(aa));
         y += Y[ix * stride] * d;
-        a += kMath::pi;
+        a += KuMath::pi;
         aa += daa;
         halfsina = -halfsina;
     }
@@ -239,7 +237,7 @@ kReal KuInterp1d::rational(const kReal X[], const kReal Y[], kIndex n, kReal x, 
             hh = h;
         }
         c[i] = Y[i];
-        d[i] = Y[i] + kMath::eps; // 防止0除0的情况
+        d[i] = Y[i] + KuMath::eps<kReal>(); // 防止0除0的情况
     }
     y = Y[ns--];
     for (kIndex m = 1; m < n; m++) {
@@ -249,7 +247,7 @@ kReal KuInterp1d::rational(const kReal X[], const kReal Y[], kIndex n, kReal x, 
             auto t = (X[i] - x) * d[i] / h;
             auto dd = t - c[i + 1];
             if (dd == 0) // 这种情况表明该0处存在极点
-                return kMath::nan;
+                return KuMath::nan<kReal>();
             dd = w / dd;
             d[i] = c[i + 1] * dd;
             c[i] = t * dd;

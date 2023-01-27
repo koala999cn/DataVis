@@ -1,7 +1,7 @@
 ﻿#include "KcInterpolater.h"
 #include "KuInterp1d.h"
 #include "KvDiscreted.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include "KuExtrapolate.h"
 #include <assert.h>
 
@@ -55,9 +55,9 @@ kReal KcInterpolater::value(kReal pt[], kIndex channel) const
 	assert(channel < internal_->channels());
 
 	if (internal_->size() == 0)
-		return extraMethod_ == k_nan ? KtuMath<kReal>::nan : 0;
+		return extraMethod_ == k_nan ? KuMath::nan<kReal>() : 0;
 	else if (internal_->size() == 1) {
-		return extraMethod_ == k_nan ? KtuMath<kReal>::nan : 
+		return extraMethod_ == k_nan ? KuMath::nan<kReal>() :
 			extraMethod_ == k_zero ? 0 : internal_->valueAt(kIndex(0), channel);
 	}
 
@@ -73,7 +73,7 @@ kReal KcInterpolater::value(kReal pt[], kIndex channel) const
 		switch (extraMethod_)
 		{
 		case k_nan:
-			return KtuMath<kReal>::nan;
+			return KuMath::nan<kReal>();
 
 		case k_zero:
 			return 0;

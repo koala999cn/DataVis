@@ -2,7 +2,7 @@
 
 #define FFT_DATA_TYPE double
 #include "praat/NUM2.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include <assert.h>
 
 
@@ -58,7 +58,7 @@ void KgRdft::backward(double data[]) const
     ::NUMfft_backward(PRAAT_TABLE, data);
 
     if (normalize_) // data[i] /= N
-        KtuMath<double>::scale(data, idim(), static_cast<double>(1.0 / idim()));
+        KuMath::scale(data, idim(), static_cast<double>(1.0 / idim()));
 }
 
 std::pair<double, double> KgRdft::unpack(const double* fft, unsigned idx) const
@@ -109,10 +109,10 @@ void KgRdft::powerSpectrum(const double *fft/*in*/, double* spec/*out*/) const
     }
 
     if (normalize_) {
-        // KtuMath<double>::forEach(spec, sizeF(), [](double x) { return std::sqrt(x); });
-        // KtuMath<double>::scale(spec, sizeF(), static_cast<double>(2.0 / idim()));
+        // KuMath::forEach(spec, sizeF(), [](double x) { return std::sqrt(x); });
+        // KuMath::scale(spec, sizeF(), static_cast<double>(2.0 / idim()));
         // spec[0] /= 2;
-        KtuMath<double>::scale(spec, odim(), static_cast<double>(4.0 / idim() / idim()));
+        KuMath::scale(spec, odim(), static_cast<double>(4.0 / idim() / idim()));
         spec[0] /= 4;
     }
 }

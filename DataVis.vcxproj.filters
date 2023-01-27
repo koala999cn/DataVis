@@ -534,7 +534,7 @@
     <ClInclude Include="src\dsp\KtFIR.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtuMath.h">
+    <ClInclude Include="src\base\KuMath.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgRand.h">

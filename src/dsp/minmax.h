@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 // 求解连续函数FUN在[x0, x1]区间的最大最小值
@@ -57,7 +57,7 @@ std::pair<double, double> minmaxN_(
 	N = 1 << N;
 
 	std::vector<double> dx_(dx, dx + dim);
-	KtuMath<double>::scale(dx_.data(), dim, 2. / N);
+	KuMath::scale(dx_.data(), dim, 2. / N);
 
 	std::vector<double> x0_(x0, x0 + dim);
 	for (unsigned i = 0; i < dim; i++)
@@ -85,7 +85,7 @@ std::pair<double, double> minmax(
 	auto r = minmaxOnce_(fn, dim, x0, x1, dx);
 	for (unsigned n = 1; n <= 6; n++) {
 		auto rn = minmaxN_(fn, dim, x0, x1, dx, n);
-		auto diff = KtuMath<double>::max(r.first - rn.first, rn.second - r.second, 0);
+		auto diff = KuMath::max(r.first - rn.first, rn.second - r.second, 0.);
 		if (rn.first < r.first)
 			r.first = rn.first;
 		else if (rn.second > r.second)

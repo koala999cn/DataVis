@@ -1,5 +1,5 @@
 ﻿#include "KvContinued.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include <assert.h>
 #include "minmax.h"
 

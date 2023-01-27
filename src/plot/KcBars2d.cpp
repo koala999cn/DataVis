@@ -3,7 +3,7 @@
 #include "KvDiscreted.h"
 #include "KvContinued.h"
 #include "KtGeometryImpl.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include "KvSampled.h"
 
 
@@ -140,12 +140,12 @@ KcBars2d::aabb_t KcBars2d::boundingBox() const
 					stackLen += pt[ydim];
 				}
 
-				KtuMath<float_t>::uniteRange(aabb.lower().y(), aabb.upper().y(),
+				KuMath::uniteRange(aabb.lower().y(), aabb.upper().y(),
 					stackLen + baseLine_, stackLen + baseLine_);
 			}
 		}
 
-		KtuMath<float_t>::updateRange(baseLine_, aabb.lower().y(), aabb.upper().y()); // 确保显示baseline
+		KuMath::updateRange<float_t>(aabb.lower().y(), aabb.upper().y(), baseLine_); // 确保显示baseline
 	}
 
 	return aabb;

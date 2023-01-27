@@ -1,6 +1,6 @@
 ﻿#include "KgSpectrum.h"
 #include "KgRdft.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include "base/KtuBitwise.h"
 
 
@@ -60,28 +60,27 @@ void KgSpectrum::process(const double* in, double* out) const
 
 void KgSpectrum::fixPower(double* spec, unsigned c, bool hasNormDefault) const
 {
-	using kMath = KtuMath<double>;
 	constexpr double int16_max = std::numeric_limits<std::int16_t>::max();
 
 	// 谱归一化
 	if (opts_.norm == k_norm_praat)
-		kMath::scale(spec, c, 1. / (opts_.sampleRate * opts_.sampleRate));
+		KuMath::scale(spec, c, 1. / (opts_.sampleRate * opts_.sampleRate));
 	else if (opts_.norm == k_norm_kaldi)
-		kMath::scale(spec, c, int16_max * int16_max);
+		KuMath::scale(spec, c, int16_max * int16_max);
 	else if (opts_.norm == k_norm_default && !hasNormDefault)
-		kMath::scale(spec, c, 1. / (double(((KgRdft*)rdft_)->idim()) * ((KgRdft*)rdft_)->idim()));
+		KuMath::scale(spec, c, 1. / (double(((KgRdft*)rdft_)->idim()) * ((KgRdft*)rdft_)->idim()));
 
 	// 谱类型转换
 	if (opts_.type == k_mag) {
-		kMath::forEach(spec, c, [](double x) { return std::sqrt(x); });
+		KuMath::forEach(spec, c, [](double x) { return std::sqrt(x); });
 	}
 	else if (opts_.type == k_log) {
-		kMath::applyFloor(spec, c, std::numeric_limits<double>::epsilon());
-		kMath::applyLog(spec, c);
+		KuMath::applyFloor(spec, c, std::numeric_limits<double>::epsilon());
+		KuMath::applyLog(spec, c);
 	}
 	else if (opts_.type == k_db) {
-		kMath::applyFloor(spec, c, std::numeric_limits<double>::epsilon());
-		kMath::forEach(spec, c, [](double x) { return 10 * std::log10(x); });
+		KuMath::applyFloor(spec, c, std::numeric_limits<double>::epsilon());
+		KuMath::forEach(spec, c, [](double x) { return 10 * std::log10(x); });
 	}
 }
 
@@ -92,7 +91,7 @@ std::pair<double, double> KgSpectrum::orange(const std::pair<double, double>& in
 	// 的N / 2倍。而第一个点就是直流分量，它的模值就是直流分量的N倍。
 
 	auto N = idim();
-	double mag = KtuMath<double>::absMax(in.first, in.second);
+	double mag = KuMath::absMax(in.first, in.second);
 	mag *= N;
 	mag *= mag;
 	fixPower(&mag, 1, false);

@@ -24,6 +24,7 @@ class KvPlottable : public KvRenderable
 public:
 	using data_ptr = std::shared_ptr<KvData>;
 	using point3 = KtPoint<float_t, 3>;
+	using gradient_t = KtGradient<float_t, color4f>;
 
 	KvPlottable(const std::string_view& name);
 
@@ -79,6 +80,10 @@ public:
 	// 辅色存储和配置由用户实现
 	virtual const color4f& minorColor() const = 0;
 	virtual void setMinorColor(const color4f& minor) = 0;
+
+	// 连续色带的读写接口
+	const gradient_t& colorBar() const { return colorBar_; }
+	gradient_t& colorBar() { return colorBar_; }
 
 	////////////////////////////////////////////////////////////////
 

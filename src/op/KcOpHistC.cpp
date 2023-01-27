@@ -5,7 +5,7 @@
 #include "KgHistC.h"
 #include "imgui.h"
 #include "stlex.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 KcOpHistC::KcOpHistC()
@@ -127,7 +127,7 @@ void KcOpHistC::output()
     histc_->count(vals.data(), vals.size());
     auto& res = histc_->result();
     stdx::copy(res, vals);
-    KtuMath<kReal>::scaleTo(vals.data(), vals.size(), 0.9);
+    KuMath::scaleTo(vals.data(), vals.size(), 0.9);
 
     auto samp = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
     samp->setChannel(nullptr, 0, vals.data()); // TODO: 多通道支持

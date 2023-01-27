@@ -1,7 +1,7 @@
 #include "KcLinearTicker.h"
 #include <cmath>
 #include <assert.h>
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 KcLinearTicker::KcLinearTicker()
@@ -75,11 +75,11 @@ double KcLinearTicker::getTickStep_(double lower, double upper) const
 
     double exactStep = (upper - lower) / (tickCount() - 1);
 
-    auto exp = KtuMath<double>::floorLog10(exactStep);
+    auto exp = KuMath::floorLog10(exactStep);
     auto mag = std::pow(10, exp);
     auto mantissa = exactStep / mag;
 
-    return mag * KtuMath<double>::pickNearest(mantissa, mantissi_.data(), mantissi_.size());
+    return mag * KuMath::pickNearest(mantissa, mantissi_.data(), mantissi_.size());
 }
 
 

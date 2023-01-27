@@ -1,36 +1,36 @@
 ﻿#include "KuFreqUnit.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include <assert.h>
 
 
 double KuFreqUnit::melToHertz3(double mel)
 {
-	if (mel < 0) return KtuMath<double>::nan;
+	if (mel < 0) return KuMath::nan<double>();
 	return mel < 1000 ? mel : 1000 * (exp(mel * log10(2) / 1000) - 1);
 }
 
 double KuFreqUnit::hertzToMel3(double hz)
 {
-	if (hz < 0) return KtuMath<double>::nan;
+	if (hz < 0) return KuMath::nan<double>();
 	return hz < 1000 ? hz : 1000 * log10(1 + hz / 1000) / log10(2);
 }
 
 double KuFreqUnit::melToHertz2(double mel)
 {
-	if (mel < 0) return KtuMath<double>::nan;
+	if (mel < 0) return KuMath::nan<double>();
 	return 700 * (pow(10.0, mel / 2595.0) - 1);
 }
 
 double KuFreqUnit::hertzToMel2(double hz)
 {
-	if (hz < 0) return KtuMath<double>::nan;
+	if (hz < 0) return KuMath::nan<double>();
 	return 2595 * log10(1 + hz / 700);
 }
 
 double KuFreqUnit::hertzToBark1977(double hz)
 {
-	if (hz < 0) return KtuMath<double>::nan;
-	return 7 * KtuMath<double>::asinh(hz / 650);
+	if (hz < 0) return KuMath::nan<double>();
+	return 7 * KuMath::asinh(hz / 650);
 }
 
 double KuFreqUnit::barkToHertz1977(double bark)
@@ -40,7 +40,7 @@ double KuFreqUnit::barkToHertz1977(double bark)
 
 double KuFreqUnit::hertzToBark1979_1(double hz)
 {
-	if (hz < 0) return KtuMath<double>::nan;
+	if (hz < 0) return KuMath::nan<double>();
 	return 13.3 * ::atan(0.75 * hz / 1000);
 }
 
@@ -51,31 +51,31 @@ double KuFreqUnit::barkToHertz1979_1(double bark)
 
 double KuFreqUnit::hertzToBark1979_2(double hz)
 {
-	if (hz < 0) return KtuMath<double>::nan;
+	if (hz < 0) return KuMath::nan<double>();
 	return 12.82 * ::atan(0.78 * hz / 1000) + 0.17 * ::pow(hz / 1000, 1.4);
 }
 
 double KuFreqUnit::barkToHertz1979_2(double bark)
 {
 	assert(false && "not supported!");
-	return KtuMath<double>::nan;
+	return KuMath::nan<double>();
 }
 
 double KuFreqUnit::hertzToBark1980_1(double hz)
 {
-	if (hz < 0) return KtuMath<double>::nan;
+	if (hz < 0) return KuMath::nan<double>();
 	return 13 * ::atan(0.00076 * hz) + 3.5 * ::atan(hz * hz / 7500 / 7500);
 }
 
 double KuFreqUnit::barkToHertz1980_1(double bark)
 {
 	assert(false && "not supported!");
-	return KtuMath<double>::nan;
+	return KuMath::nan<double>();
 }
 
 double KuFreqUnit::hertzToBark1980_2(double hz)
 {
-	if (hz < 0) return KtuMath<double>::nan;
+	if (hz < 0) return KuMath::nan<double>();
 	return 8.7 + 14.2 * log10(hz / 1000);
 }
 
@@ -86,19 +86,19 @@ double KuFreqUnit::barkToHertz1980_2(double bark)
 
 double KuFreqUnit::hertzToBark1990(double hz)
 {
-	if (hz < 0) return KtuMath<double>::nan;
+	if (hz < 0) return KuMath::nan<double>();
 	return 26.81 * hz / (1960 + hz) - 0.53;
 }
 
 double KuFreqUnit::barkToHertz1990(double bark)
 {
-	if (bark < 0 || bark > 26.28) return KtuMath<double>::nan;
+	if (bark < 0 || bark > 26.28) return KuMath::nan<double>();
 	return 1960 * (bark + 0.53) / (26.28 - bark);
 }
 
 double KuFreqUnit::hertzToBark1992(double hz)
 {
-	if (hz < 0) return KtuMath<double>::nan;
+	if (hz < 0) return KuMath::nan<double>();
 	return 6 * ::asinh(hz / 600);
 }
 
@@ -125,22 +125,22 @@ double KuFreqUnit::erb1990(double fc)
 
 double KuFreqUnit::hertzToCam(double hertz)
 {
-	return hertz < 0 ? KtuMath<double>::nan : 21.366 * ::log10(0.004368 * hertz + 1);
+	return hertz < 0 ? KuMath::nan<double>() : 21.366 * ::log10(0.004368 * hertz + 1);
 }
 
 double KuFreqUnit::camToHertz(double cam)
 {
-	return cam < 0 ? KtuMath<double>::nan : (::pow(10, cam / 21.366) - 1) / 0.004368;
+	return cam < 0 ? KuMath::nan<double>() : (::pow(10, cam / 21.366) - 1) / 0.004368;
 }
 
 double KuFreqUnit::hertzToCamPraat(double hertz)
 {
-	return hertz < 0 ? KtuMath<double>::nan : 11.17 * log((hertz + 312.0) / (hertz + 14680.0)) + 43.0;
+	return hertz < 0 ? KuMath::nan<double>() : 11.17 * log((hertz + 312.0) / (hertz + 14680.0)) + 43.0;
 }
 
 double KuFreqUnit::camToHertzPraat(double cam)
 {
-	if (cam < 0) return KtuMath<double>::nan;
+	if (cam < 0) return KuMath::nan<double>();
 
 	double dum = exp((cam - 43.0) / 11.17);
 	return  (14680.0 * dum - 312.0) / (1.0 - dum);
@@ -158,7 +158,7 @@ double KuFreqUnit::melToHertz(double mel)
 
 double KuFreqUnit::freqRatioToSemitones(double fr)
 {
-	if (fr <= 0.0) return KtuMath<double>::nan;
+	if (fr <= 0.0) return KuMath::nan<double>();
 
 	return 12.0 * log(fr) / log(2.0);
 }

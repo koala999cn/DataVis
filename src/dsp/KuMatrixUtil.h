@@ -2,7 +2,7 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include "KtuMath.h"
+#include "KuMath.h"
 
 class KvData;
 
@@ -112,7 +112,7 @@ bool KuMatrixUtil::isEvenlySpaced(const std::vector<T>& v)
 
     for (unsigned i = 1; i < v.size(); i++) {
         auto delta = v[i] - v[i - 1];
-        if (!KtuMath<T>::almostEqual(dx, delta))
+        if (!KuMath::almostEqual<T>(dx, delta))
             return false;
 
         dx = delta;

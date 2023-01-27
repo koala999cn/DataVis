@@ -3,7 +3,7 @@
 #include "KgAudioFile.h"
 #include "readerwriterqueue/readerwriterqueue.h"
 #include <string.h>
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 namespace kPrivate
@@ -42,7 +42,7 @@ namespace kPrivate
 
             if (data_ == nullptr) {
                 if (!q_->try_dequeue(data_)) {
-                    KtuMath<kReal>::zeros(buf, frames * channels_);
+                    KuMath::zeros(buf, frames * channels_);
                     return !autoStop_;
                 }
 

@@ -4,7 +4,7 @@
 #include "imapp/KsImApp.h"
 #include "imapp/KgPipeline.h"
 #include "imgui.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 KcOpResampler::KcOpResampler()
@@ -91,7 +91,7 @@ void KcOpResampler::showProperySet()
     auto isize = isize_();
     if (isize == 0) isize = 1024 * 16;
     if (ImGui::DragInt("Window Length", method_ == 0 ? &linearWinSize : &wsize_, 1, 2, isize))
-        wsize_ = KtuMath<int>::clamp(wsize_, 2, isize); // 保持正确的最小值
+        wsize_ = KuMath::clamp<int>(wsize_, 2, isize); // 保持正确的最小值
     ImGui::EndDisabled();
 
     if (!isStream(0))

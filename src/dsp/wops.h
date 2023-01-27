@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 // 一些常用的数学函数集合
@@ -10,7 +10,7 @@ struct hamming
 {
     // [0, 1]
     KREAL operator()(KREAL x) const {
-        return 0.53836 - 0.46164 * cos(KtuMath<KREAL>::pi * 2 * x);
+        return 0.53836 - 0.46164 * cos(KuMath::pi * 2 * x);
     }
 };
 
@@ -20,7 +20,7 @@ struct hann
 {
     // [0, 1]
     KREAL operator()(KREAL x) const {
-        return 0.5 - 0.5 * cos(KtuMath<KREAL>::pi * 2 * x);
+        return 0.5 - 0.5 * cos(KuMath::pi * 2 * x);
     }
 };
 
@@ -30,7 +30,7 @@ struct povey
 {
     // [0, 1]
     KREAL operator()(KREAL x) const {
-        return pow((0.5 - 0.5 * cos(KtuMath<KREAL>::pi * 2 * x)), 0.85);
+        return pow((0.5 - 0.5 * cos(KuMath::pi * 2 * x)), 0.85);
     }
 };
 
@@ -44,7 +44,7 @@ struct blackman
         KREAL a1 = 0.5;
         KREAL a2 = 0.5 * alpha;
 
-        KREAL t = KtuMath<KREAL>::pi * 2 * x;
+        KREAL t = KuMath::pi * 2 * x;
         return a0 - a1 * cos(t) + a2 * cos(2 * t);
     }
 };
@@ -60,7 +60,7 @@ struct blackmanharris
         KREAL a1 = 0.48829f;
         KREAL a2 = 0.14128f;
         KREAL a3 = 0.01168f;
-        KREAL t = KtuMath<KREAL>::pi * 2 * x;
+        KREAL t = KuMath::pi * 2 * x;
 
         return a0 - a1 * cos(t) + a2 * cos(2 * t) - a3 * cos(3 * t);
     }
@@ -78,7 +78,7 @@ struct nuttall
         KREAL a1 = 0.4891775;
         KREAL a2 = 0.1365995;
         KREAL a3 = 0.0106411;
-        KREAL t = KtuMath<KREAL>::pi * 2 * x;
+        KREAL t = KuMath::pi * 2 * x;
 
         return a0 - a1 * cos(t) + a2 * cos(2 * t) - a3 * cos(3 * t);
     }
@@ -97,7 +97,7 @@ struct blackmanharris7
         KREAL a4 = 0.01081f;
         KREAL a5 = 0.00077f;
         KREAL a6 = 0.00001f;
-        KREAL t = KtuMath<KREAL>::pi * 2 * x;
+        KREAL t = KuMath::pi * 2 * x;
 
         return a0 - a1 * cos(t) + a2 * cos(2 * t) - a3 * cos(3 * t)
             + a4 * cos(4 * t) - a5 * cos(5 * t) + a6 * cos(6 * t);
@@ -117,7 +117,7 @@ struct flattop
         const KREAL a3 = 0.083578947;
         const KREAL a4 = 0.006947368;
 
-        KREAL t = KtuMath<KREAL>::pi * 2 * x;
+        KREAL t = KuMath::pi * 2 * x;
 
         return a0 - a1 * cos(t) + a2 * cos(2 * t) -
             a3 * cos(3 * t) + a4 * cos(4 * t);
@@ -133,8 +133,8 @@ struct bohman
     // [0, 1]
     KREAL operator()(KREAL x) const {
         x = abs(2 * x - 1); // 从[0, 1]转换到[-1, 1]
-        auto pix = KtuMath<KREAL>::pi * x;
-        return (1 - x) * cos(pix) + sin(pix) / KtuMath<KREAL>::pi;
+        auto pix = KuMath::pi * x;
+        return (1 - x) * cos(pix) + sin(pix) / KuMath::pi;
     }
 };
 
@@ -193,8 +193,8 @@ struct rcostaper
             x = 1 - x;
 
         // return ramp or flat component
-        return (x < alpha_) ? 0.5f - 0.5f * cos(KtuMath<KREAL>::pi * (x + 0.5f) / alpha_) : 1.0f; // TODO: test (x+0.5f) ????
-        //  return (_i < _t) ? 0.5f - 0.5f*cosf(KtuMath<KREAL>::pi*((float)_i + 0.5f) / (float)_t) : 1.0f;
+        return (x < alpha_) ? 0.5f - 0.5f * cos(KuMath::pi * (x + 0.5f) / alpha_) : 1.0f; // TODO: test (x+0.5f) ????
+        //  return (_i < _t) ? 0.5f - 0.5f*cosf(KuMath::pi*((float)_i + 0.5f) / (float)_t) : 1.0f;
     }
 
 private:
@@ -233,6 +233,6 @@ struct bartletthann
     // [0, 1]
     KREAL operator()(KREAL x) const {
         x = x - 0.5;
-        return 0.62 - 0.48 * abs(x) + 0.38 * cos(2 * KtuMath<KREAL>::pi * x);
+        return 0.62 - 0.48 * abs(x) + 0.38 * cos(2 * KuMath::pi * x);
     }
 };

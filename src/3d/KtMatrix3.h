@@ -32,7 +32,6 @@ class KtMatrix3 : public KtArray<KReal, 9>
 {
 	using vec3 = KtVector3<KReal>;
 	using mat3 = KtMatrix3<KReal, ROW_MAJOR>;
-	using kMath = KtuMath<KReal>;
 	using point3 = KtPoint<KReal, 3>;
 	using super_ = KtArray<KReal, 9>;
 
@@ -203,9 +202,9 @@ bool KtMatrix3<KReal, ROW_MAJOR>::operator==(const mat3& rhs) const
 template<class KReal, bool ROW_MAJOR>
 bool KtMatrix3<KReal, ROW_MAJOR>::isApproxEqual(const mat3& rhs) const
 {
-	return kMath::approxEqual(m00(), rhs.m00()) && kMath::approxEqual(m01(), rhs.m01()) && kMath::approxEqual(m02(), rhs.m02()) &&
-		kMath::approxEqual(m10(), rhs.m10()) && kMath::approxEqual(m11(), rhs.m11()) && kMath::approxEqual(m12(), rhs.m12()) &&
-		kMath::approxEqual(m20(), rhs.m20()) && kMath::approxEqual(m21(), rhs.m21()) && kMath::approxEqual(m22(), rhs.m22());
+	return KuMath::approxEqual(m00(), rhs.m00()) && KuMath::approxEqual(m01(), rhs.m01()) && KuMath::approxEqual(m02(), rhs.m02()) &&
+		KuMath::approxEqual(m10(), rhs.m10()) && KuMath::approxEqual(m11(), rhs.m11()) && KuMath::approxEqual(m12(), rhs.m12()) &&
+		KuMath::approxEqual(m20(), rhs.m20()) && KuMath::approxEqual(m21(), rhs.m21()) && KuMath::approxEqual(m22(), rhs.m22());
 }
 
 template<class KReal, bool ROW_MAJOR>
@@ -366,7 +365,7 @@ void KtMatrix3<KReal, ROW_MAJOR>::toAngleAxis(KReal& angle/*out*/, vec3& axis/*o
 
 	if (angle > 0)
 	{
-		if (angle < kMath::pi)
+		if (angle < KuMath::pi)
 		{// angle在(0, PI)区间
 			axis.x() = m21() - m12();
 			axis.y() = m02() - m20();
@@ -457,8 +456,8 @@ void KtMatrix3<KReal, ROW_MAJOR>::toEulerAngleXYZ(KReal& angleX, KReal& angleY, 
 	//     | -cx*cz*sy+sx*sz   cz*sx+cx*sy*sz   cx*cy |
 
 	angleY = std::asin(m02()); // 因为R[0][2] = sy = sin(angleY)
-	if (angleY < kMath::pi / 2) {
-		if (angleY > -kMath::pi / 2) {
+	if (angleY < KuMath::pi / 2) {
+		if (angleY > -KuMath::pi / 2) {
 			angleX = std::atan2(-m12(), m22());
 			angleZ = std::atan2(-m01(), m00());
 		}
@@ -484,8 +483,8 @@ void KtMatrix3<KReal, ROW_MAJOR>::toEulerAngleXZY(KReal& angleX, KReal& angleY, 
 	//     | -cx*sy+cy*sx*sz   cz*sx    cx*cy+sx*sy*sz |
 
 	angleZ = std::asin(-m01()); // 因为R[0][1] = -sz = -sin(angleY)
-	if (angleZ < kMath::pi / 2) {
-		if (angleZ > -kMath::pi / 2) {
+	if (angleZ < KuMath::pi / 2) {
+		if (angleZ > -KuMath::pi / 2) {
 			angleX = std::atan2(m21(), m11());
 			angleY = std::atan2(m02(), m00());
 		}
@@ -511,8 +510,8 @@ void KtMatrix3<KReal, ROW_MAJOR>::toEulerAngleYXZ(KReal& angleX, KReal& angleY, 
 	//     | -cz*sy+cy*sx*sz   cy*cz*sx+sy*sz    cx*cy |
 
 	angleX = std::asin(-m12()); // 因为R[1][2] = -sx = -sin(angleX)
-	if (angleX < kMath::pi / 2) {
-		if (angleX > -kMath::pi / 2) {
+	if (angleX < KuMath::pi / 2) {
+		if (angleX > -KuMath::pi / 2) {
 			angleY = std::atan2(m02(), m22());
 			angleZ = std::atan2(m10(), m11());
 		}
@@ -538,8 +537,8 @@ void KtMatrix3<KReal, ROW_MAJOR>::toEulerAngleYZX(KReal& angleX, KReal& angleY, 
 	//     | -cz*sy     cy*sx+cx*sy*sz    cx*cy-sx*sy*sz |
 
 	angleZ = std::asin(m10()); // 因为R[1][0] = sz = sin(angleZ)
-	if (angleZ < kMath::pi / 2) {
-		if (angleZ > -kMath::pi / 2) {
+	if (angleZ < KuMath::pi / 2) {
+		if (angleZ > -KuMath::pi / 2) {
 			angleY = std::atan2(-m20(), m00());
 			angleX = std::atan2(-m12(), m11());
 		}
@@ -565,8 +564,8 @@ void KtMatrix3<KReal, ROW_MAJOR>::toEulerAngleZXY(KReal& angleX, KReal& angleY, 
 	//     |     -cx*sy            sx              cx*cy |
 
 	angleX = std::asin(m21()); // 因为R[2][1] = sx = sin(angleX)
-	if (angleX < kMath::pi / 2) {
-		if (angleX > -kMath::pi / 2) {
+	if (angleX < KuMath::pi / 2) {
+		if (angleX > -KuMath::pi / 2) {
 			angleZ = std::atan2(-m01(), m11());
 			angleY = std::atan2(-m20(), m22());
 		}
@@ -592,8 +591,8 @@ void KtMatrix3<KReal, ROW_MAJOR>::toEulerAngleZYX(KReal& angleX, KReal& angleY, 
 	//     | -sy           cy*sx                  cx*cy |
 
 	angleY = std::asin(-m20()); // 因为R[2][0] = -sy = -sin(angleY)
-	if (angleY < kMath::pi / 2) {
-		if (angleY > -kMath::pi / 2) {
+	if (angleY < KuMath::pi / 2) {
+		if (angleY > -KuMath::pi / 2) {
 			angleZ = std::atan2(m10(), m00());
 			angleX = std::atan2(m21(), m22());
 		}

@@ -3,7 +3,7 @@
 #include <functional>
 #include "KtSampling.h"
 #include "KuFreqUnit.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 KgFbank::KgFbank(KgFbank&& fbank) noexcept
@@ -46,7 +46,7 @@ void KgFbank::process(const double* in, double* out) const
 {
     for (unsigned i = 0; i < opts_.numBanks; i++) 
         // 若weights_[i].size() == 0, dot返回0.0
-        out[i] = KtuMath<double>::dot(in + firstIdx_[i], weights_[i].data(), 
+        out[i] = KuMath::dot(in + firstIdx_[i], weights_[i].data(),
             static_cast<unsigned>(weights_[i].size()));
 }
 
@@ -122,7 +122,7 @@ void KgFbank::initWeights_()
                     fromHertz(opts_.type, sanpHertz.indexToX(i)));
 
             if (opts_.normalize)
-                KtuMath<double>::scale(wt.data(), 
+                KuMath::scale(wt.data(), 
                     static_cast<unsigned>(wt.size()), 1. / (frhz - flhz));
         }
     }

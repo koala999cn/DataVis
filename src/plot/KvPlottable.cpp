@@ -157,7 +157,7 @@ void KvPlottable::setMajorColors(const std::vector<color4f>& majors)
 	colorBar_.reset();
 
 	std::vector<float_t> vals(majors.size());
-	KtuMath<float_t>::linspace(0, 1, 0, vals.data(), majors.size()); // 初始化时均匀间隔配置
+	KuMath::linspace<float_t>(0, 1, 0, vals.data(), majors.size()); // 初始化时均匀间隔配置
 	for (unsigned i = 0; i < majors.size(); i++)
 		colorBar_.setAt(vals[i], majors[i]);
 }
@@ -178,17 +178,17 @@ color4f KvPlottable::mapValueToColor_(float_t* valp, unsigned channel) const
 		return majorColor(channel);
 
 	case k_one_color_gradiant:
-		return KtuMath<float_t>::remap(valp[colorMappingDim_],
+		return KuMath::remap(valp[colorMappingDim_],
 			colorMappingRange_.first, colorMappingRange_.second,
 			majorColor(channel), majorColor(channel).brighten(brightenCoeff_));
 
 	case k_two_color_gradiant:
-		return KtuMath<float_t>::remap(valp[colorMappingDim_],
+		return KuMath::remap(valp[colorMappingDim_],
 			colorMappingRange_.first, colorMappingRange_.second,
 			majorColor(channel), minorColor());
 
 	case k_colorbar_gradiant:
-		return colorBar_.getAt(KtuMath<float_t>::remap<true>(valp[colorMappingDim_],
+		return colorBar_.getAt(KuMath::remap<float_t, true>(valp[colorMappingDim_],
 			colorMappingRange_.first, colorMappingRange_.second));
 
 	default:

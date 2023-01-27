@@ -1,7 +1,7 @@
 #include "KcImPaint.h"
 #include "KtVector4.h"
 #include "imguix.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include <assert.h>
 #include "imgui_internal.h"
 #include "KtLineS2d.h"

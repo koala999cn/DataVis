@@ -213,7 +213,7 @@ void KcImTextCleaner::clean_()
 
 double KcImTextCleaner::emptyValue_() const
 {
-    return emptyMode_ == kPrivate::k_empty_as_zero ? 0 : KtuMath<double>::nan;
+    return emptyMode_ == kPrivate::k_empty_as_zero ? 0 : KuMath::nan<double>();
 }
 
 
@@ -221,7 +221,7 @@ double KcImTextCleaner::illegalValue_() const
 {
     return illegalMode_ == kPrivate::k_illegal_as_zero ? 0
         : illegalMode_ == kPrivate::k_illegal_as_nan ?
-        KtuMath<double>::nan : emptyValue_();
+        KuMath::nan<double>() : emptyValue_();
 }
 
 

@@ -2,7 +2,7 @@
 #include "KvDiscreted.h"
 #include <array>
 #include <vector>
-#include "KtuMath.h"
+#include "KuMath.h"
 
 
 template<int DIM>

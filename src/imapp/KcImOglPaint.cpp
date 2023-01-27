@@ -4,7 +4,7 @@
 #include "glad.h"
 #include "KcVertexDeclaration.h"
 #include "KtLineS2d.h"
-#include "KtuMath.h"
+#include "KuMath.h"
 #include "opengl/KcGlslProgram.h"
 #include "opengl/KcGlslShader.h"
 #include "opengl/KcGpuBuffer.h"
