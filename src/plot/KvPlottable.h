@@ -24,7 +24,7 @@ class KvPlottable : public KvRenderable
 public:
 	using data_ptr = std::shared_ptr<KvData>;
 	using point3 = KtPoint<float_t, 3>;
-	using gradient_t = KtGradient<float_t, color4f>;
+	using gradient_t = KtGradient<float, color4f>;
 
 	KvPlottable(const std::string_view& name);
 
@@ -164,7 +164,7 @@ private:
 
 	// 色彩管理
 	KeColoringMode coloringMode_{ k_one_color_solid };
-	KtGradient<float_t, color4f> colorBar_; // 色带
+	gradient_t colorBar_; // 色带
 	bool flatShading_{ false };  // 若true，则开启flat渲染模式，否则使用smooth渲染模式
 	                             // flat模式下，使用多边形的最后1个顶点对整个多边形着色
 

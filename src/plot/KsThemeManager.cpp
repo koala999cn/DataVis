@@ -462,7 +462,7 @@ void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 
 	if (majorsNeeded > majors.size()) 
 		for (unsigned i = 0; i < majors.size(); i++)
-			grad.setAt(i, majors[i]);
+			grad.insert(i, majors[i]);
 
 	for (unsigned i = 0; i < plot->plottableCount(); i++) {
 		auto n = plot->majorColorsNeeded(i);
@@ -472,7 +472,7 @@ void KsThemeManager::applyPalette_(const jvalue& jval, KvThemedPlot* plot) const
 			std::vector<color4f> clrs(n);
 			if (majorsNeeded > majors.size()) { // 调色板颜色不足，使用gradient插值取色
 				for (unsigned j = 0; j < n; j++)
-					clrs[j] = grad.getAt(KuMath::remap<float>(idx++, 0, majorsNeeded - 1, 0, majors.size() - 1));
+					clrs[j] = grad.map(KuMath::remap<float>(idx++, 0, majorsNeeded - 1, 0, majors.size() - 1));
 			}
 			else { // 调色板颜色足够，按顺序分配
 				for (unsigned j = 0; j < n; j++)

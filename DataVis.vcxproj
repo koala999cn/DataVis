@@ -451,6 +451,7 @@
     <ClInclude Include="src\render\KcRdPlot3d.h" />
     <ClInclude Include="src\render\KvDataRender.h" />
     <ClInclude Include="src\render\KvRdPlot.h" />
+    <ClInclude Include="src\util\draw_gradient.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

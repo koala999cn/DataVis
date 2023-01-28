@@ -223,7 +223,7 @@ public:
     template<typename T1, typename T2, bool CLAMP = false>
     static T2 remap(T1 x, T1 x0, T1 x1, T2 y0, T2 y1) {
         if (x0 == x1) 
-            return x > x1 ? y1 : y0;
+            return x >= x1 ? y1 : y0;
 
         auto y = y0 + (y1 - y0) * ((x - x0) / (x1 - x0));
         if constexpr (CLAMP)

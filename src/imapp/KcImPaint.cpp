@@ -327,7 +327,6 @@ void KcImPaint::fillTriangle(point3 pts[3], color_t clrs[3])
 	auto p1 = project_(pts[1]);
 	auto p2 = project_(pts[2]);
 
-	auto vtxIdx0 = drawList->_VtxCurrentIdx;
 	drawList->PrimVtx(p0, uv, imColor(clrs[0]));
 	drawList->PrimVtx(p1, uv, imColor(clrs[1]));
 	drawList->PrimVtx(p2, uv, imColor(clrs[2]));

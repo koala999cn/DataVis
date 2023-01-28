@@ -215,8 +215,10 @@ void KvRdPlot::showProperySet()
 	ImGui::Separator();
 	showThemeProperty_();
 
-	ImGui::Separator();
-	showPlottableProperty_();
+	if (plot_->plottableCount() > 0) {
+		ImGui::Separator();
+		showPlottableProperty_();
+	}
 
 	ImGui::Separator();
 	showCoordProperty_();
@@ -730,49 +732,46 @@ void KvRdPlot::showColorBarProperty_()
 
 void KvRdPlot::showPlottableProperty_()
 {
-	if (plot_->plottableCount() > 0) {
+	if (!ImGuiX::treePush("Plottable(s)", false))
+		return;
 
-		if (!ImGuiX::treePush("Plottable(s)", false))
-			return;
+	for (unsigned idx = 0; idx < plot_->plottableCount(); idx++) {
 
-		for (unsigned idx = 0; idx < plot_->plottableCount(); idx++) {
+		auto plt = plot_->plottableAt(idx);
 
-			auto plt = plot_->plottableAt(idx);
+		bool open(false);
+		std::string label = "##Plottable" + KuStrUtil::toString(idx);
+		ImGui::PushID(label.c_str());
+		ImGuiX::cbiTreePush("##Node", &plt->visible(), &plt->name(), &open);
 
-			bool open(false);
-			std::string label = "##Plottable" + KuStrUtil::toString(idx);
-			ImGui::PushID(label.c_str());
-			ImGuiX::cbiTreePush("##Node", &plt->visible(), &plt->name(), &open);
-
-			// 紧跟其后绘制主色块（不换行）
-			std::vector<color4f> majors(plt->majorColors());
-			for (unsigned i = 0; i < plt->majorColors(); i++)
-				majors[i] = plt->majorColor(i);
-			for (unsigned i = 0; i < plt->majorColors(); i++) {
-				ImGui::SameLine();
-				ImGui::PushID(plt + 1 + i);
-				if (ImGui::ColorEdit4("##", majors[i],
-					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
-					plt->setMajorColors(majors);
-				ImGui::PopID();
-			}
-
-			if (open) {
-
-				showPlottableTypeProperty_(idx);
-
-				// TODO: 此处不可直接传递plt，否则变换plottable类型时，将会引用失效的plt
-				showPlottableColoringProperty_(idx);
-				showPlottableSampCountProperty_(idx);
-				showPlottableSpecificProperty_(idx);
-				ImGuiX::cbiTreePop();
-			}
-
+		// 紧跟其后绘制主色块（不换行）
+		std::vector<color4f> majors(plt->majorColors());
+		for (unsigned i = 0; i < plt->majorColors(); i++)
+			majors[i] = plt->majorColor(i);
+		for (unsigned i = 0; i < plt->majorColors(); i++) {
+			ImGui::SameLine();
+			ImGui::PushID(plt + 1 + i);
+			if (ImGui::ColorEdit4("##", majors[i],
+				ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+				plt->setMajorColors(majors);
 			ImGui::PopID();
 		}
 
-		ImGuiX::treePop();
+		if (open) {
+
+			showPlottableTypeProperty_(idx);
+
+			// TODO: 此处不可直接传递plt，否则变换plottable类型时，将会引用失效的plt
+			showPlottableColoringProperty_(idx);
+			showPlottableSampCountProperty_(idx);
+			showPlottableSpecificProperty_(idx);
+			ImGuiX::cbiTreePop();
+		}
+
+		ImGui::PopID();
 	}
+
+	ImGuiX::treePop();
 }
 
 
@@ -849,6 +848,9 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 			float low = r.first, high = r.second;
 			if (ImGui::DragFloatRange2("Color Mapping Range", &low, &high))
 				r.first = low, r.second = high;
+
+			static float selectedKey;
+			ImGuiX::gradient("Colorbar", plt->colorBar(), selectedKey);
 		}
 	}
 }

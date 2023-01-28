@@ -3,6 +3,7 @@
 #include "KvPaint.h"
 #include "KtGradient.h"
 #include "KvData.h"
+#include "util/draw_gradient.h"
 
 
 KcColorBar::KcColorBar(KvPlottable* plt)
@@ -40,7 +41,7 @@ namespace kPrivate
     // @dim: 0表示在x方向上渐变色，1表示在y方向上渐变色
     // @dir: 1表示从低到高渐变色，-1表示从高到低渐变色
     void drawGradient(KvPaint* paint, const KtAABB<double, 2>& rect, 
-        const KtGradient<double, color4f>& grad, int dim, int dir);
+        const KtGradient<float, color4f>& grad, int dim, int dir);
 }
 
 
@@ -52,10 +53,9 @@ void KcColorBar::draw(KvPaint* paint) const
 
     auto box = innerRect();
 
-    // draw gradient
-    KtGradient<double, color4f> grad;
-    for (unsigned i = 0; i < plt_->majorColors(); i++) 
-        grad.setAt(double(i) / (plt_->majorColors() - 1), plt_->majorColor(i));
+    auto fillQuad = [paint](KtPoint<double, 2>* vtx, color4f* clr) {
+        paint->fillQuad(vtx, clr);
+    };
 
     if (align() & KeAlignment::k_horz_first) { // TODO: 更优雅的修正box的方法
 
@@ -64,7 +64,8 @@ void KcColorBar::draw(KvPaint* paint) const
         else if (align() & KeAlignment::k_left)
             box.lower().x() = box.upper().x() - barWidth_;
 
-        kPrivate::drawGradient(paint, box, grad, 1, -1);
+        std::swap(box.lower().y(), box.upper().y()); // 确保由下往上渐变
+        drawGradient<double, float>(fillQuad, box.lower(), box.upper(), plt_->colorBar(), 1);
     }
     else {
 
@@ -73,7 +74,7 @@ void KcColorBar::draw(KvPaint* paint) const
         else if (align() & KeAlignment::k_top)
             box.lower().y() = box.upper().y() - barWidth_;
 
-        kPrivate::drawGradient(paint, box, grad, 0, 1);
+        drawGradient<double, float>(fillQuad, box.lower(), box.upper(), plt_->colorBar(), 0);
     }
 
     // draw border
@@ -157,7 +158,7 @@ KcColorBar::size_t KcColorBar::calcSize_(void* cxt) const
 namespace kPrivate
 {
     void drawGradient(KvPaint* paint, const KtAABB<double, 2>& rect,
-        const KtGradient<double, color4f>& grad, int dim, int dir)
+        const KtGradient<float, color4f>& grad, int dim, int dir)
     {
         auto lower = rect.lower();
         auto upper = rect.upper();
@@ -167,15 +168,15 @@ namespace kPrivate
             std::swap(upper[dim], lower[dim]);
 
         typename KvPaint::color_t clrs[4];
-        clrs[0] = clrs[1] = grad.stopAt(0).second;
+        clrs[0] = clrs[1] = grad.at(0).second;
         typename KvPaint::point2 pts[4];
         pts[0] = pts[1] = pts[3] = lower; 
         pts[1][!dim] += width;
         pts[2] = pts[1];
-        for (unsigned i = 1; i < grad.numStops(); i++) {
-            auto& stop = grad.stopAt(i);
+        for (unsigned i = 1; i < grad.size(); i++) {
+            auto& stop = grad.at(i);
             clrs[2] = clrs[3] = stop.second;
-            pts[2][dim] = pts[3][dim] = KuMath::remap(stop.first, 0., 1., lower[dim], upper[dim]);
+            pts[2][dim] = pts[3][dim] = KuMath::remap(stop.first, 0.f, 1.f, lower[dim], upper[dim]);
             paint->fillQuad(pts, clrs);
 
             clrs[0] = clrs[1] = clrs[2];

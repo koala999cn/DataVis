@@ -15,7 +15,8 @@ void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned 
 	if (count > 4096)
 		getter = downsamp, count /= stride;
 
-	lineCxt_.color = majorColor(ch);
+	if (coloringMode() != k_colorbar_gradiant)
+	    lineCxt_.color = majorColor(ch);
 	paint->apply(lineCxt_);
 
 	if (coloringMode() == k_one_color_solid) {

@@ -89,7 +89,7 @@ namespace ImGuiX
 	bool margins(const char* label, KtMargins<double>& m);
 
 	// gradient editor
-	bool gradient(const char* label, KtGradient<float, color4f>& grad);
+	bool gradient(const char* label, KtGradient<float, color4f>& grad, float& selectedKey);
 
 	/*
 	template<int N>

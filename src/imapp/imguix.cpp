@@ -1,4 +1,5 @@
 #include "imguix.h"
+#include "imgui_internal.h"
 #include "KuStrUtil.h"
 #include "KuDataUtil.h"
 #include "KvDiscreted.h"
@@ -6,6 +7,7 @@
 #include "layout/KeAlignment.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "plot/KpContext.h"
+#include "util/draw_gradient.h"
 
 
 namespace kPrivate
@@ -92,7 +94,6 @@ namespace kPrivate
 
         return res;
     }
-
 }
 
 
@@ -530,8 +531,96 @@ namespace ImGuiX
     }
 
 
-    bool gradient(const char* label, KtGradient<float, color4f>& grad)
-    {
-        return false;
+    bool gradient(const char* label, KtGradient<float, color4f>& grad, float& selectedKey)
+    {   
+        auto drawList = GetWindowDrawList();
+        auto offset = GetCursorScreenPos();
+        auto size = ImVec2(CalcItemWidth(), GetFrameHeight());
+        auto barHeight = GetTextLineHeight();
+        auto fillQuad = [drawList](KtPoint<float, 2>* vtx, color4f* clrs) {
+            drawList->PrimReserve(6, 6);
+
+            auto uv = drawList->_Data->TexUvWhitePixel;
+            drawList->PrimVtx((ImVec2&)vtx[0], uv, ImColor((ImVec4&)clrs[0]));
+            drawList->PrimVtx((ImVec2&)vtx[1], uv, ImColor((ImVec4&)clrs[1]));
+            drawList->PrimVtx((ImVec2&)vtx[2], uv, ImColor((ImVec4&)clrs[2]));
+            drawList->PrimVtx((ImVec2&)vtx[0], uv, ImColor((ImVec4&)clrs[0]));
+            drawList->PrimVtx((ImVec2&)vtx[2], uv, ImColor((ImVec4&)clrs[2]));
+            drawList->PrimVtx((ImVec2&)vtx[3], uv, ImColor((ImVec4&)clrs[3]));
+        };
+
+        auto w = size.y - barHeight + 2; // 按钮宽度
+
+        // 绘制背景
+        Dummy(size);
+        //drawList->AddRectFilled(offset, offset + size, ImColor(GetStyle().Colors[ImGuiCol_Button]));
+
+        // 绘制色带
+        auto x0 = offset.x + w / 2;
+        auto x1 = offset.x + size.x - w / 2;
+        auto y0 = offset.y + w / 2 - 1;
+        auto y1 = offset.y + barHeight + 2;
+        drawGradient<float, float>(fillQuad, { x0, y0 }, { x1, y1 }, grad, 0);
+       
+        // 绘制控制点
+        auto ymax = offset.y + size.y;
+        static bool dragging(false);
+        auto& style = GetStyle();
+        for (auto& i : grad) {
+            auto x = KuMath::remap(i.first, 0.f, 1.f, x0, x1); // 定位控制点的水平坐标. TOOD: 此处默认grad已规范化
+
+            ImVec2 ptmin(x - w / 2, offset.y), ptmax(x + w / 2, ymax);
+            bool hovering = IsMouseHoveringRect(ptmin, ptmax);
+            bool selecting = (selectedKey == i.first);
+
+            auto fill = i.second; 
+            if (selecting);
+            else if (hovering) fill.w() *= 0.9;
+            else fill.w() *= 0.8;
+
+            auto border = selecting ? ImGuiCol_FrameBgActive : hovering ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg;
+            auto thickness = selecting ? 2.5 : hovering ? 2 : 1;
+            drawList->AddRectFilled(ptmin, ptmax, ImColor((ImVec4&)fill), 4);
+            drawList->AddRect(ptmin, ptmax, ImColor(style.Colors[border]), 4, 0, thickness);
+
+            if (IsMouseDown(ImGuiMouseButton_Left) && hovering) {
+                selectedKey = i.first;
+                dragging = true;
+            }
+        }
+
+        SameLine(0.0f, style.ItemInnerSpacing.x);
+        Text(label);
+
+        // Drag behavior
+
+        bool value_changed(false); // NB: selectedKey变化不影响changed值
+        if (IsMouseReleased(ImGuiMouseButton_Left) && dragging) 
+            dragging = false;
+
+        if (dragging) {
+            // 以下代码捕获输入（否则拖动效果不好，很多时候会移动父窗口）
+            ImGuiWindow* window = GetCurrentWindow();
+            const ImGuiID id = window->GetID(label);
+            SetActiveID(id, window);
+            SetFocusID(id, window);
+            FocusWindow(window);
+
+            auto newKey = KuMath::remap<float, true>(GetMousePos().x, x0, x1);
+            grad.move(selectedKey, newKey);
+            selectedKey = newKey;
+            value_changed = true;
+        }
+
+        if (IsKeyPressed(ImGuiKey_Delete) 
+            && IsWindowFocused()
+            && grad.has(selectedKey)
+            && grad.size() > 2) { // 超过2个控制点允许删除
+            grad.erase(selectedKey);
+            selectedKey = KuMath::nan<float>();
+            value_changed = true;
+        }
+
+        return value_changed;
     }
 }

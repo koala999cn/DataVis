@@ -46,6 +46,9 @@
     <Filter Include="3d">
       <UniqueIdentifier>{666b7f16-b2fc-4731-b7b5-a079c519e0b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{76b91b17-22c1-4799-a348-0aeb344123fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KgHist.cpp">
@@ -1076,6 +1079,9 @@
     </ClInclude>
     <ClInclude Include="src\opengl\KuOglUtil.h">
       <Filter>opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\draw_gradient.h">
+      <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -140,13 +140,13 @@ unsigned KvPlottable::majorColorsNeeded() const
 
 unsigned KvPlottable::majorColors() const
 {
-	return colorBar_.numStops();
+	return colorBar_.size();
 }
 
 
 color4f KvPlottable::majorColor(unsigned idx) const
 {
-	return colorBar_.stopAt(idx).second;
+	return colorBar_.at(idx).second;
 }
 
 
@@ -154,12 +154,12 @@ void KvPlottable::setMajorColors(const std::vector<color4f>& majors)
 {
 	assert(majorColorsNeeded() == -1 || majorColorsNeeded() == majors.size());
 
-	colorBar_.reset();
+	colorBar_.clear();
 
 	std::vector<float_t> vals(majors.size());
 	KuMath::linspace<float_t>(0, 1, 0, vals.data(), majors.size()); // 初始化时均匀间隔配置
 	for (unsigned i = 0; i < majors.size(); i++)
-		colorBar_.setAt(vals[i], majors[i]);
+		colorBar_.insert(vals[i], majors[i]);
 }
 
 
@@ -188,7 +188,7 @@ color4f KvPlottable::mapValueToColor_(float_t* valp, unsigned channel) const
 			majorColor(channel), minorColor());
 
 	case k_colorbar_gradiant:
-		return colorBar_.getAt(KuMath::remap<float_t, true>(valp[colorMappingDim_],
+		return colorBar_.map(KuMath::remap<float_t, true>(valp[colorMappingDim_],
 			colorMappingRange_.first, colorMappingRange_.second));
 
 	default:
