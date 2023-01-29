@@ -61,5 +61,5 @@ void KvPlottable2d::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsign
 	if (showEdge)
 		paint->apply(borderPen());
 
-	paint->drawGeomColor(geom, true, showEdge);
+	paint->drawGeomColor(geom, showFill_, showEdge);
 }

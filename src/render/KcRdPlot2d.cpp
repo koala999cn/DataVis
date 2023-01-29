@@ -81,6 +81,8 @@ namespace kPrivate
         auto plt2d = dynamic_cast<KvPlottable2d*>(plt);
         assert(plt2d);
 
+        ImGui::Checkbox("Fill", &plt2d->showFill());
+
         bool open(false);
         ImGuiX::cbTreePush("Edge", &plt2d->showBorder(), &open);
         if (open) {

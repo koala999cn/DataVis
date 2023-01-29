@@ -19,6 +19,9 @@ public:
 
 	void setMinorColor(const color4f& minor) override;
 
+	bool showFill() const { return showFill_; }
+	bool& showFill() { return showFill_; }
+
 	bool showBorder() const { return showBorder_; }
 	bool& showBorder() { return showBorder_; }
 
@@ -34,7 +37,7 @@ protected:
 	virtual void drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned ch) const;
 
 private:
-
+	bool showFill_{ true };
 	bool showBorder_{ false };
 	KpPen borderPen_;
 };
