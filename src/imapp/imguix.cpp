@@ -564,7 +564,7 @@ namespace ImGuiX
        
         // 绘制控制点
         auto ymax = offset.y + size.y;
-        static bool dragging(false);
+        static bool dragging(false); // 是否正拖动控制点
         auto& style = GetStyle();
         for (auto& i : grad) {
             auto x = KuMath::remap(i.first, 0.f, 1.f, x0, x1); // 定位控制点的水平坐标. TOOD: 此处默认grad已规范化
@@ -583,35 +583,44 @@ namespace ImGuiX
             drawList->AddRectFilled(ptmin, ptmax, ImColor((ImVec4&)fill), 4);
             drawList->AddRect(ptmin, ptmax, ImColor(style.Colors[border]), 4, 0, thickness);
 
-            if (IsMouseDown(ImGuiMouseButton_Left) && hovering) {
-                selectedKey = i.first;
-                dragging = true;
+            if (hovering) {
+                if (IsMouseDown(ImGuiMouseButton_Left)) {
+                    selectedKey = i.first;
+                    dragging = true;
+                }
+                else if (IsMouseDown(ImGuiMouseButton_Right)) {
+                    OpenPopup("picker");
+                }
             }
         }
 
         SameLine(0.0f, style.ItemInnerSpacing.x);
         Text(label);
 
-        // Drag behavior
-
         bool value_changed(false); // NB: selectedKey变化不影响changed值
-        if (IsMouseReleased(ImGuiMouseButton_Left) && dragging) 
+
+        // 移动关键点
+        if (IsMouseReleased(ImGuiMouseButton_Left)) 
             dragging = false;
 
-        if (dragging) {
-            // 以下代码捕获输入（否则拖动效果不好，很多时候会移动父窗口）
+        if (dragging) { 
+
+            // 以下代码捕获输入，防止拖动窗口（否则拖动效果不好，很多时候会移动窗口）
             ImGuiWindow* window = GetCurrentWindow();
             const ImGuiID id = window->GetID(label);
             SetActiveID(id, window);
             SetFocusID(id, window);
             FocusWindow(window);
 
-            auto newKey = KuMath::remap<float, true>(GetMousePos().x, x0, x1);
-            grad.move(selectedKey, newKey);
-            selectedKey = newKey;
-            value_changed = true;
+            if (IsMouseDragging(ImGuiMouseButton_Left)) {
+                auto newKey = KuMath::remap<float, true>(GetMousePos().x, x0, x1);
+                grad.move(selectedKey, newKey);
+                selectedKey = newKey;
+                value_changed = true;
+            }
         }
 
+        // 删除关键点
         if (IsKeyPressed(ImGuiKey_Delete) 
             && IsWindowFocused()
             && grad.has(selectedKey)
@@ -619,6 +628,29 @@ namespace ImGuiX
             grad.erase(selectedKey);
             selectedKey = KuMath::nan<float>();
             value_changed = true;
+        }
+        
+        // 编辑控制点
+        if (BeginPopup("picker")) {
+            auto val = grad.map(selectedKey);
+            auto refval = val;
+            if (ColorPicker4("##picker", val, 0, refval)) {
+                grad.insert(selectedKey, val);
+                value_changed = true;
+            }
+
+            EndPopup();
+        }
+        else 
+        // 显示tooltip & 新增关键点
+        if (IsMouseHoveringRect(offset, offset + size)) {
+            auto key = KuMath::remap<float, true>(GetMousePos().x, x0, x1);
+            auto val = grad.map(key);
+            auto loc = "Location:" + std::to_string(key);
+            ColorTooltip(loc.c_str(), val, ImGuiColorEditFlags_AlphaPreview);
+
+            if (IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                grad.insert(key, val);
         }
 
         return value_changed;
