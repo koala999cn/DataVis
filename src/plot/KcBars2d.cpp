@@ -21,14 +21,17 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 	if (!realShowFill && !realShowEdge)
 		return;
 
-	auto barWidth = barWidth_(); // 目前返回dx/2
+	auto barWidth = barWidth_(); // 目前返回dx（世界坐标）
 	auto clusterWidth = barWidth * barWidthRatio_; // 每簇所占的宽度（世界坐标）
 	auto easy = easyGetter_();
-	auto stackWidth = (1 - paddingGrouped_ * (easy.groups - 1)) * clusterWidth / easy.groups;
-	if (stackWidth <= 0)
-		return;
+	auto paddingGrouped = paddingGrouped_; // 根据宽度可能调整
+	auto stackWidth = (1 - paddingGrouped * (easy.groups - 1)) * clusterWidth / easy.groups;
+	if (stackWidth < 0) {
+		paddingGrouped = (1. - easy.groups / clusterWidth) / (easy.groups - 1);
+		stackWidth = 0;
+	}
 
-	auto groupPadding = paddingGrouped_ * barWidth;
+	auto groupPadding = paddingGrouped * barWidth;
 	auto stackPadding = paddingStacked_ * barWidth;
 
 	struct KpVtxBuffer_
@@ -260,7 +263,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 	else { // 单通道高纬度，依高维度分组/堆叠
 		if (stackedFirst_) {
 			getter.stacks = samp->size(1);
-			getter.groups = samp->dim() > 1 ? samp->size(2) : 1;
+			getter.groups = samp->dim() > 2 ? samp->size(2) : 1;
 			if (samp->dim() == 2) {
 				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
 					return samp->point(idx, stack, 0);
@@ -276,7 +279,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 		}
 		else {
 			getter.groups = samp->size(1);
-			getter.stacks = samp->dim() > 1 ? samp->size(2) : 1;
+			getter.stacks = samp->dim() > 2 ? samp->size(2) : 1;
 			if (samp->dim() == 2) {
 				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
 					return samp->point(idx, group, 0);
