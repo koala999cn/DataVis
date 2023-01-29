@@ -42,7 +42,7 @@ KcHeatMap::aabb_t KcHeatMap::boundingBox() const
 
 void KcHeatMap::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned ny, unsigned ch) const
 {
-	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
+	auto disc = discreted_();
 	auto dx = disc->step(0);
 	auto dy = disc->dim() > 1 ? disc->step(1) : 0;
 	if (dx <= 0)
