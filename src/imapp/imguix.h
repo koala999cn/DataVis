@@ -91,6 +91,10 @@ namespace ImGuiX
 	// gradient editor
 	bool gradient(const char* label, KtGradient<float, color4f>& grad, float& selectedKey);
 
+	// @count: 颜色数量
+	// @fullfill: 若true，则填满item-width宽度，否则按ColorEdit按钮大小顺序排列
+	bool multiColorsEdit(const char* label, ImVec4* clrs, int count, bool fullfill);
+
 	/*
 	template<int N>
 	bool combo(const char* label, const char*(&enums)[N], int& val) {

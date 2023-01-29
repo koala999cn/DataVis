@@ -89,8 +89,8 @@ namespace kPrivate
 
         bool res = ImGui::Checkbox(label, v);
 
-        ImGui::PushItemWidth(w - ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x);
-        ImGui::SameLine();
+        ImGui::PushItemWidth(w - ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemInnerSpacing.x);
+        ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
         return res;
     }
@@ -307,7 +307,7 @@ namespace ImGuiX
     {
         std::string node("##N"); node += label;
         *open = treePush(node.c_str(), *open);
-        SameLine();
+        SameLine(0, GetStyle().ItemSpacing.x);
         return Checkbox(label, show);
     }
 
@@ -329,7 +329,7 @@ namespace ImGuiX
     {
         std::string node("##N"); node += label;
         *open = treePush(node.c_str(), *open);
-        SameLine();
+        SameLine(0, GetStyle().ItemSpacing.x);
         return cbInputText(label, show, text);
     }
 
@@ -583,7 +583,7 @@ namespace ImGuiX
             drawList->AddRectFilled(ptmin, ptmax, ImColor((ImVec4&)fill), 4);
             drawList->AddRect(ptmin, ptmax, ImColor(style.Colors[border]), 4, 0, thickness);
 
-            if (hovering) {
+            if (hovering && !dragging) {
                 if (IsMouseDown(ImGuiMouseButton_Left)) {
                     selectedKey = i.first;
                     dragging = true;
@@ -614,9 +614,11 @@ namespace ImGuiX
 
             if (IsMouseDragging(ImGuiMouseButton_Left)) {
                 auto newKey = KuMath::remap<float, true>(GetMousePos().x, x0, x1);
-                grad.move(selectedKey, newKey);
-                selectedKey = newKey;
-                value_changed = true;
+                if (!grad.has(newKey)) { // 防止拖动的时候吃掉其他控制点
+                    grad.move(selectedKey, newKey);
+                    selectedKey = newKey;
+                    value_changed = true;
+                }
             }
         }
 
@@ -655,4 +657,55 @@ namespace ImGuiX
 
         return value_changed;
     }
+
+
+    bool multiColorsEdit(const char* label, ImVec4* clrs, int count, bool fullfill)
+    {
+        bool value_changed = false;
+        const auto flags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel;
+        auto spacing = GetStyle().ItemInnerSpacing.x;
+
+        if (fullfill) {
+            auto fullw = CalcItemWidth();    
+            auto w = (fullw - spacing * (count - 1)) / count;
+
+            for (int i = 0; i < count; i++) {
+
+                PushID(i);
+
+                // NB: 由于ColorEdit*不能调整宽度，此处使用ColorButton
+                if (ColorButton("##", clrs[i], flags, ImVec2(w, 0)))
+                    OpenPopup("picker");
+
+                if (ImGui::BeginPopup("picker")) {
+                    value_changed |= ImGui::ColorPicker4("##picker", &clrs[i].x);
+                    EndPopup();
+                }
+
+                PopID();
+
+                if (i != count - 1)
+                    SameLine(0.0f, spacing);
+            }
+        }
+        else {
+            for (int i = 0; i < count; i++) {
+                
+                PushID(i);
+                value_changed |= ColorEdit4("##", &clrs[i].x, flags);
+                PopID();
+
+                if (i != count - 1)
+                    SameLine(0.0f, spacing);
+            }
+        }
+
+        if (label) {
+            SameLine(0, GetStyle().ItemInnerSpacing.x);
+            Text(label);
+        }
+
+        return value_changed;
+    }
+
 }

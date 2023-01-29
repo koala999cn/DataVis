@@ -740,22 +740,16 @@ void KvRdPlot::showPlottableProperty_()
 		auto plt = plot_->plottableAt(idx);
 
 		bool open(false);
-		std::string label = "##Plottable" + KuStrUtil::toString(idx);
-		ImGui::PushID(label.c_str());
+		ImGui::PushID(plt);
 		ImGuiX::cbiTreePush("##Node", &plt->visible(), &plt->name(), &open);
 
-		// 紧跟其后绘制主色块（不换行）
+		// 紧跟其后绘制主色块（不换行），提供一个修改主色的快捷通道
 		std::vector<color4f> majors(plt->majorColors());
 		for (unsigned i = 0; i < plt->majorColors(); i++)
 			majors[i] = plt->majorColor(i);
-		for (unsigned i = 0; i < plt->majorColors(); i++) {
-			ImGui::SameLine();
-			ImGui::PushID(plt + 1 + i);
-			if (ImGui::ColorEdit4("##", majors[i],
-				ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
-				plt->setMajorColors(majors);
-			ImGui::PopID();
-		}
+		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+		if (ImGuiX::multiColorsEdit(nullptr, (ImVec4*)majors.data(), majors.size(), false))
+			plt->setMajorColors(majors);
 
 		if (open) {
 
@@ -828,30 +822,60 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 		"colorbar gradiant",
 	};
 
-	auto plt = plot_->plottableAt(idx);
-	int mode = plt->coloringMode();
-	if (ImGui::Combo("Coloring Mode", &mode, modeNames, std::size(modeNames)))
-		plt->setColoringMode(KvPlottable::KeColoringMode(mode));
-	
-	if (mode != KvPlottable::k_one_color_solid) {
-		ImGui::Checkbox("Flat Shading", &plt->flatShading());
+	if (ImGuiX::treePush("Coloring", false)) {
 
-		if (mode == KvPlottable::k_one_color_gradiant) 
-			ImGui::SliderFloat("Brighten Coeff", &plt->brightenCoeff(), -1, 1, "%.2f");
+		auto plt = plot_->plottableAt(idx);
+		int mode = plt->coloringMode();
+		if (ImGui::Combo("Mode", &mode, modeNames, std::size(modeNames)))
+			plt->setColoringMode(KvPlottable::KeColoringMode(mode));
 
-		if (!plt->empty()) {
-			int dim = plt->colorMappingDim();
-			if (ImGui::SliderInt("Color Mapping Dim", &dim, 0, plt->data()->dim()))
-				plt->setColorMappingDim(dim);
-
-			auto& r = plt->colorMappingRange();
-			float low = r.first, high = r.second;
-			if (ImGui::DragFloatRange2("Color Mapping Range", &low, &high))
-				r.first = low, r.second = high;
-
+		// 主色
+		if (mode == KvPlottable::k_colorbar_gradiant) { // 连续色，使用gradient
 			static float selectedKey;
 			ImGuiX::gradient("Colorbar", plt->colorBar(), selectedKey);
 		}
+		else {
+			if (plt->majorColors() == 1) { // 单主色
+				auto clr = plt->majorColor(0);
+				if (ImGui::ColorEdit4("Major Color", clr))
+					plt->setMajorColors({ clr });
+			}
+			else { // 多主色
+				std::vector<color4f> majors(plt->majorColors());
+				for (unsigned i = 0; i < plt->majorColors(); i++)
+					majors[i] = plt->majorColor(i);
+				if (ImGuiX::multiColorsEdit("Major Colors", (ImVec4*)majors.data(), majors.size(), true))
+					plt->setMajorColors(majors);
+			}
+		}
+
+		// 辅色
+		auto clr = plt->minorColor();
+		if (ImGui::ColorEdit4("Minor Color", clr))
+			plt->setMinorColor(clr);
+
+		// 渐变映射有关属性
+		if (mode != KvPlottable::k_one_color_solid) {
+
+			ImGui::Checkbox("Flat Shading", &plt->flatShading());
+
+			if (mode == KvPlottable::k_one_color_gradiant) {
+				ImGui::SliderFloat("Brighten Coeff", &plt->brightenCoeff(), -1, 1, "%.2f");
+			}
+
+			if (!plt->empty()) {
+				int dim = plt->colorMappingDim();
+				if (ImGui::SliderInt("Dim Mapping", &dim, 0, plt->data()->dim()))
+					plt->setColorMappingDim(dim);
+
+				auto& r = plt->colorMappingRange();
+				float low = r.first, high = r.second;
+				if (ImGui::DragFloatRange2("Range Mapping", &low, &high))
+					r.first = low, r.second = high;
+			}
+		}
+
+		ImGuiX::treePop();
 	}
 }
 
@@ -859,10 +883,15 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 void KvRdPlot::showPlottableSampCountProperty_(unsigned idx)
 {
 	auto plt = plot_->plottableAt(idx);
-	
-	ImGui::DragScalar("Default Z", ImGuiDataType_Double, &plt->defaultZ());
-	ImGui::DragScalar("Step Z", ImGuiDataType_Double, &plt->stepZ());
-	ImGui::Checkbox("Force default Z", &plt->forceDefaultZ());
+
+	if (ImGuiX::treePush("Z Value", false)) {
+
+		ImGui::DragScalar("Default", ImGuiDataType_Double, &plt->defaultZ());
+		ImGui::DragScalar("Step", ImGuiDataType_Double, &plt->stepZ());
+		ImGui::Checkbox("Force Default", &plt->forceDefaultZ());
+
+		ImGuiX::treePop();
+	}
 
 	auto data = plt->data();
 	if (data && data->isContinued()) {
