@@ -93,7 +93,7 @@ void KcLineFilled::fillGradiant_(KvPaint* paint, GETTER getter1, GETTER getter2,
 			vtx[3].clr = mapValueToColor_(p10.data(), ch);
 			vtx[4].pos = toPoint_(p11.data(), ch);
 			vtx[4].clr = mapValueToColor_(p11.data(), ch);
-			vtx[5] = vtx[2];
+			vtx[5] = vtx[2]; // TODO: flat模式下，目前使用中点数据绘制，而非数据点
 
 		}
 		else { // 不相交
@@ -104,10 +104,11 @@ void KcLineFilled::fillGradiant_(KvPaint* paint, GETTER getter1, GETTER getter2,
 			vtx[2].pos = toPoint_(p10.data(), ch);
 			vtx[2].clr = mapValueToColor_(p10.data(), ch);
 
-			vtx[3] = vtx[2];
-			vtx[4].pos = toPoint_(p11.data(), ch);
-			vtx[4].clr = mapValueToColor_(p11.data(), ch);
-			vtx[5] = vtx[0];
+			vtx[3].pos = toPoint_(p11.data(), ch);
+			vtx[3].clr = mapValueToColor_(p11.data(), ch);
+			vtx[4] = vtx[0];
+			vtx[5] = vtx[2]; // 保持最后一个顶点与另一个三角形一致，以适应flat渲染模式
+			                 // TODO: 使用getter1还是getter2数据作为falt的绘制色
 		}
 
 		p00 = p10, p01 = p11;

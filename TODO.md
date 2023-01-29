@@ -31,6 +31,7 @@
 - [x] 辅色控制
 - [ ] 坐标平面水平/垂直坐标轴对的ticks数不同时，如何绘制grid
 - [ ] 给gradient控件添加1个选择pallete的按钮
+- [ ] 优化海量数据的降采样
 
 ## theme
 - [ ] 更多theme，SCI等
@@ -63,4 +64,4 @@
 - [x] 坐标轴基线与plt区域完美贴合的问题（line-filled区域在下方多1个像素，右方少1个像素）
 - [x] 有时plane背景色和grid线无法正常显示，需要通过重新应用theme来出发 --> ok（缺少plane的可见性设置）
 - [x] ticker数的控制存在致命bug（上下或左右或前后未同步）--> 暂时取消assert检测
-- [ ] 优化flat着色模式下的line-filled
+- [x] 优化flat着色模式下的line-filled
