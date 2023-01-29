@@ -84,7 +84,7 @@ namespace kPrivate
         bool open(false);
         ImGuiX::cbTreePush("Edge", &plt2d->showBorder(), &open);
         if (open) {
-            ImGuiX::pen(plt2d->borderPen(), true);
+            ImGuiX::pen(plt2d->borderPen(), true, true);
             ImGuiX::cbTreePop();
         }
 

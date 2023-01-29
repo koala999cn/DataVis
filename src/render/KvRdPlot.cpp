@@ -401,7 +401,7 @@ namespace kPrivate
 {
 	void tickContext(KcAxis::KpTickContext& cxt, bool subtick)
 	{
-		ImGuiX::pen(cxt, false); // no style. tick始终使用solid线条
+		ImGuiX::pen(cxt, false, true); // no style. tick始终使用solid线条
 
 		ImGui::PushID(&cxt);
 
@@ -473,7 +473,7 @@ namespace kPrivate
 		open = false;
 		ImGuiX::cbTreePush("Baseline", &ax.showBaseline(), &open);
 		if (open) {
-			ImGuiX::pen(ax.baselineContext(), true);
+			ImGuiX::pen(ax.baselineContext(), true, true);
 			ImGuiX::cbTreePop();
 		}
 
@@ -590,13 +590,16 @@ void KvRdPlot::showPlaneProperty_(KcCoordPlane& plane)
 
 	ImGui::PushID(&plane);
 
-	ImGuiX::brush(plane.background(), false);
+	if (ImGuiX::treePush("Background", false)) {
+		ImGuiX::brush(plane.background(), true);
+		ImGuiX::treePop();
+	}
 
 	open = false;
 	ImGuiX::cbTreePush("Major Grid", &plane.majorVisible(), &open);
 	if (open) {
 		kPrivate::gridMode(plane.majorMode());
-		ImGuiX::pen(plane.majorLine(), true);
+		ImGuiX::pen(plane.majorLine(), true, true);
 		ImGuiX::cbTreePop();
 	}
 
@@ -604,7 +607,7 @@ void KvRdPlot::showPlaneProperty_(KcCoordPlane& plane)
 	ImGuiX::cbTreePush("Minor Grid", &plane.minorVisible(), &open);
 	if (open) {
 		kPrivate::gridMode(plane.minorMode());
-		ImGuiX::pen(plane.minorLine(), true);
+		ImGuiX::pen(plane.minorLine(), true, true);
 		ImGuiX::cbTreePop();
 	}
 
@@ -669,7 +672,7 @@ void KvRdPlot::showLegendProperty_()
 	bool open = false;
 	ImGuiX::cbTreePush("Border", &legend->showBorder(), &open);
 	if (open) {
-		ImGuiX::pen(legend->borderPen(), true);
+		ImGuiX::pen(legend->borderPen(), true, true);
 		ImGuiX::cbTreePop();
 	}
 
@@ -714,7 +717,7 @@ void KvRdPlot::showColorBarProperty_()
 			open = false;
 			ImGuiX::cbTreePush("Border", &colorbar->showBorder(), &open);
 			if (open) {
-				ImGuiX::pen(colorbar->borderPen(), true);
+				ImGuiX::pen(colorbar->borderPen(), true, true);
 				ImGuiX::cbTreePop();
 			}
 
@@ -753,11 +756,11 @@ void KvRdPlot::showPlottableProperty_()
 
 		if (open) {
 
-			showPlottableTypeProperty_(idx);
+			showPlottableBasicProperty_(idx);
 
 			// TODO: 此处不可直接传递plt，否则变换plottable类型时，将会引用失效的plt
 			showPlottableColoringProperty_(idx);
-			showPlottableSampCountProperty_(idx);
+			showPlottableDefaultZProperty_(idx);
 			showPlottableSpecificProperty_(idx);
 			ImGuiX::cbiTreePop();
 		}
@@ -769,7 +772,7 @@ void KvRdPlot::showPlottableProperty_()
 }
 
 
-void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
+void KvRdPlot::showPlottableBasicProperty_(unsigned idx)
 {
 	int type = plottableType_(plot_->plottableAt(idx));
 	auto data = plot_->plottableAt(idx)->data();
@@ -809,6 +812,13 @@ void KvRdPlot::showPlottableTypeProperty_(unsigned idx)
 		}
 
 		ImGui::EndCombo();
+	}
+
+	if (data && data->isContinued()) {
+		unsigned minCount(1), maxCount(std::pow(1024 * 1024, 1. / data->dim()));
+		ImGui::DragScalarN("Sampling Count", ImGuiDataType_U32,
+			&plot_->plottableAt(idx)->sampCount(0), data->dim(), 1,
+			&minCount, &maxCount);
 	}
 }
 
@@ -880,7 +890,7 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 }
 
 
-void KvRdPlot::showPlottableSampCountProperty_(unsigned idx)
+void KvRdPlot::showPlottableDefaultZProperty_(unsigned idx)
 {
 	auto plt = plot_->plottableAt(idx);
 
@@ -891,14 +901,6 @@ void KvRdPlot::showPlottableSampCountProperty_(unsigned idx)
 		ImGui::Checkbox("Force Default", &plt->forceDefaultZ());
 
 		ImGuiX::treePop();
-	}
-
-	auto data = plt->data();
-	if (data && data->isContinued()) {
-		unsigned minCount(1), maxCount(std::pow(1024 * 1024, 1. / data->dim()));
-		ImGui::DragScalarN("Sampling Count", ImGuiDataType_U32,
-			&plot_->plottableAt(idx)->sampCount(0), data->dim(), 1,
-			&minCount, &maxCount);
 	}
 }
 

@@ -76,7 +76,7 @@ namespace ImGuiX
 
 	bool penStyle(const char* label, int& style);
 
-	bool pen(KpPen& cxt, bool showStyle);
+	bool pen(KpPen& cxt, bool showStyle, bool showColor);
 
 	bool brush(KpBrush& cxt, bool showStyle);
 

@@ -64,8 +64,9 @@ void KcColorBar::draw(KvPaint* paint) const
         else if (align() & KeAlignment::k_left)
             box.lower().x() = box.upper().x() - barWidth_;
 
-        std::swap(box.lower().y(), box.upper().y()); // 确保由下往上渐变
-        drawGradient<double, float>(fillQuad, box.lower(), box.upper(), plt_->colorBar(), 1);
+        // 反转y轴，确保由下往上渐变
+        drawGradient<double, float>(fillQuad, { box.lower().x(), box.upper().y() }, 
+            { box.upper().x(), box.lower().y() }, plt_->colorBar(), 1);
     }
     else {
 

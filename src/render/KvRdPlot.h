@@ -78,11 +78,11 @@ protected:
 
 	virtual void showPlottableProperty_();
 
-	    void showPlottableTypeProperty_(unsigned idx);
+	    void showPlottableBasicProperty_(unsigned idx);
 
 		void showPlottableColoringProperty_(unsigned idx);
 
-		void showPlottableSampCountProperty_(unsigned idx);
+		void showPlottableDefaultZProperty_(unsigned idx);
 
 	    virtual void showPlottableSpecificProperty_(unsigned idx) {};
 

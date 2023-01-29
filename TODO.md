@@ -28,8 +28,9 @@
 - [x] sactter图的美化问题。带轮廓线后，各scatter轮廓相互干扰，非常难看，启动深度测试又因为z-fighting也不好看。（#I6B5ES）
 - [x] 色带的编辑
 - [ ] 光照模型
-- [ ] 辅色控制
+- [x] 辅色控制
 - [ ] 坐标平面水平/垂直坐标轴对的ticks数不同时，如何绘制grid
+- [ ] 给gradient控件添加1个选择pallete的按钮
 
 ## theme
 - [ ] 更多theme，SCI等

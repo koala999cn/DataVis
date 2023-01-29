@@ -94,26 +94,29 @@ namespace kPrivate
 	{
 		if (dynamic_cast<KcLineFilled*>(plt)) {
 			auto fill = dynamic_cast<KcLineFilled*>(plt);
-			ImGuiX::brush(fill->fillBrush(), false); // 隐藏brush的style选项，始终fill
+			//ImGuiX::brush(fill->fillBrush(), false); // 隐藏brush的style选项，始终fill
 			bool open(false);
 			ImGuiX::cbTreePush("Line", &fill->showLine(), &open);
 			if (open) {
-				ImGuiX::pen(fill->linePen(), true);
+				ImGuiX::pen(fill->linePen(), true, true);
 				ImGuiX::cbTreePop();
 			}
 		}
 		else if (dynamic_cast<KcBubble*>(plt)) {
 			auto bub = dynamic_cast<KcBubble*>(plt);
-			ImGui::DragFloatRange2("Size Range", &bub->sizeLower(), &bub->sizeUpper(), 0.1, 3, 33, "%.1f");
 
-			static const char* modeStr[] = {
-				"by Area", "by Radius"
-			};
-			int mode = bub->radiusAsSize();
-			if (ImGui::Combo("Size Interpolation Mode", &mode, modeStr, std::size(modeStr))) {
-				bub->radiusAsSize() = mode;
+			if (ImGuiX::treePush("Bubble", false)) {
+				ImGui::DragFloatRange2("Size Range", &bub->sizeLower(), &bub->sizeUpper(), 0.1, 3, 33, "%.1f");
+				static const char* modeStr[] = {
+					"by Area", "by Radius"
+				};
+				int mode = bub->radiusAsSize();
+				if (ImGui::Combo("Mapping Mode", &mode, modeStr, std::size(modeStr))) {
+					bub->radiusAsSize() = mode;
+				}
+				ImGuiX::treePop();
 			}
-
+	
 			bool open = false;
 			ImGuiX::cbTreePush("Text", &bub->showText(), &open);
 			if (open) {
@@ -124,17 +127,24 @@ namespace kPrivate
 		}
 		else if (dynamic_cast<KcScatter*>(plt)) {
 			auto scat = dynamic_cast<KcScatter*>(plt);
-			ImGuiX::marker(scat->marker());
+			if (ImGuiX::treePush("Marker", false)) {
+				ImGuiX::marker(scat->marker());
+				ImGuiX::treePop();
+			}
+
 			bool open(false);
 			ImGuiX::cbTreePush("Line", &scat->showLine(), &open);
 			if (open) {
-				ImGuiX::pen(scat->linePen(), true);
+				ImGuiX::pen(scat->linePen(), true, false);
 				ImGuiX::cbTreePop();
 			}
 		}
 		else if (dynamic_cast<KcGraph*>(plt)) {
 			auto graph = dynamic_cast<KcGraph*>(plt);
-			ImGuiX::pen(graph->linePen(), true);
+			if (ImGuiX::treePush("Line", false)) {
+				ImGuiX::pen(graph->linePen(), true, false);
+				ImGuiX::treePop();
+			}
 		}
 		else if (dynamic_cast<KcBars2d*>(plt)) {
 			auto bars = dynamic_cast<KcBars2d*>(plt);
@@ -142,26 +152,26 @@ namespace kPrivate
 				"stacked first",
 				"grouped first"
 			};
-			int mode = bars->stackedFirst() ? 0 : 1;
-			if (ImGui::Combo("Mode", &mode, modeStr, std::size(modeStr)))
-				bars->stackedFirst() = (mode == 0);
 
-			ImGui::DragFloat("Baseline", &bars->baseLine());
-			ImGui::SliderFloat("Width Ratio", &bars->barWidthRatio(), 0.01, 1.0, "%.2f");
-			ImGui::SliderFloat("Stack Padding", &bars->paddingStacked(), 0.0, 1.0, "%.2f");
-			ImGui::SliderFloat("Group Padding", &bars->paddingGrouped(), 0.0, 1.0, "%.2f");
+			if (ImGuiX::treePush("Layout", false)) {
+				int mode = bars->stackedFirst() ? 0 : 1;
+				if (ImGui::Combo("Mode", &mode, modeStr, std::size(modeStr)))
+					bars->stackedFirst() = (mode == 0);
 
-			bool open(false);
-			ImGuiX::cbTreePush("Fill", &bars->showFill(), &open);
-			if (open) {
-				ImGuiX::brush(bars->fillBrush(), true);
+				ImGui::DragFloat("Baseline", &bars->baseLine());
+				ImGui::SliderFloat("Width Ratio", &bars->barWidthRatio(), 0.01, 1.0, "%.2f");
+				ImGui::SliderFloat("Stack Padding", &bars->paddingStacked(), 0.0, 1.0, "%.2f");
+				ImGui::SliderFloat("Group Padding", &bars->paddingGrouped(), 0.0, 1.0, "%.2f");
+
 				ImGuiX::treePop();
 			}
 
-			open = false;
+			ImGui::Checkbox("Fill", &bars->showFill());
+
+			bool open = false;
 			ImGuiX::cbTreePush("Border", &bars->showBorder(), &open);
 			if (open) {
-				ImGuiX::pen(bars->borderPen(), true);
+				ImGuiX::pen(bars->borderPen(), true, true);
 				ImGuiX::treePop();
 			}
 		}

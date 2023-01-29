@@ -396,7 +396,7 @@ namespace ImGuiX
     }
 
 
-    bool pen(KpPen& cxt, bool showStyle)
+    bool pen(KpPen& cxt, bool showStyle, bool showColor)
     {
         PushID(&cxt);
 
@@ -406,7 +406,9 @@ namespace ImGuiX
             res |= penStyle("Style", cxt.style);
 
         res |= SliderFloat("Width", &cxt.width, 0.1, 5.0, "%.1f px");
-        res |= ColorEdit4("Color", cxt.color);
+
+        if (showColor)
+            res |= ColorEdit4("Color", cxt.color);
   
         PopID();
 
@@ -513,7 +515,7 @@ namespace ImGuiX
         PushID(&cxt);
         bool res = false;
 
-        res |= markerType("Scatter", cxt.type);
+        res |= markerType("Type", cxt.type);
         res |= DragFloat("Size", &cxt.size, 0.1, 0.1, 10, "%.1f");
         res |= ColorEdit4("Color##Fill", cxt.fill);
         if (cxt.hasOutline()) {
