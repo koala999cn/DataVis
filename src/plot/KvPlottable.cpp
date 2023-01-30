@@ -24,6 +24,8 @@ void KvPlottable::setData(data_ptr d)
 	
 	if (data_ && colorMappingDim_ > data_->dim())
 		colorMappingDim_ = data_->dim();
+
+	updateColorMappingPalette();
 }
 
 
@@ -99,7 +101,10 @@ void KvPlottable::draw(KvPaint* paint) const
 
 	// 处理主色数量的动态变化
 	// NB: 对于连续数据，若用户动态调整sampCount，将引起主色数量需求的变化（bars2d为例）
-	const_cast<KvPlottable*>(this)->updateColorMappingPalette_();
+	// 此处更新太晚了，legend在calcSize的时候就要进行一致性检测
+	// 目前在4处同步：一是此处，二是setData处，三是setColoringMode处，四是legend的calcSize_处.
+	// TODO: 是否有更优化的方案
+	const_cast<KvPlottable*>(this)->updateColorMappingPalette();
 
 	if (autoColorMappingRange_)
 		const_cast<KvPlottable*>(this)->fitColorMappingRange();
@@ -169,7 +174,7 @@ void KvPlottable::setMajorColors(const std::vector<color4f>& majors)
 void KvPlottable::setColoringMode(KeColoringMode mode)
 {
 	coloringMode_ = mode;
-	updateColorMappingPalette_();
+	updateColorMappingPalette();
 }
 
 
@@ -201,7 +206,7 @@ color4f KvPlottable::mapValueToColor_(float_t* valp, unsigned channel) const
 }
 
 
-void KvPlottable::updateColorMappingPalette_()
+void KvPlottable::updateColorMappingPalette()
 {
 	// 默认调色板（dracula）
 	static color4f pals[] = {

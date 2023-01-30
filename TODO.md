@@ -2,6 +2,7 @@
 - [ ] 支持hdf5, xlsx数据源
 - [ ] binary data loader
 - [ ] 多值函数支持(multifunction)
+- [ ] 多通道连续数据
 
 ## plot
 - [ ] title等设置
@@ -65,3 +66,4 @@
 - [x] 有时plane背景色和grid线无法正常显示，需要通过重新应用theme来出发 --> ok（缺少plane的可见性设置）
 - [x] ticker数的控制存在致命bug（上下或左右或前后未同步）--> 暂时取消assert检测
 - [x] 优化flat着色模式下的line-filled
+- [ ] 坐标轴只显示title时的定位问题

@@ -22,6 +22,9 @@ KcLegend::size_t KcLegend::calcSize_(void* cxt) const
     if (plts_.empty())
         return legSize;
 
+    for (auto i : plts_)
+        i->updateColorMappingPalette(); // 此处强制同步
+
     auto paint = (KvPaint*)cxt;
     auto labelSize = maxLabelSize_(paint);
 
@@ -149,6 +152,7 @@ std::string KcLegend::itemLabel_(KvPlottable* plt, unsigned ch) const
 {
     assert(plt->majorColors() == plt->majorColorsNeeded());
     assert(ch < plt->majorColors());
+
     auto label = plt->name();
     if (plt->majorColors() > 1)
         label += "-ch" + KuStrUtil::toString(ch);

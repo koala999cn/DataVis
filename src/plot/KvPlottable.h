@@ -133,13 +133,13 @@ public:
 	bool autoColorMappingRange() const { return autoColorMappingRange_; }
 	bool& autoColorMappingRange() { return autoColorMappingRange_; }
 
+	// 根据当前的coloringMode_配置主色
+	void updateColorMappingPalette();
+
 protected:
 
 	// 确保传入的valp为数据原值，而非强制替换z之后的值
 	color4f mapValueToColor_(float_t* valp, unsigned channel) const;
-
-	// 根据当前的coloringMode_配置主色
-	void updateColorMappingPalette_();
 
 	// 返回一个离散化的数据对象
 	// 如果data()成员本身为离散数据，则直接返回；否则按照sampCount_构建并返回一个采样对象
