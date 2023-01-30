@@ -24,10 +24,6 @@ void KvPlottable::setData(data_ptr d)
 	
 	if (data_ && colorMappingDim_ > data_->dim())
 		colorMappingDim_ = data_->dim();
-
-	// TODO: 以下代码不宜放此处，主循环的每个更新周期时都会调用setData
-	updateColorMappingPalette_();
-	resetColorMappingRange();
 }
 
 
@@ -39,7 +35,7 @@ void KvPlottable::setColorMappingDim(unsigned d)
 }
 
 
-void KvPlottable::resetColorMappingRange()
+void KvPlottable::fitColorMappingRange()
 {
 	if (data_) {
 		assert(colorMappingDim() <= data_->dim());
@@ -100,6 +96,13 @@ void KvPlottable::draw(KvPaint* paint) const
 	auto disc = discreted_();
 	if (disc == nullptr || disc->empty())
 		return;
+
+	// 处理主色数量的动态变化
+	// NB: 对于连续数据，若用户动态调整sampCount，将引起主色数量需求的变化（bars2d为例）
+	const_cast<KvPlottable*>(this)->updateColorMappingPalette_();
+
+	if (autoColorMappingRange_)
+		const_cast<KvPlottable*>(this)->fitColorMappingRange();
 
 	paint->enableFlatShading(flatShading());
 	drawDiscreted_(paint, disc.get());
@@ -216,8 +219,9 @@ void KvPlottable::updateColorMappingPalette_()
 		for (unsigned i = 0; i < majorColors(); i++)
 			majors.push_back(majorColor(i));
 
-		if (majors.size() < majorColorsNeeded())
-			majors.insert(majors.end(), std::begin(pals), std::end(pals));
+		unsigned i = majors.size();
+		for (; i < std::min<unsigned>(majorColorsNeeded(), std::size(pals)); i++)
+			majors.push_back(pals[i]);
 
 		// 还不够则添加随机色
 		if (majors.size() < majorColorsNeeded()) {

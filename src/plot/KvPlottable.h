@@ -128,7 +128,10 @@ public:
 	unsigned colorMappingDim() const { return colorMappingDim_; }
 	void setColorMappingDim(unsigned d); // 该值很关键，使用set赋值
 
-	void resetColorMappingRange();
+	void fitColorMappingRange();
+
+	bool autoColorMappingRange() const { return autoColorMappingRange_; }
+	bool& autoColorMappingRange() { return autoColorMappingRange_; }
 
 protected:
 
@@ -170,7 +173,9 @@ private:
 
 	float brightenCoeff_{ 0.5 }; // 亮度增强系数，仅适用于k_one_color_gradiant色彩模式
 	unsigned colorMappingDim_{ 2 }; // 使用该维度的数据进行色彩映射
+
 	std::pair<float_t, float_t> colorMappingRange_; // 色彩映射的值域范围
+	bool autoColorMappingRange_{ true }; // 是否自适应色彩映射范围
 
 	// 各维度的采样点数目, 仅适用于连续数据
 	std::vector<unsigned> sampCount_{ std::vector<unsigned>({ 1000 }) }; 

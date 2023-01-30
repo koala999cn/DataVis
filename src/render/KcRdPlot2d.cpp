@@ -55,15 +55,6 @@ KvPlottable* KcRdPlot2d::newPlottable_(int iType, const std::string& name)
 }
 
 
-void KcRdPlot2d::onInput(KcPortNode* outPort, unsigned inPort)
-{
-    super_::onInput(outPort, inPort);
-    if (plot_->autoFit()) 
-        for (unsigned i = 0; i < plot_->plottableCount(); i++)
-            plot_->plottableAt(i)->resetColorMappingRange();
-}
-
-
 bool KcRdPlot2d::permitInput(int dataSpec, unsigned inPort) const
 {
     assert(inPort == 0);

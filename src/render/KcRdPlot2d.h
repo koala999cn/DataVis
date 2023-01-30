@@ -10,8 +10,6 @@ public:
 
 	KcRdPlot2d();
 
-	void onInput(KcPortNode* outPort, unsigned inPort) override;
-
 	bool permitInput(int dataSpec, unsigned inPort) const override;
 
 private:

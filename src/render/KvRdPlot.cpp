@@ -878,10 +878,14 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 				if (ImGui::SliderInt("Dim Mapping", &dim, 0, plt->data()->dim()))
 					plt->setColorMappingDim(dim);
 
+				ImGui::Checkbox("Auto Range", &plt->autoColorMappingRange());
+
 				auto& r = plt->colorMappingRange();
 				float low = r.first, high = r.second;
-				if (ImGui::DragFloatRange2("Range Mapping", &low, &high))
+				if (ImGui::DragFloatRange2("Range Mapping", &low, &high)) {
 					r.first = low, r.second = high;
+					plt->autoColorMappingRange() = false;
+				}
 			}
 		}
 
