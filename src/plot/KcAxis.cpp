@@ -51,7 +51,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// 因为计算布局（calcBox为true）和真实绘制（calcBox为false）时，
 	// 变化矩阵堆栈可能不同，特别是后者可能新压入了scale矩阵，
 	// 这导致前期计算的box_和其他与世界坐标相关的长度和位置不可用
-	box_.setExtents(point3(0), point3(0));
+	box_.setExtents(start(), end()); // 初始化为point(0)时，在只显示title时出现定位问题
 
 	// draw baseline
 	if (showBaseline() && baselineCxt_.style != KpPen::k_none) {
@@ -60,7 +60,8 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 			paint->drawLine(start(), end()); // 物理坐标
 		}
 
-		box_ = aabb_t(start(), end());
+		// TODO: 膨胀坐标轴的宽度
+		// box_.inflate();
 	}
 
 	auto realShowTitle = showTitle() && !title().empty();
@@ -74,7 +75,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 
 
 	// draw ticks & label
-	if (showTick() || showLabel())
+	if (showTick() || showSubtick() || showLabel())
 		drawTicks_(paint, calcBox);
 
 	// draw title
@@ -187,8 +188,6 @@ KcAxis::float_t KcAxis::orientScale_(KvPaint* paint, const vec3& o)
 
 void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 {
-	assert(showTick() || showLabel());
-
 	if (length() == 0)
 		return; // TODO: draw or not draw ? draw what ??
 
