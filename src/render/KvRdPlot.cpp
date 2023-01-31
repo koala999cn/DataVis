@@ -743,7 +743,7 @@ void KvRdPlot::showPlottableProperty_()
 		auto plt = plot_->plottableAt(idx);
 
 		bool open(false);
-		ImGui::PushID(plt);
+		ImGui::PushID(plot_.get() + 1 + idx); // NB: 此处不压入plt，否则变换plt类型时属性状态会重置（因为plt不同了）
 		ImGuiX::cbiTreePush("##Node", &plt->visible(), &plt->name(), &open);
 
 		// 紧跟其后绘制主色块（不换行），提供一个修改主色的快捷通道
