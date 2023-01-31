@@ -478,6 +478,9 @@
     <ClCompile Include="src\opengl\KuOglUtil.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcAndrewsCurves.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1082,6 +1085,9 @@
     </ClInclude>
     <ClInclude Include="src\util\draw_gradient.h">
       <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcAndrewsCurves.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

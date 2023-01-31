@@ -5,6 +5,7 @@
 #include "plot/KcBars2d.h"
 #include "plot/KcLineFilled.h"
 #include "plot/KcBubble.h"
+#include "plot/KcAndrewsCurves.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
 #include "imguix.h"
@@ -33,13 +34,15 @@ std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KcPortNode* port)
 
 unsigned KcRdPlot1d::supportPlottableTypes_() const
 {
-	return 5;
+	return 6;
 }
 
 
 int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 {
-	if (dynamic_cast<KcGraph*>(plt))
+	if (dynamic_cast<KcAndrewsCurves*>(plt))
+	    return 5;
+	else if (dynamic_cast<KcGraph*>(plt))
 		return 0;
 	else if (dynamic_cast<KcScatter*>(plt))
 		return 1;
@@ -57,7 +60,7 @@ int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 const char* KcRdPlot1d::plottableTypeStr_(int iType) const
 {
 	static const char* pltTypes[] = {
-		"graph", "scatter", "bar", "line-filled", "bubble"
+		"graph", "scatter", "bar", "line-filled", "bubble", "andrews curves"
 	};
 
 	return pltTypes[iType];
@@ -82,6 +85,9 @@ KvPlottable* KcRdPlot1d::newPlottable_(int iType, const std::string& name)
 
 	case 4:
 		return new KcBubble(name);
+
+	case 5:
+		return new KcAndrewsCurves(name);
 	}
 
 	return nullptr;

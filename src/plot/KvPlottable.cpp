@@ -142,7 +142,7 @@ bool KvPlottable::hasSelfAxis() const
 unsigned KvPlottable::majorColorsNeeded() const
 {
 	return coloringMode_ == k_colorbar_gradiant ? -1
-		: ( data_ ? data_->channels() : 1 );
+		: ( empty() ? 0 :data_->channels() );
 }
 
 

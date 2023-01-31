@@ -7,7 +7,6 @@
 class KcGraph : public KvPlottable1d
 {
 	using super_ = KvPlottable1d;
-	using super_::GETTER;
 
 public:
 
@@ -20,7 +19,7 @@ public:
 	const KpPen& linePen() const { return lineCxt_; }
 	KpPen& linePen() { return lineCxt_; }
 
-private:
+protected:
 
 	void drawImpl_(KvPaint*, GETTER, unsigned, unsigned) const final;
 
