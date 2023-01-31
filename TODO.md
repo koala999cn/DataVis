@@ -43,7 +43,7 @@
 ## pipeline
 - [ ] 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多
 - [ ] 管线运行时，node属性的动态设置与同步
-- [ ] 给数据加时间戳stamp
+- [x] 给数据加时间戳stamp
 
 ## FIXME
 - [ ] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）
@@ -67,3 +67,4 @@
 - [x] ticker数的控制存在致命bug（上下或左右或前后未同步）--> 暂时取消assert检测
 - [x] 优化flat着色模式下的line-filled
 - [x] 坐标轴只显示title时的定位问题
+- [ ] spectrum操作符的坐标平移问题

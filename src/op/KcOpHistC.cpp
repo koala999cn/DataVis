@@ -111,7 +111,7 @@ void KcOpHistC::showProperySet()
 }
 
 
-void KcOpHistC::output()
+void KcOpHistC::outputImpl_()
 {
     KpDataSpec ds(inputSpec_());
     if (!ds.stream) // 如果输入不是流式数据，重置hist计数

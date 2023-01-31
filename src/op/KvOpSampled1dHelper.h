@@ -1,12 +1,12 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOp1to1.h"
 
 
-// 为一维操作符提供缺省的processImpl_实现，帮助处理多通道数据和二维framing流
-// 继承类只需重载processNaive_方法，实现单一的单通道数据处理即可
-class KvOpSampled1dHelper : public KvDataOperator
+// 为一维操作符提供缺省的outputImpl_实现，帮助处理多通道数据和二维framing流
+// 继承类只需重载op_方法，实现单一的单通道数据处理即可
+class KvOpSampled1dHelper : public KvOp1to1
 {
-	using super_ = KvDataOperator;
+	using super_ = KvOp1to1;
 
 public:
 	KvOpSampled1dHelper(const std::string_view& name, bool splitChannels);
@@ -15,7 +15,6 @@ public:
 
 	kIndex size(kIndex outPort, kIndex axis) const override;
 
-	void output() override;
 
 protected:
 
@@ -39,11 +38,13 @@ protected:
 
 private:
 
+	void outputImpl_() override;
+
 	void output1d_();
 
 	void output2d_();
 
 private:
-	bool splitChannels_;
+	bool splitChannels_; // 有的派生类希望自己处理多通道数据，这里提供1个标记
 };
 

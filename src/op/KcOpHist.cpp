@@ -69,7 +69,7 @@ void KcOpHist::onStopPipeline()
 }
 
 
-void KcOpHist::output()
+void KcOpHist::outputImpl_()
 {
     auto in = std::dynamic_pointer_cast<KcSampled1d>(idata_.front());
     auto out = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());

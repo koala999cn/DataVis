@@ -93,7 +93,10 @@ void KvDataOperator::onInput(KcPortNode* outPort, unsigned inPort)
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(outPort->parent().lock());
 	assert(prov);
 
-	idata_[inPort] = prov->fetchData(outPort->index());
+	if (prov->dataStamp(outPort->index()) > idataStamps_[inPort]){ // 是否有更新的数据
+		idata_[inPort] = prov->fetchData(outPort->index());
+		idataStamps_[inPort] = prov->dataStamp(outPort->index());
+	}
 }
 
 
@@ -102,6 +105,12 @@ std::shared_ptr<KvData> KvDataOperator::fetchData(kIndex outPort) const
 	assert(outPort < odata_.size());
 
 	return odata_[outPort];
+}
+
+
+unsigned KvDataOperator::dataStamp(kIndex outPort) const
+{
+	return odataStamps_[outPort];
 }
 
 
@@ -121,6 +130,9 @@ bool KvDataOperator::onStartPipeline(const std::vector<std::pair<unsigned, KcPor
 
 		assert(permitInput(prov->spec(inNode->index()), inPort));
 	}
+
+	idataStamps_.assign(inPorts(), 0);
+	odataStamps_.assign(outPorts(), 0);
 
 	return true;
 }

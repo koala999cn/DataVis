@@ -33,6 +33,8 @@ public:
 
 	std::shared_ptr<KvData> fetchData(kIndex outPort) const override;
 
+	unsigned dataStamp(kIndex outPort) const override;
+
 	void showProperySet() override;
 
 

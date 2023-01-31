@@ -7,6 +7,7 @@
 #include "imapp/KvImWindow.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
+#include "imapp/KgPipeline.h"
 #include "imguix.h"
 #include "KuStrUtil.h"
 #include "misc/cpp/imgui_stdlib.h"
@@ -48,16 +49,18 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 {
 	assert(inPort == 0);
 
-	auto pnode = outPort->parent().lock();
-	assert(pnode);
-
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(outPort->parent().lock());
 	assert(prov);
+
+	// TODO: 
+	if (prov->dataStamp(outPort->index()) < KsImApp::singleton().pipeline().frameIndex()) // 数据无变化
+		return;
 
 	auto r = port2Plts_.equal_range(outPort->id());
 	assert(r.first != r.second);
 
 	auto data = prov->fetchData(outPort->index());
+
 	auto numPlts = std::distance(r.first, r.second);
 	
 	if (prov->isStream(outPort->index())) { // shifting the data

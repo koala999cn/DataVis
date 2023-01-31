@@ -13,9 +13,6 @@
     <Filter Include="prov">
       <UniqueIdentifier>{3d5191d1-d907-41e4-aed6-0f635364f63d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="base">
-      <UniqueIdentifier>{33228e2a-3d79-4539-bc42-f98876ee3f3b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="audio">
       <UniqueIdentifier>{935b133f-f696-4b69-98fb-9386c7a1946a}</UniqueIdentifier>
     </Filter>
@@ -49,16 +46,13 @@
     <Filter Include="util">
       <UniqueIdentifier>{76b91b17-22c1-4799-a348-0aeb344123fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{33228e2a-3d79-4539-bc42-f98876ee3f3b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KgHist.cpp">
       <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\base\KuPathUtil.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="src\base\KuStrUtil.cpp">
-      <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="src\dsp\KvDiscreted.cpp">
       <Filter>dsp</Filter>
@@ -72,9 +66,6 @@
     </ClCompile>
     <ClCompile Include="src\dsp\KgHistC.cpp">
       <Filter>dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\base\KuFileUtil.cpp">
-      <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KvTicker.cpp">
       <Filter>plot</Filter>
@@ -240,9 +231,6 @@
     </ClCompile>
     <ClCompile Include="src\plot\KuColorUtil.cpp">
       <Filter>plot</Filter>
-    </ClCompile>
-    <ClCompile Include="src\base\KuLex.cpp">
-      <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp">
       <Filter>plot</Filter>
@@ -481,6 +469,18 @@
     <ClCompile Include="src\plot\KcAndrewsCurves.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\base\KuFileUtil.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\KuLex.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\KuPathUtil.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\KuStrUtil.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -519,29 +519,11 @@
     <ClInclude Include="src\dsp\KvSampled.h">
       <Filter>dsp</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtObservable.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtSingleton.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KuFileUtil.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KuPathUtil.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KuStrUtil.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="src\dsp\KvDiscreted.h">
       <Filter>dsp</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KtFIR.h">
       <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KuMath.h">
-      <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KgRand.h">
       <Filter>dsp</Filter>
@@ -642,12 +624,6 @@
     <ClInclude Include="3rdparty\ImFileDialog\ImFileDialog.h">
       <Filter>3rdparty\imFileDialog</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtUId.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtUniObject.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="src\imapp\KvAction.h">
       <Filter>imapp</Filter>
     </ClInclude>
@@ -695,9 +671,6 @@
     </ClInclude>
     <ClInclude Include="src\prov\KcPvData.h">
       <Filter>prov</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KtArray.h">
-      <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KcImPlot3d.h">
       <Filter>imapp</Filter>
@@ -770,9 +743,6 @@
     </ClInclude>
     <ClInclude Include="src\plot\KuColorUtil.h">
       <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\KuLex.h">
-      <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KtGradient.h">
       <Filter>plot</Filter>
@@ -954,17 +924,11 @@
     <ClInclude Include="src\layout\KcLayoutOverlay.h">
       <Filter>layout</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\KtHolder.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="src\layout\KeAlignment.h">
       <Filter>layout</Filter>
     </ClInclude>
     <ClInclude Include="src\dsp\KuOscillatorFactory.h">
       <Filter>dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\bimap.h">
-      <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="src\prov\KcPvOscillator.h">
       <Filter>prov</Filter>
@@ -1088,6 +1052,54 @@
     </ClInclude>
     <ClInclude Include="src\plot\KcAndrewsCurves.h">
       <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\bimap.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KmNonCopyable.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtArray.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtHolder.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtObservable.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtSingleton.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtuBitwise.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtUId.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KtUniObject.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuFileUtil.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuLex.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuMath.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuPathUtil.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuStrUtil.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\stlex.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KvOp1to1.h">
+      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -73,8 +73,11 @@ public:
 	virtual kIndex size(kIndex outPort, kIndex axis) const = 0;
 
 	// 抓取第outPort个输出端口的数据
+	// 返回nullptr的语义未定
 	virtual std::shared_ptr<KvData> fetchData(kIndex outPort) const = 0;
 
+	// 返回第outPort个输出端口的数据时间戳，即数据的生成时间，用pipeline的帧序号表示
+	virtual unsigned dataStamp(kIndex outPort) const = 0;
 
 	/// same helper functions
 
@@ -109,6 +112,9 @@ protected:
 	void notifyChanged_();
 
 	bool working_() const;
+
+	// 返回当前管线帧号
+	unsigned currentFrameIndex_() const;
 
 private:
 	int windowId_{ -1 }; // 挂接的ImWindow标识符

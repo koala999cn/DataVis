@@ -1,14 +1,14 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOp1to1.h"
 #include <vector>
 
 class KcSampler;
 
 // 采样器实现：将连续数据和数组数据转换为采样数据
 
-class KcOpSampler : public KvDataOperator
+class KcOpSampler : public KvOp1to1
 {
-	using super_ = KvDataOperator;
+	using super_ = KvOp1to1;
 
 public:
 	KcOpSampler();
@@ -23,12 +23,6 @@ public:
 
 	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
 
-	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
-
-	void onStopPipeline() final;
-
-	void output() final;
-
 	void showProperySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
@@ -37,6 +31,8 @@ public:
 
 
 private:
+	void outputImpl_() final;
+
 	void sampleCountChanged_();
 
 private:

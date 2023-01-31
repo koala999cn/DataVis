@@ -1,7 +1,7 @@
 ﻿#include "KcPvData.h"
 #include "KvDiscreted.h"
 #include "KvContinued.h"
-#include "imgui.h"
+#include "imapp/imguix.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgPipeline.h"
 
@@ -9,8 +9,14 @@
 KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-	updateSpec_();
-	valueRange_ = data ? data->valueRange() : kRange(0, 0);
+	notifyChanged(true ,true);
+}
+
+
+bool KcPvData::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>&)
+{
+	dataStamp_ = currentFrameIndex_();
+	return true;
 }
 
 
@@ -79,6 +85,13 @@ std::shared_ptr<KvData> KcPvData::fetchData(kIndex outPort) const
 }
 
 
+unsigned KcPvData::dataStamp(kIndex outPort) const
+{ 
+	assert(outPort == 0);
+	return dataStamp_; 
+}
+
+
 void KcPvData::showProperySet()
 {
 	super_::showProperySet();
@@ -88,20 +101,20 @@ void KcPvData::showProperySet()
 
 		ImGui::Separator();
 
-		if (ImGui::TreeNodeEx("Range", ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_DefaultOpen)) {
-			char label[] = { 'X', '\0'};
+		if (ImGuiX::treePush("Range", true)) {
+			char label[] = { 'X', '\0' };
 			for (unsigned i = 0; i < data_->dim(); i++) {
 				auto r = data_->range(i);
 				float low = r.low(), high = r.high();
 				if (ImGui::DragFloatRange2(label, &low, &high)) {
 					cont->setRange(i, low, high);
-					KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+					notifyChanged(false, true);
 				}
 
 				label[0] += 1;
 			}
 
-			ImGui::TreePop();
+			ImGuiX::treePop();
 		}
 	}
 }
@@ -110,7 +123,19 @@ void KcPvData::showProperySet()
 void KcPvData::setData(const std::shared_ptr<KvData>& d)
 {
 	data_ = d;
-	updateSpec_();
-	valueRange_ = d->valueRange();
-	KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+	notifyChanged(true, true);
+}
+
+
+void KcPvData::notifyChanged(bool specChanged, bool dataChanged)
+{
+	if (specChanged)
+	    updateSpec_();
+
+	if (dataChanged)
+	    valueRange_ = data_ ? data_->valueRange() : kRange(0, 0);
+
+	dataStamp_ = currentFrameIndex_();
+
+	// TODO: 待删除 KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
 }

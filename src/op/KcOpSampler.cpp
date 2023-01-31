@@ -93,24 +93,12 @@ bool KcOpSampler::onNewLink(KcPortNode* from, KcPortNode* to)
 }
 
 
-bool KcOpSampler::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
-{
-    return true;
-}
-
-
-void KcOpSampler::onStopPipeline()
-{
-    // sampler_ = nullptr
-}
-
-
-void KcOpSampler::output()
+void KcOpSampler::outputImpl_()
 {
     if (!odata_.front()) {
         sampler_ = std::make_shared<KcSampler>(idata_.front());
         odata_.front() = sampler_;
-        sampleCountChanged_();
+        sampleCountChanged_(); // 设置sampler_的采样参数
     }
 
     sampler_->setData(idata_.front());

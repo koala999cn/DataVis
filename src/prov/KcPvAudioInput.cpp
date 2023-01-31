@@ -98,6 +98,7 @@ bool KcPvAudioInput::onStartPipeline(const std::vector<std::pair<unsigned, KcPor
 
 	device->pushBack(std::make_shared<kPrivate::KcAudioStreamObserver>(this));
 	data_ = std::make_shared<KcSampled1d>(samp.dx(), iParam.channels);
+	dataStamp_ = 0;
 	return device->start();
 }
 
@@ -113,21 +114,31 @@ void KcPvAudioInput::output()
 {
 	assert(data_);
 
-	// 组装数据
-	auto data = std::make_shared<KcSampled1d>(data_->step(0), data_->channels());
 	auto q = (kPrivate::data_queue*)queue_;
-	std::shared_ptr<KcSampled1d> d;
-	while (q->try_dequeue(d))
-		data->pushBack(*d);
 
-	std::swap(data_, data);
+	if (q->size_approx() > 0) { // 组装数据
+		auto data = std::make_shared<KcSampled1d>(data_->step(0), data_->channels());
+
+		std::shared_ptr<KcSampled1d> d;
+		while (q->try_dequeue(d))
+			data->pushBack(*d);
+
+		std::swap(data_, data);
+		dataStamp_ = currentFrameIndex_();
+	}
 }
 
 
 std::shared_ptr<KvData> KcPvAudioInput::fetchData(kIndex outPort) const
 {
 	assert(outPort == 0);
-	return data_;
+	return dataStamp_ == currentFrameIndex_() ? data_ : nullptr;
+}
+
+
+unsigned KcPvAudioInput::dataStamp(kIndex outPort) const
+{
+	return dataStamp_;
 }
 
 
@@ -216,6 +227,8 @@ void KcPvAudioInput::showProperySet()
 	ImGui::LabelText("Size", "%d", size(0, 0));
 
 	ImGui::LabelText("Step", "%g", step(0, 0));
+
+	ImGui::LabelText("Time Stamp", "%d", dataStamp(0));
 }
 
 

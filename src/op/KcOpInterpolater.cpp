@@ -72,7 +72,7 @@ void KcOpInterpolater::showProperySet()
 }
 
 
-void KcOpInterpolater::output()
+void KcOpInterpolater::outputImpl_()
 {
     if (idata_.front()) {
         auto disc = std::dynamic_pointer_cast<KvDiscreted>(idata_.front());

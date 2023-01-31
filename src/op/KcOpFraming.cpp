@@ -6,7 +6,7 @@
 
 
 KcOpFraming::KcOpFraming() 
-	: KvDataOperator("Framing")
+	: super_("Framing")
 	, frameTime_(0.01)
     , shiftTime_(frameTime_ / 2)
 {
@@ -123,7 +123,7 @@ void KcOpFraming::onStopPipeline()
 }
 
 
-void KcOpFraming::output()
+void KcOpFraming::outputImpl_()
 {
 	assert(idata_.size() == 1 && idata_.front() != nullptr);
 	assert(odata_.size() == 1);

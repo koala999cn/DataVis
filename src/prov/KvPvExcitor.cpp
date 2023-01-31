@@ -90,6 +90,12 @@ std::shared_ptr<KvData> KvPvExcitor::fetchData(kIndex outPort) const
 }
 
 
+unsigned KvPvExcitor::dataStamp(kIndex outPort) const
+{
+	return currentFrameIndex_();
+}
+
+
 void KvPvExcitor::showProperySet()
 {
 	super_::showProperySet();

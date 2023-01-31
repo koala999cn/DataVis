@@ -5,7 +5,7 @@
 
 
 KvOpSampled1dHelper::KvOpSampled1dHelper(const std::string_view& name, bool splitChannels)
-	: KvDataOperator(name) 
+	: super_(name) 
 	, splitChannels_(splitChannels)
 {
 
@@ -15,7 +15,7 @@ KvOpSampled1dHelper::KvOpSampled1dHelper(const std::string_view& name, bool spli
 bool KvOpSampled1dHelper::permitInput(int dataSpec, unsigned inPort) const
 {
 	KpDataSpec ds(dataSpec);
-	return ds.type == k_sampled && ds.dim <= 2; // TODO:  isize_() == 0 ? ds.dim == 1 : ds.dim <= 2);
+	return (ds.type == k_sampled || ds.type == k_array) && ds.dim <= 2; // TODO:  isize_() == 0 ? ds.dim == 1 : ds.dim <= 2);
 }
 
 
@@ -35,7 +35,7 @@ kIndex KvOpSampled1dHelper::size(kIndex outPort, kIndex axis) const
 }
 
 
-void KvOpSampled1dHelper::output()
+void KvOpSampled1dHelper::outputImpl_()
 {
 	assert(idata_.size() == 1 && idata_.front());
 	assert(idata_.front()->isDiscreted());

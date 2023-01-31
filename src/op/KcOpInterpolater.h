@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOp1to1.h"
 
 
-class KcOpInterpolater : public KvDataOperator
+class KcOpInterpolater : public KvOp1to1
 {
-	using super_ = KvDataOperator;
+	using super_ = KvOp1to1;
 
 public:
 	KcOpInterpolater();
@@ -15,12 +15,12 @@ public:
 
 	kIndex size(kIndex outPort, kIndex axis) const final;
 
-	void output() final;
-
 	void showProperySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
 
+private:
+	void outputImpl_() final;
 
 private:
 	int interpMethod_{ 0 };

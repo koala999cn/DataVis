@@ -1,12 +1,12 @@
 #pragma once
-#include "KvDataOperator.h"
+#include "KvOp1to1.h"
 #include <memory>
 #include "dsp/KtFIR.h"
 
 
-class KcOpFIR : public KvDataOperator
+class KcOpFIR : public KvOp1to1
 {
-	using super_ = KvDataOperator;
+	using super_ = KvOp1to1;
 
 public:
 	KcOpFIR();
@@ -15,14 +15,14 @@ public:
 
 	void onStopPipeline() final;
 
-	void output() final;
-
 	void showProperySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
 
 
 private:
+	void outputImpl_() final;
+
 	void createFilter_();
 
 private:

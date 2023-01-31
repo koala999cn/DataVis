@@ -1,13 +1,13 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOp1to1.h"
 #include <memory>
 
 
 class KgHist;
 
-class KcOpHist : public KvDataOperator
+class KcOpHist : public KvOp1to1
 {
-	using super_ = KvDataOperator;
+	using super_ = KvOp1to1;
 
 public:
 	KcOpHist();
@@ -24,13 +24,14 @@ public:
 
 	void onStopPipeline() final;
 
-	void output() final;
-
 	void showProperySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
 
 	bool onInputChanged(KcPortNode* outPort, unsigned inPort) final;
+
+private:
+	void outputImpl_() final;
 
 private:
 	std::unique_ptr<KgHist> hist_;

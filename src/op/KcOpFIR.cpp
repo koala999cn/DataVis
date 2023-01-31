@@ -30,7 +30,7 @@ void KcOpFIR::onStopPipeline()
 }
 
 
-void KcOpFIR::output()
+void KcOpFIR::outputImpl_()
 {
     if (dirty_) {
         createFilter_();

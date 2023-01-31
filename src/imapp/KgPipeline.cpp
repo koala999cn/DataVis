@@ -213,6 +213,8 @@ std::vector<KvNode*> KgPipeline::getInputs(int nodeId, unsigned portIdx) const
 
 bool KgPipeline::start()
 {
+    frameIdx_ = 1; // 序号从1开始，保留0的特殊语义
+
     if (graph_.isEmpty())
         return false;
 
@@ -243,7 +245,6 @@ bool KgPipeline::start()
         v += node->outPorts();
     }
 
-    frameIdx_ = 0;
     status_ = k_busy;
 
     return true;

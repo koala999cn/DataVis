@@ -158,6 +158,8 @@ void KvDataProvider::showProperySet()
 
 	ImGui::LabelText("Dynamic", sp.dynamic ? "true" : "false");
 
+	ImGui::LabelText("Time Stamp", "%d", dataStamp(outPort));
+
 	// 数据数量
 	if (isDiscreted(outPort)) {
 		if (dim(outPort) <= 1) {
@@ -238,4 +240,10 @@ void KvDataProvider::notifyChanged_()
 bool KvDataProvider::working_() const
 {
 	return KsImApp::singleton().pipeline().running();
+}
+
+
+unsigned KvDataProvider::currentFrameIndex_() const
+{
+	return KsImApp::singleton().pipeline().frameIndex();
 }

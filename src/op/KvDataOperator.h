@@ -7,8 +7,11 @@
 
 class KvDataOperator : public KvDataProvider
 {
+	using super_ = KvDataProvider;
+
 public:
-	using KvDataProvider::KvDataProvider;
+
+	using super_::super_;
 
 	/// node接口
 
@@ -29,8 +32,9 @@ public:
 
 	std::shared_ptr<KvData> fetchData(kIndex outPort) const override;
 
-	// 获取数据规格的方法：若output有效，优先从output获取；否则从inputs_获取
+	unsigned dataStamp(kIndex outPort) const override;
 
+	// 获取数据规格的方法：若output有效，优先从output获取；否则从inputs_获取
 	int spec(kIndex outPort) const override;
 
 	kRange range(kIndex outPort, kIndex axis) const override;
@@ -62,8 +66,10 @@ protected:
 	kIndex inputSize_(kIndex axis) const;
 
 protected:
-	std::vector<std::shared_ptr<KvData>> idata_{ inPorts() };
-	std::vector<std::shared_ptr<KvData>> odata_{ outPorts() };
-	std::vector<KcPortNode*> inputs_{ inPorts() };
+	std::vector<std::shared_ptr<KvData>> idata_{ inPorts(), nullptr };
+	std::vector<std::shared_ptr<KvData>> odata_{ outPorts(), nullptr };
+	std::vector<unsigned> idataStamps_{ inPorts(), 0 };
+	std::vector<unsigned> odataStamps_{ outPorts(), 0 };
+	std::vector<KcPortNode*> inputs_{ inPorts(), nullptr };
 };
 

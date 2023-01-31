@@ -1,12 +1,12 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOp1to1.h"
 #include <memory>
 #include "KtFraming.h"
 
 
-class KcOpFraming : public KvDataOperator
+class KcOpFraming : public KvOp1to1
 {
-	using super_ = KvDataOperator;
+	using super_ = KvOp1to1;
 
 public:
 	KcOpFraming();
@@ -23,8 +23,6 @@ public:
 
 	void onStopPipeline() final;
 
-	void output() final;
-
 	void showProperySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
@@ -32,6 +30,8 @@ public:
 	bool onInputChanged(KcPortNode* outPort, unsigned inPort) final;
 
 private:
+
+	void outputImpl_() final;
 
 	kIndex frameSize() const;
 	kIndex shiftSize() const;

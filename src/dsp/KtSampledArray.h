@@ -2,7 +2,7 @@
 #include <array>
 #include <blitz/array.h>
 #include "KtSampled.h"
-#include "base/KuMath.h"
+#include "KuMath.h"
 
 
 // 基于blitz++多维数组实现的采样数据

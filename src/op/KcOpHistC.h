@@ -1,13 +1,13 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOp1to1.h"
 #include <memory>
 
 
 class KgHistC;
 
-class KcOpHistC : public KvDataOperator
+class KcOpHistC : public KvOp1to1
 {
-	using super_ = KvDataOperator;
+	using super_ = KvOp1to1;
 
 public:
 	KcOpHistC();
@@ -26,8 +26,6 @@ public:
 
 	void onStopPipeline() final;
 
-	void output() final;
-
 	void showProperySet() final;
 
 	// 根据输入同步low_ & high_
@@ -35,6 +33,9 @@ public:
 
 	// 重载该函数，以支持动态设定参数
 	void onNewFrame(int frameIdx) final;
+
+private:
+	void outputImpl_() final;
 
 private:
 	std::unique_ptr<KgHistC> histc_;
