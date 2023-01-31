@@ -51,7 +51,9 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// 因为计算布局（calcBox为true）和真实绘制（calcBox为false）时，
 	// 变化矩阵堆栈可能不同，特别是后者可能新压入了scale矩阵，
 	// 这导致前期计算的box_和其他与世界坐标相关的长度和位置不可用
-	box_.setExtents(start(), end()); // 初始化为point(0)时，在只显示title时出现定位问题
+
+	box_ = aabb_t(start(), end()); // 初始化为point(0)时，在只显示title时出现定位问题
+	                               // NB: 此处不能用setExtent, 因为start不一定都小于end
 
 	// draw baseline
 	if (showBaseline() && baselineCxt_.style != KpPen::k_none) {

@@ -65,8 +65,8 @@ void KcColorBar::draw(KvPaint* paint) const
             box.lower().x() = box.upper().x() - barWidth_;
 
         // 反转y轴，确保由下往上渐变
-        drawGradient<double, float>(fillQuad, { box.lower().x(), box.upper().y() }, 
-            { box.upper().x(), box.lower().y() }, plt_->colorBar(), 1);
+        std::swap(box.lower().y(), box.upper().y());
+        drawGradient<double, float>(fillQuad, box.lower(), box.upper(), plt_->colorBar(), 1);
     }
     else {
 
@@ -93,12 +93,12 @@ void KcColorBar::draw(KvPaint* paint) const
 
         if (align() & KeAlignment::k_horz_first) {
             if (align() & KeAlignment::k_right) { // TODO: 更优雅的定位方法
-                start = { box.upper().x(), box.upper().y(), 0 };
-                end = { box.upper().x(), box.lower().y(), 0 };
+                start = { box.upper().x(), box.lower().y(), 0 };
+                end = { box.upper().x(), box.upper().y(), 0 };
             }
             else {
-                start = { box.lower().x(), box.upper().y(), 0 };
-                end = { box.lower().x(), box.lower().y(), 0 };
+                start = { box.lower().x(), box.lower().y(), 0 };
+                end = { box.lower().x(), box.upper().y(), 0 };
             }
         }
         else {
