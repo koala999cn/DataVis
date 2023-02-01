@@ -96,11 +96,10 @@ public:
 
 
 	// 是否数字，包括整数和浮点数，兼容nan、inf
-	static bool isNumeric(const char *tag);
+	static bool isNumeric(const std::string_view& tag);
 
 	// 是否整数
-	static bool isInteger(const char* tag);
-
+	static bool isInteger(const std::string_view& tag);
 
 	// return -1 if c is not a valid xdigit
 	static int hexValue(char c);
@@ -170,16 +169,6 @@ public:
 	// @forceSpace，若为真，则仅把space当做token的分割符，无法识别被非idname字符分割的idname
 	template<typename CHAR = char>
 	static std::basic_string<CHAR> getToken(std::basic_istream<CHAR>& is, bool forceSpace);
-
-
-	static std::pair<bool, int> parseInt(const char* s);
-	static std::pair<bool, int> parseInt(const std::string& s) { return parseInt(s.c_str()); }
-
-	static std::pair<bool, std::int64_t> parseInt64(const char* s);
-	static std::pair<bool, std::int64_t> parseInt64(const std::string& s) { return parseInt64(s.c_str()); }
-
-	static std::pair<bool, double> parseFloat(const char* s);
-	static std::pair<bool, double> parseFloat(const std::string& s) { return parseFloat(s.c_str()); }
 
 
 	/* Convert string tag to writeable format */

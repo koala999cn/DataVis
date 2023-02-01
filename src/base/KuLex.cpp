@@ -4,43 +4,20 @@
 #include "KuStrUtil.h"
 
 
-bool KuLex::isNumeric(const char *tag)
+bool KuLex::isNumeric(const std::string_view& tag)
 {
-	return std::regex_match(tag, std::regex("^[-+]?([0-9]+(\\.?[0-9]*)?(e[-+]?[0-9]+)?|\\.[0-9]+(e[-+]?[0-9]+)?)$")) ||
-		std::regex_match(tag, std::regex("^nan|[-+]?inf$"));
+	std::regex re1("^[-+]?([0-9]+(\\.?[0-9]*)?(e[-+]?[0-9]+)?|\\.[0-9]+(e[-+]?[0-9]+)?)$", std::regex::icase);
+	std::regex re2("^nan|[-+]?inf$", std::regex::icase);
+
+	return std::regex_match(tag.cbegin(), tag.cend(), re1) 
+		|| std::regex_match(tag.cbegin(), tag.cend(), re2);
 }
 
 
-bool KuLex::isInteger(const char* tag)
+bool KuLex::isInteger(const std::string_view& tag)
 {
-	return std::regex_match(tag, std::regex("^[-+]?[0-9]+$"));
-}
-
-
-std::pair<bool, int> KuLex::parseInt(const char* s)
-{
-	if (!isInteger(s))
-		return { false, 0 };
-
-	return{ true, KuStrUtil::toInt(s) };
-}
-
-
-std::pair<bool, std::int64_t> KuLex::parseInt64(const char* s)
-{
-	if (!isInteger(s))
-		return{ false, 0 };
-
-	return{ true, KuStrUtil::toValue<std::int64_t>(s) };
-}
-
-
-std::pair<bool, double> KuLex::parseFloat(const char* s)
-{
-	if (!isNumeric(s))
-		return{ false, 0 };
-
-	return{ true, KuStrUtil::toDouble(s) };
+	return std::regex_match(tag.cbegin(), tag.cend(), 
+		std::regex("^[-+]?[0-9]+$"));
 }
 
 
