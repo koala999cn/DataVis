@@ -28,4 +28,5 @@ private:
 	std::unique_ptr<KcAudioRender> render_;
 	unsigned deviceId_;
 	float frameTime_;
+	unsigned dataStamp_; // 当前接收的数据时间戳
 };

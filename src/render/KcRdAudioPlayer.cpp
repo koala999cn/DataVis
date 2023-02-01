@@ -21,6 +21,8 @@ KcRdAudioPlayer::KcRdAudioPlayer()
 
 bool KcRdAudioPlayer::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+	dataStamp_ = 0;
+
 	if (ins.empty())
 		return false;
 
@@ -49,7 +51,7 @@ void KcRdAudioPlayer::onStopPipeline()
 
 void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
 {
-	assert(inPort == 0);
+	assert(inPort == 0); 
 
 	auto pnode = outPort->parent().lock();
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(pnode);
@@ -62,9 +64,12 @@ void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
 	auto samp = std::dynamic_pointer_cast<KvSampled>(data);
 	assert(render_ && samp && samp->dim() == 1);
 
-	if (prov->isStream(outPort->index())) {
-		if (samp.unique()) {
-			render_->enqueue(samp); // 对于独享数据，直接压入播放队列
+	if (prov->dataStamp(outPort->index()) > dataStamp_) { // 只接受更新的数据
+
+		dataStamp_ = prov->dataStamp(outPort->index());
+
+		if (!prov->isStream(outPort->index()) || samp.unique()) {
+			render_->enqueue(samp); // 对于独享数据和快照数据，直接压入播放队列
 		}
 		else { // 对于共享数据，拷贝之后再压入播放队列
 			auto samp1d = std::dynamic_pointer_cast<KvSampled>(KuDataUtil::cloneSampled1d(samp));
@@ -74,9 +79,6 @@ void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
 			assert(samp1d->channels() == samp->channels());
 			render_->enqueue(samp1d);
 		}
-	}
-	else if (KsImApp::singleton().pipeline().frameIndex() == 0) {
-		render_->enqueue(samp); // 对于快照数据，只在第一帧压入播放队列
 	}
 }
 
