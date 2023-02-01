@@ -57,8 +57,9 @@ bool KcActionTextLoadAndClean::loadData_()
     const std::string rexpDelim = "\\s+";
 
     rawData_.clear();
+    rawData_.reserve(25000); // 预留一定数量的空间
 
-    text_ = KuFileUtil::readAsString(filepath_);
+    text_ = KuFileUtil::readAsString(filepath_); // 暂存所有文本，以便后面使用string_view类型
     auto lines = KuStrUtil::split(text_, "\n");
 
     for (auto& line : lines) {
@@ -68,10 +69,7 @@ bool KcActionTextLoadAndClean::loadData_()
         if (line.back() == '\r')
             line.remove_suffix(1);
 
-        auto tokens = KuStrUtil::split(line, ", \t", false);
-        if (tokens.empty())
-            continue; // always skip empty line
-
+        auto tokens = KuStrUtil::split(line, ", \t", true);
         rawData_.emplace_back(std::move(tokens));
     }
 

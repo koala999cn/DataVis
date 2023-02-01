@@ -136,7 +136,7 @@ void KcImTextCleaner::updateStats_()
                 //if (emptyMode_ == kPrivate::k_empty_skip)
                 //    cols--;
             }
-            else if (!KuStrUtil::isFloat(tok)) {
+            else if (!KuStrUtil::toDouble(tok)) {
                 illegalTokens_++;
                 //if (skipIllegal_())
                 //    cols--;
@@ -183,15 +183,18 @@ void KcImTextCleaner::clean_()
                     continue;
                 data.push_back(emptyValue_());
             }
-            else if (KuStrUtil::isFloat(tok)) {
-                data.push_back(KuStrUtil::toDouble(std::string(tok).c_str()));
-            }
-            else { // illegal tokens
-                assert(illegalMode_ != k_illegal_fail);
+            else {
+                auto val = KuStrUtil::toDouble(tok);
+                if (val) {
+                    data.push_back(val.value());
+                }
+                else { // illegal tokens
+                    assert(illegalMode_ != k_illegal_fail);
 
-                if (skipIllegal_())
-                    continue;
-                data.push_back(illegalValue_());
+                    if (skipIllegal_())
+                        continue;
+                    data.push_back(illegalValue_());
+                }
             }
         }
 
@@ -240,7 +243,7 @@ void KcImTextCleaner::showTable_() const
             auto& tok = rawData_[r][c - 1];
             if (tok.empty())
                 ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "EMPTY");
-            else if (!KuStrUtil::isFloat(tok)) {
+            else if (!KuStrUtil::toDouble(tok)) {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
                 ImGui::TextUnformatted(tok.data(), tok.data() + tok.size());
                 ImGui::PopStyleColor();
