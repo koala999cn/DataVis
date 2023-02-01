@@ -14,6 +14,18 @@ KcOpSpectrum::KcOpSpectrum()
 }
 
 
+int KcOpSpectrum::spec(kIndex outPort) const
+{
+	KpDataSpec ds = super_::spec(outPort);
+	if (ds.stream && ds.dim == 1) {
+		assert(ds.dynamic);
+		ds.stream = false;
+	}
+
+	return ds.spec;
+}
+
+
 kRange KcOpSpectrum::range(kIndex outPort, kIndex axis) const
 {
 	assert(inputs_.size() == 1);

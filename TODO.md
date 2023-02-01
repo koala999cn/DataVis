@@ -68,4 +68,4 @@
 - [x] ticker数的控制存在致命bug（上下或左右或前后未同步）--> 暂时取消assert检测
 - [x] 优化flat着色模式下的line-filled
 - [x] 坐标轴只显示title时的定位问题
-- [ ] spectrum操作符的坐标平移问题
+- [x] spectrum操作符的坐标平移问题

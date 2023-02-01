@@ -11,6 +11,8 @@ public:
 
 	KcOpSpectrum();
 
+	int spec(kIndex) const final;
+
 	kRange range(kIndex outPort, kIndex axis) const final;
 
 	kReal step(kIndex outPort, kIndex axis) const final;
