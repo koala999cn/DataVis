@@ -17,7 +17,17 @@ void KcScatter::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigne
 	
 	bool outline = marker_.showOutline && marker_.hasOutline()
 		&& marker_.outline != marker_.fill && marker_.outline.a() > 0;
-	paint->drawMarkers(toPointGetter_(getter, ch), count, outline);
+
+	if (coloringMode() == k_one_color_solid) {
+		paint->drawMarkers(toPointGetter_(getter, ch), count, outline);
+	}
+	else { // Öğ¸ömarker»æÖÆ
+		for (unsigned i = 0; i < count; i++) {
+			auto val = getter(i);
+			paint->setColor(mapValueToColor_(val.data(), ch));
+			paint->drawMarker({ val[0], val[1], val[2] }, outline);
+		}
+	}
 }
 
 
