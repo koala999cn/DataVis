@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 #include <sstream>
+#include <optional>
+#include <charconv>
 
 
 class KuStrUtil
@@ -24,11 +26,6 @@ public:
 	// 小写转换
 	static void toLower(char* str);
 	static void toLower(std::string& str);
-
-
-	// 是否为浮点数
-	static bool isFloat(const std::string_view& sv);
-
 
 	// str是否以with开头
 	// @nocase: true表示进行大小写无关的比较
@@ -161,29 +158,19 @@ public:
 		return !!stream;
 	}
 
-	// 不带错误检测的版本
-	template<typename T, typename CHAR = char>
-	static T toValue(const CHAR* str) {
-		std::basic_istringstream<CHAR> strm(str);
-		T val;
-		strm >> val;
-		return val;
+	template<typename T>
+	static std::optional<T> toValue(const std::string_view& str) {
+		if (T value; std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{})
+			return value;
+		else
+			return std::nullopt;
 	}
 
-	template<typename CHAR = char>
-	static int toInt(const CHAR* str) {
-		return toValue<int, CHAR>(str); 
-	}
+	static auto toInt(const std::string_view& str) { return toValue<int>(str); }
 
-	template<typename CHAR = char>
-	static float toFloat(const CHAR* str) {
-		return toValue<float, CHAR>(str); 
-	}
+	static auto toFloat(const std::string_view& str) { return toValue<float>(str); }
 
-	template<typename CHAR = char>
-	static double toDouble(const CHAR* str) {
-		return toValue<double, CHAR>(str); 
-	}
+	static auto toDouble(const std::string_view& str) { return toValue<double>(str); }
 
 
 	// 对矢量和矩阵的格式化，可用于调试输出

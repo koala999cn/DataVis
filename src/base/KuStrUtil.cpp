@@ -36,13 +36,6 @@ void KuStrUtil::toLower(std::string& str)
 }
 
 
-bool KuStrUtil::isFloat(const std::string_view& sv)
-{
-	return std::regex_match(sv.cbegin(), sv.cend(), 
-		std::regex("^[-+]?[0-9]*\\.?[0-9]+((e|E)[-+]?[0-9]*)?$"));
-}
-
-
 bool KuStrUtil::beginWith(const char* str, unsigned nstr, const char* with, unsigned nwith, bool nocase)
 {
 	if (nstr < nwith)
