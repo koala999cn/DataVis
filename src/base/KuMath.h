@@ -262,6 +262,9 @@ public:
     template<typename KREAL>
     static void ones(KREAL x[], unsigned n) { assign<KREAL>(x, n, 1); }
 
+    // 分位数计算
+    // @x: 须升序排列
+    // @factor: [0, 1]
     template<typename KREAL>
     static KREAL quantile(const KREAL x[], unsigned n, KREAL factor);
 
@@ -976,7 +979,7 @@ std::pair<unsigned, unsigned> KuMath::argMixMax(const KREAL x[], unsigned n)
 template<typename KREAL>
 KREAL KuMath::quantile(const KREAL a[], unsigned n, KREAL factor)
 {
-    KREAL place = factor * n + 0.5f;
+    KREAL place = factor * (n - 1);
     long left = std::floor(place);
     if(n < 1) return 0;
     if(n == 1) return a[0];
