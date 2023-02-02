@@ -45,6 +45,7 @@
 - [ ] 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多
 - [ ] 管线运行时，node属性的动态设置与同步
 - [x] 给数据加时间戳stamp
+- [ ] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？
 
 ## FIXME
 - [ ] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）
@@ -69,3 +70,5 @@
 - [x] 优化flat着色模式下的line-filled
 - [x] 坐标轴只显示title时的定位问题
 - [x] spectrum操作符的坐标平移问题
+- [x] audioplayer渲染器在启动后再删除的情况下（哪怕启动失败），有个内存非法写入bug，后来不启动也会出现该问题 --> 重新编译后该问题消失
+- [x] andrews曲线生成错误 --> 系数访问越界

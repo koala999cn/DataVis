@@ -15,22 +15,23 @@ namespace kPrivate
 		return h * 16 + l;
 	}
 
-	static float parseColorComponent(const std::string_view& str, float maxValue = 1) 
+	// 返回的值为规范化的值，即值域在[0, 1]区间
+	// @maxValue: 用来作规范化的数值
+	// @defaultValue: 当str解析失败时返回的值
+	static float parseColorComponent(const std::string_view& str, float maxValue = 1, float defaultValue = 0) 
 	{
-		float val(-1);
+		auto val = KuStrUtil::toFloat<false>(str);
+		if (!val) 
+			return defaultValue;
 
-		if (str.back() == '%') {
-			if (!KuStrUtil::toValue(std::string(str.data(), str.size() - 1).c_str(), val))
-				val = -1;
-		}
-		else {
-			if (!KuStrUtil::toValue(std::string(str).c_str(), val))
-				val = -1;
-			else 
-			    val /= maxValue;
-		}
+		auto f = val.value();
 
-		return val;
+		if (str.back() == '%') 
+			f = KuMath::clamp(f, 0.f, 100.f) / 100;
+		else 
+			f /= maxValue;
+
+		return f;
 	}
 
 	static bool validColorComponent(float val) 

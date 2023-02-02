@@ -351,5 +351,5 @@ void KgPipeline::stepFrame()
         v += node->outPorts();
     }
 
-    ++frameIdx_;
+    ++frameIdx_; // TODO: 在开头还是结尾处增加帧号?
 }
