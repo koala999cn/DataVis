@@ -149,28 +149,30 @@ public:
 		return output;
 	}
 
-
-	// 字符串转化为类型T，成功返回true
-	template<typename T, typename CHAR = char>
-	static bool toValue(const CHAR* str, T& val) {
-		std::basic_istringstream<CHAR> stream(str);
-		stream >> val;
-		return !!stream;
-	}
-
-	template<typename T>
+	// @STRICT: 若true，则只有当str可全部解析为T时才返回有效数据
+	template<typename T, bool STRICT = true>
 	static std::optional<T> toValue(const std::string_view& str) {
-		if (T value; std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{})
-			return value;
-		else
-			return std::nullopt;
+		auto last = str.data() + str.size();
+		if constexpr (STRICT) {
+			if (T value; std::from_chars(str.data(), last, value).ptr == last)
+				return value;
+		}
+		else {
+			if (T value; std::from_chars(str.data(), last, value).ec == std::errc{})
+				return value;
+		}
+		
+		return std::nullopt;
 	}
 
-	static auto toInt(const std::string_view& str) { return toValue<int>(str); }
+	template<bool STRICT = true>
+	static auto toInt(const std::string_view& str) { return toValue<int, STRICT>(str); }
 
-	static auto toFloat(const std::string_view& str) { return toValue<float>(str); }
+	template<bool STRICT = true>
+	static auto toFloat(const std::string_view& str) { return toValue<float, STRICT>(str); }
 
-	static auto toDouble(const std::string_view& str) { return toValue<double>(str); }
+	template<bool STRICT = true>
+	static auto toDouble(const std::string_view& str) { return toValue<double, STRICT>(str); }
 
 
 	// 对矢量和矩阵的格式化，可用于调试输出
