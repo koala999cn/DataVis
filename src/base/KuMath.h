@@ -84,7 +84,8 @@ public:
         return std::min(std::abs(x), std::abs(y));
     }
 
-    template<typename KREAL, bool CLOSED>
+    // 把CLOSED参数放在前面，多数情况下KREAL可以推算出来
+    template<bool CLOSED, typename KREAL>
     static bool inRange(KREAL x, KREAL low, KREAL high) {
         if constexpr (CLOSED)
             return x >= low && x <= high;
