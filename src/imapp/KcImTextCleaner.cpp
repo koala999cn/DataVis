@@ -85,7 +85,7 @@ void KcImTextCleaner::updateImpl_()
             updateStats_();
     
     if(minCols_ != maxCols_)
-        ImGui::Checkbox("Force columns aligned", &forceAlign_);
+        ImGui::Checkbox("Padding columns", &forceAlign_);
 
     ImGui::PopItemWidth();
 
@@ -204,9 +204,14 @@ void KcImTextCleaner::clean_()
 
     auto cr = KuMatrixUtil::colsRange(cleanData_);
     if (cr.first != cr.second) {
-        assert(forceAlign_);
-        for (auto& row : cleanData_)
-            row.resize(cr.second, 0);
+        if (forceAlign_) { // 填补到最长的列
+            for (auto& row : cleanData_)
+                row.resize(cr.second, 0);
+        }
+        else { // 取最短的列数
+            for (auto& row : cleanData_)
+                row.resize(cr.first);
+        }
     }
 
     // 若有"ignore模式"造成的空行，该断言不成立
