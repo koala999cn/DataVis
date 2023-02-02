@@ -6,6 +6,7 @@
 #include "plot/KcLineFilled.h"
 #include "plot/KcBubble.h"
 #include "plot/KcAndrewsCurves.h"
+#include "plot/KcBoxPlot.h"
 #include "prov/KvDataProvider.h"
 #include "KuStrUtil.h"
 #include "imguix.h"
@@ -34,14 +35,14 @@ std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KcPortNode* port)
 
 unsigned KcRdPlot1d::supportPlottableTypes_() const
 {
-	return 6;
+	return 7;
 }
 
 
 int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 {
 	if (dynamic_cast<KcAndrewsCurves*>(plt))
-	    return 5;
+		return 5;
 	else if (dynamic_cast<KcGraph*>(plt))
 		return 0;
 	else if (dynamic_cast<KcScatter*>(plt))
@@ -52,6 +53,8 @@ int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 		return 3;
 	else if (dynamic_cast<KcBubble*>(plt))
 		return 4;
+	else if (dynamic_cast<KcBoxPlot*>(plt))
+		return 6;
 
 	return -1;
 }
@@ -60,7 +63,7 @@ int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 const char* KcRdPlot1d::plottableTypeStr_(int iType) const
 {
 	static const char* pltTypes[] = {
-		"graph", "scatter", "bar", "line-filled", "bubble", "andrews curves"
+		"graph", "scatter", "bar", "area", "bubble", "andrews curves", "box"
 	};
 
 	return pltTypes[iType];
@@ -88,6 +91,9 @@ KvPlottable* KcRdPlot1d::newPlottable_(int iType, const std::string& name)
 
 	case 5:
 		return new KcAndrewsCurves(name);
+
+	case 6:
+		return new KcBoxPlot(name);
 	}
 
 	return nullptr;
@@ -178,6 +184,49 @@ namespace kPrivate
 			ImGuiX::cbTreePush("Border", &bars->showBorder(), &open);
 			if (open) {
 				ImGuiX::pen(bars->borderPen(), true, true);
+				ImGuiX::cbTreePop();
+			}
+		}
+		else if (dynamic_cast<KcBoxPlot*>(plt)) {
+			auto box = dynamic_cast<KcBoxPlot*>(plt);
+
+			if (ImGuiX::treePush("Center Box", false)) {
+
+				ImGui::DragFloat("Width", &box->boxWidth(), 0.01, 0, 1, "%.2f");
+
+				if (ImGuiX::treePush("Median", false)) {
+					ImGuiX::pen(box->medianPen(), true, true);
+					ImGuiX::cbTreePop();
+				}
+
+				if (ImGuiX::treePush("Border", false)) {
+					ImGuiX::pen(box->borderPen(), true, true); // 颜色值与辅色一致
+					ImGuiX::cbTreePop();
+				}
+
+				ImGuiX::cbTreePop();
+			}
+
+			if (ImGuiX::treePush("Whisker", false)) {
+
+				ImGui::DragFloat("Length Factor", &box->whisLengthFactor());
+
+				if (ImGuiX::treePush("Line", false)) {
+					ImGuiX::pen(box->whisPen(), true, true);
+					ImGuiX::treePop();
+				}
+
+				if (ImGuiX::treePush("Endding Bar", false)) {
+					ImGui::DragFloat("Width", &box->whisBarWidth(), 0.01, 0, 1, "%.2f");
+					ImGuiX::pen(box->whisBarPen(), true, true);
+					ImGuiX::treePop();
+				}
+
+				ImGuiX::treePop();
+			}
+
+			if (ImGuiX::treePush("Outlier", false)) {
+				ImGuiX::marker(box->outlierMarker());
 				ImGuiX::treePop();
 			}
 		}

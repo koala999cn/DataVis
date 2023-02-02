@@ -481,6 +481,9 @@
     <ClCompile Include="src\base\KuStrUtil.cpp">
       <Filter>base</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcBoxPlot.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1100,6 +1103,9 @@
     </ClInclude>
     <ClInclude Include="src\op\KvOp1to1.h">
       <Filter>op</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcBoxPlot.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
