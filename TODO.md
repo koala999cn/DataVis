@@ -46,6 +46,7 @@
 - [ ] 管线运行时，node属性的动态设置与同步
 - [x] 给数据加时间戳stamp
 - [ ] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？
+- [ ] 追踪和管理operator配置的变化状态
 
 ## FIXME
 - [ ] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）
@@ -72,3 +73,4 @@
 - [x] spectrum操作符的坐标平移问题
 - [x] audioplayer渲染器在启动后再删除的情况下（哪怕启动失败），有个内存非法写入bug，后来不启动也会出现该问题 --> 重新编译后该问题消失
 - [x] andrews曲线生成错误 --> 系数访问越界
+- [x] andrews曲线的样子还是和网上的对不上 --> mtcars数据的第2列代表类别，不应参与andrews曲线计算

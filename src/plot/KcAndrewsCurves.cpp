@@ -67,14 +67,20 @@ namespace kPrivate
 
 			double fx = x[0] / KuMath::sqrt2; // 首项
 
+			KtSampling<double> samp; samp.resetn(1024, -KuMath::pi, KuMath::pi, 0);
+
 			// 中间项（sin/cos对）
+			// NB: 不能用table.sin(i * it)替代sin(i * samp.indexToX(it))
+			// 主要因为：i * samp.indexToX(it) = i * (-pi + it * dt) = -i*pi + i*it*dt
+			// 多了1个-i*pi的偏移
 			unsigned i = 1;
 			for (; i <= sincosPairs_; i++) 
-				fx += x[2 * i - 1] * table.sin(i * it) + x[2 * i] * table.cos(i * it);
+				//fx += x[2 * i - 1] * table.sin(i * it) + x[2 * i] * table.cos(i * it);
+				fx += x[2 * i - 1] * sin(i * samp.indexToX(it)) + x[2 * i] * cos(i * samp.indexToX(it));
 
 			// 末项，单独的sin
 			if (extraSin_) 
-				fx += x[2 * i - 1] * table.sin(i * it);
+				fx += x[2 * i - 1] * sin(i * samp.indexToX(it));
 
 			return fx;
 		}
@@ -140,7 +146,7 @@ KcAndrewsCurves::aabb_t KcAndrewsCurves::boundingBox() const
 			}
 
 			box.lower().y() = r0.low() / KuMath::sqrt2 - sum;
-			box.upper().y() = r0.low() / KuMath::sqrt2 + sum;
+			box.upper().y() = r0.high() / KuMath::sqrt2 + sum;
 		}
 		else {
 
