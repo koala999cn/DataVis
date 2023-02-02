@@ -42,6 +42,14 @@ namespace kPrivate
 			}
 		}
 
+		double sin(unsigned idx) const {
+			return sin_[idx % sin_.size()];
+		}
+
+		double cos(unsigned idx) const {
+			return cos_[idx % cos_.size()];
+		}
+
 		std::vector<double> sin_, cos_; // TODO: 其实求1个即可
 	};
 
@@ -57,12 +65,16 @@ namespace kPrivate
 		double operator()(double* x, unsigned it) const {
 			static KpSinCosTable table(1024);
 
-			auto extraIdx = ((sincosPairs_ + 1) * it) % 1024;
-			double fx = x[0] / KuMath::sqrt2 + extraSin_ ? x[2 * sincosPairs_ + 2] * table.sin_[extraIdx] : 0;
-			for (unsigned i = 1; i <= sincosPairs_; i++) {
-				auto idx = (i * it) % 1024;
-				fx += x[2 * i] * table.sin_[idx] + x[2 * i + 1] * table.cos_[idx];
-			}
+			double fx = x[0] / KuMath::sqrt2; // 首项
+
+			// 中间项（sin/cos对）
+			unsigned i = 1;
+			for (; i <= sincosPairs_; i++) 
+				fx += x[2 * i - 1] * table.sin(i * it) + x[2 * i] * table.cos(i * it);
+
+			// 末项，单独的sin
+			if (extraSin_) 
+				fx += x[2 * i - 1] * table.sin(i * it);
 
 			return fx;
 		}
