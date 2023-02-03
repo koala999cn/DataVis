@@ -17,9 +17,9 @@ void KvPlottable2d::setMinorColor(const color4f& minor)
 }
 
 
-void KvPlottable2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
+void KvPlottable2d::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
 {
-	auto samp = dynamic_cast<KvSampled*>(disc);
+	auto samp = dynamic_cast<const KvSampled*>(disc);
 	assert(samp && samp->dim() >= 2);
 
 	unsigned ch(0);

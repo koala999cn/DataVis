@@ -2,7 +2,7 @@
 #include "KvDiscreted.h"
 
 
-void KvPlottable1d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
+void KvPlottable1d::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
 {
 	if (disc->dim() == 1)
 		draw1d_(paint, disc);
@@ -13,7 +13,7 @@ void KvPlottable1d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 }
 
 
-void KvPlottable1d::draw1d_(KvPaint* paint, KvDiscreted* disc) const
+void KvPlottable1d::draw1d_(KvPaint* paint, const KvDiscreted* disc) const
 {
 	float_t z;
 
@@ -31,7 +31,7 @@ void KvPlottable1d::draw1d_(KvPaint* paint, KvDiscreted* disc) const
 }
 
 
-void KvPlottable1d::draw2d_(KvPaint* paint, KvDiscreted* disc) const
+void KvPlottable1d::draw2d_(KvPaint* paint, const KvDiscreted* disc) const
 {
 	assert(disc->isSampled() && disc->dim() == 2);
 
@@ -50,7 +50,7 @@ void KvPlottable1d::draw2d_(KvPaint* paint, KvDiscreted* disc) const
 }
 
 
-void KvPlottable1d::draw3d_(KvPaint* paint, KvDiscreted* disc) const
+void KvPlottable1d::draw3d_(KvPaint* paint, const KvDiscreted* disc) const
 {
 	unsigned ch(0);
 	auto getter = [&disc, &ch](unsigned i) {

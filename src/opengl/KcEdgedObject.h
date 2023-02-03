@@ -34,6 +34,8 @@ public:
 
 	void draw() const override;
 
+	KcRenderObject* clone() const override;
+
 private:
 	std::shared_ptr<KcGlslProgram> edgeShader_; // 用于绘制edge的shader
 	float edgeWidth_{ 0.75 };

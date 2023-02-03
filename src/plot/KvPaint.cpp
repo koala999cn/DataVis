@@ -2,37 +2,41 @@
 #include "3d/KcVertexDeclaration.h"
 
 
-void KvPaint::drawMarkers(const point3 pts[], unsigned count, bool outline)
+void* KvPaint::drawMarkers(const point3 pts[], unsigned count, bool outline)
 {
 	auto getter = [pts](unsigned idx) {
 		return pts[idx];
 	};
 
-	drawMarkers(getter, count, outline);
+	return drawMarkers(getter, count, outline);
 }
 
 
-void KvPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
+void* KvPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 {
 	for (unsigned i = 0; i < count; i++)
 		drawMarker(fn(i), outline);
+
+	return nullptr;
 }
 
 
-void KvPaint::drawLineStrip(const point3 pts[], unsigned count)
+void* KvPaint::drawLineStrip(const point3 pts[], unsigned count)
 {
 	auto getter = [pts](unsigned idx) {
 		return pts[idx];
 	};
 
-	drawLineStrip(getter, count);
+	return drawLineStrip(getter, count);
 }
 
 
-void KvPaint::drawLineStrip(point_getter1 fn, unsigned count)
+void* KvPaint::drawLineStrip(point_getter1 fn, unsigned count)
 {
 	for (unsigned i = 1; i < count; i++)
 		drawLine(fn(i - 1), fn(i)); // TODO: 待优化，1个point2次调用fn
+
+	return nullptr;
 }
 
 
@@ -88,20 +92,20 @@ void KvPaint::fillQuad(point3 pts[4], color_t clrs[4])
 }
 
 
-void KvPaint::drawGeomSolid(geom_ptr geom, bool fill, bool showEdge)
+void* KvPaint::drawGeomSolid(geom_ptr geom, bool fill, bool showEdge)
 {
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
-	drawGeom(decl, geom, fill, showEdge);
+	return drawGeom(decl, geom, fill, showEdge);
 }
 
 
-void KvPaint::drawGeomColor(geom_ptr geom, bool fill, bool showEdge)
+void* KvPaint::drawGeomColor(geom_ptr geom, bool fill, bool showEdge)
 {
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
-	drawGeom(decl, geom, fill, showEdge);
+	return drawGeom(decl, geom, fill, showEdge);
 }
 
 

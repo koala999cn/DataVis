@@ -277,7 +277,7 @@ void KcImPaint::drawLine(const point3& from, const point3& to)
 }
 
 
-void KcImPaint::drawLineStrip(point_getter1 fn, unsigned count)
+void* KcImPaint::drawLineStrip(point_getter1 fn, unsigned count)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 
@@ -296,6 +296,8 @@ void KcImPaint::drawLineStrip(point_getter1 fn, unsigned count)
 			pt1 = pt0;
 		}
 	}
+
+	return nullptr;
 }
 
 

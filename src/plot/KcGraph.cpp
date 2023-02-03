@@ -7,6 +7,18 @@
 
 void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned ch) const
 {
+	paint->apply(lineCxt_);
+	if (coloringMode() != k_colorbar_gradiant)
+		paint->setColor(majorColor(ch));
+	
+	if (renderObj_.size() < ch + 1)
+		renderObj_.resize(ch + 1, nullptr);
+
+	if (!dataChanged() && !coloringChanged()) {
+		if (renderObj_[ch] = paint->redraw(renderObj_[ch], true, false))
+			return;
+	}
+
 	unsigned stride = count / 4096 + 1;
 	auto downsamp = [getter, stride](unsigned idx) { // TODO：使用降采样算法
 		return getter(stride * idx);
@@ -15,12 +27,8 @@ void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned 
 	if (count > 4096)
 		getter = downsamp, count /= stride;
 
-	if (coloringMode() != k_colorbar_gradiant)
-	    lineCxt_.color = majorColor(ch);
-	paint->apply(lineCxt_);
-
 	if (coloringMode() == k_one_color_solid) {
-		paint->drawLineStrip(toPointGetter_(getter, ch), count); // toPointGetter_按需完成z值替换
+		renderObj_[ch] = paint->drawLineStrip(toPointGetter_(getter, ch), count); // toPointGetter_按需完成z值替换
 		return;
 	}
 
@@ -39,7 +47,7 @@ void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned 
 		vtx++;
 	}
 
-	paint->drawGeomColor(geom, true, false);
+	renderObj_[ch] = paint->drawGeomColor(geom, true, false);
 }
 
 

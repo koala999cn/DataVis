@@ -37,8 +37,20 @@ KcImOglPaint::KcImOglPaint(camera_type& cam)
 }
 
 
+void KcImOglPaint::saveObjList_()
+{
+	savedObjList_.clear();
+
+	for (auto& r : renderList_) 
+		for (auto& o : r.second.objs)
+			savedObjList_[o.get()] = o;
+}
+
+
 void KcImOglPaint::beginPaint()
 {
+	saveObjList_();
+
 	renderList_.clear();
 
 	viewportHistList_.clear();
@@ -133,6 +145,7 @@ void KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
 	obj->setVBO(vbo, decl);
+	obj->setColor(clr_);
 	obj->setSize(markerSize_);
 	pushRenderObject_(obj);
 }
@@ -197,10 +210,8 @@ void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count, bool outline)
 		idxBuf->setData(edgeIdx.data(), edgeIdx.size() * 4, KcGpuBuffer::k_stream_draw);
 		edgeObj->setIBO(idxBuf, edgeIdx.size());
 
-		auto oldClr = clr_;
-		clr_ = secondaryClr_;
+		obj->setColor(secondaryClr_);
 		pushRenderObject_(edgeObj);
-		clr_ = oldClr;
 	}
 
 	popCoord();
@@ -376,7 +387,7 @@ void KcImOglPaint::drawTriMarkers_(point_getter1 fn, unsigned count, const point
 }
 
 
-void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
+void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 {
 	static const double SQRT_2_2 = std::sqrt(2.) / 2.;
 	static const double SQRT_3_2 = std::sqrt(3.) / 2.;
@@ -385,7 +396,7 @@ void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 	{
 	case KpMarker::k_dot:
 		drawPoints_(fn, count);
-		return;
+		return nullptr;
 
 	case KpMarker::k_cross:
 	{
@@ -397,14 +408,14 @@ void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 		};
 		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, cross, markerSize_, outline);
 	}
-	    return;
+	    return nullptr;
 
 	case KpMarker::k_plus:
 	{
 		static const point2 plus[4] = { point2(-1, 0), point2(1, 0), point2(0, -1), point2(0, 1) };
 		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, plus, markerSize_, outline);
 	}
-	    return;
+	    return nullptr;
 
 	case KpMarker::k_asterisk:
 	{
@@ -418,7 +429,7 @@ void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 		};
 		kPrivate::drawPolyMarkers_<6>(*this, fn, count, asterisk, markerSize_, outline);
 	}
-		return;
+		return nullptr;
 
 	case KpMarker::k_square:
 	case KpMarker::k_diamond:
@@ -431,7 +442,7 @@ void KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 	};
 
 	// 带outline的marker赞使用ImGui实现(issue I6B5ES)
-	super_::drawMarkers(fn, count, outline);
+	return super_::drawMarkers(fn, count, outline);
 }
 
 
@@ -459,7 +470,7 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 }
 
 
-void KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
+void* KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
 {
 	auto obj = new KcLineObject(k_line_strip);
 
@@ -473,9 +484,12 @@ void KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
 	obj->setVBO(vbo, decl);
+	obj->setColor(clr_);
 	obj->setWidth(lineWidth_);
 	obj->setStyle(lineStyle_);
 	pushRenderObject_(obj);
+
+	return obj;
 }
 
 
@@ -534,6 +548,7 @@ void KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned co
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 
 	obj->setVBO(vbo, decl);
+	obj->setColor(clr_);
 	pushRenderObject_(obj);
 }
 
@@ -542,7 +557,6 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 {
 	assert(obj->vbo() && obj->vertexDecl());
 	
-	obj->setColor(clr_);
 	switch (currentCoord())
 	{
 	case k_coord_local:
@@ -569,6 +583,9 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 	if (curClipBox_ != -1 && !inScreenCoord()) { // 屏幕坐标系不考虑clipBox
 		auto& box = clipBoxHistList_[curClipBox_];
 		obj->setClipBox({ box.lower(), box.upper() });
+	}
+	else {
+		obj->setClipBox(KcRenderObject::aabb_t());
 	}
 
 
@@ -690,7 +707,7 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 		vbo->setData(rl.texts.data(), rl.texts.size() * sizeof(rl.texts[0]), KcGpuBuffer::k_stream_draw);
 
 		obj->setVBO(vbo, decl);
-		obj->setProjMatrix(float4x4<>::identity());
+		obj->setProjMatrix(float4x4<>::identity()); // text均使用ndc坐标，不须在shader中进行坐标变换
 		rl.objs.emplace_back(obj);
 	}
 }
@@ -711,13 +728,14 @@ void KcImOglPaint::pushColorVbo_(KpRenderList_& rl)
 		obj->setVBO(vbo, decl);
 
 		pushCoord(k_coord_screen); // 确保pushRenderObject_压入屏幕坐标变换阵
+		// 自带color，不许设置obj的颜色值
 		pushRenderObject_(rl, obj);
 		popCoord();
 	}
 }
 
 
-void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge)
+void* KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge)
 {
 	assert(geom->vertexSize() == decl->vertexSize());
 
@@ -742,8 +760,7 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool sh
 		edgedObj->setEdgeWidth(lineWidth_);
 		edgedObj->setEdgeStyle(lineStyle_);
 		edgedObj->setFilled(fill); edgedObj->setEdged(showEdge);
-		if (showEdge && !hasColor)
-			edgedObj->setEdgeColor(secondaryClr_);
+		edgedObj->setEdgeColor(secondaryClr_);
 		obj = edgedObj;
 	}
 
@@ -761,7 +778,10 @@ void KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool sh
 		obj->setIBO(ibo, geom->indexCount());
 	}
 
+	obj->setColor(clr_);
 	pushRenderObject_(obj);
+
+	return obj;
 }
 
 
@@ -992,4 +1012,41 @@ void KcImOglPaint::pushTrisSoild_(const point2 pos[], unsigned c, const float4& 
 		vbo->clr = clr;
 		++pos, ++vbo;
 	}
+}
+
+
+void* KcImOglPaint::redraw(void* obj, bool filled, bool edged)
+{
+	auto iter = savedObjList_.find(obj);
+	if (iter != savedObjList_.end()) {
+		auto newObj = iter->second->clone();
+		syncObjProps_(newObj, filled, edged); // 同步当前渲染属性
+		pushRenderObject_(newObj); // 重置全局渲染状态，并压入待渲染队列
+		return newObj;
+	}
+
+	return nullptr;
+}
+
+
+void KcImOglPaint::syncObjProps_(KcRenderObject* obj, bool filled, bool edged)
+{
+	if (dynamic_cast<KcEdgedObject*>(obj)) {
+		auto eo = dynamic_cast<KcEdgedObject*>(obj);
+		eo->setEdgeWidth(lineWidth_);
+		eo->setEdgeStyle(lineStyle_);
+		eo->setFilled(filled); eo->setEdged(edged);
+		eo->setEdgeColor(secondaryClr_);
+	}
+	else if (dynamic_cast<KcPointObject*>(obj)) {
+		auto po = dynamic_cast<KcPointObject*>(obj);
+		po->setSize(markerSize_);
+	}
+	else if (dynamic_cast<KcLineObject*>(obj)) {
+		auto lo = dynamic_cast<KcLineObject*>(obj);
+		lo->setWidth(lineWidth_);
+		lo->setStyle(lineStyle_);
+	}
+
+	obj->setColor(clr_);
 }

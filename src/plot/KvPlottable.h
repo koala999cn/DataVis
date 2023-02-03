@@ -11,10 +11,11 @@ class KvDiscreted;
 //
 // 可绘制对象的基类. 内置实现以下功能：
 //    一是绘制数据的存储
-//    二是色彩模式和主色、辅色配置
+//    二是色彩模式和主色配置
 //    三是对连续数据的采样，派生类只须绘制离散数据
 //    四是分离坐标轴的设置和存储
 //    五是默认z坐标管理
+//    六是数据的着色的变更状态追踪
 //
 
 class KvPlottable : public KvRenderable
@@ -23,6 +24,7 @@ class KvPlottable : public KvRenderable
 
 public:
 	using data_ptr = std::shared_ptr<KvData>;
+	using const_data_ptr = std::shared_ptr<const KvData>;
 	using point3 = KtPoint<float_t, 3>;
 	using gradient_t = KtGradient<float, color4f>;
 
@@ -30,8 +32,8 @@ public:
 
 	bool empty() const; // 若无数据，或数据为空，返回true
 
-	data_ptr data() const { return data_; }
-	void setData(data_ptr d);
+	const_data_ptr data() const { return data_; }
+	void setData(const_data_ptr d);
 
 	unsigned sampCount(unsigned dim) const { return sampCount_[dim]; }
 	unsigned& sampCount(unsigned dim) { return sampCount_[dim]; }
@@ -136,6 +138,10 @@ public:
 	// 根据当前的coloringMode_配置主色
 	void updateColorMappingPalette();
 
+	bool dataChanged() const { return dataChanged_; }
+
+	int coloringChanged() const { return coloringChanged_; }
+
 protected:
 
 	// 确保传入的valp为数据原值，而非强制替换z之后的值
@@ -143,7 +149,7 @@ protected:
 
 	// 返回一个离散化的数据对象
 	// 如果data()成员本身为离散数据，则直接返回；否则按照sampCount_构建并返回一个采样对象
-	std::shared_ptr<KvDiscreted> discreted_() const;
+	std::shared_ptr<const KvDiscreted> discreted_() const;
 
 	// 是否正在是否defaultZ，满足2个条件之一为true：
 	// 一是data_的dim等于1，这种情况始终使用defaultZ填补缺失的z值；
@@ -158,12 +164,12 @@ protected:
 
 private:
 
-	virtual void drawDiscreted_(KvPaint*, KvDiscreted*) const = 0;
+	virtual void drawDiscreted_(KvPaint*, const KvDiscreted*) const = 0;
 
 private:
 
 	// 绘制数据
-	data_ptr data_;
+	const_data_ptr data_;
 
 	// 色彩管理
 	KeColoringMode coloringMode_{ k_one_color_solid };
@@ -192,4 +198,7 @@ private:
 
 	// 该标记为真时，将强制用默认Z值替换原来的z值，可用来在3d空间绘制二维的colormap图
 	bool forceDefaultZ_{ false };
+
+	bool dataChanged_{ false };
+	int coloringChanged_{ 0 }; // 0表示无变化，1表示小变化(colorful之间的变化)，2表示大变化(solid <-> colorful)
 };

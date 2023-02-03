@@ -4,7 +4,7 @@
 #include "KvContinued.h"
 
 
-KcSampler::KcSampler(std::shared_ptr<KvData> data)
+KcSampler::KcSampler(std::shared_ptr<const KvData> data)
 	: internal_(data) 
 {
 	assert(data);
@@ -22,7 +22,7 @@ KcSampler::KcSampler(std::shared_ptr<KvData> data)
 		}
 	}
 	else {
-		auto disc = std::dynamic_pointer_cast<KvDiscreted>(data);
+		auto disc = std::dynamic_pointer_cast<const KvDiscreted>(data);
 		assert(disc);
 		for (unsigned i = 0; i < dim(); i++) {
 			auto dx = disc->step(i);
@@ -55,7 +55,7 @@ kRange KcSampler::range(kIndex axis) const
 	if (axis == dim()) // ÖµÓò
 		return internal_->valueRange();
 
-	auto disc = std::dynamic_pointer_cast<KvDiscreted>(internal_);
+	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(internal_);
 	assert(disc);
 	KtSampling<kReal> samp;
 	samp.resetn(disc->size(axis), steps_[axis], x0refs_[axis]);
@@ -77,7 +77,7 @@ kIndex KcSampler::size(kIndex axis) const
 		return samp.size();
 	}
 
-	auto disc = std::dynamic_pointer_cast<KvDiscreted>(internal_);
+	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(internal_);
 	assert(disc);
 	return disc->size(axis);
 }
@@ -121,7 +121,7 @@ void KcSampler::reset(kIndex axis, kReal low, kReal step, kReal x0_ref)
 kReal KcSampler::value(kIndex idx[], kIndex channel) const
 {
 	if (internal_->isContinued()) {
-		auto cont = std::dynamic_pointer_cast<KvContinued>(internal_);
+		auto cont = std::dynamic_pointer_cast<const KvContinued>(internal_);
 		
 		std::vector<kReal> pt(dim());
 		for (kIndex i = 0; i < dim(); i++) {
@@ -133,7 +133,7 @@ kReal KcSampler::value(kIndex idx[], kIndex channel) const
 		return cont->value(pt.data(), channel);
 	}
 
-	auto samp = std::dynamic_pointer_cast<KvSampled>(internal_);
+	auto samp = std::dynamic_pointer_cast<const KvSampled>(internal_);
 	assert(samp);
 	return samp->value(idx, channel);
 }
@@ -149,11 +149,11 @@ std::vector<kReal> KcSampler::point(kIndex idx[], kIndex channel) const
 	}
 
 	if (internal_->isContinued()) {
-		auto cont = std::dynamic_pointer_cast<KvContinued>(internal_);
+		auto cont = std::dynamic_pointer_cast<const KvContinued>(internal_);
 		pt.back() = cont->value(pt.data(), channel);
 	}
 	else {
-		auto samp = std::dynamic_pointer_cast<KvSampled>(internal_);
+		auto samp = std::dynamic_pointer_cast<const KvSampled>(internal_);
 		assert(samp);
 		pt.back() = samp->value(idx, channel);
 	}
@@ -162,7 +162,7 @@ std::vector<kReal> KcSampler::point(kIndex idx[], kIndex channel) const
 }
 
 
-void KcSampler::setData(std::shared_ptr<KvData> d)
+void KcSampler::setData(std::shared_ptr<const KvData> d)
 {
 	internal_ = d;
 	steps_.resize(d->dim(), steps_[0]);

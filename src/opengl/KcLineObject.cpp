@@ -17,3 +17,12 @@ void KcLineObject::draw() const
     super_::draw();
 }
 
+
+KcRenderObject* KcLineObject::clone() const
+{
+    auto obj = new KcLineObject;
+    obj->lineStyle_ = lineStyle_;
+    obj->lineWidth_ = lineWidth_;
+    cloneTo_(*obj);
+    return obj;
+}

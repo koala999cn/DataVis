@@ -5,6 +5,20 @@
 #include "KcVertexDeclaration.h"
 
 
+KcRenderObject::KcRenderObject(const KcRenderObject& rhs)
+	: type_(rhs.type_)
+	, prog_(rhs.prog_)
+	, vbo_(rhs.vbo_)
+	, ibo_(rhs.ibo_)
+	, vtxDecl_(rhs.vtxDecl_)
+	, indexCount_(rhs.indexCount_) 
+	, projMat_(rhs.projMat_)
+	, clipBox_(rhs.clipBox_)
+	, color_(rhs.color_)
+{
+}
+
+
 void KcRenderObject::draw() const
 {
 	// TODO: 此处没有保存和恢复render状态
@@ -76,4 +90,26 @@ void KcRenderObject::drawVbo_() const
 	else {
 		glDrawArrays(glModes[type_], 0, vbo_->bytesCount() / vtxDecl_->vertexSize());
 	}
+}
+
+
+void KcRenderObject::cloneTo_(KcRenderObject& obj) const
+{
+	obj.type_ = type_;
+	obj.prog_ = prog_;
+	obj.vbo_ = vbo_;
+	obj.ibo_ = ibo_;
+	obj.vtxDecl_ = vtxDecl_;
+	obj.indexCount_ = indexCount_;
+	obj.projMat_ = projMat_;
+	obj.clipBox_ = clipBox_;
+	obj.color_ = color_;
+}
+
+
+KcRenderObject* KcRenderObject::clone() const
+{
+	auto obj = new KcRenderObject(type_);
+	cloneTo_(*obj);
+	return obj;
 }

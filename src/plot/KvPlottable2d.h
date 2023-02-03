@@ -30,7 +30,7 @@ public:
 
 protected:
 
-	void drawDiscreted_(KvPaint*, KvDiscreted*) const override;
+	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix, unsigned iy)>;
 

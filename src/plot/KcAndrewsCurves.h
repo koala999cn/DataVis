@@ -23,5 +23,5 @@ public:
 
 protected:
 
-	void drawDiscreted_(KvPaint*, KvDiscreted*) const override;
+	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
 };

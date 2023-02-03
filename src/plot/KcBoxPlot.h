@@ -44,9 +44,9 @@ public:
 
 private:
 
-	void drawDiscreted_(KvPaint*, KvDiscreted*) const override;
+	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
 
-	void calcStats_(KvDiscreted*) const;
+	void calcStats_(const KvDiscreted*) const;
 
 private:
 

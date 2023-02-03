@@ -14,7 +14,7 @@ public:
 
 protected:
 
-	void drawDiscreted_(KvPaint*, KvDiscreted*) const override;
+	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
 
@@ -29,12 +29,12 @@ protected:
 private:
 
 	// 一维数据(x, y)在x-y平面绘图（使用缺省z值）
-	void draw1d_(KvPaint*, KvDiscreted*) const;
+	void draw1d_(KvPaint*, const KvDiscreted*) const;
 
 	// 二维数据(x, y, z)画瀑布图, 以x为流动轴
-	void draw2d_(KvPaint*, KvDiscreted*) const;
+	void draw2d_(KvPaint*, const KvDiscreted*) const;
 
 	// 二维数据(x, y, z)画3d图
-	void draw3d_(KvPaint*, KvDiscreted*) const;
+	void draw3d_(KvPaint*, const KvDiscreted*) const;
 
 };

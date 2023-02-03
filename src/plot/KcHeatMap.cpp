@@ -19,18 +19,10 @@ KcHeatMap::aabb_t KcHeatMap::boundingBox() const
 
 	if (!empty() && data()->dim() > 1) {
 
-		float_t dx, dy;
-
-		if (data()->isDiscreted()) {
-			auto disc = std::dynamic_pointer_cast<KvDiscreted>(data());
-			assert(disc->size() != 0);
-			dx = disc->step(0);
-			dy = disc->step(1);
-		}
-		else {
-			dx = sampCount(0) == 0 ? 0 : data()->range(0).length() / sampCount(0);
-			dy = sampCount(1) == 0 ? 0 : data()->range(1).length() / sampCount(1);
-		}
+		auto disc = discreted_();
+		assert(disc->size() != 0);
+		auto dx = disc->step(0);
+		auto dy = disc->step(1);
 
 		// aabb≈Ú’Õ(dx/2, dy/2)
 		aabb.inflate(dx/2, dy/2);

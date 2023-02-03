@@ -22,6 +22,8 @@ public:
 
 	void draw() const override;
 
+	KcRenderObject* clone() const override;
+
 private:
 	float lineWidth_{ 1 };
 	int lineStyle_{ 0 };

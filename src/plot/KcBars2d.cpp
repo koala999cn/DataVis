@@ -14,7 +14,7 @@ KcBars2d::KcBars2d(const std::string_view& name)
 }
 
 
-void KcBars2d::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
+void KcBars2d::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
 {
 	bool realShowFill = showFill() && fillBrush().visible();
 	bool realShowEdge = showBorder() && borderPen().visible();
@@ -213,7 +213,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 	}
 
 
-	auto samp = std::dynamic_pointer_cast<KvSampled>(disc);
+	auto samp = std::dynamic_pointer_cast<const KvSampled>(disc);
 
 	if (chs > 1) { // 优先按通道分组/堆叠
 		if (stackedFirst_) {

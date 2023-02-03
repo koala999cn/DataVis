@@ -51,7 +51,7 @@ public:
 
 	void drawLine(const point3& from, const point3& to) override;
 
-	void drawLineStrip(point_getter1 fn, unsigned count) override;
+	void* drawLineStrip(point_getter1 fn, unsigned count) override;
 
 	void drawRect(const point3& lower, const point3& upper) override;
 

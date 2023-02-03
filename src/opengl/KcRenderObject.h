@@ -19,9 +19,7 @@ public:
 
 	KcRenderObject(KePrimitiveType type) : type_(type) {}
 
-	KcRenderObject(const KcRenderObject& rhs) 
-		: type_(rhs.type_), prog_(rhs.prog_), vbo_(rhs.vbo_), ibo_(rhs.ibo_), 
-		vtxDecl_(rhs.vtxDecl_), indexCount_(rhs.indexCount_) {}
+	KcRenderObject(const KcRenderObject& rhs);
 
 	std::shared_ptr<KcGlslProgram> shader() const {
 		return prog_;
@@ -65,11 +63,16 @@ public:
 
 	virtual void draw() const;
 
+	virtual KcRenderObject* clone() const;
+
 protected:
 
 	void bindVbo_() const;
 	void setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) const;
 	void drawVbo_() const;
+
+	// 拷贝当前对象的属性到obj
+	void cloneTo_(KcRenderObject& obj) const;
 
 protected:
 	KePrimitiveType type_;

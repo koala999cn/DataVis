@@ -13,7 +13,7 @@ KvPlottable::KvPlottable(const std::string_view& name)
 }
 
 
-void KvPlottable::setData(data_ptr d) 
+void KvPlottable::setData(const_data_ptr d) 
 {
 	assert(d);
 
@@ -22,10 +22,12 @@ void KvPlottable::setData(data_ptr d)
 	if (d->isContinued() && d->dim() != sampCount_.size())
 		sampCount_.assign(d->dim(), std::pow(1000., 1. / d->dim()));
 	
-	if (data_ && colorMappingDim_ > data_->dim())
-		colorMappingDim_ = data_->dim();
+	if (data_ && colorMappingDim_ > data_->dim()) 
+		setColorMappingDim(data_->dim());
 
 	updateColorMappingPalette();
+
+	dataChanged_ = true;
 }
 
 
@@ -33,6 +35,10 @@ void KvPlottable::setColorMappingDim(unsigned d)
 {
 	if (data_ && d > data_->dim())
 		d = data_->dim();
+
+	if (colorMappingDim_ != d && coloringChanged_ == 0)
+		coloringChanged_ = 1;
+
 	colorMappingDim_ = d;
 }
 
@@ -43,13 +49,20 @@ void KvPlottable::fitColorMappingRange()
 		assert(colorMappingDim() <= data_->dim());
 
 		auto d = colorMappingDim();
+		std::pair<float_t, float_t> newRange;
 		if (d < 2 || d == 2 && !usingDefaultZ_()) {
 			auto r = boundingBox();
-			colorMappingRange_ = { r.lower()[d], r.upper()[d] };
+			newRange = { r.lower()[d], r.upper()[d] };
 		}
 		else {
 			auto r = data_->range(d);
-			colorMappingRange_ = { r.low(), r.high() };
+			newRange = { r.low(), r.high() };
+		}
+
+		if (colorMappingRange_ != newRange) {
+			colorMappingRange_ = newRange;
+			if (coloringChanged_ == 0)
+				coloringChanged_ = 1;
 		}
 	}
 }
@@ -100,7 +113,7 @@ void KvPlottable::draw(KvPaint* paint) const
 		return;
 
 	// 处理主色数量的动态变化
-	// NB: 对于连续数据，若用户动态调整sampCount，将引起主色数量需求的变化（bars2d为例）
+	// NB: 对于连续数据，若用户动态调整sampCount，可能同时引发主色数量需求的变化（如bars2d）
 	// 此处更新太晚了，legend在calcSize的时候就要进行一致性检测
 	// 目前在4处同步：一是此处，二是setData处，三是setColoringMode处，四是legend的calcSize_处.
 	// TODO: 是否有更优化的方案
@@ -114,11 +127,11 @@ void KvPlottable::draw(KvPaint* paint) const
 }
 
 
-std::shared_ptr<KvDiscreted> KvPlottable::discreted_() const
+std::shared_ptr<const KvDiscreted> KvPlottable::discreted_() const
 {
-	auto disc = std::dynamic_pointer_cast<KvDiscreted>(data_);
+	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(data_);
 	if (disc == nullptr) {
-		auto cont = std::dynamic_pointer_cast<KvContinued>(data_);
+		auto cont = std::dynamic_pointer_cast<const KvContinued>(data_);
 		if (cont) {
 			auto samp = std::make_shared<KcSampler>(cont);
 			if (samp) {
@@ -168,11 +181,22 @@ void KvPlottable::setMajorColors(const std::vector<color4f>& majors)
 	KuMath::linspace<float_t>(0, 1, 0, vals.data(), majors.size()); // 初始化时均匀间隔配置
 	for (unsigned i = 0; i < majors.size(); i++)
 		colorBar_.insert(vals[i], majors[i]);
+
+	if (coloringChanged_ == 0)
+		coloringChanged_ = 1;
 }
 
 
 void KvPlottable::setColoringMode(KeColoringMode mode)
 {
+	if (coloringMode_ == mode)
+		return;
+
+	if (coloringMode_ == k_one_color_solid || mode == k_one_color_solid)
+		coloringChanged_ = 2; // 大改：由单色变为彩色，或由彩色变为单色
+	else
+		coloringChanged_ = 1; // 小改：彩色之间的变化
+
 	coloringMode_ = mode;
 	updateColorMappingPalette();
 }
@@ -237,10 +261,16 @@ void KvPlottable::updateColorMappingPalette()
 
 		majors.resize(majorColorsNeeded());
 		setMajorColors(majors);
+
+		if (coloringChanged_ == 0)
+			coloringChanged_ = 1;
 	}
-	else if (majorColorsNeeded() == -1 && majorColors() == 0) {
+	else if (majorColorsNeeded() == -1 && majorColors() < 2) {
 		std::vector<color4f> majors(std::begin(pals), std::end(pals));
 		setMajorColors(majors);
+
+		if (coloringChanged_ == 0)
+			coloringChanged_ = 1;
 	}
 }
 

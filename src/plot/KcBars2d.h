@@ -55,7 +55,7 @@ public:
 
 private:
 
-	void drawDiscreted_(KvPaint*, KvDiscreted*) const override;
+	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
 
 	// 计算单个bar的宽度（世界坐标）
 	float_t barWidth_(unsigned dim = 0) const;

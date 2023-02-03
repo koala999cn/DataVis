@@ -23,3 +23,12 @@ void KcLightenObject::draw() const
 
     super_::draw();
 }
+
+
+KcRenderObject* KcLightenObject::clone() const
+{
+    auto obj = new KcLightenObject(type_);
+    obj->normalMat_ = normalMat_;
+    cloneTo_(*obj);
+    return obj;
+}

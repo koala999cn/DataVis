@@ -39,19 +39,21 @@ public:
 	void beginPaint() override;
 	void endPaint() override;
 
+	void* redraw(void* obj, bool filled, bool edged) override;
+
 	void drawMarker(const point3& pt, bool outline) override;
 
-	void drawMarkers(point_getter1 fn, unsigned count, bool outline) override;
+	void* drawMarkers(point_getter1 fn, unsigned count, bool outline) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
-	void drawLineStrip(point_getter1 fn, unsigned count) override;
+	void* drawLineStrip(point_getter1 fn, unsigned count) override;
 
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
 	void drawText(const point3& anchor, const char* text, int align) override;
 
-	void drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) override;
+	void* drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) override;
 
 	void fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
 
@@ -124,6 +126,12 @@ private:
 	// pos为带深度的屏幕坐标
 	void pushTrisSoild_(const float3 pos[], unsigned c, const float4& clr);
 
+	// 存储render-object，以边下帧复用
+	void saveObjList_();
+
+	// 设置对象obj的渲染属性
+	void syncObjProps_(KcRenderObject* obj, bool filled, bool edged);
+
 private:
 
 	// render states stacks
@@ -159,7 +167,7 @@ private:
 
 	struct KpRenderList_
 	{
-		std::vector<std::unique_ptr<KcRenderObject>> objs; // 绘制plottables
+		std::vector<std::shared_ptr<KcRenderObject>> objs; // 绘制plottables
 
 		// NB: 为了减少渲染状态保存和切换，以下元素均使用ndc坐标，如此只需统一将投影矩阵设为单位阵即可
 		std::vector<std::function<void(void)>> fns; // 绘制点线
@@ -175,4 +183,6 @@ private:
 
 	// 按渲染状态排序的待渲染列表
 	std::map<kRenderState_, KpRenderList_> renderList_;
+
+	std::map<void*, std::shared_ptr<KcRenderObject>> savedObjList_;
 };

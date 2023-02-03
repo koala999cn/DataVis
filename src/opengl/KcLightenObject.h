@@ -18,6 +18,8 @@ public:
 
 	void draw() const override;
 
+	KcRenderObject* clone() const override;
+
 private:
 	float4x4<> normalMat_;
 };

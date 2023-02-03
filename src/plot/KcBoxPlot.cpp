@@ -36,7 +36,7 @@ KcBoxPlot::aabb_t KcBoxPlot::boundingBox() const
 }
 
 
-void KcBoxPlot::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
+void KcBoxPlot::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
 {
 	calcStats_(disc);
 
@@ -77,7 +77,7 @@ void KcBoxPlot::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
 }
 
 
-void KcBoxPlot::calcStats_(KvDiscreted* d) const
+void KcBoxPlot::calcStats_(const KvDiscreted* d) const
 {
 	stats_.resize(d->channels());
 	for (unsigned ch = 0; ch < stats_.size(); ch++) {

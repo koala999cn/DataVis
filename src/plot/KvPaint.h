@@ -87,17 +87,22 @@ public:
 
 	virtual void setLineStyle(int style) = 0;
 
+	// 对于批量绘制，比如drawGeom, drawLineStrip, drawMarkers等，返回一个可重用的指针对象（nullptr表示不支持重用）
+	// 此对象指针可传递给redraw进行二次绘制，避免重构渲染对象
+	// 返回nullptr表示当前指针无法直接重绘，须重构渲染对象，非空表示重绘成功，并须用户更新对象指针以便下次使用
+	virtual void* redraw(void* obj, bool filled, bool edged) = 0;
+
 	virtual void drawMarker(const point3& pt, bool outline) = 0;
 
-	virtual void drawMarkers(const point3 pts[], unsigned count, bool outline);
+	virtual void* drawMarkers(const point3 pts[], unsigned count, bool outline);
 
-	virtual void drawMarkers(point_getter1 fn, unsigned count, bool outline);
+	virtual void* drawMarkers(point_getter1 fn, unsigned count, bool outline);
 
 	virtual void drawLine(const point3& from, const point3& to) = 0;
 
-	virtual void drawLineStrip(const point3 pts[], unsigned count);
+	virtual void* drawLineStrip(const point3 pts[], unsigned count);
 
-	virtual void drawLineStrip(point_getter1 fn, unsigned count);
+	virtual void* drawLineStrip(point_getter1 fn, unsigned count);
 
 	virtual void drawLineLoop(const point3 pts[], unsigned count);
 
@@ -132,7 +137,7 @@ public:
 	// @anchor: 文本框的锚点。文本框按align方式对齐于anchor
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
 
-	virtual void drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) = 0;
+	virtual void* drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) = 0;
 
 	// 抓取渲染缓存区数据到data.
 	// data大小 = rc.width() * rc.height * 4
@@ -243,9 +248,9 @@ public:
 		drawText(point3(ach.x(), ach.y(), 0), text, align);
 	}
 
-	void drawGeomSolid(geom_ptr geom, bool fill, bool showEdge);
+	void* drawGeomSolid(geom_ptr geom, bool fill, bool showEdge);
 
-	void drawGeomColor(geom_ptr geom, bool fill, bool showEdge);
+	void* drawGeomColor(geom_ptr geom, bool fill, bool showEdge);
 
 	void apply(const KpPen& cxt);
 

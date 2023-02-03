@@ -11,7 +11,7 @@ class KcSampler : public KvSampled
 public:
 	using super_ = KvSampled;
 	
-	KcSampler(std::shared_ptr<KvData> data);
+	KcSampler(std::shared_ptr<const KvData> data);
 
 	/// KvData接口
 
@@ -52,10 +52,10 @@ public:
 	auto x0refs() const { return x0refs_; }
 
 	// TODO: 此函数是否安全？
-	void setData(std::shared_ptr<KvData> d);
+	void setData(std::shared_ptr<const KvData> d);
 
 private:
-	std::shared_ptr<KvData> internal_;
+	std::shared_ptr<const KvData> internal_;
 	std::vector<kReal> steps_;
 	std::vector<kReal> x0refs_;
 };

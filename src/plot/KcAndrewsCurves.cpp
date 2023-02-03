@@ -92,7 +92,7 @@ namespace kPrivate
 }
 
 
-void KcAndrewsCurves::drawDiscreted_(KvPaint* paint, KvDiscreted* disc) const
+void KcAndrewsCurves::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
 {
 	unsigned i(0); // andrewsÇúÏßµÄĞòºÅ
 

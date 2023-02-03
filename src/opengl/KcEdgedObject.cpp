@@ -59,3 +59,18 @@ void KcEdgedObject::draw() const
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // »Ö¸´äÖÈ¾×´Ì¬
     }
 }
+
+
+
+KcRenderObject* KcEdgedObject::clone() const
+{
+    auto obj = new KcEdgedObject(type_);
+    obj->edgeShader_ = edgeShader_;
+    obj->edgeWidth_ = edgeWidth_;
+    obj->edgeStyle_ = edgeStyle_;
+    obj->edgeColor_ = edgeColor_;
+    obj->fill_ = fill_;
+    obj->edge_ = edge_;
+    cloneTo_(*obj);
+    return obj;
+}
