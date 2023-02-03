@@ -36,14 +36,14 @@ public:
 	unsigned moduleCount() const;
 
 	// get module by name
-	module_ptr getModule(const std::string_view& name);
+	module_ptr getModule(const std::string_view& name) const;
 
 	// get module by index
-	module_ptr getModule(unsigned idx);
+	module_ptr getModule(unsigned idx) const;
 	
 	// get module by type
 	template<typename T>
-	std::shared_ptr<T> getModule() {
+	std::shared_ptr<T> getModule() const {
 		for (unsigned i = 0; i < moduleCount(); i++) {
 			auto m = getModule(i);
 			if (std::dynamic_pointer_cast<T>(m))
@@ -58,8 +58,8 @@ public:
 	void deinitialize();
 
 private:
-	unsigned getVertexId_(module_ptr m);
-	unsigned getVertexId_(const std::string_view& name);
+	unsigned getVertexId_(module_ptr m) const;
+	unsigned getVertexId_(const std::string_view& name) const;
 
 private:
 	void* moduleGraph_; // Ä£¿éÒÀÀµ¹ØÏµÍ¼

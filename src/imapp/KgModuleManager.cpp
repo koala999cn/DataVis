@@ -67,9 +67,9 @@ unsigned KgModuleManager::moduleCount() const
 }
 
 
-KgModuleManager::module_ptr KgModuleManager::getModule(const std::string_view& name)
+KgModuleManager::module_ptr KgModuleManager::getModule(const std::string_view& name) const
 {
-	auto g = static_cast<kPrivate::module_graph_type*>(moduleGraph_);
+	auto g = static_cast<const kPrivate::module_graph_type*>(moduleGraph_);
 	for (unsigned i = 0; i < moduleCount(); i++) {
 		if (getModule(i)->name() == name)
 			return getModule(i);
@@ -79,9 +79,9 @@ KgModuleManager::module_ptr KgModuleManager::getModule(const std::string_view& n
 }
 
 
-KgModuleManager::module_ptr KgModuleManager::getModule(unsigned idx)
+KgModuleManager::module_ptr KgModuleManager::getModule(unsigned idx) const
 {
-	auto g = static_cast<kPrivate::module_graph_type*>(moduleGraph_);
+	auto g = static_cast<const kPrivate::module_graph_type*>(moduleGraph_);
 	return g->vertexAt(idx);
 }
 
@@ -121,7 +121,7 @@ void KgModuleManager::deinitialize()
 }
 
 
-unsigned KgModuleManager::getVertexId_(module_ptr m)
+unsigned KgModuleManager::getVertexId_(module_ptr m) const
 {
 	for (unsigned i = 0; i < moduleCount(); i++) {
 		if (m == getModule(i))
@@ -132,7 +132,7 @@ unsigned KgModuleManager::getVertexId_(module_ptr m)
 }
 
 
-unsigned KgModuleManager::getVertexId_(const std::string_view& name)
+unsigned KgModuleManager::getVertexId_(const std::string_view& name) const
 {
 	for (unsigned i = 0; i < moduleCount(); i++) {
 		if (getModule(i)->name() == name)

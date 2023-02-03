@@ -24,7 +24,7 @@ public:
 	}
 
 	// 是否存在控制点from
-	bool has(const KEY& from) {
+	bool has(const KEY& from) const {
 		return stops_.find(from) != stops_.cend();
 	}
 

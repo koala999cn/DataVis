@@ -43,9 +43,9 @@ namespace kPrivate
 	{
 		if (t < 0) { t += 1; }
 		if (t > 1) { t -= 1; }
-		if (t < 1 / 6) { return p + (q - p) * 6 * t; }
-		if (t < 1 / 2) { return q; }
-		if (t < 2 / 3) { return p + (q - p) * (2 / 3 - t) * 6; }
+		if (t < 1.f / 6.f) { return p + (q - p) * 6.f * t; }
+		if (t < 1.f / 2.f) { return q; }
+		if (t < 2.f / 3.f) { return p + (q - p) * (2.f / 3.f - t) * 6.f; }
 		return p;
 	};
 }
@@ -307,9 +307,9 @@ color4f KuColorUtil::hslToRgb(float h, float s, float l, float a)
 	else {
 		auto q = l < 0.5 ? l * (1 + s) : l + s - l * s;
 		auto p = 2 * l - q;
-		clr.r() = kPrivate::hue(p, q, h + 1 / 3);
+		clr.r() = kPrivate::hue(p, q, h + 1.f / 3.f);
 		clr.g() = kPrivate::hue(p, q, h);
-		clr.b() = kPrivate::hue(p, q, h - 1 / 3);
+		clr.b() = kPrivate::hue(p, q, h - 1.f / 3.f);
 	}
 
 	clr.a() = a;

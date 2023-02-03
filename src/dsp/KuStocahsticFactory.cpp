@@ -152,7 +152,7 @@ namespace kPrivate
 
 		KcCauchy() : alpha_(0), beta_(1) {}
 
-		KcCauchy(kReal alpha, kReal beta) : alpha_(alpha_), beta_(beta) {}
+		KcCauchy(kReal alpha, kReal beta) : alpha_(alpha), beta_(beta) {}
 
 		kReal tick() override {
 			return static_cast<kReal>(r_.cauchy(alpha_, beta_));
@@ -175,7 +175,7 @@ namespace kPrivate
 
 		KcWeibull() : alpha_(1), beta_(1) {}
 
-		KcWeibull(kReal alpha, kReal beta) : alpha_(alpha_), beta_(beta) {}
+		KcWeibull(kReal alpha, kReal beta) : alpha_(alpha), beta_(beta) {}
 
 		kReal tick() override {
 			return static_cast<kReal>(r_.weibull(alpha_, beta_));

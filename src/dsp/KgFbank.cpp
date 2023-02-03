@@ -55,7 +55,7 @@ double KgFbank::toHertz(KeType type, double scale)
 {
     static std::function<double(double)> cvt[] = {
         [](double f) { return f; }, // k_linear
-        [](double f) { return exp(f) - 1; }, // k_log
+        [](double f) { return expm1(f); }, // k_log
         [](double f) { return KuFreqUnit::melToHertz(f); }, // k_mel
         [](double f) { return KuFreqUnit::barkToHertz(f); }, // k_bark
         [](double f) { return KuFreqUnit::camToHertz(f); }  // k_erb
@@ -69,7 +69,7 @@ double KgFbank::fromHertz(KeType type, double hz)
 {
     static std::function<double(double)> cvt[] = {
         [](double hz) { return hz; }, // k_linear
-        [](double hz) { return log(hz + 1); }, // k_log
+        [](double hz) { return log1p(hz); }, // k_log
         [](double hz) { return KuFreqUnit::hertzToMel(hz); }, // k_mel
         [](double hz) { return KuFreqUnit::hertzToBark(hz); }, // k_bark
         [](double hz) { return KuFreqUnit::hertzToCam(hz); }  // k_erb

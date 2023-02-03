@@ -15,7 +15,6 @@ KcRdAudioPlayer::KcRdAudioPlayer()
 	render_->setAutoStop(false);
 
 	deviceId_ = render_->defaultDevice();
-	frameTime_ = 0.1;
 }
 
 

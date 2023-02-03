@@ -7,14 +7,11 @@
 
 std::vector<int> KuDataUtil::validTypes(const matrixd& mat, bool colMajor)
 {
-    if (mat.empty())
+    if (mat.empty() || mat.front().empty())
         return {};
 
     auto rows = mat.size();
     auto cols = mat[0].size();
-
-    if (rows == 0 && cols == 0)
-        return {};
 
     if (!colMajor)
         std::swap(rows, cols);

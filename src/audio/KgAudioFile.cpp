@@ -261,7 +261,7 @@ namespace kPrivate
     {
         int format(0);
         std::string::size_type i = fn.find_last_of('.');
-        auto ext = (i == std::string::npos) ? "" : fn.substr(i + 1);
+        std::string ext = (i == std::string::npos) ? "" : fn.substr(i + 1);
         if (ext.empty())
             return SF_FORMAT_RAW;
 
@@ -665,11 +665,11 @@ kIndex KgAudioFile::write_(const kReal* buf, kIndex frames)
 {
     const kReal* buf_ = buf;
     kIndex frames_ = frames;
-    std::vector<kReal> outBuf;
-
+    
     if (resampler_) { // 重采样
         assert(false); // TODO:
 #if 0
+        std::vector<kReal> outBuf;
         auto outFrames = ::smarc_get_output_buffer_size((PFilter*)resampler_, frames);
         outBuf.resize(outFrames * channels_);
         buf_ = outBuf.data();

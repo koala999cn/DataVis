@@ -288,7 +288,7 @@ std::vector<std::string_view> KuStrUtil::split(const std::string_view& full, con
 		start = found + 1;
 	}
 
-	if (start != full.size())
+	if (start != end)
 		tokens.push_back(full.substr(start));
 	else if (!skipEempty)
 		tokens.push_back("");

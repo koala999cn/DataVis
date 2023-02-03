@@ -6,7 +6,7 @@
 double KuFreqUnit::melToHertz3(double mel)
 {
 	if (mel < 0) return KuMath::nan<double>();
-	return mel < 1000 ? mel : 1000 * (exp(mel * log10(2) / 1000) - 1);
+	return mel < 1000 ? mel : 1000 * expm1(mel * log10(2) / 1000);
 }
 
 double KuFreqUnit::hertzToMel3(double hz)
@@ -75,7 +75,7 @@ double KuFreqUnit::barkToHertz1980_1(double bark)
 
 double KuFreqUnit::hertzToBark1980_2(double hz)
 {
-	if (hz < 0) return KuMath::nan<double>();
+	if (hz <= 0) return KuMath::nan<double>();
 	return 8.7 + 14.2 * log10(hz / 1000);
 }
 
