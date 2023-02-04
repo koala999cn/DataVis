@@ -170,7 +170,7 @@ const color4f& KcBars2d::minorColor() const
 }
 
 
-void KcBars2d::setMinorColor(const color4f& minor)
+void KcBars2d::setMinorColor_(const color4f& minor)
 {
 	border_.color = minor;
 }

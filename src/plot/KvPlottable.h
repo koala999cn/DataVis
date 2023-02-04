@@ -36,7 +36,7 @@ public:
 	void setData(const_data_ptr d);
 
 	unsigned sampCount(unsigned dim) const { return sampCount_[dim]; }
-	unsigned& sampCount(unsigned dim) { return sampCount_[dim]; }
+	void setSampCount(unsigned dim, unsigned c);
 
 	// 设置第dim维度的分离坐标轴，该函数接管axis的控制权
 	void setAxis(unsigned dim, KcAxis* axis) { selfAxes_[dim].reset(axis); }
@@ -81,22 +81,23 @@ public:
 
 	// 辅色存储和配置由用户实现
 	virtual const color4f& minorColor() const = 0;
-	virtual void setMinorColor(const color4f& minor) = 0;
+	virtual void setMinorColor_(const color4f& minor) = 0; 
+	void setMinorColor(const color4f& minor); // 管理coloringChanged状态
 
 	// 连续色带的读写接口
-	const gradient_t& colorBar() const { return colorBar_; }
-	gradient_t& colorBar() { return colorBar_; }
+	const gradient_t& gradient() const { return grad_; }
+	void setGradient(const gradient_t& grad);
 
 	////////////////////////////////////////////////////////////////
 
 	float_t defaultZ() const { return defaultZ_; }
-	float_t& defaultZ() { return defaultZ_; }
+	void setDefaultZ(float_t z);
 
 	float_t stepZ() const { return stepZ_; }
-	float_t& stepZ() { return stepZ_; }
+	void setStepZ(float_t step);
 
 	bool forceDefaultZ() const { return forceDefaultZ_; }
-	bool& forceDefaultZ() { return forceDefaultZ_; }
+	void setForceDefaultZ(bool b);
 
 	float_t defaultZ(unsigned ch) const { return defaultZ_ + ch * stepZ_; }
 
@@ -119,13 +120,13 @@ public:
 	void setColoringMode(KeColoringMode mode);
 
 	bool flatShading() const { return flatShading_; }
-	bool& flatShading() { return flatShading_; }
+	void setFlatShading(bool b);
 
 	float brightenCoeff() const { return brightenCoeff_; }
-	float& brightenCoeff() { return brightenCoeff_; }
+	void setBrightenCoeff(float coeff);
 
 	auto& colorMappingRange() const { return colorMappingRange_; }
-	auto& colorMappingRange() { return colorMappingRange_; }
+	void setColorMappingRange(const std::pair<float_t, float_t>& r);
 
 	unsigned colorMappingDim() const { return colorMappingDim_; }
 	void setColorMappingDim(unsigned d); // 该值很关键，使用set赋值
@@ -133,7 +134,7 @@ public:
 	void fitColorMappingRange();
 
 	bool autoColorMappingRange() const { return autoColorMappingRange_; }
-	bool& autoColorMappingRange() { return autoColorMappingRange_; }
+	bool& autoColorMappingRange() { return autoColorMappingRange_; };
 
 	// 根据当前的coloringMode_配置主色
 	void updateColorMappingPalette();
@@ -173,7 +174,7 @@ private:
 
 	// 色彩管理
 	KeColoringMode coloringMode_{ k_one_color_solid };
-	gradient_t colorBar_; // 色带
+	gradient_t grad_; // 渐变色带
 	bool flatShading_{ false };  // 若true，则开启flat渲染模式，否则使用smooth渲染模式
 	                             // flat模式下，使用多边形的最后1个顶点对整个多边形着色
 
@@ -199,6 +200,6 @@ private:
 	// 该标记为真时，将强制用默认Z值替换原来的z值，可用来在3d空间绘制二维的colormap图
 	bool forceDefaultZ_{ false };
 
-	bool dataChanged_{ false };
-	int coloringChanged_{ 0 }; // 0表示无变化，1表示小变化(colorful之间的变化)，2表示大变化(solid <-> colorful)
+	mutable bool dataChanged_{ false };
+	mutable int coloringChanged_{ 0 }; // 0表示无变化，1表示小变化(colorful之间的变化)，2表示大变化(solid <-> colorful)
 };

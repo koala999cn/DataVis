@@ -124,6 +124,9 @@ void KvPlottable::draw(KvPaint* paint) const
 
 	paint->enableFlatShading(flatShading());
 	drawDiscreted_(paint, disc.get());
+
+	dataChanged_ = false;
+	coloringChanged_ = 0;
 }
 
 
@@ -161,13 +164,13 @@ unsigned KvPlottable::majorColorsNeeded() const
 
 unsigned KvPlottable::majorColors() const
 {
-	return colorBar_.size();
+	return grad_.size();
 }
 
 
 color4f KvPlottable::majorColor(unsigned idx) const
 {
-	return colorBar_.at(idx).second;
+	return grad_.at(idx).second;
 }
 
 
@@ -175,12 +178,12 @@ void KvPlottable::setMajorColors(const std::vector<color4f>& majors)
 {
 	assert(majorColorsNeeded() == -1 || majorColorsNeeded() == majors.size());
 
-	colorBar_.clear();
+	grad_.clear();
 
 	std::vector<float_t> vals(majors.size());
 	KuMath::linspace<float_t>(0, 1, 0, vals.data(), majors.size()); // 初始化时均匀间隔配置
 	for (unsigned i = 0; i < majors.size(); i++)
-		colorBar_.insert(vals[i], majors[i]);
+		grad_.insert(vals[i], majors[i]);
 
 	if (coloringChanged_ == 0)
 		coloringChanged_ = 1;
@@ -220,7 +223,7 @@ color4f KvPlottable::mapValueToColor_(float_t* valp, unsigned channel) const
 			majorColor(channel), minorColor());
 
 	case k_colorbar_gradiant:
-		return colorBar_.map(KuMath::remap<float_t, true>(valp[colorMappingDim_],
+		return grad_.map(KuMath::remap<float_t, true>(valp[colorMappingDim_],
 			colorMappingRange_.first, colorMappingRange_.second));
 
 	default:
@@ -277,5 +280,76 @@ void KvPlottable::updateColorMappingPalette()
 
 bool KvPlottable::usingDefaultZ_() const
 {
-	return forceDefaultZ_ || data_->dim() == 1;
+	return forceDefaultZ_ || (data_ && data_->dim() == 1);
+}
+
+
+void KvPlottable::setSampCount(unsigned dim, unsigned c)
+{
+	assert(dim < sampCount_.size());
+	sampCount_[dim] = c;
+	dataChanged_ = true;
+}
+
+
+void KvPlottable::setGradient(const gradient_t& grad) 
+{ 
+	grad_ = grad;
+	if (coloringChanged_ == 0)
+		coloringChanged_ = 1;
+}
+
+
+void KvPlottable::setDefaultZ(float_t z) 
+{ 
+	defaultZ_ = z;
+	if (usingDefaultZ_())
+		dataChanged_ = true;
+}
+
+
+void KvPlottable::setStepZ(float_t step)
+{ 
+	stepZ_ = step;
+	if (usingDefaultZ_() && data_ && data_->channels() > 1) // 不影响单通道数据
+		dataChanged_ = true;
+}
+
+
+void KvPlottable::setForceDefaultZ(bool b) 
+{ 
+	forceDefaultZ_ = b;
+	if (data() && data()->dim() > 1) // 不影响一维数据
+		dataChanged_ = true;
+}
+
+
+void KvPlottable::setFlatShading(bool b)
+{
+	flatShading_ = b;
+	// TODO: vbo如何同步此状态？
+}
+
+
+void KvPlottable::setBrightenCoeff(float coeff)
+{ 
+	brightenCoeff_ = coeff;
+	if (coloringMode_ == k_one_color_gradiant && coloringChanged_ == 0)
+		coloringChanged_ = 1;
+}
+
+
+void KvPlottable::setColorMappingRange(const std::pair<float_t, float_t>& r)
+{
+	colorMappingRange_ = r;
+	if (coloringMode_ != k_one_color_solid && coloringChanged_ == 0)
+		coloringChanged_ = 1;
+}
+
+
+void KvPlottable::setMinorColor(const color4f& minor)
+{
+	setMinorColor_(minor);
+	if (coloringMode_ == k_two_color_gradiant && coloringChanged_ == 0)
+		coloringChanged_ = 1;
 }

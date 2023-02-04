@@ -57,7 +57,7 @@ const color4f& KcGraph::minorColor() const
 }
 
 
-void KcGraph::setMinorColor(const color4f& minor) 
+void KcGraph::setMinorColor_(const color4f& minor) 
 { 
 	clrMinor_ = minor;
 }

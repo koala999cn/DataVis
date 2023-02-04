@@ -4,15 +4,18 @@
 #include <assert.h>
 
 
-KsShaderManager::KsShaderManager()
+KsShaderManager::program_ptr KsShaderManager::flatVersion(const program_ptr& prog, bool flat)
 {
+	if (prog == progColor_[0] || prog == progColor_[1])
+		return progColor_[flat];
 
-}
+	if (prog == progColorUV_[0] || prog == progColorUV_[1])
+		return progColorUV_[flat];
 
+	if (prog == progMonoLight_[0] || prog == progMonoLight_[1])
+		return progMonoLight_[flat];
 
-KsShaderManager::~KsShaderManager()
-{
-
+	return prog;
 }
 
 

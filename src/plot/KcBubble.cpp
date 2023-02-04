@@ -49,7 +49,7 @@ const color4f& KcBubble::minorColor() const
 }
 
 
-void KcBubble::setMinorColor(const color4f& minor)
+void KcBubble::setMinorColor_(const color4f& minor)
 {
 	clrMinor_ = minor;
 }

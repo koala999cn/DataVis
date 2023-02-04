@@ -7,8 +7,8 @@
 KcHeatMap::KcHeatMap(const std::string_view& name)
 	: super_(name)
 {
-	forceDefaultZ() = true; // 在3d空间显示热图平面
-	flatShading() = true;
+	setForceDefaultZ(true); // 在3d空间显示热图平面
+	setFlatShading(true);
 	setColoringMode(k_colorbar_gradiant);
 }
 

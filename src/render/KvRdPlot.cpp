@@ -819,9 +819,10 @@ void KvRdPlot::showPlottableBasicProperty_(unsigned idx)
 
 	if (data && data->isContinued()) {
 		unsigned minCount(1), maxCount(std::pow(1024 * 1024, 1. / data->dim()));
-		ImGui::DragScalarN("Sampling Count", ImGuiDataType_U32,
-			&plot_->plottableAt(idx)->sampCount(0), data->dim(), 1,
-			&minCount, &maxCount);
+		std::uint32_t c = plot_->plottableAt(idx)->sampCount(0);
+		if (ImGui::DragScalarN("Sampling Count", ImGuiDataType_U32,
+			&c, data->dim(), 1, &minCount, &maxCount))
+			plot_->plottableAt(idx)->setSampCount(0, c);
 	}
 }
 
@@ -845,7 +846,9 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 		// 主色
 		if (mode == KvPlottable::k_colorbar_gradiant) { // 连续色，使用gradient
 			static float selectedKey;
-			ImGuiX::gradient("Colorbar", plt->colorBar(), selectedKey);
+			auto grad = plt->gradient();
+			if (ImGuiX::gradient("Colorbar", grad, selectedKey))
+				plt->setGradient(grad);
 		}
 		else {
 			if (plt->majorColors() == 1) { // 单主色
@@ -870,10 +873,14 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 		// 渐变映射有关属性
 		if (mode != KvPlottable::k_one_color_solid) {
 
-			ImGui::Checkbox("Flat Shading", &plt->flatShading());
+			bool b = plt->flatShading();
+			if (ImGui::Checkbox("Flat Shading", &b))
+				plt->setFlatShading(b);
 
 			if (mode == KvPlottable::k_one_color_gradiant) {
-				ImGui::SliderFloat("Brighten Coeff", &plt->brightenCoeff(), -1, 1, "%.2f");
+				auto coeff = plt->brightenCoeff();
+				if (ImGui::SliderFloat("Brighten Coeff", &coeff, -1, 1, "%.2f"))
+					plt->setBrightenCoeff(coeff);
 			}
 
 			if (!plt->empty()) {
@@ -883,10 +890,11 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 
 				ImGui::Checkbox("Auto Range", &plt->autoColorMappingRange());
 
-				auto& r = plt->colorMappingRange();
+				auto r = plt->colorMappingRange();
 				float low = r.first, high = r.second;
 				if (ImGui::DragFloatRange2("Range Mapping", &low, &high)) {
 					r.first = low, r.second = high;
+					plt->setColorMappingRange(r);
 					plt->autoColorMappingRange() = false;
 				}
 			}
@@ -903,9 +911,17 @@ void KvRdPlot::showPlottableDefaultZProperty_(unsigned idx)
 
 	if (ImGuiX::treePush("Z Value", false)) {
 
-		ImGui::DragScalar("Default", ImGuiDataType_Double, &plt->defaultZ());
-		ImGui::DragScalar("Step", ImGuiDataType_Double, &plt->stepZ());
-		ImGui::Checkbox("Force Default", &plt->forceDefaultZ());
+		auto val = plt->defaultZ();
+		if (ImGui::DragScalar("Default", ImGuiDataType_Double, &val))
+			plt->setDefaultZ(val);
+
+		val = plt->stepZ();
+		if (ImGui::DragScalar("Step", ImGuiDataType_Double, &val))
+			plt->setStepZ(val);
+
+		auto b = plt->forceDefaultZ();
+		if (ImGui::Checkbox("Force Default", &b))
+			plt->setForceDefaultZ(b);
 
 		ImGuiX::treePop();
 	}

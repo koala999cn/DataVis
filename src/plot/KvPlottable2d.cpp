@@ -11,7 +11,7 @@ const color4f& KvPlottable2d::minorColor() const
 }
 
 
-void KvPlottable2d::setMinorColor(const color4f& minor)
+void KvPlottable2d::setMinorColor_(const color4f& minor)
 {
 	borderPen_.color = minor;
 }

@@ -46,7 +46,7 @@ const color4f& KcLineFilled::minorColor() const
 }
 
 
-void KcLineFilled::setMinorColor(const color4f& minor)
+void KcLineFilled::setMinorColor_(const color4f& minor)
 {
 	lineCxt_.color = minor;
 }

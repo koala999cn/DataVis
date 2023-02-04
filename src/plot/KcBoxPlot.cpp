@@ -10,7 +10,7 @@ const color4f& KcBoxPlot::minorColor() const
 }
 
 
-void KcBoxPlot::setMinorColor(const color4f& minor)
+void KcBoxPlot::setMinorColor_(const color4f& minor)
 {
 	borderPen_.color = minor;
 }

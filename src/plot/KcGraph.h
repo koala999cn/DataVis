@@ -14,7 +14,7 @@ public:
 
 	const color4f& minorColor() const override;
 
-	void setMinorColor(const color4f& minor) override;
+	void setMinorColor_(const color4f& minor) override;
 
 	const KpPen& linePen() const { return lineCxt_; }
 	KpPen& linePen() { return lineCxt_; }

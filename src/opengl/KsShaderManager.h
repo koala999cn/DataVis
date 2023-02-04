@@ -62,9 +62,12 @@ public:
 	// vsMonoLight(flat) + fsNavie(flat)
 	program_ptr progMonoLight(bool flat);
 
+	// 辅助函数，用于定位program的flat版本
+	program_ptr flatVersion(const program_ptr& prog, bool flat);
+
 private:
-	KsShaderManager();
-	~KsShaderManager();
+	KsShaderManager() = default;
+	~KsShaderManager() = default;
 
 	KsShaderManager(const KsShaderManager&) = delete;
 	void operator=(const KsShaderManager&) = delete;

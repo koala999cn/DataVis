@@ -37,7 +37,7 @@ const color4f& KcScatter::minorColor() const
 }
 
 
-void KcScatter::setMinorColor(const color4f& minor)
+void KcScatter::setMinorColor_(const color4f& minor)
 {
 	marker_.outline = minor;
 }

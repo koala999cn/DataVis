@@ -17,7 +17,7 @@ public:
 
 	const color4f& minorColor() const override;
 
-	void setMinorColor(const color4f& minor) override;
+	void setMinorColor_(const color4f& minor) override;
 
 	bool showFill() const { return showFill_; }
 	bool& showFill() { return showFill_; }

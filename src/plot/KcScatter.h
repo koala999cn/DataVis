@@ -15,7 +15,7 @@ public:
 
 	const color4f& minorColor() const override;
 
-	void setMinorColor(const color4f& minor) override;
+	void setMinorColor_(const color4f& minor) override;
 
 	const KpMarker& marker() const { return marker_; }
 	KpMarker& marker() { return marker_; }
