@@ -1054,5 +1054,12 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj, bool filled, bool edged)
 	// 目前使用这个比较傻的方案
 	// 有另一种方案设想：把shader作为渲染的对象的通用属性，由pushRenderObject根据vbo统一设定
 	// 按以上设想，就不需要在此处同步flat了
-	obj->setShader(KsShaderManager::singleton().flatVersion(obj->shader(), flatShading_));
+	// obj->setShader(KsShaderManager::singleton().flatVersion(obj->shader(), flatShading_));
+
+	// 在此置shader为空，由pushRenderObject设定shader，以同步flat渲染状态
+	// pushRenderObject设置shader的版本只考虑了mono和color两种情况，但已能满足目前版本的plot需求
+	assert(obj->shader() == KsShaderManager::singleton().progMono()
+		|| obj->shader() == KsShaderManager::singleton().progColor(false)
+		|| obj->shader() == KsShaderManager::singleton().progColor(true));
+	obj->setShader(nullptr);
 }

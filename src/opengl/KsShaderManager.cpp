@@ -15,7 +15,7 @@ KsShaderManager::program_ptr KsShaderManager::flatVersion(const program_ptr& pro
 	if (prog == progMonoLight_[0] || prog == progMonoLight_[1])
 		return progMonoLight_[flat];
 
-	return prog;
+	return prog; // TODO: prog¿ÉÄÜÎªnullptr
 }
 
 
