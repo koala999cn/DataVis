@@ -819,10 +819,14 @@ void KvRdPlot::showPlottableBasicProperty_(unsigned idx)
 
 	if (data && data->isContinued()) {
 		unsigned minCount(1), maxCount(std::pow(1024 * 1024, 1. / data->dim()));
-		std::uint32_t c = plot_->plottableAt(idx)->sampCount(0);
+		std::vector<std::uint32_t> c(data->dim());
+		for (unsigned i = 0; i < data->dim(); i++)
+		 c[i] = plot_->plottableAt(idx)->sampCount(i);
 		if (ImGui::DragScalarN("Sampling Count", ImGuiDataType_U32,
-			&c, data->dim(), 1, &minCount, &maxCount))
-			plot_->plottableAt(idx)->setSampCount(0, c);
+			c.data(), data->dim(), 1, &minCount, &maxCount)) {
+			for (unsigned i = 0; i < data->dim(); i++)
+			    plot_->plottableAt(idx)->setSampCount(i, c[i]);
+		}
 	}
 }
 
