@@ -21,7 +21,13 @@ public:
 
 	aabb_t boundingBox() const override;
 
-protected:
+private:
 
 	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
+
+	// 生成andrews曲线
+	void genCurves_();
+
+private:
+	std::unique_ptr<KvData> curves_; // 用来保存生成的andrews曲线，避免每个周期重新生成
 };

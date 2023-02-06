@@ -1,6 +1,7 @@
 #include "KcAndrewsCurves.h"
 #include "KvDiscreted.h"
 #include "KtSampling.h"
+#include "KcSampled1d.h"
 
 
 unsigned KcAndrewsCurves::majorColorsNeeded() const
@@ -63,7 +64,7 @@ namespace kPrivate
 		}
 
 		double operator()(double* x, unsigned it) const {
-			static KpSinCosTable table(1024);
+			//static KpSinCosTable table(1024);
 
 			double fx = x[0] / KuMath::sqrt2; // 首项
 
@@ -94,37 +95,18 @@ namespace kPrivate
 
 void KcAndrewsCurves::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
 {
-	unsigned i(0); // andrews曲线的序号
+	if (dataChanged())
+		const_cast<KcAndrewsCurves*>(this)->genCurves_();
 
-	KtSampling<float_t> samp;
-	samp.resetn(1024, -KuMath::pi, KuMath::pi, 0); // andrews曲线的采样参数
+	unsigned ch(0);
+	auto samp1d = dynamic_cast<KcSampled1d*>(curves_.get());
+	auto getter = [samp1d, &ch, this](unsigned idx) -> std::vector<float_t> {
+		auto pt = samp1d->pointAt(idx, ch);
+		return { pt[0], pt[1], defaultZ(ch) };
+	};
 
-	GETTER getter; // 算法的关键在于构造传递给drawImpl_的getter
-
-	unsigned d = disc->dim();
-
-	if (d == 1) { // 一维数据，以通道为Andrews变换的维度数据
-		kPrivate::KpAndrews andrews(disc->channels());
-		getter = [this, disc, andrews, &i, samp](unsigned ix) -> std::vector<float_t> {
-			std::vector<float_t> x(disc->channels());
-			for (unsigned ch = 0; ch < disc->channels(); ch++)
-				x[ch] = disc->valueAt(i, ch);
-
-			return { samp.indexToX(ix), andrews(x.data(), ix), defaultZ() };
-		};
-	}
-	else { // 高维数据，直接用每个高维数据点构建andrews曲线
-		kPrivate::KpAndrews andrews(d);
-		getter = [this, disc, andrews, &i, samp](unsigned ix) -> std::vector<float_t> {
-			std::vector<float_t> x = disc->pointAt(i % disc->size(0), i / disc->size(0));
-
-			auto t = samp.indexToX(ix);
-			return { t, andrews(x.data(),t), defaultZ() };
-		};
-	}
-
-	for (; i < majorColorsNeeded(); i++) 
-		drawImpl_(paint, getter, samp.size(), i);
+	for (; ch < samp1d->channels(); ch++)
+		drawImpl_(paint, getter, samp1d->size(), ch);
 }
 
 
@@ -137,11 +119,12 @@ KcAndrewsCurves::aabb_t KcAndrewsCurves::boundingBox() const
 	// 估算y轴值域
 	if (!empty()) {
 
-		if (data()->dim() == 1) {
-			auto r0 = data()->valueRange(0);
+		auto disc = discreted_();
+		if (disc->dim() == 1) { // 估算最大包络
+			auto r0 = disc->valueRange(0);
 			float_t sum(0);
 			for (unsigned i = 1; i < data()->channels(); i++) {
-				auto r = data()->valueRange(i);
+				auto r = disc->valueRange(i);
 				sum += KuMath::absMax(r.low(), r.high());
 			}
 
@@ -149,7 +132,11 @@ KcAndrewsCurves::aabb_t KcAndrewsCurves::boundingBox() const
 			box.upper().y() = r0.high() / KuMath::sqrt2 + sum;
 		}
 		else {
-
+			if (curves_) { // 用个偷懒的方法，直接算curves的值域（滞后1个周期）
+				auto r = curves_->valueRange();
+				box.lower().y() = r.low();
+				box.upper().y() = r.high();
+			}
 		}
 
 		box.upper().z() = defaultZ(majorColorsNeeded() - 1); // 修正z轴高值
@@ -157,3 +144,55 @@ KcAndrewsCurves::aabb_t KcAndrewsCurves::boundingBox() const
 
 	return box;
 }
+
+
+void KcAndrewsCurves::genCurves_()
+{
+	KtSampling<float_t> samp;
+	samp.resetn(1024, -KuMath::pi, KuMath::pi, 0); // andrews曲线的采样参数
+
+	auto samp1d = new KcSampled1d;
+	samp1d->resize(samp.size(), majorColors());
+	samp1d->reset(0, -KuMath::pi, samp.dx());
+	curves_.reset(samp1d);
+
+	unsigned i(0); // andrews曲线的序号
+	std::function<float_t(unsigned)> getter; 
+	auto disc = discreted_();
+	unsigned d = disc->dim();
+
+	if (d == 1) { // 一维数据，以通道为Andrews变换的维度数据
+		kPrivate::KpAndrews andrews(disc->channels()); // 系数个数等于通道数
+		getter = [this, disc, andrews, &i](unsigned ix) {
+			std::vector<float_t> x(disc->channels());
+			for (unsigned ch = 0; ch < disc->channels(); ch++)
+				x[ch] = disc->valueAt(i, ch);
+			return andrews(x.data(), ix);
+		};
+	}
+	else if (disc->isSampled() && d == 2) { // matrix数据
+		auto samp = std::dynamic_pointer_cast<const KvSampled>(disc);
+		kPrivate::KpAndrews andrews(samp->size(1)); // 系数个数等于列数
+		getter = [this, andrews, &i, samp](unsigned ix) {
+			std::vector<float_t> x(samp->size(1));
+			for (unsigned j = 0; j < samp->size(1); j++)
+				x[j] = samp->value(i % samp->size(0), j, i / samp->size(0));
+			return andrews(x.data(), ix);
+		};
+	}
+	else { // 高维数据，直接用每个高维数据点构建andrews曲线
+		kPrivate::KpAndrews andrews(d); // 系数个数等于维度
+		getter = [this, disc, andrews, &i, samp](unsigned ix) {
+			std::vector<float_t> x = disc->pointAt(i % disc->size(0), i / disc->size(0));
+			return andrews(x.data(), ix);
+		};
+	}
+
+	std::vector<float_t> buf(samp1d->size(0));
+	for (; i < samp1d->channels(); i++) {
+		for (unsigned j = 0; j < samp1d->size(0); j++)
+			buf[j] = getter(j);
+		samp1d->setChannel(nullptr, i, buf.data());
+	}
+}
+
