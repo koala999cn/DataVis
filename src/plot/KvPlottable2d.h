@@ -40,4 +40,5 @@ private:
 	bool showFill_{ true };
 	bool showBorder_{ false };
 	KpPen borderPen_;
+	mutable std::vector<void*> renderObj_;
 };

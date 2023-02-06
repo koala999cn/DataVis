@@ -14,7 +14,9 @@ void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned 
 	if (renderObj_.size() < ch + 1)
 		renderObj_.resize(ch + 1, nullptr);
 
-	if (!dataChanged() && !coloringChanged()) {
+	if (!dataChanged() && 
+		(!coloringChanged() || 
+			(coloringMode() == k_one_color_solid && coloringChanged() == 1))) { // 单色模式下，亦可复用vbo
 		if (renderObj_[ch] = paint->redraw(renderObj_[ch], true, false))
 			return;
 	}

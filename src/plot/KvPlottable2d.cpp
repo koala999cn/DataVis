@@ -34,6 +34,18 @@ void KvPlottable2d::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) cons
 
 void KvPlottable2d::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned ny, unsigned ch) const
 {
+	bool showEdge = showBorder() && borderPen().visible();
+	if (showEdge)
+		paint->apply(borderPen());
+
+	if (renderObj_.size() < ch + 1)
+		renderObj_.resize(ch + 1, nullptr);
+
+	if (!dataChanged() && !coloringChanged()) { 
+		if (renderObj_[ch] = paint->redraw(renderObj_[ch], showFill_, showEdge))
+			return;
+	}
+
 	struct KpVtxBuffer_
 	{
 		point3f pos;
@@ -57,9 +69,5 @@ void KvPlottable2d::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsign
 	auto idxBuf = geom->newIndex(idxCount);
 	KuPrimitiveFactory::indexGrid<unsigned>(nx, ny, idxBuf);
 
-	bool showEdge = showBorder() && borderPen().visible();
-	if (showEdge)
-		paint->apply(borderPen());
-
-	paint->drawGeomColor(geom, showFill_, showEdge);
+	renderObj_[ch] = paint->drawGeomColor(geom, showFill_, showEdge);
 }
