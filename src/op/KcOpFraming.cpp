@@ -58,10 +58,12 @@ kRange KcOpFraming::range(kIndex outPort, kIndex axis) const
 {
 	assert(outPort == 0);
 
-	if (axis == dim(outPort) - 1)
+	if (axis == 0)
+		return super_::range(outPort, 0);
+	else if (axis == 1)
 		return { 0, frameTime_ };
 
-	return super_::range(outPort, axis);
+	return super_::range(outPort, axis - 1);
 }
 
 
