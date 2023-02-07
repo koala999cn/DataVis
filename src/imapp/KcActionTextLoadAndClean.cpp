@@ -28,6 +28,7 @@ bool KcActionTextLoadAndClean::trigger()
     }
     
     // 创建数据窗口
+    cleanData_.clear();
     cleanWindow_ = std::make_unique<KcImTextCleaner>(filepath_, rawData_, cleanData_);
     if (cleanWindow_ == nullptr) {
         state_ = KeState::k_failed;

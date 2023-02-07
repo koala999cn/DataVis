@@ -42,7 +42,7 @@ KcImTextCleaner::KcImTextCleaner(const std::string& source, const matrix<std::st
     if (emptyTokens_ == 0 && illegalTokens_ == 0 && !parseFailed_) {
         // 数据正常，没有需要用户配置的，直接清洗数据并关闭窗口
         setVisible(false);
-        clean_();
+        doClean_();
     }
 }
 
@@ -92,7 +92,7 @@ void KcImTextCleaner::updateImpl_()
     ImGui::BeginDisabled(parseFailed_);
     if (ImGui::Button("OK", ImVec2(99, 0))) {
         close();
-        clean_();
+        doClean_();
     }
     ImGui::SetItemDefaultFocus();
     ImGui::EndDisabled();
@@ -162,7 +162,7 @@ bool KcImTextCleaner::skipIllegal_() const
 }
 
 
-void KcImTextCleaner::clean_()
+void KcImTextCleaner::doClean_()
 {
     using namespace kPrivate;
 

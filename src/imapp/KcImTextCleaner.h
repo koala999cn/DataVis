@@ -29,7 +29,7 @@ private:
     bool skipIllegal_() const;
 
     // 根据用户配置，执行数据清洗操作
-    void clean_();
+    void doClean_();
 
     // 返回empty字串的取值
     double emptyValue_() const;
