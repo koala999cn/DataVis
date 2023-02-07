@@ -19,11 +19,12 @@ public:
 
 	unsigned majorColorsNeeded() const override;
 
-	aabb_t boundingBox() const override;
 
 private:
 
 	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
+
+	aabb_t calcBoundingBox_() const override;
 
 	// Éú³ÉandrewsÇúÏß
 	void genCurves_();

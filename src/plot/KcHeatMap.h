@@ -11,8 +11,6 @@ public:
 
 	KcHeatMap(const std::string_view& name);
 
-	aabb_t boundingBox() const override;
-
 	bool showText() const { return showText_; }
 	bool& showText() { return showText_; }
 
@@ -22,6 +20,8 @@ public:
 private:
 
 	void drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned c) const final;
+
+	aabb_t calcBoundingBox_() const override;
 
 private:
 

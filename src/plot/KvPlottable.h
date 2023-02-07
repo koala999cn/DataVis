@@ -47,7 +47,11 @@ public:
 	// 该plt是否含有分离坐标轴
 	bool hasSelfAxis() const;
 
-	aabb_t boundingBox() const override;
+	aabb_t boundingBox() const final {
+		if (dataChanged_)
+			box_ = calcBoundingBox_();
+		return box_;
+	}
 
 	// 封装连续数据的绘制，提供另外一个绘制离散数据的接口drawDiscreted_
 	void draw(KvPaint*) const override;
@@ -163,9 +167,9 @@ protected:
 		return { valp[0], valp[1], forceDefaultZ() ? defaultZ(ch) : valp[2] };
 	}
 
-private:
-
 	virtual void drawDiscreted_(KvPaint*, const KvDiscreted*) const = 0;
+
+	virtual aabb_t calcBoundingBox_() const;
 
 private:
 
@@ -202,4 +206,6 @@ private:
 
 	mutable bool dataChanged_{ false };
 	mutable int coloringChanged_{ 0 }; // 0表示无变化，1表示小变化(colorful之间的变化)，2表示大变化(solid <-> colorful)
+
+	mutable aabb_t box_; // 缓存的aabb，在渲染大数据量时极大提高效率（autofit情况下啊）
 };

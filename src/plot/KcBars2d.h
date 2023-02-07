@@ -15,8 +15,6 @@ public:
 
 	KcBars2d(const std::string_view& name);
 
-	aabb_t boundingBox() const override;
-
 	unsigned majorColorsNeeded() const override;
 
 	const color4f& minorColor() const override;
@@ -53,9 +51,11 @@ public:
 	float& paddingGrouped() { return paddingGrouped_; }
 
 
-private:
+protected:
 
 	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
+
+	aabb_t calcBoundingBox_() const override;
 
 	// 计算单个bar的宽度（世界坐标）
 	float_t barWidth_(unsigned dim = 0) const;

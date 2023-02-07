@@ -74,7 +74,7 @@ bool KvPlottable::empty() const
 }
 
 
-KvPlottable::aabb_t KvPlottable::boundingBox() const
+KvPlottable::aabb_t KvPlottable::calcBoundingBox_() const
 {
 	if (empty())
 		return aabb_t(point3(0), point3(1)); 
@@ -119,7 +119,8 @@ void KvPlottable::draw(KvPaint* paint) const
 	// TODO: 是否有更优化的方案
 	const_cast<KvPlottable*>(this)->updateColorMappingPalette();
 
-	if (autoColorMappingRange_)
+	// TODO: 更精细的控制。coloringChanged_范围太大，其实只有在dimMapping变化是才须重新计算。
+	if (autoColorMappingRange_ && (dataChanged_ || coloringChanged_))
 		const_cast<KvPlottable*>(this)->fitColorMappingRange();
 
 	paint->enableFlatShading(flatShading());

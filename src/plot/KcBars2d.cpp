@@ -116,9 +116,9 @@ unsigned KcBars2d::ydim_() const
 }
 
 
-KcBars2d::aabb_t KcBars2d::boundingBox() const
+KcBars2d::aabb_t KcBars2d::calcBoundingBox_() const
 {
-	auto aabb = super_::boundingBox();
+	auto aabb = super_::calcBoundingBox_();
 
 	if (!empty()) {
 		auto w = barWidth_();

@@ -16,8 +16,6 @@ public:
 	const color4f& minorColor() const override;
 	void setMinorColor_(const color4f& minor) override;
 
-	aabb_t boundingBox() const override;
-
 	const KpMarker& outlierMarker() const { return outlierMarker_; }
 	KpMarker& outlierMarker() { return outlierMarker_; }
 
@@ -45,6 +43,8 @@ public:
 private:
 
 	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
+
+	aabb_t calcBoundingBox_() const override;
 
 	void calcStats_(const KvDiscreted*) const;
 

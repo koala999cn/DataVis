@@ -13,9 +13,9 @@ public:
 
 	using super_::super_;
 
-	aabb_t boundingBox() const override;
-
 private:
+
+	aabb_t calcBoundingBox_() const override;
 
 	//void drawImpl_(KvPaint*, point_getter1, unsigned, unsigned) const override;
 };

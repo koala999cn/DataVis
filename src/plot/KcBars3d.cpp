@@ -5,9 +5,9 @@
 #include "KvData.h"
 
 
-KcBars3d::aabb_t KcBars3d::boundingBox() const
+KcBars3d::aabb_t KcBars3d::calcBoundingBox_() const
 {
-	auto aabb = super_::boundingBox();
+	auto aabb = super_::calcBoundingBox_();
 
 	if (aabb.depth() == 0)
 		aabb.upper().z() = aabb.lower().z() + 1;

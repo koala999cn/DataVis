@@ -16,12 +16,12 @@ void KcBoxPlot::setMinorColor_(const color4f& minor)
 }
 
 
-KcBoxPlot::aabb_t KcBoxPlot::boundingBox() const
+KcBoxPlot::aabb_t KcBoxPlot::calcBoundingBox_() const
 {
 	// 箱图主要按通道顺序分布在x轴的0, 1, 2, ...位置，所以实际x轴范围为[0, channels-1]
 	// 为了容纳箱框，x轴左右各拓展0.5个单位，按此修订x轴值域为[-0.5, channels-0.5]
 
-	auto aabb = super_::boundingBox();
+	auto aabb = super_::calcBoundingBox_();
 	aabb.lower().x() = -0.5;
 	aabb.upper().x() = data()->channels() - 0.5;
 

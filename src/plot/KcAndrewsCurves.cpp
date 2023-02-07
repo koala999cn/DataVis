@@ -110,7 +110,7 @@ void KcAndrewsCurves::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) co
 }
 
 
-KcAndrewsCurves::aabb_t KcAndrewsCurves::boundingBox() const
+KcAndrewsCurves::aabb_t KcAndrewsCurves::calcBoundingBox_() const
 {
 	// x轴的值域始终为[-pi, pi]
 	aabb_t box(point3 (-KuMath::pi, -1, defaultZ(0)), 

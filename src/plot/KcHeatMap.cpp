@@ -13,9 +13,9 @@ KcHeatMap::KcHeatMap(const std::string_view& name)
 }
 
 
-KcHeatMap::aabb_t KcHeatMap::boundingBox() const
+KcHeatMap::aabb_t KcHeatMap::calcBoundingBox_() const
 {
-	auto aabb = super_::boundingBox();
+	auto aabb = super_::calcBoundingBox_();
 
 	if (!empty() && data()->dim() > 1) {
 

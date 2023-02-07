@@ -34,6 +34,9 @@
 - [ ] 给gradient控件添加1个选择pallete的按钮
 - [ ] 优化海量数据的降采样
 - [x] 优化vbo的构建，防止重复构建同一时间戳数据的vbo
+- [ ] plt隐藏/可见切换时对vbo复用的影响
+- [ ] plottable侧对复用vbo的通用框架
+
 
 ## theme
 - [ ] 更多theme，SCI等
