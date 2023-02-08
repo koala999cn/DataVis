@@ -58,11 +58,11 @@ void KcRdPlot3d::showPropertySet()
 	orient.toRotateMatrix(rot);
 	point3d angle;
 	rot.toEulerAngleXYZ(angle);
-	angle *= KuMath::rad2Deg(1);
+	angle *= KuMath::rad2Deg(1.);
 	minVal = -180;
 	maxVal = 180;
 	if(ImGui::DragScalarN("Rotation", ImGuiDataType_Double, angle, 3, 0.5, &minVal, &maxVal, "%.1f deg")) {
-		angle *= KuMath::deg2Rad(1);
+		angle *= KuMath::deg2Rad(1.);
 		rot.fromEulerAngleXYZ(angle);
 		orient = quatd(rot);
 	}
