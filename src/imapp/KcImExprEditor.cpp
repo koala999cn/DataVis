@@ -9,10 +9,10 @@
 #include "prov/KcPvData.h"
 
 
-KcImExprEditor::KcImExprEditor(std::string* text, KcPvData* pvData)
-    : exprText_(text)
-    , origText_(*text)
-    , pvData_(pvData)
+KcImExprEditor::KcImExprEditor(const char* text, unsigned dim, handler_t h)
+    : text_(text)
+    , handler_(h)
+    , dim_(dim)
     , KvImModalWindow("Expression Editor")
 {
 
@@ -28,7 +28,7 @@ int KcImExprEditor::flags() const
 void KcImExprEditor::updateImpl_()
 {
     ImGui::PushItemWidth(200);
-    ImGui::InputText("Formular", exprText_);
+    ImGui::InputText("Formular", &text_);
     ImGui::SetItemDefaultFocus();
     ImGui::PopItemWidth();
     ImGui::Spacing();
@@ -38,9 +38,8 @@ void KcImExprEditor::updateImpl_()
     if (ImGui::Button("OK", ImVec2(99, 0))) {
         auto data = compile_();
         if (data) {
-            origText_.clear(); // 防止重置原始字串
             close();
-            pvData_->setData(data);
+            handler_(data, text_.c_str());
         }
         else {
             // TODO: messagebox
@@ -55,32 +54,29 @@ void KcImExprEditor::updateImpl_()
 
 std::shared_ptr<KvData> KcImExprEditor::compile_()
 {
-    auto expr = std::make_shared<KcExprtk1d>();
-    if (expr->compile(*exprText_))  // 首先尝试编译一维表达式
-        return std::make_shared<KcContinuedFn>(
-            [expr](kReal x[]) { return expr->value(x); }, 
-            1);
+    if (dim_ == 0 || dim_ == 1) {
+        auto expr = std::make_shared<KcExprtk1d>();
+        if (expr->compile(text_))  // 首先尝试编译一维表达式
+            return std::make_shared<KcContinuedFn>(
+                [expr](kReal x[]) { return expr->value(x); },
+                1);
+    }
 
-    expr = std::make_shared<KcExprtk2d>();
-    if (expr->compile(*exprText_))  // 尝试编译二维表达式
-        return std::make_shared<KcContinuedFn>(
-            [expr](kReal x[]) { return expr->value(x); },
-            2);
+    if (dim_ == 0 || dim_ == 2) {
+        auto expr = std::make_shared<KcExprtk2d>();
+        if (expr->compile(text_))  // 尝试编译二维表达式
+            return std::make_shared<KcContinuedFn>(
+                [expr](kReal x[]) { return expr->value(x); },
+                2);
+    }
 
-    expr = std::make_shared<KcExprtk3d>();
-    if (expr->compile(*exprText_))  // 尝试编译三维表达式
-        return std::make_shared<KcContinuedFn>(
-            [expr](kReal x[]) { return expr->value(x); },
-            3);
+    if (dim_ == 0 || dim_ == 3) {
+        auto expr = std::make_shared<KcExprtk3d>();
+        if (expr->compile(text_))  // 尝试编译三维表达式
+            return std::make_shared<KcContinuedFn>(
+                [expr](kReal x[]) { return expr->value(x); },
+                3);
+    }
 
     return nullptr;
-}
-
-
-void KcImExprEditor::onClose(bool clicked)
-{
-    super_::onClose(clicked);
-
-    if (!origText_.empty())
-        *exprText_ = origText_;
 }

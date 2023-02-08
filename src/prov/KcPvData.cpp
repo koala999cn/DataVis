@@ -96,7 +96,7 @@ void KcPvData::showProperySet()
 {
 	super_::showProperySet();
 	
-	if (data_->isContinued()) {
+	if (data_ && data_->isContinued()) {
 		auto cont = std::dynamic_pointer_cast<KvContinued>(data_);
 
 		ImGui::Separator();

@@ -57,6 +57,7 @@ void initActions()
     panel->addAction("Provider", std::make_shared<KcActionNewTextData>());
     panel->addAction("Provider", std::make_shared<KcActionNewAudioData>());
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvExpr>>("Math Expression"));
+    panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvFunction>>("Function"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvStochastic>>("Stochastic"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvOscillator>>("Oscillator"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));

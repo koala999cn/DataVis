@@ -1,20 +1,19 @@
 #pragma once
 #include "KvImModalWindow.h"
 #include <memory>
+#include <functional>
 
-class KcPvData;
 class KvData;
 
 class KcImExprEditor : public KvImModalWindow
 {
 	using super_ = KvImModalWindow;
+	using handler_t = std::function<void(std::shared_ptr<KvData>, const char*)>;
 
 public:
-	KcImExprEditor(std::string* text, KcPvData* pvData);
+	KcImExprEditor(const char* text, unsigned dim, handler_t h);
 
 	int flags() const override;
-
-	void onClose(bool clicked) override;
 
 private:
 
@@ -23,7 +22,7 @@ private:
 	std::shared_ptr<KvData> compile_();
 
 private:
-	std::string origText_;
-	std::string* exprText_;
-	KcPvData* pvData_;
+	std::string text_;
+	handler_t handler_;
+	unsigned dim_; // 维度限制，0表示无限制
 };

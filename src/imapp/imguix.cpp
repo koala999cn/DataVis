@@ -1,13 +1,15 @@
 #include "imguix.h"
 #include "imgui_internal.h"
-#include "KuStrUtil.h"
-#include "KuDataUtil.h"
-#include "KvDiscreted.h"
-#include "KcSampled2d.h"
+#include "dsp/KuDataUtil.h"
+#include "dsp/KvDiscreted.h"
+#include "dsp/KcSampled2d.h"
 #include "layout/KeAlignment.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "plot/KpContext.h"
 #include "util/draw_gradient.h"
+#include "imapp/KcImExprEditor.h"
+#include "imapp/KsImApp.h"
+#include "imapp/KgImWindowManager.h"
 
 
 namespace kPrivate
@@ -36,35 +38,35 @@ namespace kPrivate
             headers.push_back("time");
             std::string str("ch-");
             for (int c = 1; c < cols; c++)
-                headers.push_back((str + KuStrUtil::toString(c)).c_str());
+                headers.push_back(str + std::to_string(c));
         }
         else if (dataType == KuDataUtil::k_scattered_1d) {
             for (int ch = 1; ch <= cols / 2; ch++) {
-                auto chIdx = KuStrUtil::toString(ch);
-                headers.push_back(("X" + chIdx).c_str());
-                headers.push_back(("Y" + chIdx).c_str());
+                auto chIdx = std::to_string(ch);
+                headers.push_back("X" + chIdx);
+                headers.push_back("Y" + chIdx);
             }
         }
         else if (dataType == KuDataUtil::k_scattered_2d) {
             for (int ch = 1; ch <= cols / 3; ch++) {
-                auto chIdx = KuStrUtil::toString(ch);
-                headers.push_back(("X" + chIdx).c_str());
-                headers.push_back(("Y" + chIdx).c_str());
-                headers.push_back(("Z" + chIdx).c_str());
+                auto chIdx = std::to_string(ch);
+                headers.push_back("X" + chIdx);
+                headers.push_back("Y" + chIdx);
+                headers.push_back("Z" + chIdx);
             }
         }
         else if (dataType == KuDataUtil::k_series) {
             for (int c = 0; c < cols; c++)
-                headers.push_back(seriesName_(c).c_str());
+                headers.push_back(seriesName_(c));
         }
         else if (dataType == KuDataUtil::k_sampled_2d) {
             headers.push_back("dx");
             for (int c = 1; c <= cols; c++)
-                headers.push_back(KuStrUtil::toString(c).c_str());
+                headers.push_back(std::to_string(c));
         }
         else {
             for (int c = 1; c <= cols; c++)
-                headers.push_back(KuStrUtil::toString(c).c_str());
+                headers.push_back(std::to_string(c));
         }
 
         return headers;
@@ -183,24 +185,24 @@ namespace ImGuiX
                     }
                 }
                 else if (disc.dim() == 2) {
-                    auto samp2d = (const KcSampled2d&)disc;
+                    auto samp2d = dynamic_cast<const KvSampled*>(&disc);
                     if (disc.step(0) == 1 && disc.step(1) == 1) { // matrix
                         showDataTable(KuDataUtil::k_matrix, disc.size(0), disc.size(1),
-                            [&samp2d](unsigned r, unsigned c) {
-                                return samp2d.value(r, c, 0);
+                            [samp2d](unsigned r, unsigned c) {
+                                return samp2d->value(r, c, 0);
                             });
                     }
                     else { // sampled2d
                         showDataTable(KuDataUtil::k_sampled_2d, disc.size(0) + 1, disc.size(1) + 1,
-                            [&samp2d](unsigned r, unsigned c) -> double {
+                            [samp2d](unsigned r, unsigned c) -> double {
                                 if (r == 0 && c == 0)
                                     return std::numeric_limits<double>::quiet_NaN();
                                 else if (r == 0)
-                                    return samp2d.sampling(1).indexToX(c - 1);
+                                    return samp2d->range(1).low() + (c - 1) * samp2d->step(1);
                                 else if (c == 0)
-                                    return samp2d.sampling(0).indexToX(r - 1);
+                                    return samp2d->range(0).low() + (r - 1) * samp2d->step(0);
                                 else 
-                                    return samp2d.value(r - 1, c - 1, 0);
+                                    return samp2d->value(r - 1, c - 1, 0);
                             });
                     }
                 }
@@ -708,6 +710,29 @@ namespace ImGuiX
         }
 
         return value_changed;
+    }
+
+
+    void exprEdit(const char* label, const char* text, unsigned dim, 
+        std::function<void(std::shared_ptr<KvData>, const char*)> handler)
+    {
+        auto w = CalcItemWidth();
+        auto h = GetFrameHeight();
+
+        if (ImGui::Button("E", ImVec2(h, h))) { // ±à¼­±í´ïÊ½×Ö·û´®
+            KsImApp::singleton().windowManager().
+                registerWindow<KcImExprEditor>(text, dim, handler);
+        }
+
+        ImGui::PushItemWidth(w - h - ImGui::GetStyle().ItemSpacing.x);
+        ImGui::SameLine();
+
+        ImGui::BeginDisabled();
+        std::string str = text;
+        ImGui::InputText(label, &str, ImGuiInputTextFlags_ReadOnly);
+        ImGui::EndDisabled();
+
+        ImGui::PopItemWidth();
     }
 
 }

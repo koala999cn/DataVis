@@ -484,6 +484,9 @@
     <ClCompile Include="src\plot\KcBoxPlot.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\prov\KcPvFunction.cpp">
+      <Filter>prov</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1106,6 +1109,12 @@
     </ClInclude>
     <ClInclude Include="src\plot\KcBoxPlot.h">
       <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prov\KcPvFunction.h">
+      <Filter>prov</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KtSampledExpr.h">
+      <Filter>dsp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

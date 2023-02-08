@@ -1,10 +1,8 @@
 #include "KcPvExpr.h"
 #include "KcContinuedFn.h"
 #include "exprtkX/KcExprtk1d.h"
-#include "imgui.h"
-#include "imapp/KcImExprEditor.h"
+#include "imguix.h"
 #include "imapp/KsImApp.h"
-#include "imapp/KgImWindowManager.h"
 #include "imapp/KgPipeline.h"
 
 
@@ -26,23 +24,15 @@ KcPvExpr::KcPvExpr()
 void KcPvExpr::showProperySet()
 {
     KcPvData::showProperySet();
-    
-    auto w = ImGui::CalcItemWidth();
-    auto sz = ImGui::GetItemRectSize();
     ImGui::Separator();
-    bool disable = KsImApp::singleton().pipeline().running();
-    ImGui::BeginDisabled(disable);
 
-    if (ImGui::Button("E", ImVec2(sz.y, sz.y))) { // ±à¼­±í´ïÊ½×Ö·û´®
-        KsImApp::singleton().windowManager().
-            registerWindow<KcImExprEditor>(&exprText_, this);
-    }
-    ImGui::EndDisabled();
+    ImGui::BeginDisabled(KsImApp::singleton().pipeline().running());
 
-    ImGui::PushItemWidth(w - sz.y - ImGui::GetStyle().ItemSpacing.x);
-    ImGui::SameLine();
+    ImGuiX::exprEdit("Formular", exprText_.c_str(), 0, 
+        [this](std::shared_ptr<KvData> data, const char* text) {
+            exprText_ = text;
+            setData(data); 
+        });
 
-    ImGui::BeginDisabled();
-    ImGui::InputText("Formular", exprText_.data(), ImGuiInputTextFlags_ReadOnly);
     ImGui::EndDisabled();
 }

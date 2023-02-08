@@ -1,7 +1,7 @@
 ## provider
 - [ ] 支持hdf5, xlsx数据源
 - [ ] binary data loader
-- [ ] 多值函数支持(multifunction)
+- [x] 多值函数支持(multifunction)
 - [ ] 多通道连续数据
 
 ## plot

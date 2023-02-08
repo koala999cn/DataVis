@@ -91,23 +91,14 @@ namespace ImGuiX
 	// gradient editor
 	bool gradient(const char* label, KtGradient<float, color4f>& grad, float& selectedKey);
 
+	// 显示一串颜色编辑器，用于编辑多主色
 	// @count: 颜色数量
 	// @fullfill: 若true，则填满item-width宽度，否则按ColorEdit按钮大小顺序排列
 	bool multiColorsEdit(const char* label, ImVec4* clrs, int count, bool fullfill);
 
-	/*
-	template<int N>
-	bool combo(const char* label, const char*(&enums)[N], int& val) {
-		bool select_changed = false;
-		if (ImGui::BeginCombo(label, enums[val])) {
-			for (unsigned i = 0; i < N; i++) {
-				if (ImGui::Selectable(enums[i], i == val)) 
-					val = i, select_changed = true;
-				if (i == val) ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-		}
-		return select_changed;
-	}
-	*/
+	// 表达式编辑组件
+	// @dim: 维度限制，0表示无限制
+	// @handler: 编辑确认后的回调函数
+	void exprEdit(const char* label, const char* text, unsigned dim,
+		std::function<void(std::shared_ptr<KvData>, const char*)> handler);
 }
