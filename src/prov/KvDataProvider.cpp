@@ -138,9 +138,9 @@ void KvDataProvider::onInput(KcPortNode*, unsigned)
 }
 
 
-void KvDataProvider::showProperySet()
+void KvDataProvider::showPropertySet()
 {
-	KvBlockNode::showProperySet();
+	KvBlockNode::showPropertySet();
 
 	unsigned outPort = 0; // TODO: 多端口
 	KpDataSpec sp(spec(outPort));

@@ -29,9 +29,9 @@ void KcOpWindowing::onStopPipeline()
 }
 
 
-void KcOpWindowing::showProperySet()
+void KcOpWindowing::showPropertySet()
 {
-    super_::showProperySet();
+    super_::showPropertySet();
     ImGui::Separator();
 
     ImGui::BeginDisabled(working_());

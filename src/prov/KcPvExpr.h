@@ -7,7 +7,7 @@ class KcPvExpr : public KcPvData
 public:
 	KcPvExpr();
 
-	void showProperySet() override;
+	void showPropertySet() override;
 
 private:
 	std::string exprText_;

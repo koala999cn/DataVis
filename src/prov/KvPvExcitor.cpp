@@ -96,9 +96,9 @@ unsigned KvPvExcitor::dataStamp(kIndex outPort) const
 }
 
 
-void KvPvExcitor::showProperySet()
+void KvPvExcitor::showPropertySet()
 {
-	super_::showProperySet();
+	super_::showPropertySet();
 	ImGui::Separator();
 
 	if (ImGui::BeginCombo("Type", typeStr_(type_))) {

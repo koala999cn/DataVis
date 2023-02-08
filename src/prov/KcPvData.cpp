@@ -92,9 +92,9 @@ unsigned KcPvData::dataStamp(kIndex outPort) const
 }
 
 
-void KcPvData::showProperySet()
+void KcPvData::showPropertySet()
 {
-	super_::showProperySet();
+	super_::showPropertySet();
 	
 	if (data_ && data_->isContinued()) {
 		auto cont = std::dynamic_pointer_cast<KvContinued>(data_);

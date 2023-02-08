@@ -67,9 +67,9 @@ void KcOpFbank::onStopPipeline()
 }
 
 
-void KcOpFbank::showProperySet()
+void KcOpFbank::showPropertySet()
 {
-    super_::showProperySet();
+    super_::showPropertySet();
     ImGui::Separator();
 
     ImGui::BeginDisabled(working_());

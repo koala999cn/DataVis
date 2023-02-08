@@ -98,9 +98,9 @@ void KcOpHistC::onStopPipeline()
 }
 
 
-void KcOpHistC::showProperySet()
+void KcOpHistC::showPropertySet()
 {
-    super_::showProperySet();
+    super_::showPropertySet();
     ImGui::Separator();
 
     if (ImGui::DragInt("Hist Bins", &bins_, 1, 1, 999999))

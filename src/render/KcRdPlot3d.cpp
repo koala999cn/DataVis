@@ -33,9 +33,9 @@ std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KcPortNode* port)
 }
 
 
-void KcRdPlot3d::showProperySet()
+void KcRdPlot3d::showPropertySet()
 {
-	super_::showProperySet();
+	super_::showPropertySet();
 
 	ImGui::Separator();
 	if (!ImGuiX::treePush("Projection", false))

@@ -21,7 +21,7 @@ std::string KcPortNode::portName_(KeType type, unsigned index)
 }
 
 
-void KvBlockNode::showProperySet()
+void KvBlockNode::showPropertySet()
 {
 	ImGui::InputText("Name", &name());
 }

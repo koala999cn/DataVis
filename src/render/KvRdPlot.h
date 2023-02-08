@@ -29,7 +29,7 @@ public:
 
 	void onInput(KcPortNode* outPort, unsigned inPort) override;
 
-	void showProperySet() override;
+	void showPropertySet() override;
 
 	void onDoubleClicked() override;
 

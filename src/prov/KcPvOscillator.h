@@ -14,7 +14,7 @@ public:
 
 	kReal step(kIndex outPort, kIndex axis) const override;
 
-	void showProperySet() override;
+	void showPropertySet() override;
 
 private:
 

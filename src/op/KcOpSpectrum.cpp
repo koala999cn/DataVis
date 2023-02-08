@@ -130,9 +130,9 @@ void KcOpSpectrum::op_(const kReal* in, unsigned len, kReal* out)
 }
 
 
-void KcOpSpectrum::showProperySet()
+void KcOpSpectrum::showPropertySet()
 {
-	KvDataOperator::showProperySet();
+	KvDataOperator::showPropertySet();
 	ImGui::Separator();
 
 	ImGui::BeginDisabled(working_());

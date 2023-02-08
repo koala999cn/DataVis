@@ -48,9 +48,9 @@ void KcPvFunction::updateDataSamplings_()
 }
 
 
-void KcPvFunction::showProperySet()
+void KcPvFunction::showPropertySet()
 {
-    super_::showProperySet();
+    super_::showPropertySet();
     ImGui::Separator();
 
     auto d = std::dynamic_pointer_cast<KtSampledExpr<2>>(data());

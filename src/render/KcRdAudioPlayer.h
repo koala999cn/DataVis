@@ -19,7 +19,7 @@ public:
 
 	bool permitInput(int dataSpec, unsigned inPort) const override;
 
-	void showProperySet() override;
+	void showPropertySet() override;
 
 	void onDoubleClicked() override;
 

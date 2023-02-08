@@ -27,7 +27,7 @@ public:
 
 	unsigned dataStamp(kIndex outPort) const final;
 
-	void showProperySet() override;
+	void showPropertySet() override;
 
 	auto sampleRate() const { return sampleRate_; }
 

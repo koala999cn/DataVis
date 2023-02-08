@@ -11,7 +11,7 @@ class KcPvFunction : public KcPvData
 public:
 	KcPvFunction();
 
-	void showProperySet() override;
+	void showPropertySet() override;
 
 private:
 

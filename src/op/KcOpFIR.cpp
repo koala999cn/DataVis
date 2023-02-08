@@ -78,9 +78,9 @@ namespace kPrivate
 }
 
 
-void KcOpFIR::showProperySet()
+void KcOpFIR::showPropertySet()
 {
-    super_::showProperySet();
+    super_::showPropertySet();
     ImGui::Separator();
 
     static const char* type[] = {

@@ -19,7 +19,7 @@ public:
 
 	void onStopPipeline() final;
 
-	void showProperySet() final;
+	void showPropertySet() final;
 
 private:
 

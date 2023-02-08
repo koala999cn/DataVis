@@ -22,6 +22,6 @@ void KcImPropertySheet::updateImpl_()
 		auto node = KsImApp::singleton().pipeline().getNode(id);
 		auto block = std::dynamic_pointer_cast<KvBlockNode>(node);
 		if (block)
-			block->showProperySet();
+			block->showPropertySet();
 	}
 }

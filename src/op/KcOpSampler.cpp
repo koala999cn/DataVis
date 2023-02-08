@@ -105,9 +105,9 @@ void KcOpSampler::outputImpl_()
 }
 
 
-void KcOpSampler::showProperySet()
+void KcOpSampler::showPropertySet()
 {
-    super_::showProperySet();
+    super_::showPropertySet();
     
     if (!inputs_.front())
         return;

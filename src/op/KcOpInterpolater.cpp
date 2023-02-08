@@ -41,9 +41,9 @@ bool KcOpInterpolater::permitInput(int dataSpec, unsigned inPort) const
 }
 
 
-void KcOpInterpolater::showProperySet()
+void KcOpInterpolater::showPropertySet()
 {
-    super_::showProperySet();
+    super_::showPropertySet();
     ImGui::Separator();
 
     static const char* interp[] = { "Linear", "Quad" };

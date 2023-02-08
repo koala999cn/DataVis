@@ -168,9 +168,9 @@ void KcOpFraming::outputImpl_()
 }
 
 
-void KcOpFraming::showProperySet()
+void KcOpFraming::showPropertySet()
 {
-	KvDataOperator::showProperySet();
+	KvDataOperator::showPropertySet();
 	ImGui::Separator();
 
 	ImGui::BeginDisabled(working_());

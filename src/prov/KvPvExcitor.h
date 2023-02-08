@@ -35,7 +35,7 @@ public:
 
 	unsigned dataStamp(kIndex outPort) const override;
 
-	void showProperySet() override;
+	void showPropertySet() override;
 
 
 protected:

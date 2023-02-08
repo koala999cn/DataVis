@@ -96,9 +96,9 @@ namespace kPrivate
 	std::string localToUtf8(const std::string& str);
 }
 
-void KcRdAudioPlayer::showProperySet()
+void KcRdAudioPlayer::showPropertySet()
 {
-	super_::showProperySet(); 
+	super_::showPropertySet(); 
 
 	ImGui::BeginDisabled(working_());
 

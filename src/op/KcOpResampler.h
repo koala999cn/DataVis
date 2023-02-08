@@ -19,7 +19,7 @@ public:
 
 	void onNewFrame(int frameIdx) final;
 
-	void showProperySet() final;
+	void showPropertySet() final;
 
 
 private:

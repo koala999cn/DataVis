@@ -23,7 +23,7 @@ public:
 
 	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
 
-	void showProperySet() final;
+	void showPropertySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
 

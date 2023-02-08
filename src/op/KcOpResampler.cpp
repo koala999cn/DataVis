@@ -65,9 +65,9 @@ void KcOpResampler::onNewFrame(int frameIdx)
 }
 
 
-void KcOpResampler::showProperySet()
+void KcOpResampler::showPropertySet()
 {
-    super_::showProperySet();
+    super_::showPropertySet();
     ImGui::Separator();
 
     float factor = factor_;

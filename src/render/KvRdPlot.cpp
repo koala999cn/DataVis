@@ -208,9 +208,9 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 }
 
 
-void KvRdPlot::showProperySet()
+void KvRdPlot::showPropertySet()
 {
-	super_::showProperySet(); // show the name property
+	super_::showPropertySet(); // show the name property
 
 	ImGui::Separator();
 	showPlotProperty_();

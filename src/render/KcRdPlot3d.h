@@ -10,7 +10,7 @@ public:
 
 	KcRdPlot3d();
 
-	void showProperySet() final;
+	void showPropertySet() final;
 
 private:
 

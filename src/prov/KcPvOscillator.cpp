@@ -50,9 +50,9 @@ KvExcitor* KcPvOscillator::createExcitor_(int type)
 }
 
 
-void KcPvOscillator::showProperySet()
+void KcPvOscillator::showPropertySet()
 {
-	super_::showProperySet();
+	super_::showPropertySet();
 
 	bool disable = KsImApp::singleton().pipeline().running();
 	ImGui::BeginDisabled(disable);

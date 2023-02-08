@@ -27,7 +27,7 @@ public:
 
 	unsigned dataStamp(kIndex outPort) const override;
 
-	void showProperySet() override;
+	void showPropertySet() override;
 
 	std::shared_ptr<KvData> data() const {
 		return data_;

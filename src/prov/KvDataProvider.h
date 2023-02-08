@@ -49,7 +49,7 @@ public:
 	// 缺省输出端口数为1
 	unsigned outPorts() const override { return 1; }
 
-	void showProperySet() override;
+	void showPropertySet() override;
 
 	void onInput(KcPortNode* outPort, unsigned inPort) override;
 

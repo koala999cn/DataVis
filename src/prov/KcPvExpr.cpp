@@ -21,9 +21,9 @@ KcPvExpr::KcPvExpr()
 }
 
 
-void KcPvExpr::showProperySet()
+void KcPvExpr::showPropertySet()
 {
-    KcPvData::showProperySet();
+    KcPvData::showPropertySet();
     ImGui::Separator();
 
     ImGui::BeginDisabled(KsImApp::singleton().pipeline().running());

@@ -174,9 +174,9 @@ namespace kPrivate
 	}
 }
 
-void KcPvAudioInput::showProperySet()
+void KcPvAudioInput::showPropertySet()
 {
-	KvBlockNode::showProperySet();
+	KvBlockNode::showPropertySet();
 
 	bool disable = KsImApp::singleton().pipeline().running();
 	auto device = (KcAudioDevice*)dptr_;

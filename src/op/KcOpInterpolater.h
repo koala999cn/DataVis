@@ -15,7 +15,7 @@ public:
 
 	kIndex size(kIndex outPort, kIndex axis) const final;
 
-	void showProperySet() final;
+	void showPropertySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
 

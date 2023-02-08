@@ -26,7 +26,7 @@ public:
 
 	void onStopPipeline() final;
 
-	void showProperySet() final;
+	void showPropertySet() final;
 
 	// 根据输入同步low_ & high_
 	bool onNewLink(KcPortNode* from, KcPortNode* to) final;

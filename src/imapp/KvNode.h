@@ -58,7 +58,7 @@ public:
 	// 该方法后，this节点的所有输出端口须全部ready
 	virtual void output() = 0;
 
-	virtual void showProperySet();
+	virtual void showPropertySet();
 
 	// 用户双击了该node
 	virtual void onDoubleClicked() {}
