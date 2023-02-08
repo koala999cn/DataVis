@@ -65,6 +65,10 @@ public:
 		return point(idx, channel).back();
 	}
 
+	void setExpr(unsigned axis, expr_t expr) {
+		exprs_[axis] = expr;
+	}
+
 private:
 	expr_array_t exprs_; // 将采样点映射到数据点的函数表达式，即f, g, h, ...
 };

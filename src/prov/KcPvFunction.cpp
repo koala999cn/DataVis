@@ -62,7 +62,11 @@ void KcPvFunction::showPropertySet()
             ImGui::PushID(i);
             ImGuiX::exprEdit(label.c_str(), exprs_[i].c_str(), 2,
                 [this, i, d](std::shared_ptr<KvData> data, const char* text) {
-                    exprs_[i] = text;
+                    auto expr = std::dynamic_pointer_cast<KvContinued>(data);
+                    assert(expr);
+
+                    exprs_[i] = text;     
+                    d->setExpr(i, expr);
                 });
             ImGui::PopID();
         }
