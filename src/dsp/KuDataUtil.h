@@ -41,6 +41,8 @@ public:
 
 	static std::shared_ptr<KvData> cloneSampled1d(std::shared_ptr<KvData> samp);
 
+	static bool isMatrix(const KvData& d);
+
 private:
 	KuDataUtil() = default;
 };

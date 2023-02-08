@@ -199,3 +199,12 @@ std::shared_ptr<KvData> KuDataUtil::cloneSampled1d(std::shared_ptr<KvData> samp)
 
     return copyed;
 }
+
+
+bool KuDataUtil::isMatrix(const KvData& d)
+{
+    if (d.dim() != 2)
+        return false;
+
+    return d.isContinued() || ((const KvDiscreted&)d).isSampled();
+}

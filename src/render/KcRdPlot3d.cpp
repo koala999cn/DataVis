@@ -7,7 +7,7 @@
 #include "plot/KcSurface.h"
 #include "plot/KvCoord.h" // TODO: 此处不该引用KvCoord文件
 #include "prov/KvDataProvider.h"
-#include "KuStrUtil.h"
+#include "KuDataUtil.h"
 #include "imguix.h"
 
 
@@ -134,11 +134,11 @@ bool KcRdPlot3d::plottableMatchData_(int iType, const KvData& d) const
 {
 	switch (iType)
 	{
-	case 2:
+	case 2: // area
 		return d.dim() == 1;
 
-	case 4:
-		return d.dim() == 2;
+	case 4: // surface
+		return KuDataUtil::isMatrix(d);
 
 	default:
 		break;
