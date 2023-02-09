@@ -755,9 +755,11 @@ void KvRdPlot::showPlottableProperty_()
 		std::vector<color4f> majors(plt->majorColors());
 		for (unsigned i = 0; i < plt->majorColors(); i++)
 			majors[i] = plt->majorColor(i);
-		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
-		if (ImGuiX::multiColorsEdit(nullptr, (ImVec4*)majors.data(), majors.size(), false))
-			plt->setMajorColors(majors);
+		if (!majors.empty()) {
+			ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+			if (ImGuiX::multiColorsEdit(nullptr, (ImVec4*)majors.data(), majors.size(), false))
+				plt->setMajorColors(majors);
+		}
 
 		if (open) {
 
