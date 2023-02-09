@@ -3,6 +3,7 @@
 - [ ] binary data loader
 - [x] 多值函数支持(multifunction)
 - [ ] 多通道连续数据
+- [x] 缓存function的range计算
 
 ## plot
 - [ ] title等设置

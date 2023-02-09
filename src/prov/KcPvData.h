@@ -17,13 +17,13 @@ public:
 
 	int spec(kIndex outPort) const override;
 
-	kRange range(kIndex outPort, kIndex axis) const final;
+	kRange range(kIndex outPort, kIndex axis) const override;
 
-	kReal step(kIndex outPort, kIndex axis) const final;
+	kReal step(kIndex outPort, kIndex axis) const override;
 
-	kIndex size(kIndex outPort, kIndex axis) const final;
+	kIndex size(kIndex outPort, kIndex axis) const override;
 
-	std::shared_ptr<KvData> fetchData(kIndex outPort) const final;
+	std::shared_ptr<KvData> fetchData(kIndex outPort) const override;
 
 	unsigned dataStamp(kIndex outPort) const override;
 

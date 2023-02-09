@@ -132,7 +132,7 @@ void KcPvData::notifyChanged(bool specChanged, bool dataChanged)
 	if (specChanged)
 	    updateSpec_();
 
-	if (dataChanged)
+	// if (dataChanged)
 	    valueRange_ = data_ ? data_->valueRange() : kRange(0, 0);
 
 	dataStamp_ = currentFrameIndex_();

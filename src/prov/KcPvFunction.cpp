@@ -13,8 +13,8 @@ KcPvFunction::KcPvFunction()
     exprs_[1] = "sin(x) * sin(y)";
     exprs_[2] = "cos(x)";
 
-    ranges_[0] = { 0, KuMath::pi };
-    ranges_[1] = { 0, KuMath::pi * 2 };
+    iranges_[0] = { 0, KuMath::pi };
+    iranges_[1] = { 0, KuMath::pi * 2 };
 
     counts_[0] = counts_[1] = 32;
 
@@ -39,7 +39,7 @@ void KcPvFunction::updateDataSamplings_()
     auto d = std::dynamic_pointer_cast<KtSampledExpr<2>>(data());
 
     for (int i = 0; i < 2; i++)
-        d->reset(i, ranges_[i].first, (ranges_[i].second - ranges_[i].first) / (counts_[i] - 1));
+        d->reset(i, iranges_[i].first, (iranges_[i].second - iranges_[i].first) / (counts_[i] - 1));
 
     kIndex shape[2]{ counts_[0], counts_[1] };
     d->resize(shape, 0);
@@ -57,7 +57,7 @@ void KcPvFunction::showPropertySet()
 
     if (ImGuiX::treePush("Expressions", true)) {
         for (unsigned i = 0; i < exprs_.size(); i++) {
-            std::string label = "Dim1";
+            std::string label = "f1";
             label.back() += i;
             ImGui::PushID(i);
             ImGuiX::exprEdit(label.c_str(), exprs_[i].c_str(), 2,
@@ -75,9 +75,9 @@ void KcPvFunction::showPropertySet()
 
     if (ImGuiX::treePush("Sampling", true)) {
         for (unsigned i = 0; i < exprs_.size() - 1; i++) {
-            std::string label = "Range1";
+            std::string label = "RangeX";
             label.back() += i;      
-            if (ImGui::DragFloatRange2(label.c_str(), &ranges_[i].first, &ranges_[i].second))
+            if (ImGui::DragFloatRange2(label.c_str(), &iranges_[i].first, &iranges_[i].second))
                 updateDataSamplings_();
         }
 
@@ -91,3 +91,18 @@ void KcPvFunction::showPropertySet()
     }
 }
 
+
+kRange KcPvFunction::range(kIndex outPort, kIndex axis) const
+{
+    return axis < 2 ? oranges_[axis] : super_::range(outPort, axis);
+}
+
+
+
+void KcPvFunction::notifyChanged(bool specChanged, bool dataChanged)
+{
+    super_::notifyChanged(specChanged, dataChanged);
+
+    oranges_[0] = data() ? data()->range(0) : kRange(0, 0);
+    oranges_[1] = data() ? data()->range(1) : kRange(0, 0);
+}
