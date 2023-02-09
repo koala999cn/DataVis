@@ -13,12 +13,14 @@ KcOpFIR::KcOpFIR()
     taps_ = 127;
     cutoff0_ = 0.2;
     cutoff1_ = 0.4;
-    dirty_ = true;
 }
 
 
 bool KcOpFIR::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+    if (!super_::onStartPipeline(ins))
+        return false;
+
     createFilter_();
     return filter_ != nullptr;
 }
@@ -27,15 +29,14 @@ bool KcOpFIR::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>
 void KcOpFIR::onStopPipeline()
 {
     filter_.reset();
+    super_::onStopPipeline();
 }
 
 
 void KcOpFIR::outputImpl_()
 {
-    if (dirty_) {
+    if (isOutputExpired(0)) 
         createFilter_();
-        dirty_ = false;
-    }
 
     assert(dim(0) == 1 && isSampled(0));
     assert(filter_ && filter_->channels() == idata_.front()->channels());
@@ -84,44 +85,35 @@ void KcOpFIR::showPropertySet()
     ImGui::Separator();
 
     static const char* type[] = {
-        "lowpass", 
-        "highpass", 
-        "bandpass", 
-        "bandstop"
+        "Low-Pass", 
+        "High-Pass", 
+        "Band-Pass", 
+        "Band-Stop"
     };
-    if (ImGui::BeginCombo("Type", type[type_])) {
-        for (unsigned i = 0; i < std::size(type); i++)
-            if (ImGui::Selectable(type[i], i == type_)) {
-                type_ = i;
-                dirty_ = true;
-            }
-        ImGui::EndCombo();
-    }
+    if (ImGui::Combo("Type", &type_, type, std::size(type)))
+        setOutputExpired(0);
 
     static const char* win[] = {
         "Kaiser",
         "Blackman Harris",
         "Hann"
     };
-    if (ImGui::BeginCombo("Window", win[window_])) {
-        for (unsigned i = 0; i < std::size(win); i++)
-            if (ImGui::Selectable(win[i], i == window_)) {
-                window_ = i;
-                dirty_ = true;
-            }
-        ImGui::EndCombo();
-    }
+    if (ImGui::Combo("Window", &window_, win, std::size(win)))
+        setOutputExpired(0);
 
     if (ImGui::DragInt("Tap", &taps_, 1, 1, 1e10))
-        dirty_ = true;
+        setOutputExpired(0);
 
     if (type_ > 1) {
         if (ImGui::DragFloatRange2("Cutoff", &cutoff0_, &cutoff1_, 0.1, 0, 0.5))
-            dirty_ = true;
+            setOutputExpired(0);
     }
     else {
-        if (ImGui::DragFloat("Cutoff", &cutoff0_, 0.1, 0, 0.5))
-            dirty_ = true;
+        float cutoff(cutoff0_); // cutoff不能为0，否则kfr构造fir时返回nan
+        if (ImGui::DragFloat("Cutoff", &cutoff, 0.001, 1e-10, 0.5) && cutoff >= 1e-10) {
+            cutoff0_ = cutoff;
+            setOutputExpired(0);
+        }
     }
 }
 

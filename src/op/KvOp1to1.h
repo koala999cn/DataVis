@@ -13,7 +13,7 @@ public:
 	void output() override {
 		if (odataStamps_[0] < idataStamps_[0] || isOutputExpired(0)) { 
 			outputImpl_();
-			odataStamps_[0] = idataStamps_[0];
+			odataStamps_[0] = idataStamps_[0]; // clear output expired flag
 			notifyChanged(0);
 		}
 	}

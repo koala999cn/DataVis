@@ -31,5 +31,4 @@ private:
 	int window_; // 窗类型
 	int taps_;
 	float cutoff0_, cutoff1_;  // 两个截至频率，取值0 - 0.5
-	bool dirty_; // filter的配置参数是否发生变化
 };
