@@ -66,25 +66,14 @@ void KcHeatMap::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned n
 
 	super_::drawImpl_(paint, getterShift, nx + 1, ny + 1, ch);
 
-/*	for (unsigned i = 0; i < disc->size(); i++) {
-		auto pt = disc->pointAt(i, 0);
-		paint->setColor(mapValueToColor_(pt.back(), ch));
-		paint->fillRect({ pt[0] - half_dx, pt[1] - half_dy, 0 },
-			{ pt[0] + half_dx, pt[1] + half_dy, 0 });
-	}
-
-	if (showBorder() && borderPen().visible()) {
-		paint->apply(borderPen());
-		for (unsigned i = 0; i < disc->size(); i++) {
-			auto pt = disc->pointAt(i, 0);
-			paint->drawRect({ pt[0] - half_dx, pt[1] - half_dy, 0 },
-				{ pt[0] + half_dx, pt[1] + half_dy, 0 });
-		}
-	}*/
-
 	if (showText_ && clrText_.a() != 0) {
-		paint->setColor(clrText_);
+		
 		auto leng = paint->projectv({ dx, dy, 0 }).abs();
+		auto minSize = paint->textSize("0");
+		if (leng.x() < minSize.x() || leng.y() < minSize.y()) // 加1个总体判断，否则当nx*ny很大时，非常耗时
+			return;
+
+		paint->setColor(clrText_);
 		for (unsigned ix = 0; ix < nx; ix++)
 			for (unsigned iy = 0; iy < ny; iy++) {
 				auto pt = getter(ix, iy);
