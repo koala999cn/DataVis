@@ -212,17 +212,18 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 		return getter;
 	}
 
-
+	// TODO: disc可能是KcMonoDiscreted，这时无发转换为samp，须实现单独的KcMonoSampled
 	auto samp = std::dynamic_pointer_cast<const KvSampled>(disc);
 
 	if (chs > 1) { // 优先按通道分组/堆叠
 		if (stackedFirst_) {
 			getter.stacks = chs;
-			getter.groups = samp->size(1);
-			if (samp->dim() == 1) {
-				getter.getter = [this, samp](unsigned idx, unsigned group, unsigned stack) {
-					auto pt = samp->point(idx, stack);
-					pt.push_back(defaultZ(stack));
+			getter.groups = samp ? samp->size(1) : 1;
+			if (disc->dim() == 1 || samp == nullptr) {
+				getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
+					auto pt = disc->pointAt(idx, stack);
+					if (pt.size() < 3)
+					    pt.push_back(defaultZ(stack));
 					return pt;
 				};
 			}
@@ -233,12 +234,13 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 			}
 		}
 		else {
-			getter.stacks = samp->size(1);
+			getter.stacks = samp ? samp->size(1) : 1;
 			getter.groups = chs;
-			if (samp->dim() == 1) {
-				getter.getter = [this, samp](unsigned idx, unsigned group, unsigned stack) {
-					auto pt = samp->point(idx, group);
-					pt.push_back(defaultZ(group));
+			if (disc->dim() == 1 || samp == nullptr) {
+				getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
+					auto pt = disc->pointAt(idx, group);
+					if (pt.size() < 3)
+					    pt.push_back(defaultZ(group));
 					return pt;
 				};
 			}
@@ -249,13 +251,14 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 			}
 		}
 	}
-	else if (samp->dim() == 1) { // 单通道单维度，分组数和堆叠数均为1
+	else if (disc->dim() == 1 || samp == nullptr) { // 单通道单维度，分组数和堆叠数均为1
 		getter.stacks = 1;
 		getter.groups = 1;
-		getter.getter = [this, samp](unsigned idx, unsigned group, unsigned stack) {
+		getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
 			assert(stack == 0 && group == 0);
-			auto pt = samp->point(idx, 0);
-			pt.push_back(defaultZ(0));
+			auto pt = disc->pointAt(idx, 0);
+			if (pt.size() < 3)
+			    pt.push_back(defaultZ(0));
 			return pt;
 
 		};
