@@ -77,8 +77,11 @@ void KcPvFunction::showPropertySet()
         for (unsigned i = 0; i < exprs_.size() - 1; i++) {
             std::string label = "RangeX";
             label.back() += i;      
-            if (ImGui::DragFloatRange2(label.c_str(), &iranges_[i].first, &iranges_[i].second))
+            float low(iranges_[i].first), high(iranges_[i].second);
+            if (ImGui::DragFloatRange2(label.c_str(), &low, &high) && high > low) {
+                iranges_[i].first = low, iranges_[i].second = high;
                 updateDataSamplings_();
+            }
         }
 
         if (ImGui::DragInt2("Count", counts_, 1, 2, 1024)) {
