@@ -79,6 +79,10 @@ public:
 	// 返回第outPort个输出端口的数据时间戳，即数据的生成时间，用pipeline的帧序号表示
 	virtual unsigned dataStamp(kIndex outPort) const = 0;
 
+	// 当输出数据发生了变化时，须显示调用该函数
+	// @outPort: 发生变化的输出端口号，-1表示所有端口
+	virtual void notifyChanged(unsigned outPort = -1) {};
+
 	/// same helper functions
 
 	bool isStream(kIndex outPort) const;

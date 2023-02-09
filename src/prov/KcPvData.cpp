@@ -9,7 +9,7 @@
 KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 	: KvDataProvider(name), data_(data) 
 {
-	notifyChanged(true ,true);
+	notifyChanged();
 }
 
 
@@ -108,7 +108,7 @@ void KcPvData::showPropertySet()
 				float low = r.low(), high = r.high();
 				if (ImGui::DragFloatRange2(label, &low, &high)) {
 					cont->setRange(i, low, high);
-					notifyChanged(false, true);
+					notifyChanged();
 				}
 
 				label[0] += 1;
@@ -123,19 +123,17 @@ void KcPvData::showPropertySet()
 void KcPvData::setData(const std::shared_ptr<KvData>& d)
 {
 	data_ = d;
-	notifyChanged(true, true);
+	notifyChanged();
 }
 
 
-void KcPvData::notifyChanged(bool specChanged, bool dataChanged)
+void KcPvData::notifyChanged(unsigned outPort)
 {
-	if (specChanged)
-	    updateSpec_();
+	assert(outPort == 0 || outPort == -1);
 
-	// if (dataChanged)
-	    valueRange_ = data_ ? data_->valueRange() : kRange(0, 0);
-
+	updateSpec_();
+	valueRange_ = data_ ? data_->valueRange() : kRange(0, 0);
 	dataStamp_ = currentFrameIndex_();
 
-	// TODO: 待删除 KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+	super_::notifyChanged(outPort);
 }

@@ -44,7 +44,7 @@ void KcPvFunction::updateDataSamplings_()
     kIndex shape[2]{ counts_[0], counts_[1] };
     d->resize(shape, 0);
 
-    notifyChanged(true, true);
+    notifyChanged();
 }
 
 
@@ -101,11 +101,10 @@ kRange KcPvFunction::range(kIndex outPort, kIndex axis) const
 }
 
 
-
-void KcPvFunction::notifyChanged(bool specChanged, bool dataChanged)
+void KcPvFunction::notifyChanged(unsigned outPort)
 {
-    super_::notifyChanged(specChanged, dataChanged);
-
     oranges_[0] = data() ? data()->range(0) : kRange(0, 0);
     oranges_[1] = data() ? data()->range(1) : kRange(0, 0);
+
+    super_::notifyChanged(outPort);
 }

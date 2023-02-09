@@ -77,7 +77,7 @@ bool KvPlottable::empty() const
 KvPlottable::aabb_t KvPlottable::calcBoundingBox_() const
 {
 	if (empty())
-		return aabb_t(point3(0), point3(1)); 
+		return aabb_t(); // 返回null，以免影响坐标系设置 
 
 	point3 lower, upper;
 

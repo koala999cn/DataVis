@@ -108,6 +108,20 @@ std::shared_ptr<KvData> KvDataOperator::fetchData(kIndex outPort) const
 }
 
 
+void KvDataOperator::notifyChanged(unsigned outPort)
+{
+	if (outPort == -1) {
+		for (auto& i : odataStamps_)
+			i = currentFrameIndex_();
+	}
+	else {
+		odataStamps_[outPort] = currentFrameIndex_();
+	}
+
+	super_::notifyChanged(outPort);
+}
+
+
 unsigned KvDataOperator::dataStamp(kIndex outPort) const
 {
 	return odataStamps_[outPort];
@@ -252,4 +266,16 @@ kIndex KvDataOperator::inputSize_(kIndex axis) const
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
 	assert(prov);
 	return prov->size(d->index(), axis);
+}
+
+
+void KvDataOperator::setOutputExpired(unsigned outPort)
+{
+	odataStamps_[outPort] = -1;
+}
+
+
+bool KvDataOperator::isOutputExpired(unsigned outPort) const
+{
+	return odataStamps_[outPort] == -1;
 }

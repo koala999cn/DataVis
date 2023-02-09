@@ -32,6 +32,8 @@ public:
 
 	std::shared_ptr<KvData> fetchData(kIndex outPort) const override;
 
+	void notifyChanged(unsigned outPort = -1) override;
+
 	unsigned dataStamp(kIndex outPort) const override;
 
 	// 获取数据规格的方法：若output有效，优先从output获取；否则从inputs_获取
@@ -48,6 +50,11 @@ public:
 
 	// inPort输入端口是否接受dataSpec规格的数据 ？ 
 	virtual bool permitInput(int dataSpec, unsigned inPort) const = 0;
+
+	void setOutputExpired(unsigned outPort);
+
+	bool isOutputExpired(unsigned outPort) const;
+
 
 protected:
 

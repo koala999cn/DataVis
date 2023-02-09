@@ -67,6 +67,9 @@ bool KcOpHistC::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode
 {
     assert(histc_ == nullptr);
 
+    if (!super_::onStartPipeline(ins))
+        return false;
+
     if (low_ == high_) {
         auto r = inputRange_(dim(0));
         low_ = r.low(), high_ = r.high(); // 进一步同步值域范围
@@ -95,6 +98,7 @@ bool KcOpHistC::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode
 void KcOpHistC::onStopPipeline()
 {
     histc_.reset();
+    super_::onStopPipeline();
 }
 
 
@@ -103,11 +107,17 @@ void KcOpHistC::showPropertySet()
     super_::showPropertySet();
     ImGui::Separator();
 
-    if (ImGui::DragInt("Hist Bins", &bins_, 1, 1, 999999))
-        notifyChanged_();
+    int bins(bins_);
+    if (ImGui::DragInt("Hist Bins", &bins, 1, 1, 999999) && bins > 0) {
+        bins_ = bins;
+        setOutputExpired(0);
+    }
 
-    if (ImGui::DragFloatRange2("Hist Range", &low_, &high_)) 
-        notifyChanged_();
+    float low(low_), high(high_);
+    if (ImGui::DragFloatRange2("Hist Range", &low, &high) && high > low) {
+        low_ = low, high_ = high;
+        setOutputExpired(0);
+    }
 }
 
 

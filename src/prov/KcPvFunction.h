@@ -16,7 +16,7 @@ public:
 	// ª∫¥Êrangeº∆À„
 	kRange range(kIndex outPort, kIndex axis) const override;
 
-	void notifyChanged(bool specChanged, bool dataChanged) override;
+	void notifyChanged(unsigned outPort = -1) override;
 
 private:
 

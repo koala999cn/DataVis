@@ -56,10 +56,12 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 	if (prov->dataStamp(outPort->index()) < KsImApp::singleton().pipeline().frameIndex()) // 数据无变化
 		return;
 
+	auto data = prov->fetchData(outPort->index());
+	if (data == nullptr)
+		return;
+
 	auto r = port2Plts_.equal_range(outPort->id());
 	assert(r.first != r.second);
-
-	auto data = prov->fetchData(outPort->index());
 
 	auto numPlts = std::distance(r.first, r.second);
 	

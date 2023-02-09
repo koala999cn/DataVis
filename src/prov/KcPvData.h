@@ -36,7 +36,7 @@ public:
 	void setData(const std::shared_ptr<KvData>& d);
 
 	// 当data_在外部发生了更改时，须显示调用该函数
-	virtual void notifyChanged(bool specChanged, bool dataChanged);
+	void notifyChanged(unsigned outPort = -1) override;
 
 private:
 	void updateSpec_();
