@@ -532,10 +532,10 @@ bool KuMath::almostEqualRel(KREAL x1, KREAL x2, KREAL rel_tol)
 template<typename KREAL>
 KREAL KuMath::addLog(KREAL x, KREAL y)
 {
-    if (x == -inf) {
+    if (x == -inf<KREAL>()) {
         return y;
     }
-    else if (y == -inf) {
+    else if (y == -inf<KREAL>()) {
         return x;
     }
     else if (x > y) {
@@ -551,12 +551,12 @@ template<typename KREAL>
 KREAL KuMath::subLog(KREAL x, KREAL y)
 {
     if (x < y) // log(-k)
-        return nan;
+        return nan<KREAL>();
 
     else if (x == y) // log(0)
-        return -inf;
+        return -inf<KREAL>();
 
-    else if (y == -inf) // log(x-0) = log(x) = x
+    else if (y == -inf<KREAL>()) // log(x-0) = log(x) = x
         return x;
 
     else
@@ -774,7 +774,7 @@ KREAL KuMath::sumPower(const KREAL x[], unsigned n, KREAL power)
 template<typename KREAL>
 KREAL KuMath::norm(const KREAL x[], unsigned n, KREAL power)
 {
-    if (power < 0) return nan;
+    if (power < 0) return nan<KREAL>();
     if (power == 2) {
         double sum2 = sum2(x, n);
         return std::sqrt(sum2);
@@ -819,7 +819,7 @@ KREAL KuMath::var(const KREAL x[], unsigned n, KREAL mean)
         return UNBIASED ? sum2 / (n - 1) : sum2 / n;
     }
 
-    return nan;
+    return nan<KREAL>();
 }
 
 
