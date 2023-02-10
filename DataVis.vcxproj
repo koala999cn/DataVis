@@ -197,6 +197,7 @@
     <ClCompile Include="src\op\KcOpHist.cpp" />
     <ClCompile Include="src\op\KcOpHistC.cpp" />
     <ClCompile Include="src\op\KcOpInterpolater.cpp" />
+    <ClCompile Include="src\op\KcOpKde.cpp" />
     <ClCompile Include="src\op\KcOpResampler.cpp" />
     <ClCompile Include="src\op\KcOpSampler.cpp" />
     <ClCompile Include="src\op\KcOpSpectrum.cpp" />
@@ -316,6 +317,7 @@
     <ClInclude Include="src\dsp\KgWindowing.h" />
     <ClInclude Include="src\dsp\KmBins.h" />
     <ClInclude Include="src\dsp\KtFraming.h" />
+    <ClInclude Include="src\dsp\KtKde.h" />
     <ClInclude Include="src\dsp\KtMultiArray.h" />
     <ClInclude Include="src\dsp\KcContinuedFn.h" />
     <ClInclude Include="src\dsp\KtFIR.h" />
@@ -398,6 +400,7 @@
     <ClInclude Include="src\op\KcOpHist.h" />
     <ClInclude Include="src\op\KcOpHistC.h" />
     <ClInclude Include="src\op\KcOpInterpolater.h" />
+    <ClInclude Include="src\op\KcOpKde.h" />
     <ClInclude Include="src\op\KcOpResampler.h" />
     <ClInclude Include="src\op\KcOpSampler.h" />
     <ClInclude Include="src\op\KcOpSpectrum.h" />

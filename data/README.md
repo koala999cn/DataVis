@@ -6,3 +6,6 @@
 
  * mtcars.txt
  从mtcars.csv删减而来（重点是第2列的类别信息），方便计算andrews曲线
+
+ * 1_OneNum.csv
+ https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/1_OneNum.csv

@@ -61,16 +61,19 @@ void initActions()
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvStochastic>>("Stochastic"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvOscillator>>("Oscillator"));
     panel->addAction("Provider", std::make_shared<KtActionInsertNode<KcPvAudioInput>>("Audio Input"));
+
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSpectrum>>("Spectrum"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFraming>>("Framing"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHist>>("Hist"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpHistC>>("HistC"));
+    panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpKde>>("KDE"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpSampler>>("Sampler"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpResampler>>("Resampler"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFbank>>("Fbank"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpFIR>>("FIR"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpInterpolater>>("Interpolater"));
     panel->addAction("Operator", std::make_shared<KtActionInsertNode<KcOpWindowing>>("Windowing"));
+
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot1d>>("Plot1d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot2d>>("Plot2d"));
     panel->addAction("Renderer", std::make_shared<KtActionInsertNode<KcRdPlot3d>>("Plot3d"));

@@ -38,6 +38,8 @@
 - [ ] plt隐藏/可见切换时对vbo复用的影响
 - [ ] plottable侧对复用vbo的通用框架
 - [ ] ridgeplot
+- [x] 密度图（参考ggplot2的geom_density）-> 实现operator KDE
+- [ ] 色带编辑器美化（参考https://github.com/CoolLibs/imgui_gradient & https://github.com/effekseer/ImGradientHDR）
 
 ## theme
 - [ ] 更多theme，SCI等
@@ -51,6 +53,8 @@
 - [x] 给数据加时间戳stamp
 - [ ] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？
 - [ ] 追踪和管理operator配置的变化状态
+- [ ] 实现消息框（参考https://github.com/leiradel/ImGuiAl）
+- [ ] node-editor的连接错误消息提示（考虑渐消隐的tooltip）
 
 ## FIXME
 - [ ] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）

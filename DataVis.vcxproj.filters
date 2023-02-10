@@ -487,6 +487,9 @@
     <ClCompile Include="src\prov\KcPvFunction.cpp">
       <Filter>prov</Filter>
     </ClCompile>
+    <ClCompile Include="src\op\KcOpKde.cpp">
+      <Filter>op</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1115,6 +1118,12 @@
     </ClInclude>
     <ClInclude Include="src\dsp\KtSampledExpr.h">
       <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsp\KtKde.h">
+      <Filter>dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\op\KcOpKde.h">
+      <Filter>op</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

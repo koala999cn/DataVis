@@ -9,3 +9,4 @@
 #include "op/KcOpFIR.h"
 #include "op/KcOpInterpolater.h"
 #include "op/KcOpWindowing.h"
+#include "op/KcOpKde.h"
