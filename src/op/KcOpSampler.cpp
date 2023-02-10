@@ -93,6 +93,12 @@ bool KcOpSampler::onNewLink(KcPortNode* from, KcPortNode* to)
 }
 
 
+void KcOpSampler::prepareOutput_()
+{
+
+}
+
+
 void KcOpSampler::outputImpl_()
 {
     if (!odata_.front()) {
@@ -219,5 +225,5 @@ void KcOpSampler::sampleCountChanged_()
         }
     }
 
-    notifyChanged_();
+    setOutputExpired(0);
 }

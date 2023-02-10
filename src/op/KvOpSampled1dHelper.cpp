@@ -4,9 +4,11 @@
 #include <assert.h>
 
 
-KvOpSampled1dHelper::KvOpSampled1dHelper(const std::string_view& name, bool splitChannels)
+KvOpSampled1dHelper::KvOpSampled1dHelper(const std::string_view& name, 
+	bool splitChannels, bool permitSamp2d)
 	: super_(name) 
 	, splitChannels_(splitChannels)
+	, permitSamp2d_(permitSamp2d)
 {
 
 }
@@ -15,7 +17,7 @@ KvOpSampled1dHelper::KvOpSampled1dHelper(const std::string_view& name, bool spli
 bool KvOpSampled1dHelper::permitInput(int dataSpec, unsigned inPort) const
 {
 	KpDataSpec ds(dataSpec);
-	return (ds.type == k_sampled || ds.type == k_array) && ds.dim <= 2; // TODO:  isize_() == 0 ? ds.dim == 1 : ds.dim <= 2);
+	return (ds.type == k_sampled || ds.type == k_array) && ds.dim <= (permitSamp2d_ ? 2 : 1);
 }
 
 
@@ -49,7 +51,7 @@ void KvOpSampled1dHelper::outputImpl_()
 }
 
 
-void KvOpSampled1dHelper::prepareOutput_()
+void KvOpSampled1dHelper::createOutputData_()
 {
 	for (unsigned i = 0; i < outPorts(); i++) {
 		std::shared_ptr<KvSampled> samp;

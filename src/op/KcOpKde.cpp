@@ -44,7 +44,7 @@ bool KcOpKde::permitInput(int dataSpec, unsigned inPort) const
 {
     assert(inPort == 0);
     KpDataSpec sp(dataSpec);
-    return sp.type != k_continued && sp.dim == 1;
+    return sp.type != k_continued && sp.dim == 1 && !sp.dynamic && !sp.stream;
 }
 
 
@@ -64,7 +64,7 @@ void KcOpKde::showPropertySet()
                 float low = r.low(), high = r.high();
                 if (ImGui::DragFloatRange2(label, &low, &high) && high > low) {
                     cont->setRange(i, low, high);
-                    notifyChanged();
+                    notifyChanged(); // 由于此处直接更新输出数据，所以调用notifyChanged
                 }
 
                 label[0] += 1;
@@ -91,7 +91,7 @@ void KcOpKde::outputImpl_()
 
         auto kde = KtKde<kReal>(getter, disc->size(), kernel);
         auto d = std::make_shared<KcContinuedFn>([kde](kReal x) { return kde(x); });
-        auto r = disc->valueRange();
+        auto r = disc->valueRange(0); // TODO: 多通道支持
         d->setRange(0, r.low(), r.high());
         odata_.front() = d;
     }

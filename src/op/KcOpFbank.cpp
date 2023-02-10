@@ -6,7 +6,7 @@
 
 
 KcOpFbank::KcOpFbank()
-	: super_("Fbank", true)
+	: super_("Fbank", true, true)
 {
     type_ = KgFbank::k_linear;
     bins_ = 13;
@@ -44,6 +44,9 @@ kReal KcOpFbank::step(kIndex outPort, kIndex axis) const
 
 bool KcOpFbank::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+    if (super_::onStartPipeline(ins))
+        return false;
+
     KgFbank::KpOptions opts;
     opts.sampleRate = 1. / inputStep_(dim(0) - 1);
     opts.fftBins = inputSize_(dim(0) - 1);
@@ -55,7 +58,7 @@ bool KcOpFbank::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode
     opts.normalize = false; // TODO:
 
     fbank_ = std::make_unique<KgFbank>(opts);
-    prepareOutput_();
+    createOutputData_();
 
     return fbank_ != nullptr && odata_[0] != nullptr;
 }
@@ -64,6 +67,7 @@ bool KcOpFbank::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode
 void KcOpFbank::onStopPipeline()
 {
     fbank_.reset();
+    super_::onStopPipeline();
 }
 
 
@@ -76,13 +80,18 @@ void KcOpFbank::showPropertySet()
 
     if (ImGui::BeginCombo("Type", KgFbank::type2Str(KgFbank::KeType(type_)))) {
         for (unsigned i = 0; i < KgFbank::k_type_count; i++)
-            if (ImGui::Selectable(KgFbank::type2Str(KgFbank::KeType(i)), i == type_))
+            if (ImGui::Selectable(KgFbank::type2Str(KgFbank::KeType(i)), i == type_)) {
                 type_ = i;
+                setOutputExpired(0);
+            }
         ImGui::EndCombo();
     }
 
-    if (ImGui::DragInt("Bins", &bins_, 1, 1, 4096) && bins_ < 1)
-        bins_ = 1;
+    int bins(bins_);
+    if (ImGui::DragInt("Bins", &bins, 1, 1, 4096) && bins >= 1) {
+        bins_ = bins;
+        setOutputExpired(0);
+    }
 
     ImGui::EndDisabled();
 }
@@ -98,4 +107,10 @@ void KcOpFbank::op_(const kReal* in, unsigned len, kReal* out)
 {
     assert(len == isize_());
     fbank_->process(in, out);
+}
+
+
+void KcOpFbank::prepareOutput_()
+{
+
 }

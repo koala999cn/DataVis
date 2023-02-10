@@ -1,13 +1,13 @@
 ﻿#pragma once
-#include "KvOp1to1.h"
+#include "KvDataOperator.h"
 #include <memory>
 
 
 class KgHist;
 
-class KcOpHist : public KvOp1to1
+class KcOpHist : public KvDataOperator
 {
-	using super_ = KvOp1to1;
+	using super_ = KvDataOperator;
 
 public:
 	KcOpHist();
@@ -31,6 +31,9 @@ public:
 	bool onInputChanged(KcPortNode* outPort, unsigned inPort) final;
 
 private:
+
+	void prepareOutput_() final;
+
 	void outputImpl_() final;
 
 private:

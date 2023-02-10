@@ -4,7 +4,7 @@
 
 
 KcOpWindowing::KcOpWindowing()
-    : super_("Windowing", true)
+    : super_("Windowing", true, true)
     , type_(KgWindowing::k_hamming)
     , arg_(0)
 {
@@ -17,8 +17,11 @@ bool KcOpWindowing::onStartPipeline(const std::vector<std::pair<unsigned, KcPort
     assert(win_ == nullptr);
     assert(isize_() > 0);
 
+    if (!super_::onStartPipeline(ins))
+        return false;
+
     win_ = std::make_unique<KgWindowing>(isize_(), KgWindowing::KeType(type_), arg_);
-    prepareOutput_();
+    createOutputData_();
     return win_ != nullptr && odata_.front() != nullptr;
 }
 
@@ -26,6 +29,7 @@ bool KcOpWindowing::onStartPipeline(const std::vector<std::pair<unsigned, KcPort
 void KcOpWindowing::onStopPipeline()
 {
     win_.reset();
+    super_::onStopPipeline();
 }
 
 
@@ -34,23 +38,30 @@ void KcOpWindowing::showPropertySet()
     super_::showPropertySet();
     ImGui::Separator();
 
-    ImGui::BeginDisabled(working_());
-
     if (ImGui::BeginCombo("Type", KgWindowing::type2Str(KgWindowing::KeType(type_)))) {
         for (unsigned i = 0; i < KgWindowing::k_type_count; i++)
-            if (ImGui::Selectable(KgWindowing::type2Str(KgWindowing::KeType(i)), i == type_))
+            if (ImGui::Selectable(KgWindowing::type2Str(KgWindowing::KeType(i)), i == type_)) {
                 type_ = i;
+                setOutputExpired(0);
+            }
         ImGui::EndCombo();
     }
 
-    ImGui::InputFloat("Arg", &arg_);
+    if (ImGui::InputFloat("Arg", &arg_))
+        setOutputExpired(0);
+}
 
-    ImGui::EndDisabled();
+
+void KcOpWindowing::prepareOutput_()
+{
+    auto isize = inputSize_(dim(0) - 1);
+    if (isOutputExpired() || win_->idim() != isize)
+        win_ = std::make_unique<KgWindowing>(isize, KgWindowing::KeType(type_), arg_);
 }
 
 
 void KcOpWindowing::op_(const kReal* in, unsigned len, kReal* out)
 {
-    assert(win_->idim() == len);
+    assert(len == win_->idim());
     win_->process(in, out);
 }

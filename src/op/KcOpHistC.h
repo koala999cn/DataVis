@@ -1,13 +1,13 @@
 ﻿#pragma once
-#include "KvOp1to1.h"
+#include "KvDataOperator.h"
 #include <memory>
 
 
 class KgHistC;
 
-class KcOpHistC : public KvOp1to1
+class KcOpHistC : public KvDataOperator
 {
-	using super_ = KvOp1to1;
+	using super_ = KvDataOperator;
 
 public:
 	KcOpHistC();
@@ -31,10 +31,11 @@ public:
 	// 根据输入同步low_ & high_
 	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
 
-	// 重载该函数，以支持动态设定参数
-	void onNewFrame(int frameIdx) final;
-
 private:
+
+	// 重载该函数，以支持动态设定参数
+	void prepareOutput_() final;
+
 	void outputImpl_() final;
 
 private:

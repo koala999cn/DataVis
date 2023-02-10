@@ -1,12 +1,12 @@
 #pragma once
-#include "KvOp1to1.h"
+#include "KvDataOperator.h"
 #include <memory>
 #include "dsp/KtFIR.h"
 
 
-class KcOpFIR : public KvOp1to1
+class KcOpFIR : public KvDataOperator
 {
-	using super_ = KvOp1to1;
+	using super_ = KvDataOperator;
 
 public:
 	KcOpFIR();
@@ -21,6 +21,9 @@ public:
 
 
 private:
+
+	void prepareOutput_() final;
+
 	void outputImpl_() final;
 
 	void createFilter_();

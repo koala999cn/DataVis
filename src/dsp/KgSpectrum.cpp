@@ -15,6 +15,24 @@ KgSpectrum::KgSpectrum(const KpOptions& opts)
 }
 
 
+void KgSpectrum::reset(const KpOptions& opts)
+{
+	auto fftsize = opts.frameSize;
+	if (opts.roundToPower2)
+		fftsize = KtuBitwise<unsigned>::ceilPower2(fftsize);
+
+	bool norm = k_norm_default == opts.norm;
+	if (fftsize != rdft_->idim()) { // 须重构rdft_
+		delete rdft_;
+		rdft_ = new KgRdft(fftsize, false, norm);
+	}
+	else
+		rdft_->setNormalize(norm);
+
+	opts_ = opts;
+}
+
+
 KgSpectrum::KgSpectrum(KgSpectrum&& spec) noexcept
 	: opts_(spec.opts_)
 {
@@ -24,7 +42,7 @@ KgSpectrum::KgSpectrum(KgSpectrum&& spec) noexcept
 
 KgSpectrum::~KgSpectrum()
 {
-	delete (KgRdft*)rdft_;
+	delete rdft_;
 }
 
 
@@ -36,23 +54,21 @@ unsigned KgSpectrum::idim() const
 
 unsigned KgSpectrum::odim() const
 {
-	return ((KgRdft*)rdft_)->odim();
+	return rdft_->odim();
 }
 
 
 void KgSpectrum::process(const double* in, double* out) const
 {
-	auto rdft = ((KgRdft*)rdft_);
-
 	// 此处传入的in是原始尺寸，根据需要roundToPower2，以作为fft的输入
 	std::vector<double> buf(in, in + idim());
-	if (idim() != rdft->idim()) { // roundToPower2
-		buf.resize(rdft->idim());
+	if (idim() != rdft_->idim()) { // roundToPower2
+		buf.resize(rdft_->idim());
 		std::fill(buf.begin() + idim(), buf.end(), 0);
 	}
 
-	rdft->forward(buf.data());
-	rdft->powerSpectrum(buf.data()); // 功率谱
+	rdft_->forward(buf.data());
+	rdft_->powerSpectrum(buf.data()); // 功率谱
 	fixPower(buf.data(), odim(), opts_.norm == k_norm_default);
 	std::copy(buf.data(), buf.data() + odim(), out);
 }
@@ -68,7 +84,7 @@ void KgSpectrum::fixPower(double* spec, unsigned c, bool hasNormDefault) const
 	else if (opts_.norm == k_norm_kaldi)
 		KuMath::scale(spec, c, int16_max * int16_max);
 	else if (opts_.norm == k_norm_default && !hasNormDefault)
-		KuMath::scale(spec, c, 1. / (double(((KgRdft*)rdft_)->idim()) * ((KgRdft*)rdft_)->idim()));
+		KuMath::scale(spec, c, 1. / (double(rdft_->idim()) * rdft_->idim()));
 
 	// 谱类型转换
 	if (opts_.type == k_mag) {

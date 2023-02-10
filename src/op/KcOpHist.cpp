@@ -51,6 +51,9 @@ kIndex KcOpHist::size(kIndex outPort, kIndex axis) const
 
 bool KcOpHist::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+    if (!super_::onStartPipeline(ins))
+        return false;
+
     hist_ = std::make_unique<KgHist>();
     hist_->resetLinear(bins_, min_, max_);
 
@@ -65,7 +68,13 @@ bool KcOpHist::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 void KcOpHist::onStopPipeline()
 {
     hist_.reset();
-    // odata_.front() = nullptr;
+    super_::onStopPipeline();
+}
+
+
+void KcOpHist::prepareOutput_()
+{
+
 }
 
 
@@ -88,12 +97,12 @@ void KcOpHist::showPropertySet()
     ImGui::Separator();
 
     if (ImGui::DragInt("Hist Bins", &bins_, 1, 1, 999999))
-        notifyChanged_();
+        setOutputExpired(0);
 
     float low = min_, high = max_;
-    if (ImGui::DragFloatRange2("Hist Range", &low, &high)) {
+    if (ImGui::DragFloatRange2("Hist Range", &low, &high) && high > low) {
         min_ = low, max_ = high;
-        notifyChanged_();
+        setOutputExpired(0);
     }
 }
 

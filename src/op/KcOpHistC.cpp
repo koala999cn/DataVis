@@ -22,7 +22,7 @@ int KcOpHistC::spec(kIndex outPort) const
     ds.dynamic = ds.stream;
     ds.stream = false;
     ds.dim = 1;
-    ds.type = k_sampled;
+    ds.type = k_sampled; // TODO: 暂时bin使用固定宽度
     
     return ds.spec;
 }
@@ -149,19 +149,18 @@ bool KcOpHistC::onNewLink(KcPortNode* from, KcPortNode* to)
     if (!super_::onNewLink(from, to))
         return false;
 
-    auto r = inputRange_(dim(0)); // 输入的值域范围
+    KpDataSpec ds(inputSpec_());
+    auto r = inputRange_(ds.dim); // 输入数据的值域范围
     low_ = r.low(), high_ = r.high();
     return true;
 }
 
 
-void KcOpHistC::onNewFrame(int frameIdx)
+void KcOpHistC::prepareOutput_()
 {
     assert(histc_);
 
-    if (histc_->numBins() != bins_ ||
-        histc_->range().first != low_ ||
-        histc_->range().second != high_) {
+    if (isOutputExpired()) { // TODO: 应检测输入数据的通道数变化
         histc_->resetLinear(bins_, low_, high_);
         auto samp = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
         samp->reset(0, histc_->range().first, histc_->binWidth(0), 0.5);

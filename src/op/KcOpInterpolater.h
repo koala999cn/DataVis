@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "KvOp1to1.h"
+#include "KvDataOperator.h"
 
 
-class KcOpInterpolater : public KvOp1to1
+class KcOpInterpolater : public KvDataOperator // 输出连续数据，不继承KvOpSampled1dHelper
 {
-	using super_ = KvOp1to1;
+	using super_ = KvDataOperator;
 
 public:
 	KcOpInterpolater();
@@ -20,6 +20,9 @@ public:
 	bool permitInput(int dataSpec, unsigned inPort) const final;
 
 private:
+
+	void prepareOutput_() final {}
+
 	void outputImpl_() final;
 
 private:

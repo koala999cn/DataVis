@@ -1,14 +1,14 @@
 ﻿#pragma once
-#include "KvOp1to1.h"
+#include "KvDataOperator.h"
 #include <vector>
 
 class KcSampler;
 
 // 采样器实现：将连续数据和数组数据转换为采样数据
 
-class KcOpSampler : public KvOp1to1
+class KcOpSampler : public KvDataOperator
 {
-	using super_ = KvOp1to1;
+	using super_ = KvDataOperator;
 
 public:
 	KcOpSampler();
@@ -31,6 +31,9 @@ public:
 
 
 private:
+
+	void prepareOutput_() final;
+
 	void outputImpl_() final;
 
 	void sampleCountChanged_();

@@ -106,7 +106,7 @@ void KcPvData::showPropertySet()
 			for (unsigned i = 0; i < data_->dim(); i++) {
 				auto r = data_->range(i);
 				float low = r.low(), high = r.high();
-				if (ImGui::DragFloatRange2(label, &low, &high) && high > low) {
+				if (ImGui::DragFloatRange2(label, &low, &high) && high >= low) {
 					cont->setRange(i, low, high);
 					notifyChanged();
 				}

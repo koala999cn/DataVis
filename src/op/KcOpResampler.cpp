@@ -8,7 +8,7 @@
 
 
 KcOpResampler::KcOpResampler()
-    : super_("Resampler", false)
+    : super_("Resampler", false, false)
 {
     factor_ = 0.5;
     method_ = KgResampler::k_linear;
@@ -32,7 +32,7 @@ bool KcOpResampler::onStartPipeline(const std::vector<std::pair<unsigned, KcPort
     assert(resamp_ == nullptr);
     resamp_ = std::make_unique<KgResampler>(method_, wsize_, channels(0), factor_);
 
-    prepareOutput_();
+    createOutputData_();
     return resamp_ != nullptr && odata_.front() != nullptr;
 }
 
@@ -40,28 +40,6 @@ bool KcOpResampler::onStartPipeline(const std::vector<std::pair<unsigned, KcPort
 void KcOpResampler::onStopPipeline()
 {
     resamp_.reset();
-}
-
-
-void KcOpResampler::onNewFrame(int frameIdx)
-{
-    assert(resamp_);
-
-    if (resamp_->factor() != factor_ ||
-        resamp_->size() != wsize_ ||
-        resamp_->method() != method_) { // 采样参数变化，重置采样器
-
-        resamp_->reset(method_, wsize_, channels(0), factor_);
-
-        auto samp = std::dynamic_pointer_cast<KvSampled>(odata_.front());
-        odata_.front() = nullptr; // 确保step返回正确的值
-        for (kIndex i = 0; i < dim(0); i++)
-            samp->reset(i, samp->range(i).low(), step(0, i), 0);
-        odata_.front() = samp;
-    }
-    else if (!isStream(0)) { // 对于非流式数据，每帧都重置采样器
-        resamp_->reset(); 
-    }
 }
 
 
@@ -111,6 +89,28 @@ kIndex KcOpResampler::osize_(kIndex is) const
     bool doFlush = doFlush_ && !isStream(0);
     auto halfwin = std::min<kIndex>(is, wsize_ - wsize_ / 2);
     return factor_ * (is + halfwin * (doFlush ? 0 : -1));
+}
+
+
+void KcOpResampler::prepareOutput_()
+{
+    assert(resamp_);
+
+    if (resamp_->factor() != factor_ ||
+        resamp_->size() != wsize_ ||
+        resamp_->method() != method_) { // 采样参数变化，重置采样器
+
+        resamp_->reset(method_, wsize_, channels(0), factor_);
+
+        auto samp = std::dynamic_pointer_cast<KvSampled>(odata_.front());
+        odata_.front() = nullptr; // 确保step返回正确的值
+        for (kIndex i = 0; i < dim(0); i++)
+            samp->reset(i, samp->range(i).low(), step(0, i), 0);
+        odata_.front() = samp;
+    }
+    else if (!isStream(0)) { // 对于非流式数据，每帧都重置采样器
+        resamp_->reset();
+    }
 }
 
 

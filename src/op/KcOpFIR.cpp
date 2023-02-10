@@ -33,22 +33,30 @@ void KcOpFIR::onStopPipeline()
 }
 
 
+void KcOpFIR::prepareOutput_()
+{
+    if (isOutputExpired() || filter_->channels() == idata_.front()->channels())
+        createFilter_();
+}
+
+
 void KcOpFIR::outputImpl_()
 {
-    if (isOutputExpired(0)) 
-        createFilter_();
-
     assert(dim(0) == 1 && isSampled(0));
-    assert(filter_ && filter_->channels() == idata_.front()->channels());
-    auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(idata_.front());
-    assert(samp1d);
+    auto samp = std::dynamic_pointer_cast<KvSampled>(idata_.front());
+    assert(samp); 
 
     auto res = std::make_shared<KcSampled1d>();
-    res->resize(samp1d->size(), samp1d->channels());
-    res->reset(0, samp1d->range(0).low(), samp1d->step(0));
-    auto sz = filter_->apply(samp1d->data(), samp1d->size(), res->data());
-    assert(sz <= samp1d->size());
-    res->resize(sz); // TODO: 处理此种情况
+    res->resize(samp->size(), samp->channels());
+    res->reset(0, samp->range(0).low(), samp->step(0));
+
+    auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(samp);
+    if (samp1d) {
+        auto sz = filter_->apply(samp1d->data(), samp1d->size(), res->data());
+        assert(sz <= samp1d->size());
+        res->resize(sz); // TODO: 处理此种情况
+    }
+
     odata_.front() = res;
 }
 

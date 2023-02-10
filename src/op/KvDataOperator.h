@@ -11,7 +11,7 @@ class KvDataOperator : public KvDataProvider
 
 public:
 
-	using super_::super_;
+	KvDataOperator(const std::string_view& name);
 
 	/// node接口
 
@@ -45,18 +45,30 @@ public:
 
 	kIndex size(kIndex outPort, kIndex axis) const override;
 
+	void output() override;
+
 
 	/// 自定义接口
 
 	// inPort输入端口是否接受dataSpec规格的数据 ？ 
 	virtual bool permitInput(int dataSpec, unsigned inPort) const = 0;
 
+	// 当前语义：op的配置参数发生变化，须重构处理器并重新生成输出
 	void setOutputExpired(unsigned outPort);
-
 	bool isOutputExpired(unsigned outPort) const;
+	bool isOutputExpired() const; // 任意输出端口过期，返回true
 
+	bool isInputUpdated(unsigned inPort) const;
+	bool isInputUpdated() const; // // 任意输入端口更新，返回true
 
 protected:
+
+	// 该方法用于同步配置参数和输入数据规格的变化
+	// NB: 目前假定管线运行期间，输入数据的维度不会发生变化
+	virtual void prepareOutput_() = 0; 
+
+	// 该函数不用考虑配置参数和输入数据规格的变化，也不同考虑时间戳的比对与更新
+	virtual void outputImpl_() = 0;
 
 	/// 几个获取输入数据规格的帮助函数
 
@@ -73,10 +85,11 @@ protected:
 	kIndex inputSize_(kIndex axis) const;
 
 protected:
-	std::vector<std::shared_ptr<KvData>> idata_{ inPorts(), nullptr };
-	std::vector<std::shared_ptr<KvData>> odata_{ outPorts(), nullptr };
-	std::vector<unsigned> idataStamps_{ inPorts(), 0 };
-	std::vector<unsigned> odataStamps_{ outPorts(), 0 };
-	std::vector<KcPortNode*> inputs_{ inPorts(), nullptr };
+	std::vector<std::shared_ptr<KvData>> idata_;
+	std::vector<std::shared_ptr<KvData>> odata_;
+	std::vector<unsigned> idataStamps_;
+	std::vector<unsigned> odataStamps_;
+	std::vector<bool> outputExpired_;
+	std::vector<KcPortNode*> inputs_;
 };
 

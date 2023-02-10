@@ -8,7 +8,7 @@
 
 
 KcOpSpectrum::KcOpSpectrum()
-	: super_("Spectrum", true)
+	: super_("Spectrum", true, true)
 {
 	
 }
@@ -94,7 +94,7 @@ bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortN
 		return false;
 
 	// 准备output对象
-	super_::prepareOutput_();
+	createOutputData_();
 
 	return true;
 }
@@ -103,7 +103,7 @@ bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortN
 void KcOpSpectrum::onStopPipeline()
 {
 	spec_.reset();
-	// TODO: odata_.front() = nullptr;
+	super_::onStopPipeline();
 }
 
 
@@ -122,10 +122,24 @@ kIndex KcOpSpectrum::osize_(kIndex is) const
 }
 
 
+void KcOpSpectrum::prepareOutput_()
+{
+	auto isize = inputSize_(dim(0) - 1);
+	if (isOutputExpired() || isize != spec_->idim()) {
+		KgSpectrum::KpOptions opts;
+		opts.sampleRate = 1.0 / inputStep_(dim(0) - 1);
+		opts.frameSize = isize;
+		opts.type = KgSpectrum::KeType(specType_);
+		opts.norm = KgSpectrum::KeNormMode(normMode_);
+		opts.roundToPower2 = roundToPower2_;
+		spec_->reset(opts);
+	}
+}
+
+
 void KcOpSpectrum::op_(const kReal* in, unsigned len, kReal* out)
 {
-	assert(spec_);
-	assert(len == spec_->idim());
+	assert(spec_ && spec_->idim() == len);
 	spec_->process(in, out);
 }
 
@@ -135,14 +149,12 @@ void KcOpSpectrum::showPropertySet()
 	KvDataOperator::showPropertySet();
 	ImGui::Separator();
 
-	ImGui::BeginDisabled(working_());
-
 	auto curType = KgSpectrum::type2Str(specType_);
 	if (ImGui::BeginCombo("Spectrum Type", curType)) {
 		for (unsigned i = 0; i < KgSpectrum::typeCount(); i++)
 			if (ImGui::Selectable(KgSpectrum::type2Str(i), i == specType_)) {
 				specType_ = i;
-				notifyChanged_();
+				setOutputExpired(0);
 			}
 		ImGui::EndCombo();
 	}
@@ -152,13 +164,11 @@ void KcOpSpectrum::showPropertySet()
 		for (unsigned i = 0; i < KgSpectrum::normModeCount(); i++)
 			if (ImGui::Selectable(KgSpectrum::norm2Str(i), i == normMode_)) {
 				normMode_ = i;
-				notifyChanged_();
+				setOutputExpired(0);
 			}
 		ImGui::EndCombo();
 	}
 
 	if (ImGui::Checkbox("Round to Power of 2", &roundToPower2_))
-		notifyChanged_();
-
-	ImGui::EndDisabled();
+		setOutputExpired(0);
 }

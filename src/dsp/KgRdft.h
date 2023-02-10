@@ -68,6 +68,12 @@ public:
     // 输出频谱的长度
     unsigned odim() const { return idim() / 2 + 1; }
 
+    bool compatNR() const { return compatNR_; }
+    void setCompatNR(bool b) { compatNR_ = b; }
+
+    bool normalize() const { return normalize_; }
+    void setNormalize(bool b) { normalize_ = b; }
+
 private:
     unsigned sizeT_;
     bool compatNR_; // compatible with NR fft's (the kaldi fft result)

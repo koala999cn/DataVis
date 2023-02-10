@@ -1107,9 +1107,6 @@
     <ClInclude Include="src\base\stlex.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\op\KvOp1to1.h">
-      <Filter>op</Filter>
-    </ClInclude>
     <ClInclude Include="src\plot\KcBoxPlot.h">
       <Filter>plot</Filter>
     </ClInclude>

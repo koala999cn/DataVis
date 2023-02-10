@@ -122,6 +122,8 @@ void KcOpFraming::onStopPipeline()
 {
 	framing_.reset();
 	// TODO: odata_.front() = nullptr; 
+
+	super_::onStopPipeline();
 }
 
 
@@ -178,25 +180,15 @@ void KcOpFraming::showPropertySet()
 	const double frameTimeMin = super_::step(0, 0);
 	if (ImGui::DragScalar("Frame Length(s)", ImGuiDataType_Double, &frameTime_,
 		frameTime_ * 0.01, &frameTimeMin))
-		notifyChanged_();
+		setOutputExpired(0);
 
 	ImGui::LabelText("Frame Size", "%d", frameSize());
 
 	if (ImGui::DragScalar("Frame Shift(s)", ImGuiDataType_Double, &shiftTime_,
 		shiftTime_ * 0.01, &frameTimeMin))
-		notifyChanged_();
+		setOutputExpired(0);
 
 	ImGui::LabelText("Shift Size", "%d", shiftSize());
 
 	ImGui::EndDisabled();
-}
-
-
-bool KcOpFraming::onInputChanged(KcPortNode* outPort, unsigned inPort)
-{
-	assert(outPort == inputs_.front());
-	
-	// 所有属性都已动态化，此处不需要额外工作
-
-	return true;
 }

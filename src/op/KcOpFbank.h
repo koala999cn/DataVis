@@ -25,6 +25,8 @@ private:
 
 	kIndex osize_(kIndex is) const final;
 
+	void prepareOutput_() final;
+
 	void op_(const kReal* in, unsigned len, kReal* out) final;
 
 private:

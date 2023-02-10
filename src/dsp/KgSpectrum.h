@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <vector>
+#include <memory>
 
+class KgRdft;
 
 /// 频谱分析功能类
 
@@ -42,6 +44,8 @@ public:
 	KgSpectrum(const KpOptions& opts);
 	~KgSpectrum();
 
+	void reset(const KpOptions& opts);
+
 	// 返回输入输出的规格
 	unsigned idim() const;
 	unsigned odim() const;
@@ -71,6 +75,6 @@ public:
 	static KeNormMode str2Norm(const char* str);
 
 private:
-	void* rdft_;
+	KgRdft* rdft_;
 	KpOptions opts_;
 };

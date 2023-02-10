@@ -1,5 +1,19 @@
 #include "KvDataOperator.h"
 #include "KvDiscreted.h"
+#include "KuMath.h"
+
+
+KvDataOperator::KvDataOperator(const std::string_view& name)
+    : super_(name)
+	, idata_(inPorts(), nullptr)
+	, odata_(outPorts(), nullptr)
+    , idataStamps_(inPorts(), 0)
+	, odataStamps_(outPorts(), 0)
+	, outputExpired_(outPorts(), true)
+	, inputs_(inPorts(), nullptr)
+{
+	
+}
 
 
 int KvDataOperator::spec(kIndex) const
@@ -81,6 +95,12 @@ void KvDataOperator::onDelLink(KcPortNode* from, KcPortNode* to)
 		assert(from == inputs_[to->index()]);
 
 		inputs_[to->index()] = nullptr;
+
+		idata_[to->index()] = nullptr;
+
+		// 假定输入影响所有输出
+		for (auto& o : odata_)
+			o = nullptr;
 	}
 }
 
@@ -271,11 +291,46 @@ kIndex KvDataOperator::inputSize_(kIndex axis) const
 
 void KvDataOperator::setOutputExpired(unsigned outPort)
 {
-	odataStamps_[outPort] = -1;
+	outputExpired_[outPort] = true;
 }
 
 
 bool KvDataOperator::isOutputExpired(unsigned outPort) const
 {
-	return odataStamps_[outPort] == -1;
+	return outputExpired_[outPort];
+}
+
+
+bool KvDataOperator::isOutputExpired() const
+{
+	return std::find(outputExpired_.begin(), outputExpired_.end(), true) != outputExpired_.end();
+}
+
+
+bool KvDataOperator::isInputUpdated(unsigned inPort) const
+{
+	for (auto i : odataStamps_)
+		if (idataStamps_[0] > i)
+			return true;
+	return false;
+}
+
+
+bool KvDataOperator::isInputUpdated() const
+{
+	for (unsigned i = 0; i < inputs_.size(); i++)
+		if (isInputUpdated(i))
+			return true;
+	return false;
+}
+
+
+void KvDataOperator::output() 
+{
+	if (isInputUpdated() || (isOutputExpired() && !isDynamic(0))) { // TODO: 此处只检测了0端口的动态属性
+		prepareOutput_();
+		outputImpl_();
+		notifyChanged(); // 更新odata的时间戳到currentFrame
+		std::fill(outputExpired_.begin(), outputExpired_.end(), false);
+	}
 }

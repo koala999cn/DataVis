@@ -47,13 +47,8 @@ void KcOpInterpolater::showPropertySet()
     ImGui::Separator();
 
     static const char* interp[] = { "Linear", "Quad" };
-    if (ImGui::BeginCombo("Interpolate Method", interp[interpMethod_])) {
-        for (unsigned i = 0; i < std::size(interp); i++)
-            if (ImGui::Selectable(interp[i], i == interpMethod_))
-                interpMethod_ = i;
-        ImGui::EndCombo();
-    }
-
+    if (ImGui::Combo("Interpolate Method", &interpMethod_, interp, std::size(interp)))
+        setOutputExpired(0);
 
     static const char* extrap[] = {
         "Nan",
@@ -63,12 +58,8 @@ void KcOpInterpolater::showPropertySet()
         "Period",
         "Extrap"
     };
-    if (ImGui::BeginCombo("Extrapolate Method", extrap[extrapMethod_])) {
-        for (unsigned i = 0; i < std::size(extrap); i++)
-            if (ImGui::Selectable(extrap[i], i == extrapMethod_))
-                extrapMethod_ = i;
-        ImGui::EndCombo();
-    }
+    if (ImGui::Combo("Extrapolate Method", &extrapMethod_, extrap, std::size(extrap)))
+        setOutputExpired(0);
 }
 
 
