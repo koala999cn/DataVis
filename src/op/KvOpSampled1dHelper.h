@@ -22,8 +22,8 @@ protected:
 	// 缺省实现为输入数据的尺寸，若无输入连接，则返回0
 	virtual kIndex isize_() const;
 
-	// 返回is帧出入生成的输出帧数
-	// 缺省实现为一致尺寸
+	// 返回is帧输入数据生成的输出数据帧数
+	// 缺省实现为一致尺寸，即输出长度等于输入长度
 	virtual kIndex osize_(kIndex is) const {
 		return is;
 	}
@@ -46,6 +46,6 @@ private:
 
 private:
 	bool splitChannels_; // 有的派生类希望自己处理多通道数据，这里提供1个标记
-	bool permitSamp2d_;
+	bool permitSamp2d_; // 允许处理流式数据？
 };
 

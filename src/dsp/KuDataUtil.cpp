@@ -208,3 +208,57 @@ bool KuDataUtil::isMatrix(const KvData& d)
 
     return d.isContinued() || ((const KvDiscreted&)d).isSampled();
 }
+
+
+KuDataUtil::KpValueGetter1d KuDataUtil::valueGetter1d(const std::shared_ptr<KvData>& data)
+{
+    KpValueGetter1d g;
+
+    if (data->isDiscreted()) {
+
+        auto disc = std::dynamic_pointer_cast<const KvDiscreted>(data);
+        assert(disc);
+        g.samples = disc->size();
+        g.channels = disc->channels();
+        g.getter = [disc](unsigned ch, unsigned idx) {
+            return disc->valueAt(idx, ch);
+        };
+
+        auto samp1d = std::dynamic_pointer_cast<const KcSampled1d>(disc);
+        if (samp1d) {
+            g.sampleStride = samp1d->stride(0);
+            g.channelStride = samp1d->stride(1);
+            g.data = samp1d->data();
+        }
+    }
+
+    return g;
+}
+
+
+KuDataUtil::KpValueGetter2d KuDataUtil::valueGetter2d(const std::shared_ptr<KvData>& data)
+{
+    KpValueGetter2d g;
+
+    auto samp = std::dynamic_pointer_cast<const KvSampled>(data); 
+    if (samp && samp->dim() == 2) {
+
+        g.channels = samp->channels();
+        g.rows = samp->size(0);
+        g.cols = samp->size(1);
+
+        g.getter = [samp](unsigned ch, unsigned row, unsigned col) {
+            return samp->value(row, col, ch);
+        };
+
+        auto samp2d = std::dynamic_pointer_cast<const KcSampled2d>(samp);
+        if (samp2d) {
+            g.rowStride = samp2d->stride(0);
+            g.colStride = samp2d->stride(1);
+            g.channelStride = samp2d->stride(2);
+            g.data = samp2d->data();
+        }
+    }
+
+    return g;
+}

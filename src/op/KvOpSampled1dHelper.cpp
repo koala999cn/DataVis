@@ -1,7 +1,7 @@
 ﻿#include "KvOpSampled1dHelper.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
-#include <assert.h>
+#include "KuDataUtil.h"
 
 
 KvOpSampled1dHelper::KvOpSampled1dHelper(const std::string_view& name, 
@@ -17,7 +17,8 @@ KvOpSampled1dHelper::KvOpSampled1dHelper(const std::string_view& name,
 bool KvOpSampled1dHelper::permitInput(int dataSpec, unsigned inPort) const
 {
 	KpDataSpec ds(dataSpec);
-	return (ds.type == k_sampled || ds.type == k_array) && ds.dim <= (permitSamp2d_ ? 2 : 1);
+	return (ds.type == k_sampled || ds.type == k_array) && 
+		(ds.dim == 1 || ds.dim == 2 & permitSamp2d_/* && isize_() > 0*/);
 }
 
 
@@ -39,15 +40,9 @@ kIndex KvOpSampled1dHelper::size(kIndex outPort, kIndex axis) const
 
 void KvOpSampled1dHelper::outputImpl_()
 {
-	assert(idata_.size() == 1 && idata_.front());
-	assert(idata_.front()->isDiscreted());
+	assert(idata_.size() == 1 && idata_.front() && idata_.front()->isDiscreted());
 
-	auto in = std::dynamic_pointer_cast<KvSampled>(idata_.front());
-	assert(in);
-	if (isize_() != 0 && in->size(in->dim() - 1) < isize_()) // 数据长度不足，暂不处理
-		return; // TODO: 是否补零？
-
-	in->dim() == 1 ? output1d_() : output2d_();
+	idata_.front()->dim() == 1 ? output1d_() : output2d_();
 }
 
 
@@ -76,39 +71,64 @@ void KvOpSampled1dHelper::createOutputData_()
 
 void KvOpSampled1dHelper::output1d_()
 {
-	auto in = std::dynamic_pointer_cast<KvSampled>(idata_.front()); // TODO: in可能为null
-	auto out = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
-	assert(in && in->size(0) >= isize_());
-	assert(out);
+	auto in = std::dynamic_pointer_cast<KvDiscreted>(idata_.front());
+	assert(in);
 
-	auto isize = isize_() == 0 ? in->size(0) : isize_();
-	unsigned offset = in->size(0) - isize; // 跳过多出的数据
-	if (out->size(0) != osize_(isize))
+	auto isize = isize_();
+	if (isize == 0) isize = in->size();
+	if (in->size() < isize) // 数据长度不足，暂不处理
+		return; // TODO: 是否补零？
+
+	auto out = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
+	if (!out) return;
+
+	unsigned offset = in->size() - isize; // 数据的起始位置，丢弃多出的数据
+	if (out->size() != osize_(isize))
 		out->resize(osize_(isize));
 
-	auto samp = std::dynamic_pointer_cast<KcSampled1d>(in);
-	if (samp && (samp->channels() == 1 || !splitChannels_)) {
-		op_(samp->data() + offset * samp->channels(), isize, out->data());
-	}
-	else if (splitChannels_) {
-		std::vector<kReal> in_(isize);
-		std::vector<kReal> out_(out->size(0));
-		for (kIndex ch = 0; ch < in->channels(); ch++) {
-			for (kIndex i = 0; i < isize; i++)
-				in_[i] = in->value(i + offset, ch);
+	auto valueGetter = KuDataUtil::valueGetter1d(in);
+	if (valueGetter.data) { // 先尝试快捷通道
+		if (splitChannels_ && valueGetter.sampleStride == 1) { // 各通道采样点连续，可以直接使用
+			auto inp = valueGetter.data + offset;
 
-			op_(in_.data(), isize, out_.data());
-			out->setChannel(nullptr, ch, out_.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
+			if (out->stride(0) == 1) {
+				auto outp = out->data();
+				for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
+					op_(inp, isize, outp);
+					inp += valueGetter.channelStride;
+					outp += out->stride(1);
+				}
+			}
+			else {
+				std::vector<kReal> obuf(out->size(0));
+				for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
+					op_(inp, isize, obuf.data());
+					inp += valueGetter.channelStride;
+					out->setChannel(nullptr, ch, obuf.data());
+				}
+			}
+
+			return;
+		}
+		else if (!splitChannels_ && valueGetter.channelStride == 1) { // 各通道交错时可用
+			op_(valueGetter.data + offset * valueGetter.channels, isize, out->data()); // TODO: 此处未检测out的布局
+			return;
 		}
 	}
+
+	// 使用getter
+	if (!splitChannels_) {
+		auto ibuf = valueGetter.fetch(offset, isize);
+		op_(ibuf.data(), isize, out->data()); // TODO: 此处未检测out的布局
+	}	
 	else {
-		std::vector<kReal> in_(isize * in->channels());
-		auto buf = in_.data();
-		for (kIndex i = 0; i < isize; i++) 
-			for (kIndex ch = 0; ch < in->channels(); ch++)
-				*buf++ = in->value(i + offset, ch); // TODO: 此处写入与多通道数据的布局有关
-		
-		op_(in_.data(), isize, out->data());
+		std::vector<kReal> obuf(out->size(0));
+		for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
+			auto ibuf = valueGetter.fetchChannel(ch, offset, isize);
+			assert(ibuf.size() == isize);
+			op_(ibuf.data(), isize, obuf.data());
+			out->setChannel(nullptr, ch, obuf.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
+		}
 	}
 }
 
@@ -117,46 +137,54 @@ void KvOpSampled1dHelper::output2d_()
 {
 	assert(isize_() != 0); // 流数据处理只支持固定输入尺寸
 
-	auto in = std::dynamic_pointer_cast<KvSampled>(idata_.front());
 	auto out = std::dynamic_pointer_cast<KcSampled2d>(odata_.front());
-	assert(in && in->size(1) >= isize_()); 
 	assert(out && out->size(1) == osize_(isize_()));
 
-	auto isize = isize_();
-	out->resize(in->size(0), osize_(isize), in->channels());
-	unsigned offset = in->size(1) - isize; // 跳过多出的数据
+	auto valueGetter = KuDataUtil::valueGetter2d(idata_.front());
+	assert(valueGetter.cols == isize_());
+	out->resize(valueGetter.rows, osize_(valueGetter.cols), valueGetter.channels);
 
-	auto samp = std::dynamic_pointer_cast<KcSampled2d>(in);
-	if (samp && (samp->channels() == 1 || !splitChannels_)) {
-		for (unsigned r = 0; r < in->size(0); r++)
-			op_(samp->row(r) + offset * samp->channels(), isize, out->row(r));
-	}
-	else if (splitChannels_) {
-		std::vector<kReal> iData(isize), oData(osize_(isize));
+	if (valueGetter.data) { // 先尝试快捷通道
+		if (splitChannels_ && valueGetter.colStride == 1) { // 各通道采样点连续，可以直接使用
+			std::vector<kReal> oData(osize_(valueGetter.cols));
 
-		for (kIndex ch = 0; ch < in->channels(); ch++) {
-			kIndex row, col;
-			for (row = 0; row < in->size(0); row++) {
-				for (col = 0; col < isize; col++)
-					iData[col] = in->value(row, col + offset, ch);
-
-				op_(iData.data(), isize, oData.data());
-				out->setChannel(&row, ch, oData.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
+			for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
+				auto inp = valueGetter.data + ch * valueGetter.channelStride;
+				for (kIndex r = 0; r < valueGetter.rows; r++) {
+					op_(inp, valueGetter.cols, oData.data());
+					out->setChannel(&r, ch, oData.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
+					inp += valueGetter.rowStride;
+				}
+			}
+			return;
+		}
+		else if (!splitChannels_ 
+			&& valueGetter.channelStride == 1 
+			&& valueGetter.colStride == valueGetter.channels) {
+			auto inp = valueGetter.data;
+			for (unsigned r = 0; r < valueGetter.rows; r++) {
+				op_(inp, valueGetter.cols, out->row(r));
+				inp += valueGetter.rowStride;
 			}
 		}
 	}
+
+
+	// 使用getter
+	if (!splitChannels_) {
+		for (kIndex r = 0; r < valueGetter.rows; r++) {
+			auto ibuf = valueGetter.fetchRow(r);
+			op_(ibuf.data(), valueGetter.cols, out->row(r));
+		}
+	}
 	else {
-		std::vector<kReal> iData(isize * in->channels());
-
-		kIndex row, col;
-		for (row = 0; row < in->size(0); row++) {
-			auto buf = iData.data();
-
-			for (col = 0; col < isize; col++)
-				for (kIndex ch = 0; ch < in->channels(); ch++)
-				    *buf++ = in->value(row, col + offset, ch);
-
-			op_(iData.data(), isize, out->row(row));
+		std::vector<kReal> oData(osize_(valueGetter.cols));
+		for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
+			for (kIndex r= 0; r < valueGetter.rows; r++) {
+				auto ibuf = valueGetter.fetchRowOfChannel(ch, r);
+				op_(ibuf.data(), valueGetter.cols, oData.data());
+				out->setChannel(&r, ch, oData.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
+			}
 		}
 	}
 }
