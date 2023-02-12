@@ -2,7 +2,7 @@
 #include "KgFbank.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
-#include "imgui.h"
+#include "imguix.h"
 
 
 KcOpFbank::KcOpFbank()
@@ -33,7 +33,7 @@ kRange KcOpFbank::range(kIndex outPort, kIndex axis) const
         return { low, high };
     }
     else if (axis == dim(outPort)) {
-        // value range
+        // TODO: value range
     }
 
     return super_::range(outPort, axis);
@@ -117,6 +117,41 @@ void KcOpFbank::showPropertySet()
 
     if (ImGui::Checkbox("Normalize", &normalize_) && fbank_)
         fbank_->setNormalize(normalize_); // 无须调用setOutputExpired
+
+    if (fbank_) {
+        ImGui::Separator();
+
+        if (ImGuiX::treePush("Bins", false)) {
+            std::vector<double> fcInScale(fbank_->options().numBanks);
+            for (unsigned i = 0; i < fbank_->options().numBanks; i++)
+                fcInScale[i] = KgFbank::fromHertz(KgFbank::KeType(type_), fbank_->fc(i));
+
+            auto showBins = [this, &fcInScale](unsigned i, unsigned j) {
+                if (j == 0) {
+                    ImGui::Text("%d", i + 1);
+                }
+                else {
+                    auto f = fcInScale[i];
+                    if (j == 1) 
+                        f -= fbank_->stepInScale();
+                    else if (j == 3)
+                        f += fbank_->stepInScale();
+
+                    if (type_ == KgFbank::k_linear)
+                        ImGui::Text("%.1fHz", f);
+                    else
+                        ImGui::Text("%.1fHz/%.1f%s", KgFbank::toHertz(KgFbank::KeType(type_), f),
+                            f, KgFbank::type2Str(KgFbank::KeType(type_)));
+                }
+            };
+
+            ImGuiX::showLargeTable(fbank_->options().numBanks, 4, showBins, 1, 1, {
+                "bin", "left-freq", "center-freq", "right-freq"
+                });
+
+            ImGuiX::treePop();
+        }
+    }
 }
 
 

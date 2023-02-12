@@ -40,6 +40,7 @@
 - [ ] ridgeplot
 - [x] 密度图（参考ggplot2的geom_density）-> 实现operator KDE
 - [ ] 色带编辑器美化（参考https://github.com/CoolLibs/imgui_gradient & https://github.com/effekseer/ImGradientHDR）
+- [ ] plot的autorange由KvRdPlot负责，根据provider调整，而非data
 
 ## theme
 - [ ] 更多theme，SCI等
