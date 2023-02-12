@@ -17,6 +17,8 @@ public:
     KtSampledArray(const KtSampledArray& other)
         : array_(other.array_), super_(other) {}
 
+    KtSampledArray(const KvSampled& samp);
+
     /// 重载基类接口
 
     // 每个通道的数据总数
@@ -138,6 +140,23 @@ private:
 };
 
 
+
+template<int DIM>
+KtSampledArray<DIM>::KtSampledArray(const KvSampled& samp)
+{
+    kIndex shape[DIM];
+
+    for (unsigned i = 0; i < DIM; i++) {
+        reset(i, samp.range(i).low(), samp.step(i));
+        shape[i] = samp.size(i);
+    }
+
+    shape[0] = 0;
+    resize(shape, samp.channels());
+    pushBack(samp); // copy the data
+}
+
+
 template<int DIM>
 kReal* KtSampledArray<DIM>::at(kIndex idx[])
 {
@@ -196,7 +215,7 @@ void KtSampledArray<DIM>::pushBack(const KvSampled& d, kIndex pos, kIndex rows)
     auto shape = array_.extent();
     auto offset = shape[0];
     shape[0] += rows; // 增加rows行
-    std::array<kIndex, DIM> dims;
+    std::array<kIndex, DIM> dims; // 变换到kIndex类型
     std::copy(shape.begin(), shape.end() - 1, dims.begin());
     resize(dims.data()); // 调整this存储布局，增加相应行数
 
@@ -212,10 +231,13 @@ void KtSampledArray<DIM>::pushBack(const KvSampled& d, kIndex pos, kIndex rows)
         auto temp = dims;
         temp[0] += offset - pos;
         auto buf = at(temp.data());
-        for (kIndex ch = 0; ch < channels(); ch++)
-            buf[ch] = d.value(dims.data(), ch);
+        for (kIndex ch = 0; ch < channels(); ch++) {
+            *buf = d.value(dims.data(), ch);
+            buf += stride(DIM); // 通道的stride
+        }
 
         d.nextIndex(dims.data());
+        assert(dims.front() < d.size(0));
         if (dims.front() == 0) // 考虑进位
             dims.front() = pos;
     }
