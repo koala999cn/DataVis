@@ -44,23 +44,14 @@ kReal KcOpFbank::step(kIndex outPort, kIndex axis) const
 
 bool KcOpFbank::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
-    if (super_::onStartPipeline(ins))
+    if (!super_::onStartPipeline(ins))
         return false;
 
-    KgFbank::KpOptions opts;
-    opts.sampleRate = 1. / inputStep_(dim(0) - 1);
-    opts.fftBins = inputSize_(dim(0) - 1);
-
-    opts.type = KgFbank::KeType(type_);
-    opts.lowFreq = 0;
-    opts.highFreq = opts.sampleRate;
-    opts.numBanks = bins_;
-    opts.normalize = false; // TODO:
-
-    fbank_ = std::make_unique<KgFbank>(opts);
+    assert(fbank_ == nullptr);
+    prepareOutput_(); // 创建fbank_对象
     createOutputData_();
 
-    return fbank_ != nullptr && odata_[0] != nullptr;
+    return fbank_  && odata_.front();
 }
 
 
@@ -76,8 +67,6 @@ void KcOpFbank::showPropertySet()
     super_::showPropertySet();
     ImGui::Separator();
 
-    ImGui::BeginDisabled(working_());
-
     if (ImGui::BeginCombo("Type", KgFbank::type2Str(KgFbank::KeType(type_)))) {
         for (unsigned i = 0; i < KgFbank::k_type_count; i++)
             if (ImGui::Selectable(KgFbank::type2Str(KgFbank::KeType(i)), i == type_)) {
@@ -92,8 +81,6 @@ void KcOpFbank::showPropertySet()
         bins_ = bins;
         setOutputExpired(0);
     }
-
-    ImGui::EndDisabled();
 }
 
 
@@ -110,7 +97,26 @@ void KcOpFbank::op_(const kReal* in, unsigned len, kReal* out)
 }
 
 
-void KcOpFbank::prepareOutput_()
+bool KcOpFbank::prepareOutput_()
 {
+    if (fbank_ == nullptr 
+        || fbank_->idim() != isize_() 
+        || fbank_->options().sampleRate != 1. / inputStep_(dim(0) - 1)
+        || isOutputExpired()) {
+        KgFbank::KpOptions opts;
+        opts.sampleRate = 1. / inputStep_(dim(0) - 1);
+        opts.fftBins = isize_();
 
+        opts.type = KgFbank::KeType(type_);
+        opts.lowFreq = 0;
+        opts.highFreq = opts.sampleRate;
+        opts.numBanks = bins_;
+        opts.normalize = false; // TODO:
+
+        fbank_ = std::make_unique<KgFbank>(opts);
+
+        return true;
+    }
+
+    return false;
 }

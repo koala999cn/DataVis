@@ -2,7 +2,7 @@
 #include "KvDataRender.h"
 #include <memory>
 #include <map>
-#include "KuStrUtil.h"
+
 
 class KvPlot;
 class KcAxis;
@@ -52,7 +52,7 @@ protected:
 		plts.resize(prov->channels(port->index()));
 
 		for (kIndex ch = 0; ch < prov->channels(port->index()); ch++) {
-			std::string name = prov->name() + " - ch" + KuStrUtil::toString(ch);
+			std::string name = prov->name() + " - ch" + std::to_string(ch);
 			plts[ch] = new PLT_TYPE(name);
 		}
 
@@ -111,7 +111,8 @@ protected:
 
 	void updateTheme_();
 
-	static void streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, double xrange);
+	using data_ptr = std::shared_ptr<KvData>;
+	static data_ptr streaming_(data_ptr curData, data_ptr newData, double xrange);
 
 protected:
 	std::shared_ptr<KvPlot> plot_;

@@ -111,7 +111,7 @@ std::pair<double, double> KgSpectrum::orange(const std::pair<double, double>& in
 	mag *= N;
 	mag *= mag;
 	fixPower(&mag, 1, false);
-	return { 0, mag };
+	return mag > 0 ? std::pair<double, double>{ 0., mag } : std::pair<double, double>{ mag, 0. };
 }
 
 

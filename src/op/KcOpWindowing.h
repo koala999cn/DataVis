@@ -18,7 +18,7 @@ public:
 
 private:
 
-	void prepareOutput_() final;
+	bool prepareOutput_() final;
 
 	void op_(const kReal* in, unsigned len, kReal* out) final;
 

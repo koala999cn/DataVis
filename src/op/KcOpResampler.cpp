@@ -29,6 +29,9 @@ kReal KcOpResampler::step(kIndex outPort, kIndex axis) const
 
 bool KcOpResampler::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+    if (!super_::onStartPipeline(ins))
+        return false;
+
     assert(resamp_ == nullptr);
     resamp_ = std::make_unique<KgResampler>(method_, wsize_, channels(0), factor_);
 
@@ -40,6 +43,7 @@ bool KcOpResampler::onStartPipeline(const std::vector<std::pair<unsigned, KcPort
 void KcOpResampler::onStopPipeline()
 {
     resamp_.reset();
+    super_::onStopPipeline();
 }
 
 
@@ -92,7 +96,7 @@ kIndex KcOpResampler::osize_(kIndex is) const
 }
 
 
-void KcOpResampler::prepareOutput_()
+bool KcOpResampler::prepareOutput_()
 {
     assert(resamp_);
 
@@ -107,10 +111,14 @@ void KcOpResampler::prepareOutput_()
         for (kIndex i = 0; i < dim(0); i++)
             samp->reset(i, samp->range(i).low(), step(0, i), 0);
         odata_.front() = samp;
+
+        return true;
     }
     else if (!isStream(0)) { // 对于非流式数据，每帧都重置采样器
         resamp_->reset();
     }
+
+    return false;
 }
 
 

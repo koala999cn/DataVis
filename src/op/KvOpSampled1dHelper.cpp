@@ -17,8 +17,7 @@ KvOpSampled1dHelper::KvOpSampled1dHelper(const std::string_view& name,
 bool KvOpSampled1dHelper::permitInput(int dataSpec, unsigned inPort) const
 {
 	KpDataSpec ds(dataSpec);
-	return (ds.type == k_sampled || ds.type == k_array) && 
-		(ds.dim == 1 || ds.dim == 2 & permitSamp2d_/* && isize_() > 0*/);
+	return (ds.type == k_sampled || ds.type == k_array) && (ds.dim < 2 + permitSamp2d_);
 }
 
 
@@ -41,6 +40,14 @@ kIndex KvOpSampled1dHelper::size(kIndex outPort, kIndex axis) const
 void KvOpSampled1dHelper::outputImpl_()
 {
 	assert(idata_.size() == 1 && idata_.front() && idata_.front()->isDiscreted());
+
+	// 同步odata的规格参数，尺寸信息由output1d_和output2d_同步
+	// FIXME: fback的step参数始终在变化
+	//for (unsigned i = 0; i < outPorts(); i++) {
+	//	auto samp = std::dynamic_pointer_cast<KvSampled>(odata_[i]);
+	//	for (kIndex j = 0; j < dim(i); j++)
+	//		samp->reset(j, range(i, j).low(), step(i, j), 0);
+	//}
 
 	idata_.front()->dim() == 1 ? output1d_() : output2d_();
 }
@@ -137,11 +144,10 @@ void KvOpSampled1dHelper::output2d_()
 {
 	assert(isize_() != 0); // 流数据处理只支持固定输入尺寸
 
-	auto out = std::dynamic_pointer_cast<KcSampled2d>(odata_.front());
-	assert(out && out->size(1) == osize_(isize_()));
-
 	auto valueGetter = KuDataUtil::valueGetter2d(idata_.front());
 	assert(valueGetter.cols == isize_());
+
+	auto out = std::dynamic_pointer_cast<KcSampled2d>(odata_.front());
 	out->resize(valueGetter.rows, osize_(valueGetter.cols), valueGetter.channels);
 
 	if (valueGetter.data) { // 先尝试快捷通道
@@ -192,6 +198,5 @@ void KvOpSampled1dHelper::output2d_()
 
 kIndex KvOpSampled1dHelper::isize_() const
 {
-	auto d = dim(0);
-	return d == 0 ? 0 : inputSize_(d - 1);
+	return inputSize_(dim(0) - 1);
 }

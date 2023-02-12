@@ -156,7 +156,7 @@ bool KcOpHistC::onNewLink(KcPortNode* from, KcPortNode* to)
 }
 
 
-void KcOpHistC::prepareOutput_()
+bool KcOpHistC::prepareOutput_()
 {
     assert(histc_);
 
@@ -165,5 +165,8 @@ void KcOpHistC::prepareOutput_()
         auto samp = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
         samp->reset(0, histc_->range().first, histc_->binWidth(0), 0.5);
         samp->resize(histc_->numBins(), channels(0));
+        return true;
     }
+
+    return false;
 }

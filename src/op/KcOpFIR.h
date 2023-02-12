@@ -22,7 +22,7 @@ public:
 
 private:
 
-	void prepareOutput_() final;
+	bool prepareOutput_() final;
 
 	void outputImpl_() final;
 

@@ -21,7 +21,7 @@ public:
 
 private:
 
-	void prepareOutput_() final {}
+	bool prepareOutput_() final { return false; }
 
 	void outputImpl_() final;
 

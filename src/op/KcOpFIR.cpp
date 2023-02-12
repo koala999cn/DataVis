@@ -33,10 +33,15 @@ void KcOpFIR::onStopPipeline()
 }
 
 
-void KcOpFIR::prepareOutput_()
+bool KcOpFIR::prepareOutput_()
 {
-    if (isOutputExpired() || filter_->channels() == idata_.front()->channels())
+    if (isOutputExpired() 
+        || filter_->channels() == idata_.front()->channels()) {
         createFilter_();
+        return true;
+    }
+
+    return false;
 }
 
 

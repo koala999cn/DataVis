@@ -72,9 +72,9 @@ void KcOpHist::onStopPipeline()
 }
 
 
-void KcOpHist::prepareOutput_()
+bool KcOpHist::prepareOutput_()
 {
-
+    return false;
 }
 
 

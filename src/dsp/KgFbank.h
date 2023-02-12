@@ -47,6 +47,8 @@ public:
 	// 返回第idx个子带的中心频率(Hz)
 	double fc(unsigned idx) const { return fc_[idx]; }
 
+	const KpOptions& options() const { return opts_; }
+
 	/// 帮助函数
 
 	static const char* type2Str(KeType type);

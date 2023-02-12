@@ -65,7 +65,8 @@ protected:
 
 	// 该方法用于同步配置参数和输入数据规格的变化
 	// NB: 目前假定管线运行期间，输入数据的维度不会发生变化
-	virtual void prepareOutput_() = 0; 
+	// 返回true表示重构了算子
+	virtual bool prepareOutput_() = 0; 
 
 	// 该函数不用考虑配置参数和输入数据规格的变化，也不同考虑时间戳的比对与更新
 	virtual void outputImpl_() = 0;

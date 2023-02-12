@@ -93,9 +93,9 @@ bool KcOpSampler::onNewLink(KcPortNode* from, KcPortNode* to)
 }
 
 
-void KcOpSampler::prepareOutput_()
+bool KcOpSampler::prepareOutput_()
 {
-
+    return false;
 }
 
 

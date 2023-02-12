@@ -20,6 +20,9 @@ KcRdAudioPlayer::KcRdAudioPlayer()
 
 bool KcRdAudioPlayer::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+	if (!super_::onStartPipeline(ins))
+		return false;
+
 	dataStamp_ = 0;
 
 	if (ins.empty())
@@ -45,6 +48,7 @@ void KcRdAudioPlayer::onStopPipeline()
 {
 	render_->stop(true);
 	render_->reset();
+	super_::onStopPipeline();
 }
 
 

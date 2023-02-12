@@ -34,7 +34,7 @@ public:
 private:
 
 	// 重载该函数，以支持动态设定参数
-	void prepareOutput_() final;
+	bool prepareOutput_() final;
 
 	void outputImpl_() final;
 

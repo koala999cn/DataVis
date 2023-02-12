@@ -51,6 +51,8 @@ void KvPvExcitor::onNewFrame(int frameIdx)
 bool KvPvExcitor::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
 	assert(ins.empty());
+	if (!super_::onStartPipeline(ins))
+		return false;
 
 	excitor_.reset(createExcitor_(type_));
 
@@ -66,7 +68,7 @@ bool KvPvExcitor::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNo
 void KvPvExcitor::onStopPipeline()
 {
 	excitor_.reset();
-	// data_ = nullptr;
+	super_::onStopPipeline();
 }
 
 

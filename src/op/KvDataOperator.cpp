@@ -328,7 +328,10 @@ bool KvDataOperator::isInputUpdated() const
 void KvDataOperator::output() 
 {
 	if (isInputUpdated() || (isOutputExpired() && !isDynamic(0))) { // TODO: 此处只检测了0端口的动态属性
-		prepareOutput_();
+		if (prepareOutput_()) {
+
+		}
+
 		outputImpl_();
 		notifyChanged(); // 更新odata的时间戳到currentFrame
 		std::fill(outputExpired_.begin(), outputExpired_.end(), false);

@@ -122,7 +122,7 @@ kIndex KcOpSpectrum::osize_(kIndex is) const
 }
 
 
-void KcOpSpectrum::prepareOutput_()
+bool KcOpSpectrum::prepareOutput_()
 {
 	auto isize = inputSize_(dim(0) - 1);
 	if (isOutputExpired() || isize != spec_->idim()) {
@@ -133,7 +133,10 @@ void KcOpSpectrum::prepareOutput_()
 		opts.norm = KgSpectrum::KeNormMode(normMode_);
 		opts.roundToPower2 = roundToPower2_;
 		spec_->reset(opts);
+		return true;
 	}
+
+	return false;
 }
 
 

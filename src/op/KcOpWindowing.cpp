@@ -20,7 +20,7 @@ bool KcOpWindowing::onStartPipeline(const std::vector<std::pair<unsigned, KcPort
     if (!super_::onStartPipeline(ins))
         return false;
 
-    win_ = std::make_unique<KgWindowing>(isize_(), KgWindowing::KeType(type_), arg_);
+    prepareOutput_();
     createOutputData_();
     return win_ != nullptr && odata_.front() != nullptr;
 }
@@ -52,11 +52,15 @@ void KcOpWindowing::showPropertySet()
 }
 
 
-void KcOpWindowing::prepareOutput_()
+bool KcOpWindowing::prepareOutput_()
 {
-    auto isize = inputSize_(dim(0) - 1);
-    if (isOutputExpired() || win_->idim() != isize)
+    auto isize = isize_();
+    if (isOutputExpired() || !win_ || win_->idim() != isize) {
         win_ = std::make_unique<KgWindowing>(isize, KgWindowing::KeType(type_), arg_);
+        return true;
+    }
+
+    return false;
 }
 
 

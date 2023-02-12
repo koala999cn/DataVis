@@ -71,7 +71,7 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 			prov->isArray(outPort->index())); // TODO: other types
 
 		auto xrange = plot_->coord().upper().x() - plot_->coord().lower().x();
-		streaming_(streamData_[outPort], data, xrange);
+		streamData_[outPort] = streaming_(streamData_[outPort], data, xrange);
 		data = streamData_[outPort];
 	}
 
@@ -140,6 +140,9 @@ void KvRdPlot::onDelLink(KcPortNode* from, KcPortNode* to)
 
 bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+	if (!super_::onStartPipeline(ins))
+		return false;
+
 	plot_->removeAllPlottables();
 	plot_->autoFit() = true;
 	port2Plts_.clear(); 
@@ -996,18 +999,38 @@ void KvRdPlot::updateTheme_()
 
 namespace kPrivate
 {
-	template<int DIM>
-	static void streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, double xrange)
+	static bool streamable(const KvSampled& samp1, const KvSampled& samp2)
 	{
-		assert(curData->dim() == newData->dim() && curData->channels() == newData->channels());
+		for (unsigned i = 0; i < samp1.dim(); i++)
+			if (!KuMath::almostEqual(samp1.step(i), samp2.step(i)))
+				return false;
 
+		for (unsigned d = 1; d < samp1.dim(); d++)
+			if (samp1.size(d) != samp2.size(d)) // 只允许0维度（滑动维度）的尺寸不一致
+				return false;
+
+		return true;
+	}
+
+	template<int DIM>
+	static std::shared_ptr<KvData> streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, double xrange)
+	{
 		auto samp = std::dynamic_pointer_cast<KtSampledArray<DIM>>(curData);
-		assert(samp);
+
 		if (xrange == 0) {
 			samp->clear();
-			return;
+			return samp;
 		}
 
+		/// 检测参数规格的一致性，不一致则直接使用newData
+		auto newSamp = std::dynamic_pointer_cast<KvSampled>(newData);
+		assert(samp->dim() == newSamp->dim() && samp->channels() == newSamp->channels()); // TODO: 目前假定维度和通道数是恒定的
+		if (!streamable(*samp, *newSamp)) {
+			// NB: 此处不能直接返回newSamp，否则会破坏输入节点的数据缓存
+			return std::make_shared<KtSampledArray<DIM>>(*newSamp);
+		}
+
+		/// 滑动数据
 		auto cnt = xrange / samp->step(0);
 		auto sampArray = std::dynamic_pointer_cast<KtSampledArray<DIM>>(newData);
 		if (sampArray) { // 使用快速版本
@@ -1016,16 +1039,20 @@ namespace kPrivate
 		else { // 使用通用版本
 			samp->shift(*std::dynamic_pointer_cast<KvSampled>(newData), cnt);
 		}
+
+		return samp;
 	}
 }
 
-void KvRdPlot::streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, double xrange)
+KvRdPlot::data_ptr KvRdPlot::streaming_(data_ptr curData, data_ptr newData, double xrange)
 {
 	if (curData->dim() == 1) 
-		kPrivate::streaming_<1>(curData, newData, xrange);
+		return kPrivate::streaming_<1>(curData, newData, xrange);
 	else if (curData->dim() == 2) 
-		kPrivate::streaming_<2>(curData, newData, xrange);
+		return kPrivate::streaming_<2>(curData, newData, xrange);
 	else {
 		assert(false);
 	}
+
+	return newData; // no streaming
 }

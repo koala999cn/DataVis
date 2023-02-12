@@ -13,8 +13,11 @@ KcPvData::KcPvData(const std::string_view& name, std::shared_ptr<KvData> data)
 }
 
 
-bool KcPvData::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>&)
+bool KcPvData::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins)
 {
+	if (!super_::onStartPipeline(ins))
+		return false;
+
 	dataStamp_ = currentFrameIndex_();
 	return true;
 }
