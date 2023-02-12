@@ -10,35 +10,61 @@ KcOpFbank::KcOpFbank()
 {
     type_ = KgFbank::k_linear;
     bins_ = 13;
+    normalize_ = false;
+    low_ = 0, high_ = 0;
 }
 
 
 kRange KcOpFbank::range(kIndex outPort, kIndex axis) const
 {
-    if (odata_[outPort])
-        return odata_[outPort]->range(axis);
-
-    auto r = super_::range(outPort, axis);
+    // NB: 不使用odata_信息，因为有的地方需要进行参数匹配性检测
+    // if (odata_[outPort])
+    //    return odata_[outPort]->range(axis);
 
     if (axis == dim(outPort) - 1) {
-        r.resetLow(KgFbank::fromHertz(KgFbank::KeType(type_), r.low()));
-        r.resetHigh(KgFbank::fromHertz(KgFbank::KeType(type_), r.high()));
+        if (fbank_)
+            return fbank_->rangeInScale();
+
+        // 计算range
+        auto low = KgFbank::fromHertz(KgFbank::KeType(type_), low_);
+        auto high = KgFbank::fromHertz(KgFbank::KeType(type_), high_);
+        if (low > high)
+            std::swap(low, high);
+        return { low, high };
+    }
+    else if (axis == dim(outPort)) {
+        // value range
     }
 
-    return r;
+    return super_::range(outPort, axis);
 }
 
 
 kReal KcOpFbank::step(kIndex outPort, kIndex axis) const
 {
     if (axis == dim(outPort) - 1) {
+        if (fbank_)
+            return fbank_->stepInScale();
+
+        KtSampling<double> samp;
         auto r = range(outPort, axis);
-        KtSampling<kReal> sanpScale;
-        sanpScale.resetn(bins_ + 1, r.low(), r.high(), 0); // 在目标尺度上均匀划分各bin，相邻的bin有1/2重叠
-        return sanpScale.dx();
+        samp.resetn(bins_ + 1, r.low(), r.high(), 0);
+        return samp.dx();
     }
 
     return super_::step(outPort, axis);
+}
+
+
+bool KcOpFbank::onNewLink(KcPortNode* from, KcPortNode* to)
+{
+    if (!super_::onNewLink(from, to))
+        return false;
+
+    auto r = inputRange_(dim(0) - 1);
+    low_ = r.low(), high_ = r.high();
+
+    return true;
 }
 
 
@@ -76,11 +102,21 @@ void KcOpFbank::showPropertySet()
         ImGui::EndCombo();
     }
 
+    float low(low_), high(high_);
+    if (ImGui::DragFloatRange2("Range", &low, &high, 1, 0, 0, "%.1f Hz")
+        && low >= 0 && high >= low) {
+        low_ = low, high_ = high;
+        setOutputExpired(0);
+    }
+
     int bins(bins_);
     if (ImGui::DragInt("Bins", &bins, 1, 1, 4096) && bins >= 1) {
         bins_ = bins;
         setOutputExpired(0);
     }
+
+    if (ImGui::Checkbox("Normalize", &normalize_) && fbank_)
+        fbank_->setNormalize(normalize_); // 无须调用setOutputExpired
 }
 
 
@@ -100,22 +136,21 @@ void KcOpFbank::op_(const kReal* in, unsigned len, kReal* out)
 bool KcOpFbank::prepareOutput_()
 {
     if (fbank_ == nullptr 
-        || fbank_->idim() != isize_() 
-        || fbank_->options().sampleRate != 1. / inputStep_(dim(0) - 1)
+        || fbank_->idim() != isize_() // fftBins发生变化
         || isOutputExpired()) {
         KgFbank::KpOptions opts;
-        opts.sampleRate = 1. / inputStep_(dim(0) - 1);
+        opts.sampleRate = inputRange_(dim(0) - 1).high();
         opts.fftBins = isize_();
 
         opts.type = KgFbank::KeType(type_);
-        opts.lowFreq = 0;
-        opts.highFreq = opts.sampleRate;
+        opts.lowFreq = low_;
+        opts.highFreq = high_;
         opts.numBanks = bins_;
-        opts.normalize = false; // TODO:
+        opts.normalize = normalize_;
 
         fbank_ = std::make_unique<KgFbank>(opts);
 
-        return true;
+        return fbank_ != nullptr;
     }
 
     return false;

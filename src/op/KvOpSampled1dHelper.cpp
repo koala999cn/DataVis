@@ -42,12 +42,11 @@ void KvOpSampled1dHelper::outputImpl_()
 	assert(idata_.size() == 1 && idata_.front() && idata_.front()->isDiscreted());
 
 	// 同步odata的规格参数，尺寸信息由output1d_和output2d_同步
-	// FIXME: fback的step参数始终在变化
-	//for (unsigned i = 0; i < outPorts(); i++) {
-	//	auto samp = std::dynamic_pointer_cast<KvSampled>(odata_[i]);
-	//	for (kIndex j = 0; j < dim(i); j++)
-	//		samp->reset(j, range(i, j).low(), step(i, j), 0);
-	//}
+	for (unsigned i = 0; i < outPorts(); i++) {
+		auto samp = std::dynamic_pointer_cast<KvSampled>(odata_[i]);
+		for (kIndex j = 0; j < dim(i); j++)
+			samp->reset(j, range(i, j).low(), step(i, j), 0);
+	}
 
 	idata_.front()->dim() == 1 ? output1d_() : output2d_();
 }

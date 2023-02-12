@@ -15,6 +15,8 @@ public:
 
 	kReal step(kIndex outPort, kIndex axis) const final;
 
+	bool onNewLink(KcPortNode* from, KcPortNode* to) override;
+
 	bool onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*>>& ins) final;
 
 	void onStopPipeline() final;
@@ -33,5 +35,7 @@ private:
 	std::unique_ptr<KgFbank> fbank_;
 	int type_;
 	int bins_;
+	bool normalize_;
+	float low_, high_;
 };
 

@@ -49,6 +49,15 @@ public:
 
 	const KpOptions& options() const { return opts_; }
 
+	void setNormalize(bool b);
+
+	// 目标尺度
+	auto rangeInScale() const { return range_; }
+
+	// 目标尺度
+	double stepInScale() const { return binStep_; }
+
+
 	/// 帮助函数
 
 	static const char* type2Str(KeType type);
@@ -68,4 +77,8 @@ private:
 	std::vector<unsigned> firstIdx_; // 各bank的起始点位置
 	std::vector<double> fc_; // 各bank的中心点频率值(Hz)
 	std::vector<std::vector<double>> weights_; // 各bank的权值数组，数组大小等于各bank的采样点数
+
+	// 根据opts计算的缓存变量
+	std::pair<double, double> range_;
+	double binStep_;
 };

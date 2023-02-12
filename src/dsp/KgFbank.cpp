@@ -11,8 +11,11 @@ KgFbank::KgFbank(KgFbank&& fbank) noexcept
     , firstIdx_(std::move(fbank.firstIdx_))
     , fc_(std::move(fbank.fc_))
     , weights_(std::move(fbank.weights_))
+    , range_(fbank.range_)
+    , binStep_(fbank.binStep_)
 {
-    
+
+
 }
 
 
@@ -79,17 +82,22 @@ double KgFbank::fromHertz(KeType type, double hz)
 }
 
 
+void KgFbank::setNormalize(bool b)
+{
+    opts_.normalize = b;
+}
+
+
 void KgFbank::initWeights_()
 {
+    range_ = { fromHertz(opts_.type, opts_.lowFreq), fromHertz(opts_.type, opts_.highFreq) };
+    KtSampling<double> sampScale;
+    sampScale.resetn(opts_.numBanks + 1, range_.first, range_.second, 0); // 在目标尺度上均匀划分各bin，相邻的bin有1/2重叠
+    binStep_ = sampScale.dx();
+
     // Hz尺度的采样参数
     KtSampling<double> sanpHertz;
-    sanpHertz.resetn(idim() - 1, 0, opts_.sampleRate / 2, 0); // 兼容kaldi, x0ref取0, n取idim - 1
-
-    // 目标(type_)尺度的采样参数
-    auto lowScale = fromHertz(opts_.type, opts_.lowFreq);
-    auto highScale = fromHertz(opts_.type, opts_.highFreq);
-    KtSampling<double> sanpScale;
-    sanpScale.resetn(opts_.numBanks + 1, lowScale, highScale, 0); // 在目标尺度上均匀划分各bin，相邻的bin有1/2重叠
+    sanpHertz.resetn(idim() - 1, opts_.lowFreq, opts_.highFreq, 0); // 兼容kaldi, x0ref取0, n取idim - 1
 
     firstIdx_.resize(opts_.numBanks);
     fc_.resize(opts_.numBanks);
@@ -97,9 +105,9 @@ void KgFbank::initWeights_()
     for (unsigned bin = 0; bin < opts_.numBanks; bin++) {
 
         // 计算当前bin在目标尺度上的规格（左边频率，右边频率，中心频率）
-        auto fl = sanpScale.indexToX(bin);
-        auto fc = sanpScale.indexToX(bin + 1);
-        auto fr = sanpScale.indexToX(bin + 2);
+        auto fl = sampScale.indexToX(bin);
+        auto fc = sampScale.indexToX(bin + 1);
+        auto fr = sampScale.indexToX(bin + 2);
 
         // 计算当前bin的频点范围
         auto flhz = toHertz(opts_.type, fl);
