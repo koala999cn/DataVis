@@ -37,7 +37,7 @@ kReal KcOpHist::step(kIndex outPort, kIndex axis) const
     if (axis == 0) {
         KtSampling<kReal> samp;
         samp.resetn(bins_, min_, max_, 0.5);
-        return samp.size();
+        return samp.dx();
     }
 
     return super_::step(outPort, axis);
