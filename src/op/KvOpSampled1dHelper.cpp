@@ -100,7 +100,7 @@ void KvOpSampled1dHelper::output1d_()
 			if (out->stride(0) == 1) {
 				auto outp = out->data();
 				for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
-					op_(inp, isize, outp);
+					op_(inp, isize, ch, outp);
 					inp += valueGetter.channelStride;
 					outp += out->stride(1);
 				}
@@ -108,7 +108,7 @@ void KvOpSampled1dHelper::output1d_()
 			else {
 				std::vector<kReal> obuf(out->size(0));
 				for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
-					op_(inp, isize, obuf.data());
+					op_(inp, isize, ch, obuf.data());
 					inp += valueGetter.channelStride;
 					out->setChannel(nullptr, ch, obuf.data());
 				}
@@ -117,7 +117,8 @@ void KvOpSampled1dHelper::output1d_()
 			return;
 		}
 		else if (!splitChannels_ && valueGetter.channelStride == 1) { // 各通道交错时可用
-			op_(valueGetter.data + offset * valueGetter.channels, isize, out->data()); // TODO: 此处未检测out的布局
+			op_(valueGetter.data + offset * valueGetter.channels, 
+				valueGetter.channels, isize, out->data()); // TODO: 此处未检测out的布局
 			return;
 		}
 	}
@@ -125,14 +126,14 @@ void KvOpSampled1dHelper::output1d_()
 	// 使用getter
 	if (!splitChannels_) {
 		auto ibuf = valueGetter.fetch(offset, isize);
-		op_(ibuf.data(), isize, out->data()); // TODO: 此处未检测out的布局
+		op_(ibuf.data(), isize, valueGetter.channels, out->data()); // TODO: 此处未检测out的布局
 	}	
 	else {
 		std::vector<kReal> obuf(out->size(0));
 		for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
 			auto ibuf = valueGetter.fetchChannel(ch, offset, isize);
 			assert(ibuf.size() == isize);
-			op_(ibuf.data(), isize, obuf.data());
+			op_(ibuf.data(), isize, ch, obuf.data());
 			out->setChannel(nullptr, ch, obuf.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
 		}
 	}
@@ -156,7 +157,7 @@ void KvOpSampled1dHelper::output2d_()
 			for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
 				auto inp = valueGetter.data + ch * valueGetter.channelStride;
 				for (kIndex r = 0; r < valueGetter.rows; r++) {
-					op_(inp, valueGetter.cols, oData.data());
+					op_(inp, valueGetter.cols, ch, oData.data());
 					out->setChannel(&r, ch, oData.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
 					inp += valueGetter.rowStride;
 				}
@@ -168,7 +169,7 @@ void KvOpSampled1dHelper::output2d_()
 			&& valueGetter.colStride == valueGetter.channels) {
 			auto inp = valueGetter.data;
 			for (unsigned r = 0; r < valueGetter.rows; r++) {
-				op_(inp, valueGetter.cols, out->row(r));
+				op_(inp, valueGetter.cols, valueGetter.channels, out->row(r));
 				inp += valueGetter.rowStride;
 			}
 		}
@@ -179,7 +180,7 @@ void KvOpSampled1dHelper::output2d_()
 	if (!splitChannels_) {
 		for (kIndex r = 0; r < valueGetter.rows; r++) {
 			auto ibuf = valueGetter.fetchRow(r);
-			op_(ibuf.data(), valueGetter.cols, out->row(r));
+			op_(ibuf.data(), valueGetter.cols, valueGetter.channels, out->row(r));
 		}
 	}
 	else {
@@ -187,7 +188,7 @@ void KvOpSampled1dHelper::output2d_()
 		for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
 			for (kIndex r= 0; r < valueGetter.rows; r++) {
 				auto ibuf = valueGetter.fetchRowOfChannel(ch, r);
-				op_(ibuf.data(), valueGetter.cols, oData.data());
+				op_(ibuf.data(), valueGetter.cols, ch, oData.data());
 				out->setChannel(&r, ch, oData.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
 			}
 		}

@@ -64,7 +64,7 @@ bool KcOpWindowing::prepareOutput_()
 }
 
 
-void KcOpWindowing::op_(const kReal* in, unsigned len, kReal* out)
+void KcOpWindowing::op_(const kReal* in, unsigned len, unsigned ch, kReal* out)
 {
     assert(len == win_->idim());
     win_->process(in, out);

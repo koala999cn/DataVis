@@ -161,7 +161,7 @@ kIndex KcOpFbank::osize_(kIndex is) const
 }
 
 
-void KcOpFbank::op_(const kReal* in, unsigned len, kReal* out)
+void KcOpFbank::op_(const kReal* in, unsigned len, unsigned ch, kReal* out)
 {
     assert(len == isize_());
     fbank_->process(in, out);

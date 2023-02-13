@@ -122,7 +122,7 @@ bool KcOpResampler::prepareOutput_()
 }
 
 
-void KcOpResampler::op_(const kReal* in, unsigned ilen, kReal* out)
+void KcOpResampler::op_(const kReal* in, unsigned ilen, unsigned ch, kReal* out)
 {
     auto olen = osize_(ilen);
     auto used = resamp_->apply(in, ilen, out, olen);

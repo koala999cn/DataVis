@@ -30,8 +30,9 @@ protected:
 
 	// @in: 单通道数据
 	// @len: 输入in的尺寸
+	// @ch: 当前通道序号（splitChannels_为true时），或通道数（splitChannels_为false时）
 	// @out: 输出结果，可能与in重叠，尺寸等于size(dim() - 1)
-	virtual void op_(const kReal* in, unsigned len, kReal* out) = 0;
+	virtual void op_(const kReal* in, unsigned len, unsigned ch, kReal* out) = 0;
 
 	// 帮助函数，创建输出对象的帮助函数，由继承类在onStartPipeline中调用
 	void createOutputData_();

@@ -1,13 +1,13 @@
 ﻿#pragma once
-#include "KvDataOperator.h"
+#include "KvOpSampled1dHelper.h"
 #include <memory>
 
 
 class KgHistC;
 
-class KcOpHistC : public KvDataOperator
+class KcOpHistC : public KvOpSampled1dHelper
 {
-	using super_ = KvDataOperator;
+	using super_ = KvOpSampled1dHelper;
 
 public:
 	KcOpHistC();
@@ -33,13 +33,17 @@ public:
 
 private:
 
+	kIndex isize_() const final { return 0; } // 支持任意长度的输入
+
+	kIndex osize_(kIndex is) const final;
+
 	// 重载该函数，以支持动态设定参数
 	bool prepareOutput_() final;
 
-	void outputImpl_() final;
+	void op_(const kReal* in, unsigned len, unsigned ch, kReal* out) final;
 
 private:
-	std::unique_ptr<KgHistC> histc_;
+	std::vector<std::unique_ptr<KgHistC>> histc_; // 支持多通道输入，每个通道1个histc对象
 	int bins_;
 	float low_, high_;
 };

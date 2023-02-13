@@ -140,7 +140,7 @@ bool KcOpSpectrum::prepareOutput_()
 }
 
 
-void KcOpSpectrum::op_(const kReal* in, unsigned len, kReal* out)
+void KcOpSpectrum::op_(const kReal* in, unsigned len, unsigned ch, kReal* out)
 {
 	assert(spec_ && spec_->idim() == len);
 	spec_->process(in, out);

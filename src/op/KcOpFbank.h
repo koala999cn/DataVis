@@ -29,7 +29,7 @@ private:
 
 	bool prepareOutput_() final;
 
-	void op_(const kReal* in, unsigned len, kReal* out) final;
+	void op_(const kReal* in, unsigned len, unsigned ch, kReal* out) final;
 
 private:
 	std::unique_ptr<KgFbank> fbank_;
