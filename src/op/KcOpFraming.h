@@ -4,7 +4,8 @@
 #include "KtFraming.h"
 
 
-class KcOpFraming : public KvDataOperator
+// KcOpFraming不能从KvOpSampled1dHelper继承，因为framing操作符改变了数据维度
+class KcOpFraming : public KvDataOperator 
 {
 	using super_ = KvDataOperator;
 
@@ -29,16 +30,19 @@ public:
 
 private:
 
-	bool prepareOutput_() final { return false; }
+	bool prepareOutput_() final;
 
 	void outputImpl_() final;
 
 	kIndex frameSize() const;
+	void setFrameSize(kIndex s);
+
 	kIndex shiftSize() const;
+	void setShiftSize(kIndex s);
 
 private:
 	std::unique_ptr<KtFraming<kReal>> framing_;
-	kReal frameTime_; // 单帧时长
-	kReal shiftTime_; // 帧移时长
+	float frameTime_; // 单帧时长
+	float shiftTime_; // 帧移时长
 };
 
