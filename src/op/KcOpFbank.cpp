@@ -121,7 +121,7 @@ void KcOpFbank::showPropertySet()
     if (fbank_) {
         ImGui::Separator();
 
-        if (ImGuiX::treePush("Bins", false)) {
+        if (ImGuiX::treePush("Bins Info", false)) {
             std::vector<double> fcInScale(fbank_->options().numBanks);
             for (unsigned i = 0; i < fbank_->options().numBanks; i++)
                 fcInScale[i] = KgFbank::fromHertz(KgFbank::KeType(type_), fbank_->fc(i));
@@ -136,6 +136,7 @@ void KcOpFbank::showPropertySet()
                         f -= fbank_->stepInScale();
                     else if (j == 3)
                         f += fbank_->stepInScale();
+                    if (f < 0) f = 0; // 假定各尺度的频率值都大于0，此处检测因计算误差可能出现的负值，避免toHertz返回nan
 
                     if (type_ == KgFbank::k_linear)
                         ImGui::Text("%.1fHz", f);
