@@ -23,7 +23,7 @@ kRange KvPvExcitor::range(kIndex outPort, kIndex axis) const
 	if (axis == 0)
 		return kRange(0, ticksPerFrame_ * step(outPort, 0));
 		
-	return excitor_ ? excitor_->range() : kRange{ 0, 0 };
+	return excitor_ ? excitor_->range() : kRange{ -1, 1 };
 }
 
 
