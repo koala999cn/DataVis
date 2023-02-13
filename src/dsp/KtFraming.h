@@ -88,22 +88,27 @@ void KtFraming<T>::apply(const T* first, const T* last, OP op)
 	//   一是拷贝部分输入到缓存，先耗尽缓存数据，
 	//   二是对剩余的输入执行在线处理
 	auto copysize = needAppended_();
+	auto of = outFrames(copysize, true);
 	assert(outFrames(copysize, true) * shift_ >= buffered());
 	if (copysize > isize)
 		copysize = isize;
-	auto last_ = first + copysize * channels();
-	push(first, last_);
-	auto pos = execute_(buf_.data(), buf_.data() + buf_.size(), op); // 执行第一阶段分帧
+	auto pushed = first + copysize * channels(); // 第一阶段压入堆栈的最后位置
+	push(first, pushed);
+	auto residue = execute_(buf_.data(), buf_.data() + buf_.size(), op); // 执行第一阶段分帧
 
-	if (last_ == last) { // 无剩余数据
-		buf_.erase(buf_.begin(), buf_.begin() + (pos - buf_.data()));
+	if (pushed == last) { // 无剩余数据
+		buf_.erase(buf_.begin(), buf_.begin() + (residue - buf_.data()));
 		assert(outFrames(0, true) == 0);
 	}
 	else { // 处理剩余数据
-		first = last_ - (buf_.data() + buf_.size() - pos);
-		pos = execute_(first, last, op); // 执行第二阶段分帧
+		first = pushed - (buf_.data() + buf_.size() - residue);
+		assert(first <= last);
+
+		residue = execute_(first, last, op); // 执行第二阶段分帧
+		assert(residue <= last);
+
 		buf_.clear();
-		push(pos, last); // 残留数据压入缓存
+		push(residue, last); // 残留数据压入缓存
 	}
 }
 
@@ -132,7 +137,7 @@ unsigned KtFraming<T>::outFrames(unsigned samples, bool addBuffered) const
 		return 0;
 
 	assert(shift() != 0);
-	return (samples - size()) / shift() + 1;
+	return (samples - std::max(size(), shift())) / shift() + 1;
 }
 
 
@@ -149,9 +154,12 @@ const T* KtFraming<T>::execute_(const T* first, const T* last, OP& op)
 	auto isize = (last - first) / channels();
 	auto frames = outFrames(isize, false);
 	auto shiftRaw = shift_ * channels();
-	for (unsigned i = 0; i < frames; i++, first += shiftRaw)
+	for (unsigned i = 0; i < frames; i++) {
 		op(first);
+		first += shiftRaw;
+	}
 
+	assert(first <= last);
 	return first;
 }
 
@@ -162,6 +170,10 @@ unsigned KtFraming<T>::needAppended_() const
 	if (buf_.empty())
 		return 0;
 
-	return ((buffered() - 1) / shift()) * shift() + size() - buffered();
+	auto c = ((buffered() - 1) / shift()) * shift() + size();
+	if (c < shift())
+		c = shift();
+	
+	return c - buffered();
 }
 
