@@ -11,7 +11,7 @@
 KcOpHistC::KcOpHistC()
     : super_("HistC")
 {
-    bins_ = 9;;
+    bins_ = 99;
     low_ = 0, high_ = 1;
 }
 

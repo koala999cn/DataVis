@@ -4,50 +4,40 @@
 #include "KuMath.h"
 
 
-void KgHist::process(const KcSampled1d& in, KcSampled1d& out)
+void KgHist::process(const KvSampled& in, kReal* out)
 {
     assert(numBins() > 0);
 
-    KtSampling<kReal> samp;
+ /*   KtSampling<kReal> samp;
     samp.resetn(numBins(), range().first, range().second, 0.5);
     assert(KuMath::almostEqual(samp.dx(), binWidth(0))); // 假定线性尺度
 
     out.resize(numBins(), in.channels());
     out.reset(0, samp.low(), samp.dx(), samp.x0ref());
     
-    process(in, (kReal*)out.data());
-}
+    process(in, (kReal*)out.data());*/
 
-
-void KgHist::process(const KcSampled1d& in, kReal* out)
-{
     if (in.empty()) {
         std::fill(out, out + numBins() * in.channels(), 0);
         return;
     }
 
     for (kIndex i = 0; i < numBins(); i++) {
-        auto range = in.sampling(0).rangeToIndex(binLeft(i), binRight(i));
-        if (range.first > range.second) std::swap(range.first, range.second);
-        if (range.first < 0) range.first = 0;
-        if (range.second > in.size()) range.second = in.size();
+        auto left = in.xToHighIndex(binLeft(i));
+        auto right = in.xToHighIndex(binRight(i)); // 右侧为开区间
+        assert(left <= right);
 
-        for (kIndex c = 0; c < in.channels(); c++) {
-            kReal val(0);
-            kIndex N = range.second - range.first;
-            for (kIndex j = range.first; j < range.second; j++)
-                val += in.value(j, c);
+        if (left < 0) left = 0;
+        if (right > in.size()) right = in.size();
 
+        kIndex N = right - left;
+        for (kIndex ch = 0; ch < in.channels(); ch++) {
+            kReal val(0);  
+            for (kIndex i = left; i < right; i++)
+                val += in.value(i, ch);
             *out++ = val / N;
         }
     }
-}
-
-
-void KgHist::process(const kReal* in, unsigned len, kReal* out)
-{
-    KtSampling<kReal> samp;
-    samp.resetn(len, range().first, range().second, 0.5);
 }
 
 

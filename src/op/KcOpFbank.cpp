@@ -1,7 +1,6 @@
 ﻿#include "KcOpFbank.h"
 #include "KgFbank.h"
-#include "KcSampled1d.h"
-#include "KcSampled2d.h"
+#include "KtSampling.h"
 #include "imguix.h"
 
 

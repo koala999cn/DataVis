@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
+#include "dsp/KuDataUtil.h"
 #include "imgui.h"
 
 
@@ -153,11 +154,16 @@ void KcOpFraming::outputImpl_()
 	if (!inputSpec.stream) 
 		framing_->reset(); // 输入为静态数据，清空framing的缓存
 
-	auto samp1d = std::dynamic_pointer_cast<KcSampled1d>(idata_.front());
-	assert(samp1d);
+	auto g = KuDataUtil::valueGetter1d(idata_.front());
+	auto buf = g.data;
+	std::vector<kReal> vec;
+	if (!buf) {
+		vec = g.fetch(0, g.samples);
+		buf = vec.data();
+	}
 
 	auto out = std::dynamic_pointer_cast<KcSampled2d>(odata_.front());
-	auto frameNum = framing_->outFrames(samp1d->size(0), true);
+	auto frameNum = framing_->outFrames(g.samples, true);
 	out->resize(frameNum, framing_->size(), framing_->channels());
 
 	//kReal x0 = samp1d->sampling(0).low();
@@ -165,8 +171,8 @@ void KcOpFraming::outputImpl_()
 	//out->reset(0, x0 + frameTime_ / 2, shiftTime_);
 	//out->reset(1, x0, inputStep_());
 
-	auto first = samp1d->data();
-	auto last = first + samp1d->count();
+	auto first = buf;
+	auto last = first + g.samples;
 	kIndex idx(0);
 	framing_->apply(first, last, [&out, &idx](const kReal* data) {
 		std::copy(data, data + out->stride(0), out->row(idx++));

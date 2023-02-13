@@ -5,6 +5,8 @@
 
 class KgHist;
 
+// TODO: 支持多通道数据
+
 class KcOpHist : public KvDataOperator
 {
 	using super_ = KvDataOperator;
@@ -28,7 +30,8 @@ public:
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
 
-	bool onInputChanged(KcPortNode* outPort, unsigned inPort) final;
+	// 根据输入同步low_ & high_
+	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
 
 private:
 
@@ -38,7 +41,7 @@ private:
 
 private:
 	std::unique_ptr<KgHist> hist_;
-	double min_, max_; // 做hist的值域范围
+	double min_, max_; // 做hist的x轴范围
 	int bins_; // hist的bin数
 };
 
