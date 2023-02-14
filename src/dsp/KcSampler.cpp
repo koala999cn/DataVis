@@ -71,6 +71,8 @@ void KcSampler::resize(kIndex shape[], kIndex channels)
 
 kIndex KcSampler::size(kIndex axis) const
 {
+	assert(axis < dim());
+
 	if (internal_->isContinued()) {
 		KtSampling<kReal> samp;
 		samp.reset(range(axis).low(), range(axis).high(), steps_[axis], x0refs_[axis]);
@@ -85,6 +87,7 @@ kIndex KcSampler::size(kIndex axis) const
 
 kReal KcSampler::step(kIndex axis) const
 {
+	assert(axis < dim());
 	return steps_[axis];
 }
 

@@ -160,7 +160,7 @@ unsigned KcBars2d::majorColorsNeeded() const
 	return coloringMode() == k_colorbar_gradiant ? -1
 		: (data() == nullptr ? 1 : // 数据未知，返回1
 			data()->channels() > 1 ? data()->channels() // 多通道数据，返回通道数
-			: discreted_()->size(1)); // 单通道数据，返回size(1)
+			: (data()->dim() == 1 ? 1 : discreted_()->size(1))); // 高维单通道数据，返回size(1)
 }
 
 

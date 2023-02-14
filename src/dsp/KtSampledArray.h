@@ -28,8 +28,8 @@ public:
 
     // 重载实现size，基类实现会有累计误差
     kIndex size(kIndex axis) const override {
-        assert(axis <= DIM);
-        return axis < DIM ? array_.length(axis) : 1; // 最高维size返回1，而非通道数
+        assert(axis < DIM);
+        return array_.length(axis);
     }
 
     kIndex channels() const override {

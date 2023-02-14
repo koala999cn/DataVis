@@ -50,12 +50,14 @@
 
 ## pipeline
 - [ ] 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多
-- [ ] 管线运行时，node属性的动态设置与同步
+- [x] 管线运行时，node属性的动态设置与同步
 - [x] 给数据加时间戳stamp
 - [ ] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？
-- [ ] 追踪和管理operator配置的变化状态
+- [x] 追踪和管理operator配置的变化状态
 - [ ] 实现消息框（参考https://github.com/leiradel/ImGuiAl）
 - [ ] node-editor的连接错误消息提示（考虑渐消隐的tooltip）
+- [ ] pipeline非运行状态的数据同步，节点连接管理（数据参数更改后变得不可连接，是否需要强制断开？）
+- [ ] 更全面地测试数据维度和通道数等发生变化的情况
 
 ## FIXME
 - [ ] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）

@@ -1,12 +1,12 @@
 ﻿#include "KvDataProvider.h"
 #include <assert.h>
+#include <string>
 #include "imguix.h"
 #include "imapp/KcImDataView.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KgPipeline.h"
 #include "KvDiscreted.h"
-#include "KuStrUtil.h"
 
 
 namespace kPrivate
@@ -167,12 +167,12 @@ void KvDataProvider::showPropertySet()
 		}
 		else {
 			std::string label = "Size(total = ";
-			label += KuStrUtil::toString(total(outPort));
+			label += std::to_string(total(outPort));
 			label += ")";
 			if (ImGuiX::treePush(label.c_str(), true)) {
 				for (kIndex i = 0; i < dim(outPort); i++) {
 					std::string label("Dim");
-					label += KuStrUtil::toString(i + 1);
+					label += std::to_string(i + 1);
 					ImGui::LabelText(label.c_str(), "%d", size(outPort, i));
 				}
 				ImGuiX::treePop();
@@ -189,7 +189,7 @@ void KvDataProvider::showPropertySet()
 		else if (ImGuiX::treePush("Step", true)) {
 			for (kIndex i = 0; i < dim(outPort); i++) {
 				std::string label("Dim");
-				label += KuStrUtil::toString(i + 1);
+				label += std::to_string(i + 1);
 				ImGui::LabelText(label.c_str(), "%g", step(outPort, i));
 			}
 			ImGuiX::treePop();
@@ -205,7 +205,7 @@ void KvDataProvider::showPropertySet()
 	else if (ImGuiX::treePush("Range", true)) {
 		for (kIndex i = 0; i <= dim(outPort); i++) {
 			std::string label("Dim");
-			label += KuStrUtil::toString(i + 1);
+			label += std::to_string(i + 1);
 			ImGui::LabelText(label.c_str(), "%g - %g", 
 				range(outPort, i).low(), range(outPort, i).high());
 		}

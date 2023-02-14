@@ -23,6 +23,8 @@ public:
 
 	bool onNewLink(KcPortNode* from, KcPortNode* to) final;
 
+	void onDelLink(KcPortNode* from, KcPortNode* to) final;
+
 	void showPropertySet() final;
 
 	bool permitInput(int dataSpec, unsigned inPort) const final;
@@ -40,6 +42,6 @@ private:
 
 private:
 	std::shared_ptr<KcSampler> sampler_;
-	std::vector<int> sampCount_; // 适用于连续数据
+	std::vector<int> sampCount_;
 };
 

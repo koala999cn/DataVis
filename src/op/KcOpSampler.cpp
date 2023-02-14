@@ -1,9 +1,9 @@
 ﻿#include "KcOpSampler.h"
 #include "dsp/KcSampler.h"
 #include "imguix.h"
-#include "KuStrUtil.h"
 #include "KtSampling.h"
 #include "KuMath.h"
+#include <string>
 
 
 KcOpSampler::KcOpSampler()
@@ -73,13 +73,16 @@ bool KcOpSampler::onNewLink(KcPortNode* from, KcPortNode* to)
         auto oport = from->index();
         sampCount_.resize(prov->dim(oport));
 
-        if (prov->isContinued(oport)) {
+        if (prov->isContinued(oport)) { // 对于连续数据，初始化sampCount_
+            auto cap = KuMath::product(sampCount_.data(), sampCount_.size());
+            if (cap <= 1) cap = 1024;
+            auto c = std::round(std::pow(cap, 1. / prov->dim(oport)));
+            std::fill(sampCount_.begin(), sampCount_.end(), int(c));
+
+        }
+        else {// 对于离散数据，置sampCount_等于数据size
             for (unsigned i = 0; i < prov->dim(oport); i++)
                 sampCount_[i] = prov->size(oport, i);
-        }
-        else {
-            for (unsigned i = 0; i < prov->dim(oport); i++)
-                sampCount_[i] = 1. / prov->step(oport, i);
         }
 
         auto d = prov->fetchData(from->index());
@@ -93,21 +96,53 @@ bool KcOpSampler::onNewLink(KcPortNode* from, KcPortNode* to)
 }
 
 
+void KcOpSampler::onDelLink(KcPortNode* from, KcPortNode* to)
+{
+    super_::onDelLink(from, to);
+    sampler_ = nullptr;
+}
+
+
 bool KcOpSampler::prepareOutput_()
 {
-    return false;
+    if (isInputUpdated()) {
+        if (idata_.front() == nullptr) {
+            odata_.front() = sampler_ = nullptr;
+        }
+        else {
+            if (sampler_ == nullptr) {
+                sampler_ = std::make_shared<KcSampler>(idata_.front());
+                odata_.front() = sampler_;
+            }
+            sampCount_.resize(idata_.front()->dim(), 1);
+            sampler_->setData(idata_.front());
+        }
+    }
+
+    if (sampler_ && (isOutputExpired() || isInputUpdated())) { // NB: 数据更新后也须同步于sampCount_
+        assert(sampler_->data() && sampler_->dim() == sampCount_.size());
+
+        if (sampler_->data()->isContinued()) {
+            for (unsigned i = 0; i < sampler_->dim(); i++) {
+                KtSampling<float_t> samp;
+                samp.resetn(sampCount_[i], sampler_->range(i).low(), sampler_->range(i).high(),
+                    sampler_->x0refs()[i]);
+                sampler_->reset(i, samp.low(), samp.dx(), samp.x0ref());
+            }
+        }
+        else {
+            for (unsigned i = 0; i < sampler_->dim(); i++)
+                sampler_->reset(i, sampler_->range(i).low(), 1. / sampCount_[i], sampler_->x0refs()[i]);
+        }
+    }
+
+    return false; // 不需要配置odata参数
 }
 
 
 void KcOpSampler::outputImpl_()
 {
-    if (!odata_.front()) {
-        sampler_ = std::make_shared<KcSampler>(idata_.front());
-        odata_.front() = sampler_;
-        sampleCountChanged_(); // 设置sampler_的采样参数
-    }
-
-    sampler_->setData(idata_.front());
+    // 此处不用做任何事情，prepareOutput_都干完了
 }
 
 
@@ -119,26 +154,25 @@ void KcOpSampler::showPropertySet()
         return;
 
     ImGui::Separator();
-    ImGui::BeginDisabled(working_());
 
-    auto oport = inputs_.front()->index();
-    if (super_::isContinued(oport)) {
+    auto prov = std::dynamic_pointer_cast<KvDataProvider>(inputs_.front()->parent().lock());
+    if (prov->isContinued(inputs_.front()->index())) {
         if (dim(0) == 1) {
             int c = sampCount_.front();
             if (ImGui::DragInt("Sample Count", &c, 1) && c > 0) {
                 sampCount_.front() = c;
-                sampleCountChanged_();
+                setOutputExpired(0);
             }
         }
         else {
             if (ImGuiX::treePush("Sample Count", true)) {
                 for (kIndex i = 0; i < dim(0); i++) {
                     std::string label("Dim");
-                    label += KuStrUtil::toString(i + 1);
+                    label += std::to_string(i + 1);
                     int c = sampCount_[i];
                     if (ImGui::DragInt(label.c_str(), &c, 1) && c > 0) {
                         sampCount_[i] = c;
-                        sampleCountChanged_();
+                        setOutputExpired(0);
                     }
                 }
                 ImGuiX::treePop();
@@ -152,27 +186,25 @@ void KcOpSampler::showPropertySet()
             if (ImGui::DragScalar("Sample Rate", ImGuiDataType_Double,
                 &rate, 1, &minRate, &maxRate) && rate > 0) {
                 sampCount_[0] = rate;
-                sampleCountChanged_();
+                setOutputExpired(0);
             }
         }
         else {
             if (ImGuiX::treePush("Sample Rate", true)) {
                 for (kIndex i = 0; i < dim(0); i++) {
                     std::string label("Dim");
-                    label += KuStrUtil::toString(i + 1);
+                    label += std::to_string(i + 1);
                     auto rate = sampler_ ? 1. / sampler_->step(i) : sampCount_[i];
                     if (ImGui::DragScalar(label.c_str(), ImGuiDataType_Double,
                         &rate, 1, &minRate, &maxRate) && rate > 0) {
                         sampCount_[i] = rate;
-                        sampleCountChanged_();
+                        setOutputExpired(0);
                     }
                 }
                 ImGuiX::treePop();
             }
         }
     }
-
-    ImGui::EndDisabled();
 }
 
 
@@ -185,7 +217,7 @@ bool KcOpSampler::permitInput(int dataSpec, unsigned inPort) const
 
 bool KcOpSampler::onInputChanged(KcPortNode* outPort, unsigned inPort)
 {
-    auto prov = std::dynamic_pointer_cast<KvDataProvider>(outPort->parent().lock());
+/*  auto prov = std::dynamic_pointer_cast<KvDataProvider>(outPort->parent().lock());
     assert(prov);
 
     auto cap = KuMath::product(sampCount_.data(), sampCount_.size());
@@ -200,7 +232,7 @@ bool KcOpSampler::onInputChanged(KcPortNode* outPort, unsigned inPort)
     auto d = prov->fetchData(outPort->index());
     if (sampler_ && sampler_->data() != d) {
         sampler_->setData(d);
-    }
+    }*/
 
     return true;
 }
@@ -208,6 +240,7 @@ bool KcOpSampler::onInputChanged(KcPortNode* outPort, unsigned inPort)
 
 void KcOpSampler::sampleCountChanged_()
 {
+    /*
     if (sampler_ && sampler_->data()) {
         assert(sampler_->dim() == sampCount_.size());
 
@@ -225,5 +258,5 @@ void KcOpSampler::sampleCountChanged_()
         }
     }
 
-    setOutputExpired(0);
+    setOutputExpired(0);*/
 }
