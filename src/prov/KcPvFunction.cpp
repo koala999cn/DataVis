@@ -13,8 +13,8 @@ KcPvFunction::KcPvFunction()
     exprs_[1] = "sin(x) * sin(y)";
     exprs_[2] = "cos(x)";
 
-    iranges_[0] = { 0, KuMath::pi };
-    iranges_[1] = { 0, KuMath::pi * 2 };
+    iranges_[0] = { 0.f, static_cast<float>(KuMath::pi) };
+    iranges_[1] = { 0.f, static_cast<float>(KuMath::pi * 2) };
 
     counts_[0] = counts_[1] = 32;
 

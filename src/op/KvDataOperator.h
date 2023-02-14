@@ -32,6 +32,8 @@ public:
 
 	std::shared_ptr<KvData> fetchData(kIndex outPort) const override;
 
+	bool onInputChanged(KcPortNode* outPort, unsigned inPort) override;
+
 	void notifyChanged(unsigned outPort = -1) override;
 
 	unsigned dataStamp(kIndex outPort) const override;
@@ -54,6 +56,7 @@ public:
 	virtual bool permitInput(int dataSpec, unsigned inPort) const = 0;
 
 	// 当前语义：op的配置参数发生变化，须重构处理器并重新生成输出
+	// NB: 为了快速配置，参数变更时不调用notifyChanged（此前须output），因此在管线非运行时不能同步数据
 	void setOutputExpired(unsigned outPort);
 	bool isOutputExpired(unsigned outPort) const;
 	bool isOutputExpired() const; // 任意输出端口过期，返回true
@@ -65,7 +68,7 @@ protected:
 
 	// 该方法用于同步配置参数和输入数据规格的变化
 	// NB: 目前假定管线运行期间，输入数据的维度不会发生变化
-	// 返回true表示重构了算子
+	// TODO: 返回值的语义目前尚未确定
 	virtual bool prepareOutput_() = 0; 
 
 	// 该函数不用考虑配置参数和输入数据规格的变化，也不同考虑时间戳的比对与更新

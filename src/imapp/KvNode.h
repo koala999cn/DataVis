@@ -48,8 +48,8 @@ public:
 	// outPort输出端口，已准备好向this节点的第inPort个输入端口传送数据
 	virtual void onInput(KcPortNode* outPort, unsigned inPort) = 0;
 
-	// 输入发生变化的notify函数（输入的数据规格、数据范围等）
-	// 返回true，表示this节点的输出也随之发生变化
+	// 输入发生变化的notify函数（输入的数据规格、数据范围、数据内容等）
+	// 返回false表示拒绝该变化，返回true表示接受
 	virtual bool onInputChanged(KcPortNode* outPort, unsigned inPort) {
 		return false;
 	}

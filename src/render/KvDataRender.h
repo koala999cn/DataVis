@@ -24,6 +24,8 @@ public:
 	// 调用permitInput虚拟方法，以判断是否接受该连接
 	bool onNewLink(KcPortNode* from, KcPortNode* to) override;
 
+	bool onInputChanged(KcPortNode* outPort, unsigned inPort) override;
+
 	// inPort输入端口是否接受dataSpec规格的数据 ？ 
 	virtual bool permitInput(int dataSpec, unsigned inPort) const {
 		return true;

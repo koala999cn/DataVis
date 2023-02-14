@@ -152,6 +152,27 @@ void KgPipeline::notifyOutputChanged(KvBlockNode* node, unsigned outPort)
         return;
 
     auto portIdx = idx + node->inPorts() + outPort + 1;
+    auto oport = std::dynamic_pointer_cast<KcPortNode>(graph().vertexAt(portIdx));
+    auto adj = KtAdjIter(graph_, nodeId2Index_(oport->id()));
+    while (!adj.isEnd()) {
+        auto iport = std::dynamic_pointer_cast<KcPortNode>(graph().vertexAt(*adj));
+        if (!iport->parent().lock()->onInputChanged(oport.get(), iport->index())) {
+            oport->parent().lock()->onDelLink(oport.get(), iport.get());
+            iport->parent().lock()->onDelLink(oport.get(), iport.get());
+            adj.erase();
+        }
+        else {
+            ++adj;
+        }
+    }
+
+#if 0
+    assert(node);
+    auto idx = nodeId2Index_(node->id());
+    if (idx == -1)
+        return;
+
+    auto portIdx = idx + node->inPorts() + outPort + 1;
     auto port = std::dynamic_pointer_cast<KcPortNode>(graph().vertexAt(portIdx));
 
     std::set<KvNode*> visited; // 保存已遍历的block节点，防止死循环
@@ -192,6 +213,7 @@ void KgPipeline::notifyOutputChanged(KvBlockNode* node, unsigned outPort)
             }
         }
     }
+#endif
 }
 
 

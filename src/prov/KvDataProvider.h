@@ -34,12 +34,19 @@ union KpDataSpec
 
 
 // 数据源的抽象类
-
+// 
+// 重点实现了管线运行和非运行状态2种不同的数据同步方案：
+// 1.管线非运行时，数据变化节点须显示调用notifyChanged，管线管理器将回调关联节点的onInputChanged成员函数，
+//   通知该节点其输入端口数据发生了变化。
+// 2.管线运行时，数据变化节点须同步更新时间戳，查询节点通过显示调用输入节点的dataStamp成员函数获取数据时间戳，
+//   通过比较时间戳自行检测输入的更新状态，管线管理器不介入。
+// 
 class KvDataProvider : public KvBlockNode
 {
+	using super_ = KvBlockNode;
 public:
 
-	using KvBlockNode::KvBlockNode;
+	using super_::super_;
 	
 	virtual ~KvDataProvider();
 
@@ -51,6 +58,7 @@ public:
 
 	void showPropertySet() override;
 
+	// 默认无输入，该方法不会被调用。缺省实现调用assert(false)
 	void onInput(KcPortNode* outPort, unsigned inPort) override;
 
 	// 默认所有数据都已就绪，需要逐帧准备数据的可以重载该方法
@@ -80,8 +88,9 @@ public:
 	virtual unsigned dataStamp(kIndex outPort) const = 0;
 
 	// 当输出数据发生了变化时，须显示调用该函数
+	// 默认实现调用管线管理器的notifyOutputChanged函数
 	// @outPort: 发生变化的输出端口号，-1表示所有端口
-	virtual void notifyChanged(unsigned outPort = -1) {};
+	virtual void notifyChanged(unsigned outPort = -1);
 
 	/// same helper functions
 
@@ -111,9 +120,6 @@ public:
 	static std::string dataTypeStr(int spec);
 	
 protected:
-
-	// 向管线管理器发送变化消息的帮助函数
-	void notifyChanged_();
 
 	bool working_() const;
 

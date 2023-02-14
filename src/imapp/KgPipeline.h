@@ -30,6 +30,7 @@ public:
     void eraseLink(int fromId, int toId);
 
     // 节点node第outPort个输出端口的数据规格、数据范围发生变化
+    // 管线将回调与之【直接】连接节点的onInputChanged成员函数，并根据返回值视情断开连接
     void notifyOutputChanged(KvBlockNode* node, unsigned outPort);
 
     // 返回连接到nodeId第portIdx个输入端口的节点集合

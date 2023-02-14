@@ -1,5 +1,5 @@
 #include "KvNode.h"
-#include "KuStrUtil.h"
+#include <string>
 #include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"
 
@@ -16,8 +16,8 @@ KcPortNode::KcPortNode(KeType type, std::weak_ptr<KvBlockNode> parent, unsigned 
 
 std::string KcPortNode::portName_(KeType type, unsigned index)
 {
-	return type == k_in ? "in" + KuStrUtil::toString(index)
-		: "out" + KuStrUtil::toString(index);
+	return type == k_in ? "in" + std::to_string(index + 1)
+		: "out" + std::to_string(index + 1);
 }
 
 

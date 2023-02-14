@@ -9,14 +9,6 @@
 #include "KvDiscreted.h"
 
 
-namespace kPrivate
-{
-	bool TreePush(const char* label);
-
-	void TreePop();
-}
-
-
 KvDataProvider::~KvDataProvider()
 {
 	auto& winMgr = KsImApp::singleton().windowManager();
@@ -133,14 +125,13 @@ std::string KvDataProvider::dataTypeStr(int spec)
 void KvDataProvider::onInput(KcPortNode*, unsigned)
 {
 	// 对于数据提供者，断言该方法不会被调用
-
 	assert(false);
 }
 
 
 void KvDataProvider::showPropertySet()
 {
-	KvBlockNode::showPropertySet();
+	super_::showPropertySet();
 
 	unsigned outPort = 0; // TODO: 多端口
 	KpDataSpec sp(spec(outPort));
@@ -230,10 +221,17 @@ void KvDataProvider::onDoubleClicked()
 }
 
 
-void KvDataProvider::notifyChanged_()
+void KvDataProvider::notifyChanged(unsigned outPort)
 {
-	for (unsigned i = 0; i < outPorts(); i++)
-		KsImApp::singleton().pipeline().notifyOutputChanged(this, i);
+	if (!working_()) {
+		if (outPort == -1) {
+			for (unsigned i = 0; i < outPorts(); i++)
+				KsImApp::singleton().pipeline().notifyOutputChanged(this, i);
+		}
+		else {
+			KsImApp::singleton().pipeline().notifyOutputChanged(this, outPort);
+		}
+	}
 }
 
 

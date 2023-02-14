@@ -16,6 +16,20 @@ bool KvDataRender::onNewLink(KcPortNode* from, KcPortNode* to)
 }
 
 
+bool KvDataRender::onInputChanged(KcPortNode* outPort, unsigned inPort)
+{
+	assert(!working_());
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(outPort->parent().lock());
+	if (!permitInput(prov->spec(outPort->index()), inPort))
+		return false;
+
+	output();
+
+	return true;
+}
+
+
 bool KvDataRender::working_() const
 {
 	return KsImApp::singleton().pipeline().running();

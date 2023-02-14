@@ -82,6 +82,7 @@ bool KvDataOperator::onNewLink(KcPortNode* from, KcPortNode* to)
 			return false; // 不接受的数据规格
 
 		inputs_[to->index()] = from;
+		idata_[to->index()] = prov->fetchData(from->index());
 	}
 
 	return true;
@@ -125,6 +126,22 @@ std::shared_ptr<KvData> KvDataOperator::fetchData(kIndex outPort) const
 	assert(outPort < odata_.size());
 
 	return odata_[outPort];
+}
+
+
+bool KvDataOperator::onInputChanged(KcPortNode* outPort, unsigned inPort)
+{
+	assert(!working_());
+
+	auto prov = std::dynamic_pointer_cast<KvDataProvider>(outPort->parent().lock());
+	if (!permitInput(prov->spec(outPort->index()), inPort))
+		return false;
+
+	idata_.front() = prov->fetchData(outPort->index());
+	idataStamps_.front() = odataStamps_.front() + 1; // 确保isInputUpdated返回true
+	output();
+
+	return true;
 }
 
 
@@ -328,10 +345,7 @@ bool KvDataOperator::isInputUpdated() const
 void KvDataOperator::output() 
 {
 	if (isInputUpdated() || (isOutputExpired() && !isDynamic(0))) { // TODO: 此处只检测了0端口的动态属性
-		if (prepareOutput_()) {
-
-		}
-
+		prepareOutput_();
 		outputImpl_();
 		notifyChanged(); // 更新odata的时间戳到currentFrame
 		std::fill(outputExpired_.begin(), outputExpired_.end(), false);
