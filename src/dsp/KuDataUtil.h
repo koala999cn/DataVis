@@ -69,7 +69,7 @@ public:
 
 		// 提取指定通道数据
 		auto fetchChannel(unsigned ch, unsigned offset, unsigned count) const {
-			assert(offset < samples && count <= samples - offset);
+			assert((offset < samples || count == 0) && count <= samples - offset);
 			std::vector<double> buf(count);
 			auto last = offset + count;
 			for (unsigned i = offset; i < last; i++)

@@ -13,10 +13,13 @@ KgRdft::KgRdft(unsigned sizeT, bool compatNR, bool normalize)
     : sizeT_(sizeT)
     , compatNR_(compatNR)
     , normalize_(normalize)
+    , internalTable_(nullptr)
 {
-    internalTable_ = new autoNUMfft_Table;
-    ::NUMfft_Table_init(PRAAT_TABLE, sizeT);
-    assert(PRAAT_TABLE->n == sizeT);
+    if (sizeT > 0) {
+        internalTable_ = new autoNUMfft_Table;
+        ::NUMfft_Table_init(PRAAT_TABLE, sizeT);
+        assert(PRAAT_TABLE->n == sizeT);
+    }
 }
 
 
@@ -28,6 +31,9 @@ KgRdft::~KgRdft()
 
 void KgRdft::forward(double data[]) const
 {
+    if (PRAAT_TABLE == nullptr)
+        return;
+
     ::NUMfft_forward(PRAAT_TABLE, data);
 
     if(compatNR_) { // 调整结果布局，以兼容NR fft
@@ -44,6 +50,9 @@ void KgRdft::forward(double data[]) const
 
 void KgRdft::backward(double data[]) const
 {
+    if (PRAAT_TABLE == nullptr)
+        return;
+
     if(compatNR_) {
         if (idim() > 1) {
             // To be compatible with old behaviour
@@ -80,6 +89,9 @@ std::pair<double, double> KgRdft::unpack(const double* fft, unsigned idx) const
 
 void KgRdft::powerSpectrum(const double *fft/*in*/, double* spec/*out*/) const
 {
+    if (sizeT_ == 0)
+        return;
+
     // now we have in waveform, first half of complex spectrum
     // it's stored as [real0, realN/2-1, real1, im1, real2, im2, ...]
 

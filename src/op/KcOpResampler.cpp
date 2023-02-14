@@ -35,8 +35,7 @@ bool KcOpResampler::onStartPipeline(const std::vector<std::pair<unsigned, KcPort
     assert(resamp_ == nullptr);
     resamp_ = std::make_unique<KgResampler>(method_, wsize_, channels(0), factor_);
 
-    createOutputData_();
-    return resamp_ != nullptr && odata_.front() != nullptr;
+    return resamp_ && createOutputData_();
 }
 
 
@@ -53,27 +52,27 @@ void KcOpResampler::showPropertySet()
     ImGui::Separator();
 
     float factor = factor_;
-    if (ImGui::DragFloat("Factor", &factor, 0.1, 0.001, 1000) && factor > 0)
+    if (ImGui::DragFloat("Factor", &factor, 0.1, 0.001, 1000) && factor > 0) {
         factor_ = factor;
+        setOutputExpired(0);
+    }
 
     static const char* method[] = {
         "linear", 
         "lagrange", 
         "sinc"
     };
-    if (ImGui::BeginCombo("Method", method[method_])) {
-        for (unsigned i = 0; i < std::size(method); i++)
-            if (ImGui::Selectable(method[i], i == method_))
-                method_ = i;
-        ImGui::EndCombo();
-    }
+    if (ImGui::Combo("Method", &method_, method, std::size(method)))
+        setOutputExpired(0);
 
     ImGui::BeginDisabled(method_ == 0); 
     int linearWinSize = 2;
     auto isize = isize_();
     if (isize == 0) isize = 1024 * 16;
-    if (ImGui::DragInt("Window Length", method_ == 0 ? &linearWinSize : &wsize_, 1, 2, isize))
+    if (ImGui::DragInt("Window Length", method_ == 0 ? &linearWinSize : &wsize_, 1, 2, isize)) {
         wsize_ = KuMath::clamp<int>(wsize_, 2, isize); // 保持正确的最小值
+        setOutputExpired(0);
+    }
     ImGui::EndDisabled();
 
     if (!isStream(0))

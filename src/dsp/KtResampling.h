@@ -205,7 +205,7 @@ unsigned KtResampling<T>::isize(unsigned osize) const
 		return 0;
 
 	assert(itotal() >= ototal() / factor());
-	auto ipos = std::ceil((ototal() + osize - bsize) * factorR_);
+	auto ipos = std::floor((ototal() + osize - bsize) * factorR_); // 使用floor，若用ceil在factorR_小于1时会越界
 	return static_cast<unsigned>(ipos) - itotal() + unbuffered_() - 1;
 }
 

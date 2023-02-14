@@ -123,7 +123,7 @@ void KvOpSampled1dHelper::output1d_()
 		}
 		else if (!splitChannels_ && valueGetter.channelStride == 1) { // 各通道交错时可用
 			op_(valueGetter.data + offset * valueGetter.channels, 
-				valueGetter.channels, isize, out->data()); // TODO: 此处未检测out的布局
+				isize, valueGetter.channels, out->data()); // TODO: 此处未检测out的布局
 			return;
 		}
 	}
