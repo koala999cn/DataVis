@@ -94,12 +94,7 @@ bool KcOpHistC::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode
         histc_[i]->resetLinear(bins_, low_, high_);
     }
 
-    auto samp = std::make_shared<KcSampled1d>();
-    samp->reset(0, low_, step(0, 0), 0.5);
-    samp->resize(bins_, channels(0));
-    odata_.front() = samp;
-
-    return true;
+    return createOutputData_(0.5);
 }
 
 
@@ -131,7 +126,7 @@ void KcOpHistC::showPropertySet()
 
 void KcOpHistC::op_(const kReal* in, unsigned len, unsigned ch, kReal* out)
 {
-    KpDataSpec ds(inputSpec_());
+    KpDataSpec ds(inputSpec_()); // 此处不能使用isStream，因为KcOpHistC重置了stream标记
     if (!ds.stream) { // 如果输入不是流式数据，重置hist计数
         for (auto& i : histc_)
             i->reset();

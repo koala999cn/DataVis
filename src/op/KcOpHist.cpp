@@ -108,7 +108,7 @@ void KcOpHist::outputImpl_()
     auto out = std::dynamic_pointer_cast<KcSampled1d>(odata_.front());
 
     KpDataSpec ds(inputSpec_());
-    if (ds.stream)
+    if (ds.stream) // 此处不能使用isStream，因为KcOpHist重置了stream标记
         in->reset(0, 0, in->step(0)); // 流式数据的x轴低值可能随时间递增，此时强制归零
 
     hist_->process(*in, out->data());

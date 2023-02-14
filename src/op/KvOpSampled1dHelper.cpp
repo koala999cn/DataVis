@@ -52,7 +52,7 @@ void KvOpSampled1dHelper::outputImpl_()
 }
 
 
-void KvOpSampled1dHelper::createOutputData_()
+bool KvOpSampled1dHelper::createOutputData_(kReal x0ref)
 {
 	for (unsigned i = 0; i < outPorts(); i++) {
 		std::shared_ptr<KvSampled> samp;
@@ -62,9 +62,12 @@ void KvOpSampled1dHelper::createOutputData_()
 		else 
 			samp = std::make_shared<KcSampled2d>();
 
-		odata_[i] = nullptr;
+		if (samp == nullptr)
+			return false;
+
+		odata_[i] = nullptr; // 防止range, step等成员直接使用odata_值
 		for (kIndex j = 0; j < dim(i); j++)
-			samp->reset(j, range(i, j).low(), step(i, j), 0);
+			samp->reset(j, range(i, j).low(), step(i, j), x0ref);
 
 		std::vector<kIndex> idx(dim(i), 0);
 		idx.back() = size(i, dim(i) - 1);
@@ -72,6 +75,8 @@ void KvOpSampled1dHelper::createOutputData_()
 
 		odata_[i] = samp;
 	}
+
+	return true;
 }
 
 

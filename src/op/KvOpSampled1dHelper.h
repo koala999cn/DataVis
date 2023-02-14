@@ -35,7 +35,7 @@ protected:
 	virtual void op_(const kReal* in, unsigned len, unsigned ch, kReal* out) = 0;
 
 	// 帮助函数，创建输出对象的帮助函数，由继承类在onStartPipeline中调用
-	void createOutputData_();
+	bool createOutputData_(kReal x0ref = 0);
 
 private:
 

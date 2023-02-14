@@ -149,10 +149,9 @@ void KcOpFraming::outputImpl_()
 	assert(odata_.size() == 1);
 	assert(framing_ && framing_->channels() == channels(0) 
 		&& framing_->size() == frameSize() && framing_->shift() == shiftSize());
-
-	KpDataSpec inputSpec = inputSpec_();
-	if (!inputSpec.stream) 
-		framing_->reset(); // 输入为静态数据，清空framing的缓存
+	
+	if (!isStream(0))
+		framing_->reset(); // 静态数据，清空framing的缓存
 
 	auto g = KuDataUtil::valueGetter1d(idata_.front());
 	auto buf = g.data;
@@ -179,7 +178,7 @@ void KcOpFraming::outputImpl_()
 		});
 
 	// TODO: 使可配置
-	if (!inputSpec.stream) {
+	if (!isStream(0)) {
 		framing_->flush([&out](const kReal* data) {
 			out->pushBack(data, 1);
 			});
