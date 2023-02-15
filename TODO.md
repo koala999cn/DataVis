@@ -2,7 +2,7 @@
 - [ ] 支持hdf5, xlsx数据源
 - [ ] binary data loader
 - [x] 多值函数支持(multifunction)
-- [ ] 多通道连续数据
+- [x] 多通道连续数据
 - [x] 缓存function的range计算
 
 ## operator

@@ -15,10 +15,21 @@ KcContinuedFn::KcContinuedFn(fn_type fun, unsigned dim)
 }
 
 
-KcContinuedFn::KcContinuedFn(std::function<kReal(kReal)> fun)
+KcContinuedFn::KcContinuedFn(std::vector<fn1d_type> fun)
 {
-	fun_.push_back([fun](kReal pt[]) { return fun(pt[0]); });
+	fun_.reserve(fun.size());
+	for (unsigned i = 0; i < fun.size(); i++) {
+		auto f = fun[i];
+		fun_.push_back([f](kReal pt[]) { return f(pt[0]); });
+	}
 	range_.resize(2, kRange{ 0, 1 });
+}
+
+
+KcContinuedFn::KcContinuedFn(fn1d_type fun)
+	: KcContinuedFn(std::vector<fn1d_type>{ fun })
+{
+
 }
 
 

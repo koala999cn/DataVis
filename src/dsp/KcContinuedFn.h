@@ -10,6 +10,7 @@ class KcContinuedFn : public KvContinued
 {
 public:
 	using fn_type = std::function<kReal(kReal[])>;
+	using fn1d_type = std::function<kReal(kReal)>;
 
 	KcContinuedFn(std::vector<fn_type> fun, unsigned dim);
 
@@ -17,7 +18,11 @@ public:
 	KcContinuedFn(fn_type fun, unsigned dim);
 
 	// 一维函数
-	KcContinuedFn(std::function<kReal(kReal)> fun);
+	KcContinuedFn(fn1d_type fun);
+
+	// 多通道一维函数
+	KcContinuedFn(std::vector<fn1d_type> fun);
+
 
 	// 二维函数
 	KcContinuedFn(std::function<kReal(kReal, kReal)> fun);
