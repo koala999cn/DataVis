@@ -71,9 +71,10 @@ public:
 		auto fetchChannel(unsigned ch, unsigned offset, unsigned count) const {
 			assert((offset < samples || count == 0) && count <= samples - offset);
 			std::vector<double> buf(count);
+			auto p = buf.data();
 			auto last = offset + count;
 			for (unsigned i = offset; i < last; i++)
-				buf[i] = getter(ch, i);
+				*p++ = getter(ch, i);
 			return buf;
 		}
 
@@ -107,14 +108,14 @@ public:
 
 		auto fetchRowOfChannel(unsigned ch, unsigned row) const {
 			std::vector<double> buf(cols);
+			auto p = buf.data();
 			for (unsigned i = 0; i < cols; i++)
-				buf[i] = getter(ch, row, i);
+				*p++ = getter(ch, row, i);
 			return buf;
 		}
 
 		auto fetchRow(unsigned row) const {
 			std::vector<double> buf( cols * channels);
-
 			auto p = buf.data();
 			for (unsigned i = 0; i < cols; i++)
 				for (unsigned ch = 0; ch < channels; ch++) // 各通道数据交错存储
