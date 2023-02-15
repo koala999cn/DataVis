@@ -31,11 +31,16 @@ void KgHist::process(const KvSampled& in, kReal* out)
         if (right > in.size()) right = in.size();
 
         kIndex N = right - left;
-        for (kIndex ch = 0; ch < in.channels(); ch++) {
-            kReal val(0);  
-            for (kIndex i = left; i < right; i++)
-                val += in.value(i, ch);
-            *out++ = val / N;
+        if (N > 0) {
+            for (kIndex ch = 0; ch < in.channels(); ch++) {
+                kReal val(0);
+                for (kIndex i = left; i < right; i++)
+                    val += in.value(i, ch);
+                *out++ = val / N;
+            }
+        }
+        else {
+            *out++ = 0;
         }
     }
 }
