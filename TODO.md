@@ -5,6 +5,9 @@
 - [ ] 多通道连续数据
 - [x] 缓存function的range计算
 
+## operator
+- [ ] 测试spectrum的options的sampleRate一致性
+
 ## plot
 - [ ] title等设置
 - [ ] 各种类型的axis
@@ -52,7 +55,7 @@
 - [ ] 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多
 - [x] 管线运行时，node属性的动态设置与同步
 - [x] 给数据加时间戳stamp
-- [ ] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？
+- [ ] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？--> 是否动态operate和render
 - [x] 追踪和管理operator配置的变化状态
 - [ ] 实现消息框（参考https://github.com/leiradel/ImGuiAl）
 - [ ] node-editor的连接错误消息提示（考虑渐消隐的tooltip）

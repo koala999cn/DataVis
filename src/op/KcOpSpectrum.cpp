@@ -28,23 +28,15 @@ int KcOpSpectrum::spec(kIndex outPort) const
 
 kRange KcOpSpectrum::range(kIndex outPort, kIndex axis) const
 {
-	assert(inputs_.size() == 1);
-	auto d = inputs_.front();
-	if (d == nullptr)
-		return kRange(0, 0); // 暂时无输入连接
-
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(d->parent().lock());
-	assert(prov);
-
 	// 对信号的最高维进行变换，其他低维度保持原信号尺度不变
-	if (axis == dim(outPort) - 1) 
-		return spec_ ? kRange{ 0, spec_->options().sampleRate / 2 } :
-		               kRange{ 0, 0.5 / prov->step(d->index(), axis) };
+	if (axis == dim(outPort) - 1) {
+		auto dx = inputStep_(dim(0) - 1);
+		return { 0, dx == 0 ? dx : 0.5 / dx }; // 奈奎斯特频率
+	}
 
-	auto r = prov->range(d->index(), axis);
+	auto r = inputRange_(axis);
 	if (axis == dim(outPort) && spec_) // 频率幅值域
-		return spec_->orange({ r.low(), r.high() }); 
-	
+		return spec_->orange({ r.low(), r.high() });
 	return r;
 }
 
@@ -79,22 +71,8 @@ bool KcOpSpectrum::onStartPipeline(const std::vector<std::pair<unsigned, KcPortN
 	if (!super_::onStartPipeline(ins))
 		return false;
 
-	auto node = ins.front().second;
-	auto prov = std::dynamic_pointer_cast<KvDataProvider>(node->parent().lock());
-
-	KgSpectrum::KpOptions opts;
-	opts.sampleRate = 1.0 / prov->step(node->index(), prov->dim(node->index()) - 1);
-	opts.frameSize = prov->size(node->index(), prov->dim(node->index()) - 1);
-	opts.type = KgSpectrum::KeType(specType_);
-	opts.norm = KgSpectrum::KeNormMode(normMode_);
-	opts.roundToPower2 = roundToPower2_;
-
-	spec_ = std::make_unique<KgSpectrum>(opts);
-	if (spec_ == nullptr)
-		return false;
-
-	// 准备output对象
-	createOutputData_();
+	prepareOutput_(); // 创建spec_
+	createOutputData_(); // 初始化odata
 
 	return true;
 }
@@ -125,14 +103,18 @@ kIndex KcOpSpectrum::osize_(kIndex is) const
 bool KcOpSpectrum::prepareOutput_()
 {
 	auto isize = inputSize_(dim(0) - 1);
-	if (isOutputExpired() || isize != spec_->idim()) {
+	if (isOutputExpired() || !spec_ || isize != spec_->idim()) {
 		KgSpectrum::KpOptions opts;
 		opts.sampleRate = 1.0 / inputStep_(dim(0) - 1);
 		opts.frameSize = isize;
 		opts.type = KgSpectrum::KeType(specType_);
 		opts.norm = KgSpectrum::KeNormMode(normMode_);
 		opts.roundToPower2 = roundToPower2_;
-		spec_->reset(opts);
+
+		if (spec_)
+			spec_->reset(opts);
+		else
+			spec_ = std::make_unique<KgSpectrum>(opts);
 		return true;
 	}
 
