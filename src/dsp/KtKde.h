@@ -70,6 +70,9 @@ KtKde<KREAL>::KtKde(GETTER getter, unsigned count, KERNEL kor)
 template<typename KREAL>
 KREAL KtKde<KREAL>::operator()(const KREAL& x) const
 {
+	if (count_ * h_ == 0)
+		return 0;
+
 	KREAL sumk(0);
 
 	auto start = std::lower_bound(data_.begin(), data_.end(), x - h_);
