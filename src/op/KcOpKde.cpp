@@ -79,20 +79,24 @@ void KcOpKde::showPropertySet()
 void KcOpKde::outputImpl_()
 {
     if (idata_.front()) {
-        auto disc = std::dynamic_pointer_cast<KvDiscreted>(idata_.front());
-
-        auto getter = [disc](unsigned i) {
-            return disc->valueAt(i, 0); // TODO: 多通道支持
-        };
-
         auto kernel = [](kReal t) {
             return (t >= 0 && t <= 1) ? (3. / KuMath::pi) * std::pow(1. - t * t, 2.) : 0;
         };
 
-        auto kde = KtKde<kReal>(getter, disc->size(), kernel);
-        auto d = std::make_shared<KcContinuedFn>([kde](kReal x) { return kde(x); });
-        auto r = disc->valueRange(0); // TODO: 多通道支持
-        d->setRange(0, r.low(), r.high());
+        auto disc = std::dynamic_pointer_cast<KvDiscreted>(idata_.front());
+        std::vector<typename KcContinuedFn::fn1d_type> fns(channels(0));
+        for (unsigned ch = 0; ch < channels(0); ch++) {
+            auto getter = [disc, ch](unsigned i) {
+                return disc->valueAt(i, ch);
+            };
+            auto kde = KtKde<kReal>(getter, disc->size(), kernel);
+            fns[ch] = [kde](kReal x) { return kde(x); };
+        }
+        auto d = std::make_shared<KcContinuedFn>(fns);
+        for (unsigned i = 0; i < d->dim(); i++) {
+            auto r = disc->range(i); 
+            d->setRange(i, r.low(), r.high());
+        }
         odata_.front() = d;
     }
     else {
