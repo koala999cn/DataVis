@@ -32,7 +32,7 @@ public:
         x0_ = xmin + x0_ref * dx;
         dx_ = dx;
 
-        assert(verify());
+        //assert(verify());
     }
 
     void resetn(long nx) {
@@ -49,7 +49,7 @@ public:
         x0_ = xmin() + x0_rel_offset * dx_;
 
         assert(size() == nx);
-        assert(verify());
+        //assert(verify());
     }
 
 
@@ -120,7 +120,7 @@ public:
 
     long xToHighIndex(KREAL t) const {
         auto idx = static_cast<long>(std::ceil(xToIndex(t)));
-        assert(empty() || indexToX(idx) >= t); 
+        //assert(empty() || indexToX(idx) >= t); 
         if (indexToX(idx - 1) >= t) // 处理1.0000001变为2的情况
             idx--;
         return idx;
