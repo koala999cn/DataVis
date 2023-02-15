@@ -20,14 +20,22 @@ void KcLinearTicker::generate(double lower, double upper, bool genSubticks, bool
     auto stop = upper;
 
 	auto tickCount = autoRange_(lower, upper);
-	if (tickCount == 0)
-		return;
-
 	ticks_.resize(tickCount);
+    if (ticks_.empty()) {
+        subticks_.clear();
+        labels_.clear();
+        return;
+    }
+
 	ticks_.front() = lower;
 	auto tickStep = (upper - lower) / (tickCount - 1);
-	for (unsigned i = 1; i < tickCount - 1; i++)
-		ticks_[i] = lower + i * tickStep;
+    for (unsigned i = 1; i < tickCount - 1; i++) {
+        ticks_[i] = lower + i * tickStep;
+
+        // NB: 处理因累计误差而产生的极小值（打印label时会产生长串字符，诸如2.12342e-16）
+        if (ticks_[i] < tickStep / 1000 && KuMath::almostEqual(ticks_[i], 0.))
+            ticks_[i] = 0;
+    }
 	ticks_.back() = upper; // 防止累计误差
 
 	if (genSubticks && subtickCount() > 0 && tickCount > 1) {
