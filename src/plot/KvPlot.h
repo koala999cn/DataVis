@@ -4,18 +4,17 @@
 #include "KvPlottable.h"
 #include "KpContext.h"
 #include "KtAABB.h"
-#include "KtMargins.h"
+#include "layout/KcLayoutGrid.h"
 
 
 class KvPaint; // 用来执行具体的plot绘制
 class KvCoord;
 class KcLegend;
 class KcColorBar;
-class KcLayoutGrid;
 
 // plot的最底层抽象接口
 
-class KvPlot
+class KvPlot : public KcLayoutGrid
 {
 	using rect_t = KtAABB<double, 2>;
 	using margins_t = KtMargins<float>;
@@ -67,12 +66,6 @@ public:
 
 	void removeAllPlottables();
 
-	rect_t canvasRect() const;
-
-	margins_t margins() const;
-	void setMargins(const margins_t& m);
-	void setMargins(float l, float t, float r, float b);
-
 	char dim() const { return dim_; }
 
 private:
@@ -105,8 +98,6 @@ private:
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理
 
 	KpBrush bkgnd_;
-
-	std::unique_ptr<KcLayoutGrid> layout_;
 
 	char dim_{ 3 }; // 取值2或3，用来标记this是plot2d还是plot3d
 

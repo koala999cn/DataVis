@@ -13,9 +13,7 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, c
 	, dim_(dim)
 {
 	legend_ = std::make_unique<KcLegend>();
-
-	layout_ = std::make_unique<KcLayoutGrid>();
-	layout_->putAt(0, 0, coord_.get());
+	putAt(0, 0, coord_.get());
 }
 
 
@@ -101,8 +99,7 @@ void KvPlot::update()
 
 	auto oRect = paint_->viewport();
 	auto iRect = oRect;
-	auto margs = margins();
-	iRect.deflate({ margs.left(), margs.top() }, { margs.right(), margs.bottom() });
+	iRect.deflate(margins());
 	//paint_->setViewport(iRect);
 
 	autoProject_();
@@ -110,10 +107,10 @@ void KvPlot::update()
 	paint_->beginPaint();
 
 	updateLayout_(oRect);
-	assert(layout_->innerRect() == iRect);
+	assert(innerRect() == iRect);
 
-	paint_->setViewport(layout_->innerRect()); // 此处压入innerRect，与KcCoord3d配合抑制fixPlotView_修正plot3d的视口偏移
-	                                           // TODO: 更优雅和通用的实现
+	paint_->setViewport(innerRect()); // 此处压入innerRect，与KcCoord3d配合抑制fixPlotView_修正plot3d的视口偏移
+	                                  // TODO: 更优雅和通用的实现
 
 	// 修正视口偏移（主要针对plot2d，把它的坐标系lower点移到视口的左下角）
 	auto locals = fixPlotView_(); // 此处有locals个矩阵入栈，后续须pop
@@ -250,8 +247,8 @@ void KvPlot::updateLayout_(const rect_t& rc)
 		}
 	}
 
-	layout_->calcSize(paint_.get());
-	layout_->arrange(rc); // 布局plot各元素
+	this->calcSize(paint_.get());
+	this->arrange(rc); // 布局plot各元素
 }
 
 
@@ -293,57 +290,28 @@ void KvPlot::drawPlottables_()
 }
 
 
-KvPlot::rect_t KvPlot::canvasRect() const
-{
-	return layout_->outterRect();
-}
-
-
-void KvPlot::setMargins(const margins_t& m)
-{ 
-	rect_t rc;
-	rc.lower() = { m.left(), m.top() }; // TODO: 
-	rc.upper() = { m.right(), m.bottom() };
-	
-	layout_->setMargins(rc); 
-}
-
-
-void KvPlot::setMargins(float l, float t, float r, float b)
-{
-	return setMargins({ l, t, r, b });
-}
-
-
-KvPlot::margins_t KvPlot::margins() const
-{ 
-	auto rc = layout_->margins();
-	margins_t m;
-	m.left() = rc.lower().x();
-	m.right() = rc.upper().x();
-	m.top() = rc.lower().y();
-	m.bottom() = rc.upper().y();
-	return m; 
-}
-
-
 #include <queue>
 void KvPlot::drawLayoutRect_()
 {
 	std::queue<KvLayoutElement*> eles; // 待绘制布局元素
-	eles.push(layout_.get());
+	eles.push(this);
 
 	paint_->pushCoord(KvPaint::k_coord_screen);
-	paint_->setColor({ 1,0,0,1 });
 	
 	while (!eles.empty()) {
 		auto e = eles.front(); eles.pop();
-		paint_->drawRect(e->outterRect());
 		auto c = dynamic_cast<KvLayoutContainer*>(e);
 		if (c) {
 			for (auto& i : c->elements())
 				if (i) eles.push(i.get());
 		}
+		//else {
+			paint_->setColor({ 0,0,1,1 }); // 蓝色画内框
+			paint_->drawRect(e->innerRect());
+
+			paint_->setColor({ 1,0,0,1 }); // 红色画外框
+			paint_->drawRect(e->outterRect());
+		//}
 	}
 
 	paint_->popCoord();
