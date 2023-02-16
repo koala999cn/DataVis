@@ -125,6 +125,7 @@ bool KcOpSpectrum::prepareOutput_()
 void KcOpSpectrum::op_(const kReal* in, unsigned len, unsigned ch, kReal* out)
 {
 	assert(spec_ && spec_->idim() == len);
+	assert(spec_->options().sampleRate == 1. / inputStep_(dim(0) - 1));
 	spec_->process(in, out);
 }
 

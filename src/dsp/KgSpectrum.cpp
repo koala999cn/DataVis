@@ -107,11 +107,19 @@ std::pair<double, double> KgSpectrum::orange(const std::pair<double, double>& in
 	// 的N / 2倍。而第一个点就是直流分量，它的模值就是直流分量的N倍。
 
 	auto N = idim();
-	double mag = KuMath::absMax(in.first, in.second);
-	mag *= N;
-	mag *= mag;
-	fixPower(&mag, 1, false);
-	return mag > 0 ? std::pair<double, double>{ 0., mag } : std::pair<double, double>{ mag, 0. };
+
+	double r[2] = { in.first * in.second > 0 ? // 都为正数，或都为负数
+		    KuMath::absMin(in.first, in.second) : 0, 
+		KuMath::absMax(in.first, in.second)};
+
+	for (int i = 0; i < 2; i++) {
+		r[i] *= N;
+		r[i] *= r[i];
+	}
+
+	fixPower(r, 2, false);
+	if (r[0] > r[1]) std::swap(r[0], r[1]);
+	return { r[0], r[1] };
 }
 
 
