@@ -10,7 +10,8 @@
 #include "imapp/KcImExprEditor.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgImWindowManager.h"
-
+#include "layout/KcLayoutGrid.h"
+#include "layout/KcLayoutOverlay.h"
 
 namespace kPrivate
 {
@@ -736,4 +737,60 @@ namespace ImGuiX
         ImGui::PopItemWidth();
     }
 
+
+    const char* layLabel_(KvLayoutElement* lay) 
+    {
+        if (dynamic_cast<KcLayoutGrid*>(lay))
+            return "LayoutGrid";
+        else if (dynamic_cast<KcLayoutOverlay*>(lay))
+            return "LayoutOverlay";
+        else if (dynamic_cast<KcLayout2d*>(lay))
+            return "Layout2d";
+        else if (dynamic_cast<KcLayout1d*>(lay))
+            return "Layout1d";
+        return "Element";
+    }
+
+    void layout(const char* label, KvLayoutElement* lay)
+    {
+        assert(lay);
+
+        PushID(lay);
+
+        if (treePush(label, false)) {
+
+            auto or = lay->outterRect();
+            margins("Outter Rect", or);
+
+            auto ir = lay->innerRect();
+            margins("Inner Rect", ir);
+
+            margins("Margins", lay->margins());
+
+            auto sc = lay->contentSize();
+            ImGui::DragScalarN("Content Size", ImGuiDataType_Double, &sc, 2);
+
+            auto sr = lay->expectRoom();
+            ImGui::DragScalarN("Expect Room", ImGuiDataType_Double, &sr, 2);
+
+            auto shares = lay->extraShares();
+            ImGui::DragInt2("Extra Shares", (int*)&shares);
+
+            LabelText("Alignment", lay->align().format().c_str());
+
+            if (dynamic_cast<KvLayoutContainer*>(lay)) {
+                if (treePush("Children", false)) {
+                    auto c = dynamic_cast<KvLayoutContainer*>(lay);
+                    for (auto& e : c->elements()) 
+                        if (e) layout(layLabel_(e.get()), e.get());
+                    treePop();
+                }
+            }
+
+            treePop();
+        }
+
+
+        PopID();
+    }
 }

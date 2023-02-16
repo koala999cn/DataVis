@@ -5,7 +5,7 @@
 #include "KtAABB.h"
 #include "../plot/KtColor.h"
 #include "../plot/KtGradient.h"
-
+#include "../layout/KvLayoutElement.h"
 
 class KvData;
 class KpPen;
@@ -101,4 +101,6 @@ namespace ImGuiX
 	// @handler: 编辑确认后的回调函数
 	void exprEdit(const char* label, const char* text, unsigned dim,
 		std::function<void(std::shared_ptr<KvData>, const char*)> handler);
+
+	void layout(const char* label, KvLayoutElement* lay);
 }

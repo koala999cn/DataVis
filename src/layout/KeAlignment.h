@@ -1,5 +1,6 @@
 #pragma once
 #include "kgl/base/KtHolder.h"
+#include <string>
 
 
 class KeAlignment : public KtHolder<int>
@@ -15,10 +16,10 @@ public:
 		k_fill = 0x00,
 		k_left = 0x01,
 		k_right = 0x02,
-		k_vcenter = 0x04,
+		k_hcenter = 0x04,
 		k_top = 0x08,
 		k_bottom = 0x10,
-		k_hcenter = 0x20,
+		k_vcenter = 0x20,
 
 		// 当位于边框的外侧对齐时，使用以下2个枚举量区分水平和纵向优先级
 		// 例如，如果k_align_left和k_align_top均被设置，则
@@ -84,5 +85,24 @@ public:
 	void toggleTopBottom() {
 		if (inside() & (k_top | k_bottom))
 			inside() ^= (k_top | k_bottom);
+	}
+
+	std::string format() const {
+		std::string str;
+		if (inside() & k_left) str += "|left";
+		if (inside() & k_right) str += "|right";
+		if (inside() & k_hcenter) str += "|hcenter";
+		if (inside() & k_top) str += "|top";
+		if (inside() & k_bottom) str += "|bottom";
+		if (inside() & k_vcenter) str += "|vcenter";
+
+		if (str.empty()) str = "fill";
+		else str.erase(str.begin());
+
+		if (inside() & k_vert_first) str += "|vert-first";
+		if (inside() & k_horz_first) str += "|horz-first";
+		if (inside() & k_outter) str += "|outter";
+
+		return str;
 	}
 };
