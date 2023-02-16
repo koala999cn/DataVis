@@ -252,15 +252,13 @@ void KvRdPlot::showPlotProperty_()
 
 		ImGui::ColorEdit4("Background", plot_->background().color);
 
-		auto rc = plot_->canvasRect();
+		auto rc = plot_->outterRect();
 		int width = std::round(rc.width()), height = std::round(rc.height());
 		ImGui::BeginDisabled();
 		ImGui::DragIntRange2("Canvas", &width, &height);
 		ImGui::EndDisabled();
 
-		auto margs = plot_->margins();
-		if (ImGuiX::margins("Margins", margs))
-			plot_->setMargins(margs);
+		ImGuiX::margins("Margins", plot_->margins());
 
 		auto& coord = plot_->coord();
 		auto lower = point3f(coord.lower());
@@ -662,13 +660,9 @@ void KvRdPlot::showLegendProperty_()
 		ImGui::DragFloat2("Item Spacing", legend->itemSpacing(), 1, 0, 32, "%.f");
 		ImGui::DragFloat("Icon Text Padding", &legend->iconTextPadding(), 1, 0, 32, "%.f");
 
-		auto omargs = kPrivate::rect2Margins(legend->margins());
-		if (ImGuiX::margins("Outter Margins", omargs))
-			legend->setMargins(kPrivate::margins2Rect(omargs));
+		ImGuiX::margins("Outter Margins", legend->margins());
 
-		auto imargs = kPrivate::rect2Margins(legend->innerMargins());
-		if (ImGuiX::margins("Inner Margins", imargs))
-			legend->innerMargins() = kPrivate::margins2Rect(imargs);
+		ImGuiX::margins("Inner Margins", legend->innerMargins());
 
 		ImGui::ColorEdit4("Text Color", legend->textColor());
 		ImGui::SliderInt("Warps", &legend->warps(), 0, legend->itemCount());
@@ -715,9 +709,7 @@ void KvRdPlot::showColorBarProperty_()
 
 			ImGui::DragFloat("Bar Length", &colorbar->barLength(), 1, 0, 1024, "%.f");
 
-			auto margs = kPrivate::rect2Margins(colorbar->margins());
-			if (ImGuiX::margins("Margins", margs))
-				colorbar->setMargins(kPrivate::margins2Rect(margs));
+			ImGuiX::margins("Margins", colorbar->margins());
 
 			auto& loc = colorbar->location();
 			ImGuiX::alignment("Alignment", loc, false);

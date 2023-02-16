@@ -63,17 +63,19 @@ void KcThemedPlotImpl_::applyBorder(int level, const KpPen&)
 
 KtMargins<float> KcThemedPlotImpl_::margins(int level) const
 {
-	if (level == k_plot) 
-		return plot_.margins();
+	if (level == k_plot) {
+		auto m = plot_.margins();
+		return { m.lower().x(), m.lower().y(), m.upper().x(), m.upper().y() };
+	}
 
 	return KtMargins<float>();
 }
 
 
-void KcThemedPlotImpl_::applyMargins(int level, const KtMargins<float>& margins)
+void KcThemedPlotImpl_::applyMargins(int level, const KtMargins<float>& m)
 {
 	if (level == k_plot) 
-		plot_.setMargins(margins);
+		plot_.setMargins(m.left(), m.top(), m.right(), m.bottom());
 }
 
 

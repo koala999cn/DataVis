@@ -439,7 +439,7 @@ namespace ImGuiX
     }
 
     template<typename T>
-    bool margins_(const char* label, KtMargins<T>& m)
+    bool margins_(const char* label, KtAABB<T, 2>& m)
     {
         BeginGroup();
         PushID(&m);
@@ -465,9 +465,10 @@ namespace ImGuiX
         else
             dataType = ImGuiDataType_Double;
 
+        T* p = (T*)&m;
         for (int n = 0; n < components; n++) {
             SetNextItemWidth((n + 1 < components) ? w_item_one : w_item_last);
-            value_changed |= DragScalar(ids[n], dataType, &m[n], 1.0f, &min_, &max_, fmt_table_[n]);
+            value_changed |= DragScalar(ids[n], dataType, p + n, 1.0f, &min_, &max_, fmt_table_[n]);
             SameLine(0, style.ItemInnerSpacing.x);
         }
 
@@ -480,13 +481,13 @@ namespace ImGuiX
         return value_changed;
     }
 
-    bool margins(const char* label, KtMargins<float>& m)
+    bool margins(const char* label, KtAABB<float, 2>& m)
     {
         return margins_<float>(label, m);
     }
 
 
-    bool margins(const char* label, KtMargins<double>& m)
+    bool margins(const char* label, KtAABB<double, 2>& m)
     {
         return margins_<double>(label, m);
     }

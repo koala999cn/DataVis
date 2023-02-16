@@ -2,8 +2,8 @@
 #include "imgui.h"
 #include <vector>
 #include <functional>
+#include "KtAABB.h"
 #include "../plot/KtColor.h"
-#include "../plot/KtMargins.h"
 #include "../plot/KtGradient.h"
 
 
@@ -84,9 +84,9 @@ namespace ImGuiX
 
 	bool marker(KpMarker& cxt);
 
-	bool margins(const char* label, KtMargins<float>& m);
+	bool margins(const char* label, KtAABB<float, 2>& m);
 
-	bool margins(const char* label, KtMargins<double>& m);
+	bool margins(const char* label, KtAABB<double, 2>& m);
 
 	// gradient editor
 	bool gradient(const char* label, KtGradient<float, color4f>& grad, float& selectedKey);

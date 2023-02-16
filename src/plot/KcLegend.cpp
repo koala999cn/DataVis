@@ -11,7 +11,7 @@ KcLegend::KcLegend()
     
     innerMargins_.lower() = point_t(7, 5);
     innerMargins_.upper() = point_t(7, 4);
-    setMargins(innerMargins_);
+    margins() = innerMargins_;
 }
 
 
