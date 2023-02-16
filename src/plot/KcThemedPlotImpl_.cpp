@@ -81,6 +81,7 @@ void KcThemedPlotImpl_::applyMargins(int level, const KtMargins<float>& m)
 
 bool KcThemedPlotImpl_::visible(int level) const
 {
+	assert(false);
 	return true;
 }
 

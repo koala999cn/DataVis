@@ -90,7 +90,8 @@ protected:
 	void applyCanvas_(const jvalue& jval, KvThemedPlot* plot) const;
 	void applyPalette_(const jvalue& jval, KvThemedPlot* plot) const;
 
-	static void tryVisible_(int level, const jvalue& jval, KvThemedPlot* plot);
+	// 返回true，表示level可见，否则level不可见
+	static bool tryVisible_(int level, const jvalue& jval, KvThemedPlot* plot);
 
 	// 解析全局属性，目前包括line，text，title，label
 	static void tryLevel_(int level, const jobject& jobj, KvThemedPlot* plot);

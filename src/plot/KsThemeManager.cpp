@@ -501,21 +501,25 @@ void KsThemeManager::applyFill_(int level, const jvalue& jval, KvThemedPlot* plo
 }
 
 
-void KsThemeManager::tryVisible_(int level, const jvalue& jval, KvThemedPlot* plot)
+bool KsThemeManager::tryVisible_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
 	if (KuThemeParser::isNull(jval)) {
 		plot->applyVisible(level, false);
+		return false;
 	}
 	else if (jval.is_boolean()) {
 		bool b = jval.get<bool>();
 		plot->applyVisible(level, b);
+		return b;
 	}
 	else if (jval.is_object()) {
 		bool b(true);
 		if (KuThemeParser::tryBool(jval, "visible", b)) {
 			plot->applyVisible(level, b);
 		}
+		return b;
 	}
+	return true;
 }
 
 
@@ -566,9 +570,7 @@ void KsThemeManager::tryAxis_(const jobject& jobj, KvThemedPlot* plot)
 
 void KsThemeManager::applyAxis_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
-	tryVisible_(level, jval, plot);
-
-	if (!jval.is_object()) 
+	if (!tryVisible_(level, jval, plot) || !jval.is_object())
 		return;
 
 	applyLine_(level, jval, plot); // 放在is_object检测之后，主要为防止applyLine_再次进行tryVisible_检测
@@ -599,9 +601,7 @@ void KsThemeManager::applyTick_(int level, const jvalue& jval, KvThemedPlot* plo
 	assert(level & KvThemedPlot::k_axis_tick);
 	assert(!(level & KvThemedPlot::k_text));
 
-	tryVisible_(level, jval, plot);
-
-	if (!jval.is_object())
+	if (!tryVisible_(level, jval, plot) || !jval.is_object())
 		return;
 
 	applyLine_(level, jval, plot); // 放在is_object检测之后，主要为防止applyLine_再次进行tryVisible_检测
@@ -653,9 +653,7 @@ void KsThemeManager::applyGrid_(int level, const jvalue& jval, KvThemedPlot* plo
 {
 	assert(level & KvThemedPlot::k_grid);
 
-	tryVisible_(level, jval, plot); 
-
-	if (!jval.is_object())
+	if (!tryVisible_(level, jval, plot) || !jval.is_object())
 		return; 
 
 	applyLine_(level, jval, plot); // 放在is_object检测之后，主要为防止applyLine_再次进行tryVisible_检测
@@ -765,33 +763,35 @@ void KsThemeManager::trySpecialProp_(int level, const jobject& jobj, const char*
 
 void KsThemeManager::applyLine_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
-	tryVisible_(level, jval, plot);
-
-	plot->applyLine(level, [&jval, level](const KpPen& pen) {
-		KpPen newPen(pen);
-		KuThemeParser::line_value(jval, newPen);
-		return newPen;
-		});
+	if (tryVisible_(level, jval, plot)) {
+		plot->applyLine(level, [&jval, level](const KpPen& pen) {
+			KpPen newPen(pen);
+			KuThemeParser::line_value(jval, newPen);
+			return newPen;
+			});
+	}
 }
 
 
 void KsThemeManager::applyText_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
-	tryVisible_(level, jval, plot);
-
-	plot->applyText(level, [&jval](const KpFont& font) {
-		KpFont newFont(font);
-		KuThemeParser::text_value(jval, newFont);
-		return newFont;
-		});
+	if (tryVisible_(level, jval, plot)) {
+		plot->applyText(level, [&jval](const KpFont& font) {
+			KpFont newFont(font);
+			KuThemeParser::text_value(jval, newFont);
+			return newFont;
+			});
+	}
 }
 
 
 void KsThemeManager::applyTextColor_(int level, const jvalue& jval, KvThemedPlot* plot)
 {
-	plot->applyTextColor(level, [&jval](const color4f& color) {
-		color4f newColor(color);
-		KuThemeParser::color_value(jval, newColor);
-		return newColor;
-		});
+	if (tryVisible_(level, jval, plot)) {
+		plot->applyTextColor(level, [&jval](const color4f& color) {
+			color4f newColor(color);
+			KuThemeParser::color_value(jval, newColor);
+			return newColor;
+			});
+	}
 }

@@ -29,7 +29,6 @@
       },
 
       "axis": {
-        "visible": false,
 
         "title": { "face": "bold" },
 
@@ -48,6 +47,16 @@
           "baseline": true,
           "label": true
         },
+
+        "right": null,
+        "top": null,
+        "far-left": null,
+        "far-right": null,
+        "far-bottom": null,
+        "far-top": null,
+        "floor-left": null,
+        "ceil-left": null,
+        "ceil-right": null,
 
         "margins": null
       },

@@ -49,7 +49,7 @@
 - [ ] 更多theme，SCI等
 - [ ] 进一步规范化specification
 - [ ] 完善plot2d和plot3d的layout主题
-- [ ] 各要素的可见性设置不改变linesyle和alpha等属性 
+- [x] 各要素的可见性设置不改变linesyle和alpha等属性 
 
 ## pipeline
 - [ ] 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多
