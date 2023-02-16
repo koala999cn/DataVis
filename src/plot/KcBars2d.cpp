@@ -218,7 +218,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 	if (chs > 1) { // 优先按通道分组/堆叠
 		if (stackedFirst_) {
 			getter.stacks = chs;
-			getter.groups = samp ? samp->size(1) : 1;
+			getter.groups = 1;
 			if (disc->dim() == 1 || samp == nullptr) {
 				getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
 					auto pt = disc->pointAt(idx, stack);
@@ -228,14 +228,15 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 				};
 			}
 			else {
+				getter.groups = samp->size(1);
 				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
 					return samp->point(idx, group, stack);
 				};
 			}
 		}
 		else {
-			getter.stacks = samp ? samp->size(1) : 1;
 			getter.groups = chs;
+			getter.stacks = 1;		
 			if (disc->dim() == 1 || samp == nullptr) {
 				getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
 					auto pt = disc->pointAt(idx, group);
@@ -245,6 +246,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 				};
 			}
 			else {
+				getter.stacks = samp->size(1);
 				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
 					return samp->point(idx, stack, group);
 				};
@@ -263,7 +265,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 
 		};
 	}
-	else { // 单通道高纬度，依高维度分组/堆叠
+	else { // 单通道多维度，依高维度分组/堆叠
 		if (stackedFirst_) {
 			getter.stacks = samp->size(1);
 			getter.groups = samp->dim() > 2 ? samp->size(2) : 1;
