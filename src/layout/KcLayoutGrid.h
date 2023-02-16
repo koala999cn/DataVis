@@ -51,6 +51,21 @@ public:
 
 	void arrange_(int dim, float_t lower, float_t upper) override;
 
+	// 返回第rowIdx行最右侧（非空）元素，返回-1表示该行无有效元素
+	unsigned rightMost(unsigned rowIdx); 
+
+	// 返回第rowIdx行最左侧（非空）元素，返回-1表示该行无有效元素
+	unsigned leftMost(unsigned rowIdx);
+
+	// 返回第colIdx列最上侧（非空）元素，返回-1表示该列无有效元素
+	unsigned topMost(unsigned colIdx);
+
+	// 返回第colIdx列最下侧（非空）元素，返回-1表示该列无有效元素
+	unsigned bottomMost(unsigned colIdx);
+
+	// 返回[r0, c0]到[r1, c1]区间的尺寸
+	std::pair<float_t, float_t> sizeOf(unsigned r0, unsigned c0, unsigned r1, unsigned c1);
+
 protected:
 	size_t calcSize_(void* cxt) const override;
 

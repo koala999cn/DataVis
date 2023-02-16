@@ -39,6 +39,9 @@ private:
 
 	size_t calcSize_(void* cxt) const final;
 
+	void resetMargins_();
+	void fixMargins_();
+
 private:
 	axis_list axes_[4];
 	grid_plane_ptr plane_;

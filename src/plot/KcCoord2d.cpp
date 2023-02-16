@@ -83,8 +83,16 @@ KtMargins<KcCoord2d::float_t> KcCoord2d::calcMargins_(KvPaint* paint) const
 }
 
 
+void KcCoord2d::resetMargins_()
+{
+	margins() = { point2(0), point2(0) };
+}
+
+
 KcCoord2d::size_t KcCoord2d::calcSize_(void* cxt) const
 {
+	const_cast<KcCoord2d*>(this)->resetMargins_();
+
 	// 重新布局axis
 	forAxis([this](KcAxis& axis) {
 		KuLayoutHelper::take(&axis);
@@ -116,7 +124,83 @@ KcCoord2d::size_t KcCoord2d::calcSize_(void* cxt) const
 		}
 		return true; });
 
-	return __super::calcSize_(cxt);
+	auto sz = __super::calcSize_(cxt);
+
+	// 同步coord的margins，避免坐标轴的label被裁剪
+	const_cast<KcCoord2d*>(this)->fixMargins_();
+
+	return sz;
+}
+
+
+void KcCoord2d::fixMargins_()
+{
+	// plane左侧和右侧所有元素的累计尺寸
+	double sleft(0), sright(0);
+
+	// plane上侧和下侧所有元素的累计尺寸
+	double stop(0), sbottom(0);
+
+	double mleft(0), mright(0); // 与palne同列元素的最大左、右留白
+	double mtop(0), mbottom(0); // 与plane同行元素的最大上、下留白
+
+
+	// 遍历左侧
+	auto pos = find(plane_.get()); // 定位坐标平面的位置
+	for (unsigned i = 0; i < pos.second; i++) {
+		auto e = getAt(pos.first, i);
+		if (e) {
+			sleft += e->expectRoom()[0];
+			mtop = std::max(mtop, e->margins().lower()[1]);
+			mbottom = std::max(mbottom, e->margins().upper()[1]);
+		}
+	}
+
+	// 遍历右侧
+	for (unsigned i = pos.second + 1; i < cols(); i++) {
+		auto e = getAt(pos.first, i);
+		if (e) {
+			sright += e->expectRoom()[0];
+			mtop = std::max(mtop, e->margins().lower()[1]);
+			mbottom = std::max(mbottom, e->margins().upper()[1]);
+		}
+	}
+
+	// 遍历上侧
+	for (unsigned i = 0; i < pos.first; i++) {
+		auto e = getAt(i, pos.second);
+		if (e) {
+			stop += e->expectRoom()[1];
+			mleft = std::max(mleft, e->margins().lower()[0]);
+			mright = std::max(mright, e->margins().upper()[0]);
+		}
+	}
+
+	// 遍历下侧
+	for (unsigned i = pos.first + 1; i < rows(); i++) {
+		auto e = getAt(i, pos.second);
+		if (e) {
+			sbottom += e->expectRoom()[1];
+			mleft = std::max(mleft, e->margins().lower()[0]);
+			mright = std::max(mright, e->margins().upper()[0]);
+		}
+	}
+
+	// 左侧空间不足，拓展左侧留白
+	if (mleft > sleft) 
+		margins().lower().x() = (mleft - sleft);
+
+	// 右侧空间不足，拓展右侧留白
+	if (mright > sright) 
+		margins().upper().x() = (mright - sright);
+
+	// 下侧空间不足，拓展下侧留白
+	if (mbottom > sbottom) 
+		margins().upper().y() = (mbottom - sbottom);
+
+	// 上侧空间不足，拓展上侧留白
+	if (mtop > stop)
+		margins().lower().y() = (mtop - stop);
 }
 
 

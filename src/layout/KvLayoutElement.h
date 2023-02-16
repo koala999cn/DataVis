@@ -42,8 +42,10 @@ public:
 			arrange_(i, rc.lower()[i], rc.upper()[i]);
 	}
 
-	void setMargins(const margins_t& m) { margins_ = m; }
+	margins_t& margins() { return margins_; }
 	const margins_t& margins() const { return margins_; }
+
+	void setMargins(float l, float t, float r, float b);
 
 	const rect_t& outterRect() const { return oRect_; }
 

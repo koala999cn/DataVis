@@ -40,3 +40,10 @@ void KvLayoutElement::arrange_(int dim, float_t lower, float_t upper)
 		}
 	}
 }
+
+
+void KvLayoutElement::setMargins(float l, float t, float r, float b)
+{
+	margins_.lower() = { l, t }; // NB: 不要直接使用rect_t的构造
+	margins_.upper() = { r, b };
+}

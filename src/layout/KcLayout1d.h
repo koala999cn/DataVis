@@ -28,8 +28,8 @@ protected:
 
 	size_t calcSize_(void* cxt) const override;
 
-	float_t calcSizeStacked_(int dim) const; // 计算各元素dim维度尺寸的累计和
-	float_t calcSizeOverlayed_(int dim) const; // 计算各元素dim维度尺寸的最大值
+	std::pair<float_t, int> calcSizeStacked_(int dim) const; // 计算各元素dim维度尺寸的累计和
+	std::pair<float_t, int> calcSizeOverlayed_(int dim) const; // 计算各元素dim维度尺寸的最大值
 
 	void arrangeStack_(int dim, float_t lower, float_t upper);
 	void arrangeOverlay_(int dim, float_t lower, float_t upper);

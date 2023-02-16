@@ -4,7 +4,7 @@
 void KcLayout1d::arrange_(int dim, float_t lower, float_t upper)
 {
 	if (rowMajor_ ^ dim == 0)
-		arrangeOverlay_(dim, lower, upper);
+		arrangeOverlay_(dim, lower, upper );
 	else 
 		arrangeStack_(dim, lower, upper);
 }
@@ -15,44 +15,47 @@ KcLayout1d::size_t KcLayout1d::calcSize_(void* cxt) const
 	for (auto& i : elements())
 		if (i) i->calcSize(cxt);
 
-	return  rowMajor_ ? size_t(calcSizeStacked_(0), calcSizeOverlayed_(1))
-		              : size_t(calcSizeOverlayed_(0), calcSizeStacked_(1));
+	std::pair<float_t, int> sz[2];
+	if (rowMajor_) 
+		sz[0] = calcSizeStacked_(0), sz[1] = calcSizeOverlayed_(1);
+	else 
+		sz[1] = calcSizeStacked_(1), sz[0] = calcSizeOverlayed_(0);
+
+	extraShares_[0] = sz[0].second, extraShares_[1] = sz[1].second;
+
+	return { sz[0].first, sz[1].first };
 }
 
 
-KcLayout1d::float_t KcLayout1d::calcSizeStacked_(int dim) const
+std::pair<KcLayout1d::float_t, int> KcLayout1d::calcSizeStacked_(int dim) const
 {
-	float_t sz(0);
-	int squeezedItems(0);
-
-	for (auto& i : elements()) {
-		if (i) {
-			sz += i->expectRoom()[dim];
-			squeezedItems += i->extraShares()[dim];
-		}
-	}
-	
-	extraShares_[dim] = squeezedItems;
-
-	return sz;
-}
-
-
-KcLayout1d::float_t KcLayout1d::calcSizeOverlayed_(int dim) const
-{
-	float_t sz(0);
+	float_t fixed(0);
 	int shares(0);
 
 	for (auto& i : elements()) {
 		if (i) {
-			sz = std::max(sz, i->expectRoom()[dim]);
+			fixed += i->expectRoom()[dim];
+			shares += i->extraShares()[dim];
+		}
+	}
+
+	return { fixed, shares };
+}
+
+
+std::pair<KcLayout1d::float_t, int> KcLayout1d::calcSizeOverlayed_(int dim) const
+{
+	float_t fixed(0);
+	int shares(0);
+
+	for (auto& i : elements()) {
+		if (i) {
+			fixed = std::max(fixed, i->expectRoom()[dim]);
 			shares = std::max(shares, i->extraShares()[dim]);
 		}
 	}
 
-	extraShares_[dim] = shares;
-
-	return sz;
+	return { fixed, shares };
 }
 
 
@@ -60,7 +63,7 @@ void KcLayout1d::arrangeOverlay_(int dim, float_t lower, float_t upper)
 {
 	__super::arrange_(dim, lower, upper);
 	for (auto& i : elements())
-		if (i) i->arrange_(dim, lower, upper);
+		if (i) i->arrange_(dim, iRect_.lower()[dim], iRect_.upper()[dim]);
 }
 
 

@@ -119,7 +119,7 @@ KcLayoutGrid::size_t KcLayoutGrid::calcSize_(void* cxt) const
 	for (unsigned c = 0; c < cols(); c++) {
 		szCols_[c] = { 0, 0 };
 		for (unsigned r = 0; r < rows(); r++) {
-			auto ele = rowAt(r)->getAt(c);
+			auto ele = getAt(r, c);
 			if (ele) {
 				szCols_[c].first = std::max(szCols_[c].first, ele->expectRoom()[0]);
 				szCols_[c].second = std::max(szCols_[c].second, ele->extraShares()[0]);
@@ -171,4 +171,65 @@ void KcLayoutGrid::arrangeColStack_(float_t lower, float_t upper)
 
 		l = u;
 	}
+}
+
+
+unsigned KcLayoutGrid::rightMost(unsigned rowIdx)
+{
+	assert(rowIdx < rows());
+	unsigned colIdx = cols() - 1;
+	for (; colIdx != -1; colIdx--)
+		if (getAt(rowIdx, colIdx))
+			break;
+	return colIdx;
+}
+
+
+unsigned KcLayoutGrid::leftMost(unsigned rowIdx)
+{
+	assert(rowIdx < rows());
+	unsigned colIdx = 0;
+	for (; colIdx < cols(); colIdx++)
+		if (getAt(rowIdx, colIdx))
+			break;
+	return colIdx == cols() ? -1 : colIdx;
+}
+
+
+unsigned KcLayoutGrid::topMost(unsigned colIdx)
+{
+	assert(colIdx < cols());
+	unsigned rowIdx = 0;
+	for (; rowIdx < rows(); rowIdx++)
+		if (getAt(rowIdx, colIdx))
+			break;
+	return rowIdx == rows() ? -1 : rowIdx;
+}
+
+
+unsigned KcLayoutGrid::bottomMost(unsigned colIdx)
+{
+	assert(colIdx < cols());
+	unsigned rowIdx = rows() - 1;
+	for (; rowIdx != -1; rowIdx--)
+		if (getAt(rowIdx, colIdx))
+			break;
+	return rowIdx;
+}
+
+
+std::pair<KcLayoutGrid::float_t, KcLayoutGrid::float_t> 
+KcLayoutGrid::sizeOf(unsigned r0, unsigned c0, unsigned r1, unsigned c1)
+{
+	float_t w(0), h(0);
+
+	// 累计每行的高度
+	for (unsigned r = r0; r <= r1; r++)
+		h += rowAt(r)->expectRoom()[1];
+
+	// 累计每列的宽度
+	for (unsigned c = c0; c <= c1; c++)
+		w += szCols_[c].first;
+		
+	return { w, h };
 }

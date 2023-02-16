@@ -97,28 +97,26 @@ void KvPlot::update()
 	if (axisSwapped)
 		paint_->pushLocal(coord_->axisSwapMatrix()); // 先压入坐标轴交换矩阵，autoProject_要用
 
-	auto oRect = paint_->viewport();
-	auto iRect = oRect;
-	iRect.deflate(margins());
-	//paint_->setViewport(iRect);
-
 	autoProject_();
 
 	paint_->beginPaint();
 
-	updateLayout_(oRect);
-	assert(innerRect() == iRect);
+	auto rc = paint_->viewport();
+	paint_->pushCoord(KvPaint::k_coord_screen);
+	paint_->apply(background());
+	paint_->fillRect(rc);
+	paint_->popCoord();
 
-	paint_->setViewport(innerRect()); // 此处压入innerRect，与KcCoord3d配合抑制fixPlotView_修正plot3d的视口偏移
-	                                  // TODO: 更优雅和通用的实现
+	updateLayout_(rc);
+	if (innerRect().volume() == 0) { // 某个维度为0尺寸布局，不绘制
+		paint_->endPaint();
+		return;
+	}
+
+	paint_->setViewport(innerRect()); 
 
 	// 修正视口偏移（主要针对plot2d，把它的坐标系lower点移到视口的左下角）
 	auto locals = fixPlotView_(); // 此处有locals个矩阵入栈，后续须pop
-
-	paint_->pushCoord(KvPaint::k_coord_screen);
-	paint_->apply(background());
-	paint_->fillRect(oRect);
-	paint_->popCoord();
 
 	coord_->draw(paint_.get());
 

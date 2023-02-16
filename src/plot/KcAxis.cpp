@@ -295,32 +295,44 @@ KcAxis::point3 KcAxis::tickPos(double val) const
 KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 {
 	assert(visible());
+	size_t sz(0, 0);
 
 	if (length() > 0) {
 
 		auto paint = (KvPaint*)cxt;
 		auto marg = calcMargins(paint);
+		margins_t m{ point2(0), point2(0) };
 
 		switch (typeReal())
 		{
 		case KcAxis::k_left:
-			return { std::max<float_t>(marg.left(), baselineCxt_.width), 0 };
+			m.lower().y() = marg.top(), m.upper().y() = marg.bottom();
+			sz.x() = std::max<float_t>(marg.left(), baselineCxt_.width);
+			break;
 
 		case KcAxis::k_right:
-			return { std::max<float_t>(marg.right(), baselineCxt_.width), 0 };
+			m.lower().y() = marg.top(), m.upper().y() = marg.bottom();
+			sz.x() = std::max<float_t>(marg.right(), baselineCxt_.width);
+			break;
 
 		case KcAxis::k_bottom:
-			return { 0, std::max<float_t>(marg.bottom(), baselineCxt_.width) };
+			m.lower().x() = marg.left(), m.upper().x() = marg.right();
+			sz.y() = std::max<float_t>(marg.bottom(), baselineCxt_.width);
+			break;
 
 		case KcAxis::k_top:
-			return { 0, std::max<float_t>(marg.top(), baselineCxt_.width) };
+			m.lower().x() = marg.left(), m.upper().x() = marg.right();
+			sz.y() = std::max<float_t>(marg.top(), baselineCxt_.width);
+			break;
 
 		default:
 			break;
 		}
+
+		const_cast<KcAxis*>(this)->margins() = m;
 	}
 
-	return { 0, 0 };
+	return sz;
 }
 
 
