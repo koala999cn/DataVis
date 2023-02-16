@@ -64,7 +64,7 @@
 
 ## FIXME
 - [x] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）
-- [ ] colorbar的axis留白同步
+- [x] colorbar的axis留白同步
 - [ ] 三维坐标系下，虚线的绘制（ImGui）在旋转到特定方向时会出现错位 --> 使用opengl绘制后，该问题没再出现，估计由于计算误差引起
 - [x] 加载大的text数据文件很慢
 - [ ] 坐标轴刻度旋转时出现突变

@@ -146,6 +146,7 @@ void KvPlot::update()
 		legend_->draw(paint_.get());
 
 	// draw colorbars
+	paint_->setViewport(outterRect()); // 取消内框剪切，允许colorbar的坐标轴label越出内框
 	for (auto& i : colorbars_)
 		if (i->visible())
 		    i->draw(paint_.get());
