@@ -17,28 +17,26 @@ void KvPlottable2d::setMinorColor_(const color4f& minor)
 }
 
 
-unsigned KvPlottable2d::renderObjectCount_() const
+unsigned KvPlottable2d::objectCount() const
 {
 	return data()->channels();
 }
 
 
-void KvPlottable2d::setRenderState_(KvPaint* paint, unsigned objIdx) const
+bool KvPlottable2d::objectVisible_(unsigned objIdx) const
 {
-	if (showEdge_())
+	return filled_ || (showBorder() && borderPen().visible());
+}
+
+
+void KvPlottable2d::setObjectState_(KvPaint* paint, unsigned objIdx) const
+{
+	bool edged = showBorder() && borderPen().visible();
+	paint->setFilled(filled_);
+	paint->setEdged(edged);
+
+	if (edged)
 		paint->apply(borderPen());
-}
-
-
-bool KvPlottable2d::showFill_() const
-{
-	return filled_;
-}
-
-
-bool KvPlottable2d::showEdge_() const
-{
-	return showBorder() && borderPen().visible();
 }
 
 
@@ -80,5 +78,5 @@ void* KvPlottable2d::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsig
 	auto idxBuf = geom->newIndex(idxCount);
 	KuPrimitiveFactory::indexGrid<unsigned>(nx, ny, idxBuf);
 
-	return paint->drawGeomColor(geom, showFill_(), showEdge_());
+	return paint->drawGeomColor(geom);
 }

@@ -125,9 +125,9 @@ KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 }
 
 
-void KcImOglPaint::drawMarker(const point3& pt, bool outline)
+void KcImOglPaint::drawMarker(const point3& pt)
 {
-	super_::drawMarker(pt, outline);
+	super_::drawMarker(pt);
 }
 
 
@@ -151,7 +151,7 @@ void KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 }
 
 
-void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count, bool outline)
+void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count)
 {
 	int segments = 10;
 	auto geom = std::make_shared<KtGeometryImpl<point3f, unsigned>>(k_triangles);
@@ -179,9 +179,9 @@ void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count, bool outline)
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 	pushCoord(k_coord_screen);
-	drawGeom(decl, geom, true, false);
+	drawGeom(decl, geom);
 
-	if (outline) { // 描边
+	if (edged_) { // 描边
 		auto obj = lastRenderObject_();
 		auto vbo = obj->vbo(); // 共用vbo
 		auto edgeObj = new KcLineObject(k_lines);
@@ -222,7 +222,7 @@ namespace kPrivate
 {
 	template<int N, bool forceLines = false>
 	void drawPolyMarkers_(KvPaint& paint, KvPaint::point_getter1 fn, unsigned count, 
-		const KvPaint::point2 poly[N], float markerSize, bool outline)
+		const KvPaint::point2 poly[N], float markerSize)
 	{
 		KePrimitiveType type;
 		if constexpr (forceLines)
@@ -251,7 +251,7 @@ namespace kPrivate
 		}
 
 		paint.pushCoord(KvPaint::k_coord_screen);
-		paint.drawGeomSolid(geom, true, outline);
+		paint.drawGeomSolid(geom);
 		paint.popCoord();
 	}
 }
@@ -348,7 +348,7 @@ void KcImOglPaint::addLineLoop_(point_getter1 fn, unsigned count, const float4& 
 }
 
 
-void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* vtxBuf, unsigned numVtx, bool outline)
+void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* vtxBuf, unsigned numVtx)
 {
 	assert(numVtx >= 3);
 
@@ -369,25 +369,25 @@ void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* v
 
 		addConvexPolyFilled_(fns, numVtx, clr_);
 
-		if (outline)
+		if (edged_)
 			addLineLoop_(fns, numVtx, secondaryClr_);
 	}
 }
 
 
-void KcImOglPaint::drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4], bool outline)
+void KcImOglPaint::drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4])
 {
-	kPrivate::drawPolyMarkers_<4>(*this, fn, count, quad, markerSize_, outline);
+	kPrivate::drawPolyMarkers_<4>(*this, fn, count, quad, markerSize_);
 }
 
 
-void KcImOglPaint::drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3], bool outline)
+void KcImOglPaint::drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3])
 {
-	kPrivate::drawPolyMarkers_<3>(*this, fn, count, tri, markerSize_, outline);
+	kPrivate::drawPolyMarkers_<3>(*this, fn, count, tri, markerSize_);
 }
 
 
-void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
+void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 {
 	static const double SQRT_2_2 = std::sqrt(2.) / 2.;
 	static const double SQRT_3_2 = std::sqrt(3.) / 2.;
@@ -406,14 +406,14 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 			point2(SQRT_2_2,-SQRT_2_2),
 			point2(-SQRT_2_2,SQRT_2_2) 
 		};
-		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, cross, markerSize_, outline);
+		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, cross, markerSize_);
 	}
 	    return nullptr;
 
 	case KpMarker::k_plus:
 	{
 		static const point2 plus[4] = { point2(-1, 0), point2(1, 0), point2(0, -1), point2(0, 1) };
-		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, plus, markerSize_, outline);
+		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, plus, markerSize_);
 	}
 	    return nullptr;
 
@@ -427,7 +427,7 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 			point2(0, -1), 
 			point2(0, 1) 
 		};
-		kPrivate::drawPolyMarkers_<6>(*this, fn, count, asterisk, markerSize_, outline);
+		kPrivate::drawPolyMarkers_<6>(*this, fn, count, asterisk, markerSize_);
 	}
 		return nullptr;
 
@@ -442,7 +442,7 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
 	};
 
 	// 带outline的marker赞使用ImGui实现(issue I6B5ES)
-	return super_::drawMarkers(fn, count, outline);
+	return super_::drawMarkers(fn, count);
 }
 
 
@@ -737,7 +737,7 @@ void KcImOglPaint::pushColorVbo_(KpRenderList_& rl)
 }
 
 
-void* KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge)
+void* KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 {
 	assert(geom->vertexSize() == decl->vertexSize());
 
@@ -761,7 +761,7 @@ void* KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool s
 		KcEdgedObject* edgedObj = new KcEdgedObject(geom->type());
 		edgedObj->setEdgeWidth(lineWidth_);
 		edgedObj->setEdgeStyle(lineStyle_);
-		edgedObj->setFilled(fill); edgedObj->setEdged(showEdge);
+		edgedObj->setFilled(filled_); edgedObj->setEdged(edged_);
 		edgedObj->setEdgeColor(secondaryClr_);
 		obj = edgedObj;
 	}
@@ -1017,12 +1017,12 @@ void KcImOglPaint::pushTrisSoild_(const point2 pos[], unsigned c, const float4& 
 }
 
 
-void* KcImOglPaint::redraw(void* obj, bool filled, bool edged)
+void* KcImOglPaint::redraw(void* obj)
 {
 	auto iter = savedObjList_.find(obj);
 	if (iter != savedObjList_.end()) {
 		auto newObj = iter->second->clone();
-		syncObjProps_(newObj, filled, edged); // 同步当前渲染属性
+		syncObjProps_(newObj); // 同步当前渲染属性
 		pushRenderObject_(newObj); // 重置全局渲染状态，并压入待渲染队列
 		return newObj;
 	}
@@ -1031,13 +1031,13 @@ void* KcImOglPaint::redraw(void* obj, bool filled, bool edged)
 }
 
 
-void KcImOglPaint::syncObjProps_(KcRenderObject* obj, bool filled, bool edged)
+void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 {
 	if (dynamic_cast<KcEdgedObject*>(obj)) {
 		auto eo = dynamic_cast<KcEdgedObject*>(obj);
 		eo->setEdgeWidth(lineWidth_);
 		eo->setEdgeStyle(lineStyle_);
-		eo->setFilled(filled); eo->setEdged(edged);
+		eo->setFilled(filled_); eo->setEdged(edged_);
 		eo->setEdgeColor(secondaryClr_);
 	}
 	else if (dynamic_cast<KcPointObject*>(obj)) {

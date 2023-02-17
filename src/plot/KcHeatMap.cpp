@@ -1,6 +1,7 @@
 #include "KcHeatMap.h"
 #include "KvSampled.h"
 #include "KvPaint.h"
+#include "KuStrUtil.h" // std::to_string不支持格式化，使用KuStrUtil格式化浮点数
 
 
 KcHeatMap::KcHeatMap(const std::string_view& name)
@@ -12,18 +13,27 @@ KcHeatMap::KcHeatMap(const std::string_view& name)
 }
 
 
-unsigned KcHeatMap::renderObjectCount_() const
+unsigned KcHeatMap::objectCount() const
 {
 	return data()->channels() * 2;
 }
 
 
-void KcHeatMap::setRenderState_(KvPaint* paint, unsigned objIdx) const
+bool KcHeatMap::objectVisible_(unsigned objIdx) const
+{
+	if (objIdx & 1)
+		return showText_ && clrText_.a() != 0;
+	else
+		return super_::objectVisible_(objIdx);
+}
+
+
+void KcHeatMap::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
 	if (objIdx & 1)
 		paint->setColor(clrText_);
 	else
-		super_::setRenderState_(paint, objIdx / 2);
+		super_::setObjectState_(paint, objIdx / 2);
 }
 
 
@@ -56,12 +66,10 @@ void* KcHeatMap::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted*
 		return samp->point(ix, iy, ch);
 	};
 
-	if (objIdx & 1) {
+	if (objIdx & 1) 
 		return drawText_(paint, getter, samp->size(0), samp->size(1), ch);
-	}
-	else {
+	else 
 		return drawImpl_(paint, getter, samp->size(0), samp->size(1), ch);
-	}
 }
 
 
@@ -103,31 +111,29 @@ void* KcHeatMap::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned 
 
 void* KcHeatMap::drawText_(KvPaint* paint, GETTER getter, unsigned nx, unsigned ny, unsigned ch) const
 {
-	if (showText_ && clrText_.a() != 0) {
+	auto disc = discreted_();
+	auto dx = disc->step(0);
+	auto dy = disc->dim() > 1 ? disc->step(1) : 0;
+	if (dx <= 0)
+		dx = disc->range(0).length() / disc->size(0);
+	if (dy <= 0)
+		dy = disc->range(1).length() / disc->size(disc->dim() > 1 ? 1 : 0);
 
-		auto disc = discreted_();
-		auto dx = disc->step(0);
-		auto dy = disc->dim() > 1 ? disc->step(1) : 0;
-		if (dx <= 0)
-			dx = disc->range(0).length() / disc->size(0);
-		if (dy <= 0)
-			dy = disc->range(1).length() / disc->size(disc->dim() > 1 ? 1 : 0);
+	auto leng = paint->projectv({ dx, dy, 0 }).abs();
+	auto minSize = paint->textSize("0");
+	if (leng.x() < minSize.x() || leng.y() < minSize.y()) // 加1个总体判断，否则当nx*ny很大时，非常耗时
+		return nullptr;
 
-		auto leng = paint->projectv({ dx, dy, 0 }).abs();
-		auto minSize = paint->textSize("0");
-		if (leng.x() < minSize.x() || leng.y() < minSize.y()) // 加1个总体判断，否则当nx*ny很大时，非常耗时
-			return nullptr;
-
-		for (unsigned ix = 0; ix < nx; ix++)
-			for (unsigned iy = 0; iy < ny; iy++) {
-				auto pt = getter(ix, iy);
-				auto text = std::to_string(pt[colorMappingDim()]);
-				auto szText = paint->textSize(text.c_str());
-				if (szText.x() <= leng.x() && szText.y() <= leng.y())
-					paint->drawText(toPoint_(pt.data(), ch), text.c_str(),
-						KeAlignment::k_vcenter | KeAlignment::k_hcenter);
-			}
+	for (unsigned ix = 0; ix < nx; ix++) {
+		for (unsigned iy = 0; iy < ny; iy++) {
+			auto pt = getter(ix, iy);
+			auto text = KuStrUtil::toString(pt[colorMappingDim()]);
+			auto szText = paint->textSize(text.c_str());
+			if (szText.x() <= leng.x() && szText.y() <= leng.y())
+				paint->drawText(toPoint_(pt.data(), ch), text.c_str(),
+					KeAlignment::k_vcenter | KeAlignment::k_hcenter);
+		}
 	}
 
-	return nullptr; // 目前文字不可重用
+	return nullptr;
 }

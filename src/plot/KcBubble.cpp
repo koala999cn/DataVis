@@ -19,19 +19,13 @@ float KcBubble::mapValueToSize_(float_t val) const
 }
 
 
-bool KcBubble::showFill_() const
+bool KcBubble::objectVisible_(unsigned objIdx) const
 {
 	return true;
 }
 
 
-bool KcBubble::showEdge_() const
-{
-	return false;
-}
-
-
-void KcBubble::setRenderState_(KvPaint* paint, unsigned objIdx) const
+void KcBubble::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
 	paint->setMarkerType(KpMarker::k_circle);
 }
@@ -47,7 +41,7 @@ void* KcBubble::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, u
 		auto val = pt[data()->dim()]; // TODO: 尺寸插值的数据维度可配置
 		paint->setMarkerSize(mapValueToSize_(val));
 		paint->setColor(mapValueToColor_(pt.data(), ch));
-		paint->drawMarker(toPoint_(pt.data(), ch), false);
+		paint->drawMarker(toPoint_(pt.data(), ch));
 
 		if (realShowText) {
 			auto text = KuStrUtil::toString(pt[colorMappingDim()]);

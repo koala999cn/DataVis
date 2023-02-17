@@ -19,6 +19,8 @@ public:
 
 	void setMinorColor_(const color4f& minor) override;
 
+	unsigned objectCount() const override;
+
 	bool showFill() const { return filled_; }
 	bool& showFill() { return filled_; }
 
@@ -30,13 +32,9 @@ public:
 
 protected:
 
-	unsigned renderObjectCount_() const override;
+	bool objectVisible_(unsigned objIdx) const override;
 
-	void setRenderState_(KvPaint*, unsigned objIdx) const override;
-
-	bool showFill_() const override;
-
-	bool showEdge_() const override;
+	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
 	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
 

@@ -28,9 +28,15 @@ unsigned KcAndrewsCurves::majorColorsNeeded() const
 }
 
 
-unsigned KcAndrewsCurves::renderObjectCount_() const
+unsigned KcAndrewsCurves::objectCount() const
 {
 	return discreted_()->size(0);
+}
+
+
+bool KcAndrewsCurves::objectVisible_(unsigned objIdx) const
+{
+	return true;
 }
 
 namespace kPrivate

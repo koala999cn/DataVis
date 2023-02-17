@@ -3,8 +3,7 @@
 #include "KvPaint.h"
 
 
-
-unsigned KcBoxPlot::renderObjectCount_() const
+unsigned KcBoxPlot::objectCount() const
 {
 	return data()->channels();
 }
@@ -42,23 +41,16 @@ KcBoxPlot::aabb_t KcBoxPlot::calcBoundingBox_() const
 }
 
 
-void KcBoxPlot::setRenderState_(KvPaint*, unsigned objIdx) const
+void KcBoxPlot::setObjectState_(KvPaint*, unsigned objIdx) const
 {
 	// do nothing
 }
 
 
-bool KcBoxPlot::showFill_() const
+bool KcBoxPlot::objectVisible_(unsigned objIdx) const
 {
 	return true;
 }
-
-
-bool KcBoxPlot::showEdge_() const
-{
-	return false;
-}
-
 
 void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
 {
@@ -98,7 +90,7 @@ void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted*
 	// draw the outliers
 	paint->apply(outlierMarker_);
 	for (auto& y : s.outliers)
-		paint->drawMarker(point3{ objIdx, y, z }, outlierMarker_.showOutline);
+		paint->drawMarker(point3{ objIdx, y, z });
 
 	return nullptr; // Œﬁ÷ÿ”√
 }

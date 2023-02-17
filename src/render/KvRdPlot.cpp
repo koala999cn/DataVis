@@ -768,8 +768,8 @@ void KvRdPlot::showPlottableProperty_()
 			showPlottableSpecificProperty_(idx);
 
 			// for debug
-			bool reusing = plot_->plottableAt(idx)->reusing();
-			ImGui::Checkbox("Reusing VBO", &reusing);
+			auto plt = plot_->plottableAt(idx);
+			ImGui::LabelText("Render Objects",  "%d reused / %d total(s)", plt->objectsReused(), plt->objectCount());
 
 			ImGuiX::cbiTreePop();
 		}

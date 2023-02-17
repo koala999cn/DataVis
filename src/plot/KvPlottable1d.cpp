@@ -2,13 +2,13 @@
 #include "KvDiscreted.h"
 
 
-unsigned KvPlottable1d::renderObjectCount_() const
+unsigned KvPlottable1d::objectCount() const
 {
 	if (empty())
 		return 0;
 
 	auto disc = discreted_();
-	auto c = disc->channels() * renderObjectsPerBatch_();
+	auto c = disc->channels() * objectsPerBatch_();
 	return (disc->dim() > 1 && disc->isSampled()) ? c * discreted_()->size(0) : c;
 }
 
@@ -44,8 +44,8 @@ void* KvPlottable1d::draw2d_(KvPaint* paint, unsigned objIdx, const KvDiscreted*
 	assert(disc->isSampled() && disc->dim() == 2);
 
 	// 把objIdx分解到通道号和行号
-	kIndex row = (objIdx / renderObjectsPerBatch_()) % disc->size(0);
-	kIndex ch = objIdx / renderObjectsPerBatch_() / disc->size(0);
+	kIndex row = (objIdx / objectsPerBatch_()) % disc->size(0);
+	kIndex ch = objIdx / objectsPerBatch_() / disc->size(0);
 
 	auto getter = [disc, row, ch](unsigned i) {
 		auto n = row * disc->size(1) * disc->channels() + i;
@@ -91,6 +91,6 @@ unsigned KvPlottable1d::objIdx2ChsIdx_(unsigned objIdx) const
 {
 	assert(!empty());
 	auto disc = discreted_();
-	auto ch = objIdx / renderObjectsPerBatch_();
+	auto ch = objIdx / objectsPerBatch_();
 	return (disc->isSampled() && disc->dim() == 2) ? ch / disc->size(0) : ch;
 }

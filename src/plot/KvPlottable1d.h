@@ -14,13 +14,13 @@ public:
 
 protected:
 
-	unsigned renderObjectCount_() const override;
+	unsigned objectCount() const override;
 
 	// 绘制第objIdx个渲染对象，并返回可复用的对象id
 	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
 
 	// 每个批次的渲染对象数目，有的实现可能fill和edge分别有1个对象，有的可能text还有1个对象
-	virtual unsigned renderObjectsPerBatch_() const { return 1; }
+	virtual unsigned objectsPerBatch_() const { return 1; }
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
 

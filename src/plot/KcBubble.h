@@ -36,11 +36,9 @@ public:
 
 protected:
 
-	bool showFill_() const final;
+	bool objectVisible_(unsigned objIdx) const override;
 
-	bool showEdge_() const final;
-
-	void setRenderState_(KvPaint*, unsigned objIdx) const final;
+	void setObjectState_(KvPaint*, unsigned objIdx) const final;
 
 	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const final;
 

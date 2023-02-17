@@ -14,28 +14,73 @@ KcBars2d::KcBars2d(const std::string_view& name)
 }
 
 
-unsigned KcBars2d::renderObjectCount_() const
+unsigned KcBars2d::objectCount() const
 {
 	return 1;
 }
 
 
-void KcBars2d::setRenderState_(KvPaint* paint, unsigned objIdx) const
+void KcBars2d::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
-	if (showEdge_())
+	paint->setFilled(realFilled_());
+	paint->setEdged(realEdged_());
+	if (realEdged_())
 		paint->apply(borderPen());
 }
 
 
-bool KcBars2d::showFill_() const
+bool KcBars2d::objectVisible_(unsigned objIdx) const
+{
+	return realFilled_() || realEdged_();
+}
+
+
+bool KcBars2d::realFilled_() const
 {
 	return showFill() && fillBrush().visible();
 }
 
 
-bool KcBars2d::showEdge_() const
+bool KcBars2d::realEdged_() const
 {
 	return showBorder() && borderPen().visible();
+}
+
+
+void KcBars2d::setBarWidthRatio(float w)
+{
+	barWidthRatio_ = w;
+	setDataChanged();
+}
+
+
+void KcBars2d::setBaseLine(float base)
+{
+	baseLine_ = base;
+	setDataChanged();
+}
+
+
+void KcBars2d::setStackedFirst(bool b)
+{
+	stackedFirst_ = b;
+	setDataChanged();
+}
+
+
+void KcBars2d::setPaddingStacked(float padding)
+{
+	paddingStacked_ = padding;
+	// TODO: if (stacks > 1)
+	setDataChanged();
+}
+
+
+void KcBars2d::setPaddingGrouped(float padding)
+{
+	paddingGrouped_ = padding;
+	// TODO: if (groups > 1)
+	setDataChanged();
 }
 
 
@@ -101,7 +146,7 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* 
 		}
 	}
 
-	return paint->drawGeomColor(geom, showFill_(), showEdge_());
+	return paint->drawGeomColor(geom);
 }
 
 

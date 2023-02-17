@@ -2,20 +2,20 @@
 #include "3d/KcVertexDeclaration.h"
 
 
-void* KvPaint::drawMarkers(const point3 pts[], unsigned count, bool outline)
+void* KvPaint::drawMarkers(const point3 pts[], unsigned count)
 {
 	auto getter = [pts](unsigned idx) {
 		return pts[idx];
 	};
 
-	return drawMarkers(getter, count, outline);
+	return drawMarkers(getter, count);
 }
 
 
-void* KvPaint::drawMarkers(point_getter1 fn, unsigned count, bool outline)
+void* KvPaint::drawMarkers(point_getter1 fn, unsigned count)
 {
 	for (unsigned i = 0; i < count; i++)
-		drawMarker(fn(i), outline);
+		drawMarker(fn(i));
 
 	return nullptr;
 }
@@ -92,20 +92,20 @@ void KvPaint::fillQuad(point3 pts[4], color_t clrs[4])
 }
 
 
-void* KvPaint::drawGeomSolid(geom_ptr geom, bool fill, bool showEdge)
+void* KvPaint::drawGeomSolid(geom_ptr geom)
 {
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
-	return drawGeom(decl, geom, fill, showEdge);
+	return drawGeom(decl, geom);
 }
 
 
-void* KvPaint::drawGeomColor(geom_ptr geom, bool fill, bool showEdge)
+void* KvPaint::drawGeomColor(geom_ptr geom)
 {
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
-	return drawGeom(decl, geom, fill, showEdge);
+	return drawGeom(decl, geom);
 }
 
 
@@ -136,6 +136,7 @@ void KvPaint::apply(const KpMarker& cxt)
 	setLineWidth(cxt.weight);
 	setLineStyle(KpPen::k_solid);
 	setColor(cxt.fill); // NB: fill始终是主色，当marker可填充时，fill为填充色，否则fill为线条色
+	setFilled(cxt.showOutline);
 	if (cxt.hasOutline())
 		setSecondaryColor(cxt.outline);
 }

@@ -2,13 +2,24 @@
 #include "plot/KvPaint.h"
 
 
-void KcScatter::setRenderState_(KvPaint* paint, unsigned objIdx) const
+bool KcScatter::objectVisible_(unsigned objIdx) const
+{
+	if (objIdx & 1)
+		return showLine_ && lineCxt_.visible();
+	else
+		return true;
+}
+
+
+void KcScatter::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
 	if (objIdx & 1) { // line
 		paint->apply(lineCxt_);
 	}
 	else { // marker
 		paint->apply(marker_);
+		paint->setEdged(marker_.showOutline && marker_.hasOutline()
+			&& marker_.outline != marker_.fill && marker_.outline.a() > 0);
 	}
 
 	paint->setColor(majorColor(objIdx / 2));
@@ -20,20 +31,16 @@ void* KcScatter::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, 
 	auto ch = objIdx / 2;
 
 	if (objIdx & 1) 
-		return showLine_ && lineCxt_.visible() ? 
-			paint->drawLineStrip(toPoint3Getter_(getter, ch), count) : nullptr;
-
-	bool outline = marker_.showOutline && marker_.hasOutline()
-		&& marker_.outline != marker_.fill && marker_.outline.a() > 0;
+		return paint->drawLineStrip(toPoint3Getter_(getter, ch), count);
 
 	if (coloringMode() == k_one_color_solid) {
-		return paint->drawMarkers(toPoint3Getter_(getter, ch), count, outline);
+		return paint->drawMarkers(toPoint3Getter_(getter, ch), count);
 	}
 	else { // Öğ¸ömarker»æÖÆ
 		for (unsigned i = 0; i < count; i++) {
 			auto val = getter(i);
 			paint->setColor(mapValueToColor_(val.data(), ch));
-			paint->drawMarker({ val[0], val[1], val[2] }, outline);
+			paint->drawMarker({ val[0], val[1], val[2] });
 		}
 	}
 

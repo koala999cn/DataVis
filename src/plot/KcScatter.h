@@ -28,13 +28,11 @@ public:
 
 private:
 
-	unsigned renderObjectsPerBatch_() const override { return 2; } // marker + line
+	unsigned objectsPerBatch_() const override { return 2; } // marker + line
 
-	void setRenderState_(KvPaint*, unsigned objIdx) const override;
+	bool objectVisible_(unsigned objIdx) const override;
 
-	bool showFill_() const override { return true; }
-
-	bool showEdge_() const override { return false; }
+	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
 	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const override;
 

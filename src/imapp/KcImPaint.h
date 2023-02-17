@@ -47,7 +47,11 @@ public:
 
 	void setLineStyle(int style) override;
 
-	void drawMarker(const point3& pos, bool outline) override;
+	void setFilled(bool b) override;
+
+	void setEdged(bool b) override;
+
+	void drawMarker(const point3& pos) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
@@ -100,6 +104,7 @@ protected:
 	int lineStyle_{ 0 };
 	float_t markerSize_{ 1 };
 	int markerType_{ 0 };
+	bool filled_{ true }, edged_{ false };
 
 	std::vector<int> coords_; // ×ø±êÏµ¶ÑÕ»
 };

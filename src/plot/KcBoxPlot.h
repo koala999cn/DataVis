@@ -42,13 +42,11 @@ public:
 
 private:
 
-	unsigned renderObjectCount_() const override;
+	unsigned objectCount() const override;
 
-	void setRenderState_(KvPaint*, unsigned objIdx) const override;
+	bool objectVisible_(unsigned objIdx) const override;
 
-	bool showFill_() const override;
-
-	bool showEdge_() const override;
+	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
 	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
 

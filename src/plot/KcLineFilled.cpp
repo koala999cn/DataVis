@@ -6,26 +6,27 @@
 #include <assert.h>
 
 
-bool KcLineFilled::showFill_() const 
-{ 
-	return fillCxt_.style != KpBrush::k_none;
+bool KcLineFilled::objectVisible_(unsigned objIdx) const
+{
+	if (objIdx & 1)
+		return showLine_ && lineCxt_.visible();
+	else 
+		return fillCxt_.style != KpBrush::k_none;
 }
 
 
-bool KcLineFilled::showEdge_() const 
-{ 
-	return showLine_ && lineCxt_.visible();
-}
-
-
-void KcLineFilled::setRenderState_(KvPaint* paint, unsigned objIdx) const
+void KcLineFilled::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
 	if (objIdx & 1) { // edge状态设置
 		paint->apply(lineCxt_);
 	}
-	else if (coloringMode() == k_one_color_solid) { // fill状态设置
-		paint->apply(fillCxt_);
-		paint->setColor(majorColor(objIdx2ChsIdx_(objIdx)));
+	else {
+		paint->setEdged(false); // 始终不描边
+		paint->setFilled(true);
+		if (coloringMode() == k_one_color_solid) { // fill状态设置
+			paint->apply(fillCxt_);
+			paint->setColor(majorColor(objIdx2ChsIdx_(objIdx)));
+		}
 	}
 }
 
@@ -42,26 +43,21 @@ void* KcLineFilled::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned coun
 
 	auto ch = objIdx2ChsIdx_(objIdx);
 
-	if (objIdx & 1) {
-		return showEdge_() ? paint->drawLineStrip(toPoint3Getter_(getter, ch), count) : nullptr;
-	}
-	else if (showFill_()) {
+	if (objIdx & 1) 
+		return paint->drawLineStrip(toPoint3Getter_(getter, ch), count);
 
-		auto getter2 = [getter](unsigned i) {
-			auto pt = getter(i);
-			pt[1] = 0; // TODO: 暂时取y=0基线
-			return pt;
-		};
+	auto getter2 = [getter](unsigned i) {
+		auto pt = getter(i);
+		pt[1] = 0; // TODO: 暂时取y=0基线
+		return pt;
+	};
 
-		if (coloringMode() == k_one_color_solid) {
-			return paint->fillBetween(toPoint3Getter_(getter, ch), toPoint3Getter_(getter2, ch), count);
-		}
-		else {
-			return fillGradiant_(paint, getter, getter2, count, ch);
-		}
-	}
-
-	return nullptr;
+	if (coloringMode() == k_one_color_solid) 
+		return paint->fillBetween(toPoint3Getter_(getter, ch), 
+			toPoint3Getter_(getter2, ch), count);
+	
+	else 
+		return fillGradiant_(paint, getter, getter2, count, ch);
 }
 
 
@@ -140,5 +136,5 @@ void* KcLineFilled::fillGradiant_(KvPaint* paint, GETTER getter1, GETTER getter2
 		vtx += 6;
 	}
 
-	return paint->drawGeomColor(geom, true, false);
+	return paint->drawGeomColor(geom);
 }

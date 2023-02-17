@@ -183,6 +183,18 @@ void KcImPaint::setLineStyle(int style)
 }
 
 
+void KcImPaint::setFilled(bool b)
+{
+	filled_ = b;
+}
+
+
+void KcImPaint::setEdged(bool b)
+{
+	edged_ = b;
+}
+
+
 void KcImPaint::addTriMarker_(const ImVec2& center, const std::array<float, 2> pts[], bool outline)
 {
 	auto drawList = ImGui::GetWindowDrawList();
@@ -195,7 +207,7 @@ void KcImPaint::addTriMarker_(const ImVec2& center, const std::array<float, 2> p
 }
 
 
-void KcImPaint::drawMarker(const point3& pos, bool outline)
+void KcImPaint::drawMarker(const point3& pos)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	auto pt = project_(pos);
@@ -212,25 +224,25 @@ void KcImPaint::drawMarker(const point3& pos, bool outline)
 		auto pmin = pt + (ImVec2&)vtx[0] * markerSize_;
 		auto pmax = pt + (ImVec2&)vtx[2] * markerSize_;
 		drawList->AddRectFilled(pmin, pmax, color_());
-		if (outline)
+		if (edged_)
 			drawList->AddRect(pmin, pmax, secondaryColor_(), 0, 0, lineWidth_);
 		return;
 	}
 
 	case KpMarker::k_up:
-		addTriMarker_(pt, KuPrimitiveFactory::triangleUp<float>(), outline);
+		addTriMarker_(pt, KuPrimitiveFactory::triangleUp<float>(), edged_);
 		return;
 
 	case KpMarker::k_down:
-		addTriMarker_(pt, KuPrimitiveFactory::triangleDown<float>(), outline);
+		addTriMarker_(pt, KuPrimitiveFactory::triangleDown<float>(), edged_);
 		return;
 
 	case KpMarker::k_left:
-		addTriMarker_(pt, KuPrimitiveFactory::triangleLeft<float>(), outline);
+		addTriMarker_(pt, KuPrimitiveFactory::triangleLeft<float>(), edged_);
 		return;
 
 	case KpMarker::k_right:
-		addTriMarker_(pt, KuPrimitiveFactory::triangleRight<float>(), outline);
+		addTriMarker_(pt, KuPrimitiveFactory::triangleRight<float>(), edged_);
 		return;
 
 	case KpMarker::k_diamond:
@@ -241,7 +253,7 @@ void KcImPaint::drawMarker(const point3& pos, bool outline)
 		auto p2 = pt + (ImVec2&)vtx[2] * markerSize_;
 		auto p3 = pt + (ImVec2&)vtx[3] * markerSize_;
 		drawList->AddQuadFilled(p0, p1, p2, p3, color_());
-		if (outline)
+		if (edged_)
 			drawList->AddQuad(p0, p1, p2, p3, secondaryColor_(), lineWidth_);
 	}
 		return;
@@ -255,7 +267,7 @@ void KcImPaint::drawMarker(const point3& pos, bool outline)
 	}
 	
 	drawList->AddCircleFilled(pt, markerSize_, color_());
-	if (outline)
+	if (edged_)
 		drawList->AddCircle(pt, markerSize_, secondaryColor_(), 0, lineWidth_);
 }
 

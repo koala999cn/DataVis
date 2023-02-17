@@ -168,12 +168,23 @@ namespace kPrivate
 			if (ImGuiX::treePush("Layout", false)) {
 				int mode = bars->stackedFirst() ? 0 : 1;
 				if (ImGui::Combo("Mode", &mode, modeStr, std::size(modeStr)))
-					bars->stackedFirst() = (mode == 0);
+					bars->setStackedFirst(mode == 0);
 
-				ImGui::DragFloat("Baseline", &bars->baseLine());
-				ImGui::SliderFloat("Width Ratio", &bars->barWidthRatio(), 0.01, 1.0, "%.2f");
-				ImGui::SliderFloat("Stack Padding", &bars->paddingStacked(), 0.0, 1.0, "%.2f");
-				ImGui::SliderFloat("Group Padding", &bars->paddingGrouped(), 0.0, 1.0, "%.2f");
+				auto baseLine = bars->baseLine();
+				if (ImGui::DragFloat("Baseline", &baseLine))
+					bars->setBaseLine(baseLine);
+
+				auto widthRatio = bars->barWidthRatio();
+				if (ImGui::SliderFloat("Width Ratio", &widthRatio, 0.01, 1.0, "%.2f"))
+					bars->setBarWidthRatio(widthRatio);
+
+				auto paddingStacked = bars->paddingStacked();
+				if (ImGui::SliderFloat("Stack Padding", &paddingStacked, 0.0, 1.0, "%.2f"))
+					bars->setPaddingStacked(paddingStacked);
+
+				auto paddingGrouped = bars->paddingGrouped();
+				if (ImGui::SliderFloat("Group Padding", &paddingGrouped, 0.0, 1.0, "%.2f"))
+					bars->setPaddingGrouped(paddingGrouped);
 
 				ImGuiX::treePop();
 			}

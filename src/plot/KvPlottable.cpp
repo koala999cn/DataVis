@@ -108,14 +108,6 @@ void KvPlottable::draw(KvPaint* paint) const
 	if (empty())
 		return;
 
-	bool realShowFill = showFill_();
-	bool realShowEdge = showEdge_();
-
-	// NB: 原方案考虑不可见时也执行绘制命令，主要为保持paint中的vbo对象（一次不调用，paint将清空该vbo）
-	// 但对于动态数据而言，这样会拖累整体绘制效率，因此还是return
-	if (!realShowFill && !realShowEdge)
-		return;
-
 	auto disc = discreted_();
 	if (disc == nullptr || disc->empty())
 		return;
@@ -133,14 +125,22 @@ void KvPlottable::draw(KvPaint* paint) const
 
 	paint->enableFlatShading(flatShading());
 
-	if (renderObjs_.size() < renderObjectCount_())
-		renderObjs_.resize(renderObjectCount_(), nullptr);
+	if (renderObjs_.size() < objectCount())
+		renderObjs_.resize(objectCount(), nullptr);
 
+	objectsReused_ = 0;
 	for (unsigned i = 0; i < renderObjs_.size(); i++) {
-		setRenderState_(paint, i);
-		reusing_ = reusable(i) && (renderObjs_[i] = paint->redraw(renderObjs_[i], realShowFill, realShowEdge));
-		if (!reusing_) 
-			renderObjs_[i] = drawObject_(paint, i, disc.get());
+
+		// NB: 原方案考虑不可见时也执行绘制命令，主要为保持paint中的vbo对象（一次不调用，paint将清空该vbo）
+		// 但对于动态数据而言，这样会拖累整体绘制效率，因此还是skip
+		if (objectVisible_(i)) {
+			setObjectState_(paint, i);
+			bool reusing = objectReusable_(i) && (renderObjs_[i] = paint->redraw(renderObjs_[i]));
+			if (!reusing)
+				renderObjs_[i] = drawObject_(paint, i, disc.get());
+			else
+				++objectsReused_;
+		}
 	}
 
 	dataChanged_ = false;
@@ -345,7 +345,6 @@ void KvPlottable::setForceDefaultZ(bool b)
 void KvPlottable::setFlatShading(bool b)
 {
 	flatShading_ = b;
-	// TODO: vbo如何同步此状态？
 }
 
 
@@ -370,4 +369,11 @@ void KvPlottable::setMinorColor(const color4f& minor)
 	setMinorColor_(minor);
 	if (coloringMode_ == k_two_color_gradiant && coloringChanged_ == 0)
 		coloringChanged_ = 1;
+}
+
+
+bool KvPlottable::objectReusable_(unsigned objIdx) const
+{
+	return !dataChanged_ && (coloringChanged_ == 0 ||
+		(coloringChanged_ == 1 && coloringMode_ == k_one_color_solid)); // 单色模式下，亦可复用vbo;
 }

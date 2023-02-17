@@ -30,10 +30,10 @@ public:
 	// bar的宽度设置，取值[0, 1]
 	// 若取1，则bars之间无空隙；若取0.5，则bar的宽度与bars之间的空隙相同。
 	float barWidthRatio() const { return barWidthRatio_; }
-	float& barWidthRatio() { return barWidthRatio_; }
+	void setBarWidthRatio(float w);
 
 	float baseLine() const { return baseLine_; }
-	float& baseLine() { return baseLine_; }
+	void setBaseLine(float base);
 
 	const KpBrush& fillBrush() const { return fill_; }
 	KpBrush& fillBrush() { return fill_; }
@@ -42,24 +42,22 @@ public:
 	KpPen& borderPen() { return border_; }
 
 	bool stackedFirst() const { return stackedFirst_; }
-	bool& stackedFirst() { return stackedFirst_; }
+	void setStackedFirst(bool b);
 
 	float paddingStacked() const { return paddingStacked_; }
-	float& paddingStacked() { return paddingStacked_; }
+	void setPaddingStacked(float padding);
 
 	float paddingGrouped() const { return paddingGrouped_; }
-	float& paddingGrouped() { return paddingGrouped_; }
+	void setPaddingGrouped(float padding);
 
 
 protected:
 
-	unsigned renderObjectCount_() const override;
+	unsigned objectCount() const override;
 
-	void setRenderState_(KvPaint*, unsigned objIdx) const override;
+	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
-	bool showFill_() const override;
-
-	bool showEdge_() const override;
+	bool objectVisible_(unsigned objIdx) const override;
 
 	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
 
@@ -85,6 +83,10 @@ protected:
 	unsigned xdim_() const;
 
 	unsigned ydim_() const;
+
+	bool realFilled_() const;
+
+	bool realEdged_() const;
 
 private:
 	mutable KpBrush fill_;

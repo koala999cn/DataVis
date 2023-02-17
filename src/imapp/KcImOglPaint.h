@@ -39,11 +39,11 @@ public:
 	void beginPaint() override;
 	void endPaint() override;
 
-	void* redraw(void* obj, bool filled, bool edged) override;
+	void* redraw(void* obj) override;
 
-	void drawMarker(const point3& pt, bool outline) override;
+	void drawMarker(const point3& pt) override;
 
-	void* drawMarkers(point_getter1 fn, unsigned count, bool outline) override;
+	void* drawMarkers(point_getter1 fn, unsigned count) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
@@ -53,7 +53,7 @@ public:
 
 	void drawText(const point3& anchor, const char* text, int align) override;
 
-	void* drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) override;
+	void* drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 
 	void* fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
 
@@ -68,11 +68,11 @@ private:
 	
 	void drawPoints_(point_getter1 fn, unsigned count); // 绘制点云
 
-	void drawCircles_(point_getter1 fn, unsigned count, bool outline);
+	void drawCircles_(point_getter1 fn, unsigned count);
 
-	void drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4], bool outline);
+	void drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4]);
 
-	void drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3], bool outline);
+	void drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3]);
 
 	struct KpRenderList_;
 	KpRenderList_& currentRenderList();
@@ -114,7 +114,7 @@ private:
 	void addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill, 
 		const point2* outlineVtx, unsigned numOutline);
 
-	void addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill, bool outline);
+	void addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill);
 
 	// 在当前渲染列表的tris成员分配count个KpColorVbo_对象
 	struct KpColorVbo_;
@@ -130,7 +130,7 @@ private:
 	void saveObjList_();
 
 	// 设置对象obj的渲染属性
-	void syncObjProps_(KcRenderObject* obj, bool filled, bool edged);
+	void syncObjProps_(KcRenderObject* obj);
 
 private:
 

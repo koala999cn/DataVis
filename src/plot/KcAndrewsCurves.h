@@ -21,7 +21,9 @@ public:
 
 private:
 
-	unsigned renderObjectCount_() const override;
+	unsigned objectCount() const override;
+
+	bool objectVisible_(unsigned objIdx) const override;
 
 	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
 

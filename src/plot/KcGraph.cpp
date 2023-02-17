@@ -5,13 +5,13 @@
 #include <assert.h>
 
 
-bool KcGraph::showEdge_() const
+bool KcGraph::objectVisible_(unsigned objIdx) const
 {
 	return lineCxt_.style != KpPen::k_none;
 }
 
 
-void KcGraph::setRenderState_(KvPaint* paint, unsigned objIdx) const
+void KcGraph::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
 	paint->apply(lineCxt_);
 	if (coloringMode() == k_one_color_solid)
@@ -48,7 +48,7 @@ void* KcGraph::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, un
 		vtx++;
 	}
 
-	return paint->drawGeomColor(geom, showFill_(), showEdge_());
+	return paint->drawGeomColor(geom);
 }
 
 

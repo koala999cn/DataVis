@@ -144,39 +144,39 @@ public:
 	// 根据当前的coloringMode_配置主色
 	void updateColorMappingPalette();
 
-	bool dataChanged() const { return dataChanged_; }
-
-	int coloringChanged() const { return coloringChanged_; }
-
-	bool reusing() const { return reusing_; }
-
-protected:
 
 	//////////////////////////////////////////////////////////////////////
 
 	// VBO复用接口
 
+public:
+
+	bool dataChanged() const { return dataChanged_; }
+
+	void setDataChanged() { dataChanged_ = true; }
+
+	int coloringChanged() const { return coloringChanged_; }
+
+	unsigned objectsReused() const { return objectsReused_; }
+
 	// 返回plt包含的渲染对象数量
-	virtual unsigned renderObjectCount_() const = 0;
+	virtual unsigned objectCount() const = 0;
+
+protected:
+
+	virtual bool objectVisible_(unsigned objIdx) const = 0;
 
 	// 设置第objIdx个渲染对象的渲染状态
-	virtual void setRenderState_(KvPaint*, unsigned objIdx) const = 0;
+	virtual void setObjectState_(KvPaint*, unsigned objIdx) const = 0;
 
 	// 第objIdx个渲染对象是否可重用
-	virtual bool reusable(unsigned objIdx) const {
-		return !dataChanged_ && (coloringChanged_ == 0 ||
-				            (coloringChanged_ == 1 && coloringMode_ == k_one_color_solid)); // 单色模式下，亦可复用vbo;
-	}
+	virtual bool objectReusable_(unsigned objIdx) const;
 
 	// 绘制第objIdx个渲染对象，并返回可复用的对象id
 	virtual void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const = 0;
 
-	virtual bool showFill_() const = 0;
-
-	virtual bool showEdge_() const = 0;
-
 	mutable std::vector<void*> renderObjs_; // KvPaint返回的渲染对象id，用于vbo重用
-	mutable bool reusing_{ false }; // 是否正在复用vbo, for debug
+	mutable unsigned objectsReused_{ 0 }; // 复用vbo的对象数量, for debug
 
 	//////////////////////////////////////////////////////////////////////
 
