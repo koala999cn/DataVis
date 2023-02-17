@@ -42,7 +42,15 @@ public:
 
 private:
 
-	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
+	unsigned renderObjectCount_() const override;
+
+	void setRenderState_(KvPaint*, unsigned objIdx) const override;
+
+	bool showFill_() const override;
+
+	bool showEdge_() const override;
+
+	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
 
 	aabb_t calcBoundingBox_() const override;
 

@@ -65,7 +65,7 @@ public:
 
 	void fillConvexPoly(point_getter1 fn, unsigned count) override;
 
-	void fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
+	void* fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
 
 	void drawText(const point3& anchor, const char* text, int align) override;
 

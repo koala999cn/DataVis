@@ -2,67 +2,74 @@
 #include "KvDiscreted.h"
 
 
-void KvPlottable1d::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
+unsigned KvPlottable1d::renderObjectCount_() const
 {
-	if (disc->dim() == 1)
-		draw1d_(paint, disc);
-	else if (disc->isSampled())
-		draw2d_(paint, disc);
-	else
-		draw3d_(paint, disc);
+	if (empty())
+		return 0;
+
+	auto disc = discreted_();
+	auto c = disc->channels() * renderObjectsPerBatch_();
+	return (disc->dim() > 1 && disc->isSampled()) ? c * discreted_()->size(0) : c;
 }
 
 
-void KvPlottable1d::draw1d_(KvPaint* paint, const KvDiscreted* disc) const
+void* KvPlottable1d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
 {
-	float_t z;
+	if (disc->dim() == 1)
+		return draw1d_(paint, objIdx, disc);
+	else if (disc->isSampled())
+		return draw2d_(paint, objIdx, disc);
+	else
+		return draw3d_(paint, objIdx, disc);
+}
 
-	unsigned ch(0);
-	auto getter = [&disc, &ch, &z](unsigned i) {
+
+void* KvPlottable1d::draw1d_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
+{
+	auto ch = objIdx2ChsIdx_(objIdx);
+	float_t z = defaultZ(ch);
+
+	auto getter = [disc, ch, z](unsigned i) {
 		auto pt = disc->pointAt(i, ch);
 		pt.push_back(z);
 		return pt;
 	};
 
-	for (; ch < disc->channels(); ch++) {
-		z = defaultZ(ch);
-		drawImpl_(paint, getter, disc->size(), ch);
-	}
+	return drawObjectImpl_(paint, getter, disc->size(), objIdx);
 }
 
 
-void KvPlottable1d::draw2d_(KvPaint* paint, const KvDiscreted* disc) const
+void* KvPlottable1d::draw2d_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
 {
 	assert(disc->isSampled() && disc->dim() == 2);
 
-	unsigned ch(0);
-	kIndex row;
-	auto getter = [&disc, &row, &ch](unsigned i) {
+	// 把objIdx分解到通道号和行号
+	kIndex row = (objIdx / renderObjectsPerBatch_()) % disc->size(0);
+	kIndex ch = objIdx / renderObjectsPerBatch_() / disc->size(0);
+
+	auto getter = [disc, row, ch](unsigned i) {
 		auto n = row * disc->size(1) * disc->channels() + i;
 		return disc->pointAt(n, ch);
 	};
 	
 	// NB: 与draw3d_不同之处在于，每个通道内draw2d_都逐行绘制（可绘制瀑布图）
 	// 而draw3d_将每个通道数据作为一个整体进行绘制（没有行列概念）
-	for (; ch < disc->channels(); ch++) 
-		for (row = 0; row < disc->size(0); row++)
-			drawImpl_(paint, getter, disc->size(1), ch);
+	return drawObjectImpl_(paint, getter, disc->size(1), objIdx);
 }
 
 
-void KvPlottable1d::draw3d_(KvPaint* paint, const KvDiscreted* disc) const
+void* KvPlottable1d::draw3d_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
 {
-	unsigned ch(0);
-	auto getter = [&disc, &ch](unsigned i) {
+	auto ch = objIdx2ChsIdx_(objIdx);
+	auto getter = [disc, ch](unsigned i) {
 		return disc->pointAt(i, ch);
 	};
 
-	for (; ch < disc->channels(); ch++) 
-		drawImpl_(paint, getter, disc->size(), ch);
+	return drawObjectImpl_(paint, getter, disc->size(), objIdx);
 }
 
 
-typename KvPaint::point_getter1 KvPlottable1d::toPointGetter_(GETTER g, unsigned channel) const
+typename KvPaint::point_getter1 KvPlottable1d::toPoint3Getter_(GETTER g, unsigned channel) const
 {
 	if (forceDefaultZ()) {
 		auto z = defaultZ(channel);
@@ -77,4 +84,13 @@ typename KvPaint::point_getter1 KvPlottable1d::toPointGetter_(GETTER g, unsigned
 			return point3(pt[0], pt[1], pt[2]);
 		};
 	}
+}
+
+
+unsigned KvPlottable1d::objIdx2ChsIdx_(unsigned objIdx) const
+{
+	assert(!empty());
+	auto disc = discreted_();
+	auto ch = objIdx / renderObjectsPerBatch_();
+	return (disc->isSampled() && disc->dim() == 2) ? ch / disc->size(0) : ch;
 }

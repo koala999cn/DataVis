@@ -493,7 +493,7 @@ void* KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
 }
 
 
-void KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned count)
+void* KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned count)
 {
 	// ¹¹Ôìvbo
 
@@ -550,6 +550,8 @@ void KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned co
 	obj->setVBO(vbo, decl);
 	obj->setColor(clr_);
 	pushRenderObject_(obj);
+
+	return obj;
 }
 
 

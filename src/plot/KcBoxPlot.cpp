@@ -4,6 +4,12 @@
 
 
 
+unsigned KcBoxPlot::renderObjectCount_() const
+{
+	return data()->channels();
+}
+
+
 const color4f& KcBoxPlot::minorColor() const
 {
 	return borderPen_.color;
@@ -36,44 +42,65 @@ KcBoxPlot::aabb_t KcBoxPlot::calcBoundingBox_() const
 }
 
 
-void KcBoxPlot::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
+void KcBoxPlot::setRenderState_(KvPaint*, unsigned objIdx) const
 {
-	calcStats_(disc);
+	// do nothing
+}
 
-	for (unsigned i = 0; i < stats_.size(); i++) {
-		auto z = defaultZ(i);
-		auto& s = stats_[i];
-		auto lower = point3{ i - boxWidth_/2, s.q1, z };
-		auto upper = point3{ i + boxWidth_/2, s.q3, z };
 
-		// fill box
-		paint->setColor(majorColor(i));
-		paint->fillRect(lower, upper);
+bool KcBoxPlot::showFill_() const
+{
+	return true;
+}
 
-		// draw the border of box
-		paint->apply(borderPen_);
-		paint->drawRect(lower, upper);
 
-		// draw the median line
-		lower.y() = upper.y() = s.median;
-		paint->apply(medianPen_);
-		paint->drawLine(lower, upper);
+bool KcBoxPlot::showEdge_() const
+{
+	return false;
+}
 
-		// draw the whisker lines
-		paint->apply(whisPen_);
-		paint->drawLine(point3{ i, s.q1, z }, point3{ i, s.lower, z });
-		paint->drawLine(point3{ i, s.q3, z }, point3{ i, s.upper, z });
 
-		// draw the whisker bars
-		paint->apply(whisBarPen_);
-		paint->drawLine(point3{ i - whisBarWidth_/2, s.lower, z }, point3{ i + whisBarWidth_/2, s.lower, z });
-		paint->drawLine(point3{ i - whisBarWidth_/2, s.upper, z }, point3{ i + whisBarWidth_/2, s.upper, z });
+void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
+{
+	if (dataChanged() && objIdx == 0) // 只计算一次
+	    calcStats_(disc);
 
-		// draw the outliers
-		paint->apply(outlierMarker_);
-		for (auto& y : s.outliers)
-			paint->drawMarker(point3{ i, y, z }, outlierMarker_.showOutline);
-	}
+	assert(objIdx < stats_.size());
+
+	auto z = defaultZ(objIdx);
+	auto& s = stats_[objIdx];
+	auto lower = point3{ objIdx - boxWidth_/2, s.q1, z };
+	auto upper = point3{ objIdx + boxWidth_/2, s.q3, z };
+
+	// fill box
+	paint->setColor(majorColor(objIdx));
+	paint->fillRect(lower, upper);
+
+	// draw the border of box
+	paint->apply(borderPen_);
+	paint->drawRect(lower, upper);
+
+	// draw the median line
+	lower.y() = upper.y() = s.median;
+	paint->apply(medianPen_);
+	paint->drawLine(lower, upper);
+
+	// draw the whisker lines
+	paint->apply(whisPen_);
+	paint->drawLine(point3{ objIdx, s.q1, z }, point3{ objIdx, s.lower, z });
+	paint->drawLine(point3{ objIdx, s.q3, z }, point3{ objIdx, s.upper, z });
+
+	// draw the whisker bars
+	paint->apply(whisBarPen_);
+	paint->drawLine(point3{ objIdx - whisBarWidth_/2, s.lower, z }, point3{ objIdx + whisBarWidth_/2, s.lower, z });
+	paint->drawLine(point3{ objIdx - whisBarWidth_/2, s.upper, z }, point3{ objIdx + whisBarWidth_/2, s.upper, z });
+
+	// draw the outliers
+	paint->apply(outlierMarker_);
+	for (auto& y : s.outliers)
+		paint->drawMarker(point3{ objIdx, y, z }, outlierMarker_.showOutline);
+
+	return nullptr; // 无重用
 }
 
 

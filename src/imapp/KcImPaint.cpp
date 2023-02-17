@@ -366,7 +366,7 @@ void KcImPaint::fillConvexPoly(point_getter1 fn, unsigned count)
 
 
 // 基于imgui的优化实现
-void KcImPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned count)
+void* KcImPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned count)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	int vxt_count = count * 2 + count - 1; // 最多可能有count-1个交点
@@ -425,6 +425,8 @@ void KcImPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned count
 	}
 
 	drawList->PrimUnreserve(0, noninters);
+
+	return nullptr; // 不可复用
 }
 
 #if 0

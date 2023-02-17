@@ -35,7 +35,14 @@ public:
 	color4f& textColor() { return clrText_; }
 
 protected:
-	virtual void drawImpl_(KvPaint*, GETTER, unsigned count, unsigned channels) const final;
+
+	bool showFill_() const final;
+
+	bool showEdge_() const final;
+
+	void setRenderState_(KvPaint*, unsigned objIdx) const final;
+
+	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const final;
 
 	float mapValueToSize_(float_t val) const;
 

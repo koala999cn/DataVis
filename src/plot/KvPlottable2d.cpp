@@ -17,35 +17,46 @@ void KvPlottable2d::setMinorColor_(const color4f& minor)
 }
 
 
-void KvPlottable2d::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
+unsigned KvPlottable2d::renderObjectCount_() const
+{
+	return data()->channels();
+}
+
+
+void KvPlottable2d::setRenderState_(KvPaint* paint, unsigned objIdx) const
+{
+	if (showEdge_())
+		paint->apply(borderPen());
+}
+
+
+bool KvPlottable2d::showFill_() const
+{
+	return filled_;
+}
+
+
+bool KvPlottable2d::showEdge_() const
+{
+	return showBorder() && borderPen().visible();
+}
+
+
+void* KvPlottable2d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
 {
 	auto samp = dynamic_cast<const KvSampled*>(disc);
 	assert(samp && samp->dim() >= 2);
 
-	unsigned ch(0);
-	auto getter = [&samp, &ch](unsigned ix, unsigned iy) {
-		return samp->point(ix, iy, ch);
+	auto getter = [&samp, objIdx](unsigned ix, unsigned iy) {
+		return samp->point(ix, iy, objIdx);
 	};
 
-	for (; ch < samp->channels(); ch++)
-		drawImpl_(paint, getter, samp->size(0), samp->size(1), ch);
+	return drawImpl_(paint, getter, samp->size(0), samp->size(1), objIdx);
 }
 
 
-void KvPlottable2d::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned ny, unsigned ch) const
+void* KvPlottable2d::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned ny, unsigned ch) const
 {
-	bool showEdge = showBorder() && borderPen().visible();
-	if (showEdge)
-		paint->apply(borderPen());
-
-	if (renderObj_.size() < ch + 1)
-		renderObj_.resize(ch + 1, nullptr);
-
-	if (!dataChanged() && !coloringChanged()) { 
-		if (renderObj_[ch] = paint->redraw(renderObj_[ch], showFill_, showEdge))
-			return;
-	}
-
 	struct KpVtxBuffer_
 	{
 		point3f pos;
@@ -69,5 +80,5 @@ void KvPlottable2d::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsign
 	auto idxBuf = geom->newIndex(idxCount);
 	KuPrimitiveFactory::indexGrid<unsigned>(nx, ny, idxBuf);
 
-	renderObj_[ch] = paint->drawGeomColor(geom, showFill_, showEdge);
+	return paint->drawGeomColor(geom, showFill_(), showEdge_());
 }

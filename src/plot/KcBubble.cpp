@@ -19,12 +19,29 @@ float KcBubble::mapValueToSize_(float_t val) const
 }
 
 
-void KcBubble::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned ch) const
+bool KcBubble::showFill_() const
+{
+	return true;
+}
+
+
+bool KcBubble::showEdge_() const
+{
+	return false;
+}
+
+
+void KcBubble::setRenderState_(KvPaint* paint, unsigned objIdx) const
 {
 	paint->setMarkerType(KpMarker::k_circle);
+}
 
+
+void* KcBubble::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned objIdx) const
+{
 	bool realShowText = showText_ && clrText_.a() != 0;
 
+	auto ch = objIdx2ChsIdx_(objIdx);
 	for (unsigned i = 0; i < count; i++) {
 		auto pt = getter(i);
 		auto val = pt[data()->dim()]; // TODO: 尺寸插值的数据维度可配置
@@ -40,6 +57,8 @@ void KcBubble::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned
 				KeAlignment::k_vcenter | KeAlignment::k_hcenter);
 		}
 	}
+
+	return nullptr;
 }
 
 

@@ -2,24 +2,32 @@
 #include "plot/KvPaint.h"
 
 
-void KcScatter::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned ch) const
+void KcScatter::setRenderState_(KvPaint* paint, unsigned objIdx) const
 {
-	auto clr = majorColor(ch);
-
-	if (showLine_ && lineCxt_.visible()) {
+	if (objIdx & 1) { // line
 		paint->apply(lineCxt_);
-		paint->setColor(clr);
-		paint->drawLineStrip(toPointGetter_(getter, ch), count);
+	}
+	else { // marker
+		paint->apply(marker_);
 	}
 
-	marker_.fill = clr;
-	paint->apply(marker_);
-	
+	paint->setColor(majorColor(objIdx / 2));
+}
+
+
+void* KcScatter::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned objIdx) const
+{
+	auto ch = objIdx / 2;
+
+	if (objIdx & 1) 
+		return showLine_ && lineCxt_.visible() ? 
+			paint->drawLineStrip(toPoint3Getter_(getter, ch), count) : nullptr;
+
 	bool outline = marker_.showOutline && marker_.hasOutline()
 		&& marker_.outline != marker_.fill && marker_.outline.a() > 0;
 
 	if (coloringMode() == k_one_color_solid) {
-		paint->drawMarkers(toPointGetter_(getter, ch), count, outline);
+		return paint->drawMarkers(toPoint3Getter_(getter, ch), count, outline);
 	}
 	else { // Öğ¸ömarker»æÖÆ
 		for (unsigned i = 0; i < count; i++) {
@@ -28,6 +36,8 @@ void KcScatter::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigne
 			paint->drawMarker({ val[0], val[1], val[2] }, outline);
 		}
 	}
+
+	return nullptr;
 }
 
 

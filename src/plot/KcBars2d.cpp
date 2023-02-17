@@ -14,13 +14,33 @@ KcBars2d::KcBars2d(const std::string_view& name)
 }
 
 
-void KcBars2d::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
+unsigned KcBars2d::renderObjectCount_() const
 {
-	bool realShowFill = showFill() && fillBrush().visible();
-	bool realShowEdge = showBorder() && borderPen().visible();
-	if (!realShowFill && !realShowEdge)
-		return;
+	return 1;
+}
 
+
+void KcBars2d::setRenderState_(KvPaint* paint, unsigned objIdx) const
+{
+	if (showEdge_())
+		paint->apply(borderPen());
+}
+
+
+bool KcBars2d::showFill_() const
+{
+	return showFill() && fillBrush().visible();
+}
+
+
+bool KcBars2d::showEdge_() const
+{
+	return showBorder() && borderPen().visible();
+}
+
+
+void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
+{
 	auto barWidth = barWidth_(); // 目前返回dx（世界坐标）
 	auto clusterWidth = barWidth * barWidthRatio_; // 每簇所占的宽度（世界坐标）
 	auto easy = easyGetter_();
@@ -81,10 +101,7 @@ void KcBars2d::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
 		}
 	}
 
-	if (realShowEdge)
-		paint->apply(borderPen());
-
-	paint->drawGeomColor(geom, realShowFill, realShowEdge);
+	return paint->drawGeomColor(geom, showFill_(), showEdge_());
 }
 
 
@@ -277,7 +294,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 			else {
 				assert(samp->dim() > 2);
 				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
-					kIndex idxes[3] = { idx, stack, group };
+					kIndex idxes[3] = { kIndex(idx), kIndex(stack), kIndex(group) };
 					return samp->point(idxes, 0);
 				};
 			}
@@ -293,7 +310,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 			else {
 				assert(samp->dim() > 2);
 				getter.getter = [samp](unsigned idx, unsigned group, unsigned stack) {
-					kIndex idxes[3] = { idx, group, stack };
+					kIndex idxes[3] = { kIndex(idx), kIndex(group), kIndex(stack) };
 					return samp->point(idxes, 0);
 				};
 			}

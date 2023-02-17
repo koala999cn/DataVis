@@ -19,7 +19,15 @@ public:
 
 private:
 
-	void drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned c) const final;
+	unsigned renderObjectCount_() const override;
+
+	void setRenderState_(KvPaint*, unsigned objIdx) const override;
+
+	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const final;
+
+	void* drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned c) const final;
+
+	void* drawText_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned c) const;
 
 	aabb_t calcBoundingBox_() const override;
 

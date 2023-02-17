@@ -7,6 +7,7 @@
 
 class KvData;
 class KvDiscreted;
+class KvPaint;
 
 //
 // 可绘制对象的基类. 内置实现以下功能：
@@ -147,6 +148,37 @@ public:
 
 	int coloringChanged() const { return coloringChanged_; }
 
+
+protected:
+
+	//////////////////////////////////////////////////////////////////////
+
+	// VBO复用接口
+
+	// 返回plt包含的渲染对象数量
+	virtual unsigned renderObjectCount_() const = 0;
+
+	// 设置第objIdx个渲染对象的渲染状态
+	virtual void setRenderState_(KvPaint*, unsigned objIdx) const = 0;
+
+	// 第objIdx个渲染对象是否可重用
+	virtual bool reusable(unsigned objIdx) const {
+		return !dataChanged_ && (coloringChanged_ == 0 ||
+				            (coloringChanged_ == 1 && coloringMode_ == k_one_color_solid)); // 单色模式下，亦可复用vbo;
+	}
+
+	// 绘制第objIdx个渲染对象，并返回可复用的对象id
+	virtual void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const = 0;
+
+	virtual bool showFill_() const = 0;
+
+	virtual bool showEdge_() const = 0;
+
+	mutable std::vector<void*> renderObjs_; // KvPaint返回的渲染对象id，用于vbo重用
+
+	//////////////////////////////////////////////////////////////////////
+
+
 protected:
 
 	// 确保传入的valp为数据原值，而非强制替换z之后的值
@@ -166,8 +198,6 @@ protected:
 	point3 toPoint_(float_t* valp, unsigned ch) const {
 		return { valp[0], valp[1], forceDefaultZ() ? defaultZ(ch) : valp[2] };
 	}
-
-	virtual void drawDiscreted_(KvPaint*, const KvDiscreted*) const = 0;
 
 	virtual aabb_t calcBoundingBox_() const;
 
@@ -207,5 +237,5 @@ private:
 	mutable bool dataChanged_{ false };
 	mutable int coloringChanged_{ 0 }; // 0表示无变化，1表示小变化(colorful之间的变化)，2表示大变化(solid <-> colorful)
 
-	mutable aabb_t box_; // 缓存的aabb，在渲染大数据量时极大提高效率（autofit情况下啊）
+	mutable aabb_t box_; // 缓存的aabb，在渲染大数据量时极大提高效率（autofit情况下）
 };

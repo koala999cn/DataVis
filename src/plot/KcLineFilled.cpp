@@ -6,7 +6,31 @@
 #include <assert.h>
 
 
-void KcLineFilled::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned ch) const
+bool KcLineFilled::showFill_() const 
+{ 
+	return fillCxt_.style != KpBrush::k_none;
+}
+
+
+bool KcLineFilled::showEdge_() const 
+{ 
+	return showLine_ && lineCxt_.visible();
+}
+
+
+void KcLineFilled::setRenderState_(KvPaint* paint, unsigned objIdx) const
+{
+	if (objIdx & 1) { // edge状态设置
+		paint->apply(lineCxt_);
+	}
+	else if (coloringMode() == k_one_color_solid) { // fill状态设置
+		paint->apply(fillCxt_);
+		paint->setColor(majorColor(objIdx2ChsIdx_(objIdx)));
+	}
+}
+
+
+void* KcLineFilled::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned objIdx) const
 {
 	unsigned stride = count / 4096 + 1;
 	auto downsamp = [getter, stride](unsigned idx) { // TODO：使用降采样算法
@@ -16,27 +40,28 @@ void KcLineFilled::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsi
 	if (count > 4096)
 		getter = downsamp, count /= stride;
 
-	auto getter2 = [getter](unsigned i) {
-		auto pt = getter(i);
-		pt[1] = 0; // TODO: 暂时取y=0基线
-		return pt;
-	};
+	auto ch = objIdx2ChsIdx_(objIdx);
 
-	if (fillCxt_.style != KpBrush::k_none) {
+	if (objIdx & 1) {
+		return showEdge_() ? paint->drawLineStrip(toPoint3Getter_(getter, ch), count) : nullptr;
+	}
+	else if (showFill_()) {
+
+		auto getter2 = [getter](unsigned i) {
+			auto pt = getter(i);
+			pt[1] = 0; // TODO: 暂时取y=0基线
+			return pt;
+		};
+
 		if (coloringMode() == k_one_color_solid) {
-			fillCxt_.color = majorColor(ch);
-			paint->apply(fillCxt_);
-			paint->fillBetween(toPointGetter_(getter, ch), toPointGetter_(getter2, ch), count);
+			return paint->fillBetween(toPoint3Getter_(getter, ch), toPoint3Getter_(getter2, ch), count);
 		}
 		else {
-			fillGradiant_(paint, getter, getter2, count, ch);
+			return fillGradiant_(paint, getter, getter2, count, ch);
 		}
 	}
 
-	if (showLine_ && lineCxt_.visible()) {
-		paint->apply(lineCxt_);
-		paint->drawLineStrip(toPointGetter_(getter, ch), count);
-	}
+	return nullptr;
 }
 
 
@@ -52,7 +77,7 @@ void KcLineFilled::setMinorColor_(const color4f& minor)
 }
 
 
-void KcLineFilled::fillGradiant_(KvPaint* paint, GETTER getter1, GETTER getter2, unsigned count, unsigned ch) const
+void* KcLineFilled::fillGradiant_(KvPaint* paint, GETTER getter1, GETTER getter2, unsigned count, unsigned ch) const
 {
 	assert(count > 0);
 
@@ -115,5 +140,5 @@ void KcLineFilled::fillGradiant_(KvPaint* paint, GETTER getter1, GETTER getter2,
 		vtx += 6;
 	}
 
-	paint->drawGeomColor(geom, true, false);
+	return paint->drawGeomColor(geom, true, false);
 }

@@ -5,22 +5,16 @@
 #include <assert.h>
 
 
-void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned ch) const
+void KcGraph::setRenderState_(KvPaint* paint, unsigned objIdx) const
 {
 	paint->apply(lineCxt_);
-	if (coloringMode() != k_colorbar_gradiant)
-		paint->setColor(majorColor(ch));
-	
-	if (renderObj_.size() < ch + 1)
-		renderObj_.resize(ch + 1, nullptr);
+	if (coloringMode() == k_one_color_solid)
+		paint->setColor(majorColor(objIdx2ChsIdx_(objIdx)));
+}
 
-	if (!dataChanged() && 
-		(!coloringChanged() || 
-			(coloringMode() == k_one_color_solid && coloringChanged() == 1))) { // 单色模式下，亦可复用vbo
-		if (renderObj_[ch] = paint->redraw(renderObj_[ch], true, false))
-			return;
-	}
 
+void* KcGraph::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned objIdx) const
+{
 	unsigned stride = count / 4096 + 1;
 	auto downsamp = [getter, stride](unsigned idx) { // TODO：使用降采样算法
 		return getter(stride * idx);
@@ -29,10 +23,9 @@ void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned 
 	if (count > 4096)
 		getter = downsamp, count /= stride;
 
-	if (coloringMode() == k_one_color_solid) {
-		renderObj_[ch] = paint->drawLineStrip(toPointGetter_(getter, ch), count); // toPointGetter_按需完成z值替换
-		return;
-	}
+	auto ch = objIdx2ChsIdx_(objIdx);
+	if (coloringMode() == k_one_color_solid) 
+		return paint->drawLineStrip(toPoint3Getter_(getter, ch), count); // toPoint3Getter_按需完成z值替换
 
 	// 构建带color的vbo
 	struct Vertex_ {
@@ -49,7 +42,7 @@ void KcGraph::drawImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned 
 		vtx++;
 	}
 
-	renderObj_[ch] = paint->drawGeomColor(geom, true, false);
+	return paint->drawGeomColor(geom, showFill_(), showEdge_());
 }
 
 

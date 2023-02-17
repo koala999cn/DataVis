@@ -28,7 +28,15 @@ public:
 
 private:
 
-	void drawImpl_(KvPaint*, GETTER, unsigned, unsigned) const override;
+	unsigned renderObjectsPerBatch_() const override { return 2; } // marker + line
+
+	void setRenderState_(KvPaint*, unsigned objIdx) const override;
+
+	bool showFill_() const override { return true; }
+
+	bool showEdge_() const override { return false; }
+
+	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const override;
 
 protected:
 	bool showLine_{ false };

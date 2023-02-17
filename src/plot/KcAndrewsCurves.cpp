@@ -1,4 +1,5 @@
 #include "KcAndrewsCurves.h"
+#include "KvPaint.h"
 #include "KvDiscreted.h"
 #include "KtSampling.h"
 #include "KcSampled1d.h"
@@ -26,6 +27,11 @@ unsigned KcAndrewsCurves::majorColorsNeeded() const
 	return majors;
 }
 
+
+unsigned KcAndrewsCurves::renderObjectCount_() const
+{
+	return discreted_()->size(0);
+}
 
 namespace kPrivate
 {
@@ -93,20 +99,20 @@ namespace kPrivate
 }
 
 
-void KcAndrewsCurves::drawDiscreted_(KvPaint* paint, const KvDiscreted* disc) const
+void* KcAndrewsCurves::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
 {
-	if (dataChanged())
+	if (dataChanged() && objIdx == 0)
 		const_cast<KcAndrewsCurves*>(this)->genCurves_();
 
-	unsigned ch(0);
+	assert(objIdx < curves_->channels());
+
 	auto samp1d = dynamic_cast<KcSampled1d*>(curves_.get());
-	auto getter = [samp1d, &ch, this](unsigned idx) -> std::vector<float_t> {
-		auto pt = samp1d->pointAt(idx, ch);
-		return { pt[0], pt[1], defaultZ(ch) };
+	auto getter = [samp1d, objIdx, this](unsigned idx) -> std::vector<float_t> {
+		auto pt = samp1d->pointAt(idx, objIdx);
+		return { pt[0], pt[1], defaultZ(objIdx) };
 	};
 
-	for (; ch < samp1d->channels(); ch++)
-		drawImpl_(paint, getter, samp1d->size(), ch);
+	return super_::drawObjectImpl_(paint, getter, samp1d->size(), objIdx);
 }
 
 

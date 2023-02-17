@@ -25,9 +25,17 @@ public:
 
 private:
 
-	void drawImpl_(KvPaint*, GETTER, unsigned, unsigned) const final;
+	unsigned renderObjectsPerBatch_() const final { return 2; } // fill和edge分别有1个渲染对象
 
-	void fillGradiant_(KvPaint*, GETTER, GETTER, unsigned, unsigned) const;
+	bool showFill_() const final;
+
+	bool showEdge_() const final;
+
+	void setRenderState_(KvPaint*, unsigned objIdx) const final;
+
+	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const final;
+
+	void* fillGradiant_(KvPaint*, GETTER, GETTER, unsigned, unsigned) const;
 
 private:
 	bool showLine_{ false };

@@ -19,26 +19,33 @@ public:
 
 	void setMinorColor_(const color4f& minor) override;
 
-	bool showFill() const { return showFill_; }
-	bool& showFill() { return showFill_; }
+	bool showFill() const { return filled_; }
+	bool& showFill() { return filled_; }
 
-	bool showBorder() const { return showBorder_; }
-	bool& showBorder() { return showBorder_; }
+	bool showBorder() const { return edged_; }
+	bool& showBorder() { return edged_; }
 
 	const KpPen& borderPen() const { return borderPen_; }
 	KpPen& borderPen() { return borderPen_; }
 
 protected:
 
-	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
+	unsigned renderObjectCount_() const override;
+
+	void setRenderState_(KvPaint*, unsigned objIdx) const override;
+
+	bool showFill_() const override;
+
+	bool showEdge_() const override;
+
+	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix, unsigned iy)>;
 
-	virtual void drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned ch) const;
+	virtual void* drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned ch) const;
 
 private:
-	bool showFill_{ true };
-	bool showBorder_{ false };
+	bool filled_{ true };
+	bool edged_{ false };
 	KpPen borderPen_;
-	mutable std::vector<void*> renderObj_;
 };

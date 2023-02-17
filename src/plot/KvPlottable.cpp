@@ -108,6 +108,14 @@ void KvPlottable::draw(KvPaint* paint) const
 	if (empty())
 		return;
 
+	bool realShowFill = showFill_();
+	bool realShowEdge = showEdge_();
+
+	// NB: 原方案考虑不可见时也执行绘制命令，主要为保持paint中的vbo对象（一次不调用，paint将清空该vbo）
+	// 但对于动态数据而言，这样会拖累整体绘制效率，因此还是return
+	if (!realShowFill && !realShowEdge)
+		return;
+
 	auto disc = discreted_();
 	if (disc == nullptr || disc->empty())
 		return;
@@ -119,12 +127,20 @@ void KvPlottable::draw(KvPaint* paint) const
 	// TODO: 是否有更优化的方案
 	const_cast<KvPlottable*>(this)->updateColorMappingPalette();
 
-	// TODO: 更精细的控制。coloringChanged_范围太大，其实只有在dimMapping变化是才须重新计算。
+	// TODO: 更精细的控制。coloringChanged_范围太大，其实只有在dimMapping变化时才须重新计算。
 	if (autoColorMappingRange_ && (dataChanged_ || coloringChanged_))
 		const_cast<KvPlottable*>(this)->fitColorMappingRange();
 
 	paint->enableFlatShading(flatShading());
-	drawDiscreted_(paint, disc.get());
+
+	if (renderObjs_.size() < renderObjectCount_())
+		renderObjs_.resize(renderObjectCount_(), nullptr);
+
+	for (unsigned i = 0; i < renderObjs_.size(); i++) {
+		setRenderState_(paint, i);
+		if (!reusable(i) || !(renderObjs_[i] = paint->redraw(renderObjs_[i], realShowFill, realShowEdge)))
+			renderObjs_[i] = drawObject_(paint, i, disc.get());
+	}
 
 	dataChanged_ = false;
 	coloringChanged_ = 0;

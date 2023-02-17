@@ -124,7 +124,7 @@ public:
 
 	virtual void fillConvexPoly(point_getter1 fn, unsigned count) = 0;
 
-	virtual void fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) = 0;
+	virtual void* fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) = 0;
 
 	// 实现文本在三维平面的绘制
 	// @topLeft: 文本框的左上点位置

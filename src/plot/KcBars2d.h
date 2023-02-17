@@ -21,11 +21,11 @@ public:
 
 	void setMinorColor_(const color4f& minor) override;
 
-	bool showFill() const { return showFill_; }
-	bool& showFill() { return showFill_; }
+	bool showFill() const { return filled_; }
+	bool& showFill() { return filled_; }
 
-	bool showBorder() const { return showBorder_; }
-	bool& showBorder() { return showBorder_; }
+	bool showBorder() const { return edged_; }
+	bool& showBorder() { return edged_; }
 
 	// bar的宽度设置，取值[0, 1]
 	// 若取1，则bars之间无空隙；若取0.5，则bar的宽度与bars之间的空隙相同。
@@ -53,7 +53,15 @@ public:
 
 protected:
 
-	void drawDiscreted_(KvPaint*, const KvDiscreted*) const override;
+	unsigned renderObjectCount_() const override;
+
+	void setRenderState_(KvPaint*, unsigned objIdx) const override;
+
+	bool showFill_() const override;
+
+	bool showEdge_() const override;
+
+	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
 
 	aabb_t calcBoundingBox_() const override;
 
@@ -82,7 +90,7 @@ private:
 	mutable KpBrush fill_;
 	float barWidthRatio_{ 0.75f }; // barWidth = barWidthRatio_ * dx
 	float baseLine_{ 0 }; // bar的底线，各bar的高度 = baseLine_ + y
-	bool showBorder_{ true }, showFill_{ true };
+	bool edged_{ true }, filled_{ true };
 	KpPen border_;
 	bool stackedFirst_{ false }; // stacked优先还是grouped优先
 

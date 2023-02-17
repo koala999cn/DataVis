@@ -55,7 +55,7 @@ public:
 
 	void* drawGeom(vtx_decl_ptr decl, geom_ptr geom, bool fill, bool showEdge) override;
 
-	void fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
+	void* fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
 
 	void grab(int x, int y, int width, int height, void* data) override;
 

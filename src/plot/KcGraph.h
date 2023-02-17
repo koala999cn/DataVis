@@ -21,10 +21,15 @@ public:
 
 protected:
 
-	void drawImpl_(KvPaint*, GETTER, unsigned, unsigned) const final;
+	bool showFill_() const final { return true; }
+
+	bool showEdge_() const final { return false; }
+
+	void setRenderState_(KvPaint*, unsigned objIdx) const final;
+
+	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const final;
 
 private:
-	mutable KpPen lineCxt_;
+	KpPen lineCxt_;
 	color4f clrMinor_{ 0, 0, 0, 1 }; // 辅色，用于绘制渐变线条
-	mutable std::vector<void*> renderObj_;
 };
