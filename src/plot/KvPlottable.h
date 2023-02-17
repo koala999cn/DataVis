@@ -148,6 +148,7 @@ public:
 
 	int coloringChanged() const { return coloringChanged_; }
 
+	bool reusing() const { return reusing_; }
 
 protected:
 
@@ -175,6 +176,7 @@ protected:
 	virtual bool showEdge_() const = 0;
 
 	mutable std::vector<void*> renderObjs_; // KvPaint返回的渲染对象id，用于vbo重用
+	mutable bool reusing_{ false }; // 是否正在复用vbo, for debug
 
 	//////////////////////////////////////////////////////////////////////
 

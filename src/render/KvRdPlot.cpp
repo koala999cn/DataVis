@@ -583,7 +583,7 @@ void KvRdPlot::showPlaneProperty_(KcCoordPlane& plane)
 		"Y-Z Left",
 		"Y-Z Right",
 		"X-Z Ceil",
-		"X- Z Floor"
+		"X-Z Floor"
 	};
 
 	bool open = false;
@@ -766,6 +766,11 @@ void KvRdPlot::showPlottableProperty_()
 			showPlottableColoringProperty_(idx);
 			showPlottableDefaultZProperty_(idx);
 			showPlottableSpecificProperty_(idx);
+
+			// for debug
+			bool reusing = plot_->plottableAt(idx)->reusing();
+			ImGui::Checkbox("Reusing VBO", &reusing);
+
 			ImGuiX::cbiTreePop();
 		}
 

@@ -138,7 +138,8 @@ void KvPlottable::draw(KvPaint* paint) const
 
 	for (unsigned i = 0; i < renderObjs_.size(); i++) {
 		setRenderState_(paint, i);
-		if (!reusable(i) || !(renderObjs_[i] = paint->redraw(renderObjs_[i], realShowFill, realShowEdge)))
+		reusing_ = reusable(i) && (renderObjs_[i] = paint->redraw(renderObjs_[i], realShowFill, realShowEdge));
+		if (!reusing_) 
 			renderObjs_[i] = drawObject_(paint, i, disc.get());
 	}
 

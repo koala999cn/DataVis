@@ -5,6 +5,12 @@
 #include <assert.h>
 
 
+bool KcGraph::showEdge_() const
+{
+	return lineCxt_.style != KpPen::k_none;
+}
+
+
 void KcGraph::setRenderState_(KvPaint* paint, unsigned objIdx) const
 {
 	paint->apply(lineCxt_);

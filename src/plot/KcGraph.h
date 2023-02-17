@@ -21,9 +21,9 @@ public:
 
 protected:
 
-	bool showFill_() const final { return true; }
+	bool showFill_() const final { return false; }
 
-	bool showEdge_() const final { return false; }
+	bool showEdge_() const final;
 
 	void setRenderState_(KvPaint*, unsigned objIdx) const final;
 
