@@ -44,7 +44,7 @@
 - [x] 密度图（参考ggplot2的geom_density）-> 实现operator KDE
 - [ ] 色带编辑器美化（参考https://github.com/CoolLibs/imgui_gradient & https://github.com/effekseer/ImGradientHDR）
 - [ ] plot的autorange由KvRdPlot负责，根据provider调整，而非data
-- [ ] paddingStacked的语义一致性
+- [x] paddingStacked的语义一致性
 - [ ] text支持vbo重用
 
 

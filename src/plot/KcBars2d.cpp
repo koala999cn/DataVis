@@ -119,6 +119,7 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* 
 				auto top = bottom + pt[ydim];
 				auto left = pt[xdim] - clusterWidth / 2 + g * (stackWidth + groupPadding);
 				auto right = left + stackWidth;
+				auto paddedBottom = bottom + stackPadding * KuMath::sign(bottom - baseLine_);
 
 				// 第一个顶点取right-top，这样可保证最后一个顶点为left-top（quad各顶点按顺时针排列）
 				// 如此确保在flat模式下显示left-top顶点的颜色（保证按y轴插值时的正确性）
@@ -126,11 +127,11 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* 
 				pt[0] = right, pt[1] = top;
 				vtx[0].clr = mapValueToColor_(pt.data(), ch);
 
-				vtx[1].pos = point3f(right, bottom + stackPadding, pt[2]);
+				vtx[1].pos = point3f(right, paddedBottom, pt[2]);
 				pt[1] = bottom;
 				vtx[1].clr = mapValueToColor_(pt.data(), ch);
 
-				vtx[2].pos = point3f(left, bottom + stackPadding, pt[2]);
+				vtx[2].pos = point3f(left, paddedBottom, pt[2]);
 				pt[0] = left;
 				vtx[2].clr = mapValueToColor_(pt.data(), ch);
 
