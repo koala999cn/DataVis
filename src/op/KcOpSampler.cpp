@@ -23,42 +23,50 @@ int KcOpSampler::spec(kIndex outPort) const
 
 kRange KcOpSampler::range(kIndex outPort, kIndex axis) const
 {
-    if (odata_.front())
-        return odata_.front()->range(axis);
-
-    if (inputs_.front() == nullptr)
+    if (inputs_.front() == nullptr || axis == dim(outPort))
         return super_::range(outPort, axis); 
 
     auto prov = std::dynamic_pointer_cast<KvDataProvider>(inputs_.front()->parent().lock());
-    if (prov && prov->isContinued(inputs_.front()->index()))
-        return super_::range(outPort, axis); // 对于连续数据，range一致
-
-    KtSampling<kReal> samp;
-    samp.resetn(super_::size(outPort, axis), super_::range(outPort, axis).low(), 0);
-    return { samp.low(), samp.high() };
+    if (prov->isContinued(inputs_.front()->index())) {
+        return super_::range(outPort, axis); // 连续数据保持range恒定
+    }
+    else {
+        KtSampling<kReal> samp;
+        samp.resetn(super_::size(outPort, axis), 1. / sampCount_[axis], 0);
+        return { samp.low(), samp.high() }; // 离散数据推导range
+    }
 }
 
 kReal KcOpSampler::step(kIndex outPort, kIndex axis) const
 {
-    if (inputs_.front()) {
-        auto prov = std::dynamic_pointer_cast<KvDataProvider>(inputs_.front()->parent().lock());
-        if (!prov->isContinued(inputs_.front()->index()))
-            return 1. / sampCount_[axis];
-    }
+    if (inputs_.front() == nullptr)
+        return super_::step(outPort, axis);
 
-    return super_::step(outPort, axis);
+    auto prov = std::dynamic_pointer_cast<KvDataProvider>(inputs_.front()->parent().lock());
+    if (!prov->isContinued(inputs_.front()->index())) {
+        return 1. / sampCount_[axis]; // 离散数据使用设定的step
+    }
+    else {
+        KtSampling<kReal> samp;
+        auto r = super_::range(outPort, axis);
+        samp.resetn(sampCount_[axis], r.low(), r.high(), 0);
+        return samp.dx(); // 连续数据推导step
+    }
 }
 
 
 kIndex KcOpSampler::size(kIndex outPort, kIndex axis) const
 {
-    if (inputs_.front()) {
-        auto prov = std::dynamic_pointer_cast<KvDataProvider>(inputs_.front()->parent().lock());
-        if (prov->isContinued(inputs_.front()->index()))
-            return sampCount_[axis];
-    }
+    if (inputs_.front() == nullptr)
+        return super_::size(outPort, axis);
 
-    return super_::size(outPort, axis);
+    auto prov = std::dynamic_pointer_cast<KvDataProvider>(inputs_.front()->parent().lock());
+    if (prov->isContinued(inputs_.front()->index())) {
+        return sampCount_[axis]; // 连续数据使用设定的size
+    }
+    else {
+        return super_::size(outPort, axis); // 离散数据保持size恒定
+    }
 }
 
 
