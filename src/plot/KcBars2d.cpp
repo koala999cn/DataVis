@@ -97,7 +97,9 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* 
 	}
 
 	auto groupPadding = paddingGrouped * barWidth;
-	auto stackPadding = paddingStacked_ * barWidth;
+
+	// TODO: 此处不能相对于barWidth，因为stackPadding是y轴的尺度，barWidth是x轴的尺度
+	auto stackPadding = paddingStacked_ * barWidth; 
 
 	struct KpVtxBuffer_
 	{

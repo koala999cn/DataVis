@@ -46,6 +46,8 @@
 - [ ] plot的autorange由KvRdPlot负责，根据provider调整，而非data
 - [x] paddingStacked的语义一致性
 - [ ] text支持vbo重用
+- [ ] 完善clip的rect修订，legend的border的有的边会被非正常剪切
+- [ ] 完善bars2d的padding设置（是否使用像素值？）
 
 
 ## theme
