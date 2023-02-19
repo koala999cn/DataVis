@@ -11,8 +11,8 @@ int KvPvExcitor::spec(kIndex outPort) const
 	sp.dim = 1;
 	sp.channels = 1;
 	sp.type = k_array;
-	sp.stream = true;
-	sp.dynamic = true;
+	sp.stream = !static_;
+	sp.dynamic = !static_;
 
 	return sp.spec;
 }
@@ -61,6 +61,8 @@ bool KvPvExcitor::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNo
 	data->resize(size(0, 0), 1);
 	data_ = data;
 
+	dataStamp_ = currentFrameIndex_();
+	setOutputExpired_();
 	return true;
 }
 
@@ -76,12 +78,17 @@ void KvPvExcitor::output()
 {
 	assert(excitor_ && data_);
 
-	auto samp = std::dynamic_pointer_cast<KcSampled1d>(data_);
-	assert(samp);
-	samp->resize(ticksPerFrame_);
-	kReal* buf = samp->data();
-	for (int i = 0; i < ticksPerFrame_; i++)
-		*buf++ = excitor_->tick();
+	if (!static_ || outputExpired_) {
+		auto samp = std::dynamic_pointer_cast<KcSampled1d>(data_);
+		assert(samp);
+		samp->resize(ticksPerFrame_);
+		kReal* buf = samp->data();
+		for (int i = 0; i < ticksPerFrame_; i++)
+			*buf++ = excitor_->tick();
+
+		outputExpired_ = false;
+		dataStamp_ = currentFrameIndex_();
+	}
 }
 
 
@@ -94,7 +101,7 @@ std::shared_ptr<KvData> KvPvExcitor::fetchData(kIndex outPort) const
 
 unsigned KvPvExcitor::dataStamp(kIndex outPort) const
 {
-	return currentFrameIndex_();
+	return dataStamp_;
 }
 
 
@@ -108,6 +115,7 @@ void KvPvExcitor::showPropertySet()
 			if (ImGui::Selectable(typeStr_(i), i == type_)) {
 				type_ = i;
 				typeChanged_ = true;
+				setOutputExpired_();
 			}
 		ImGui::EndCombo();
 	}
@@ -115,5 +123,8 @@ void KvPvExcitor::showPropertySet()
 	if (ImGui::DragInt("Ticks Per Frame", &ticksPerFrame_, 1, 1e10)) {
 		if (ticksPerFrame_ < 1)
 			ticksPerFrame_ = 1;
+		setOutputExpired_();
 	}
+
+	ImGui::Checkbox("Static", &static_);
 }

@@ -37,7 +37,7 @@ public:
 
 	void showPropertySet() override;
 
-
+	
 protected:
 
 	virtual unsigned typeCount_() const = 0;
@@ -48,10 +48,17 @@ protected:
 		return excitor_; 
 	}
 
+	void setOutputExpired_() {
+		outputExpired_ = true;
+	}
+
 private:
 	std::shared_ptr<KvData> data_; // 当前帧生成的数据
 	std::shared_ptr<KvExcitor> excitor_;
 	int type_{ 0 }; // excitor的类型
 	int ticksPerFrame_{ 256 }; // 每帧（即每次调用fetchData）产生的脉冲数
 	bool typeChanged_{ false }; // 用于标记excitor类型是否发生变化
+	bool static_{ false }; // 若true，则只在第一帧生成数据
+	bool outputExpired_{ true }; // 仅当static_标记为true时有效
+	unsigned dataStamp_{ 0 };
 };
