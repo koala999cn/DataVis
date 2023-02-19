@@ -44,7 +44,10 @@ public:
 	static std::shared_ptr<KvData> cloneSampled1d(std::shared_ptr<KvData> samp);
 
 	static bool isMatrix(const KvData& d);
+	
+	//static bool sameShape(const KvData& d1, const KvData& d2);
 
+	//static void reshapeAs(KvData& from, const KvData& to);
 
 	// shape与采样参数一致，但无数据
 	// static std::shared_ptr<KvData> emptyLike();

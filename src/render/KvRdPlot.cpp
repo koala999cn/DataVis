@@ -1000,8 +1000,11 @@ namespace kPrivate
 {
 	static bool streamable(const KvSampled& samp1, const KvSampled& samp2)
 	{
+		if (samp1.channels() != samp2.channels())
+			return false;
+
 		for (unsigned i = 0; i < samp1.dim(); i++)
-			if (!KuMath::almostEqual(samp1.step(i), samp2.step(i)))
+			if (samp1.step(i) != samp2.step(i))
 				return false;
 
 		for (unsigned d = 1; d < samp1.dim(); d++)
@@ -1021,9 +1024,9 @@ namespace kPrivate
 			return samp;
 		}
 
-		/// 检测参数规格的一致性，不一致则直接使用newData
+		/// 检测参数规格的一致性，不一致则直接复制newData
 		auto newSamp = std::dynamic_pointer_cast<KvSampled>(newData);
-		assert(samp->dim() == newSamp->dim() && samp->channels() == newSamp->channels()); // TODO: 目前假定维度和通道数是恒定的
+		assert(samp->dim() == newSamp->dim()); // TODO: 目前假定维度恒定的
 		if (!streamable(*samp, *newSamp)) {
 			// NB: 此处不能直接返回newSamp，否则会破坏输入节点的数据缓存
 			return std::make_shared<KtSampledArray<DIM>>(*newSamp);
