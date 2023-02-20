@@ -315,8 +315,6 @@ bool KtAABB<T, DIM>::contains(const point_t& v) const
 {
 	if (isNull())
 		return false;
-	else if (isInf())
-		return true;
 
 	return v.geAll(lower) && v.leAll(upper);
 }
@@ -324,7 +322,7 @@ bool KtAABB<T, DIM>::contains(const point_t& v) const
 template<typename T, int DIM>
 bool KtAABB<T, DIM>::contains(const KtAABB& rhs) const
 {
-	if (isInf() || rhs.isNull())
+	if (rhs.isNull())
 		return true;
 
 	if (isNull())
@@ -338,7 +336,7 @@ KtAABB<T, DIM>& KtAABB<T, DIM>::merge(const point_t& pt)
 {
 	if (isNull()) // if null, use this point
 		setExtents(pt, pt);
-	else if (isFinite()) {
+	else {
 		auto lower = point_t::floor(lower_, pt);
 		auto upper = point_t::ceil(upper_, pt);
 		setExtents(lower, upper);
@@ -351,11 +349,8 @@ template<typename T, int DIM>
 KtAABB<T, DIM>& KtAABB<T, DIM>::merge(const KtAABB& rhs)
 {
 	// Do nothing if rhs null, or this is infinite
-	if (rhs.isNull() || isInf())
+	if (rhs.isNull())
 		return *this;
-	// Otherwise if rhs is infinite, make this infinite, too
-	else if (rhs.isInf())
-		setInf();
 	// Otherwise if current null, just take rhs
 	else if (isNull())
 		*this = rhs;
@@ -374,10 +369,6 @@ KtAABB<T, DIM> KtAABB<T, DIM>::intersection(const KtAABB& rhs) const
 {
 	if (isNull() || rhs.isNull())
 		return KtAABB();
-	else if (isInf())
-		return rhs;
-	else if (rhs.isInf())
-		return *this;
 
 	auto lower = point_t::ceil(lower_, rhs.lower_);
 	auto upper = point_t::floor(upper_, rhs.upper_);
