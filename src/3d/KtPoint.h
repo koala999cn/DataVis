@@ -180,7 +180,20 @@ public:
 	// make THIS normalized
 	KtPoint& normalize() {
 		auto len = length();
+
+		auto minmax = KuMath::argMixMax(data(), size());
+		auto minv = at(minmax.first);
+		auto maxv = at(minmax.second);
+
 		if (len != 0) *this /= len;
+
+		if (isZero()) { // 处理溢出情况
+			if (std::abs(maxv) > std::abs(minv))
+				data()[minmax.second] = KuMath::sign(maxv);
+			else
+				data()[minmax.first] = KuMath::sign(minv);
+		}
+
 		return *this;
 	}
 
