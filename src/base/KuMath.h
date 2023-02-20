@@ -271,6 +271,10 @@ public:
     template<typename KREAL>
     static void ones(KREAL x[], unsigned n) { assign<KREAL>(x, n, 1); }
 
+    // 替换x中的undefined值为val
+    template<typename KREAL>
+    static void killUndefined(KREAL x[], unsigned n, KREAL val = 0);
+
     // 分位数计算
     // @x: 须升序排列
     // @factor: [0, 1]
@@ -1207,4 +1211,11 @@ KREAL KuMath::pickNearest(KREAL val, const KREAL x[], unsigned n)
         return *iter;
     else
         return (val - *(iter - 1)) < (*iter - val) ? *(iter - 1) : *iter;
+}
+
+
+template<typename KREAL>
+void KuMath::killUndefined(KREAL x[], unsigned n, KREAL val)
+{
+    forEach(x, n, [val](KREAL x) { return isDefined(x) ? x : val; });
 }

@@ -94,6 +94,7 @@ KREAL KtKde<KREAL>::calcWinLength_()
 	// h = 0.9 * min(A, sqrt(1/ln(2)) * Dm)) * pow(n, -0.2)
 	// 式中：A为样本标准方差，Dm为各样本到均值距离的中位数
 
+	KuMath::killUndefined(data_.data(), count_);
 	auto mean = KuMath::mean(data_.data(), count_);
 	auto var = KuMath::var(data_.data(), count_, mean);
 	auto A = std::sqrt(var);
