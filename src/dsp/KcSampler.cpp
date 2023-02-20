@@ -108,9 +108,11 @@ kReal KcSampler::xToIndex(kReal x) const
 void KcSampler::reset(kIndex axis, kReal low, kReal step, kReal x0_ref)
 {
 	assert(axis < dim());
+	assert(KuMath::isDefined(low) &&KuMath::isDefined(step));
 
 	if (internal_->isContinued()) {
-		assert(low == internal_->range(axis).low());
+		// range.low为-inf时，该断言不成立
+		//assert(low == internal_->range(axis).low());
 	}
 	else {
 		assert(low == 0);

@@ -117,6 +117,13 @@ public:
         if (low0 > high0) low0 = high0;
     }
 
+    // 使low，high有限化
+    template<typename KREAL>
+    static void finiteRange(KREAL& low, KREAL& high) {
+        low = KuMath::clamp(low, std::numeric_limits<KREAL>::lowest(), std::numeric_limits<KREAL>::max());
+        high = KuMath::clamp(high, low, std::numeric_limits<KREAL>::max());
+    }
+
     template<typename KREAL>
     static constexpr KREAL deg2Rad(KREAL d) { return d * (pi / 180); }
 

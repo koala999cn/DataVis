@@ -2,6 +2,7 @@
 #include "KvDiscreted.h"
 #include "KvContinued.h"
 #include "KcSampler.h"
+#include "KtSampling.h"
 #include "KvPaint.h"
 #include "KgRand.h"
 
@@ -156,8 +157,12 @@ std::shared_ptr<const KvDiscreted> KvPlottable::discreted_() const
 		if (cont) {
 			auto samp = std::make_shared<KcSampler>(cont);
 			if (samp) {
-				for (unsigned i = 0; i < cont->dim(); i++)
-					samp->reset(i, cont->range(i).low(), cont->length(i) / sampCount_[i]);
+				for (unsigned i = 0; i < cont->dim(); i++) {
+					KtSampling<float_t> samping;
+					auto r = cont->range(i);
+					samping.resetn(sampCount_[i], r.low(), r.high(), 0);
+					samp->reset(i, samping.low(), samping.dx());
+				}
 				disc = samp;
 			}
 		}

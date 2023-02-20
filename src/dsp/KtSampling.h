@@ -2,6 +2,7 @@
 #include <cmath>
 #include <limits>
 #include "KtInterval.h"
+#include "KuMath.h"
 
 
 // 数值采样的抽象
@@ -17,6 +18,7 @@ public:
     // 构造函数是唯一个能设置x0绝对值的地方，其他reset系函数均采用相对值进行设置
     KtSampling(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0) 
         : interval(xmin, xmax) {
+        assert(KuMath::isDefined(dx));
         dx_ = dx, x0_ = x0;
     }
 
@@ -28,6 +30,9 @@ public:
 
 
     void reset(KREAL xmin, KREAL xmax, KREAL dx, KREAL x0_ref) {
+        assert(KuMath::isDefined(dx));
+
+        KuMath::finiteRange(xmin, xmax);
         interval::reset(xmin, xmax);
         x0_ = xmin + x0_ref * dx;
         dx_ = dx;
@@ -36,8 +41,11 @@ public:
     }
 
     void resetn(long nx) {
-        if (dx_ == 0) dx_ = 1;
-        interval::resetHigh(xmin() + nx * dx_);
+        dx_ = KuMath::clampFloor(dx_, KuMath::eps<KREAL>());
+        auto l = xmin();
+        auto h = l + nx * dx_;
+        KuMath::finiteRange(l, h);
+        interval::reset(l, h);
     }
 
     // 根据采样点数目nx重置本对象
@@ -47,8 +55,10 @@ public:
 
         resetn(nx);
         x0_ = xmin() + x0_rel_offset * dx_;
+        if (std::isinf(x0_))
+            x0_ = xmin();
 
-        assert(size() == nx);
+        //assert(size() == nx); 当length溢出时，断言不成立
         //assert(verify());
     }
 
@@ -66,9 +76,17 @@ public:
         assert(xmax > xmin);
         assert(x0_rel_offset >= 0 && x0_rel_offset < 1);
 
-        dx_ = (xmax - xmin) / nx;
+        KuMath::finiteRange(xmin, xmax); // NB: 此处需要依靠range计算dx，强制range有限化，否则会出现dx为inf的情况
+
+        dx_ = xmax / nx - xmin / nx; // NB: 多做一次除法，因为xmax-xmin可能溢出
+        if (std::isinf(dx_))
+            dx_ = std::numeric_limits<KREAL>::max(); // 若仍然溢出(nx=1时)，取最大值
+        dx_ = KuMath::clampFloor(dx_, KuMath::eps<KREAL>());
+
         interval::reset(xmin, xmax);
         resetn(nx, x0_rel_offset);
+
+        assert(KuMath::isDefined(dx_));
     }
 
     void resample(KREAL dx) {
@@ -150,7 +168,7 @@ public:
 
     // 计算全区间的采样点数量
     long size() const {
-        return size(interval::length());
+        return size(interval::length()); // TODO: length可能等于inf
     }
 
     // 截取子区间[newLow, newHigh)，并重新定位x0

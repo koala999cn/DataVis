@@ -116,6 +116,7 @@ void KvPvExcitor::showPropertySet()
 				type_ = i;
 				typeChanged_ = true;
 				setOutputExpired_();
+				notifyChanged();
 			}
 		ImGui::EndCombo();
 	}
@@ -124,7 +125,9 @@ void KvPvExcitor::showPropertySet()
 		if (ticksPerFrame_ < 1)
 			ticksPerFrame_ = 1;
 		setOutputExpired_();
+		notifyChanged();
 	}
 
-	ImGui::Checkbox("Static", &static_);
+	if (ImGui::Checkbox("Static", &static_))
+		notifyChanged();
 }

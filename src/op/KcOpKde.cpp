@@ -36,7 +36,12 @@ kIndex KcOpKde::size(kIndex outPort, kIndex axis) const
 
 kRange KcOpKde::range(kIndex outPort, kIndex axis) const
 {
-    return odata_.front() ? odata_.front() ->range(axis) : kRange{ 0, 1 };
+    if (axis == dim(outPort))
+        return { 0, 1 };
+    else if (axis == dim(outPort) - 1)
+        return super_::range(outPort, axis + 1); // 父节点的值域作为x轴的范围
+    else
+        return super_::range(outPort, axis);
 }
 
 
@@ -94,7 +99,7 @@ void KcOpKde::outputImpl_()
         }
         auto d = std::make_shared<KcContinuedFn>(fns);
         for (unsigned i = 0; i < d->dim(); i++) {
-            auto r = disc->range(i); 
+            auto r = range(0, i); 
             d->setRange(i, r.low(), r.high());
         }
         odata_.front() = d;

@@ -222,8 +222,8 @@ void KvPlot::fitData()
 		assert(!std::isnan(box.lower()[i]) && !std::isnan(box.upper()[i]));
 
 		// NB: 数值太大的话，axis绘制会“飞”
-		constexpr typename KvRenderable::float_t maxV = 1e100; // std::numeric_limits<KvRenderable::float_t>::max() / 10.;
-		constexpr typename KvRenderable::float_t minV = -1e100; // std::numeric_limits<KvRenderable::float_t>::lowest() / 10.;
+		constexpr typename KvRenderable::float_t maxV = 1e99; // std::numeric_limits<KvRenderable::float_t>::max() / 10.;
+		constexpr typename KvRenderable::float_t minV = -1e99; // std::numeric_limits<KvRenderable::float_t>::lowest() / 10.;
 
 		if (box.lower()[i] == -KuMath::inf<KvRenderable::float_t>())
 			box.lower()[i] = minV;
