@@ -5,6 +5,8 @@ class KcSampled1d;
 
 class KcPvAudioInput : public KvDataProvider
 {
+	using super_ = KvDataProvider;
+
 public:
 	KcPvAudioInput();
 	virtual ~KcPvAudioInput();

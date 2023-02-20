@@ -3,7 +3,6 @@
 #include "audio/KcAudioDevice.h"
 #include "KtSampling.h"
 #include "imgui.h"
-#include "KuStrUtil.h"
 #include "readerwriterqueue/readerwriterqueue.h"
 #include "imapp/KsImApp.h"
 #include "imapp/KgPipeline.h"
@@ -176,13 +175,13 @@ namespace kPrivate
 
 void KcPvAudioInput::showPropertySet()
 {
-	KvBlockNode::showPropertySet();
+	super_::showPropertySet();
+	ImGui::Separator();
 
-	bool disable = KsImApp::singleton().pipeline().running();
 	auto device = (KcAudioDevice*)dptr_;
 	auto info = device->info(deviceId_);
 
-	ImGui::BeginDisabled(disable);
+	ImGui::BeginDisabled(working_());
 
 	if (ImGui::BeginCombo("Device", kPrivate::localToUtf8(info.name).c_str())) {
 		for (unsigned i = 0; i < device->count(); i++) {
@@ -190,7 +189,7 @@ void KcPvAudioInput::showPropertySet()
 			auto name = kPrivate::localToUtf8(info.name);
 			if (info.inputChannels > 0 && ImGui::Selectable(name.c_str(), i == deviceId_)) {
 				deviceId_ = i;
-				KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+				notifyChanged();
 			}
 		}
 
@@ -199,36 +198,29 @@ void KcPvAudioInput::showPropertySet()
 
 	info = device->info(deviceId_);
 	assert(spec_.channels <= info.inputChannels);
-	int channles = spec_.channels;
-	if (ImGui::SliderInt("Channles", &channles, 1, std::min<int>(info.inputChannels, 255))) {
-		spec_.channels = channles;
-		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+	auto channles = spec_.channels;
+	if (ImGui::SliderInt("Channles", &channles, 1, info.inputChannels)) {
+		spec_.channels = KuMath::clamp<unsigned>(channles, 1, info.inputChannels);
+		notifyChanged();
 	}
 
-	auto rateStr = KuStrUtil::toString(sampleRate_);
+	auto rateStr = std::to_string(sampleRate_);
 	if (ImGui::BeginCombo("SampleRate", rateStr.c_str())) {
 		for (auto rate : info.sampleRates)
-			if (ImGui::Selectable(KuStrUtil::toString(rate).c_str(), sampleRate_ == rate)) {
+			if (ImGui::Selectable(std::to_string(rate).c_str(), sampleRate_ == rate)) {
 				sampleRate_ = rate;
-				KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+				notifyChanged();
 			}
 
 		ImGui::EndCombo();
 	}
 
-	if (ImGui::DragFloat("FrameTime", &frameTime_, 0.01, 0.01, 1.0))
-		KsImApp::singleton().pipeline().notifyOutputChanged(this, 0);
+	if (ImGui::DragFloat("FrameTime", &frameTime_, 0.001, 0.01, 1.0)) {
+		frameTime_ = KuMath::clampFloor(frameTime_, 1e-4f);
+		notifyChanged();
+	}
 
 	ImGui::EndDisabled();
-	ImGui::Separator();
-
-	ImGui::LabelText("Dim", "%d", dim(0));
-
-	ImGui::LabelText("Size", "%d", size(0, 0));
-
-	ImGui::LabelText("Step", "%g", step(0, 0));
-
-	ImGui::LabelText("Time Stamp", "%d", dataStamp(0));
 }
 
 
