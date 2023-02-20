@@ -8,35 +8,22 @@ std::pair<double, double> minmaxOnceIter_(
 	std::function<double(double* x)> fn, unsigned dim, 
 	double* x0, double* x1, double* dx, double* x)
 {
+	double omin = std::numeric_limits<double>::max();
+	double omax = std::numeric_limits<double>::lowest();
+
 	if (dim == 1) {
-		x[0] = x0[0];
-		double omin = fn(x);
-		double omax = omin;
-
-		for (x[0] = x0[0] + dx[0]; x[0] <= x1[0]; x[0] += dx[0]) {
-			auto val = fn(x);
-			if (val < omin)
-				omin = val;
-			else if (val > omax)
-				omax = val;
+		for (x[0] = x0[0]; x[0] <= x1[0]; x[0] += dx[0]) 
+			KuMath::updateRange(omin, omax, fn(x));
+	}
+	else {
+		--dim;
+		for (x[dim] = x0[dim]; x[dim] <= x1[dim]; x[dim] += dx[dim]) {
+			auto r = minmaxOnceIter_(fn, dim, x0, x1, dx, x);
+			KuMath::uniteRange(omin, omax, r.first, r.second);
 		}
-
-		return { omin, omax };
 	}
 
-	--dim;
-	x[dim] = x0[dim];
-	auto r = minmaxOnceIter_(fn, dim, x0, x1, dx, x);
-
-	for (x[dim] = x0[dim] + dx[dim]; x[dim] <= x1[dim]; x[dim] += dx[dim]) {
-		auto ri = minmaxOnceIter_(fn, dim, x0, x1, dx, x);
-		if (ri.first < r.first)
-			r.first = ri.first;
-		else if (ri.second > r.second)
-			r.second = ri.second;
-	}
-
-	return r;
+	return { omin, omax };
 }
 
 
@@ -63,19 +50,17 @@ std::pair<double, double> minmaxN_(
 	for (unsigned i = 0; i < dim; i++)
 		x0_[i] += dx_[i] / 2;
 	
-	auto r = minmaxOnce_(fn, dim, x0_.data(), x1, dx);
-	for (unsigned i = 1; i < N; i++) {
+	double omin = std::numeric_limits<double>::max();
+	double omax = std::numeric_limits<double>::lowest();
+	for (unsigned i = 0; i < N; i++) {
 		for (unsigned j = 0; j < dim; j++)
 			x0_[j] += dx_[j];
 
-		auto ri = minmaxOnce_(fn, dim, x0_.data(), x1, dx);
-		if (ri.first < r.first)
-			r.first = ri.first;
-		else if (ri.second > r.second)
-			r.second = ri.second;
+		auto r = minmaxOnce_(fn, dim, x0_.data(), x1, dx);
+		KuMath::uniteRange(omin, omax, r.first, r.second);
 	}
 
-	return r;
+	return { omin, omax };
 }
 
 std::pair<double, double> minmax(
@@ -86,14 +71,14 @@ std::pair<double, double> minmax(
 	for (unsigned n = 1; n <= 6; n++) {
 		auto rn = minmaxN_(fn, dim, x0, x1, dx, n);
 		auto diff = KuMath::max(r.first - rn.first, rn.second - r.second, 0.);
-		if (rn.first < r.first)
-			r.first = rn.first;
-		else if (rn.second > r.second)
-			r.second = rn.second;
+		KuMath::uniteRange(r.first, r.second, rn.first, rn.second);
 
 		if (diff == 0 || diff / (r.second - r.first) < 1e-6)
 			break;
 	}
+
+	if (r.first > r.second)
+		r.first = r.second = 0;
 
 	return r;
 }

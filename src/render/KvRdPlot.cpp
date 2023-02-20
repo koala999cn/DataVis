@@ -261,14 +261,17 @@ void KvRdPlot::showPlotProperty_()
 		ImGuiX::margins("Margins", plot_->margins());
 
 		auto& coord = plot_->coord();
-		auto lower = point3f(coord.lower());
-		auto upper = point3f(coord.upper());
+		auto lower = coord.lower();
+		auto upper = coord.upper();
 		auto speed = (upper - lower) * 0.1;
 		for (unsigned i = 0; i < speed.size(); i++)
 			if (speed.at(i) == 0) speed.at(i) = 1;
 		static const char* axisName[] = { "X Range", "Y Range", "Z Range" };
 		for (char i = 0; i < plot_->dim(); i++) {
-			if (ImGui::DragFloatRange2(axisName[i], &lower[i], &upper[i], speed[i])) {
+			double val[2] = { lower[i], upper[i] };
+			if (ImGui::DragScalarN(axisName[i], ImGuiDataType_Double, val, 2, speed[i])
+				&& val[1] > val[0]) {
+				lower[i] = val[0], upper[i] = val[1];
 				coord.setExtents(lower, upper);
 				plot_->autoFit() = false;
 			}
@@ -1000,7 +1003,7 @@ namespace kPrivate
 {
 	static bool streamable(const KvSampled& samp1, const KvSampled& samp2)
 	{
-		if (samp1.channels() != samp2.channels())
+		if (samp1.dim() != samp2.dim() || samp1.channels() != samp2.channels())
 			return false;
 
 		for (unsigned i = 0; i < samp1.dim(); i++)
@@ -1025,9 +1028,8 @@ namespace kPrivate
 		}
 
 		/// 检测参数规格的一致性，不一致则直接复制newData
-		auto newSamp = std::dynamic_pointer_cast<KvSampled>(newData);
-		assert(samp->dim() == newSamp->dim()); // TODO: 目前假定维度恒定的
-		if (!streamable(*samp, *newSamp)) {
+		auto newSamp = std::dynamic_pointer_cast<KvSampled>(newData);		
+		if (curData == nullptr || !streamable(*samp, *newSamp)) {
 			// NB: 此处不能直接返回newSamp，否则会破坏输入节点的数据缓存
 			return std::make_shared<KtSampledArray<DIM>>(*newSamp);
 		}
@@ -1048,9 +1050,14 @@ namespace kPrivate
 
 KvRdPlot::data_ptr KvRdPlot::streaming_(data_ptr curData, data_ptr newData, double xrange)
 {
-	if (curData->dim() == 1) 
+	// NB: curData可能为null（当数据源由static变为stream时）
+
+	if (newData == nullptr)
+		return curData;
+
+	if (newData->dim() == 1)
 		return kPrivate::streaming_<1>(curData, newData, xrange);
-	else if (curData->dim() == 2) 
+	else if (newData->dim() == 2)
 		return kPrivate::streaming_<2>(curData, newData, xrange);
 	else {
 		assert(false);

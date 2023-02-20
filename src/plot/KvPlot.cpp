@@ -215,10 +215,33 @@ void KvPlot::fitData()
 	for (auto& p : plottables_)
 		box.merge(p->boundingBox());
 
-	if (!box.isNull())
-		coord_->setExtents(box.lower(), box.upper());
-	else
-		coord_->setExtents({ 0, 0, 0 }, { 1, 1, 1 });
+	if (box.isNull())
+		box = { { 0, 0, 0 }, { 1, 1, 1 } };
+
+	for (int i = 0; i < 3; i++) {
+		assert(!std::isnan(box.lower()[i]) && !std::isnan(box.upper()[i]));
+
+		// NB: 数值太大的话，axis绘制会“飞”
+		constexpr typename KvRenderable::float_t maxV = 1e100; // std::numeric_limits<KvRenderable::float_t>::max() / 10.;
+		constexpr typename KvRenderable::float_t minV = -1e100; // std::numeric_limits<KvRenderable::float_t>::lowest() / 10.;
+
+		if (box.lower()[i] == -KuMath::inf<KvRenderable::float_t>())
+			box.lower()[i] = minV;
+		else if (box.lower()[i] == KuMath::inf<KvRenderable::float_t>())
+			box.lower()[i] = maxV;
+
+		if (box.upper()[i] == -KuMath::inf<KvRenderable::float_t>())
+			box.upper()[i] = minV;
+		else if (box.upper()[i] == KuMath::inf<KvRenderable::float_t>())
+			box.upper()[i] = maxV;
+
+		if (box.lower()[i] == box.upper()[i]) {
+			box.lower()[i] -= 1;
+			box.upper()[i] += 1;
+		}
+	}
+
+	coord_->setExtents(box.lower(), box.upper());
 }
 
 

@@ -48,7 +48,7 @@
 - [ ] text支持vbo重用
 - [ ] 完善clip的rect修订，legend的border的有的边会被非正常剪切
 - [ ] 完善bars2d的padding设置（是否使用像素值？）
-
+- [ ] range太大时axis不能正常定位tick和label
 
 ## theme
 - [ ] 更多theme，SCI等
