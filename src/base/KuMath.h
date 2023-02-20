@@ -96,8 +96,10 @@ public:
     // 输入新值x，更新最小low和最大值high
     template<typename KREAL>
     static void updateRange(KREAL& low, KREAL& high, KREAL x) {
-        if (x < low) low = x;
-        if (x > high) high = x;
+        if (!std::isnan(x)) {
+            if (x < low) low = x;
+            if (x > high) high = x;
+        }
     }
 
     // (low0, high0) = (low0, high0) 并 (low1, high1)
@@ -972,7 +974,7 @@ template<typename KREAL>
 std::pair<unsigned, unsigned> KuMath::argMixMax(const KREAL x[], unsigned n)
 {
     auto iter = std::minmax_element(x, x + n);
-    return { iter.first - x, *iter.second - x };
+    return { iter.first - x, iter.second - x };
 }
 
 
