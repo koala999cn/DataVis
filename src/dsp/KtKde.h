@@ -98,7 +98,7 @@ KREAL KtKde<KREAL>::calcWinLength_()
 	auto var = KuMath::var(data_.data(), count_, mean);
 	auto A = std::sqrt(var);
 
-	auto totalDist(0);
+	KREAL totalDist(0);
 	for (unsigned i = 0; i < count_; i++)
 		totalDist += std::abs(data_[i] - mean);
 	auto Dm = totalDist / count_; // 此处用均值替代中位数
