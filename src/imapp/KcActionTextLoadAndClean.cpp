@@ -124,5 +124,12 @@ bool KcActionTextLoadAndClean::loadData_()
     else 
         rawData_ = kPrivate::parseLines<false>(lines);
 
+    // 删除开头和最后的空行
+    while (!rawData_.empty() && rawData_.back().empty())
+        rawData_.pop_back();
+
+    while (!rawData_.empty() && rawData_.front().empty())
+        rawData_.erase(rawData_.cbegin());
+
     return true;
 }
