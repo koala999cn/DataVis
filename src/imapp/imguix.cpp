@@ -188,22 +188,22 @@ namespace ImGuiX
                 else if (disc.dim() == 2) {
                     auto samp2d = dynamic_cast<const KvSampled*>(&disc);
                     if (disc.step(0) == 1 && disc.step(1) == 1) { // matrix
-                        showDataTable(KuDataUtil::k_matrix, disc.size(0), disc.size(1),
+                        showDataTable(KuDataUtil::k_matrix, disc.size(1), disc.size(0),
                             [samp2d](unsigned r, unsigned c) {
-                                return samp2d->value(r, c, 0);
+                                return samp2d->value(c, r, 0);
                             });
                     }
                     else { // sampled2d
-                        showDataTable(KuDataUtil::k_sampled_2d, disc.size(0) + 1, disc.size(1) + 1,
+                        showDataTable(KuDataUtil::k_sampled_2d, disc.size(1) + 1, disc.size(0) + 1,
                             [samp2d](unsigned r, unsigned c) -> double {
                                 if (r == 0 && c == 0)
                                     return std::numeric_limits<double>::quiet_NaN();
                                 else if (r == 0)
-                                    return samp2d->range(1).low() + (c - 1) * samp2d->step(1);
+                                    return samp2d->range(0).low() + (c - 1) * samp2d->step(0);
                                 else if (c == 0)
-                                    return samp2d->range(0).low() + (r - 1) * samp2d->step(0);
+                                    return samp2d->range(1).low() + (r - 1) * samp2d->step(1);
                                 else 
-                                    return samp2d->value(r - 1, c - 1, 0);
+                                    return samp2d->value(c - 1, r - 1, 0);
                             });
                     }
                 }

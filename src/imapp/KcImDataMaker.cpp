@@ -17,8 +17,7 @@ KcImDataMaker::KcImDataMaker(const std::string& source, const matrixd& idata, st
 {
     assert(!idata.empty());
 
-    rowMajor_ = idata.size() < idata[0].size();
-    typeList_ = KuDataUtil::validTypes(idata, !rowMajor_);
+    typeList_ = KuDataUtil::validTypes(idata, transpose_);
     dataType_ = typeList_.front();
 }
 
@@ -27,8 +26,8 @@ void KcImDataMaker::updateImpl_()
 {
     ImGui::PushItemWidth(119);
 
-    if (ImGui::Checkbox("Row major", &rowMajor_)) {
-        typeList_ = KuDataUtil::validTypes(idata_, !rowMajor_);
+    if (ImGui::Checkbox("Transpose", &transpose_)) {
+        typeList_ = KuDataUtil::validTypes(idata_, transpose_);
         dataType_ = typeList_.front();
     }
 
@@ -58,7 +57,7 @@ void KcImDataMaker::updateImpl_()
         close();
 
         // 生成数据
-        odata_ = KuDataUtil::makeData(rowMajor_ ? idata_ : KuMatrixUtil::transpose(idata_), dataType_);
+        odata_ = KuDataUtil::makeData(!transpose_ ? idata_ : KuMatrixUtil::transpose(idata_), dataType_);
     }
     ImGui::SetItemDefaultFocus();
 
@@ -68,5 +67,5 @@ void KcImDataMaker::updateImpl_()
         odata_ = nullptr; // 标记为取消状态
     }
 
-    ImGuiX::showDataTable(dataType_, idata_, rowMajor_);
+    ImGuiX::showDataTable(dataType_, idata_, transpose_);
 }

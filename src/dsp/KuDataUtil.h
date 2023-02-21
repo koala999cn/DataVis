@@ -23,7 +23,7 @@ public:
 
 	// 检测mat可转换的数据类型
     // 返回[0]为推荐类型
-	static std::vector<int> validTypes(const matrixd& mat, bool colMajor);
+	static std::vector<int> validTypes(const matrixd& mat, bool transpose);
 
 	static std::shared_ptr<KvData> makeSeries(const matrixd& mat);
 

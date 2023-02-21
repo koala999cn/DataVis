@@ -5,7 +5,7 @@
 #include "KuMatrixUtil.h"
 
 
-std::vector<int> KuDataUtil::validTypes(const matrixd& mat, bool colMajor)
+std::vector<int> KuDataUtil::validTypes(const matrixd& mat, bool transpose)
 {
     if (mat.empty() || mat.front().empty())
         return {};
@@ -13,7 +13,7 @@ std::vector<int> KuDataUtil::validTypes(const matrixd& mat, bool colMajor)
     auto rows = mat.size();
     auto cols = mat[0].size();
 
-    if (!colMajor)
+    if (transpose)
         std::swap(rows, cols);
 
     std::vector<int> types;
@@ -35,7 +35,7 @@ std::vector<int> KuDataUtil::validTypes(const matrixd& mat, bool colMajor)
 
         bool evenRow = KuMatrixUtil::isEvenlySpaced(mat[0]);
         bool evenCol = KuMatrixUtil::isEvenlySpaced(KuMatrixUtil::extractColumn(mat, 0));
-        if (colMajor && evenCol || !colMajor && evenRow)
+        if (!transpose && evenCol || transpose && evenRow)
             types.insert(types.begin(), k_sampled_1d);
 
         if (rows > 2 && cols > 2 && evenRow && evenCol)
@@ -51,11 +51,13 @@ std::shared_ptr<KvData> KuDataUtil::makeSeries(const matrixd& mat)
     // 暂时使用sampled1d表示series数据
 
     auto samp = std::make_shared<KcSampled1d>();
-    samp->resize(mat[0].size(), mat.size());
+    samp->resize(mat.size(), mat[0].size());
     samp->reset(0, 0, 1);
 
-    for (unsigned c = 0; c < samp->channels(); c++)
-        samp->setChannel(nullptr, c, mat[c].data());
+    for (unsigned c = 0; c < samp->channels(); c++) {
+        auto d = KuMatrixUtil::extractColumn(mat, c);
+        samp->setChannel(nullptr, c, d.data());
+    }
 
     return samp;
 }
@@ -65,10 +67,12 @@ std::shared_ptr<KvData> KuDataUtil::makeSeries(const matrixd& mat)
 std::shared_ptr<KvData> KuDataUtil::makeMatrix(const matrixd& mat)
 {
     auto samp2d = std::make_shared<KcSampled2d>(1, 1);
-    samp2d->resize(mat.size(), mat[0].size());
+    samp2d->resize(mat[0].size(), mat.size());
 
-    for (kIndex idx = 0; idx < samp2d->size(0); idx++)
-        samp2d->setChannel(&idx, 0, mat[idx].data()); // 始终单通道
+    for (kIndex idx = 0; idx < samp2d->size(0); idx++) {
+        auto d = KuMatrixUtil::extractColumn(mat, idx);
+        samp2d->setChannel(&idx, 0, d.data()); // 始终单通道
+    }
 
     return samp2d;
 }
@@ -77,11 +81,13 @@ std::shared_ptr<KvData> KuDataUtil::makeMatrix(const matrixd& mat)
 std::shared_ptr<KvData> KuDataUtil::makeSampled1d(const matrixd& mat)
 {
     auto samp = std::make_shared<KcSampled1d>();
-    samp->resize(mat[0].size(), mat.size() - 1);
-    samp->reset(0, mat[0][0], mat[0][1] - mat[0][0]);
+    samp->resize(mat.size(), mat[0].size() - 1); // 少一列，第1列为采样时
+    samp->reset(0, mat[0][0], mat[1][0] - mat[0][0]);
 
-    for (unsigned c = 0; c < samp->channels(); c++)
-        samp->setChannel(0, c, mat[c + 1].data());
+    for (unsigned c = 0; c < samp->channels(); c++) {
+        auto d = KuMatrixUtil::extractColumn(mat, c + 1);
+        samp->setChannel(0, c, d.data());
+    }
 
     return samp;
 }
@@ -91,16 +97,18 @@ std::shared_ptr<KvData> KuDataUtil::makeSampled2d(const matrixd& mat)
 {
     // mat[0][0]为占位符，无效
 
-    auto dx = mat[2][0] - mat[1][0];
-    auto dy = mat[0][2] - mat[0][1];
-
+    auto dx = mat[0][2] - mat[0][1];
+    auto dy = mat[2][0] - mat[1][0];
+    
     auto samp2d = std::make_shared<KcSampled2d>(dx, dy);
-    samp2d->resize(mat.size() - 1, mat[0].size() - 1);
-    samp2d->reset(0, mat[1][0], dx);
-    samp2d->reset(1, mat[0][1], dy);
+    samp2d->resize(mat[0].size() - 1, mat.size() - 1);
+    samp2d->reset(0, mat[0][1], dx);
+    samp2d->reset(1, mat[1][0], dy);
 
-    for (kIndex idx = 0; samp2d->size(0); idx++)
-        samp2d->setChannel(&idx, 0, mat[idx + 1].data() + 1); // 始终单通道, 忽略mat数据的首行首列
+    for (kIndex idx = 0; idx < samp2d->size(0); idx++) {
+        auto d = KuMatrixUtil::extractColumn(mat, idx + 1);
+        samp2d->setChannel(&idx, 0, d.data() + 1); // 始终单通道, 忽略mat数据的首行首列
+    }
 
     return samp2d;
 }
@@ -109,18 +117,18 @@ std::shared_ptr<KvData> KuDataUtil::makeSampled2d(const matrixd& mat)
 std::shared_ptr<KvData> KuDataUtil::makeScattered(const matrixd& mat, unsigned dim)
 {
     assert(dim == 2 || dim == 3);
-    assert(mat.size() % dim == 0);
+    assert(mat[0].size() % dim == 0);
 
-    kIndex chs = mat.size() / dim;
+    kIndex chs = mat[0].size() / dim;
     if (dim == 2) {
         auto scattered = std::make_shared<KtScattered<1>>();
         scattered->resize(nullptr, chs);
-        scattered->reserve(mat[0].size());
+        scattered->reserve(mat.size());
 
-        for (unsigned i = 0; i < mat[0].size(); i++) {
+        for (unsigned i = 0; i < mat.size(); i++) {
             std::vector<typename KtScattered<1>::element_type> points;
             for (unsigned c = 0; c < chs; c++)
-                points.push_back({ mat[c * 2][i], mat[c * 2 + 1][i] });
+                points.push_back({ mat[i][c * 2], mat[i][c * 2 + 1] });
 
             scattered->pushBack(points.data());
         }
@@ -130,12 +138,12 @@ std::shared_ptr<KvData> KuDataUtil::makeScattered(const matrixd& mat, unsigned d
     else {
         auto scattered = std::make_shared<KtScattered<2>>();
         scattered->resize(nullptr, chs);
-        scattered->reserve(mat[0].size());
+        scattered->reserve(mat.size());
 
-        for (unsigned i = 0; i < mat[0].size(); i++) {
+        for (unsigned i = 0; i < mat.size(); i++) {
             std::vector<typename KtScattered<2>::element_type> points;
             for (unsigned c = 0; c < chs; c++)
-                points.push_back({ mat[c * 3][i], mat[c * 3 + 1][i], mat[c * 3 + 2][i] });
+                points.push_back({ mat[i][c * 3], mat[i][c * 3 + 1], mat[i][c * 3 + 2] });
 
             scattered->pushBack(points.data());
         }

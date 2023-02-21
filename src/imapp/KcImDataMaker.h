@@ -23,7 +23,7 @@ private:
     const matrixd& idata_;
     std::shared_ptr<KvData>& odata_;
 
-    bool rowMajor_{ false }; // 若true，每行代表一个数据序列，缺省false，每列代表一个数据序列
+    bool transpose_{ false }; // 若true，对数据进行转置
 
     std::vector<int> typeList_; // 可用的数据类型列表，用来生成combo
     int dataType_{ 0 }; // 期望生成的数据类型
