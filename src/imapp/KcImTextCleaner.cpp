@@ -9,9 +9,7 @@ namespace kPrivate
 {
     enum // 遇到非数字token时的处理方式
     {
-        k_illegal_fail,
         k_illegal_ignore,
-        k_illegal_as_empty,
         k_illegal_as_nan,
         k_illegal_as_zero
     };
@@ -39,7 +37,7 @@ KcImTextCleaner::KcImTextCleaner(const std::string& source, const matrix<std::st
     , cleanData_(cleanData)
 {
     updateStats_();
-    if (emptyTokens_ == 0 && illegalTokens_ == 0 && !parseFailed_) {
+    if (emptyTokens_ == 0 && illegalTokens_ == 0 && emptyLines_.empty() && !parseFailed_) {
         // 数据正常，没有需要用户配置的，直接清洗数据并关闭窗口
         setVisible(false);
         doClean_();
@@ -58,6 +56,7 @@ void KcImTextCleaner::updateImpl_()
         ImGui::Text("Columns: %d", maxCols_);
     else 
         ImGui::Text("Columns: %d - %d", minCols_, maxCols_);
+    ImGui::Text("Empty lines: %d", emptyLines_.size());
     ImGui::Text("Empty tokens: %d", emptyTokens_);
     ImGui::Text("Illegal tokens: %d", illegalTokens_);
 
@@ -68,22 +67,25 @@ void KcImTextCleaner::updateImpl_()
     };
 
     static const char* illegal_modes[] = {
-        "Fail", "Ignore", "As Empty", "As Nan", "As Zero"
+        "Ignore", "As Nan", "As Zero"
     };
 
     ImGui::PushItemWidth(99);
+
+    if (emptyLines_.size() > 0)
+        if (ImGui::Combo("Empty lines", &emptyLineMode_, empty_modes, std::size(empty_modes)))
+            updateStats_();
+
     if (emptyTokens_ > 0) {
-        if (ImGui::Combo("Empty token", &emptyMode_, empty_modes, 
-            IM_ARRAYSIZE(empty_modes), IM_ARRAYSIZE(empty_modes)))
+        if (ImGui::Combo("Empty token", &emptyTokenMode_, empty_modes, std::size(empty_modes)))
             updateStats_();
         ImGui::SameLine();
     }
 
     if(illegalTokens_ > 0)
-        if (ImGui::Combo("Illegal token", &illegalMode_, illegal_modes, 
-            IM_ARRAYSIZE(illegal_modes), IM_ARRAYSIZE(illegal_modes)))
+        if (ImGui::Combo("Illegal token", &illegalTokenMode_, illegal_modes, std::size(illegal_modes)))
             updateStats_();
-    
+
     if(minCols_ != maxCols_)
         ImGui::Checkbox("Padding columns", &forceAlign_);
 
@@ -124,6 +126,11 @@ void KcImTextCleaner::updateStats_()
     for (unsigned i = 0; i < rawData_.size(); i++) {
 
         int cols = rawData_[i].size();
+        if (cols == 0) {
+            emptyLines_.insert(i);
+            continue;
+        }
+
         if (cols < minCols_)
             minCols_ = cols;
         else if (cols > maxCols_)
@@ -133,32 +140,27 @@ void KcImTextCleaner::updateStats_()
             auto& tok = rawData_[i][j];
             if (tok.empty()) {
                 emptyTokens_++;
-                //if (emptyMode_ == kPrivate::k_empty_skip)
-                //    cols--;
+                if (emptyTokenMode_ == kPrivate::k_empty_skip)
+                    cols--;
             }
             else if (!KuStrUtil::toDouble(tok)) {
                 illegalTokens_++;
-                //if (skipIllegal_())
-                //    cols--;
+                if (skipIllegal_())
+                    cols--;
             }
         }
-
-        //if (cols == 0) {
-        //    emptyLines_.insert(i);
-        //    rows_--; // 空行不计数
-       // }
     }
 
-    parseFailed_ = (minCols_ != maxCols_ && !forceAlign_) ||
-        (illegalTokens_ != 0 && illegalMode_ == kPrivate::k_illegal_fail);
+    parseFailed_ = false; // (minCols_ != maxCols_ && !forceAlign_);
+       // || (illegalTokens_ != 0 && illegalTokenMode_ == kPrivate::k_illegal_fail);
 }
 
 
 bool KcImTextCleaner::skipIllegal_() const
 {
     using namespace kPrivate;
-    return illegalMode_ == k_illegal_ignore ||
-        (illegalMode_ == k_illegal_as_empty && emptyMode_ == k_empty_skip);
+    return illegalTokenMode_ == k_illegal_ignore;
+        //|| (illegalTokenMode_ == k_illegal_as_empty && emptyTokenMode_ == k_empty_skip);
 }
 
 
@@ -175,25 +177,31 @@ void KcImTextCleaner::doClean_()
         std::vector<double> data;
         data.reserve(maxCols_);
 
-        for (unsigned c = 0; c < rawData_[r].size(); c++) {
-            auto& tok = rawData_[r][c];
+        if (rawData_[r].empty()) {
+            if (emptyLineMode_ == k_empty_as_nan)
+                data.assign(maxCols_, KuMath::nan<double>());
+            else if (emptyLineMode_ == k_empty_as_zero)
+                data.assign(maxCols_, 0);
+        }
+        else {
+            for (unsigned c = 0; c < rawData_[r].size(); c++) {
+                auto& tok = rawData_[r][c];
 
-            if (tok.empty()) {
-                if (emptyMode_ == k_empty_skip)
-                    continue;
-                data.push_back(emptyValue_());
-            }
-            else {
-                auto val = KuStrUtil::toDouble(tok);
-                if (val) {
-                    data.push_back(val.value());
-                }
-                else { // illegal tokens
-                    assert(illegalMode_ != k_illegal_fail);
-
-                    if (skipIllegal_())
+                if (tok.empty()) {
+                    if (emptyTokenMode_ == k_empty_skip)
                         continue;
-                    data.push_back(illegalValue_());
+                    data.push_back(emptyValue_());
+                }
+                else {
+                    auto val = KuStrUtil::toDouble(tok);
+                    if (val) {
+                        data.push_back(val.value());
+                    }
+                    else { // illegal tokens
+                        if (skipIllegal_())
+                            continue;
+                        data.push_back(illegalValue_());
+                    }
                 }
             }
         }
@@ -221,15 +229,13 @@ void KcImTextCleaner::doClean_()
 
 double KcImTextCleaner::emptyValue_() const
 {
-    return emptyMode_ == kPrivate::k_empty_as_zero ? 0 : KuMath::nan<double>();
+    return emptyTokenMode_ == kPrivate::k_empty_as_zero ? 0 : KuMath::nan<double>();
 }
 
 
 double KcImTextCleaner::illegalValue_() const
 {
-    return illegalMode_ == kPrivate::k_illegal_as_zero ? 0
-        : illegalMode_ == kPrivate::k_illegal_as_nan ?
-        KuMath::nan<double>() : emptyValue_();
+    return illegalTokenMode_ == kPrivate::k_illegal_as_zero ? 0 : KuMath::nan<double>();
 }
 
 

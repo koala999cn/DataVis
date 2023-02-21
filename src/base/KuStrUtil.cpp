@@ -263,7 +263,7 @@ void KuStrUtil::trim(std::string& str, const char* spaces)
 }
 
 
-std::string_view trim(const std::string_view& sv, const char* spaces)
+std::string_view KuStrUtil::trim(const std::string_view& sv, const char* spaces)
 {
 	std::string_view v = sv;
 	v.remove_prefix(std::min(v.find_first_not_of(spaces), v.size()));

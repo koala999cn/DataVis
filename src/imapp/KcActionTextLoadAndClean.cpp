@@ -61,17 +61,23 @@ bool KcActionTextLoadAndClean::loadData_()
     rawData_.reserve(25000); // 预留一定数量的空间
 
     text_ = KuFileUtil::readAsString(filepath_); // 暂存所有文本，以便后面使用string_view类型
-    auto lines = KuStrUtil::split(text_, "\n");
+    auto lines = KuStrUtil::split(text_, "\n", false); // 空行有特殊语义，保留
 
     for (auto& line : lines) {
-        if (line[0] == '\0')
-            continue;
 
-        if (line.back() == '\r')
-            line.remove_suffix(1);
+        auto tl = KuStrUtil::trim(line);
+        if (tl.empty()) {
+            rawData_.push_back({}); // 插入空行
+        }
+        else if (tl[0] != '#' && tl[0] != '!') {
+            assert(tl[0] != '\0');
 
-        auto tokens = KuStrUtil::split(line, ", \t", true);
-        rawData_.emplace_back(std::move(tokens));
+            auto tokens = KuStrUtil::split(tl, ", \t", true);
+            rawData_.emplace_back(std::move(tokens));
+        }
+        else {
+            ; // 跳过注释行
+        }
     }
 
     return true;

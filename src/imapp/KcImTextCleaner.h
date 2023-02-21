@@ -45,9 +45,9 @@ private:
     matrix<double>& cleanData_; // 清洗后的数据
 
     // 解析text文件时的配置项
-    int illegalMode_{ 0 }; // 如何处理非数字字串
-    int emptyMode_{ 0 }; // 如何处理空字串
-    bool forceAlign_{ true }; // 强制列对齐？(当列数量不一致时，取最大列数为数据列数)
+    int illegalTokenMode_{ 0 }; // 如何处理非数字字串
+    int emptyTokenMode_{ 0 }; // 如何处理空字串
+    bool forceAlign_{ false }; // 强制列对齐？(当列数量不一致时，取最大列数为数据列数)
 
     // text数据的一些统计结果，由updateStats_负责更新
     int rows_;
@@ -56,4 +56,5 @@ private:
     int minCols_, maxCols_{ 0 };
     bool parseFailed_{ true }; // 解析失败？
     std::set<int> emptyLines_; // 所有空行行号
+    int emptyLineMode_{ 0 }; // 如何处理空行
 };
