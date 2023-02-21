@@ -12,3 +12,9 @@
 
  * world.dat
  https://sourceforge.net/projects/gnuplot/files/gnuplot/
+
+ * golfer.dat
+ https://ayapin-film.sakura.ne.jp/Gnuplot/pm3d_part3.html
+
+ * penguin.dat
+ https://ayapin-film.sakura.ne.jp/Gnuplot/pm3d_part3.html
