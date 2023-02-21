@@ -106,6 +106,8 @@ public:
 
     static std::vector<std::string_view> split(const std::string_view& full, const std::string& delims, bool skipEempty = true);
 
+	static std::vector<std::string_view> splitWithQuote(const std::string_view& full, const std::string& delims, bool skipEempty = true);
+
 	static std::vector<std::string> splitRegex(const std::string& full, const std::string& regex, bool skipEempty = true);
 
 	static std::string join(const std::vector<std::string>& input, char c);

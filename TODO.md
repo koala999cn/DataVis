@@ -7,6 +7,7 @@
 
 ## operator
 - [ ] 测试spectrum的options的sampleRate一致性
+- [ ] sampler的采样率动态更改后，输出没有更新
 
 ## plot
 - [ ] title等设置

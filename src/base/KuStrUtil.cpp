@@ -270,7 +270,7 @@ std::string_view KuStrUtil::trim(const std::string_view& sv, const char* spaces)
 
 	auto trim_pos = v.find_last_not_of(spaces);
 	if (trim_pos != v.npos)
-		v.remove_suffix(v.size() - trim_pos);
+		v.remove_suffix(v.size() - trim_pos - 1);
 
 	return v;
 }
@@ -296,6 +296,29 @@ std::vector<std::string_view> KuStrUtil::split(const std::string_view& full, con
     return tokens;
 }
 
+
+std::vector<std::string_view> KuStrUtil::splitWithQuote(const std::string_view& full, const std::string& delims, bool skipEempty)
+{
+	auto pos = full.find_first_of("'\"");
+	if (pos == std::string_view::npos)
+		return split(full, delims, skipEempty);
+
+	auto last = std::string_view(full.data() + pos + 1, full.size() - pos - 1).find(full[pos]);
+	if (last == std::string_view::npos)
+		return split(full, delims, skipEempty); // 不匹配的引号，当作正常字符解析
+
+	std::vector<std::string_view> res;
+	if (pos != 0)
+		res = split(std::string_view(full.data(), pos), delims, skipEempty);
+
+	auto qtok = std::string_view{ full.data() + pos, last + 2 };
+	res.push_back(qtok);
+
+	auto x = splitWithQuote({qtok.data() + qtok.size(), full.size() - qtok.size() - pos}, delims, skipEempty);
+
+	res.insert(res.end(), x.begin(), x.end());
+	return res;
+}
 
 
 std::vector<std::string> KuStrUtil::splitRegex(const std::string& full, const std::string& regex, bool skipEempty)
