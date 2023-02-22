@@ -173,7 +173,7 @@ protected:
 	virtual bool objectReusable_(unsigned objIdx) const;
 
 	// 绘制第objIdx个渲染对象，并返回可复用的对象id
-	virtual void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const = 0;
+	virtual void* drawObject_(KvPaint*, unsigned objIdx) const = 0;
 
 	mutable std::vector<void*> renderObjs_; // KvPaint返回的渲染对象id，用于vbo重用
 	mutable unsigned objectsReused_{ 0 }; // 复用vbo的对象数量, for debug
@@ -198,7 +198,7 @@ protected:
 	// 根据valp构建point3对象
 	// 如果forceDefaultZ_为真，则替换valp的z值，否则用原z值
 	point3 toPoint_(float_t* valp, unsigned ch) const {
-		return { valp[0], valp[1], forceDefaultZ() ? defaultZ(ch) : valp[2] };
+		return { valp[0], valp[1], usingDefaultZ_() ? defaultZ(ch) : valp[2] };
 	}
 
 	virtual aabb_t calcBoundingBox_() const;

@@ -52,10 +52,10 @@ bool KcBoxPlot::objectVisible_(unsigned objIdx) const
 	return true;
 }
 
-void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
+void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
 	if (dataChanged() && objIdx == 0) // 只计算一次
-	    calcStats_(disc);
+	    calcStats_();
 
 	assert(objIdx < stats_.size());
 
@@ -96,8 +96,9 @@ void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted*
 }
 
 
-void KcBoxPlot::calcStats_(const KvDiscreted* d) const
+void KcBoxPlot::calcStats_() const
 {
+	auto d = discreted_();
 	stats_.resize(d->channels());
 	for (unsigned ch = 0; ch < stats_.size(); ch++) {
 

@@ -985,7 +985,7 @@ template<typename KREAL>
 std::pair<unsigned, unsigned> KuMath::argMixMax(const KREAL x[], unsigned n)
 {
     auto iter = std::minmax_element(x, x + n);
-    return { iter.first - x, iter.second - x };
+    return { unsigned(iter.first - x), unsigned(iter.second - x) };
 }
 
 

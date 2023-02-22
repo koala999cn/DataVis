@@ -1,10 +1,11 @@
 #pragma once
-#include "KvPlottable1d.h"
+#include "KvPlottable.h"
+#include <functional>
 
 
-class KcLineFilled : public KvPlottable1d
+class KcLineFilled : public KvPlottable
 {
-	using super_ = KvPlottable1d;
+	using super_ = KvPlottable;
 
 public:
 
@@ -13,6 +14,8 @@ public:
 	const color4f& minorColor() const override;
 
 	void setMinorColor_(const color4f& minor) override;
+
+	unsigned objectCount() const final { return 2; } // fill和edge分别有1个渲染对象
 
 	const KpBrush& fillBrush() const { return fillCxt_; }
 	KpBrush& fillBrush() { return fillCxt_; }
@@ -23,7 +26,7 @@ public:
 	bool showLine() const { return showLine_; }
 	bool& showLine() { return showLine_; }
 
-	// 面积图的集中绘制模式
+	// 面积图的绘制模式
 	enum KeFillMode
 	{
 		k_fill_overlay,
@@ -37,19 +40,20 @@ public:
 
 private:
 
-	unsigned objectsPerBatch_() const final { return 2; } // fill和edge分别有1个渲染对象
-
 	bool objectVisible_(unsigned objIdx) const override;
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const final;
 
-	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const final;
+	void* drawObject_(KvPaint*, unsigned objIdx) const final;
 
-	void* fillGradiant_(KvPaint*, GETTER, GETTER, unsigned, unsigned) const;
+	bool objectReusable_(unsigned objIdx) const final;
+
+	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
+	void fillBetween_(KvPaint*, GETTER, GETTER, unsigned count, unsigned ch, void* vtx) const;
 
 private:
 	bool showLine_{ false };
 	KpPen lineCxt_;
-	mutable KpBrush fillCxt_;
+	KpBrush fillCxt_;
 	int fillMode_{ 0 };
 };

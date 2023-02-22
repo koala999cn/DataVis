@@ -42,7 +42,7 @@ public:
 	// 按照row-major读取mat数据
 	static std::shared_ptr<KvData> makeData(const matrixd& mat, int type);
 
-	static std::shared_ptr<KvData> cloneSampled1d(std::shared_ptr<KvData> samp);
+	static std::shared_ptr<KvData> cloneSampled1d(std::shared_ptr<const KvData> samp);
 
 	static bool isMatrix(const KvData& d);
 	
@@ -96,7 +96,7 @@ public:
 	};
 
 
-	static KpValueGetter1d valueGetter1d(const std::shared_ptr<KvData>& data);
+	static KpValueGetter1d valueGetter1d(const std::shared_ptr<const KvData>& data);
 
 
 	struct KpValueGetter2d
@@ -129,7 +129,7 @@ public:
 	};
 
 
-	static KpValueGetter2d valueGetter2d(const std::shared_ptr<KvData>& data);
+	static KpValueGetter2d valueGetter2d(const std::shared_ptr<const KvData>& data);
 
 	struct KpPointGetter1d
 	{
@@ -143,19 +143,19 @@ public:
 		unsigned xsize, ysize;
 	};
 
-	static bool hasPointGetter2d(const std::shared_ptr<KvDiscreted>& disc);
+	static bool hasPointGetter2d(const std::shared_ptr<const KvDiscreted>& disc);
 
 	// 计算disc每个通道有多少条pointGetter1d
-	static unsigned pointGetter1dCount(const std::shared_ptr<KvDiscreted>& disc);
+	static unsigned pointGetter1dCount(const std::shared_ptr<const KvDiscreted>& disc);
 
 	// 计算disc每个通道有多少条pointGetter2d
-	static unsigned pointGetter2dCount(const std::shared_ptr<KvDiscreted>& disc);
+	static unsigned pointGetter2dCount(const std::shared_ptr<const KvDiscreted>& disc);
 
 	// 获取disc的第ch通道的第idx条pointGetter1d
-	static KpPointGetter1d pointGetter1dAt(const std::shared_ptr<KvDiscreted>& disc, unsigned ch, unsigned idx);
+	static KpPointGetter1d pointGetter1dAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch, unsigned idx);
 
 	// 获取disc的第ch通道的第idx条pointGetter2d
-	static KpPointGetter2d pointGetter2dAt(const std::shared_ptr<KvDiscreted>& disc, unsigned ch, unsigned idx);
+	static KpPointGetter2d pointGetter2dAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch, unsigned idx);
 	
 
 private:

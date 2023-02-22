@@ -109,10 +109,6 @@ void KvPlottable::draw(KvPaint* paint) const
 	if (empty())
 		return;
 
-	auto disc = discreted_();
-	if (disc == nullptr || disc->empty())
-		return;
-
 	// 处理主色数量的动态变化
 	// NB: 对于连续数据，若用户动态调整sampCount，可能同时引发主色数量需求的变化（如bars2d）
 	// 此处更新太晚了，legend在calcSize的时候就要进行一致性检测
@@ -138,7 +134,7 @@ void KvPlottable::draw(KvPaint* paint) const
 			setObjectState_(paint, i);
 			bool reusing = objectReusable_(i) && (renderObjs_[i] = paint->redraw(renderObjs_[i]));
 			if (!reusing)
-				renderObjs_[i] = drawObject_(paint, i, disc.get());
+				renderObjs_[i] = drawObject_(paint, i);
 			else
 				++objectsReused_;
 		}

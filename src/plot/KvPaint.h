@@ -108,6 +108,9 @@ public:
 
 	virtual void* drawLineStrip(point_getter1 fn, unsigned count);
 
+	// 绘制多条线段集合
+	virtual void* drawLineStrips(const std::vector<point_getter1>& fns, const std::vector<unsigned>& cnts) = 0;
+
 	virtual void drawLineLoop(const point3 pts[], unsigned count);
 
 	virtual void drawLineLoop(point_getter1 fn, unsigned count);

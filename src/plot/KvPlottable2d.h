@@ -36,7 +36,7 @@ protected:
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
-	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
+	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix, unsigned iy)>;
 

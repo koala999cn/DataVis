@@ -197,7 +197,7 @@ void KcOpSampler::syncInput_()
 
         auto prov = std::dynamic_pointer_cast<KvDataProvider>(inputs_.front()->parent().lock());
         if (prov->isContinued(inputs_.front()->index())) {
-            int c = std::ceil(std::pow(1024., 1. / (dim(0))));
+            float c = std::ceil(std::pow(1024., 1. / (dim(0))));
             std::fill(sampCount_.begin(), sampCount_.end(), c);
         }
         else {

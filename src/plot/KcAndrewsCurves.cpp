@@ -105,7 +105,7 @@ namespace kPrivate
 }
 
 
-void* KcAndrewsCurves::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
+void* KcAndrewsCurves::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
 	if (dataChanged() && objIdx == 0)
 		const_cast<KcAndrewsCurves*>(this)->genCurves_();

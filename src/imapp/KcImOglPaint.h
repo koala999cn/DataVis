@@ -49,6 +49,8 @@ public:
 
 	void* drawLineStrip(point_getter1 fn, unsigned count) override;
 
+	void* drawLineStrips(const std::vector<point_getter1>& fns, const std::vector<unsigned>& cnts) override;
+
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
 	void drawText(const point3& anchor, const char* text, int align) override;

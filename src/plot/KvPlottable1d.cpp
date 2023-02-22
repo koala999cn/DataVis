@@ -1,7 +1,6 @@
 #include "KvPlottable1d.h"
 #include "KvDiscreted.h"
 
-
 unsigned KvPlottable1d::objectCount() const
 {
 	if (empty())
@@ -13,14 +12,15 @@ unsigned KvPlottable1d::objectCount() const
 }
 
 
-void* KvPlottable1d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
+void* KvPlottable1d::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
+	auto disc = discreted_();
 	if (disc->dim() == 1)
-		return draw1d_(paint, objIdx, disc);
+		return draw1d_(paint, objIdx, disc.get());
 	else if (disc->isSampled())
-		return draw2d_(paint, objIdx, disc);
+		return draw2d_(paint, objIdx, disc.get());
 	else
-		return draw3d_(paint, objIdx, disc);
+		return draw3d_(paint, objIdx, disc.get());
 }
 
 
@@ -71,7 +71,7 @@ void* KvPlottable1d::draw3d_(KvPaint* paint, unsigned objIdx, const KvDiscreted*
 
 typename KvPaint::point_getter1 KvPlottable1d::toPoint3Getter_(GETTER g, unsigned channel) const
 {
-	if (forceDefaultZ()) {
+	if (this->usingDefaultZ_()) {
 		auto z = defaultZ(channel);
 		return [g, z](unsigned idx) {
 			auto pt = g(idx);

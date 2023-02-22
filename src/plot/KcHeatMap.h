@@ -25,7 +25,7 @@ private:
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
-	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const final;
+	void* drawObject_(KvPaint*, unsigned objIdx) const final;
 
 	void* drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned c) const final;
 

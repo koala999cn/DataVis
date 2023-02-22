@@ -84,7 +84,7 @@ void KcBars2d::setPaddingGrouped(float padding)
 }
 
 
-void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
+void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
 	auto barWidth = barWidth_(); // 目前返回dx（世界坐标）
 	auto clusterWidth = barWidth * barWidthRatio_; // 每簇所占的宽度（世界坐标）
@@ -107,6 +107,7 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* 
 		point4f clr;
 	};
 
+	auto disc = discreted_();
 	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
 	auto vtx = geom->newVertex(disc->size() * disc->channels() * 4);
 	auto xdim = xdim_();

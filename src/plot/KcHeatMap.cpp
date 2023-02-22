@@ -56,9 +56,9 @@ KcHeatMap::aabb_t KcHeatMap::calcBoundingBox_() const
 }
 
 
-void* KcHeatMap::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
+void* KcHeatMap::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
-	auto samp = dynamic_cast<const KvSampled*>(disc);
+	auto samp = std::dynamic_pointer_cast<const KvSampled>(discreted_());
 	assert(samp && samp->dim() >= 2);
 
 	auto ch = objIdx / 2;

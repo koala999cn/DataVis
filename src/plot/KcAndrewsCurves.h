@@ -25,7 +25,7 @@ private:
 
 	bool objectVisible_(unsigned objIdx) const override;
 
-	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
+	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
 	aabb_t calcBoundingBox_() const override;
 

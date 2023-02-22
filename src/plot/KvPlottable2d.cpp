@@ -40,12 +40,12 @@ void KvPlottable2d::setObjectState_(KvPaint* paint, unsigned objIdx) const
 }
 
 
-void* KvPlottable2d::drawObject_(KvPaint* paint, unsigned objIdx, const KvDiscreted* disc) const
+void* KvPlottable2d::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
-	auto samp = dynamic_cast<const KvSampled*>(disc);
+	auto samp = std::dynamic_pointer_cast<const KvSampled>(discreted_());
 	assert(samp && samp->dim() >= 2);
 
-	auto getter = [&samp, objIdx](unsigned ix, unsigned iy) {
+	auto getter = [samp, objIdx](unsigned ix, unsigned iy) {
 		return samp->point(ix, iy, objIdx);
 	};
 

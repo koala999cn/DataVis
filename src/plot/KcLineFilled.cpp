@@ -1,8 +1,9 @@
 #include "KcLineFilled.h"
 #include "KvPaint.h"
-#include "KvData.h"
+#include "KvDiscreted.h"
 #include "KtGeometryImpl.h"
 #include "KtLineS2d.h"
+#include "KuDataUtil.h"
 #include <assert.h>
 
 
@@ -17,53 +18,98 @@ bool KcLineFilled::objectVisible_(unsigned objIdx) const
 
 void KcLineFilled::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
-	if (objIdx & 1) { // edge状态设置
+	if (objIdx == 1) { // edge状态设置
 		paint->apply(lineCxt_);
 	}
 	else {
 		paint->setEdged(false); // 始终不描边
 		paint->setFilled(true);
-		if (coloringMode() == k_one_color_solid) { // fill状态设置
-			paint->apply(fillCxt_);
-			paint->setColor(majorColor(objIdx2ChsIdx_(objIdx)));
-		}
+		paint->apply(fillCxt_);
 	}
 }
 
 
-void* KcLineFilled::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned objIdx) const
+namespace kPrivate
 {
-	unsigned stride = count / 4096 + 1;
-	auto downsamp = [getter, stride](unsigned idx) { // TODO：使用降采样算法
-		return getter(stride * idx);
+	struct KpVertex_
+	{
+		point3f pos;
+		point4f clr;
 	};
+}
 
-	if (count > 4096)
-		getter = downsamp, count /= stride;
+void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
+{
+	if (objIdx == 1) {
+		std::vector<KvPaint::point_getter1> fns;
+		std::vector<unsigned> cnts;
 
-	auto ch = objIdx2ChsIdx_(objIdx);
+		auto disc = discreted_();
+		auto c = KuDataUtil::pointGetter1dCount(disc);
+		fns.reserve(c * disc->channels());
+		cnts.reserve(c * disc->channels());
+		for (kIndex ch = 0; ch < disc->channels(); ch++) {
+			for (unsigned i = 0; i < c; i++) {
+				auto g = KuDataUtil::pointGetter1dAt(disc, ch, i);
 
-	if (objIdx & 1) 
-		return paint->drawLineStrip(toPoint3Getter_(getter, ch), count);
+				KvPaint::point_getter1 g1;
 
-	auto getter2 = [getter](unsigned i) {
-		auto pt = getter(i);
-		pt[1] = 0; // TODO: 暂时取y=0基线
-		return pt;
-	};
+				if (usingDefaultZ_()) {
+					auto z = defaultZ(ch);
+					g1 = [g, z](unsigned idx) {
+						auto pt = g.getter(idx);
+						return point3(pt[0], pt[1], z);
+					};
+				}
+				else {
+					g1 = [g](unsigned idx) {
+						auto pt = g.getter(idx);
+						return point3(pt[0], pt[1], pt[2]);
+					};
+				}
 
-	if (coloringMode() == k_one_color_solid) 
-		return paint->fillBetween(toPoint3Getter_(getter, ch), 
-			toPoint3Getter_(getter2, ch), count);
-	
-	else 
-		return fillGradiant_(paint, getter, getter2, count, ch);
+				fns.push_back(g1);
+				cnts.push_back(g.size);
+			}
+		}
+
+		return paint->drawLineStrips(fns, cnts);
+	}
+	else {
+		auto disc = discreted_();
+		auto c = KuDataUtil::pointGetter1dCount(disc);
+		auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
+
+		for (kIndex ch = 0; ch < disc->channels(); ch++) {
+			for (unsigned i = 0; i < c; i++) {
+				auto g1 = KuDataUtil::pointGetter1dAt(disc, ch, i);
+				auto g2 = [g1](unsigned i) {
+					auto pt = g1.getter(i);
+					pt[1] = 0; // TODO: 暂时取y=0基线
+					return pt;
+				};
+
+				auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+
+				fillBetween_(paint, g1.getter, g2, g1.size, ch, vtx);
+			}
+		}
+
+		return paint->drawGeomColor(geom);
+	}
 }
 
 
 const color4f& KcLineFilled::minorColor() const
 {
 	return lineCxt_.color;
+}
+
+
+bool KcLineFilled::objectReusable_(unsigned objIdx) const
+{
+	// NB: 由于面积图没有使用solid geom绘制，所以颜色变化须重构对象
+	return !dataChanged() && !coloringChanged();
 }
 
 
@@ -82,23 +128,16 @@ void KcLineFilled::setFillMode(KeFillMode mode)
 }
 
 
-void* KcLineFilled::fillGradiant_(KvPaint* paint, GETTER getter1, GETTER getter2, unsigned count, unsigned ch) const
+void KcLineFilled::fillBetween_(KvPaint* paint, GETTER getter1, GETTER getter2, 
+	unsigned count, unsigned ch, void* buf) const
 {
 	assert(count > 0);
-
-	struct KpVertex_
-	{
-		point3f pos;
-		point4f clr;
-	};
-
-	auto geom = std::make_shared<KtGeometryImpl<KpVertex_, unsigned>>(k_triangles);
-	auto vtx = geom->newVertex((count - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+	auto vtx = (kPrivate::KpVertex_*)buf;
 
 	auto p00 = getter1(0);
 	auto p01 = getter2(0);
 
-	assert(p00[2] == p01[2]); // 要求各点都在一个z平面上
+	// assert(p00[2] == p01[2]); // 要求各点都在一个z平面上
 
 	for (unsigned i = 1; i < count; i++) {
 		auto p10 = getter1(i);
@@ -144,6 +183,4 @@ void* KcLineFilled::fillGradiant_(KvPaint* paint, GETTER getter1, GETTER getter2
 		p00 = p10, p01 = p11;
 		vtx += 6;
 	}
-
-	return paint->drawGeomColor(geom);
 }

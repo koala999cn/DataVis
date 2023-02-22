@@ -48,11 +48,11 @@ private:
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
-	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
+	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
 	aabb_t calcBoundingBox_() const override;
 
-	void calcStats_(const KvDiscreted*) const;
+	void calcStats_() const;
 
 private:
 

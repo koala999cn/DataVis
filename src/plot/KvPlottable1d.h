@@ -17,7 +17,7 @@ protected:
 	unsigned objectCount() const override;
 
 	// 绘制第objIdx个渲染对象，并返回可复用的对象id
-	void* drawObject_(KvPaint*, unsigned objIdx, const KvDiscreted* disc) const override;
+	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
 	// 每个批次的渲染对象数目，有的实现可能fill和edge分别有1个对象，有的可能text还有1个对象
 	// 通常每个通道对用1个批次

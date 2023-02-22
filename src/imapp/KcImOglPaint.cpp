@@ -479,8 +479,46 @@ void* KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
 
 	auto vbo = std::make_shared<KcGpuBuffer>();
 	std::vector<point3f> vtx;
+	vtx.reserve(count);
 	for (unsigned i = 0; i < count; i++) // 装配数据
 		vtx.push_back(fn(i));
+	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
+
+	obj->setVBO(vbo, decl);
+	obj->setColor(clr_);
+	obj->setWidth(lineWidth_);
+	obj->setStyle(lineStyle_);
+	pushRenderObject_(obj);
+
+	return obj;
+}
+
+
+void* KcImOglPaint::drawLineStrips(const std::vector<point_getter1>& fns, const std::vector<unsigned>& cnts)
+{
+	assert(fns.size() == cnts.size());
+
+	auto obj = new KcLineObject(k_line_strip);
+
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
+
+	auto vbo = std::make_shared<KcGpuBuffer>();
+	std::vector<point3f> vtx;
+	unsigned total(0);
+	for (auto c : cnts)
+		total += c;
+	total += cnts.size() - 1; // 每条线段之间插入nan
+	vtx.reserve(total);
+
+	for (unsigned i = 0; i < fns.size(); i++) {
+		for (unsigned j = 0; j < cnts[i]; j++) // 装配数据
+			vtx.push_back(fns[i](j));
+		if (i != fns.size() - 1)
+			vtx.push_back(point3f(KuMath::nan<float>()));
+	}
+
+	assert(vtx.size() == total);
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
 	obj->setVBO(vbo, decl);

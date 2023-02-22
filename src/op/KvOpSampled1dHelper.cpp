@@ -82,7 +82,7 @@ bool KvOpSampled1dHelper::createOutputData_(kReal x0ref)
 
 void KvOpSampled1dHelper::output1d_()
 {
-	auto in = std::dynamic_pointer_cast<KvDiscreted>(idata_.front());
+	auto in = idata_.front();
 	assert(in);
 
 	auto isize = isize_();
