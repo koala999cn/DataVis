@@ -4,10 +4,12 @@
 - [x] 多值函数支持(multifunction)
 - [x] 多通道连续数据
 - [x] 缓存function的range计算
+- [ ] 整合expression和function，提供parametric标记，并新增实现piecewise expression
+- [ ] 文本文件中日期的解析（参考http://www.partow.net/programming/datetime/index.html）
 
 ## operator
 - [ ] 测试spectrum的options的sampleRate一致性
-- [ ] sampler的采样率动态更改后，输出没有更新
+- [ ] sampler的采样率动态更改后，输出没有更新 -> 主要是audioplay没有对输入重采样，也没有变换设备频率
 
 ## plot
 - [ ] title等设置

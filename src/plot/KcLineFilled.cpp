@@ -73,6 +73,15 @@ void KcLineFilled::setMinorColor_(const color4f& minor)
 }
 
 
+void KcLineFilled::setFillMode(KeFillMode mode)
+{
+	if (mode != fillMode_) {
+		fillMode_ = mode;
+		setDataChanged();
+	}
+}
+
+
 void* KcLineFilled::fillGradiant_(KvPaint* paint, GETTER getter1, GETTER getter2, unsigned count, unsigned ch) const
 {
 	assert(count > 0);

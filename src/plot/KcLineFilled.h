@@ -23,6 +23,18 @@ public:
 	bool showLine() const { return showLine_; }
 	bool& showLine() { return showLine_; }
 
+	// 面积图的集中绘制模式
+	enum KeFillMode
+	{
+		k_fill_overlay,
+		k_fill_stacked,
+		k_fill_between,
+		k_fill_dual
+	};
+
+	int fillMode() const { return fillMode_; }
+	void setFillMode(KeFillMode mode);
+
 private:
 
 	unsigned objectsPerBatch_() const final { return 2; } // fill和edge分别有1个渲染对象
@@ -39,4 +51,5 @@ private:
 	bool showLine_{ false };
 	KpPen lineCxt_;
 	mutable KpBrush fillCxt_;
+	int fillMode_{ 0 };
 };

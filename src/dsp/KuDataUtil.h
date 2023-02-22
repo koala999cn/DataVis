@@ -5,6 +5,7 @@
 #include <assert.h>
 
 class KvData;
+class KvDiscreted;
 
 class KuDataUtil
 {
@@ -100,35 +101,61 @@ public:
 
 	struct KpValueGetter2d
 	{
-		std::function<double(unsigned ch, unsigned row, unsigned col)> getter{ nullptr };
+		std::function<double(unsigned ch, unsigned ix, unsigned iy)> getter{ nullptr };
 		unsigned channels{ 0 }; // 通道数
-		unsigned rows{ 0 }; // 每个通道的行数
-		unsigned cols{ 0 }; // 每个通道的列数
+		unsigned xsize{ 0 }; // 每个通道的行数
+		unsigned ysize{ 0 }; // 每个通道的列数
 		const double* data{ nullptr }; // 内存访问地址（nullptr表示不可内存访问）
 		int channelStride{ 0 }; // 各通道间的跨度（double数），仅当data非空时有效
-		int rowStride{ 0 }; // 各行间的跨度（double数），仅当data非空时有效
-		int colStride{ 0 }; // 各列间的跨度（double数），仅当data非空时有效
+		int xstride{ 0 }; // 各行间的跨度（double数），仅当data非空时有效
+		int ystride{ 0 }; // 各列间的跨度（double数），仅当data非空时有效
 
-		auto fetchRowOfChannel(unsigned ch, unsigned row) const {
-			std::vector<double> buf(cols);
+		auto fetchXOfChannel(unsigned ch, unsigned ix) const {
+			std::vector<double> buf(ysize);
 			auto p = buf.data();
-			for (unsigned i = 0; i < cols; i++)
-				*p++ = getter(ch, row, i);
+			for (unsigned iy = 0; iy < ysize; iy++)
+				*p++ = getter(ch, ix, iy);
 			return buf;
 		}
 
-		auto fetchRow(unsigned row) const {
-			std::vector<double> buf( cols * channels);
+		auto fetchX(unsigned ix) const {
+			std::vector<double> buf(ysize * channels);
 			auto p = buf.data();
-			for (unsigned i = 0; i < cols; i++)
+			for (unsigned iy = 0; iy < ysize; iy++)
 				for (unsigned ch = 0; ch < channels; ch++) // 各通道数据交错存储
-					*p++ = getter(ch, row, i);
+					*p++ = getter(ch, ix, iy);
 			return buf;
 		}
 	};
 
 
 	static KpValueGetter2d valueGetter2d(const std::shared_ptr<KvData>& data);
+
+	struct KpPointGetter1d
+	{
+		std::function<std::vector<double>(unsigned idx)> getter;
+		unsigned size;
+	};
+
+	struct KpPointGetter2d
+	{
+		std::function<std::vector<double>(unsigned ix, unsigned iy)> getter;
+		unsigned xsize, ysize;
+	};
+
+	static bool hasPointGetter2d(const std::shared_ptr<KvDiscreted>& disc);
+
+	// 计算disc有多少条pointGetter1d
+	static unsigned pointGetter1dCount(const std::shared_ptr<KvDiscreted>& disc);
+
+	// 计算disc有多少条pointGetter2d
+	static unsigned pointGetter2dCount(const std::shared_ptr<KvDiscreted>& disc);
+
+	// 获取disc的第idx条pointGetter1d
+	static KpPointGetter1d pointGetter1dAt(const std::shared_ptr<KvDiscreted>& disc, unsigned idx);
+
+	static KpPointGetter2d pointGetter2dAt(const std::shared_ptr<KvDiscreted>& disc, unsigned idx);
+	
 
 private:
 	KuDataUtil() = default;
