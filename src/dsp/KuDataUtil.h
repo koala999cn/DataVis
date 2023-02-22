@@ -145,16 +145,17 @@ public:
 
 	static bool hasPointGetter2d(const std::shared_ptr<KvDiscreted>& disc);
 
-	// 计算disc有多少条pointGetter1d
+	// 计算disc每个通道有多少条pointGetter1d
 	static unsigned pointGetter1dCount(const std::shared_ptr<KvDiscreted>& disc);
 
-	// 计算disc有多少条pointGetter2d
+	// 计算disc每个通道有多少条pointGetter2d
 	static unsigned pointGetter2dCount(const std::shared_ptr<KvDiscreted>& disc);
 
-	// 获取disc的第idx条pointGetter1d
-	static KpPointGetter1d pointGetter1dAt(const std::shared_ptr<KvDiscreted>& disc, unsigned idx);
+	// 获取disc的第ch通道的第idx条pointGetter1d
+	static KpPointGetter1d pointGetter1dAt(const std::shared_ptr<KvDiscreted>& disc, unsigned ch, unsigned idx);
 
-	static KpPointGetter2d pointGetter2dAt(const std::shared_ptr<KvDiscreted>& disc, unsigned idx);
+	// 获取disc的第ch通道的第idx条pointGetter2d
+	static KpPointGetter2d pointGetter2dAt(const std::shared_ptr<KvDiscreted>& disc, unsigned ch, unsigned idx);
 	
 
 private:

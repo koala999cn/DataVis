@@ -150,32 +150,32 @@ void KvOpSampled1dHelper::output2d_()
 	assert(isize_() != 0); // 流数据处理只支持固定输入尺寸
 
 	auto valueGetter = KuDataUtil::valueGetter2d(idata_.front());
-	assert(valueGetter.cols == isize_());
+	assert(valueGetter.ysize == isize_());
 
 	auto out = std::dynamic_pointer_cast<KcSampled2d>(odata_.front());
-	out->resize(valueGetter.rows, osize_(valueGetter.cols), valueGetter.channels);
+	out->resize(valueGetter.xsize, osize_(valueGetter.ysize), valueGetter.channels);
 
 	if (valueGetter.data) { // 先尝试快捷通道
-		if (splitChannels_ && valueGetter.colStride == 1) { // 各通道采样点连续，可以直接使用
-			std::vector<kReal> oData(osize_(valueGetter.cols));
+		if (splitChannels_ && valueGetter.ystride == 1) { // 各通道采样点连续，可以直接使用
+			std::vector<kReal> oData(osize_(valueGetter.ysize));
 
 			for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
 				auto inp = valueGetter.data + ch * valueGetter.channelStride;
-				for (kIndex r = 0; r < valueGetter.rows; r++) {
-					op_(inp, valueGetter.cols, ch, oData.data());
+				for (kIndex r = 0; r < valueGetter.xsize; r++) {
+					op_(inp, valueGetter.ysize, ch, oData.data());
 					out->setChannel(&r, ch, oData.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
-					inp += valueGetter.rowStride;
+					inp += valueGetter.xstride;
 				}
 			}
 			return;
 		}
 		else if (!splitChannels_ 
 			&& valueGetter.channelStride == 1 
-			&& valueGetter.colStride == valueGetter.channels) {
+			&& valueGetter.ystride == valueGetter.channels) {
 			auto inp = valueGetter.data;
-			for (unsigned r = 0; r < valueGetter.rows; r++) {
-				op_(inp, valueGetter.cols, valueGetter.channels, out->row(r));
-				inp += valueGetter.rowStride;
+			for (unsigned r = 0; r < valueGetter.xsize; r++) {
+				op_(inp, valueGetter.ysize, valueGetter.channels, out->row(r));
+				inp += valueGetter.xstride;
 			}
 		}
 	}
@@ -183,17 +183,17 @@ void KvOpSampled1dHelper::output2d_()
 
 	// 使用getter
 	if (!splitChannels_) {
-		for (kIndex r = 0; r < valueGetter.rows; r++) {
-			auto ibuf = valueGetter.fetchRow(r);
-			op_(ibuf.data(), valueGetter.cols, valueGetter.channels, out->row(r));
+		for (kIndex r = 0; r < valueGetter.xsize; r++) {
+			auto ibuf = valueGetter.fetchX(r);
+			op_(ibuf.data(), valueGetter.ysize, valueGetter.channels, out->row(r));
 		}
 	}
 	else {
-		std::vector<kReal> oData(osize_(valueGetter.cols));
+		std::vector<kReal> oData(osize_(valueGetter.ysize));
 		for (kIndex ch = 0; ch < valueGetter.channels; ch++) {
-			for (kIndex r= 0; r < valueGetter.rows; r++) {
-				auto ibuf = valueGetter.fetchRowOfChannel(ch, r);
-				op_(ibuf.data(), valueGetter.cols, ch, oData.data());
+			for (kIndex r= 0; r < valueGetter.xsize; r++) {
+				auto ibuf = valueGetter.fetchXOfChannel(ch, r);
+				op_(ibuf.data(), valueGetter.ysize, ch, oData.data());
 				out->setChannel(&r, ch, oData.data()); // TODO: 可以优化为直接写入out，不用经过中转缓存
 			}
 		}
