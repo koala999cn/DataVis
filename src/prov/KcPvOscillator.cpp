@@ -54,20 +54,25 @@ void KcPvOscillator::showPropertySet()
 {
 	super_::showPropertySet();
 
-	bool disable = KsImApp::singleton().pipeline().running();
-	ImGui::BeginDisabled(disable);
-	ImGui::SliderFloat("Phase", &phase_, 0, 1);
-	ImGui::EndDisabled();
-
 	auto osc = std::dynamic_pointer_cast<KvOscillator>(excitor());
+
+	if (ImGui::SliderFloat("Phase", &phase_, 0, 1)) {
+		if (osc) osc->reset(freq_);
+		setOutputExpired_();
+		notifyChanged();
+	}
 
 	if (ImGui::DragFloat("Frequency", &freq_, 1, 1e-10, 1e10)) {
 		if (freq_ <= 0) freq_ = 1e-10;
 		if (osc) osc->setFreq(freq_);
+		setOutputExpired_();
+		notifyChanged();
 	}
 
 	if (ImGui::DragFloat("Tick Rate", &tickRate_, 1, 1e-10, 1e10)) {
 		if (tickRate_ <= 0) tickRate_ = 1e-10;
 		if (osc) osc->setTickRate(tickRate_);
+		setOutputExpired_();
+		notifyChanged();
 	}
 }
