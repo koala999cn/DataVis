@@ -9,7 +9,7 @@
 
 ## operator
 - [ ] 测试spectrum的options的sampleRate一致性
-- [ ] sampler的采样率动态更改后，输出没有更新 -> 主要是audioplay没有对输入重采样，也没有变换设备频率
+- [x] sampler的采样率动态更改后，输出没有更新 -> 主要是audioplay没有对输入重采样，也没有变换设备频率
 
 ## plot
 - [ ] title等设置
@@ -60,7 +60,7 @@
 - [x] 各要素的可见性设置不改变linesyle和alpha等属性 
 
 ## pipeline
-- [ ] 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多
+- [x] 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多 -> 静态数据变化时清空队列
 - [x] 管线运行时，node属性的动态设置与同步
 - [x] 给数据加时间戳stamp
 - [ ] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？--> 是否动态operate和render

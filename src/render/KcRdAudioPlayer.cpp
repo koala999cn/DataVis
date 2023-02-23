@@ -71,16 +71,24 @@ void KcRdAudioPlayer::onInput(KcPortNode* outPort, unsigned inPort)
 
 		dataStamp_ = prov->dataStamp(outPort->index());
 
-		if (!prov->isStream(outPort->index()) || samp.unique()) {
-			render_->enqueue(samp); // 对于独享数据和快照数据，直接压入播放队列
+		if (!prov->isStream(outPort->index())) { // 处理快照数据
+			render_->reset();
+			render_->stop(true);
+			render_->enqueue(samp);
+			render_->play(deviceId_);
 		}
-		else { // 对于共享数据，拷贝之后再压入播放队列
-			auto samp1d = std::dynamic_pointer_cast<KvSampled>(KuDataUtil::cloneSampled1d(samp));
-			assert(samp1d);
-			assert(samp1d->size() == samp->size());
-			assert(samp1d->step(0) == samp->step(0));
-			assert(samp1d->channels() == samp->channels());
-			render_->enqueue(samp1d);
+		else { 
+			if (samp.unique()) { // 对于独享数据，直接压入播放队列
+				render_->enqueue(samp);
+			}
+			else { // 对于共享数据，拷贝之后再压入播放队列	
+				auto samp1d = std::dynamic_pointer_cast<KvSampled>(KuDataUtil::cloneSampled1d(samp));
+				assert(samp1d);
+				assert(samp1d->size() == samp->size());
+				assert(samp1d->step(0) == samp->step(0));
+				assert(samp1d->channels() == samp->channels());
+				render_->enqueue(samp1d);
+			}
 		}
 	}
 }
