@@ -23,7 +23,10 @@ private:
 	// 更新数据的采样参数
 	void updateDataSamplings_();
 
+	void init_(); // 根据dim进行初始化
+
 private:
+	int dim_{ 2 };
 	std::vector<std::string> exprs_; // 各输出维度的运算表达式
 	std::pair<float, float> iranges_[2]; // 采样区间
 	int counts_[2]; // 采样点数
