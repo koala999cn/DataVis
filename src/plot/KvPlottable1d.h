@@ -1,16 +1,19 @@
 #pragma once
 #include "KvPlottable.h"
-#include "KvPaint.h"
+#include "KvPaint.h" // for KvPaint::point_getter1
+#include "KuDataUtil.h"
 
 
 // 序列图的基类，主要处理串行数据，用于绘制折线图graph、散点图scatter等
-// 兼容2d和3d模式
+// 兼容2d和3d模式，抽象stacked绘图模式
 
 class KvPlottable1d : public KvPlottable
 {
+	using super_ = KvPlottable;
+
 public:
 
-	using KvPlottable::KvPlottable;
+	using super_::super_;
 
 protected:
 
@@ -20,7 +23,7 @@ protected:
 	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
 	// 每个批次的渲染对象数目，有的实现可能fill和edge分别有1个对象，有的可能text还有1个对象
-	// 通常每个通道对用1个批次
+	// 通常每个通道对应1个批次
 	virtual unsigned objectsPerBatch_() const { return 1; }
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
@@ -35,6 +38,42 @@ protected:
 
 	// 将渲染对象id转换为通道号
 	unsigned objIdx2ChsIdx_(unsigned objIdx) const;
+
+	// 返回每个通道包含的1d数据数目. 对于samp2d数据，返回samp2d::size(0)
+	unsigned linesPerChannel_() const {
+		return KuDataUtil::pointGetter1dCount(discreted_());
+	}
+
+	// data1d数据总数
+	unsigned linesTotal_() const;
+
+	// 返回第ch通道的第idx条1d数据访问接口
+	KuDataUtil::KpPointGetter1d lineAt_(unsigned ch, unsigned idx) const;
+
+	aabb_t calcBoundingBox_() const override;
+
+	////////////////////////////////////////////////////////////////////////
+	// 
+	// stack绘制模式支持相关接口
+
+	enum KeStackMode
+	{
+		k_stack_none, // 无堆叠
+		k_stack_channel, // 按通道堆叠
+		k_stack_column // 按列（x轴向）堆叠（仅对二维采样数据）
+	};
+
+	void setStackMode_(int mode);
+
+private:
+
+	void calcStackData_() const; // 计算stack数据，内部调用
+
+	int stackMode_{ k_stack_none };
+	
+	mutable std::vector<std::vector<float_t>> stackedData_; // 保存stack数据计算结果
+
+	////////////////////////////////////////////////////////////////////////
 
 private:
 
