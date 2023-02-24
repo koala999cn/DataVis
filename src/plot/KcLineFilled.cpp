@@ -105,6 +105,29 @@ void KcLineFilled::setFillMode(KeFillMode mode)
 }
 
 
+void KcLineFilled::setBaseMode(KeBaseMode mode)
+{
+	if (mode != baseMode_) {
+		baseMode_ = mode;
+		setDataChanged();
+	}
+}
+
+
+void KcLineFilled::setBaseLine(float_t base)
+{
+	baseLine_ = base;
+	setDataChanged();
+}
+
+
+void KcLineFilled::setBasePoint(const point3& pt)
+{
+	basePoint_ = pt;
+	setDataChanged();
+}
+
+
 void* KcLineFilled::fillOverlay_(KvPaint* paint) const
 {
 	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
@@ -112,11 +135,7 @@ void* KcLineFilled::fillOverlay_(KvPaint* paint) const
 	for (kIndex ch = 0; ch < data()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
 			auto g1 = lineAt_(ch, i);
-			auto g2 = [g1](unsigned i) {
-				auto pt = g1.getter(i);
-				pt[1] = 0; // TODO: 暂时取y=0基线
-				return pt;
-			};
+			auto g2 = baseGetter_(g1.getter);
 
 			auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
 
@@ -136,11 +155,7 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 
 	if (baseline) {
 		auto g1 = lineAt_(0, 0);
-		auto g2 = [g1](unsigned i) {
-			auto pt = g1.getter(i);
-			pt[1] = 0; // TODO: 暂时取y=0基线
-			return pt;
-		};
+		auto g2 = baseGetter_(g1.getter);
 
 		auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
 
@@ -163,6 +178,19 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 	}
 
 	return paint->drawGeomColor(geom);
+}
+
+
+KcLineFilled::GETTER KcLineFilled::baseGetter_(GETTER g) const
+{
+	return [g, this](unsigned i) {
+		auto pt = g(i);
+		if (baseMode_ == k_base_xline)
+			pt[1] = baseLine_;
+		else
+			pt[0] = baseLine_;
+		return pt;
+	};
 }
 
 

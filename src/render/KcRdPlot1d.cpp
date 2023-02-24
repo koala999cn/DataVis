@@ -110,10 +110,33 @@ namespace kPrivate
 			static const char* modeStr[] = {
 				"overlay", "stacked", "between"
 			};
-			int mode = fill->fillMode();
-			if (ImGui::Combo("Fill Mode", &mode, modeStr, std::size(modeStr))) {
-				fill->setFillMode(KcLineFilled::KeFillMode(mode));
+			int fillMmode = fill->fillMode();
+			if (ImGui::Combo("Fill Mode", &fillMmode, modeStr, std::size(modeStr))) {
+				fill->setFillMode(KcLineFilled::KeFillMode(fillMmode));
 			}
+
+			ImGui::BeginDisabled(fillMmode == 2);
+			static const char* baseStr[] = {
+				"x line", "y line", "point"
+			};
+			int baseMode = fill->baseMode();
+			if (ImGui::Combo("Base Mode", &baseMode, baseStr, std::size(baseStr))) {
+				fill->setBaseMode(KcLineFilled::KeBaseMode(baseMode));
+			}
+
+			if (baseMode < 2) {
+				float line = fill->baseLine();
+				if (ImGui::DragFloat("Base Line", &line, line ? line / 1000 : 1, -1e6, 1e6, 
+					baseMode == 0 ? "y = %.3f" : "x = %.3f"))
+					fill->setBaseLine(line);
+			}
+			else {
+				auto pt = fill->basePoint(); 
+				if (ImGui::DragScalarN("Base Point", ImGuiDataType_Double, pt.data(), 3))
+					fill->setBasePoint(pt);
+			}
+
+			ImGui::EndDisabled();
 
 			//ImGuiX::brush(fill->fillBrush(), false); // 隐藏brush的style选项，始终fill
 

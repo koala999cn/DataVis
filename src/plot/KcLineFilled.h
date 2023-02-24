@@ -39,6 +39,23 @@ public:
 	int fillMode() const { return fillMode_; }
 	void setFillMode(KeFillMode mode);
 
+	// »ù×¼Ïß
+	enum KeBaseMode
+	{
+		k_base_xline,
+		k_base_yline,
+		k_base_point
+	};
+
+	int baseMode() const { return baseMode_; }
+	void setBaseMode(KeBaseMode mode);
+
+	float_t baseLine() const { return baseLine_; }
+	void setBaseLine(float_t base);
+
+	const point3& basePoint() const { return basePoint_; }
+	void setBasePoint(const point3& pt);
+
 private:
 
 	bool objectVisible_(unsigned objIdx) const override;
@@ -59,9 +76,14 @@ private:
 		return 0;
 	}
 
+	GETTER baseGetter_(GETTER g) const;
+
 private:
 	bool showLine_{ false };
 	KpPen lineCxt_;
 	KpBrush fillCxt_;
 	int fillMode_{ 0 };
+	int baseMode_{ 0 };
+	float_t baseLine_{ 0 };
+	point3 basePoint_{ 0, 0, 0 };
 };
