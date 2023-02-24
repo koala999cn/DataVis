@@ -7,6 +7,12 @@
 #include <assert.h>
 
 
+unsigned KcLineFilled::majorColorsNeeded() const
+{
+	return fillMode_ == k_fill_between ? linesTotal_() - 1 : linesTotal_();
+}
+
+
 bool KcLineFilled::objectVisible_(unsigned objIdx) const
 {
 	if (objIdx & 1)
@@ -43,32 +49,13 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 	if (objIdx == 1) {
 		std::vector<KvPaint::point_getter1> fns;
 		std::vector<unsigned> cnts;
+		fns.reserve(linesTotal_());
+		cnts.reserve(linesTotal_());
 
-		auto disc = discreted_();
-		auto c = KuDataUtil::pointGetter1dCount(disc);
-		fns.reserve(c * disc->channels());
-		cnts.reserve(c * disc->channels());
-		for (kIndex ch = 0; ch < disc->channels(); ch++) {
-			for (unsigned i = 0; i < c; i++) {
-				auto g = KuDataUtil::pointGetter1dAt(disc, ch, i);
-
-				KvPaint::point_getter1 g1;
-
-				if (usingDefaultZ_()) {
-					auto z = defaultZ(ch);
-					g1 = [g, z](unsigned idx) {
-						auto pt = g.getter(idx);
-						return point3(pt[0], pt[1], z);
-					};
-				}
-				else {
-					g1 = [g](unsigned idx) {
-						auto pt = g.getter(idx);
-						return point3(pt[0], pt[1], pt[2]);
-					};
-				}
-
-				fns.push_back(g1);
+		for (kIndex ch = 0; ch < data()->channels(); ch++) {
+			for (unsigned i = 0; i < linesPerChannel_(); i++) {
+				auto g = lineAt_(ch, i);
+				fns.push_back(toPoint3Getter_(g.getter, ch));
 				cnts.push_back(g.size);
 			}
 		}
@@ -76,26 +63,15 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 		return paint->drawLineStrips(fns, cnts);
 	}
 	else {
-		auto disc = discreted_();
-		auto c = KuDataUtil::pointGetter1dCount(disc);
-		auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
+		if (fillMode_ == k_fill_overlay)
+			return fillOverlay_(paint);
+		else if (fillMode_ == k_fill_stacked)
+			return fillBetween_(paint, true);
+		else if (fillMode_ == k_fill_between)
+			return fillBetween_(paint, false);
 
-		for (kIndex ch = 0; ch < disc->channels(); ch++) {
-			for (unsigned i = 0; i < c; i++) {
-				auto g1 = KuDataUtil::pointGetter1dAt(disc, ch, i);
-				auto g2 = [g1](unsigned i) {
-					auto pt = g1.getter(i);
-					pt[1] = 0; // TODO: 暂时取y=0基线
-					return pt;
-				};
-
-				auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-
-				fillBetween_(paint, g1.getter, g2, g1.size, ch, vtx);
-			}
-		}
-
-		return paint->drawGeomColor(geom);
+		assert(false);
+		return nullptr;
 	}
 }
 
@@ -123,8 +99,70 @@ void KcLineFilled::setFillMode(KeFillMode mode)
 {
 	if (mode != fillMode_) {
 		fillMode_ = mode;
+		setStackMode_(mode == k_fill_stacked);
 		setDataChanged();
 	}
+}
+
+
+void* KcLineFilled::fillOverlay_(KvPaint* paint) const
+{
+	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
+
+	for (kIndex ch = 0; ch < data()->channels(); ch++) {
+		for (unsigned i = 0; i < linesPerChannel_(); i++) {
+			auto g1 = lineAt_(ch, i);
+			auto g2 = [g1](unsigned i) {
+				auto pt = g1.getter(i);
+				pt[1] = 0; // TODO: 暂时取y=0基线
+				return pt;
+			};
+
+			auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+
+			fillBetween_(paint, g1.getter, g2, g1.size, ch, vtx);
+		}
+	}
+
+	return paint->drawGeomColor(geom);
+}
+
+
+void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
+{
+	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
+
+	unsigned idx(0); // 用于获取主色
+
+	if (baseline) {
+		auto g1 = lineAt_(0, 0);
+		auto g2 = [g1](unsigned i) {
+			auto pt = g1.getter(i);
+			pt[1] = 0; // TODO: 暂时取y=0基线
+			return pt;
+		};
+
+		auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+
+		fillBetween_(paint, g1.getter, g2, g1.size, idx++, vtx);
+	}
+
+
+	GETTER g1 = nullptr;
+	for (kIndex ch = 0; ch < data()->channels(); ch++) {
+		for (unsigned i = 0; i < linesPerChannel_(); i++) {
+			auto g2 = lineAt_(ch, i);
+
+			if (g1) {
+				auto vtx = geom->newVertex((g2.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+				fillBetween_(paint, g1, g2.getter, g2.size, idx++, vtx);
+			}
+
+			g1 = g2.getter;
+		}
+	}
+
+	return paint->drawGeomColor(geom);
 }
 
 

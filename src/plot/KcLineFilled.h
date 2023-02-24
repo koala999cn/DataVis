@@ -1,15 +1,17 @@
 #pragma once
-#include "KvPlottable.h"
+#include "KvPlottable1d.h"
 #include <functional>
 
 
-class KcLineFilled : public KvPlottable
+class KcLineFilled : public KvPlottable1d
 {
-	using super_ = KvPlottable;
+	using super_ = KvPlottable1d;
 
 public:
 
 	using super_::super_;
+
+	unsigned majorColorsNeeded() const override;
 
 	const color4f& minorColor() const override;
 
@@ -32,7 +34,6 @@ public:
 		k_fill_overlay,
 		k_fill_stacked,
 		k_fill_between,
-		k_fill_dual
 	};
 
 	int fillMode() const { return fillMode_; }
@@ -44,12 +45,19 @@ private:
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const final;
 
+	bool objectReusable_(unsigned objIdx) const final;
+
 	void* drawObject_(KvPaint*, unsigned objIdx) const final;
 
-	bool objectReusable_(unsigned objIdx) const final;
+	void* fillOverlay_(KvPaint*) const;
+	void* fillBetween_(KvPaint*, bool) const;
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
 	void fillBetween_(KvPaint*, GETTER, GETTER, unsigned count, unsigned ch, void* vtx) const;
+
+	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const override {
+		return 0;
+	}
 
 private:
 	bool showLine_{ false };

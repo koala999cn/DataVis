@@ -194,6 +194,8 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 	auto r0 = data()->range(0);
 	lower.x() = r0.low(), upper.x() = r0.high();
 
+	if (stackedData_.empty())
+		calcStackData_();
 	auto r1 = KuMath::minmax(stackedData_[0].data(), stackedData_[0].size());
 	for (unsigned i = 1; i < stackedData_.size(); i++) {
 		auto r = KuMath::minmax(stackedData_[i].data(), stackedData_[i].size());

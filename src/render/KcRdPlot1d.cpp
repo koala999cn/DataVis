@@ -106,7 +106,17 @@ namespace kPrivate
 	{
 		if (dynamic_cast<KcLineFilled*>(plt)) {
 			auto fill = dynamic_cast<KcLineFilled*>(plt);
+
+			static const char* modeStr[] = {
+				"overlay", "stacked", "between"
+			};
+			int mode = fill->fillMode();
+			if (ImGui::Combo("Fill Mode", &mode, modeStr, std::size(modeStr))) {
+				fill->setFillMode(KcLineFilled::KeFillMode(mode));
+			}
+
 			//ImGuiX::brush(fill->fillBrush(), false); // 隐藏brush的style选项，始终fill
+
 			bool open(false);
 			ImGuiX::cbTreePush("Line", &fill->showLine(), &open);
 			if (open) {
