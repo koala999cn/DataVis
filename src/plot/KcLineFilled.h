@@ -70,7 +70,12 @@ private:
 	void* fillBetween_(KvPaint*, bool) const;
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
+
+	// Ë«Ïßfill
 	void fillBetween_(KvPaint*, GETTER, GETTER, unsigned count, unsigned ch, void* vtx) const;
+
+	// µãÏßfill
+	void fillBetween_(KvPaint*, const point3&, GETTER, unsigned count, unsigned ch, void* vtx) const;
 
 	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const override {
 		return 0;

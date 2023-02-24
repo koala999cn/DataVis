@@ -135,11 +135,16 @@ void* KcLineFilled::fillOverlay_(KvPaint* paint) const
 	for (kIndex ch = 0; ch < data()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
 			auto g1 = lineAt_(ch, i);
-			auto g2 = baseGetter_(g1.getter);
 
-			auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-
-			fillBetween_(paint, g1.getter, g2, g1.size, ch, vtx);
+			if (baseMode_ != k_base_point) {
+				auto g2 = baseGetter_(g1.getter);
+				auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+				fillBetween_(paint, g1.getter, g2, g1.size, ch, vtx);
+			}
+			else {
+				auto vtx = geom->newVertex((g1.size - 1) * 3);
+				fillBetween_(paint, basePoint_, g1.getter, g1.size, ch, vtx);
+			}
 		}
 	}
 
@@ -155,11 +160,16 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 
 	if (baseline) {
 		auto g1 = lineAt_(0, 0);
-		auto g2 = baseGetter_(g1.getter);
 
-		auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-
-		fillBetween_(paint, g1.getter, g2, g1.size, idx++, vtx);
+		if (baseMode_ != k_base_point) {
+			auto g2 = baseGetter_(g1.getter);
+			auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+			fillBetween_(paint, g1.getter, g2, g1.size, 0, vtx);
+		}
+		else {
+			auto vtx = geom->newVertex((g1.size - 1) * 3);
+			fillBetween_(paint, basePoint_, g1.getter, g1.size, 0, vtx);
+		}
 	}
 
 
@@ -203,31 +213,29 @@ void KcLineFilled::fillBetween_(KvPaint* paint, GETTER getter1, GETTER getter2,
 	auto p00 = getter1(0);
 	auto p01 = getter2(0);
 
-	// assert(p00[2] == p01[2]); // 要求各点都在一个z平面上
-
 	for (unsigned i = 1; i < count; i++) {
 		auto p10 = getter1(i);
 		auto p11 = getter2(i);
 
 		using point2 = KtPoint<float_t, 2>;
-		KtLineS2d<float_t> ln0((const point2&)p00, (const point2&)p10);
-		KtLineS2d<float_t> ln1((const point2&)p01, (const point2&)p11);
+		KtLineS2d<float_t> ln0({ p00[0], p00[1] }, { p10[0], p10[1] });
+		KtLineS2d<float_t> ln1({ p01[0], p01[1] }, { p11[0], p11[1] });
 		auto pt = ln0.intersects(ln1);
 		if (pt) { // 相交
-
-			point3 ptm(pt->x(), pt->y(), p00[2]);
 
 			vtx[0].pos = toPoint_(p01.data(), ch);
 			vtx[0].clr = mapValueToColor_(p01.data(), ch);
 			vtx[1].pos = toPoint_(p00.data(), ch);
 			vtx[1].clr = mapValueToColor_(p00.data(), ch);
+
+			point3 ptm(pt->x(), pt->y(), vtx[0].pos.z());
 			vtx[2].pos = toPoint_(ptm.data(), ch);
 			vtx[2].clr = mapValueToColor_(ptm.data(), ch);
 
-			vtx[3].pos = toPoint_(p10.data(), ch);
-			vtx[3].clr = mapValueToColor_(p10.data(), ch);
-			vtx[4].pos = toPoint_(p11.data(), ch);
-			vtx[4].clr = mapValueToColor_(p11.data(), ch);
+			vtx[3].pos = toPoint_(p11.data(), ch);
+			vtx[3].clr = mapValueToColor_(p11.data(), ch);
+			vtx[4].pos = toPoint_(p10.data(), ch);
+			vtx[4].clr = mapValueToColor_(p10.data(), ch);
 			vtx[5] = vtx[2]; // TODO: flat模式下，目前使用中点数据绘制，而非数据点
 
 		}
@@ -248,5 +256,33 @@ void KcLineFilled::fillBetween_(KvPaint* paint, GETTER getter1, GETTER getter2,
 
 		p00 = p10, p01 = p11;
 		vtx += 6;
+	}
+}
+
+
+void KcLineFilled::fillBetween_(KvPaint* paint, const point3& pt, GETTER g, 
+	unsigned count, unsigned ch, void* buf) const
+{
+	assert(count > 0);
+	auto vtx = (kPrivate::KpVertex_*)buf;
+
+	auto pc = toPoint_(pt.data(), ch);
+	auto cc = mapValueToColor_(pt.data(), ch);
+	auto p0 = toPoint_(g(0).data(), ch);
+	auto c0 = mapValueToColor_(p0.data(), ch);
+
+	for (unsigned i = 1; i < count; i++) {
+		auto p1 = g(i);
+
+		vtx[0].pos = pc;
+		vtx[0].clr = cc;
+		vtx[1].pos = p0;
+		vtx[1].clr = c0;
+		vtx[2].pos = toPoint_(p1.data(), ch);
+		vtx[2].clr = mapValueToColor_(p1.data(), ch);
+
+		p0 = vtx[2].pos;
+		c0 = vtx[2].clr;
+		vtx += 3;
 	}
 }

@@ -224,7 +224,7 @@ void KvPlottable::setColoringMode(KeColoringMode mode)
 }
 
 
-color4f KvPlottable::mapValueToColor_(float_t* valp, unsigned channel) const
+color4f KvPlottable::mapValueToColor_(const float_t* valp, unsigned channel) const
 {
 	switch (coloringMode_)
 	{

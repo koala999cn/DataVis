@@ -184,7 +184,7 @@ protected:
 protected:
 
 	// 确保传入的valp为数据原值，而非强制替换z之后的值
-	color4f mapValueToColor_(float_t* valp, unsigned channel) const;
+	color4f mapValueToColor_(const float_t* valp, unsigned channel) const;
 
 	// 返回一个离散化的数据对象
 	// 如果data()成员本身为离散数据，则直接返回；否则按照sampCount_构建并返回一个采样对象
@@ -197,7 +197,7 @@ protected:
 
 	// 根据valp构建point3对象
 	// 如果forceDefaultZ_为真，则替换valp的z值，否则用原z值
-	point3 toPoint_(float_t* valp, unsigned ch) const {
+	point3 toPoint_(const float_t* valp, unsigned ch) const {
 		return { valp[0], valp[1], usingDefaultZ_() ? defaultZ(ch) : valp[2] };
 	}
 
