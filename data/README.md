@@ -21,3 +21,6 @@
 
  * penguin.dat
  https://ayapin-film.sakura.ne.jp/Gnuplot/pm3d_part3.html
+
+ * silver.txt
+ 从gnuplot的silver.dat改变而来，用于生成errorfill图
