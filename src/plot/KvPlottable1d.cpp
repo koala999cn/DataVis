@@ -118,7 +118,7 @@ void KvPlottable1d::setRidgeMode_(int mode)
 }
 
 
-void KvPlottable1d::setRidgeOffset(int offset)
+void KvPlottable1d::setRidgeOffset(float_t offset)
 {
 	ridgeOffset_ = offset;
 	setDataChanged();

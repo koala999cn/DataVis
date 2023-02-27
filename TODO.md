@@ -6,6 +6,9 @@
 - [x] 缓存function的range计算
 - [ ] 整合expression和function，提供parametric标记，并新增实现piecewise expression
 - [ ] 文本文件中日期的解析（参考http://www.partow.net/programming/datetime/index.html）
+- [ ] 可选择通道
+- [ ] 解析数据列或通道的label
+
 
 ## operator
 - [ ] 测试spectrum的options的sampleRate一致性
@@ -43,7 +46,7 @@
 - [x] 优化vbo的构建，防止重复构建同一时间戳数据的vbo
 - [ ] plt隐藏/可见切换时对vbo复用的影响
 - [x] plottable侧对复用vbo的通用框架
-- [ ] ridgeplot
+- [x] ridgeplot
 - [x] 密度图（参考ggplot2的geom_density）-> 实现operator KDE
 - [ ] 色带编辑器美化（参考https://github.com/CoolLibs/imgui_gradient & https://github.com/effekseer/ImGradientHDR）
 - [ ] plot的autorange由KvRdPlot负责，根据provider调整，而非data
@@ -52,6 +55,7 @@
 - [ ] 完善clip的rect修订，legend的border的有的边会被非正常剪切
 - [ ] 完善bars2d的padding设置（是否使用像素值？）
 - [ ] range太大时axis不能正常定位tick和label
+- [ ] 所有plot1d都按照兼容stack和ridge模式重构
 
 ## theme
 - [ ] 更多theme，SCI等

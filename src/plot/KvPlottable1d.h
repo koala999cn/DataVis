@@ -99,7 +99,7 @@ protected:
 public:
 
 	float_t ridgeOffset() const { return ridgeOffset_; }
-	void setRidgeOffset(int offset);
+	void setRidgeOffset(float_t offset);
 
 private:
 	int ridgeMode_{ k_ridge_none };
