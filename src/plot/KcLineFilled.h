@@ -34,6 +34,7 @@ public:
 		k_fill_overlay,
 		k_fill_stacked,
 		k_fill_between,
+		k_fill_delta
 	};
 
 	int fillMode() const { return fillMode_; }
@@ -68,6 +69,7 @@ private:
 
 	void* fillOverlay_(KvPaint*) const;
 	void* fillBetween_(KvPaint*, bool) const;
+	void* fillDelta_(KvPaint*) const;
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
 

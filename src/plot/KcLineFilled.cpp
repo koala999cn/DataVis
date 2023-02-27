@@ -9,7 +9,17 @@
 
 unsigned KcLineFilled::majorColorsNeeded() const
 {
-	return fillMode_ == k_fill_between ? linesTotal_() - 1 : linesTotal_();
+	switch (fillMode_) {
+	case k_fill_between:
+		return linesTotal_() - 1;
+
+	case k_fill_delta:
+		return linesTotal_() / 2;
+
+	default:
+		break;
+	}
+	return linesTotal_();
 }
 
 
@@ -52,11 +62,16 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 		fns.reserve(linesTotal_());
 		cnts.reserve(linesTotal_());
 
+		unsigned idx(0);
 		for (kIndex ch = 0; ch < data()->channels(); ch++) {
 			for (unsigned i = 0; i < linesPerChannel_(); i++) {
-				auto g = lineAt_(ch, i);
-				fns.push_back(toPoint3Getter_(g.getter, ch));
-				cnts.push_back(g.size);
+				if (fillMode_ != k_fill_delta || idx % 2 == 0) {
+					auto g = lineAt_(ch, i);
+					fns.push_back(toPoint3Getter_(g.getter, ch));
+					cnts.push_back(g.size);
+				}
+
+				idx++;
 			}
 		}
 
@@ -69,6 +84,8 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 			return fillBetween_(paint, true);
 		else if (fillMode_ == k_fill_between)
 			return fillBetween_(paint, false);
+		else if (fillMode_ == k_fill_delta)
+			return fillDelta_(paint);
 
 		assert(false);
 		return nullptr;
@@ -165,11 +182,11 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 		if (baseMode_ != k_base_point) {
 			auto g2 = baseGetter_(g1.getter);
 			auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-			fillBetween_(paint, g1.getter, g2, g1.size, 0, vtx);
+			fillBetween_(paint, g1.getter, g2, g1.size, idx++, vtx);
 		}
 		else {
 			auto vtx = geom->newVertex((g1.size - 1) * 3);
-			fillBetween_(paint, basePoint_, g1.getter, g1.size, 0, vtx);
+			fillBetween_(paint, basePoint_, g1.getter, g1.size, idx++, vtx);
 		}
 	}
 
@@ -286,4 +303,45 @@ void KcLineFilled::fillBetween_(KvPaint* paint, const point3& pt, GETTER g,
 		c0 = vtx[2].clr;
 		vtx += 3;
 	}
+}
+
+
+void* KcLineFilled::fillDelta_(KvPaint* paint) const
+{
+	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
+
+	unsigned idx(0); // 用于获取主色
+
+	GETTER g1 = nullptr;
+	for (kIndex ch = 0; ch < data()->channels(); ch++) {
+		for (unsigned i = 0; i < linesPerChannel_(); i++) {
+			auto g2 = lineAt_(ch, i);
+
+			if (g1) {
+				auto vtx = geom->newVertex((g2.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+
+				auto g1Real = [g1, g2](unsigned i) {
+					auto r1 = g1(i);
+					auto r2 = g2.getter(i);
+					r1.back() -= r2.back();
+					return r1;
+				};
+
+				auto g2Real = [g1, g2](unsigned i) {
+					auto r1 = g1(i);
+					auto r2 = g2.getter(i);
+					r1.back() += r2.back();
+					return r1;
+				};
+
+				fillBetween_(paint, g1Real, g2Real, g2.size, idx++, vtx);
+				g1 = nullptr;
+			}
+			else {
+				g1 = g2.getter;
+			}
+		}
+	}
+
+	return paint->drawGeomColor(geom);
 }

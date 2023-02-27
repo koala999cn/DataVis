@@ -108,7 +108,7 @@ namespace kPrivate
 			auto fill = dynamic_cast<KcLineFilled*>(plt);
 
 			static const char* modeStr[] = {
-				"overlay", "stacked", "between"
+				"overlay", "stacked", "between", "delta"
 			};
 			int fillMmode = fill->fillMode();
 			if (ImGui::Combo("Fill Mode", &fillMmode, modeStr, std::size(modeStr))) {
