@@ -69,9 +69,41 @@ private:
 
 	void calcStackData_() const; // 计算stack数据，内部调用
 
+	KuDataUtil::KpPointGetter1d lineStack_(unsigned ch, unsigned idx) const;
+
 	int stackMode_{ k_stack_none };
-	
+
 	mutable std::vector<std::vector<float_t>> stackedData_; // 保存stack数据计算结果
+
+	////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////////////////////////////////////////////////////
+	// 
+	// ridge绘制模式支持相关接口
+
+protected:
+
+	enum KeRidgeMode
+	{
+		k_ridge_none,
+		k_ridge_channel,
+		k_ridge_column,
+		k_ridge_all
+	};
+
+	void setRidgeMode_(int mode);
+
+	float_t ridgeOffsetAt_(unsigned ch, unsigned idx) const;
+
+public:
+
+	float_t ridgeOffset() const { return ridgeOffset_; }
+	void setRidgeOffset(int offset);
+
+private:
+	int ridgeMode_{ k_ridge_none };
+	float_t ridgeOffset_{ 1.0 };
 
 	////////////////////////////////////////////////////////////////////////
 

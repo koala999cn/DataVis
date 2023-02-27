@@ -34,7 +34,8 @@ public:
 		k_fill_overlay,
 		k_fill_stacked,
 		k_fill_between,
-		k_fill_delta
+		k_fill_delta,
+		k_fill_ridge
 	};
 
 	int fillMode() const { return fillMode_; }
@@ -70,6 +71,7 @@ private:
 	void* fillOverlay_(KvPaint*) const;
 	void* fillBetween_(KvPaint*, bool) const;
 	void* fillDelta_(KvPaint*) const;
+	void* fillRidge_(KvPaint*) const;
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
 
@@ -83,7 +85,8 @@ private:
 		return 0;
 	}
 
-	GETTER baseGetter_(GETTER g) const;
+	GETTER baseGetter_(unsigned ch, unsigned idx, GETTER g) const;
+	point3 basePointAt_(unsigned ch, unsigned idx) const;
 
 private:
 	bool showLine_{ false };

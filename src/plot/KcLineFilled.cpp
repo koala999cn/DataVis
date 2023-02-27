@@ -86,6 +86,8 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 			return fillBetween_(paint, false);
 		else if (fillMode_ == k_fill_delta)
 			return fillDelta_(paint);
+		else if (fillMode_ == k_fill_ridge)
+			return fillRidge_(paint);
 
 		assert(false);
 		return nullptr;
@@ -116,7 +118,8 @@ void KcLineFilled::setFillMode(KeFillMode mode)
 {
 	if (mode != fillMode_) {
 		fillMode_ = mode;
-		setStackMode_(mode == k_fill_stacked);
+		setStackMode_(mode == k_fill_stacked ? k_stack_channel : k_stack_none);
+		setRidgeMode_(mode == k_fill_ridge ? k_ridge_channel : k_ridge_none);
 		setDataChanged();
 	}
 }
@@ -155,13 +158,13 @@ void* KcLineFilled::fillOverlay_(KvPaint* paint) const
 			auto g1 = lineAt_(ch, i);
 
 			if (baseMode_ != k_base_point) {
-				auto g2 = baseGetter_(g1.getter);
+				auto g2 = baseGetter_(ch, i, g1.getter);
 				auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
 				fillBetween_(paint, g1.getter, g2, g1.size, idx++, vtx);
 			}
 			else {
 				auto vtx = geom->newVertex((g1.size - 1) * 3);
-				fillBetween_(paint, basePoint_, g1.getter, g1.size, idx++, vtx);
+				fillBetween_(paint, basePointAt_(ch, i), g1.getter, g1.size, idx++, vtx);
 			}
 		}
 	}
@@ -180,13 +183,13 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 		auto g1 = lineAt_(0, 0);
 
 		if (baseMode_ != k_base_point) {
-			auto g2 = baseGetter_(g1.getter);
+			auto g2 = baseGetter_(0, 0, g1.getter);
 			auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
 			fillBetween_(paint, g1.getter, g2, g1.size, idx++, vtx);
 		}
 		else {
 			auto vtx = geom->newVertex((g1.size - 1) * 3);
-			fillBetween_(paint, basePoint_, g1.getter, g1.size, idx++, vtx);
+			fillBetween_(paint, basePointAt_(0, 0), g1.getter, g1.size, idx++, vtx);
 		}
 	}
 
@@ -209,16 +212,30 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 }
 
 
-KcLineFilled::GETTER KcLineFilled::baseGetter_(GETTER g) const
+KcLineFilled::GETTER KcLineFilled::baseGetter_(unsigned ch, unsigned idx, GETTER g) const
 {
-	return [g, this](unsigned i) {
+	auto offset = ridgeOffsetAt_(ch, idx);
+
+	return [g, this, offset](unsigned i) {
 		auto pt = g(i);
 		if (baseMode_ == k_base_xline)
 			pt[1] = baseLine_;
 		else
 			pt[0] = baseLine_;
+		pt[1] += offset;
 		return pt;
 	};
+}
+
+
+KcLineFilled::point3 KcLineFilled::basePointAt_(unsigned ch, unsigned idx) const
+{
+	if (fillMode_ != k_fill_ridge)
+		return basePoint_;
+
+	auto pt = basePoint_;
+	pt[1] += ridgeOffsetAt_(ch, idx);
+	return pt;
 }
 
 
@@ -345,3 +362,10 @@ void* KcLineFilled::fillDelta_(KvPaint* paint) const
 
 	return paint->drawGeomColor(geom);
 }
+
+
+void* KcLineFilled::fillRidge_(KvPaint* paint) const
+{
+	return fillOverlay_(paint);
+}
+

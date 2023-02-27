@@ -108,14 +108,20 @@ namespace kPrivate
 			auto fill = dynamic_cast<KcLineFilled*>(plt);
 
 			static const char* modeStr[] = {
-				"overlay", "stacked", "between", "delta"
+				"overlay", "stacked", "between", "delta", "ridge"
 			};
-			int fillMmode = fill->fillMode();
-			if (ImGui::Combo("Fill Mode", &fillMmode, modeStr, std::size(modeStr))) {
-				fill->setFillMode(KcLineFilled::KeFillMode(fillMmode));
+			int fillMode = fill->fillMode();
+			if (ImGui::Combo("Fill Mode", &fillMode, modeStr, std::size(modeStr))) {
+				fill->setFillMode(KcLineFilled::KeFillMode(fillMode));
 			}
 
-			ImGui::BeginDisabled(fillMmode == 2);
+			if (fillMode == 4) {
+				float offset = fill->ridgeOffset();
+				if (ImGui::DragFloat("Ridge Offset", &offset))
+					fill->setRidgeOffset(offset);
+			}
+
+			ImGui::BeginDisabled(fillMode == 2 || fillMode == 3);
 			static const char* baseStr[] = {
 				"x line", "y line", "point"
 			};
