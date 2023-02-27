@@ -131,6 +131,7 @@ void KcLineFilled::setBasePoint(const point3& pt)
 void* KcLineFilled::fillOverlay_(KvPaint* paint) const
 {
 	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
+	unsigned idx(0); // 用于获取主色
 
 	for (kIndex ch = 0; ch < data()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
@@ -139,11 +140,11 @@ void* KcLineFilled::fillOverlay_(KvPaint* paint) const
 			if (baseMode_ != k_base_point) {
 				auto g2 = baseGetter_(g1.getter);
 				auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-				fillBetween_(paint, g1.getter, g2, g1.size, ch, vtx);
+				fillBetween_(paint, g1.getter, g2, g1.size, idx++, vtx);
 			}
 			else {
 				auto vtx = geom->newVertex((g1.size - 1) * 3);
-				fillBetween_(paint, basePoint_, g1.getter, g1.size, ch, vtx);
+				fillBetween_(paint, basePoint_, g1.getter, g1.size, idx++, vtx);
 			}
 		}
 	}

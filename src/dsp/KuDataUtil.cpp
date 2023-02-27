@@ -306,8 +306,8 @@ KuDataUtil::KpPointGetter1d KuDataUtil::pointGetter1dAt(const std::shared_ptr<co
         g.size = unsigned(disc->size(0));
     }
     else {
-        auto c2 = pointGetter2dCount(disc);
-        auto g2 = pointGetter2dAt(disc, ch, idx / c2);
+        auto g2 = pointGetter2dAt(disc, ch, 0);
+        g2 = pointGetter2dAt(disc, ch, idx / g2.xsize);
         auto ix = idx % g2.xsize;
         g.getter = [g2, ix](unsigned iy) { return g2.getter(ix, iy); };
         g.size = g2.ysize;

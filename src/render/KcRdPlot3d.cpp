@@ -99,7 +99,7 @@ const char* KcRdPlot3d::plottableTypeStr_(int iType) const
 	assert(iType < supportPlottableTypes_());
 
 	static const char* pltTypes[] = {
-		"graph", "scatter", "line-filled", "bar", "surface"
+		"graph", "scatter", "area", "bar", "surface"
 	};
 
 	return pltTypes[iType];
@@ -134,9 +134,6 @@ bool KcRdPlot3d::plottableMatchData_(int iType, const KvData& d) const
 {
 	switch (iType)
 	{
-	case 2: // area
-		return d.dim() == 1;
-
 	case 4: // surface
 		return KuDataUtil::isMatrix(d);
 
