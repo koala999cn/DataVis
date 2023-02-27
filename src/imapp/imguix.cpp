@@ -151,8 +151,13 @@ namespace ImGuiX
         }
     }
 
-
     void showDataTable(const KvData& data)
+    {
+        static std::vector<char> vis;
+        showDataTable(data, vis);
+    }
+
+    void showDataTable(const KvData& data, std::vector<char>& vis)
     {
         if (data.isDiscreted()) {
             auto& disc = (const KvDiscreted&)data;
@@ -165,7 +170,7 @@ namespace ImGuiX
                         auto ch = c / (disc.dim() + 1);
                         auto idx = c % (disc.dim() + 1);
                         return disc.pointAt(r, ch).at(idx);
-                    });
+                    }, vis);
             }
             else if (disc.isSampled()) {
                 if (disc.dim() == 1) {
@@ -173,7 +178,7 @@ namespace ImGuiX
                         showDataTable(KuDataUtil::k_series, disc.size(), disc.channels(),
                             [&disc](unsigned r, unsigned c) {
                                 return disc.pointAt(r, c).at(1);
-                            });
+                            }, vis);
                     }
                     else { // sampled1d
                         showDataTable(KuDataUtil::k_sampled_1d, disc.size(), disc.channels() + 1,
@@ -182,7 +187,7 @@ namespace ImGuiX
                                     return disc.pointAt(r, 0).at(0);
                                 else
                                     return disc.valueAt(r, c - 1);
-                            });
+                            }, vis);
                     }
                 }
                 else if (disc.dim() == 2) {
@@ -191,7 +196,7 @@ namespace ImGuiX
                         showDataTable(KuDataUtil::k_matrix, disc.size(1), disc.size(0),
                             [samp2d](unsigned r, unsigned c) {
                                 return samp2d->value(c, r, 0);
-                            });
+                            }, vis);
                     }
                     else { // sampled2d
                         showDataTable(KuDataUtil::k_sampled_2d, disc.size(1) + 1, disc.size(0) + 1,
@@ -204,7 +209,7 @@ namespace ImGuiX
                                     return samp2d->range(1).low() + (r - 1) * samp2d->step(1);
                                 else 
                                     return samp2d->value(c - 1, r - 1, 0);
-                            });
+                            }, vis);
                     }
                 }
                 
@@ -213,7 +218,7 @@ namespace ImGuiX
     }
 
 
-    void showDataTable(int type, const matrixd& data, bool rowMajor)
+    void showDataTable(int type, const matrixd& data, bool rowMajor, std::vector<char>& vis)
     {
         if (data.empty())
             return;
@@ -222,14 +227,15 @@ namespace ImGuiX
         unsigned cols = data[0].size();
         if (rowMajor)
             std::swap(rows, cols);
+        vis.resize(cols);
 
         showDataTable(type, rows, cols, [&data, rowMajor](unsigned r, unsigned c) {
-            return rowMajor ? data[c][r] : data[r][c];
-            });
+            return rowMajor ? data[c][r] : data[r][c]; }, vis);
     }
 
 
-    void showDataTable(int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn)
+    void showDataTable(int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn,
+        std::vector<char>& vis)
     {
         auto headers = kPrivate::makeTableHeaders_(type, std::min(cols, 510u)); // 510为2与3的公倍数
         headers.insert(headers.begin(), "NO.");
@@ -250,21 +256,23 @@ namespace ImGuiX
             }
         };
 
-        showLargeTable(rows, cols + 1, fnShow, 1, 1, headers);
+        vis.resize(cols + 1);
+        showLargeTable(rows, cols + 1, fnShow, 1, 1, headers, vis.data());
     }
 
 
     void showLargeTable(unsigned rows, unsigned cols, 
-        std::function<void(unsigned, unsigned)> fnShow, 
+        std::function<void(unsigned, unsigned)> fnShow,
         unsigned freezeCols, unsigned freeszRows,
-        const std::vector<std::string>& headers)
+        const std::vector<std::string>& headers, char* vis)
     {
         const float TEXT_BASE_WIDTH = CalcTextSize("ABC").x;
         const float TEXT_BASE_HEIGHT = GetTextLineHeightWithSpacing();
-        const static ImGuiTableFlags flags =
+        const static ImGuiTableFlags flags = ImGuiTableFlags_RowBg |
             ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY |
-            ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
-            ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable;
+            ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
+            ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp |
+            ImGuiTableFlags_Hideable | ImGuiTableFlags_ContextMenuInBody;
 
         if (cols > 512)
             cols = 512; // NB: ImGui(v1.89.4)要求总列数不超过512
@@ -275,7 +283,7 @@ namespace ImGuiX
 
             if (!headers.empty()) {
                 for (unsigned c = 0; c < cols; c++)
-                    TableSetupColumn(headers[c].c_str());
+                    TableSetupColumn(headers[c].c_str(), c >= freezeCols ? 0 : ImGuiTableColumnFlags_NoHide);
                 TableHeadersRow();
             }
 
@@ -288,6 +296,11 @@ namespace ImGuiX
                         if (TableSetColumnIndex(c))
                             fnShow(r, c);
                 }
+            }
+
+            if (vis) {
+                for (unsigned c = 0; c < cols; c++)
+                    vis[c] = TableGetColumnFlags(c) & ImGuiTableColumnFlags_IsEnabled;
             }
 
             EndTable();

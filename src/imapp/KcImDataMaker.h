@@ -22,6 +22,7 @@ private:
 private:
     const matrixd& idata_;
     std::shared_ptr<KvData>& odata_;
+    std::vector<char> vis_; // 各列数据的可见性
 
     bool transpose_{ false }; // 若true，对数据进行转置
 
