@@ -1409,7 +1409,7 @@ namespace ifd {
 
 		int escapeKey = ImGui::GetIO().KeyMap[ImGuiKey_Escape];
 		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
-			 escapeKey >= 0 && ImGui::IsKeyPressed(escapeKey))
+			 escapeKey >= 0 && ImGui::IsKeyPressed(ImGuiKey_Escape))
 			m_isOpen = false;
 	}
 }

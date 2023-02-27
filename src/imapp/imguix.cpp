@@ -231,7 +231,7 @@ namespace ImGuiX
 
     void showDataTable(int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn)
     {
-        auto headers = kPrivate::makeTableHeaders_(type, std::min(cols, 66u)); // 66为2与3的公倍数
+        auto headers = kPrivate::makeTableHeaders_(type, std::min(cols, 510u)); // 510为2与3的公倍数
         headers.insert(headers.begin(), "NO.");
         auto fnShow = [&headers, &fn, cols, type](unsigned r, unsigned c) {
             if (c == 0) { // show the row-index
@@ -266,8 +266,8 @@ namespace ImGuiX
             ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
             ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable;
 
-        if (cols > 64)
-            cols = 64; // TODO: ImGui要求总列数不超过64
+        if (cols > 512)
+            cols = 512; // NB: ImGui(v1.89.4)要求总列数不超过512
 
         if (BeginTable("LargeTable", cols, flags)) {
 
