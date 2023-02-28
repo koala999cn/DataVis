@@ -466,12 +466,18 @@ public:
     template<typename KREAL>
     static std::pair<KREAL, KREAL> minmax(const KREAL x[], unsigned n);
 
+    // 返回-1表示x的元素全为nan
     template<typename KREAL>
-    static unsigned argMin(const KREAL x[], unsigned n); // 返回最小值的索引[0, dim)
+    static unsigned argMin(const KREAL x[], unsigned n); // 返回最小值的索引[-1, n)
+
+    // 返回-1表示x的元素全为nan
     template<typename KREAL>
-    static unsigned argMax(const KREAL x[], unsigned n); // 返回最大值的索引[0, dim)
+    static unsigned argMax(const KREAL x[], unsigned n); // 返回最大值的索引[-1, n)
+
     template<typename KREAL>
-    static unsigned argRand(const KREAL x[], unsigned n); // 返回累加和大于随机值的索引[-1, dim)
+    static unsigned argRand(const KREAL x[], unsigned n); // 返回累加和大于随机值的索引[-1, n)
+
+    // 若x元素均为nan，则返回{-1, -1}
     template<typename KREAL>
     static std::pair<unsigned, unsigned> argMixMax(const KREAL x[], unsigned n);
 
@@ -931,38 +937,72 @@ KREAL KuMath::nonZeroMean(const KREAL x[], unsigned n)
 template<typename KREAL>
  KREAL KuMath::min(const KREAL x[], unsigned n)
 {
-    auto iter = std::min_element(x, x + n);
-    return *iter;
+     auto idx = argMin(x, n);
+     if (idx == -1)
+         return nan<KREAL>();
+     return x[idx];
 }
 
 
 template<typename KREAL>
 KREAL KuMath::max(const KREAL x[], unsigned n)
 {
-    auto iter = std::max_element(x, x + n);
-    return *iter;
+    auto idx = argMax(x, n);
+    if (idx == -1)
+        return nan<KREAL>();
+    return x[idx];
 }
 
 
 template<typename KREAL>
 std::pair<KREAL, KREAL> KuMath::minmax(const KREAL x[], unsigned n)
 {
-    auto iter = std::minmax_element(x, x + n);
-    return { *iter.first, *iter.second };
+    auto r = argMixMax(x, n);
+    if (r.first == -1)
+        return { nan<KREAL>(), nan<KREAL>() };
+    return { x[r.first], x[r.second] };
 }
 
 
 template<typename KREAL>
 unsigned KuMath::argMin(const KREAL x[], unsigned n)
 {
-    return std::min_element(x, x + n) - x;
+    unsigned imin(0);
+    while (std::isnan(x[imin]) && imin < n)
+        ++imin;
+    if (imin == n)
+        return -1;
+
+    KREAL vmin(x[imin])
+    for (unsigned i = imin + 1; i < n; i++) {
+        if (x[i] < vmin) {
+            vmin = x[i];
+            imin = i;
+        }
+    }
+
+    return imin;
 }
 
 
 template<typename KREAL>
 unsigned KuMath::argMax(const KREAL x[], unsigned n)
 {
-    return std::max_element(x, x + n) - x;
+    unsigned imax(0);
+    while (std::isnan(x[imax]) && imax < n)
+        ++imax;
+    if (imax == n)
+        return -1;
+
+    KREAL vmax(x[imax])
+        for (unsigned i = imax + 1; i < n; i++) {
+            if (x[i] > vmax) {
+                vmax = x[i];
+                imax = i;
+            }
+        }
+
+    return imax;
 }
 
 
@@ -984,8 +1024,26 @@ unsigned KuMath::argRand(const KREAL x[], unsigned n)
 template<typename KREAL>
 std::pair<unsigned, unsigned> KuMath::argMixMax(const KREAL x[], unsigned n)
 {
-    auto iter = std::minmax_element(x, x + n);
-    return { unsigned(iter.first - x), unsigned(iter.second - x) };
+    unsigned imin(0);
+    while (std::isnan(x[imin]) && imin < n)
+        ++imin;
+    if (imin == n)
+        return { -1, -1 };
+
+    unsigned imax(imin);
+    KREAL vmin(x[imin]), vmax(x[imin]);
+    for (unsigned i = imin + 1; i < n; i++) {
+        if (x[i] < vmin) {
+            vmin = x[i];
+            imin = i;
+        }
+        else if (x[i] > vmax) {
+            vmax = x[i];
+            imax = i;
+        }
+    }
+
+    return { imin, imax };
 }
 
 
