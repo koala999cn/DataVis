@@ -36,6 +36,16 @@ void KuStrUtil::toLower(std::string& str)
 }
 
 
+int KuStrUtil::count(const std::string_view& str, char ch)
+{
+	int c(0);
+	for (unsigned i = 0; i < str.size(); i++)
+		if (str[i] == ch)
+			++c;
+	return c;
+}
+
+
 bool KuStrUtil::beginWith(const char* str, unsigned nstr, const char* with, unsigned nwith, bool nocase)
 {
 	if (nstr < nwith)

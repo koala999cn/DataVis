@@ -79,7 +79,28 @@ namespace kPrivate
         return quote;
     }
 
-    template<bool PARSE_QUOTE>
+    // 测试分隔符，返回true表示以逗号为分隔符，否则以空白为分隔符
+    bool testComma(const std::vector<std::string_view>& lines)
+    {
+        int lineTested(0); // 已检测的有效行数，只检测前2行（不含注释）
+        int comma[2] = { 0 };
+        for (auto& line : lines) {
+
+            auto tl = KuStrUtil::trim(line);
+            if (tl.empty() || tl[0] == '#' || tl[0] == '!')
+                continue; // 跳过空行与注释
+
+            comma[lineTested] = KuStrUtil::count(line, ',');
+
+            if (++lineTested == 2)
+                break;
+        }
+
+        return comma[0] == comma[1] && comma[0] > 0;
+    }
+
+
+    template<bool COMMA_SEP, bool PARSE_QUOTE>
     std::vector<std::vector<std::string_view>> parseLines(const std::vector<std::string_view>& lines)
     {
         std::vector<std::vector<std::string_view>> mat;
@@ -95,10 +116,18 @@ namespace kPrivate
                 assert(tl[0] != '\0');
                 std::vector<std::string_view> toks;
 
-                if constexpr (PARSE_QUOTE) 
-                    toks = KuStrUtil::splitWithQuote(tl, ", \t", true);
-                else 
-                    toks = KuStrUtil::split(tl, ", \t", true);
+                if constexpr (PARSE_QUOTE) {
+                    if constexpr (COMMA_SEP)
+                        toks = KuStrUtil::splitWithQuote(tl, ",", true);
+                    else 
+                        toks = KuStrUtil::splitWithQuote(tl, " \t", true);
+                }
+                else {
+                    if constexpr (COMMA_SEP)
+                        toks = KuStrUtil::split(tl, ",", true);
+                    else
+                        toks = KuStrUtil::split(tl, " \t", true);
+                }
 
                 mat.emplace_back(std::move(toks));
             }
@@ -118,11 +147,20 @@ bool KcActionTextLoadAndClean::loadData_()
     auto lines = KuStrUtil::split(text_, "\n", false); // 空行有特殊语义，保留
 
     int quote = kPrivate::testQuote(lines); // 是否解析引号
+    bool comma = kPrivate::testComma(lines); // 是否以逗号分割
 
-    if (quote)
-        rawData_ = kPrivate::parseLines<true>(lines);
-    else 
-        rawData_ = kPrivate::parseLines<false>(lines);
+    if (quote) {
+        if (comma)
+            rawData_ = kPrivate::parseLines<true, true>(lines);
+        else 
+            rawData_ = kPrivate::parseLines<false, true>(lines);
+    }
+    else {
+        if (comma)
+            rawData_ = kPrivate::parseLines<true, false>(lines);
+        else
+            rawData_ = kPrivate::parseLines<false, false>(lines);
+    }
 
     // 删除开头和最后的空行
     while (!rawData_.empty() && rawData_.back().empty())

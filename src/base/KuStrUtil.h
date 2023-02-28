@@ -38,6 +38,9 @@ public:
 	static bool endWith(const char* str, const char* with, bool nocase = false);
 	static bool endWith(const std::string& str, const std::string& with, bool nocase = false);
 
+	// 统计字符穿中有多少个ch字符
+	static int count(const std::string_view& str, char ch);
+
 	// 查找str中的第一个ch的指针，未找到返回nullptr
 	static const char* findFirstOf(const char* str, char ch);
 
@@ -112,7 +115,7 @@ public:
 
 	static std::string join(const std::vector<std::string>& input, char c);
 
-
+	
 	// Converts a vector of T into a string delimited by a character c
 	// @input: Vector of T to be converted
 	// @c: Character to use as a delimiter
