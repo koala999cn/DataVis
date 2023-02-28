@@ -887,7 +887,7 @@ void KcImOglPaint::disableClipBox()
 KcImOglPaint::KpRenderList_& KcImOglPaint::currentRenderList()
 {
 	auto curClipRect = clipRectStack_.empty() ? -1 : clipRectStack_.back();
-	return renderList_[kRenderState_(curViewport_, curClipRect, curClipBox_)];
+	return renderList_[kRenderState_(curViewport_, curClipRect, curClipBox_, polygonOffset_)];
 }
 
 
@@ -927,6 +927,8 @@ void KcImOglPaint::drawRenderList_()
 {
 	configOglState_();
 
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	bool polygonOffset(false);
 	unsigned viewport(-1), clipRect(-1), clipBox(-2); // NB: clipBox可以等于-1，所以此处初始化为-2，表示未赋值
 
 	// NB: 逆序，否则坐标轴会被plottables覆盖
@@ -944,6 +946,16 @@ void KcImOglPaint::drawRenderList_()
 		if (std::get<2>(state) != clipBox) {
 			clipBox = std::get<2>(state);
 			glClipPlane_(clipBox);
+		}
+		if (std::get<3>(state) != polygonOffset) {
+			polygonOffset = std::get<3>(state);
+			if (polygonOffset) {
+				glPolygonOffset(1, 1);
+				glEnable(GL_POLYGON_OFFSET_FILL);
+			}
+			else {
+				glDisable(GL_POLYGON_OFFSET_FILL);
+			}
 		}
 
 		auto& rl = rd->second;

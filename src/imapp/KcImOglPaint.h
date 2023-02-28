@@ -27,6 +27,7 @@ public:
 	void enableClipBox(point3 lower, point3 upper) override;
 	void disableClipBox() override;
 
+	void enablePolygonOffset(bool b) override { polygonOffset_ = b; }
 	void enableDepthTest(bool b) override { depthTest_ = b; }
 	bool depthTest() const override { return depthTest_; }
 
@@ -128,7 +129,7 @@ private:
 	// pos为带深度的屏幕坐标
 	void pushTrisSoild_(const float3 pos[], unsigned c, const float4& clr);
 
-	// 存储render-object，以边下帧复用
+	// 存储render-object，以便下帧复用
 	void saveObjList_();
 
 	// 设置对象obj的渲染属性
@@ -145,6 +146,8 @@ private:
 	std::vector<unsigned> clipRectStack_;
 	unsigned curViewport_{ unsigned(-1) }; // -1表示未设置
 	unsigned curClipBox_{ unsigned(-1) };
+	bool polygonOffset_{ false };
+
 	bool depthTest_{ false }; // 启动深度测试？
 	bool antialiasing_{ false };
 	bool flatShading_{ false };
@@ -152,7 +155,8 @@ private:
 	// [0]: viewport idx
 	// [1]: clipRect idx
 	// [2]: clipBox idx
-	using kRenderState_ = std::tuple<unsigned, unsigned, unsigned>;
+	// [3]: polygonOffset?
+	using kRenderState_ = std::tuple<unsigned, unsigned, unsigned, bool>;
 
 	struct KpColorVbo_
 	{

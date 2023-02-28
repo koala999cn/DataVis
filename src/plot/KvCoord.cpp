@@ -86,49 +86,20 @@ KvCoord::mat4 KvCoord::axisReflectMatrix_(int dim) const
 
 void KvCoord::draw(KvPaint* paint) const
 {
-	if (visible()) {
-
+	if (visible()) {	
 		forPlane([paint](KcCoordPlane& plane) {
 			if (plane.visible())
 				plane.draw(paint);
 			return true;
 			});
 
+		paint->enablePolygonOffset(true); // 启动polygonOffset，防止grid与baseline冲突
 		forAxis([paint, this](KcAxis& axis) {
-			if (axis.visible() && axis.length() > 0) {
-	
-				// 实现在坐标轴反转的情况下，保持坐标轴方位一致性.
-				// 取消该方案！切换回由坐标轴自行负责反转绘制
-				/*
-				auto d = kPrivate::dimOthers[axis.dim()];
-				int localPushed(0);
-				for (int i = 0; i < 2; i++) {
-					if (axisInversed(d[i])) {
-						++localPushed;
-						paint->pushLocal(axisReflectMatrix_(d[i]));
-					}
-				}*/
-
-				// 尝试找到一个在交换坐标轴的情况下，仍能保持方位一致性的方案，按此仅能部分实现，弃用！！
-				// const static bool otherSwapped[][4] = {
-				//	{ false, false, false, true },
-				//	{ false, false, true, false },
-				//	{ false, true, false, false }
-				// };
-				// if (otherSwapped[dim][swapStatus_])
-				//	 resetAxisExtent_(axis, true);
-
+			if (axis.visible() && axis.length() > 0) 
 				axis.draw(paint);
-
-				//if (otherSwapped[dim][swapStatus_])
-				//	resetAxisExtent_(axis, false);
-
-				//for(int i = 0; i < localPushed; i++)
-				//	paint->popLocal();
-			}
-
 			return true;
 			});
+		paint->enablePolygonOffset(false);
 	}
 }
 

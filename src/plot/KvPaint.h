@@ -56,6 +56,9 @@ public:
 	virtual void enableClipBox(point3 lower, point3 upper) = 0;
 	virtual void disableClipBox() = 0;
 
+	// 启用时，作用类似于glPolygonOffset(1, 1)，可用于防止z-fighting
+	virtual void enablePolygonOffset(bool b) = 0;
+
 	virtual void enableDepthTest(bool b) = 0; // 开启/关闭深度测试
 	virtual bool depthTest() const = 0; // 是否开启了深度测试
 

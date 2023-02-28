@@ -6,7 +6,7 @@
 - [x] 缓存function的range计算
 - [ ] 整合expression和function，提供parametric标记，并新增实现piecewise expression
 - [ ] 文本文件中日期的解析（参考http://www.partow.net/programming/datetime/index.html）
-- [ ] 可选择通道
+- [x] 可选择通道
 - [ ] 解析数据列或通道的label
 
 
@@ -44,7 +44,7 @@
 - [ ] 给gradient控件添加1个选择pallete的按钮
 - [ ] 优化海量数据的降采样
 - [x] 优化vbo的构建，防止重复构建同一时间戳数据的vbo
-- [ ] plt隐藏/可见切换时对vbo复用的影响
+- [x] plt隐藏/可见切换时对vbo复用的影响 -> 为兼顾动态数据，隐藏时不绘制（不复用）
 - [x] plottable侧对复用vbo的通用框架
 - [x] ridgeplot
 - [x] 密度图（参考ggplot2的geom_density）-> 实现operator KDE
@@ -56,7 +56,7 @@
 - [ ] 完善bars2d的padding设置（是否使用像素值？）
 - [ ] range太大时axis不能正常定位tick和label
 - [ ] 所有plot1d都按照兼容stack和ridge模式重构
-- [ ] 启动深度测试时，坐标轴的baseline与gridline深度冲突
+- [x] 启动深度测试时，坐标轴的baseline与gridline深度冲突
 
 ## theme
 - [ ] 更多theme，SCI等
@@ -78,7 +78,7 @@
 ## FIXME
 - [x] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）
 - [x] colorbar的axis留白同步
-- [ ] 三维坐标系下，虚线的绘制（ImGui）在旋转到特定方向时会出现错位 --> 使用opengl绘制后，该问题没再出现，估计由于计算误差引起
+- [x] 三维坐标系下，虚线的绘制（ImGui）在旋转到特定方向时会出现错位 --> 使用opengl绘制后，该问题没再出现，估计由于计算误差引起
 - [x] 加载大的text数据文件很慢
 - [ ] 坐标轴刻度旋转时出现突变
 - [x] 3d透视投影模式下，坐标轴的刻度线和文字全部消失 --> ok（一是矢量投影算法问题，二是逆变换未作归一化）
