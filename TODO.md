@@ -56,6 +56,7 @@
 - [ ] 完善bars2d的padding设置（是否使用像素值？）
 - [ ] range太大时axis不能正常定位tick和label
 - [ ] 所有plot1d都按照兼容stack和ridge模式重构
+- [ ] 启动深度测试时，坐标轴的baseline与gridline深度冲突
 
 ## theme
 - [ ] 更多theme，SCI等
