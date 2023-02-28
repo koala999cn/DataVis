@@ -17,6 +17,9 @@ public:
 
 	void setMinorColor_(const color4f& minor) override;
 
+	unsigned objectCount() const override { return 2; } // marker + line
+
+
 	const KpMarker& marker() const { return marker_; }
 	KpMarker& marker() { return marker_; }
 
@@ -28,13 +31,15 @@ public:
 
 private:
 
-	unsigned objectsPerBatch_() const override { return 2; } // marker + line
-
 	bool objectVisible_(unsigned objIdx) const override;
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
-	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const override;
+	void* drawObject_(KvPaint*, unsigned objIdx) const override;
+
+	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const override {
+		return 0;
+	}
 
 protected:
 	bool showLine_{ false };

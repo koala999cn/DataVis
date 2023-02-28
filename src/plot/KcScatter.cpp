@@ -1,10 +1,11 @@
 #include "KcScatter.h"
 #include "plot/KvPaint.h"
+#include "KvData.h"
 
 
 bool KcScatter::objectVisible_(unsigned objIdx) const
 {
-	if (objIdx & 1)
+	if (objIdx == 1)
 		return showLine_ && lineCxt_.visible();
 	else
 		return true;
@@ -13,38 +14,44 @@ bool KcScatter::objectVisible_(unsigned objIdx) const
 
 void KcScatter::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
-	if (objIdx & 1) { // line
+	if (objIdx == 1) { // line
 		paint->apply(lineCxt_);
 	}
 	else { // marker
 		paint->apply(marker_);
-		paint->setEdged(marker_.showOutline && marker_.hasOutline()
-			&& marker_.outline != marker_.fill && marker_.outline.a() > 0);
+		paint->setEdged(marker_.showOutline && marker_.hasOutline() && marker_.outline.a() > 0);
 	}
-
-	paint->setColor(majorColor(objIdx / 2));
 }
 
 
-void* KcScatter::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned objIdx) const
+void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
 	auto ch = objIdx / 2;
 
-	if (objIdx & 1) 
-		return paint->drawLineStrip(toPoint3Getter_(getter, ch), count);
-
-	if (coloringMode() == k_one_color_solid) {
-		return paint->drawMarkers(toPoint3Getter_(getter, ch), count);
+	if (objIdx == 1) {
+		for (kIndex ch = 0; ch < data()->channels(); ch++) {
+			paint->setColor(majorColor(ch)); // 线段不渐变
+			for (unsigned i = 0; i < linesPerChannel_(); i++) {
+				auto g = lineAt_(ch, i);
+				paint->drawLineStrip(toPoint3Getter_(g.getter, ch), g.size);
+			}
+		}
 	}
-	else { // 逐个marker绘制
-		for (unsigned i = 0; i < count; i++) {
-			auto val = getter(i);
-			paint->setColor(mapValueToColor_(val.data(), ch));
-			paint->drawMarker({ val[0], val[1], val[2] });
+	else {
+		for (kIndex ch = 0; ch < data()->channels(); ch++) {
+			for (unsigned i = 0; i < linesPerChannel_(); i++) {
+				auto g = lineAt_(ch, i);
+				for (unsigned i = 0; i < g.size; i++) {
+					auto val = g.getter(i);
+					paint->setColor(mapValueToColor_(val.data(), ch)); // 支持渐变色
+					auto pt = toPoint_(val.data(), ch);
+					paint->drawMarker({ pt[0], pt[1], pt[2] });
+				}
+			}
 		}
 	}
 
-	return nullptr;
+	return nullptr; // 目前不支持vbo复用
 }
 
 
