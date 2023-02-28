@@ -56,8 +56,18 @@ void KcImDataMaker::updateImpl_()
     if (ImGui::Button("OK", ImVec2(99, 0))) {
         close();
 
+        // 删除用户筛选列
+        matrixd idata = transpose_ ? KuMatrixUtil::transpose(idata_) : idata_;
+        unsigned cols = idata.front().size();
+        assert(vis_.size() >= cols);
+        auto vis = vis_.rbegin();
+        for (unsigned i = cols - 1; i != -1; i--) {
+            if (!*vis++)
+                KuMatrixUtil::eraseColumn(idata, i);
+        }
+
         // 生成数据
-        odata_ = KuDataUtil::makeData(!transpose_ ? idata_ : KuMatrixUtil::transpose(idata_), dataType_);
+        odata_ = KuDataUtil::makeData(idata, dataType_);
     }
     ImGui::SetItemDefaultFocus();
 
@@ -67,5 +77,5 @@ void KcImDataMaker::updateImpl_()
         odata_ = nullptr; // 标记为取消状态
     }
 
-    ImGuiX::showDataTable(dataType_, idata_, transpose_, vis_);
+    ImGuiX::showDataTable(name().c_str(), dataType_, idata_, transpose_, vis_);
 }

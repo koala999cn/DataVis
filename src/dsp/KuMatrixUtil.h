@@ -29,6 +29,10 @@ public:
     template<typename T>
 	static std::vector<T> extractColumn(const matrix<T>& mat, unsigned idx);
 
+    // 删除矩阵的特定列
+    template<typename T>
+    static void eraseColumn(matrix<T>& mat, unsigned idx);
+
     // 强制对齐mat各行的列数
     // @cols: 各行对齐到的列数，-1表示对齐到mat的最大列数，0表示对齐到mat的最小列数
     // @blankFill: 缺位元素的填充值
@@ -86,6 +90,14 @@ std::vector<T> KuMatrixUtil::extractColumn(const matrix<T>& mat, unsigned idx)
         v[i] = mat[i][idx];
 
     return v;
+}
+
+
+template<typename T>
+void KuMatrixUtil::eraseColumn(matrix<T>& mat, unsigned idx)
+{
+    for (unsigned i = 0; i < mat.size(); i++)
+        mat[i].erase(mat[i].cbegin() + idx);
 }
 
 

@@ -80,6 +80,8 @@ std::shared_ptr<KvData> KuDataUtil::makeMatrix(const matrixd& mat)
 
 std::shared_ptr<KvData> KuDataUtil::makeSampled1d(const matrixd& mat)
 {
+    assert(!mat.empty() && !mat.front().empty());
+
     auto samp = std::make_shared<KcSampled1d>();
     samp->resize(mat.size(), mat[0].size() - 1); // 少一列，第1列为采样时
     samp->reset(0, mat[0][0], mat[1][0] - mat[0][0]);

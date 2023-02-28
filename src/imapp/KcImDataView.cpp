@@ -25,11 +25,15 @@ void KcImDataView::updateImpl_()
 {
     auto prov = prov_.lock();
 
+    ImGui::PushID(prov.get());
+
     if (prov) {
         auto data = prov->fetchData(0);
         if (data)
-            ImGuiX::showDataTable(*data);
+            ImGuiX::showDataTable("##", *data);
     }
     else if (data_)
-        ImGuiX::showDataTable(*data_);
+        ImGuiX::showDataTable("##", *data_);
+
+    ImGui::PopID();
 }

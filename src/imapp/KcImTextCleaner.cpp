@@ -222,6 +222,17 @@ void KcImTextCleaner::doClean_()
         }
     }
 
+    // 删除用户筛选列
+    if (!cleanData_.empty() && !vis_.empty()) {
+        unsigned cols = cleanData_.front().size();
+        assert(vis_.size() >= cols);
+        auto vis = vis_.rbegin();
+        for (unsigned i = cols - 1; i != -1; i--) {
+            if (!*vis++)
+                KuMatrixUtil::eraseColumn(cleanData_, i);
+        }
+    }
+
     // 若有"ignore模式"造成的空行，该断言不成立
     // assert(cleanData_.size() == rows_);
 }
@@ -266,5 +277,6 @@ void KcImTextCleaner::showTable_() const
             ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "---");
     };
     
-    ImGuiX::showLargeTable(rawData_.size(), maxCols_ + 1, fnShow, 1, 1, headers);
+    vis_.resize(maxCols_ + 1);
+    ImGuiX::showLargeTable(source_.data(), rawData_.size(), maxCols_ + 1, fnShow, 1, 1, headers, vis_.data());
 }

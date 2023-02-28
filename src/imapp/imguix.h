@@ -42,22 +42,24 @@ namespace ImGuiX
 	// @blockSpace: 色块之间的留空
 	void drawColorBar(std::vector<color4f>& colors, const ImVec2& startPos, const ImVec2& blockSize, float blockSpace);
 
-	void showDataTable(const KvData& data);
+	void showDataTable(const char* label, const KvData& data);
 
-	void showDataTable(const KvData& data, std::vector<char>& vis);
+	void showDataTable(const char* label, const KvData& data, std::vector<char>& vis);
 
 	using matrixd = std::vector<std::vector<double>>;
 
 	// @type: the type of data, see KuDataUtil::KeDataType for detail
-	void showDataTable(int type, const matrixd& data, bool rowMajor, std::vector<char>& vis);
+	void showDataTable(const char* label, int type, const matrixd& data, bool rowMajor, std::vector<char>& vis);
 
 	// @type: the type of data, see KuDataUtil::KeDataType for detail
-	void showDataTable(int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn,
-		std::vector<char>& vis);
+	void showDataTable(const char* label, int type, unsigned rows, unsigned cols, 
+		std::function<double(unsigned, unsigned)> fn, std::vector<char>& vis);
 
 	// 显示巨型表格的通用函数
-	void showLargeTable(unsigned rows, unsigned cols, std::function<void(unsigned, unsigned)> fnShow, 
-		unsigned freezeCols = 1, unsigned freeszRows = 1, const std::vector<std::string>& headers = {},
+	void showLargeTable(const char* label, unsigned rows, unsigned cols, 
+		std::function<void(unsigned, unsigned)> fnShow,
+		unsigned freezeCols = 1, unsigned freeszRows = 1, 
+		const std::vector<std::string>& headers = {},
 		char* vis = nullptr);
 
 	bool alignment(const char* label, KeAlignment& align, bool defaultOpen);

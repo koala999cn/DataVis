@@ -145,10 +145,13 @@ void KcOpFbank::showPropertySet()
                 }
             };
 
-            ImGuiX::showLargeTable(fbank_->options().numBanks, 4, showBins, 1, 1, {
+            ImGui::PushID(fbank_.get());
+
+            ImGuiX::showLargeTable("##", fbank_->options().numBanks, 4, showBins, 1, 1, {
                 "bin", "left-freq", "center-freq", "right-freq"
                 });
 
+            ImGui::PopID();
             ImGuiX::treePop();
         }
     }

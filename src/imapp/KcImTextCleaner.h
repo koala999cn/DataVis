@@ -43,6 +43,7 @@ private:
     const std::string& source_;
     const matrix<std::string_view>& rawData_; // 原始数据
     matrix<double>& cleanData_; // 清洗后的数据
+    mutable std::vector<char> vis_;
 
     // 解析text文件时的配置项
     int illegalTokenMode_{ 0 }; // 如何处理非数字字串

@@ -151,18 +151,18 @@ namespace ImGuiX
         }
     }
 
-    void showDataTable(const KvData& data)
+    void showDataTable(const char* label, const KvData& data)
     {
         static std::vector<char> vis;
-        showDataTable(data, vis);
+        showDataTable(label, data, vis);
     }
 
-    void showDataTable(const KvData& data, std::vector<char>& vis)
+    void showDataTable(const char* label, const KvData& data, std::vector<char>& vis)
     {
         if (data.isDiscreted()) {
             auto& disc = (const KvDiscreted&)data;
             if (disc.isScattered()) {
-                showDataTable(disc.dim() == 1 ? 
+                showDataTable(label, disc.dim() == 1 ?
                     KuDataUtil::k_scattered_1d : KuDataUtil::k_scattered_2d, 
                     disc.size(),
                     disc.channels() * (disc.dim() + 1),
@@ -175,13 +175,13 @@ namespace ImGuiX
             else if (disc.isSampled()) {
                 if (disc.dim() == 1) {
                     if (disc.step(0) == 1) { // series 
-                        showDataTable(KuDataUtil::k_series, disc.size(), disc.channels(),
+                        showDataTable(label, KuDataUtil::k_series, disc.size(), disc.channels(),
                             [&disc](unsigned r, unsigned c) {
                                 return disc.pointAt(r, c).at(1);
                             }, vis);
                     }
                     else { // sampled1d
-                        showDataTable(KuDataUtil::k_sampled_1d, disc.size(), disc.channels() + 1,
+                        showDataTable(label, KuDataUtil::k_sampled_1d, disc.size(), disc.channels() + 1,
                             [&disc](unsigned r, unsigned c) {
                                 if (c == 0)
                                     return disc.pointAt(r, 0).at(0);
@@ -193,13 +193,13 @@ namespace ImGuiX
                 else if (disc.dim() == 2) {
                     auto samp2d = dynamic_cast<const KvSampled*>(&disc);
                     if (disc.step(0) == 1 && disc.step(1) == 1) { // matrix
-                        showDataTable(KuDataUtil::k_matrix, disc.size(1), disc.size(0),
+                        showDataTable(label, KuDataUtil::k_matrix, disc.size(1), disc.size(0),
                             [samp2d](unsigned r, unsigned c) {
                                 return samp2d->value(c, r, 0);
                             }, vis);
                     }
                     else { // sampled2d
-                        showDataTable(KuDataUtil::k_sampled_2d, disc.size(1) + 1, disc.size(0) + 1,
+                        showDataTable(label, KuDataUtil::k_sampled_2d, disc.size(1) + 1, disc.size(0) + 1,
                             [samp2d](unsigned r, unsigned c) -> double {
                                 if (r == 0 && c == 0)
                                     return std::numeric_limits<double>::quiet_NaN();
@@ -218,7 +218,7 @@ namespace ImGuiX
     }
 
 
-    void showDataTable(int type, const matrixd& data, bool rowMajor, std::vector<char>& vis)
+    void showDataTable(const char* label, int type, const matrixd& data, bool rowMajor, std::vector<char>& vis)
     {
         if (data.empty())
             return;
@@ -229,12 +229,12 @@ namespace ImGuiX
             std::swap(rows, cols);
         vis.resize(cols);
 
-        showDataTable(type, rows, cols, [&data, rowMajor](unsigned r, unsigned c) {
+        showDataTable(label, type, rows, cols, [&data, rowMajor](unsigned r, unsigned c) {
             return rowMajor ? data[c][r] : data[r][c]; }, vis);
     }
 
 
-    void showDataTable(int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn,
+    void showDataTable(const char* label, int type, unsigned rows, unsigned cols, std::function<double(unsigned, unsigned)> fn,
         std::vector<char>& vis)
     {
         auto headers = kPrivate::makeTableHeaders_(type, std::min(cols, 510u)); // 510为2与3的公倍数
@@ -257,11 +257,11 @@ namespace ImGuiX
         };
 
         vis.resize(cols + 1);
-        showLargeTable(rows, cols + 1, fnShow, 1, 1, headers, vis.data());
+        showLargeTable(label, rows, cols + 1, fnShow, 1, 1, headers, vis.data());
     }
 
 
-    void showLargeTable(unsigned rows, unsigned cols, 
+    void showLargeTable(const char* label, unsigned rows, unsigned cols,
         std::function<void(unsigned, unsigned)> fnShow,
         unsigned freezeCols, unsigned freeszRows,
         const std::vector<std::string>& headers, char* vis)
@@ -277,7 +277,7 @@ namespace ImGuiX
         if (cols > 512)
             cols = 512; // NB: ImGui(v1.89.4)要求总列数不超过512
 
-        if (BeginTable("LargeTable", cols, flags)) {
+        if (BeginTable(label, cols, flags)) {
 
             TableSetupScrollFreeze(freezeCols, freeszRows);
 
@@ -299,8 +299,8 @@ namespace ImGuiX
             }
 
             if (vis) {
-                for (unsigned c = 0; c < cols; c++)
-                    vis[c] = TableGetColumnFlags(c) & ImGuiTableColumnFlags_IsEnabled;
+                for (unsigned c = 0; c < cols; c++) 
+                    vis[c] = (TableGetColumnFlags(c) & ImGuiTableColumnFlags_IsEnabled) != 0;
             }
 
             EndTable();
