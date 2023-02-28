@@ -14,7 +14,7 @@
  https://sourceforge.net/projects/gnuplot/files/gnuplot/
 
  * candlesticks.dat
- ttps://sourceforge.net/projects/gnuplot/files/gnuplot/
+ https://sourceforge.net/projects/gnuplot/files/gnuplot/
 
  * golfer.dat
  https://ayapin-film.sakura.ne.jp/Gnuplot/pm3d_part3.html
@@ -24,3 +24,6 @@
 
  * silver.txt
  从gnuplot的silver.dat改变而来，用于生成errorfill图
+
+ * probly.csv
+ https://github.com/zonination/perceptions/blob/master/probly.csv
