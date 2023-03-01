@@ -190,16 +190,16 @@ protected:
 	// 如果data()成员本身为离散数据，则直接返回；否则按照sampCount_构建并返回一个采样对象
 	std::shared_ptr<const KvDiscreted> discreted_() const;
 
-	// 是否正在是否defaultZ，满足2个条件之一为true：
-	// 一是data_的dim等于1，这种情况始终使用defaultZ填补缺失的z值；
-	// 二是forceDefaultZ_为真
-	bool usingDefaultZ_() const;
-
 	// 根据valp构建point3对象
 	// 如果forceDefaultZ_为真，则替换valp的z值，否则用原z值
 	point3 toPoint_(const float_t* valp, unsigned ch) const {
 		return { valp[0], valp[1], usingDefaultZ_() ? defaultZ(ch) : valp[2] };
 	}
+
+	// 是否正在是否defaultZ，满足2个条件之一为true：
+	// 一是data_的dim等于1，这种情况始终使用defaultZ填补缺失的z值；
+	// 二是forceDefaultZ_为真
+	virtual bool usingDefaultZ_() const;
 
 	virtual aabb_t calcBoundingBox_() const;
 

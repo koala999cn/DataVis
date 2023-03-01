@@ -53,6 +53,13 @@ void KvPlottable1d::setRidgeMode_(int mode)
 }
 
 
+void KvPlottable1d::setGroupMode_(int mode) 
+{
+	groupMode_ = mode;
+	setDataChanged();
+}
+
+
 void KvPlottable1d::setRidgeOffset(float_t offset)
 {
 	ridgeOffset_ = offset;

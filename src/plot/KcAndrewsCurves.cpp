@@ -42,14 +42,10 @@ KuDataUtil::KpPointGetter1d KcAndrewsCurves::lineAt_(unsigned ch, unsigned idx) 
 }
 
 
-void KcAndrewsCurves::setObjectState_(KvPaint* paint, unsigned objIdx) const
+bool KcAndrewsCurves::usingDefaultZ_() const
 {
-	super_::setObjectState_(paint, objIdx);
-
-	// TODO: 当输入为matrix时，dim = 2，而构造的andrews曲线dim = 1，此时依赖于defaultZ判定的结果均不正确
-	// 此处暂时先强制defaultZ，后续须一个通用方案
-	if (!forceDefaultZ())
-	    const_cast<KcAndrewsCurves*>(this)->setForceDefaultZ(true); 
+	// NB: 构造的andrews曲线dim = 1，须使用defaultZ
+	return true;
 }
 
 

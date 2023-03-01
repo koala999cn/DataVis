@@ -27,7 +27,7 @@ private:
 
 	KuDataUtil::KpPointGetter1d lineAt_(unsigned ch, unsigned idx) const override;
 
-	void setObjectState_(KvPaint*, unsigned objIdx) const override;
+	bool usingDefaultZ_() const override;
 
 	aabb_t calcBoundingBox_() const override;
 

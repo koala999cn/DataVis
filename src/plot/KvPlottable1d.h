@@ -5,7 +5,7 @@
 
 
 // 序列图的基类，主要处理串行数据，用于绘制graph、scatter、bars、area等类型图
-// 兼容2d和3d模式，抽象stacked、ridged两类arrange模式
+// 兼容2d和3d模式，抽象grouped、stacked、ridged两类arrange模式
 
 class KvPlottable1d : public KvPlottable
 {
@@ -34,6 +34,7 @@ protected:
 	virtual KuDataUtil::KpPointGetter1d lineAt_(unsigned ch, unsigned idx) const;
 
 	aabb_t calcBoundingBox_() const override;
+
 
 	////////////////////////////////////////////////////////////////////////
 	// 
@@ -89,4 +90,25 @@ private:
 	float_t ridgeOffset_{ 1.0 };
 
 	////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////////////////////////////////////////////////////
+	// 
+	// group绘制模式支持相关接口
+
+protected:
+
+	enum KeGroupMode
+	{
+		k_group_none,
+		k_group_channel,
+		k_group_column,
+		k_group_all
+	};
+
+	void setGroupMode_(int mode);
+
+private:
+	int groupMode_{ k_group_none };
+
 };
