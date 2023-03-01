@@ -19,7 +19,6 @@ public:
 
 	unsigned objectCount() const override { return 2; } // marker + line
 
-
 	const KpMarker& marker() const { return marker_; }
 	KpMarker& marker() { return marker_; }
 
@@ -36,10 +35,6 @@ private:
 	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
 	void* drawObject_(KvPaint*, unsigned objIdx) const override;
-
-	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const override {
-		return 0;
-	}
 
 protected:
 	bool showLine_{ false };

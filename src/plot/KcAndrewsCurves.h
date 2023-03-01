@@ -21,11 +21,13 @@ public:
 
 private:
 
-	unsigned objectCount() const override;
+	unsigned channels_() const override;
 
-	bool objectVisible_(unsigned objIdx) const override;
+	unsigned linesPerChannel_() const override;
 
-	void* drawObject_(KvPaint*, unsigned objIdx) const override;
+	KuDataUtil::KpPointGetter1d lineAt_(unsigned ch, unsigned idx) const override;
+
+	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
 	aabb_t calcBoundingBox_() const override;
 
@@ -33,5 +35,5 @@ private:
 	void genCurves_();
 
 private:
-	std::unique_ptr<KvData> curves_; // 用来保存生成的andrews曲线，避免每个周期重新生成
+	std::shared_ptr<KvData> curves_; // 用来保存生成的andrews曲线，避免每个周期重新生成
 };

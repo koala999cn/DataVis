@@ -31,24 +31,29 @@ void KcBubble::setObjectState_(KvPaint* paint, unsigned objIdx) const
 }
 
 
-void* KcBubble::drawObjectImpl_(KvPaint* paint, GETTER getter, unsigned count, unsigned objIdx) const
+void* KcBubble::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
 	bool realShowText = showText_ && clrText_.a() != 0;
 
-	auto ch = objIdx2ChsIdx_(objIdx);
-	for (unsigned i = 0; i < count; i++) {
-		auto pt = getter(i);
-		auto val = pt[data()->dim()]; // TODO: 尺寸插值的数据维度可配置
-		paint->setMarkerSize(mapValueToSize_(val));
-		paint->setColor(mapValueToColor_(pt.data(), ch));
-		paint->drawMarker(toPoint_(pt.data(), ch));
+	for (kIndex ch = 0; ch < channels_(); ch++) {
+		for (unsigned i = 0; i < linesPerChannel_(); i++) {
+			auto g = lineAt_(ch, i);
 
-		if (realShowText) {
-			auto text = KuStrUtil::toString(pt[colorMappingDim()]);
-			auto szText = paint->textSize(text.c_str());
-			paint->setColor(textColor());
-			paint->drawText(toPoint_(pt.data(), ch), text.c_str(),
-				KeAlignment::k_vcenter | KeAlignment::k_hcenter);
+			for (unsigned j = 0; j < g.size; j++) {
+				auto pt = g.getter(j);
+				auto val = pt[data()->dim()]; // TODO: 尺寸插值的数据维度可配置
+				paint->setMarkerSize(mapValueToSize_(val));
+				paint->setColor(mapValueToColor_(pt.data(), ch));
+				paint->drawMarker(toPoint_(pt.data(), ch));
+
+				if (realShowText) {
+					auto text = KuStrUtil::toString(pt[colorMappingDim()]);
+					auto szText = paint->textSize(text.c_str());
+					paint->setColor(textColor());
+					paint->drawText(toPoint_(pt.data(), ch), text.c_str(),
+						KeAlignment::k_vcenter | KeAlignment::k_hcenter);
+				}
+			}
 		}
 	}
 

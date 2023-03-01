@@ -16,6 +16,8 @@ public:
 
 	void setMinorColor_(const color4f& minor) override;
 
+	unsigned objectCount() const override;
+
 	const KpPen& linePen() const { return lineCxt_; }
 	KpPen& linePen() { return lineCxt_; }
 
@@ -23,9 +25,9 @@ protected:
 
 	bool objectVisible_(unsigned objIdx) const override;
 
-	void setObjectState_(KvPaint*, unsigned objIdx) const final;
+	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
-	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const final;
+	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
 private:
 	KpPen lineCxt_;

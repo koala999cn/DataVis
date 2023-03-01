@@ -10,34 +10,48 @@ unsigned KcAndrewsCurves::majorColorsNeeded() const
 	if (coloringMode() == k_colorbar_gradiant)
 		return -1;
 
-	if (empty())
-		return 0;
-
-	// NB: majorColorsNeeded返回值等于拟构建的andrews曲线的数量
-	// 为简化起见，不管何类型数据，均以size(0)为曲线的数目
-	// -- 对于一维数据，忽略x轴，以各通道的y轴数据作为构建andrews曲线的系数
-	// -- 对于高维数据，以数据各维度作为构建andrews曲线的系数
-	auto disc = discreted_();
-	auto majors = disc->size(0);
-
-	// NB: 对于高维数据，混合各通道（此方案无法区分不同通道数据）
-	if (disc->dim() > 1)
-		majors *= disc->channels(); 
-
-	return majors;
+	return channels_();
 }
 
 
-unsigned KcAndrewsCurves::objectCount() const
+unsigned KcAndrewsCurves::channels_() const
 {
+	if (empty())
+		return 0;
+
+	// NB: channels_返回值等于拟构建的andrews曲线的数量
+	// 为简化起见，不管何类型数据，均以size(0)为曲线的数目
+	// -- 对于一维数据，忽略x轴，以各通道的y轴数据作为构建andrews曲线的系数
+	// -- 对于高维数据，以数据各维度作为构建andrews曲线的系数
 	return discreted_()->size(0);
 }
 
 
-bool KcAndrewsCurves::objectVisible_(unsigned objIdx) const
+unsigned KcAndrewsCurves::linesPerChannel_() const
 {
-	return true;
+	return 1; // TODO: 多通道matrix数据
 }
+
+
+KuDataUtil::KpPointGetter1d KcAndrewsCurves::lineAt_(unsigned ch, unsigned idx) const
+{
+	if (dataChanged() && ch == 0 && idx == 0)
+		const_cast<KcAndrewsCurves*>(this)->genCurves_();
+
+	return KuDataUtil::pointGetter1dAt(std::dynamic_pointer_cast<KvDiscreted>(curves_), ch, idx);
+}
+
+
+void KcAndrewsCurves::setObjectState_(KvPaint* paint, unsigned objIdx) const
+{
+	super_::setObjectState_(paint, objIdx);
+
+	// TODO: 当输入为matrix时，dim = 2，而构造的andrews曲线dim = 1，此时依赖于defaultZ判定的结果均不正确
+	// 此处暂时先强制defaultZ，后续须一个通用方案
+	if (!forceDefaultZ())
+	    const_cast<KcAndrewsCurves*>(this)->setForceDefaultZ(true); 
+}
+
 
 namespace kPrivate
 {
@@ -105,23 +119,6 @@ namespace kPrivate
 }
 
 
-void* KcAndrewsCurves::drawObject_(KvPaint* paint, unsigned objIdx) const
-{
-	if (dataChanged() && objIdx == 0)
-		const_cast<KcAndrewsCurves*>(this)->genCurves_();
-
-	assert(objIdx < curves_->channels());
-
-	auto samp1d = dynamic_cast<KcSampled1d*>(curves_.get());
-	auto getter = [samp1d, objIdx, this](unsigned idx) -> std::vector<float_t> {
-		auto pt = samp1d->pointAt(idx, objIdx);
-		return { pt[0], pt[1], defaultZ(objIdx) };
-	};
-
-	return super_::drawObjectImpl_(paint, getter, samp1d->size(), objIdx);
-}
-
-
 KcAndrewsCurves::aabb_t KcAndrewsCurves::calcBoundingBox_() const
 {
 	// x轴的值域始终为[-pi, pi]
@@ -151,7 +148,7 @@ KcAndrewsCurves::aabb_t KcAndrewsCurves::calcBoundingBox_() const
 			}
 		}
 
-		box.upper().z() = defaultZ(majorColorsNeeded() - 1); // 修正z轴高值
+		box.upper().z() = defaultZ(channels_() - 1); // 修正z轴高值
 	}
 
 	return box;
@@ -164,7 +161,7 @@ void KcAndrewsCurves::genCurves_()
 	samp.resetn(1024, -KuMath::pi, KuMath::pi, 0); // andrews曲线的采样参数
 
 	auto samp1d = new KcSampled1d;
-	samp1d->resize(samp.size(), majorColors());
+	samp1d->resize(samp.size(), channels_());
 	samp1d->reset(0, -KuMath::pi, samp.dx());
 	curves_.reset(samp1d);
 
@@ -184,7 +181,7 @@ void KcAndrewsCurves::genCurves_()
 	}
 	else if (disc->isSampled() && d == 2) { // matrix数据
 		auto samp = std::dynamic_pointer_cast<const KvSampled>(disc);
-		kPrivate::KpAndrews andrews(samp->size(1)); // 系数个数等于列数
+		kPrivate::KpAndrews andrews(samp->size(1)); // 系数个数等于行数
 		getter = [this, andrews, &i, samp](unsigned ix) {
 			std::vector<float_t> x(samp->size(1));
 			for (unsigned j = 0; j < samp->size(1); j++)

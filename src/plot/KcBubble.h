@@ -19,6 +19,8 @@ public:
 	const color4f& minorColor() const override;
 	void setMinorColor_(const color4f& minor) override;
 
+	unsigned objectCount() const override { return 1; }
+
 	bool radiusAsSize() const { return radiusAsSize_; }
 	bool& radiusAsSize() { return radiusAsSize_; }
 
@@ -40,7 +42,7 @@ protected:
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const final;
 
-	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const final;
+	void* drawObject_(KvPaint*, unsigned objIdx) const final;
 
 	float mapValueToSize_(float_t val) const;
 

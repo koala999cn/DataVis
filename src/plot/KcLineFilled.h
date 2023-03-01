@@ -81,10 +81,6 @@ private:
 	// µ„œﬂfill
 	void fillBetween_(KvPaint*, const point3&, GETTER, unsigned count, unsigned ch, void* vtx) const;
 
-	void* drawObjectImpl_(KvPaint*, GETTER, unsigned count, unsigned objIdx) const override {
-		return 0;
-	}
-
 	GETTER baseGetter_(unsigned ch, unsigned idx, GETTER g) const;
 	point3 basePointAt_(unsigned ch, unsigned idx) const;
 
