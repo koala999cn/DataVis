@@ -2,19 +2,41 @@
 #include "KvDiscreted.h"
 
 
+
+void KvPlottable1d::setXdim(unsigned dim)
+{
+	axisDim_[0] = dim;
+	setDataChanged();
+}
+
+
+void KvPlottable1d::setYdim(unsigned dim)
+{
+	axisDim_[1] = dim;
+	setDataChanged();
+}
+
+
+void KvPlottable1d::setZdim(unsigned dim)
+{
+	axisDim_[2] = dim;
+	setDataChanged();
+}
+
+
 typename KvPaint::point_getter1 KvPlottable1d::toPoint3Getter_(GETTER g, unsigned channel) const
 {
 	if (usingDefaultZ_()) {
 		auto z = defaultZ(channel);
-		return [g, z](unsigned idx) {
+		return [this, g, z](unsigned idx) {
 			auto pt = g(idx);
-			return point3(pt[0], pt[1], z);
+			return point3(pt[xdim()], pt[ydim()], z);
 		};
 	}
 	else {
-		return [g](unsigned idx) {
+		return [this, g](unsigned idx) {
 			auto pt = g(idx);
-			return point3(pt[0], pt[1], pt[2]);
+			return point3(pt[xdim()], pt[ydim()], pt[zdim()]);
 		};
 	}
 }
@@ -165,9 +187,9 @@ KuDataUtil::KpPointGetter1d KvPlottable1d::lineAt_(unsigned ch, unsigned idx) co
 	auto offset = ridgeOffsetAt_(ch, idx);
 
 	KuDataUtil::KpPointGetter1d rg;
-	rg.getter = [g, offset](unsigned i) {
+	rg.getter = [this, g, offset](unsigned i) {
 		auto pt = g.getter(i);
-		pt[1] += offset;
+		pt[ydim()] += offset;
 		return pt;
 	};
 	rg.size = g.size;
@@ -178,16 +200,21 @@ KuDataUtil::KpPointGetter1d KvPlottable1d::lineAt_(unsigned ch, unsigned idx) co
 
 KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 {
+	if (empty())
+		return aabb_t(); // 返回null，以免影响坐标系设置 
+
 	aabb_t box;
 
-	if (stackMode_ == k_stack_none)
-		box = super_::calcBoundingBox_();
+	// xrange
+	auto r0 = data()->range(xdim());
+	box.lower().x() = r0.low(), box.upper().x() = r0.high();
+
+	// yrange
+	if (stackMode_ == k_stack_none) {
+		auto r1 = data()->range(ydim());
+		box.lower().y() = r1.low(), box.upper().y() = r1.high();
+	}
 	else {
-		point3 lower, upper;
-
-		auto r0 = data()->range(0);
-		lower.x() = r0.low(), upper.x() = r0.high();
-
 		if (stackedData_.empty())
 			calcStackData_();
 		auto r1 = KuMath::minmax(stackedData_[0].data(), stackedData_[0].size());
@@ -195,19 +222,18 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 			auto r = KuMath::minmax(stackedData_[i].data(), stackedData_[i].size());
 			KuMath::uniteRange(r1.first, r1.second, r.first, r.second);
 		}
-		lower.y() = r1.first, upper.y() = r1.second;
+		box.lower().y() = r1.first, box.upper().y() = r1.second;
+	}
 
-		if (usingDefaultZ_()) {
-			// 不用关心lower.z与upper.z的大小，aabb构造函数会自动调整大小值
-			lower.z() = defaultZ(0);
-			upper.z() = defaultZ(data()->channels() - 1); // TODO: 此处固定使用通道数来配置z平面的数量，可考虑由用户定制
-		}
-		else {
-			auto r2 = data()->range(2);
-			lower.z() = r2.low(), upper.z() = r2.high();
-		}
-
-		box = { lower, upper };
+	// zrange
+	if (usingDefaultZ_()) {
+		// 不用关心lower.z与upper.z的大小，aabb构造函数会自动调整大小值
+		box.lower().z() = defaultZ(0);
+		box.upper().z() = defaultZ(channels_() - 1); // TODO: 此处固定使用通道数来配置z平面的数量，可考虑由用户定制
+	}
+	else {
+		auto r2 = data()->range(zdim());
+		box.lower().z() = r2.low(), box.upper().z() = r2.high();
 	}
 
 	if (ridgeMode_ != k_ridge_none) {

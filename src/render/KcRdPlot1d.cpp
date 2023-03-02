@@ -104,6 +104,22 @@ namespace kPrivate
 {
 	void showPlottableSpecificProperty1d(KvPlottable* plt)
 	{
+		auto plt1d = dynamic_cast<KvPlottable1d*>(plt);
+		if (plt1d) {
+
+			int dim[3] = { plt1d->xdim(), plt1d->ydim(), plt1d->zdim() };
+			if (ImGui::SliderInt3("Dim Mapping", dim, 0, plt1d->data()->dim() )) {
+				dim[0] = KuMath::clamp<int>(dim[0], 0, plt1d->data()->dim());
+				plt1d->setXdim(dim[0]);
+
+				dim[1] = KuMath::clamp<int>(dim[1], 0, plt1d->data()->dim());
+				plt1d->setYdim(dim[1]);
+
+				dim[2] = KuMath::clamp<int>(dim[2], 0, plt1d->data()->dim());
+				plt1d->setZdim(dim[2]);
+			}
+		}
+
 		if (dynamic_cast<KcLineFilled*>(plt)) {
 			auto fill = dynamic_cast<KcLineFilled*>(plt);
 

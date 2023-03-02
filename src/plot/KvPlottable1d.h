@@ -15,6 +15,32 @@ public:
 
 	using super_::super_;
 
+	//////////////////////////////////////////////////////////////////////
+
+	/// 维度映射（相对输出数据而言）
+
+public:
+
+	unsigned xdim() const { return axisDim_[0]; } // 返回x轴对应的数据维度
+	unsigned ydim() const { return axisDim_[1]; } // 返回y轴对应的数据维度
+	unsigned zdim() const { return axisDim_[2]; } // 返回z轴对应的数据维度
+
+	void setXdim(unsigned dim); // 将维度dim映射到x轴
+	void setYdim(unsigned dim); // 将维度dim映射到x轴
+	void setZdim(unsigned dim); // 将维度dim映射到x轴
+
+protected:
+
+	point3 toPoint_(const float_t* valp, unsigned ch) const {
+		return { valp[xdim()], valp[ydim()], usingDefaultZ_() ? defaultZ(ch) : valp[zdim()] };
+	}
+
+private:
+
+	unsigned axisDim_[3]{ 0, 1, 2 }; // x/y/z轴对应的数据维度
+
+	//////////////////////////////////////////////////////////////////////
+
 protected:
 
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;

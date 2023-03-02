@@ -95,6 +95,8 @@ public:
 
 	////////////////////////////////////////////////////////////////
 
+	/// z值管理
+
 	float_t defaultZ() const { return defaultZ_; }
 	void setDefaultZ(float_t z);
 
@@ -108,7 +110,7 @@ public:
 
 	////////////////////////////////////////////////////////////////
 
-	// 色彩模式支持
+	/// 色彩模式支持
 
 	enum KeColoringMode
 	{
@@ -145,9 +147,7 @@ public:
 	void updateColorMappingPalette();
 
 
-	//////////////////////////////////////////////////////////////////////
-
-	// VBO复用接口
+	/// VBO复用接口
 
 public:
 
