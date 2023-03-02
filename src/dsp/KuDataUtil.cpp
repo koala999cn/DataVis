@@ -383,14 +383,13 @@ KuDataUtil::KpPointGetter1d KuDataUtil::pointGetter1dAt(const std::shared_ptr<co
 {
     KpPointGetter1d g;
     if (!hasPointGetter2d(disc)) {
-        idx; // assert(idx == 0);
+        assert(idx == 0);
         g.getter = [disc, ch](unsigned ix) { return disc->pointAt(ix, ch); };
         g.size = unsigned(disc->size(0));
     }
     else {
-        auto g2 = pointGetter2dAt(disc, ch, 0);
-        g2 = pointGetter2dAt(disc, ch, idx / g2.xsize);
-        auto ix = idx % g2.xsize;
+        auto g2 = pointGetter2dAt(disc, ch, idx / disc->size(disc->dim() - 2));
+        auto ix = idx % disc->size(disc->dim() - 2);
         g.getter = [g2, ix](unsigned iy) { return g2.getter(ix, iy); };
         g.size = g2.ysize;
     }
@@ -405,11 +404,22 @@ KuDataUtil::KpPointGetter2d KuDataUtil::pointGetter2dAt(const std::shared_ptr<co
     KpPointGetter2d g;
 
     auto samp = std::dynamic_pointer_cast<const KvSampled>(disc);
-    assert(idx == 0); // TODO: 实现高维情况 
-
-    g.getter = [samp, ch](unsigned ix, unsigned iy) {
-        return samp->point(ix, iy, ch); 
-    };
+    
+    if (samp->dim() == 2) {
+        g.getter = [samp, ch](unsigned ix, unsigned iy) {
+            return samp->point(ix, iy, ch);
+        };
+    }
+    else {
+        auto s = shape(*samp);
+        s.pop_back(), s.pop_back();
+        auto v = n2index(s, idx);
+        g.getter = [samp, ch, v](unsigned ix, unsigned iy) {
+            std::vector<kIndex> idx(v);
+            idx.push_back(ix), idx.push_back(iy);
+            return samp->point(idx.data(), ch);
+        };
+    }
 
     g.xsize = unsigned(samp->size(samp->dim() - 2));
     g.ysize = unsigned(samp->size(samp->dim() - 1));
