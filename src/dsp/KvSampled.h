@@ -59,33 +59,22 @@ public:
 		return point(idx, channel);
 	}
 
-	void nextIndex(kIndex idx[]) const {
-		for (kIndex i = 0; i < dim(); i++) {
-			if (++idx[i] < size(i))
-				break;
-
-			idx[i] = 0; // 进位
-		}
-	}
-
 	// 返回第n个数据的索引
 	std::vector<kIndex> nToIndex(kIndex n) const {
-
 		// 快速通道
-		if (dim() == 1) 
+		if (dim() == 1)
 			return { n };
 		else if (dim() == 2)
 			return { n / size(1), n % size(1) };
 
 		// 通用算法
-		// TODO: test
-		std::vector<kIndex> idx;
-		for (kIndex i = dim(); i > 0; i--) {
-			idx.insert(idx.begin(), n % size(i));
+		std::vector<kIndex> idx(dim());
+		for (kIndex i = dim() - 1; i != 0; i--) {
+			idx[i] = n % size(i);
 			n /= size(i);
 		}
 
-		idx.insert(idx.begin(), n);
+		idx[0] = n;
 
 		return idx;
 	}

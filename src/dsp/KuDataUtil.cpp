@@ -220,6 +220,86 @@ bool KuDataUtil::isMatrix(const KvData& d)
 }
 
 
+std::vector<kIndex> KuDataUtil::shape(const KvSampled& samp)
+{
+    std::vector<kIndex> s(samp.dim());
+    for (kIndex d = 0; d < samp.dim(); d++)
+        s[d] = samp.size(d);
+    return s;
+}
+
+
+kIndex KuDataUtil::index2n(const std::vector<kIndex>& shape, const kIndex idx[])
+{
+    kIndex n(idx[shape.size() - 1]);
+    kIndex stride = shape.back();
+    for (kIndex i = shape.size() - 2; i != -1; i--) {
+        n += idx[i] * stride;
+        stride *= shape[i];
+    }
+    return n;
+}
+
+
+std::vector<kIndex> KuDataUtil::n2index(const std::vector<kIndex>& shape, kIndex n)
+{
+    auto dim = shape.size();
+
+    // 快速通道
+    if (dim == 1)
+        return { n };
+    else if (dim == 2)
+        return { n / shape[1], n % shape[1] };
+
+    // 通用算法
+    std::vector<kIndex> idx(dim);
+    for (kIndex i = dim - 1; i != 0; i--) {
+        idx[i] = n % shape[i];
+        n /= shape[i];
+    }
+
+    idx[0] = n;
+
+    return idx;
+}
+
+
+void KuDataUtil::nextIndex(const std::vector<kIndex>& shape, kIndex idx[])
+{
+    for (kIndex i = shape.size() - 1; i != -1; i--) {
+        if (++idx[i] < shape[i])
+            break;
+
+        idx[i] = 0; // 进位
+    }
+}
+
+
+#include "KgRand.h"
+void KuDataUtil::indexTest()
+{
+    KgRand r;
+    for (int dim = 1; dim < 10; dim++) {
+        std::vector<kIndex> shape(dim);
+        for (int i = 0; i < dim; i++)
+            shape[i] = r.rand(1, 10);
+
+        kIndex size = KuMath::product(shape.data(), dim);
+        for (kIndex i = 0; i < size; i++) {
+            auto idx = n2index(shape, i);
+            auto n = index2n(shape, idx.data());
+            assert(n == i);
+
+            if (i != size - 1) {
+                nextIndex(shape, idx.data());
+                auto next = index2n(shape, idx.data());
+                assert(next == n + 1);
+            }
+        }
+    }
+}
+
+
 KuDataUtil::KpValueGetter1d KuDataUtil::valueGetter1d(const std::shared_ptr<const KvData>& data)
 {
     KpValueGetter1d g;

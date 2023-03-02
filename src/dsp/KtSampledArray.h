@@ -3,6 +3,7 @@
 #include <blitz/array.h>
 #include "KtSampled.h"
 #include "KuMath.h"
+#include "KuDataUtil.h"
 
 
 // 基于blitz++多维数组实现的采样数据
@@ -103,9 +104,9 @@ public:
     // 从d的pos位置开始，附加frames帧数据到this
     // assert(d.step(0) == this->step(0) && d.channles() == this->channles())
     // @rows: 0表示从pos往后的所有帧
-    void pushBack(const KtSampledArray& d, kIndex pos = 0, kIndex rows = 0);
+    void pushBack(const KtSampledArray& d, kIndex pos = 0, kIndex frames = 0);
 
-    void pushBack(const KvSampled& d, kIndex pos = 0, kIndex rows = 0);
+    void pushBack(const KvSampled& d, kIndex pos = 0, kIndex frames = 0);
 
     // 增加frames帧数据，data的长度等于frames * channels()
     void pushBack(const kReal* data, kIndex frames);
@@ -206,40 +207,44 @@ void KtSampledArray<DIM>::pushBack(const KtSampledArray& d, kIndex pos, kIndex r
 
 
 template<int DIM>
-void KtSampledArray<DIM>::pushBack(const KvSampled& d, kIndex pos, kIndex rows)
+void KtSampledArray<DIM>::pushBack(const KvSampled& d, kIndex pos, kIndex frames)
 {
     assert(step(0) == d.step(0) && channels() == d.channels());
-    if (rows <= 0 || rows > d.size(0) - pos)
-        rows = d.size(0) - pos;
+    if (frames <= 0 || frames > d.size(0) - pos)
+        frames = d.size(0) - pos;
 
-    auto shape = array_.extent();
-    auto offset = shape[0];
-    shape[0] += rows; // 增加rows行
-    std::array<kIndex, DIM> dims; // 变换到kIndex类型
-    std::copy(shape.begin(), shape.end() - 1, dims.begin());
-    resize(dims.data()); // 调整this存储布局，增加相应行数
+    auto shapeOld = array_.extent();
+    std::vector<kIndex> shapeNew(DIM); // 变换到kIndex类型
+    std::copy(shapeOld.begin(), shapeOld.end() - 1, shapeNew.begin()); // shape的最后值代表channel数，不拷贝
+    auto offset = shapeOld[0];
+    shapeNew[0] += frames; // 增加frames帧
+    resize(shapeNew.data()); // 调整this存储布局，增加相应行数
 
+    std::array<kIndex, DIM> idx;
+    
     // 逐帧复制
-    dims.fill(0);
-    dims[0] = pos; // 初始化索引
-    auto count = rows; // @count为要复制的帧数
+    idx.fill(0);
+    idx[0] = pos; // 初始化索引
+    auto count = frames; // @count为要复制的帧数
     for (unsigned i = 1; i < DIM; i++)
         count *= d.size(i);
 
+    auto shape = KuDataUtil::shape(d);
     for (kIndex i = 0; i < count; i++) {
-        assert(dims.front() >= pos);
-        auto temp = dims;
-        temp[0] += offset - pos;
-        auto buf = at(temp.data());
+        assert(idx.front() >= pos);
+
+        idx[0] += offset - pos; // 变换到this索引
+        auto buf = at(idx.data());
+        idx[0] -= offset - pos; // 变换回d的索引
         for (kIndex ch = 0; ch < channels(); ch++) {
-            *buf = d.value(dims.data(), ch);
+            *buf = d.value(idx.data(), ch);
             buf += stride(DIM); // 通道的stride
         }
 
-        d.nextIndex(dims.data());
-        assert(dims.front() < d.size(0));
-        if (dims.front() == 0) // 考虑进位
-            dims.front() = pos;
+        KuDataUtil::nextIndex(shape, idx.data());
+        assert(idx.front() < d.size(0));
+        if (idx.front() == 0) // 考虑进位
+            idx.front() = pos;
     }
 }
 

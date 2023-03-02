@@ -3,14 +3,16 @@
 #include <vector>
 #include <functional>
 #include <assert.h>
+#include "kDsp.h"
 
 class KvData;
 class KvDiscreted;
+class KvSampled;
 
 class KuDataUtil
 {
 public:
-	using matrixd = std::vector<std::vector<double>>;
+	using matrixd = std::vector<std::vector<kReal>>;
 
 	enum KeDataType
 	{
@@ -60,21 +62,38 @@ public:
 	// static std::shared_ptr<KvData> sameLike();
 
 
+	/// 多维数组索引支持函数
+
+	// 获取返回采样数据的各维度尺寸
+	static std::vector<kIndex> shape(const KvSampled& samp);
+
+	// 将数组索引idx转换为顺序访问序号n
+	static kIndex index2n(const std::vector<kIndex>& shape, const kIndex idx[]);
+
+	// 将顺序访问序号n转换为数组索引
+	static std::vector<kIndex> n2index(const std::vector<kIndex>& shape, kIndex n);
+
+	// 计算idx的下一个索引，并写入idx
+	static void nextIndex(const std::vector<kIndex>& shape, kIndex idx[]);
+
+	// 测试函数
+	static void indexTest();
+
 	/// 数据访问接口
 
 	struct KpValueGetter1d
 	{
-		std::function<double(unsigned ch, unsigned idx)> getter{ nullptr };
+		std::function<kReal(unsigned ch, unsigned idx)> getter{ nullptr };
 		unsigned channels{ 0 }; // 通道数
 		unsigned samples{ 0 }; // 每个通道的样本数
-		const double* data{ nullptr }; // 内存访问地址（nullptr表示不可内存访问）
+		const kReal* data{ nullptr }; // 内存访问地址（nullptr表示不可内存访问）
 		int channelStride{ 0 }; // 各通道间的跨度（double数），仅当data非空时有效
 		int sampleStride{ 0 }; // 各样本间的跨度（double数），仅当data非空时有效
 
 		// 提取指定通道数据
 		auto fetchChannel(unsigned ch, unsigned offset, unsigned count) const {
 			assert((offset < samples || count == 0) && count <= samples - offset);
-			std::vector<double> buf(count);
+			std::vector<kReal> buf(count);
 			auto p = buf.data();
 			auto last = offset + count;
 			for (unsigned i = offset; i < last; i++)
@@ -85,7 +104,7 @@ public:
 		// 提取所有通道数据
 		auto fetch(unsigned offset, unsigned count) const {
 			assert(offset < samples && count <= samples - offset);
-			std::vector<double> buf(count * channels);
+			std::vector<kReal> buf(count * channels);
 			auto p = buf.data();
 			auto last = offset + count;
 			for (unsigned i = offset; i < last; i++)
@@ -101,17 +120,17 @@ public:
 
 	struct KpValueGetter2d
 	{
-		std::function<double(unsigned ch, unsigned ix, unsigned iy)> getter{ nullptr };
+		std::function<kReal(unsigned ch, unsigned ix, unsigned iy)> getter{ nullptr };
 		unsigned channels{ 0 }; // 通道数
 		unsigned xsize{ 0 }; // 每个通道的行数
 		unsigned ysize{ 0 }; // 每个通道的列数
-		const double* data{ nullptr }; // 内存访问地址（nullptr表示不可内存访问）
+		const kReal* data{ nullptr }; // 内存访问地址（nullptr表示不可内存访问）
 		int channelStride{ 0 }; // 各通道间的跨度（double数），仅当data非空时有效
 		int xstride{ 0 }; // 各行间的跨度（double数），仅当data非空时有效
 		int ystride{ 0 }; // 各列间的跨度（double数），仅当data非空时有效
 
 		auto fetchXOfChannel(unsigned ch, unsigned ix) const {
-			std::vector<double> buf(ysize);
+			std::vector<kReal> buf(ysize);
 			auto p = buf.data();
 			for (unsigned iy = 0; iy < ysize; iy++)
 				*p++ = getter(ch, ix, iy);
@@ -119,7 +138,7 @@ public:
 		}
 
 		auto fetchX(unsigned ix) const {
-			std::vector<double> buf(ysize * channels);
+			std::vector<kReal> buf(ysize * channels);
 			auto p = buf.data();
 			for (unsigned iy = 0; iy < ysize; iy++)
 				for (unsigned ch = 0; ch < channels; ch++) // 各通道数据交错存储
@@ -133,13 +152,13 @@ public:
 
 	struct KpPointGetter1d
 	{
-		std::function<std::vector<double>(unsigned idx)> getter;
+		std::function<std::vector<kReal>(unsigned idx)> getter;
 		unsigned size;
 	};
 
 	struct KpPointGetter2d
 	{
-		std::function<std::vector<double>(unsigned ix, unsigned iy)> getter;
+		std::function<std::vector<kReal>(unsigned ix, unsigned iy)> getter;
 		unsigned xsize, ysize;
 	};
 
