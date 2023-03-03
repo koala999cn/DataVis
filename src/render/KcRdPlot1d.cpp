@@ -100,6 +100,23 @@ KvPlottable* KcRdPlot1d::newPlottable_(int iType, const std::string& name)
 }
 
 
+bool KcRdPlot1d::plottableMatchData_(int iType, const KvData& d) const
+{
+	switch (iType)
+	{
+	case 5:
+		if (d.isContinued()) // KcAndrewsCurves不支持连续数据
+			return false;
+		break;
+
+	default:
+		break;
+	}
+
+	return super_::plottableMatchData_(iType, d);
+}
+
+
 namespace kPrivate
 {
 	void showPlottableSpecificProperty1d(KvPlottable* plt)

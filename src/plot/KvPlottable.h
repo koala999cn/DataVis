@@ -37,9 +37,6 @@ public:
 
 	const_data_ptr idata() const { return data_; }
 
-
-public:
-
 	unsigned sampCount(unsigned dim) const { return sampCount_[dim]; }
 	void setSampCount(unsigned dim, unsigned c);
 
@@ -57,6 +54,10 @@ public:
 	// 封装连续数据的绘制，提供另外一个绘制离散数据的接口drawDiscreted_
 	void draw(KvPaint*) const override;
 
+	// 是否可绘制数据d
+	virtual bool renderable(const KvData& d) {
+		return true;
+	}
 
 	/// 以下为调色板通用接口 //////////////////////////////////
 
