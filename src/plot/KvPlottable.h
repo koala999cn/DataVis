@@ -33,8 +33,12 @@ public:
 
 	bool empty() const; // 若无数据，或数据为空，返回true
 
-	const_data_ptr data() const { return data_; }
 	void setData(const_data_ptr d);
+
+	const_data_ptr idata() const { return data_; }
+
+
+public:
 
 	unsigned sampCount(unsigned dim) const { return sampCount_[dim]; }
 	void setSampCount(unsigned dim, unsigned c);
@@ -48,11 +52,7 @@ public:
 	// 该plt是否含有分离坐标轴
 	bool hasSelfAxis() const;
 
-	aabb_t boundingBox() const final {
-		if (dataChanged_)
-			box_ = calcBoundingBox_();
-		return box_;
-	}
+	aabb_t boundingBox() const final;
 
 	// 封装连续数据的绘制，提供另外一个绘制离散数据的接口drawDiscreted_
 	void draw(KvPaint*) const override;
@@ -151,9 +151,10 @@ public:
 
 public:
 
-	bool dataChanged() const { return dataChanged_; }
+	virtual const_data_ptr odata() const { return data_; }
 
-	void setDataChanged() { dataChanged_ = true; }
+	bool dataChanged() const { return dataChanged_; }
+	void setDataChanged(bool reoutput) { dataChanged_ = 1 + reoutput; }
 
 	int coloringChanged() const { return coloringChanged_; }
 
@@ -163,6 +164,10 @@ public:
 	virtual unsigned objectCount() const = 0;
 
 protected:
+
+	void output_();
+
+	virtual void outputImpl_() {}
 
 	virtual bool objectVisible_(unsigned objIdx) const = 0;
 
@@ -199,7 +204,7 @@ protected:
 	// 是否正在是否defaultZ，满足2个条件之一为true：
 	// 一是data_的dim等于1，这种情况始终使用defaultZ填补缺失的z值；
 	// 二是forceDefaultZ_为真
-	virtual bool usingDefaultZ_() const;
+	bool usingDefaultZ_() const;
 
 	virtual aabb_t calcBoundingBox_() const;
 
@@ -236,7 +241,7 @@ private:
 	// 该标记为真时，将强制用默认Z值替换原来的z值，可用来在3d空间绘制二维的colormap图
 	bool forceDefaultZ_{ false };
 
-	mutable bool dataChanged_{ false };
+	mutable int dataChanged_{ 0 }; // 0表示未过期，1表示过期但已更新，2表示过期且未更新
 	mutable int coloringChanged_{ 0 }; // 0表示无变化，1表示小变化(colorful之间的变化)，2表示大变化(solid <-> colorful)
 
 	mutable aabb_t box_; // 缓存的aabb，在渲染大数据量时极大提高效率（autofit情况下）

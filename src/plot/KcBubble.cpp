@@ -6,7 +6,7 @@
 
 float KcBubble::mapValueToSize_(float_t val) const
 {
-	auto vrange = data()->valueRange();
+	auto vrange = odata()->valueRange();
 
 	if (radiusAsSize_) 
 		return KuMath::remap<float_t, true>(val, vrange.low(), vrange.high(),
@@ -35,13 +35,13 @@ void* KcBubble::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
 	bool realShowText = showText_ && clrText_.a() != 0;
 
-	for (kIndex ch = 0; ch < channels_(); ch++) {
+	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
 			auto g = lineAt_(ch, i);
 
 			for (unsigned j = 0; j < g.size; j++) {
 				auto pt = g.getter(j);
-				auto val = pt[data()->dim()]; // TODO: 尺寸插值的数据维度可配置
+				auto val = pt[odata()->dim()]; // TODO: 尺寸插值的数据维度可配置
 				paint->setMarkerSize(mapValueToSize_(val));
 				paint->setColor(mapValueToColor_(pt.data(), ch));
 				paint->drawMarker(toPoint_(pt.data(), ch));

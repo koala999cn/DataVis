@@ -5,7 +5,7 @@
 
 unsigned KcBoxPlot::objectCount() const
 {
-	return data()->channels();
+	return odata()->channels();
 }
 
 
@@ -28,7 +28,7 @@ KcBoxPlot::aabb_t KcBoxPlot::calcBoundingBox_() const
 
 	auto aabb = super_::calcBoundingBox_();
 	aabb.lower().x() = -0.5;
-	aabb.upper().x() = data()->channels() - 0.5;
+	aabb.upper().x() = odata()->channels() - 0.5;
 
 	for (auto& s : stats_) {
 		if (aabb.lower().y() > s.lower)

@@ -48,7 +48,6 @@ protected:
 	// 将GETTER变量转换为KvPaint需要的函数型
 	typename KvPaint::point_getter1 toPoint3Getter_(GETTER g, unsigned channel) const;
 
-	virtual unsigned channels_() const;
 
 	// 返回每个通道包含的1d数据数目. 对于samp2d数据，返回samp2d::size(0)
 	virtual unsigned linesPerChannel_() const;

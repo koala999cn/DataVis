@@ -787,7 +787,7 @@ void KvRdPlot::showPlottableProperty_()
 void KvRdPlot::showPlottableBasicProperty_(unsigned idx)
 {
 	int type = plottableType_(plot_->plottableAt(idx));
-	auto data = plot_->plottableAt(idx)->data();
+	auto data = plot_->plottableAt(idx)->odata();
 
 	if (ImGui::BeginCombo("Type", plottableTypeStr_(type))) {
 
@@ -799,7 +799,7 @@ void KvRdPlot::showPlottableBasicProperty_(unsigned idx)
 				auto newPlt = newPlottable_(i, oldPlt->name());
 
 				// clone the data
-				newPlt->setData(oldPlt->data()); // 需要先设定data，majorColorNeeded才能返回正确的值
+				newPlt->setData(oldPlt->idata()); // 需要先设定data，majorColorNeeded才能返回正确的值
 
 				newPlt->setColoringMode(oldPlt->coloringMode()); // TODO:
 
@@ -898,7 +898,7 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 
 			if (!plt->empty()) {
 				int dim = plt->colorMappingDim();
-				if (ImGui::SliderInt("Dim Mapping", &dim, 0, plt->data()->dim()))
+				if (ImGui::SliderInt("Dim Mapping", &dim, 0, plt->odata()->dim()))
 					plt->setColorMappingDim(dim);
 
 				ImGui::Checkbox("Auto Range", &plt->autoColorMappingRange());

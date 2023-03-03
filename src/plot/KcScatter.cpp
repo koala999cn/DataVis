@@ -29,7 +29,7 @@ void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 	auto ch = objIdx / 2;
 
 	if (objIdx == 1) {
-		for (kIndex ch = 0; ch < data()->channels(); ch++) {
+		for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 			paint->setColor(majorColor(ch)); // Ïß¶Î²»½¥±ä
 			for (unsigned i = 0; i < linesPerChannel_(); i++) {
 				auto g = lineAt_(ch, i);
@@ -38,7 +38,7 @@ void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 		}
 	}
 	else {
-		for (kIndex ch = 0; ch < data()->channels(); ch++) {
+		for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 			for (unsigned i = 0; i < linesPerChannel_(); i++) {
 				auto g = lineAt_(ch, i);
 				for (unsigned i = 0; i < g.size; i++) {

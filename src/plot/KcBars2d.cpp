@@ -50,21 +50,21 @@ bool KcBars2d::realEdged_() const
 void KcBars2d::setBarWidthRatio(float w)
 {
 	barWidthRatio_ = w;
-	setDataChanged();
+	setDataChanged(false);
 }
 
 
 void KcBars2d::setBaseLine(float base)
 {
 	baseLine_ = base;
-	setDataChanged();
+	setDataChanged(false);
 }
 
 
 void KcBars2d::setStackedFirst(bool b)
 {
 	stackedFirst_ = b;
-	setDataChanged();
+	setDataChanged(false); // TODO: check it
 }
 
 
@@ -72,7 +72,7 @@ void KcBars2d::setPaddingStacked(float padding)
 {
 	paddingStacked_ = padding;
 	// TODO: if (stacks > 1)
-	setDataChanged();
+	setDataChanged(false);
 }
 
 
@@ -80,7 +80,7 @@ void KcBars2d::setPaddingGrouped(float padding)
 {
 	paddingGrouped_ = padding;
 	// TODO: if (groups > 1)
-	setDataChanged();
+	setDataChanged(false);
 }
 
 
@@ -172,9 +172,9 @@ unsigned KcBars2d::xdim_() const
 unsigned KcBars2d::ydim_() const
 {
 	unsigned ydim = 1; // 作为y轴的数据维度
-	if (data()->dim() > 1) {
+	if (odata()->dim() > 1) {
 		ydim = 2; // 1维度作为分组数或堆叠数
-		if (data()->dim() > 2 && data()->channels() == 1) // 1/2维度分别作为分组/堆叠、或堆叠/分组数
+		if (odata()->dim() > 2 && odata()->channels() == 1) // 1/2维度分别作为分组/堆叠、或堆叠/分组数
 			ydim = 3;
 	}
 
@@ -194,7 +194,7 @@ KcBars2d::aabb_t KcBars2d::calcBoundingBox_() const
 		
 		unsigned ydim = ydim_();
 		if (ydim != 1) {
-			auto r = data()->range(ydim);
+			auto r = odata()->range(ydim);
 			aabb.lower().y() = r.low();
 			aabb.upper().y() = r.high();
 		}
@@ -224,9 +224,9 @@ KcBars2d::aabb_t KcBars2d::calcBoundingBox_() const
 unsigned KcBars2d::majorColorsNeeded() const
 {
 	return coloringMode() == k_colorbar_gradiant ? -1
-		: (data() == nullptr ? 1 : // 数据未知，返回1
-			data()->channels() > 1 ? data()->channels() // 多通道数据，返回通道数
-			: (data()->dim() == 1 ? 1 : discreted_()->size(1))); // 高维单通道数据，返回size(1)
+		: (odata() == nullptr ? 1 : // 数据未知，返回1
+			odata()->channels() > 1 ? odata()->channels() // 多通道数据，返回通道数
+			: (odata()->dim() == 1 ? 1 : discreted_()->size(1))); // 高维单通道数据，返回size(1)
 }
 
 
@@ -248,7 +248,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 	
 	KpEasyGetter getter;
 
-	auto chs = data()->channels();
+	auto chs = odata()->channels();
 
 	auto disc = discreted_();
 
@@ -260,7 +260,7 @@ KcBars2d::KpEasyGetter KcBars2d::easyGetter_() const
 		getter.stacks = 1;
 		getter.groups = chs;
 
-		if (data()->dim() == 1) {
+		if (odata()->dim() == 1) {
 			getter.getter = [this, disc](unsigned idx, unsigned group, unsigned stack) {
 				assert(stack == 0);
 				auto pt = disc->pointAt(idx, group);

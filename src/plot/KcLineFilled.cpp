@@ -63,7 +63,7 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 		cnts.reserve(linesTotal_());
 
 		unsigned idx(0);
-		for (kIndex ch = 0; ch < data()->channels(); ch++) {
+		for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 			for (unsigned i = 0; i < linesPerChannel_(); i++) {
 				if (fillMode_ != k_fill_delta || idx % 2 == 0) {
 					auto g = lineAt_(ch, i);
@@ -120,7 +120,7 @@ void KcLineFilled::setFillMode(KeFillMode mode)
 		fillMode_ = mode;
 		setStackMode_(mode == k_fill_stacked ? k_stack_channel : k_stack_none);
 		setRidgeMode_(mode == k_fill_ridge ? k_ridge_channel : k_ridge_none);
-		setDataChanged();
+		setDataChanged(false);
 	}
 }
 
@@ -129,7 +129,7 @@ void KcLineFilled::setBaseMode(KeBaseMode mode)
 {
 	if (mode != baseMode_) {
 		baseMode_ = mode;
-		setDataChanged();
+		setDataChanged(false);
 	}
 }
 
@@ -137,14 +137,14 @@ void KcLineFilled::setBaseMode(KeBaseMode mode)
 void KcLineFilled::setBaseLine(float_t base)
 {
 	baseLine_ = base;
-	setDataChanged();
+	setDataChanged(false);
 }
 
 
 void KcLineFilled::setBasePoint(const point3& pt)
 {
 	basePoint_ = pt;
-	setDataChanged();
+	setDataChanged(false);
 }
 
 
@@ -153,7 +153,7 @@ void* KcLineFilled::fillOverlay_(KvPaint* paint) const
 	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
 	unsigned idx(0); // 用于获取主色
 
-	for (kIndex ch = 0; ch < data()->channels(); ch++) {
+	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
 			auto g1 = lineAt_(ch, i);
 
@@ -195,7 +195,7 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 
 
 	GETTER g1 = nullptr;
-	for (kIndex ch = 0; ch < data()->channels(); ch++) {
+	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
 			auto g2 = lineAt_(ch, i);
 
@@ -330,7 +330,7 @@ void* KcLineFilled::fillDelta_(KvPaint* paint) const
 	unsigned idx(0); // 用于获取主色
 
 	GETTER g1 = nullptr;
-	for (kIndex ch = 0; ch < data()->channels(); ch++) {
+	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
 			auto g2 = lineAt_(ch, i);
 

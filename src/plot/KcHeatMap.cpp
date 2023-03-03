@@ -15,7 +15,7 @@ KcHeatMap::KcHeatMap(const std::string_view& name)
 
 unsigned KcHeatMap::objectCount() const
 {
-	return data()->channels() * 2;
+	return odata()->channels() * 2;
 }
 
 
@@ -41,7 +41,7 @@ KcHeatMap::aabb_t KcHeatMap::calcBoundingBox_() const
 {
 	auto aabb = super_::calcBoundingBox_();
 
-	if (!empty() && data()->dim() > 1) {
+	if (!empty() && odata()->dim() > 1) {
 
 		auto disc = discreted_();
 		assert(disc->size() != 0);

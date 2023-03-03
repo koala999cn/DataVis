@@ -19,7 +19,7 @@ void KcGraph::setMinorColor_(const color4f& minor)
 
 unsigned KcGraph::objectCount() const
 {
-	return channels_();
+	return empty() ? 0 : odata()->channels();
 }
 
 

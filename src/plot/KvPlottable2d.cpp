@@ -19,7 +19,7 @@ void KvPlottable2d::setMinorColor_(const color4f& minor)
 
 unsigned KvPlottable2d::objectCount() const
 {
-	return data()->channels();
+	return odata()->channels();
 }
 
 

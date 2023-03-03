@@ -129,8 +129,8 @@ KcColorBar::aabb_t KcColorBar::boundingBox() const
 
 KcColorBar::size_t KcColorBar::calcSize_(void* cxt) const
 {
-    if (axis_->length() == 0 && plt_->data()) {
-        auto r = plt_->data()->valueRange();
+    if (axis_->length() == 0 && plt_->odata()) {
+        auto r = plt_->odata()->valueRange();
         axis_->setRange(r.low(), r.high());
     }
 

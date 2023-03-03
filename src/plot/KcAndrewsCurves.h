@@ -17,23 +17,13 @@ public:
 
 	using super_::super_;
 
-	unsigned majorColorsNeeded() const override;
+	const_data_ptr odata() const { return curves_; }
 
 private:
-
-	unsigned channels_() const override;
-
-	unsigned linesPerChannel_() const override;
-
-	KuDataUtil::KpPointGetter1d lineAt_(unsigned ch, unsigned idx) const override;
-
-	bool usingDefaultZ_() const override;
-
-	aabb_t calcBoundingBox_() const override;
 
 	// 生成andrews曲线
-	void genCurves_();
+	virtual void outputImpl_();
 
 private:
-	std::shared_ptr<KvData> curves_; // 用来保存生成的andrews曲线，避免每个周期重新生成
+	data_ptr curves_; // 生成的andrews曲线
 };

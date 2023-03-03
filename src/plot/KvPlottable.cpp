@@ -19,23 +19,31 @@ void KvPlottable::setData(const_data_ptr d)
 	assert(d);
 
 	data_ = d;
-
-	if (d->isContinued() && d->dim() != sampCount_.size())
-		sampCount_.assign(d->dim(), std::pow(1000., 1. / d->dim()));
-	
-	if (data_ && colorMappingDim_ > data_->dim()) 
-		setColorMappingDim(data_->dim());
-
-	updateColorMappingPalette();
-
-	dataChanged_ = true;
+	dataChanged_ = 2;
 }
 
 
+void KvPlottable::output_()
+{
+	if (dataChanged_ == 2) {
+		outputImpl_();
+		dataChanged_ = 1;
+
+		auto dim = odata()->dim();
+		if (odata()->isContinued() && dim != sampCount_.size())
+			sampCount_.assign(dim, std::pow(1000., 1. / dim));
+
+		if (odata() && colorMappingDim_ > dim)
+			setColorMappingDim(dim);
+
+		updateColorMappingPalette();
+	}
+}
+
 void KvPlottable::setColorMappingDim(unsigned d)
 {
-	if (data_ && d > data_->dim())
-		d = data_->dim();
+	if (odata() && d > odata()->dim())
+		d = odata()->dim();
 
 	if (colorMappingDim_ != d && coloringChanged_ == 0)
 		coloringChanged_ = 1;
@@ -46,17 +54,18 @@ void KvPlottable::setColorMappingDim(unsigned d)
 
 void KvPlottable::fitColorMappingRange()
 {
-	if (data_) {
-		assert(colorMappingDim() <= data_->dim());
+	if (odata()) {
 
 		auto d = colorMappingDim();
+		assert(d <= odata()->dim());
+
 		std::pair<float_t, float_t> newRange;
 		if (d < 2 || d == 2 && !usingDefaultZ_()) {
-			auto r = boundingBox();
+			auto r = boundingBox(); // TOOD: 与维度映射相匹配
 			newRange = { r.lower()[d], r.upper()[d] };
 		}
 		else {
-			auto r = data_->range(d);
+			auto r = odata()->range(d);
 			newRange = { r.low(), r.high() };
 		}
 
@@ -71,7 +80,17 @@ void KvPlottable::fitColorMappingRange()
 
 bool KvPlottable::empty() const 
 {
-	return !data_ || data_->size() == 0;
+	return !odata() || odata()->size() == 0;
+}
+
+
+KvPlottable::aabb_t KvPlottable::boundingBox() const 
+{
+	if (dataChanged()) {
+		const_cast<KvPlottable*>(this)->output_();
+		box_ = calcBoundingBox_();
+	}
+	return box_;
 }
 
 
@@ -82,8 +101,8 @@ KvPlottable::aabb_t KvPlottable::calcBoundingBox_() const
 
 	point3 lower, upper;
 
-	auto r0 = data_->range(0);
-	auto r1 = data_->range(1);
+	auto r0 = odata()->range(0);
+	auto r1 = odata()->range(1);
 
 	lower.x() = r0.low(), upper.x() = r0.high();
 	lower.y() = r1.low(), upper.y() = r1.high();
@@ -91,10 +110,10 @@ KvPlottable::aabb_t KvPlottable::calcBoundingBox_() const
 	if (usingDefaultZ_()) {
 		// 不用关心lower.z与upper.z的大小，aabb构造函数会自动调整大小值
 		lower.z() = defaultZ(0);
-		upper.z() = defaultZ(data_->channels() - 1); // TODO: 此处固定使用通道数来配置z平面的数量，可考虑由用户定制
+		upper.z() = defaultZ(odata()->channels() - 1); // TODO: 此处固定使用通道数来配置z平面的数量，可考虑由用户定制
 	}
 	else {
-		auto r2 = data_->range(2);
+		auto r2 = odata()->range(2);
 		lower.z() = r2.low(), upper.z() = r2.high();
 	}
 
@@ -109,10 +128,12 @@ void KvPlottable::draw(KvPaint* paint) const
 	if (empty())
 		return;
 
+	const_cast<KvPlottable*>(this)->output_();
+
 	// 处理主色数量的动态变化
 	// NB: 对于连续数据，若用户动态调整sampCount，可能同时引发主色数量需求的变化（如bars2d）
 	// 此处更新太晚了，legend在calcSize的时候就要进行一致性检测
-	// 目前在4处同步：一是此处，二是setData处，三是setColoringMode处，四是legend的calcSize_处.
+	// 目前在5处同步：一是此处，二是setData处，三是setColoringMode处，四是legend的calcSize_处，五是output_处.
 	// TODO: 是否有更优化的方案
 	const_cast<KvPlottable*>(this)->updateColorMappingPalette();
 
@@ -140,16 +161,16 @@ void KvPlottable::draw(KvPaint* paint) const
 		}
 	}
 
-	dataChanged_ = false;
+	dataChanged_ = 0;
 	coloringChanged_ = 0;
 }
 
 
 std::shared_ptr<const KvDiscreted> KvPlottable::discreted_() const
 {
-	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(data_);
+	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(odata());
 	if (disc == nullptr) {
-		auto cont = std::dynamic_pointer_cast<const KvContinued>(data_);
+		auto cont = std::dynamic_pointer_cast<const KvContinued>(odata());
 		if (cont) {
 			auto samp = std::make_shared<KcSampler>(cont);
 			if (samp) {
@@ -177,7 +198,7 @@ bool KvPlottable::hasSelfAxis() const
 unsigned KvPlottable::majorColorsNeeded() const
 {
 	return coloringMode_ == k_colorbar_gradiant ? -1
-		: ( empty() ? 0 :data_->channels() );
+		: ( empty() ? 0 : odata()->channels() );
 }
 
 
@@ -299,7 +320,7 @@ void KvPlottable::updateColorMappingPalette()
 
 bool KvPlottable::usingDefaultZ_() const
 {
-	return forceDefaultZ_ || (data_ && data_->dim() == 1);
+	return forceDefaultZ_ || (odata() && odata()->dim() < 2);
 }
 
 
@@ -307,7 +328,7 @@ void KvPlottable::setSampCount(unsigned dim, unsigned c)
 {
 	assert(dim < sampCount_.size());
 	sampCount_[dim] = c;
-	dataChanged_ = true;
+	dataChanged_ = 2;
 }
 
 
@@ -323,23 +344,23 @@ void KvPlottable::setDefaultZ(float_t z)
 { 
 	defaultZ_ = z;
 	if (usingDefaultZ_())
-		dataChanged_ = true;
+		dataChanged_ = 2;
 }
 
 
 void KvPlottable::setStepZ(float_t step)
 { 
 	stepZ_ = step;
-	if (usingDefaultZ_() && data_ && data_->channels() > 1) // 不影响单通道数据
-		dataChanged_ = true;
+	if (usingDefaultZ_() && odata() && odata()->channels() > 1) // 不影响单通道数据
+		dataChanged_ = 2;
 }
 
 
 void KvPlottable::setForceDefaultZ(bool b) 
 { 
 	forceDefaultZ_ = b;
-	if (data() && data()->dim() > 1) // 不影响一维数据
-		dataChanged_ = true;
+	if (odata() && odata()->dim() > 1) // 不影响一维数据
+		dataChanged_ = 2;
 }
 
 
@@ -375,6 +396,6 @@ void KvPlottable::setMinorColor(const color4f& minor)
 
 bool KvPlottable::objectReusable_(unsigned objIdx) const
 {
-	return !dataChanged_ && (coloringChanged_ == 0 ||
+	return !dataChanged() && (coloringChanged_ == 0 ||
 		(coloringChanged_ == 1 && coloringMode_ == k_one_color_solid)); // 单色模式下，亦可复用vbo;
 }
