@@ -52,7 +52,7 @@ private:
 
 	aabb_t calcBoundingBox_() const override;
 
-	void calcStats_() const;
+	void outputImpl_() override;
 
 private:
 

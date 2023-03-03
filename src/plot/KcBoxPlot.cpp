@@ -30,12 +30,8 @@ KcBoxPlot::aabb_t KcBoxPlot::calcBoundingBox_() const
 	aabb.lower().x() = -0.5;
 	aabb.upper().x() = odata()->channels() - 0.5;
 
-	for (auto& s : stats_) {
-		if (aabb.lower().y() > s.lower)
-			aabb.lower().y() = s.lower;
-		if (aabb.upper().y() < s.upper)
-			aabb.upper().y() = s.upper;
-	}
+	for (auto& s : stats_) 
+		KuMath::uniteRange(aabb.lower().y(), aabb.upper().y(), s.lower * 0.99, s.upper * 1.01);
 	
 	return aabb;
 }
@@ -54,9 +50,6 @@ bool KcBoxPlot::objectVisible_(unsigned objIdx) const
 
 void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
-	if (dataChanged() && objIdx == 0) // 只计算一次
-	    calcStats_();
-
 	assert(objIdx < stats_.size());
 
 	auto z = defaultZ(objIdx);
@@ -96,7 +89,7 @@ void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx) const
 }
 
 
-void KcBoxPlot::calcStats_() const
+void KcBoxPlot::outputImpl_()
 {
 	auto d = discreted_();
 	stats_.resize(d->channels());
