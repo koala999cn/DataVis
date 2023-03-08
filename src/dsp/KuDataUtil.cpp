@@ -220,11 +220,126 @@ bool KuDataUtil::isMatrix(const KvData& d)
 }
 
 
-std::vector<kIndex> KuDataUtil::shape(const KvSampled& samp)
+bool KuDataUtil::sameShape(const KvData& d1, const KvData& d2, bool sameStep)
 {
-    std::vector<kIndex> s(samp.dim());
-    for (kIndex d = 0; d < samp.dim(); d++)
-        s[d] = samp.size(d);
+    if (d1.isContinued() != d2.isContinued() 
+        || d1.dim() != d2.dim()
+        || d1.size() != d2.size())
+        return false;
+
+    auto pd1 = dynamic_cast<const KvDiscreted*>(&d1);
+    if (pd1 == nullptr)
+        return true; // 连续数据
+
+    auto pd2 = dynamic_cast<const KvDiscreted*>(&d2);
+    if (pd1->isSampled() != pd2->isSampled())
+        return false;
+
+    for (unsigned i = 0; i < pd1->dim(); i++) {
+        if (pd1->size(i) != pd2->size(i))
+            return false;
+
+        if (sameStep && (pd1->step(i) != pd2->step(i)))
+            return false;
+    }
+
+    return true;
+}
+
+
+std::shared_ptr<KvDiscreted> KuDataUtil::shapeLike(const KvDiscreted& disc)
+{
+    std::shared_ptr<KvDiscreted> res;
+
+    if (disc.isSampled()) {
+        auto samp = dynamic_cast<const KvSampled*>(&disc);
+        assert(samp);
+
+        std::shared_ptr<KvSampled> ress;
+
+        switch (samp->dim()) {
+        case 1:
+            ress = std::make_shared<KtSampledArray<1>>();
+            break;
+        case 2:
+            ress = std::make_shared<KtSampledArray<2>>();
+            break;
+        case 3:
+            ress = std::make_shared<KtSampledArray<3>>();
+            break;
+        case 4:
+            ress = std::make_shared<KtSampledArray<4>>();
+            break;
+        case 5:
+            ress = std::make_shared<KtSampledArray<5>>();
+            break;
+        case 6:
+            ress = std::make_shared<KtSampledArray<6>>();
+            break;
+        case 7:
+            ress = std::make_shared<KtSampledArray<7>>();
+            break;
+        case 8:
+            ress = std::make_shared<KtSampledArray<8>>();
+            break;
+        case 9:
+            ress = std::make_shared<KtSampledArray<9>>();
+            break;
+        default:
+            assert(false);
+            return nullptr;
+        }
+
+        for (unsigned i = 0; i < samp->dim(); i++)
+            ress->reset(i, samp->range(i).low(), samp->step(i)); // TODO: x0_ref
+        res = ress;
+    }
+    else {
+        switch (disc.dim()) {
+        case 1:
+            res = std::make_shared<KtScattered<1>>();
+            break;
+        case 2:
+            res = std::make_shared<KtScattered<2>>();
+            break;
+        case 3:
+            res = std::make_shared<KtScattered<3>>();
+            break;
+        case 4:
+            res = std::make_shared<KtScattered<4>>();
+            break;
+        case 5:
+            res = std::make_shared<KtScattered<5>>();
+            break;
+        case 6:
+            res = std::make_shared<KtScattered<6>>();
+            break;
+        case 7:
+            res = std::make_shared<KtScattered<7>>();
+            break;
+        case 8:
+            res = std::make_shared<KtScattered<8>>();
+            break;
+        case 9:
+            res = std::make_shared<KtScattered<9>>();
+            break;
+        default:
+            assert(false);
+            return nullptr;
+        }
+    }
+
+    auto sh = shape(disc);
+    res->resize(sh.data(), disc.channels());
+    return res;
+}
+
+
+std::vector<kIndex> KuDataUtil::shape(const KvDiscreted& disc)
+{
+    std::vector<kIndex> s(disc.dim());
+    for (kIndex d = 0; d < disc.dim(); d++)
+        s[d] = disc.size(d);
     return s;
 }
 
@@ -246,7 +361,7 @@ std::vector<kIndex> KuDataUtil::n2index(const std::vector<kIndex>& shape, kIndex
     auto dim = shape.size();
 
     // 快速通道
-    if (dim == 1)
+    if (dim <= 1)
         return { n };
     else if (dim == 2)
         return { n / shape[1], n % shape[1] };

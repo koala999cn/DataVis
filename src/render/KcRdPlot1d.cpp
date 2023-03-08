@@ -149,9 +149,9 @@ namespace kPrivate
 			}
 
 			if (fillMode == 4) {
-				float offset = fill->ridgeOffset();
+				float offset = fill->ridgeOffset(plt->odata()->dim() - 1);
 				if (ImGui::DragFloat("Ridge Offset", &offset))
-					fill->setRidgeOffset(offset);
+					fill->setRidgeOffset(plt->odata()->dim() - 1, offset);
 			}
 
 			ImGui::BeginDisabled(fillMode == 2 || fillMode == 3);
@@ -238,9 +238,6 @@ namespace kPrivate
 			};
 
 			if (ImGuiX::treePush("Layout", false)) {
-				int mode = bars->stackedFirst() ? 0 : 1;
-				if (ImGui::Combo("Mode", &mode, modeStr, std::size(modeStr)))
-					bars->setStackedFirst(mode == 0);
 
 				auto baseLine = bars->baseLine();
 				if (ImGui::DragFloat("Baseline", &baseLine))
@@ -251,12 +248,9 @@ namespace kPrivate
 					bars->setBarWidthRatio(widthRatio);
 
 				auto paddingStacked = bars->paddingStacked();
-				if (ImGui::SliderFloat("Stack Padding", &paddingStacked, 0.0, 1.0, "%.2f"))
+				if (ImGui::SliderFloat("Stack Padding", &paddingStacked, 0.0, 49.0, "%.1f px")
+					&& paddingStacked >= 0)
 					bars->setPaddingStacked(paddingStacked);
-
-				auto paddingGrouped = bars->paddingGrouped();
-				if (ImGui::SliderFloat("Group Padding", &paddingGrouped, 0.0, 1.0, "%.2f"))
-					bars->setPaddingGrouped(paddingGrouped);
 
 				ImGuiX::treePop();
 			}
@@ -316,8 +310,7 @@ namespace kPrivate
 	}
 }
 
-void KcRdPlot1d::showPlottableSpecificProperty_(unsigned idx)
+void KcRdPlot1d::showPlottableSpecificProperty_(KvPlottable* plt)
 {
-	auto plt = plot_->plottableAt(idx);
 	kPrivate::showPlottableSpecificProperty1d(plt);
 }

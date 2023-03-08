@@ -26,6 +26,6 @@ private:
 
 	bool plottableMatchData_(int iType, const KvData& d) const final;
 
-	void showPlottableSpecificProperty_(unsigned idx) final;
+	void showPlottableSpecificProperty_(KvPlottable*) final;
 };
 

@@ -78,13 +78,16 @@ protected:
 
 	virtual void showPlottableProperty_();
 
-	    void showPlottableBasicProperty_(unsigned idx);
+	    // 返回true表示用户更改了type
+	    bool showPlottableBasicProperty_(unsigned idx, KvPlottable*);
 
-		void showPlottableColoringProperty_(unsigned idx);
+		void showPlottableArrangeProperty_(KvPlottable*);
 
-		void showPlottableDefaultZProperty_(unsigned idx);
+		void showPlottableColoringProperty_(KvPlottable*);
 
-	    virtual void showPlottableSpecificProperty_(unsigned idx) {};
+		void showPlottableDefaultZProperty_(KvPlottable*);
+
+	    virtual void showPlottableSpecificProperty_(KvPlottable*) {};
 
 	////////////////////////////////////////////////////
 

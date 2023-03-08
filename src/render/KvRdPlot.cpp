@@ -1,6 +1,6 @@
 #include "KvRdPlot.h"
 #include "plot/KvPlot.h"
-#include "plot/KvPlottable.h"
+#include "plot/KvPlottable1d.h"
 #include "prov/KvDataProvider.h"
 #include "dsp/KcMonoDiscreted.h"
 #include "dsp/KcMonoContinued.h"
@@ -763,16 +763,17 @@ void KvRdPlot::showPlottableProperty_()
 
 		if (open) {
 
-			showPlottableBasicProperty_(idx);
+			// NB: 若showPlottableBasicProperty_返回true，表示plottable的类型改变，此时plt已失效，略过后续属性显示
+			if (!plt->empty() && !showPlottableBasicProperty_(idx, plt)) {
+	
+				showPlottableArrangeProperty_(plt);
+				showPlottableColoringProperty_(plt);
+				showPlottableDefaultZProperty_(plt);
+				showPlottableSpecificProperty_(plt);
 
-			// TODO: 此处不可直接传递plt，否则变换plottable类型时，将会引用失效的plt
-			showPlottableColoringProperty_(idx);
-			showPlottableDefaultZProperty_(idx);
-			showPlottableSpecificProperty_(idx);
-
-			// for debug
-			auto plt = plot_->plottableAt(idx);
-			ImGui::LabelText("Render Objects",  "%d reused / %d total(s)", plt->objectsReused(), plt->objectCount());
+				// for debug
+				ImGui::LabelText("Render Objects", "%d reused / %d total(s)", plt->objectsReused(), plt->objectCount());
+			}
 
 			ImGuiX::cbiTreePop();
 		}
@@ -784,10 +785,14 @@ void KvRdPlot::showPlottableProperty_()
 }
 
 
-void KvRdPlot::showPlottableBasicProperty_(unsigned idx)
+bool KvRdPlot::showPlottableBasicProperty_(unsigned idx, KvPlottable* plt)
 {
-	int type = plottableType_(plot_->plottableAt(idx));
-	auto data = plot_->plottableAt(idx)->odata();
+	assert(plot_->plottableAt(idx) == plt);
+
+	bool typeChanged = false;
+	int type = plottableType_(plt);
+	auto data = plt->odata();
+	assert(data);
 
 	if (ImGui::BeginCombo("Type", plottableTypeStr_(type))) {
 
@@ -795,7 +800,7 @@ void KvRdPlot::showPlottableBasicProperty_(unsigned idx)
 			int flags = plottableMatchData_(i, *data) ? 0 : ImGuiSelectableFlags_Disabled;
 			if (ImGui::Selectable(plottableTypeStr_(i), i == type, flags)
 				&& i != type) {
-				auto oldPlt = plot_->plottableAt(idx);
+				auto oldPlt = plt;
 				auto newPlt = newPlottable_(i, oldPlt->name());
 
 				// clone the data
@@ -820,27 +825,93 @@ void KvRdPlot::showPlottableBasicProperty_(unsigned idx)
 					}
 
 				plot_->setPlottableAt(idx, newPlt);
+
+				typeChanged = true;
 			}
 		}
 
 		ImGui::EndCombo();
 	}
 
-	if (data && data->isContinued()) {
+	if (typeChanged)
+		return true;
+
+	if (data->isContinued()) {
 		unsigned minCount(1), maxCount(std::pow(1024 * 1024, 1. / data->dim()));
 		std::vector<std::uint32_t> c(data->dim());
 		for (unsigned i = 0; i < data->dim(); i++)
-		 c[i] = plot_->plottableAt(idx)->sampCount(i);
+		    c[i] = plt->sampCount(i);
 		if (ImGui::DragScalarN("Sampling Count", ImGuiDataType_U32,
 			c.data(), data->dim(), 1, &minCount, &maxCount)) {
 			for (unsigned i = 0; i < data->dim(); i++)
-			    plot_->plottableAt(idx)->setSampCount(i, c[i]);
+			    plt->setSampCount(i, c[i]);
+		}
+	}
+
+	return false;
+}
+
+
+void KvRdPlot::showPlottableArrangeProperty_(KvPlottable* plt)
+{
+	static const char* arrangeModes[] = {
+		"overlay",
+		"group",
+		"ridge",
+		"stack"
+	};
+
+	auto plt1d = dynamic_cast<KvPlottable1d*>(plt);
+	if (!plt1d) return;
+
+	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(plt->odata());
+	if (!disc || disc->isSampled()) {
+		if (ImGuiX::treePush("Arrangement", false)) {
+			std::string label("Dim0");
+			for (unsigned d = 0; d < plt->odata()->dim(); d++) {
+
+				if (d == plt->odata()->dim() - 1) {
+					if (plt->odata()->channels() == 1)
+						break;
+					label = "Channel";
+				}
+				else if (disc && disc->size(d) < 2) { 
+					continue;
+				}
+
+				if (ImGuiX::treePush(label.c_str(), false)) {
+					int mode = plt1d->arrangeMode(d);
+					if (ImGui::Combo("Arrange Mode", &mode, arrangeModes, std::size(arrangeModes)))
+						plt1d->setArrangeMode(d, mode);
+
+					if (mode == KvPlottable1d::k_arrange_ridge) {
+						float offset = plt1d->ridgeOffset(d);
+						if (ImGui::DragFloat("Ridge Offset", &offset))
+							plt1d->setRidgeOffset(d, offset);
+					}
+					else if (mode == KvPlottable1d::k_arrange_group) {
+						float offset = plt1d->groupOffset(d);
+						if (ImGui::DragFloat("Group Offset", &offset))
+							plt1d->setGroupOffset(d, offset);
+
+						float spacing = plt1d->groupSpacing(d);
+						if (ImGui::DragFloat("Group Spacing", &spacing))
+							plt1d->setGroupSpacing(d, spacing);
+					}
+
+					ImGuiX::treePop();
+				}
+
+				label.back()++; // "Dim0" -> "Dim1" -> "Dim2" -> ...
+			}
+
+			ImGuiX::treePop();
 		}
 	}
 }
 
 
-void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
+void KvRdPlot::showPlottableColoringProperty_(KvPlottable* plt)
 {
 	static const char* modeNames[] = {
 		"one-color solid",
@@ -851,7 +922,6 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 
 	if (ImGuiX::treePush("Coloring", false)) {
 
-		auto plt = plot_->plottableAt(idx);
 		int mode = plt->coloringMode();
 		if (ImGui::Combo("Mode", &mode, modeNames, std::size(modeNames)))
 			plt->setColoringMode(KvPlottable::KeColoringMode(mode));
@@ -918,10 +988,8 @@ void KvRdPlot::showPlottableColoringProperty_(unsigned idx)
 }
 
 
-void KvRdPlot::showPlottableDefaultZProperty_(unsigned idx)
+void KvRdPlot::showPlottableDefaultZProperty_(KvPlottable* plt)
 {
-	auto plt = plot_->plottableAt(idx);
-
 	if (ImGuiX::treePush("Z Value", false)) {
 
 		auto val = plt->defaultZ();

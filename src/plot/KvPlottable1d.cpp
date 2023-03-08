@@ -1,12 +1,12 @@
 #include "KvPlottable1d.h"
-#include "KvDiscreted.h"
-
+#include "KvSampled.h"
 
 
 void KvPlottable1d::setXdim(unsigned dim)
 {
 	axisDim_[0] = dim;
 	setDataChanged(false);
+	setBoundingBoxExpired_();
 }
 
 
@@ -14,6 +14,7 @@ void KvPlottable1d::setYdim(unsigned dim)
 {
 	axisDim_[1] = dim;
 	setDataChanged(false);
+	setBoundingBoxExpired_();
 }
 
 
@@ -21,6 +22,7 @@ void KvPlottable1d::setZdim(unsigned dim)
 {
 	axisDim_[2] = dim;
 	setDataChanged(false);
+	setBoundingBoxExpired_();
 }
 
 
@@ -54,146 +56,284 @@ unsigned KvPlottable1d::linesTotal_() const
 }
 
 
-void KvPlottable1d::setStackMode_(int mode)
+KuDataUtil::KpPointGetter1d KvPlottable1d::lineArranged_(unsigned ch, unsigned idx, unsigned dim) const
 {
-	stackMode_ = mode;
-	stackedData_.clear();
-	setDataChanged(false);
-}
+	assert(arrangeMode_.size() == odata()->dim());
 
-
-void KvPlottable1d::setRidgeMode_(int mode)
-{
-	ridgeMode_ = mode;
-	setDataChanged(false);
-}
-
-
-void KvPlottable1d::setGroupMode_(int mode) 
-{
-	groupMode_ = mode;
-	setDataChanged(false);
-}
-
-
-void KvPlottable1d::setRidgeOffset(float_t offset)
-{
-	ridgeOffset_ = offset;
-	setDataChanged(false);
-}
-
-
-void KvPlottable1d::calcStackData_() const
-{
-	auto disc = discreted_();
-	stackedData_.resize(linesTotal_());
-
-	if (stackMode_ == k_stack_channel) {
-
-		for (unsigned idx = 0; idx < linesPerChannel_(); idx++) {
-			auto g = KuDataUtil::pointGetter1dAt(disc, 0, idx);
-			stackedData_[idx].resize(g.size);
-			for (unsigned i = 0; i < g.size; i++)
-				stackedData_[idx][i] = g.getter(i).back();
-		}
-
-		for (unsigned ch = 1; ch < disc->channels(); ch++) {
-			for (unsigned idx = 0; idx < linesPerChannel_(); idx++) {
-				auto g = KuDataUtil::pointGetter1dAt(disc, ch, idx);
-				auto& d0 = stackedData_[(ch - 1) * linesPerChannel_() + idx];
-				auto& d1 = stackedData_[ch * linesPerChannel_() + idx];
-				d1.resize(g.size);
-				assert(d1.size() == d0.size());
-				for (unsigned i = 0; i < g.size; i++)
-					d1[i] = g.getter(i).back() + d0[i]; // 堆叠
-			}
-		}
-	}
-	else if (stackMode_ == k_stack_column) {
-
-		for (unsigned ch = 0; ch < disc->channels(); ch++) {
-			auto g = KuDataUtil::pointGetter1dAt(disc, ch, 0);
-			auto& d = stackedData_[ch * linesPerChannel_()];
-			d.resize(g.size);
-			for (unsigned i = 0; i < g.size; i++)
-				d[i] = g.getter(i).back();
-		}
-
-		for (unsigned ch = 0; ch < disc->channels(); ch++) {
-			for (unsigned idx = 1; idx < linesPerChannel_(); idx++) {
-				auto g = KuDataUtil::pointGetter1dAt(disc, ch, idx);
-				auto& d0 = stackedData_[ch * linesPerChannel_() + idx - 1];
-				auto& d1 = stackedData_[ch * linesPerChannel_() + idx];
-				d1.resize(g.size);
-				assert(d1.size() == d0.size());
-				for (unsigned i = 0; i < g.size; i++)
-					d1[i] = g.getter(i).back() + d0[i]; // 堆叠
-			}
-		}
-	}
-}
-
-
-KuDataUtil::KpPointGetter1d KvPlottable1d::lineStack_(unsigned ch, unsigned idx) const
-{
 	auto g = KuDataUtil::pointGetter1dAt(discreted_(), ch, idx);
-	if (stackMode_ == k_stack_none)
-		return g;
 
-	if (stackedData_.empty())
-		calcStackData_();
+	for (unsigned i = arrangeMode_.size() - 1; i != -1 && i >= dim; i--) {
+		if (arrangeMode_[i] == k_arrange_group)
+			g.getter = lineGrouped_(g, ch, idx, i);
+		else if (arrangeMode_[i] == k_arrange_ridge)
+			g.getter = lineRidged_(g, ch, idx, i);
+		else if (arrangeMode_[i] == k_arrange_stack)
+			g.getter = lineStacked_(g, ch, idx, i);
+	}
 
-	KuDataUtil::KpPointGetter1d sg;
-	unsigned pos = ch * linesPerChannel_() + idx;
-	sg.getter = [g, pos, this](unsigned i) {
-		auto pt = g.getter(i);
-		pt.back() = stackedData_[pos][i]; // 替换为堆叠值
+	return g;
+}
+
+
+void KvPlottable1d::setArrangeMode(unsigned dim, int mode)
+{
+	arrangeMode_[dim] = mode;
+	setDataChanged(false);
+	setBoundingBoxExpired_();
+	stackedData_.clear(); // TODO: 更精细的控制
+}
+
+
+void KvPlottable1d::setRidgeOffset(unsigned dim, float_t offset)
+{
+	assert(arrangeMode_[dim] == k_arrange_ridge);
+	ridgeOffset_[dim] = offset;
+	setDataChanged(false);
+	setBoundingBoxExpired_();
+}
+
+
+void KvPlottable1d::setGroupOffset(unsigned dim, float_t offset)
+{
+	assert(arrangeMode_[dim] == k_arrange_group);
+	groupOffset_[dim] = offset;
+	setDataChanged(false);
+	setBoundingBoxExpired_();
+}
+
+
+void KvPlottable1d::setGroupSpacing(unsigned dim, float_t spacing)
+{
+	assert(arrangeMode_[dim] == k_arrange_group);
+	groupSpacing_[dim] = spacing;
+	setDataChanged(false);
+	setBoundingBoxExpired_();
+}
+
+
+bool KvPlottable1d::output_()
+{
+	if (!super_::output_())
+		return false;
+
+	if (!empty()) {
+		arrangeMode_.resize(odata()->dim());
+		ridgeOffset_.resize(odata()->dim());
+		groupOffset_.resize(odata()->dim());
+		groupSpacing_.resize(odata()->dim());
+	}
+	stackedData_.clear();
+	return true;
+}
+
+
+void KvPlottable1d::calcStackData_(unsigned dim) const
+{
+	stackedData_[dim] = KuDataUtil::shapeLike(*discreted_());
+	auto stacked = std::dynamic_pointer_cast<KvSampled>(stackedData_[dim]);
+	assert(stacked && stacked->writable());
+	auto odata = std::dynamic_pointer_cast<const KvSampled>(discreted_());
+	assert(odata);
+
+	auto shape = KuDataUtil::shape(*stacked);
+
+	if (dim == odata->dim() - 1) { // 按通道stack
+
+		for (unsigned ch = 0; ch < odata->channels(); ch++) {
+			for (unsigned i = 0; i < linesPerChannel_(); i++) {
+				auto g = lineArranged_(0, i, dim + 1);
+				auto idx = KuDataUtil::n2index(shape, g.size * i);
+				assert(idx.back() == 0);
+
+				for (unsigned j = 0; j < g.size; j++) {
+					auto val = ch == 0 ? g.getter(j).back() 
+						: odata->value(idx.data(), ch) + stacked->value(idx.data(), ch - 1); // 堆叠
+
+					stacked->write(idx.data(), ch, val);
+					idx.back()++;
+				}
+			}
+		}
+	}
+	else { // 按特定维度stack
+
+		// 检测多重堆叠的情况
+		unsigned innerStackDim(dim + 1);
+		for (; innerStackDim < odata->dim(); innerStackDim++)
+			if (arrangeMode_[innerStackDim] == k_arrange_stack)
+				break;
+
+
+		for (unsigned ch = 0; ch < stacked->channels(); ch++) {
+			for (unsigned i = 0; i < linesPerChannel_(); i++) {
+				auto g = lineArranged_(ch, i, dim + 1);
+				auto idx = KuDataUtil::n2index(shape, g.size * i);
+				assert(idx.back() == 0);
+
+				for (unsigned j = 0; j < g.size; j++) {
+					float_t val;
+					if (idx[dim] == 0) { // 第一层堆叠（最底下），始终使用原值
+						val = g.getter(j).back();
+					}
+					else {
+						val = odata->value(idx.data(), ch);
+						
+						if (innerStackDim >= odata->dim()) { // 无多重堆叠		
+							idx[dim]--;
+							val += stacked->value(idx.data(), ch); // 堆叠		
+							idx[dim]++; // 恢复原值
+						}
+						// NB: 多重堆叠情况下，不再是值的累加，而是子堆叠与子堆叠的累加
+						// 此时每个子堆叠都是在上一个堆叠的基础上累加，因此子堆叠的最底层要以上一个的最高层为参照
+						// 所以需要特别处理ch == 0或者idx[innerStackDim] == 0的情况
+						else if (innerStackDim == odata->dim() - 1) { // 与通道多重堆叠
+							if (ch == 0) {
+								idx[dim]--;
+								val += stacked->value(idx.data(), stacked->channels() - 1);
+								idx[dim]++; // 恢复原值
+							}
+							else {
+								val += stacked->value(idx.data(), ch - 1); // 子堆叠内部累加
+							}
+						}
+						else { // 维度多重堆叠
+							if (idx[innerStackDim] == 0) {
+								idx[dim]--;
+								idx[innerStackDim] = stacked->size(innerStackDim) - 1;
+								val += stacked->value(idx.data(), ch);
+								idx[innerStackDim] = 0; // 恢复原值
+								idx[dim]++; // 恢复原值
+							}
+							else {
+								idx[innerStackDim]--;
+								val += stacked->value(idx.data(), ch); // 子堆叠内部累加
+								idx[innerStackDim]++; // 恢复原值
+							}
+						}
+					}
+
+					stacked->write(idx.data(), ch, val);
+					idx.back()++;
+				}
+			}
+		}
+	}
+
+	setBoundingBoxExpired_();
+}
+
+
+KvPlottable1d::GETTER KvPlottable1d::lineStacked_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const
+{
+	assert(arrangeMode_[dim] == k_arrange_stack);
+
+	if (stackedData_.count(dim) == 0)
+		calcStackData_(dim);
+
+	assert(KuDataUtil::sameShape(*discreted_(), *stackedData_[dim], false));
+
+	auto getter = g.getter;
+	auto offset = idx * g.size;
+	auto stacked = stackedData_[dim];
+	return [getter, ch, offset, stacked](unsigned i) {
+		auto pt = getter(i);
+		pt.back() = stacked->valueAt(offset + i, ch); // 替换为堆叠值
 		return pt;
 	};
-	sg.size = g.size;
+}
 
-	return sg;
+
+KvPlottable1d::float_t KvPlottable1d::ridgeOffsetAt_(unsigned ch, unsigned idx, unsigned dim) const
+{
+	assert(arrangeMode_[dim] == k_arrange_ridge);
+
+	float_t offset(0);
+	if (dim == odata()->dim() - 1) {
+		offset = ridgeOffset_[dim] * (odata()->channels() - ch - 1);
+	}
+	else if (odata()->dim() == 1) {
+		assert(dim == 0);
+		offset = ridgeOffset_[dim] * (linesPerChannel_() - idx - 1);
+	}
+	else {
+		auto disc = discreted_();
+		auto shape = KuDataUtil::shape(*disc);
+		shape.pop_back();
+		auto index = KuDataUtil::n2index(shape, idx);
+		offset = ridgeOffset_[dim] * (shape[dim] - index[dim] - 1);
+	}
+
+	return offset;
+}
+
+
+KvPlottable1d::float_t KvPlottable1d::groupOffsetAt_(unsigned ch, unsigned idx, unsigned dim) const
+{
+	assert(arrangeMode_[dim] == k_arrange_group);
+
+	float_t offset(0);
+	if (dim == odata()->dim() - 1) {
+		offset = groupOffset_[dim] + groupSpacing_[dim] * ch;
+	}
+	else if (odata()->dim() == 1) {
+		assert(dim == 0);
+		offset = groupOffset_[dim] + groupSpacing_[dim] * idx;
+	}
+	else {
+		auto disc = discreted_();
+		auto shape = KuDataUtil::shape(*disc);
+		shape.pop_back();
+		auto index = KuDataUtil::n2index(shape, idx);
+		offset = groupOffset_[dim] + groupSpacing_[dim] *  index[dim];
+	}
+
+	return offset;
 }
 
 
 KvPlottable1d::float_t KvPlottable1d::ridgeOffsetAt_(unsigned ch, unsigned idx) const
 {
 	float_t offset(0);
-	if (ridgeMode_ == k_ridge_channel)
-		offset = ridgeOffset_ * (odata()->channels() - ch - 1);
-	else if (ridgeMode_ == k_ridge_column)
-		offset = ridgeOffset_ * (linesPerChannel_() - idx - 1);
-	else
-		offset = ridgeOffset_ * ((odata()->channels() - ch) * linesPerChannel_() - idx - 1);
+	for (unsigned i = 0; i < arrangeMode_.size(); i++) 
+		if (arrangeMode_[i] == k_arrange_ridge)
+			offset += ridgeOffsetAt_(ch, idx, i);
 
 	return offset;
 }
 
 
-KuDataUtil::KpPointGetter1d KvPlottable1d::lineAt_(unsigned ch, unsigned idx) const
+KvPlottable1d::GETTER KvPlottable1d::lineRidged_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const
 {
-	// 处理ridge模式
-	auto g = lineStack_(ch, idx);
-	
-	if (ridgeMode_ == k_ridge_none)
-		return g;
-	
-	auto offset = ridgeOffsetAt_(ch, idx);
+	auto offset = ridgeOffsetAt_(ch, idx, dim);
+	auto getter = g.getter;
 
-	KuDataUtil::KpPointGetter1d rg;
-	rg.getter = [this, g, offset](unsigned i) {
-		auto pt = g.getter(i);
+	return [this, getter, offset](unsigned i) {
+		auto pt = getter(i);
 		pt[ydim()] += offset;
 		return pt;
 	};
-	rg.size = g.size;
+}
 
-	return rg;
+
+KvPlottable1d::GETTER KvPlottable1d::lineGrouped_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const
+{
+	auto offset = groupOffsetAt_(ch, idx, dim);
+	auto getter = g.getter;
+
+	return [this, getter, offset](unsigned i) {
+		auto pt = getter(i);
+		pt[xdim()] += offset;
+		return pt;
+	};
+
+	return g.getter;
 }
 
 
 KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 {
+	//return super_::calcBoundingBox_();
+
 	if (empty())
 		return aabb_t(); // 返回null，以免影响坐标系设置 
 
@@ -204,20 +344,8 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 	box.lower().x() = r0.low(), box.upper().x() = r0.high();
 
 	// yrange
-	if (stackMode_ == k_stack_none) {
-		auto r1 = odata()->range(ydim());
-		box.lower().y() = r1.low(), box.upper().y() = r1.high();
-	}
-	else {
-		if (stackedData_.empty())
-			calcStackData_();
-		auto r1 = KuMath::minmax(stackedData_[0].data(), stackedData_[0].size());
-		for (unsigned i = 1; i < stackedData_.size(); i++) {
-			auto r = KuMath::minmax(stackedData_[i].data(), stackedData_[i].size());
-			KuMath::uniteRange(r1.first, r1.second, r.first, r.second);
-		}
-		box.lower().y() = r1.first, box.upper().y() = r1.second;
-	}
+	auto r1 = odata()->range(ydim());
+	box.lower().y() = r1.low(), box.upper().y() = r1.high();
 
 	// zrange
 	if (usingDefaultZ_()) {
@@ -230,10 +358,40 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 		box.lower().z() = r2.low(), box.upper().z() = r2.high();
 	}
 
-	if (ridgeMode_ != k_ridge_none) {
-		auto off = ridgeOffsetAt_(0, 0);
-		if (off > 0) box.upper().y() += off;
-		else box.lower().y() += off;
+	auto disc = discreted_();
+	for (unsigned i = arrangeMode_.size() - 1; i != -1 ; i--) {
+		if (arrangeMode_[i] == k_arrange_group) {
+			box.lower().x() += groupOffset_[i];
+			box.upper().x() += groupOffset_[i];
+
+			auto spacing = groupSpacing_[i] * ((i == arrangeMode_.size() - 1) ? disc->channels() - 1 : disc->size(i) - 1);
+			if (spacing > 0)
+				box.upper().x() += spacing;
+			else
+				box.lower().x() += spacing;
+		}
+		else if (arrangeMode_[i] == k_arrange_ridge) {
+			auto offset = ridgeOffsetAt_(0, 0, i);
+			if (offset > 0) 
+				box.upper().y() += offset;
+			else 
+				box.lower().y() += offset;
+		}
+	}
+
+	if (ydim() == disc->dim()) {
+		for (unsigned i = 0; i < arrangeMode_.size(); i++) {
+			if (arrangeMode_[i] == k_arrange_stack) {
+				for (unsigned ch = 0; ch < disc->channels(); ch++)
+					for (unsigned idx = 0; idx < linesPerChannel_(); idx++) {
+						auto line = lineArranged_(ch, idx, i);
+						for (unsigned i = 0; i < line.size; i++)
+							KuMath::updateRange(box.lower().y(), box.upper().y(), line.getter(i).back());
+					}
+
+				break; // 只须计算最外围的数据
+			}
+		}
 	}
 
 	return box;

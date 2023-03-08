@@ -1,5 +1,5 @@
 #pragma once
-#include "KvPlottable.h"
+#include "KvPlottable1d.h"
 #include "KpContext.h"
 #include <functional>
 
@@ -7,15 +7,13 @@
 // 2维柱状图.
 // 支持堆叠（stacked）、分组（grouped），以及堆叠+分组模式
 
-class KcBars2d : public KvPlottable
+class KcBars2d : public KvPlottable1d
 {
-	using super_ = KvPlottable;
+	using super_ = KvPlottable1d;
 
 public:
 
 	KcBars2d(const std::string_view& name);
-
-	unsigned majorColorsNeeded() const override;
 
 	const color4f& minorColor() const override;
 
@@ -41,14 +39,8 @@ public:
 	const KpPen& borderPen() const { return border_; }
 	KpPen& borderPen() { return border_; }
 
-	bool stackedFirst() const { return stackedFirst_; }
-	void setStackedFirst(bool b);
-
 	float paddingStacked() const { return paddingStacked_; }
 	void setPaddingStacked(float padding);
-
-	float paddingGrouped() const { return paddingGrouped_; }
-	void setPaddingGrouped(float padding);
 
 
 protected:
@@ -64,25 +56,7 @@ protected:
 	aabb_t calcBoundingBox_() const override;
 
 	// 计算单个bar的宽度（世界坐标）
-	float_t barWidth_(unsigned dim = 0) const;
-
-	struct KpEasyGetter
-	{
-		// 获取第idx簇的第group分组、第stack堆叠数据
-		// NB: 此实质为3个维度的索引
-		using GETTER = std::function<std::vector<float_t>(unsigned idx, unsigned group, unsigned stack)>;
-
-		unsigned clusters;
-		unsigned groups;
-		unsigned stacks;
-		GETTER getter;
-	};
-
-	KpEasyGetter easyGetter_() const;
-
-	unsigned xdim_() const;
-
-	unsigned ydim_() const;
+	float_t barWidth_(unsigned dim) const;
 
 	bool realFilled_() const;
 
@@ -94,9 +68,6 @@ private:
 	float baseLine_{ 0 }; // bar的底线，各bar的高度 = baseLine_ + y
 	bool edged_{ true }, filled_{ true };
 	KpPen border_;
-	bool stackedFirst_{ false }; // stacked优先还是grouped优先
 
-	// 以下2个间距值均为相对值（为简化起见，均相对于barWidth）
-	float paddingStacked_{ 0.f }; // 每个堆叠之内的各bar垂直间隔. 
-	float paddingGrouped_{ 0.1f }; // 每个分组之内的各bar水平间距. 
+	float paddingStacked_{ 0.f }; // 每个堆叠之内的各bar垂直间隔（像素值）
 };

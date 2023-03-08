@@ -48,12 +48,12 @@ public:
 
 	static bool isMatrix(const KvData& d);
 	
-	//static bool sameShape(const KvData& d1, const KvData& d2);
+	static bool sameShape(const KvData& d1, const KvData& d2, bool sameStep);
 
 	//static void reshapeAs(KvData& from, const KvData& to);
 
-	// shape与采样参数一致，但无数据
-	// static std::shared_ptr<KvData> emptyLike();
+	// shape与采样参数一致，但数据未初始化
+	static std::shared_ptr<KvDiscreted> shapeLike(const KvDiscreted& disc);
 	
 	// shape与采样参数一致，但数据内容置0
 	// static std::shared_ptr<KvData> zeroLike();
@@ -65,7 +65,7 @@ public:
 	/// 多维数组索引支持函数
 
 	// 获取返回采样数据的各维度尺寸
-	static std::vector<kIndex> shape(const KvSampled& samp);
+	static std::vector<kIndex> shape(const KvDiscreted& disc);
 
 	// 将数组索引idx转换为顺序访问序号n
 	static kIndex index2n(const std::vector<kIndex>& shape, const kIndex idx[]);

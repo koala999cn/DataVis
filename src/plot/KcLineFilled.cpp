@@ -118,9 +118,9 @@ void KcLineFilled::setFillMode(KeFillMode mode)
 {
 	if (mode != fillMode_) {
 		fillMode_ = mode;
-		setStackMode_(mode == k_fill_stacked ? k_stack_channel : k_stack_none);
-		setRidgeMode_(mode == k_fill_ridge ? k_ridge_channel : k_ridge_none);
-		setDataChanged(false);
+		auto arrange = (mode == k_fill_stacked) ? k_arrange_stack
+			: (mode == k_fill_ridge) ? k_arrange_ridge : k_arrange_none;
+		setArrangeMode(odata()->dim(), arrange);
 	}
 }
 
@@ -130,6 +130,7 @@ void KcLineFilled::setBaseMode(KeBaseMode mode)
 	if (mode != baseMode_) {
 		baseMode_ = mode;
 		setDataChanged(false);
+		setBoundingBoxExpired_();
 	}
 }
 
@@ -138,6 +139,7 @@ void KcLineFilled::setBaseLine(float_t base)
 {
 	baseLine_ = base;
 	setDataChanged(false);
+	setBoundingBoxExpired_();
 }
 
 
@@ -145,6 +147,7 @@ void KcLineFilled::setBasePoint(const point3& pt)
 {
 	basePoint_ = pt;
 	setDataChanged(false);
+	setBoundingBoxExpired_();
 }
 
 
@@ -214,7 +217,7 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 
 KcLineFilled::GETTER KcLineFilled::baseGetter_(unsigned ch, unsigned idx, GETTER g) const
 {
-	auto offset = ridgeOffsetAt_(ch, idx);
+	auto offset = ridgeOffsetAt_(ch, idx, 1);
 
 	return [g, this, offset](unsigned i) {
 		auto pt = g(i);
@@ -234,7 +237,7 @@ KcLineFilled::point3 KcLineFilled::basePointAt_(unsigned ch, unsigned idx) const
 		return basePoint_;
 
 	auto pt = basePoint_;
-	pt[1] += ridgeOffsetAt_(ch, idx);
+	pt[1] += ridgeOffsetAt_(ch, idx, 1);
 	return pt;
 }
 

@@ -98,4 +98,11 @@ public:
 		for (unsigned i = 0; i < dim(); i++)
 			assert(idx[i] >= 0 && idx[i] < size(i));
 	}
+
+
+	/// 写入接口
+
+	virtual bool writable() const { return false; }
+
+	virtual void write(kIndex idx[], kIndex channel, kReal val) {}
 };

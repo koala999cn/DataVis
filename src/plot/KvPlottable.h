@@ -54,10 +54,6 @@ public:
 	// 封装连续数据的绘制，提供另外一个绘制离散数据的接口drawDiscreted_
 	void draw(KvPaint*) const override;
 
-	// 是否可绘制数据d
-	virtual bool renderable(const KvData& d) {
-		return true;
-	}
 
 	/// 以下为调色板通用接口 //////////////////////////////////
 
@@ -166,7 +162,8 @@ public:
 
 protected:
 
-	void output_();
+	// 返回true表示执行了数据更新操作
+	virtual bool output_();
 
 	virtual void outputImpl_() {}
 
@@ -192,8 +189,8 @@ protected:
 	// 确保传入的valp为数据原值，而非强制替换z之后的值
 	color4f mapValueToColor_(const float_t* valp, unsigned channel) const;
 
-	// 返回一个离散化的数据对象
-	// 如果data()成员本身为离散数据，则直接返回；否则按照sampCount_构建并返回一个采样对象
+	// 返回一个离散化的输出数据对象
+	// 如果odata()成员本身为离散数据，则直接返回；否则按照sampCount_构建并返回一个采样对象
 	std::shared_ptr<const KvDiscreted> discreted_() const;
 
 	// 根据valp构建point3对象
@@ -207,11 +204,13 @@ protected:
 	// 二是forceDefaultZ_为真
 	bool usingDefaultZ_() const;
 
+	void setBoundingBoxExpired_() const { box_.setNull(); }
+
 	virtual aabb_t calcBoundingBox_() const;
 
 private:
 
-	// 绘制数据
+	// 输入数据
 	const_data_ptr data_;
 
 	// 色彩管理

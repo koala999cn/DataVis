@@ -128,6 +128,12 @@ public:
 
     kReal* at(kIndex idx[]);
 
+    bool writable() const final { return true; }
+
+    void write(kIndex idx[], kIndex channel, kReal val) override {
+        *(at(idx) + channel) = val;
+    }
+
 private:
     static auto makeTinyVector_(kIndex idx[], kIndex channel) {
         blitz::TinyVector<int, DIM + 1> tv;

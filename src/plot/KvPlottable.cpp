@@ -10,7 +10,7 @@
 KvPlottable::KvPlottable(const std::string_view& name)
 	: super_(name)
 {
-
+	setBoundingBoxExpired_();
 }
 
 
@@ -20,10 +20,11 @@ void KvPlottable::setData(const_data_ptr d)
 
 	data_ = d;
 	dataChanged_ = 2;
+	output_(); // NB: 及时同步，否则当输入为高维连续数据时，sampCount_不匹配
 }
 
 
-void KvPlottable::output_()
+bool KvPlottable::output_()
 {
 	if (dataChanged_ == 2) {
 		outputImpl_();
@@ -37,7 +38,11 @@ void KvPlottable::output_()
 			setColorMappingDim(dim);
 
 		updateColorMappingPalette();
+		setBoundingBoxExpired_();
+		return true;
 	}
+
+	return false;
 }
 
 void KvPlottable::setColorMappingDim(unsigned d)
@@ -86,19 +91,18 @@ bool KvPlottable::empty() const
 
 KvPlottable::aabb_t KvPlottable::boundingBox() const 
 {
-	if (dataChanged()) {
-		const_cast<KvPlottable*>(this)->output_();
+	if (empty())
+		return aabb_t(); // 返回null，以免影响坐标系设置 
+
+	if (box_.isNull()) 
 		box_ = calcBoundingBox_();
-	}
+
 	return box_;
 }
 
 
 KvPlottable::aabb_t KvPlottable::calcBoundingBox_() const
 {
-	if (empty())
-		return aabb_t(); // 返回null，以免影响坐标系设置 
-
 	point3 lower, upper;
 
 	auto r0 = odata()->range(0);
@@ -171,7 +175,7 @@ std::shared_ptr<const KvDiscreted> KvPlottable::discreted_() const
 	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(odata());
 	if (disc == nullptr) {
 		auto cont = std::dynamic_pointer_cast<const KvContinued>(odata());
-		if (cont) {
+		if (cont && sampCount_.size() == cont->dim()) {
 			auto samp = std::make_shared<KcSampler>(cont);
 			if (samp) {
 				for (unsigned i = 0; i < cont->dim(); i++) {

@@ -24,6 +24,6 @@ private:
 
 	KvPlottable* newPlottable_(int iType, const std::string& name) final;
 
-	void showPlottableSpecificProperty_(unsigned idx) final;
+	void showPlottableSpecificProperty_(KvPlottable*) final;
 };
 

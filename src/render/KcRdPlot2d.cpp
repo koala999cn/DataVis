@@ -95,8 +95,7 @@ namespace kPrivate
 }
 
 
-void KcRdPlot2d::showPlottableSpecificProperty_(unsigned idx)
+void KcRdPlot2d::showPlottableSpecificProperty_(KvPlottable* plt)
 {
-    auto plt = plot_->plottableAt(idx);
     kPrivate::showPlottableSpecificProperty2d(plt);
 }
