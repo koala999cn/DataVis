@@ -17,5 +17,7 @@ private:
 
 	aabb_t calcBoundingBox_() const override;
 
-	//void drawImpl_(KvPaint*, point_getter1, unsigned, unsigned) const override;
+	std::pair<unsigned, unsigned> vtxSizePerBar_() const override;
+
+	void drawOneBar_(float_t*, unsigned, float_t, void*, void*, unsigned) const override;
 };

@@ -7,68 +7,50 @@
 
 KcBars3d::aabb_t KcBars3d::calcBoundingBox_() const
 {
-	auto aabb = super_::calcBoundingBox_();
+	auto box = super_::calcBoundingBox_();
 
-	if (aabb.depth() == 0)
-		aabb.upper().z() = aabb.lower().z() + 1;
-	return aabb;
+	// 修正z轴
+	auto zw = barWidth_(zdim());
+	box.lower().z() -= zw; box.upper().z() += zw;
+
+	return box;
 }
 
-#if 0
-void KcBars3d::drawImpl_(KvPaint* paint, point_getter1 getter, unsigned count, unsigned) const
+
+std::pair<unsigned, unsigned> KcBars3d::vtxSizePerBar_() const
 {
-	auto dim = data()->dim();
-	auto xw = barWidth_(0);
-	auto yw = dim == 1 ? boundingBox().depth() / count : barWidth_(1);
+	return { KuPrimitiveFactory::makeBox<float>(point3f(0), point3f(0), nullptr),
+			 KuPrimitiveFactory::indexBox<unsigned>(nullptr) };
+}
 
-	bool drawFill = fill_.visible();
-	bool drawBorder = border_.visible(); // && minorColor() != majorColor(0);
-	if (drawBorder)
-		paint->apply(border_);
 
-	struct KpVtxBuffer_
+void KcBars3d::drawOneBar_(float_t* pos, unsigned ch, float_t bottom, void* vtxBuf, void* idxBuf, unsigned idxBase) const
+{
+	auto xw = barWidthRatio() * barWidth_(xdim());
+	auto zw = barWidthRatio() * barWidth_(zdim());
+
+	auto pt0 = toPoint_(pos, ch);
+	pt0.x() += xw * 0.5; pt0.z() += zw * 0.5;
+	decltype(pt0) pt1{ pt0.x() - xw, bottom, pt0.z() - zw };
+
+	struct KpVertexPC
 	{
 		point3f pos;
-		color4f color;
-		//point3f normal; // TODO: lighting
+		point4f clr;
 	};
 
-	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
-	auto vtxCount = KuPrimitiveFactory::makeBox<float>(point3f(0), point3f(0), nullptr);
-	auto idxCount = KuPrimitiveFactory::indexBox<unsigned>(nullptr);
-	assert(idxCount == 6 * 4); // 断言索引为quad类型
-	geom->reserve(vtxCount* count, idxCount* count);
-
-	for (unsigned i = 0; i < count; i++) {
-		auto pt0 = getter(i);
-		decltype(pt0) pt1;
-
-		if (dim == 1) {
-			pt0.x() += xw * 0.5; pt0.z() += yw * 0.5;
-			pt1 = { pt0.x() - xw, baseLine_, pt0.z() - yw };
-		}
-		else {
-			pt0.x() += xw * 0.5; pt0.y() += yw * 0.5;
-			pt1 = { pt0.x() - xw, pt0.y() - yw, baseLine_ };
-		}
-
-		unsigned idxBase = geom->vertexCount();
-		auto vtxBuf = geom->newVertex(vtxCount);
-		KuPrimitiveFactory::makeBox<float>(point3f(pt1), point3f(pt0), vtxBuf, sizeof(KpVtxBuffer_));
-		for (unsigned i = 0; i < vtxCount; i++)
-			vtxBuf[i].color = fill_.color;
-
-		auto idxBuf = geom->newIndex(idxCount);
-		KuPrimitiveFactory::indexBox<unsigned>(idxBuf);
-		for (unsigned i = 0; i < idxCount; i++)
-			idxBuf[i] += idxBase;
+	auto vtxSize = vtxSizePerBar_();
+	auto vtx = (KpVertexPC*)vtxBuf;
+	KuPrimitiveFactory::makeBox<float>(point3f(pt1), point3f(pt0), vtx, sizeof(KpVertexPC));
+	for (unsigned i = 0; i < vtxSize.first; i++) {
+		pos[xdim()] = vtx[i].pos.x();
+		pos[ydim()] = vtx[i].pos.y();
+		if (odata()->dim() > 1)
+		    pos[zdim()] = vtx[i].pos.z();
+		vtx[i].clr = mapValueToColor_(pos, ch);
 	}
 
-	paint->enableDepthTest(true);
-	auto decl = std::make_shared<KcVertexDeclaration>();
-	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
-	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
-	paint->drawGeom(decl, geom, drawFill, drawBorder);
-	paint->enableDepthTest(false);
+	KuPrimitiveFactory::indexBox<std::uint32_t>((std::uint32_t*)idxBuf);
+	for (unsigned i = 0; i < vtxSize.second; i++)
+		((std::uint32_t*)idxBuf)[i] += idxBase;
 }
-#endif

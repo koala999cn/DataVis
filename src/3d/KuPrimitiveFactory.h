@@ -123,7 +123,7 @@ int KuPrimitiveFactory::makeBox(const point3<T>& lower, const point3<T>& upper, 
 		char* buf = (char*)obuf;
 
 		for (unsigned i = 0; i < vtxCount; i++) {
-			auto pt = (std::array<T, 3>*)buf;
+			auto pt = (KtPoint<T, 3>*)buf;
 			*pt = corns[i];
 			buf += stride;
 		}

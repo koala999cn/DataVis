@@ -71,8 +71,15 @@ void KcBars2d::setPaddingStacked(float padding)
 KcBars2d::aabb_t KcBars2d::calcBoundingBox_() const
 {
 	auto box = super_::calcBoundingBox_();
+
+	// ÐÞÕýxÖá
+	auto xw = barWidth_(xdim());
+	box.lower().x() -= xw; box.upper().x() += xw;
+
+	// ÐÞÕýyÖá
 	KuMath::updateRange<double>(box.lower().y(), box.upper().y(), baseLine_);
 	box.upper().y() += box.height() * 0.1;
+
 	return box;
 }
 
@@ -117,9 +124,10 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
 				float_t bottom = floorStack ? baseLine_ + offset : top - val.getter(i).back();
 				auto paddedBottom = bottom + stackPadding * KuMath::sign(top - bottom);
 
+				auto idxBase = geom->vertexCount();
 				auto vtx = geom->newVertex(vtxSize.first);
 				auto index = geom->newIndex(vtxSize.second);
-				drawOneBar_(pos.data(), ch, bottom, paddedBottom, vtx, index);
+				drawOneBar_(pos.data(), ch, paddedBottom, vtx, index, idxBase);
 			}
 		}
 	}
@@ -134,9 +142,9 @@ std::pair<unsigned, unsigned> KcBars2d::vtxSizePerBar_() const
 }
 
 
-void KcBars2d::drawOneBar_(float_t* pos, unsigned ch, float_t realBottom, float_t paddedBottom, void* vtxBuffer, void*) const
+void KcBars2d::drawOneBar_(float_t* pos, unsigned ch, float_t bottom, void* vtxBuf, void*, unsigned) const
 {
-	auto vtx = (kPrivate::KpVertexPC*)vtxBuffer;
+	auto vtx = (kPrivate::KpVertexPC*)vtxBuf;
 
 	auto barWidth = barWidthRatio_ * barWidth_(xdim());
 	auto pt = toPoint_(pos, ch);
@@ -150,11 +158,11 @@ void KcBars2d::drawOneBar_(float_t* pos, unsigned ch, float_t realBottom, float_
 	pos[xdim()] = right, pos[ydim()] = top;
 	vtx[0].clr = mapValueToColor_(pos, ch);
 
-	vtx[1].pos = point3f(right, paddedBottom, pt.z());
-	pos[ydim()] = realBottom;
+	vtx[1].pos = point3f(right, bottom, pt.z());
+	pos[ydim()] = bottom;
 	vtx[1].clr = mapValueToColor_(pos, ch);
 
-	vtx[2].pos = point3f(left, paddedBottom, pt.z());
+	vtx[2].pos = point3f(left, bottom, pt.z());
 	pos[xdim()] = left;
 	vtx[2].clr = mapValueToColor_(pos, ch);
 
@@ -166,8 +174,8 @@ void KcBars2d::drawOneBar_(float_t* pos, unsigned ch, float_t realBottom, float_
 
 KcBars2d::float_t KcBars2d::barWidth_(unsigned dim) const
 {
-	if (dim == odata()->dim())
-		return 1;
+	if ((usingDefaultZ_() && dim == zdim()) || dim >= odata()->dim())
+		return stepZ() == 0 ? 1 : stepZ();
 
 	auto disc = discreted_();
 	assert(disc && disc->size(dim) != 0);

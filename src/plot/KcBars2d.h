@@ -70,11 +70,11 @@ private:
 	// 绘制单个bar
 	// @pos: 当前bar的数据值，尺寸等于dim+1
 	// @ch: 当前通道序号
-	// @realBottom: bar的底部原始值，用于色彩插值
-	// @paddedBottom: 根据paddingStacked_修正的底部值，用于绘制
+	// @bottom: 根据paddingStacked_修正的底部值
 	// @vtx: 待写入的顶点数据，类型为{ float3, float4 }，尺寸等于vtxSizePerBar_().first
 	// @idx: 待写入的索引数据，类型为unsigned，尺寸等于vtxSizePerBar_().second
-	virtual void drawOneBar_(float_t* pos, unsigned ch, float_t realBottom, float_t paddedBottom, void* vtx, void* idx) const;
+	// @idxBase: 索引的起始值
+	virtual void drawOneBar_(float_t* pos, unsigned ch, float_t bottom, void* vtx, void* idx, unsigned idxBase) const;
 
 private:
 	mutable KpBrush fill_;
