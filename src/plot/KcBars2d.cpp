@@ -77,86 +77,90 @@ KcBars2d::aabb_t KcBars2d::calcBoundingBox_() const
 }
 
 
-void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
+namespace kPrivate
 {
-	auto barWidth = barWidthRatio_ * barWidth_(xdim());
-	auto ydir = paint->projectv({ 0, 1, 0 });
-	auto stackPadding = paddingStacked_ / ydir.length();
-
-	struct KpVtxBuffer_
+	struct KpVertexPC
 	{
 		point3f pos;
 		point4f clr;
 	};
+}
+
+void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
+{
+	auto stackPadding = paddingStacked_ / paint->projectv({ 0, 1, 0 }).length();
 
 	auto disc = discreted_();
-	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, unsigned>>(k_quads);
-	auto vtx = geom->newVertex(disc->size() * disc->channels() * 4);
 	auto linesPerChannel = linesPerChannel_();
-
-	std::vector<unsigned> stackDims;
-	for (unsigned i = 0; i < disc->dim(); i++)
-		if (arrangeMode(i) == k_arrange_stack)
-			stackDims.push_back(i);
+	auto vtxSize = vtxSizePerBar_();
+	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertexPC>>(k_quads);
+	geom->reserve(disc->size() * disc->channels() * vtxSize.first, 
+		disc->size() * disc->channels() * vtxSize.second);
 
 	for (unsigned ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned idx = 0; idx < linesPerChannel; idx++) {
 			auto line = lineAt_(ch, idx);
+			bool floorStack = isFloorStack_(ch, idx);
 
-			bool floorStack(true); // 是否最底层的bar
-			for (auto d : stackDims) {
-				if (d == odata()->dim() - 1
-					&& ch != 0) {
-					floorStack = false;
-					break;
-				}
-				else {
-					auto sh = KuDataUtil::shape(*disc);
-					sh.pop_back();
-					if (KuDataUtil::n2index(sh, idx).at(d) != 0) {
-						floorStack = false;
-						break;
-					}
-				}
-			}
-
-			auto val = KuDataUtil::pointGetter1dAt(disc, ch, idx); // 原始数据, 只在floorStack为false时需要
-			float_t offset = floorStack ? ridgeOffsetAt_(ch, idx) : 0;
+			KuDataUtil::KpPointGetter1d val;
+			float_t offset(0);
+			if (!floorStack)
+				val = KuDataUtil::pointGetter1dAt(disc, ch, idx); // 原始数据, 只在floorStack为false时需要
+			else
+				offset = ridgeOffsetAt_(ch, idx); // 底部stack的偏移 只在floorStack为true时需要
 
 			for (unsigned i = 0; i < line.size; i++) {
 				auto pos = line.getter(i);
-				auto pt = toPoint_(pos.data(), ch);
-				auto left = pt.x();
-				auto right = left + barWidth;
+				auto pt = toPoint_(pos.data(), ch); // TODO: 此处多了一次toPoint_调用
 				auto top = pt.y();
 				
 				float_t bottom = floorStack ? baseLine_ + offset : top - val.getter(i).back();
 				auto paddedBottom = bottom + stackPadding * KuMath::sign(top - bottom);
 
-				// 第一个顶点取right-top，这样可保证最后一个顶点为left-top（quad各顶点按顺时针排列）
-				// 如此确保在flat模式下显示left-top顶点的颜色（保证按y轴插值时的正确性）
-				vtx[0].pos = point3f(right, top, pt.z());
-				pos[xdim()] = right, pos[ydim()] = top;
-				vtx[0].clr = mapValueToColor_(pos.data(), ch);
-
-				vtx[1].pos = point3f(right, paddedBottom, pt.z());
-				pos[ydim()] = bottom;
-				vtx[1].clr = mapValueToColor_(pos.data(), ch);
-
-				vtx[2].pos = point3f(left, paddedBottom, pt.z());
-				pos[xdim()] = left;
-				vtx[2].clr = mapValueToColor_(pos.data(), ch);
-
-				vtx[3].pos = point3f(left, top, pt.z());
-				pos[ydim()] = top;
-				vtx[3].clr = mapValueToColor_(pos.data(), ch);
-
-				vtx += 4;
+				auto vtx = geom->newVertex(vtxSize.first);
+				auto index = geom->newIndex(vtxSize.second);
+				drawOneBar_(pos.data(), ch, bottom, paddedBottom, vtx, index);
 			}
 		}
 	}
 
 	return paint->drawGeomColor(geom);
+}
+
+
+std::pair<unsigned, unsigned> KcBars2d::vtxSizePerBar_() const
+{
+	return { 4, 0 }; // 每个bar有4个顶点，无索引
+}
+
+
+void KcBars2d::drawOneBar_(float_t* pos, unsigned ch, float_t realBottom, float_t paddedBottom, void* vtxBuffer, void*) const
+{
+	auto vtx = (kPrivate::KpVertexPC*)vtxBuffer;
+
+	auto barWidth = barWidthRatio_ * barWidth_(xdim());
+	auto pt = toPoint_(pos, ch);
+	auto left = pt.x();
+	auto right = left + barWidth;
+	auto top = pt.y();
+
+	// 第一个顶点取right-top，这样可保证最后一个顶点为left-top（quad各顶点按顺时针排列）
+	// 如此确保在flat模式下显示left-top顶点的颜色（保证按y轴插值时的正确性）
+	vtx[0].pos = point3f(right, top, pt.z());
+	pos[xdim()] = right, pos[ydim()] = top;
+	vtx[0].clr = mapValueToColor_(pos, ch);
+
+	vtx[1].pos = point3f(right, paddedBottom, pt.z());
+	pos[ydim()] = realBottom;
+	vtx[1].clr = mapValueToColor_(pos, ch);
+
+	vtx[2].pos = point3f(left, paddedBottom, pt.z());
+	pos[xdim()] = left;
+	vtx[2].clr = mapValueToColor_(pos, ch);
+
+	vtx[3].pos = point3f(left, top, pt.z());
+	pos[ydim()] = top;
+	vtx[3].clr = mapValueToColor_(pos, ch);
 }
 
 

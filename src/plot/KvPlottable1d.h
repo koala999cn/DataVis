@@ -116,6 +116,8 @@ protected:
 
 	float_t ridgeOffsetAt_(unsigned ch, unsigned idx) const;
 
+	bool isFloorStack_(unsigned ch, unsigned idx) const;
+
 private:
 
 	void calcStackData_(unsigned dim) const; // 计算stack数据，内部调用

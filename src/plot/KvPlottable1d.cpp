@@ -332,11 +332,6 @@ KvPlottable1d::GETTER KvPlottable1d::lineGrouped_(const KuDataUtil::KpPointGette
 
 KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 {
-	//return super_::calcBoundingBox_();
-
-	if (empty())
-		return aabb_t(); // 返回null，以免影响坐标系设置 
-
 	aabb_t box;
 
 	// xrange
@@ -395,4 +390,27 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 	}
 
 	return box;
+}
+
+
+bool KvPlottable1d::isFloorStack_(unsigned ch, unsigned idx) const
+{
+	std::vector<unsigned> stackDims;
+	for (unsigned i = 0; i < odata()->dim(); i++)
+		if (arrangeMode(i) == k_arrange_stack)
+			stackDims.push_back(i);
+
+	for (auto d : stackDims) {
+		if (d == odata()->dim() - 1	&& ch != 0) {
+			return false;
+		}
+		else {
+			auto sh = KuDataUtil::shape(*discreted_());
+			sh.pop_back();
+			if (KuDataUtil::n2index(sh, idx).at(d) != 0)
+				return false;
+		}
+	}
+
+	return true;
 }
