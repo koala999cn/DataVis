@@ -136,19 +136,19 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
 				// 第一个顶点取right-top，这样可保证最后一个顶点为left-top（quad各顶点按顺时针排列）
 				// 如此确保在flat模式下显示left-top顶点的颜色（保证按y轴插值时的正确性）
 				vtx[0].pos = point3f(right, top, pt.z());
-				pos[0] = right, pos[1] = top;
+				pos[xdim()] = right, pos[ydim()] = top;
 				vtx[0].clr = mapValueToColor_(pos.data(), ch);
 
 				vtx[1].pos = point3f(right, paddedBottom, pt.z());
-				pos[1] = bottom;
+				pos[ydim()] = bottom;
 				vtx[1].clr = mapValueToColor_(pos.data(), ch);
 
 				vtx[2].pos = point3f(left, paddedBottom, pt.z());
-				pos[0] = left;
+				pos[xdim()] = left;
 				vtx[2].clr = mapValueToColor_(pos.data(), ch);
 
 				vtx[3].pos = point3f(left, top, pt.z());
-				pos[1] = top;
+				pos[ydim()] = top;
 				vtx[3].clr = mapValueToColor_(pos.data(), ch);
 
 				vtx += 4;
