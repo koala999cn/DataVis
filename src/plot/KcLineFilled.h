@@ -33,8 +33,7 @@ public:
 	{
 		k_fill_overlay,
 		k_fill_between,
-		k_fill_delta1,
-		k_fill_delta2,
+		k_fill_delta
 	};
 
 	int fillMode() const { return fillMode_; }

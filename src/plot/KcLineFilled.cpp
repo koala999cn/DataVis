@@ -9,17 +9,18 @@
 
 unsigned KcLineFilled::majorColorsNeeded() const
 {
+	auto lines = linesTotal_(); // overlayCount_();
 	switch (fillMode_) {
 	case k_fill_between:
-		return linesTotal_() - 1;
+		--lines;
 
-	case k_fill_delta1:
-		return linesTotal_() / 2;
+	case k_fill_delta:
+		lines /= 2;
 
 	default:
 		break;
 	}
-	return linesTotal_();
+	return lines;
 }
 
 
@@ -97,11 +98,15 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 		unsigned idx(0);
 		for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 			for (unsigned i = 0; i < linesPerChannel_(); i++) {
-				if (fillMode_ != k_fill_delta1 || idx % 2 == 0) {
-					auto g = lineAt_(ch, i);
-					fns.push_back(toPoint3Getter_(g.getter, ch));
-					cnts.push_back(g.size);
+				if (fillMode_ == k_fill_delta) {
+					auto idx = overlayIndex_(ch, i);
+					if (idx % 2 != 0)
+						continue;
 				}
+
+				auto g = lineAt_(ch, i);
+				fns.push_back(toPoint3Getter_(g.getter, ch));
+				cnts.push_back(g.size);
 
 				idx++;
 			}
@@ -110,16 +115,14 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 		return paint->drawLineStrips(fns, cnts);
 	}
 	else {
-		if (fillMode_ == k_fill_overlay)
-			return fillOverlay_(paint);
-	//	else if (fillMode_ == k_fill_stacked)
-	//		return fillBetween_(paint, true);
-		else if (fillMode_ == k_fill_between)
+		if (fillMode_ == k_fill_between)
 			return fillBetween_(paint, false);
-		else if (fillMode_ == k_fill_delta1)
+		else if (fillMode_ == k_fill_delta)
 			return fillDelta_(paint);
-	//	else if (fillMode_ == k_fill_ridge)
-	//		return fillRidge_(paint);
+		else if (isStacked())
+			return fillBetween_(paint, true);
+		else
+			return fillOverlay_(paint);
 
 		assert(false);
 		return nullptr;
@@ -181,20 +184,20 @@ void KcLineFilled::setBasePoint(const point3& pt)
 void* KcLineFilled::fillOverlay_(KvPaint* paint) const
 {
 	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
-	unsigned idx(0); // 用于获取主色
 
 	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
 			auto g1 = lineAt_(ch, i);
 
+			unsigned idx = overlayIndex_(ch, i);
 			if (baseMode_ != k_base_point) {
 				auto g2 = baseGetter_(ch, i, g1.getter);
 				auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-				fillBetween_(paint, g1.getter, g2, g1.size, idx++, vtx);
+				fillBetween_(paint, g1.getter, g2, g1.size, idx, vtx);
 			}
 			else {
 				auto vtx = geom->newVertex((g1.size - 1) * 3);
-				fillBetween_(paint, basePointAt_(ch, i), g1.getter, g1.size, idx++, vtx);
+				fillBetween_(paint, basePointAt_(ch, i), g1.getter, g1.size, idx, vtx);
 			}
 		}
 	}
@@ -207,34 +210,32 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 {
 	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
 
+	unsigned majors = majorColorsNeeded();
 	unsigned idx(0); // 用于获取主色
-
-	if (baseline) {
-		auto g1 = lineAt_(0, 0);
-
-		if (baseMode_ != k_base_point) {
-			auto g2 = baseGetter_(0, 0, g1.getter);
-			auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-			fillBetween_(paint, g1.getter, g2, g1.size, idx++, vtx);
-		}
-		else {
-			auto vtx = geom->newVertex((g1.size - 1) * 3);
-			fillBetween_(paint, basePointAt_(0, 0), g1.getter, g1.size, idx++, vtx);
-		}
-	}
-
 
 	GETTER g1 = nullptr;
 	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
-			auto g2 = lineAt_(ch, i);
 
-			if (g1) {
-				auto vtx = geom->newVertex((g2.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-				fillBetween_(paint, g1, g2.getter, g2.size, idx++, vtx);
+			auto g1 = lineAt_(ch, i);
+
+			if (baseline && isFloorStack_(ch, i)) {
+				if (baseMode_ != k_base_point) {
+					auto g2 = baseGetter_(0, 0, g1.getter);
+					auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+					fillBetween_(paint, g1.getter, g2, g1.size, idx++ % majors, vtx);
+				}
+				else {
+					auto vtx = geom->newVertex((g1.size - 1) * 3);
+					fillBetween_(paint, basePointAt_(0, 0), g1.getter, g1.size, idx++ % majors, vtx);
+				}
+			}
+			else {
+				auto g2 = lineBelow_(ch, i);
+				auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+				fillBetween_(paint, g1.getter, g2.getter, g1.size, idx++ % majors, vtx);
 			}
 
-			g1 = g2.getter;
 		}
 	}
 
@@ -395,10 +396,3 @@ void* KcLineFilled::fillDelta_(KvPaint* paint) const
 
 	return paint->drawGeomColor(geom);
 }
-
-
-void* KcLineFilled::fillRidge_(KvPaint* paint) const
-{
-	return fillOverlay_(paint);
-}
-
