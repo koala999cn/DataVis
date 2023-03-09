@@ -232,10 +232,6 @@ namespace kPrivate
 		}
 		else if (dynamic_cast<KcBars2d*>(plt)) {
 			auto bars = dynamic_cast<KcBars2d*>(plt);
-			static const char* modeStr[] = {
-				"stacked first",
-				"grouped first"
-			};
 
 			if (ImGuiX::treePush("Layout", false)) {
 
@@ -247,10 +243,9 @@ namespace kPrivate
 				if (ImGui::SliderFloat("Width Ratio", &widthRatio, 0.01, 1.0, "%.2f"))
 					bars->setBarWidthRatio(widthRatio);
 
-				auto paddingStacked = bars->paddingStacked();
-				if (ImGui::SliderFloat("Stack Padding", &paddingStacked, 0.0, 49.0, "%.1f px")
-					&& paddingStacked >= 0)
-					bars->setPaddingStacked(paddingStacked);
+				auto padding = bars->stackPadding();
+				if (ImGui::SliderFloat("Stack Padding", &padding, 0.0, 49.0, "%.1f px") && padding >= 0)
+					bars->setStackPadding(padding);
 
 				ImGuiX::treePop();
 			}

@@ -39,8 +39,8 @@ public:
 	const KpPen& borderPen() const { return border_; }
 	KpPen& borderPen() { return border_; }
 
-	float paddingStacked() const { return paddingStacked_; }
-	void setPaddingStacked(float padding);
+	float stackPadding() const { return stackPadding_; }
+	void setStackPadding(float padding);
 
 
 protected:
@@ -83,5 +83,5 @@ private:
 	bool edged_{ true }, filled_{ true };
 	KpPen border_;
 
-	float paddingStacked_{ 0.f }; // 每个堆叠之内的各bar垂直间隔（像素值）
+	float stackPadding_{ 0.f }; // 每个堆叠之内的各bar垂直间隔（像素值）
 };

@@ -60,9 +60,9 @@ void KcBars2d::setBaseLine(float base)
 }
 
 
-void KcBars2d::setPaddingStacked(float padding)
+void KcBars2d::setStackPadding(float padding)
 {
-	paddingStacked_ = padding;
+	stackPadding_ = padding;
 	// TODO: if (stacks > 1)
 	setDataChanged(false);
 }
@@ -95,7 +95,7 @@ namespace kPrivate
 
 void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
-	auto stackPadding = paddingStacked_ / paint->projectv({ 0, 1, 0 }).length();
+	auto stackPadding = stackPadding_ / paint->projectv({ 0, 1, 0 }).length();
 
 	auto disc = discreted_();
 	auto linesPerChannel = linesPerChannel_();

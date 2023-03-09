@@ -5,6 +5,13 @@
 #include "KvData.h"
 
 
+void KcBars3d::setBarWidthRatioZ(float w)
+{
+	barWidthRatioZ_ = w;
+	setDataChanged(false);
+}
+
+
 KcBars3d::aabb_t KcBars3d::calcBoundingBox_() const
 {
 	auto box = super_::calcBoundingBox_();
@@ -27,7 +34,7 @@ std::pair<unsigned, unsigned> KcBars3d::vtxSizePerBar_() const
 void KcBars3d::drawOneBar_(float_t* pos, unsigned ch, float_t bottom, void* vtxBuf, void* idxBuf, unsigned idxBase) const
 {
 	auto xw = barWidthRatio() * barWidth_(xdim());
-	auto zw = barWidthRatio() * barWidth_(zdim());
+	auto zw = barWidthRatioZ() * barWidth_(zdim());
 
 	auto pt0 = toPoint_(pos, ch);
 	pt0.x() += xw * 0.5; pt0.z() += zw * 0.5;

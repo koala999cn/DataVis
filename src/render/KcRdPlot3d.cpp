@@ -23,8 +23,8 @@ std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KcPortNode* port)
 	auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
 
 	// 根据prov自动选择图类型
-	if (prov->isScattered(port->index()) || prov->isSeries(port->index()))
-	    return createPlts_<KcScatter>(port);
+	if (prov->isSeries(port->index()))
+	    return createPlts_<KcBars3d>(port);
 	else if (prov->isContinued(port->index()) || prov->isSampled(port->index()))
 		return createPlts_<KcGraph>(port);
 	else // TODO:
@@ -73,7 +73,7 @@ void KcRdPlot3d::showPropertySet()
 
 unsigned KcRdPlot3d::supportPlottableTypes_() const
 {
-	return 5;
+	return 6;
 }
 
 
@@ -85,10 +85,12 @@ int KcRdPlot3d::plottableType_(KvPlottable* plt) const
 		return 1;
 	else if (dynamic_cast<KcLineFilled*>(plt))
 		return 2;
-	else if (dynamic_cast<KcBars3d*>(plt))
+	else if (dynamic_cast<KcBars2d*>(plt))
 		return 3;
-	else if (dynamic_cast<KcSurface*>(plt))
+	else if (dynamic_cast<KcBars3d*>(plt))
 		return 4;
+	else if (dynamic_cast<KcSurface*>(plt))
+		return 5;
 
 	return -1;
 }
@@ -99,7 +101,7 @@ const char* KcRdPlot3d::plottableTypeStr_(int iType) const
 	assert(iType < supportPlottableTypes_());
 
 	static const char* pltTypes[] = {
-		"graph", "scatter", "area", "bar", "surface"
+		"graph", "scatter", "area", "bars2d", "bars3d", "surface"
 	};
 
 	return pltTypes[iType];
@@ -120,9 +122,12 @@ KvPlottable* KcRdPlot3d::newPlottable_(int iType, const std::string& name)
 		return new KcLineFilled(name);
 
 	case 3:
-		return new KcBars3d(name);
+		return new KcBars2d(name);
 
 	case 4:
+		return new KcBars3d(name);
+
+	case 5:
 		return new KcSurface(name);
 	}
 
@@ -134,7 +139,7 @@ bool KcRdPlot3d::plottableMatchData_(int iType, const KvData& d) const
 {
 	switch (iType)
 	{
-	case 4: // surface
+	case 5: // surface
 		return KuDataUtil::isMatrix(d);
 
 	default:
@@ -153,7 +158,43 @@ namespace kPrivate
 
 void KcRdPlot3d::showPlottableSpecificProperty_(KvPlottable* plt)
 {
-	if (dynamic_cast<KcSurface*>(plt)) {
+	if (dynamic_cast<KcBars3d*>(plt)) {
+		auto bars = dynamic_cast<KcBars3d*>(plt);
+
+		if (ImGuiX::treePush("Layout", false)) {
+
+			auto baseLine = bars->baseLine();
+			if (ImGui::DragFloat("Baseline", &baseLine))
+				bars->setBaseLine(baseLine);
+
+			float ratio[2];
+			ratio[0] = bars->barWidthRatio();
+			ratio[1] = bars->barWidthRatioZ();
+			if (ImGui::SliderFloat2("Width Ratio", ratio, 0.01, 1.0, "%.2f")) {
+				ratio[0] = KuMath::clampFloor(ratio[0], 0.f);
+				bars->setBarWidthRatio(ratio[0]);
+
+				ratio[1] = KuMath::clampFloor(ratio[1], 0.f);
+				bars->setBarWidthRatioZ(ratio[1]);
+			}
+
+			auto padding = bars->stackPadding();
+			if (ImGui::SliderFloat("Stack Padding", &padding, 0.0, 49.0, "%.1f px") && padding >= 0)
+				bars->setStackPadding(padding);
+
+			ImGuiX::treePop();
+		}
+
+		ImGui::Checkbox("Fill", &bars->showFill());
+
+		bool open = false;
+		ImGuiX::cbTreePush("Border", &bars->showBorder(), &open);
+		if (open) {
+			ImGuiX::pen(bars->borderPen(), true, true);
+			ImGuiX::cbTreePop();
+		}
+	}
+	else if (dynamic_cast<KcSurface*>(plt)) {
 		kPrivate::showPlottableSpecificProperty2d(plt);
 	}
 	else {
