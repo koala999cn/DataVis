@@ -13,7 +13,7 @@ unsigned KcLineFilled::majorColorsNeeded() const
 	case k_fill_between:
 		return linesTotal_() - 1;
 
-	case k_fill_delta:
+	case k_fill_delta1:
 		return linesTotal_() / 2;
 
 	default:
@@ -45,6 +45,38 @@ void KcLineFilled::setObjectState_(KvPaint* paint, unsigned objIdx) const
 }
 
 
+unsigned KcLineFilled::overlayCount_() const
+{
+	auto disc = discreted_();
+
+	if (isOverlayed_(disc->dim() - 1) && disc->channels() > 1)
+		return disc->channels();
+
+	for (unsigned d = disc->dim() - 2; d != -1; d--) {
+		if (isOverlayed_(d) && disc->size(d) > 1)
+			return disc->size(d);
+	}
+
+	return 1;
+}
+
+
+unsigned KcLineFilled::overlayIndex_(unsigned ch, unsigned idx) const
+{
+	auto disc = discreted_();
+
+	if (isOverlayed_(disc->dim() - 1) && disc->channels() > 1)
+		return ch;
+
+	for (unsigned d = disc->dim() - 2; d != -1; d--) {
+		if (isOverlayed_(d) && disc->size(d) > 1)
+			return index_(ch, idx).at(d);
+	}
+
+	return 0;
+}
+
+
 namespace kPrivate
 {
 	struct KpVertex_
@@ -65,7 +97,7 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 		unsigned idx(0);
 		for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 			for (unsigned i = 0; i < linesPerChannel_(); i++) {
-				if (fillMode_ != k_fill_delta || idx % 2 == 0) {
+				if (fillMode_ != k_fill_delta1 || idx % 2 == 0) {
 					auto g = lineAt_(ch, i);
 					fns.push_back(toPoint3Getter_(g.getter, ch));
 					cnts.push_back(g.size);
@@ -80,14 +112,14 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 	else {
 		if (fillMode_ == k_fill_overlay)
 			return fillOverlay_(paint);
-		else if (fillMode_ == k_fill_stacked)
-			return fillBetween_(paint, true);
+	//	else if (fillMode_ == k_fill_stacked)
+	//		return fillBetween_(paint, true);
 		else if (fillMode_ == k_fill_between)
 			return fillBetween_(paint, false);
-		else if (fillMode_ == k_fill_delta)
+		else if (fillMode_ == k_fill_delta1)
 			return fillDelta_(paint);
-		else if (fillMode_ == k_fill_ridge)
-			return fillRidge_(paint);
+	//	else if (fillMode_ == k_fill_ridge)
+	//		return fillRidge_(paint);
 
 		assert(false);
 		return nullptr;
@@ -116,22 +148,17 @@ void KcLineFilled::setMinorColor_(const color4f& minor)
 
 void KcLineFilled::setFillMode(KeFillMode mode)
 {
-	if (mode != fillMode_) {
-		fillMode_ = mode;
-		auto arrange = (mode == k_fill_stacked) ? k_arrange_stack
-			: (mode == k_fill_ridge) ? k_arrange_ridge : k_arrange_none;
-		setArrangeMode(odata()->dim(), arrange);
-	}
+	fillMode_ = mode;
+	setDataChanged(false);
+	setBoundingBoxExpired_();
 }
 
 
 void KcLineFilled::setBaseMode(KeBaseMode mode)
 {
-	if (mode != baseMode_) {
-		baseMode_ = mode;
-		setDataChanged(false);
-		setBoundingBoxExpired_();
-	}
+	baseMode_ = mode;
+	setDataChanged(false);
+	setBoundingBoxExpired_();
 }
 
 
@@ -217,27 +244,30 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 
 KcLineFilled::GETTER KcLineFilled::baseGetter_(unsigned ch, unsigned idx, GETTER g) const
 {
-	auto offset = ridgeOffsetAt_(ch, idx, 1);
-
-	return [g, this, offset](unsigned i) {
-		auto pt = g(i);
-		if (baseMode_ == k_base_xline)
-			pt[1] = baseLine_;
-		else
-			pt[0] = baseLine_;
-		pt[1] += offset;
-		return pt;
-	};
+	if (baseMode_ == k_base_xline) {
+		auto yoffset = ridgeOffsetAt_(ch, idx);
+		return [g, this, yoffset](unsigned i) {
+			auto pt = g(i);
+			pt[1] = baseLine_ + yoffset;
+			return pt;
+		};
+	}
+	else {
+		auto xoffset = groupOffsetAt_(ch, idx);
+		return [g, this, xoffset](unsigned i) {
+			auto pt = g(i);
+			pt[0] = baseLine_ + xoffset;
+			return pt;
+		};
+	}
 }
 
 
 KcLineFilled::point3 KcLineFilled::basePointAt_(unsigned ch, unsigned idx) const
 {
-	if (fillMode_ != k_fill_ridge)
-		return basePoint_;
-
 	auto pt = basePoint_;
-	pt[1] += ridgeOffsetAt_(ch, idx, 1);
+	pt[0] += groupOffsetAt_(ch, idx);
+	pt[1] += ridgeOffsetAt_(ch, idx);
 	return pt;
 }
 

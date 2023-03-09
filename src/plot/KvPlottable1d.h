@@ -76,7 +76,7 @@ public:
 		k_arrange_overlay = k_arrange_none,
 		k_arrange_group, // x轴偏移
 		k_arrange_ridge, // y轴偏移
-		k_arrange_stack  // y轴堆叠
+		k_arrange_stack  // 值域堆叠
 	};
 
 	// dim == odata()->dim()时，返回channel的arrange模式
@@ -95,12 +95,23 @@ public:
 	float_t groupSpacing(unsigned dim) const { return groupSpacing_[dim]; }
 	void setGroupSpacing(unsigned dim, float_t spacing);
 
+	// 是否存在堆叠模式
+	bool isStacked() const;
+
 protected:
+	
+	// 返回数组的最后一个数值为ch
+	std::vector<kIndex> index_(unsigned ch, unsigned idx) const;
 
 	// 返回第ch通道的第idx条1d数据访问接口
 	KuDataUtil::KpPointGetter1d lineAt_(unsigned ch, unsigned idx) const {
 		return lineArranged_(ch, idx, 0);
 	}
+
+	// 返回stacked模式下，位于(ch, idx）之下的线条
+	// assert(!isFloorStack_(ch, idx));
+	KuDataUtil::KpPointGetter1d lineBelow_(unsigned ch, unsigned idx) const;
+
 
 	// 按照从高维到低维的顺序（通道为最高维），依次处理arrange模式到dim维度（含dim）
 	KuDataUtil::KpPointGetter1d lineArranged_(unsigned ch, unsigned idx, unsigned dim) const;
@@ -111,10 +122,23 @@ protected:
 	GETTER lineStacked_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const;
 
 	float_t ridgeOffsetAt_(unsigned ch, unsigned idx, unsigned dim) const;
+	float_t ridgeOffsetAt_(unsigned ch, unsigned idx) const;
 
 	float_t groupOffsetAt_(unsigned ch, unsigned idx, unsigned dim) const;
-
-	float_t ridgeOffsetAt_(unsigned ch, unsigned idx) const;
+	float_t groupOffsetAt_(unsigned ch, unsigned idx) const;
+	
+	bool isStacked_(unsigned dim) const {
+		return arrangeMode_[dim] == k_arrange_stack;
+	}
+	bool isRidged_(unsigned dim) const {
+		return arrangeMode_[dim] == k_arrange_ridge;
+	}
+	bool isGrouped_(unsigned dim) const {
+		return arrangeMode_[dim] == k_arrange_group;
+	}
+	bool isOverlayed_(unsigned dim) const {
+		return arrangeMode_[dim] == k_arrange_overlay;
+	}
 
 	bool isFloorStack_(unsigned ch, unsigned idx) const;
 

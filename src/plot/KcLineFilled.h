@@ -32,10 +32,9 @@ public:
 	enum KeFillMode
 	{
 		k_fill_overlay,
-		k_fill_stacked,
 		k_fill_between,
-		k_fill_delta,
-		k_fill_ridge
+		k_fill_delta1,
+		k_fill_delta2,
 	};
 
 	int fillMode() const { return fillMode_; }
@@ -83,6 +82,12 @@ private:
 
 	GETTER baseGetter_(unsigned ch, unsigned idx, GETTER g) const;
 	point3 basePointAt_(unsigned ch, unsigned idx) const;
+
+	// 返回最内层overlay模式的line数目
+	unsigned overlayCount_() const;
+
+	// 返回line（ch, idx）是ovelay模式的第几条线段
+	unsigned overlayIndex_(unsigned ch, unsigned idx) const;
 
 private:
 	bool showLine_{ false };

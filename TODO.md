@@ -33,7 +33,7 @@
 - [x] 单独把heapmap成类（有text属性项）--> ok
 - [x] 统筹考虑plottable的颜色问题（flat vs smooth vs gradiant）--> ok
 - [x] stacked & grouped bar -->ok
-- [ ] 色彩映射模式下的bar3d
+- [x] 色彩映射模式下的bar3d
 - [x] 可配置色彩映射的数据维度 --> ok
 - [x] legend支持单通道的多主色plottable --> ok
 - [x] sactter图的美化问题。带轮廓线后，各scatter轮廓相互干扰，非常难看，启动深度测试又因为z-fighting也不好看。（#I6B5ES）
@@ -53,10 +53,11 @@
 - [x] paddingStacked的语义一致性
 - [ ] text支持vbo重用
 - [ ] 完善clip的rect修订，legend的border的有的边会被非正常剪切
-- [ ] 完善bars2d的padding设置（是否使用像素值？）
+- [x] 完善bars2d的padding设置（是否使用像素值？）
 - [ ] range太大时axis不能正常定位tick和label
 - [ ] 所有plot1d都按照兼容stack和ridge模式重构
 - [x] 启动深度测试时，坐标轴的baseline与gridline深度冲突
+- [ ] 三维面积图（参考https://blog.csdn.net/Peter_Zhang_Jie/article/details/49995213）
 
 ## theme
 - [ ] 更多theme，SCI等
@@ -68,7 +69,7 @@
 - [x] 时间同步的问题。比如信号发生器后面接入audiopalyer，产生的数据会在audiopalyer缓存队列中越积越多 -> 静态数据变化时清空队列
 - [x] 管线运行时，node属性的动态设置与同步
 - [x] 给数据加时间戳stamp
-- [ ] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？--> 是否动态operate和render
+- [x] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？--> 是否动态operate和render
 - [x] 追踪和管理operator配置的变化状态
 - [ ] 实现消息框（参考https://github.com/leiradel/ImGuiAl）
 - [ ] node-editor的连接错误消息提示（考虑渐消隐的tooltip）

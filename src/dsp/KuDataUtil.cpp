@@ -384,8 +384,17 @@ void KuDataUtil::nextIndex(const std::vector<kIndex>& shape, kIndex idx[])
     for (kIndex i = shape.size() - 1; i != -1; i--) {
         if (++idx[i] < shape[i])
             break;
-
         idx[i] = 0; // ½øÎ»
+    }
+}
+
+
+void KuDataUtil::prevIndex(const std::vector<kIndex>& shape, kIndex idx[])
+{
+    for (kIndex i = shape.size() - 1; i != -1; i--) {
+        if (--idx[i] != -1)
+            break;
+        idx[i] = shape[i] - 1; // ÍËÎ»
     }
 }
 
@@ -405,10 +414,18 @@ void KuDataUtil::indexTest()
             auto n = index2n(shape, idx.data());
             assert(n == i);
 
-            if (i != size - 1) {
-                nextIndex(shape, idx.data());
-                auto next = index2n(shape, idx.data());
-                assert(next == n + 1);
+            prevIndex(shape, idx.data());
+            auto prev = index2n(shape, idx.data());
+            if (n == 0) {
+                assert(prev == size - 1);
+            }
+            else {
+                assert(prev == n - 1);
+
+                if (i != size - 1) {
+                    nextIndex(shape, idx.data());
+                    assert(index2n(shape, idx.data()) == n);
+                }
             }
         }
     }

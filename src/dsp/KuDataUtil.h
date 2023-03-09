@@ -76,6 +76,9 @@ public:
 	// 计算idx的下一个索引，并写入idx
 	static void nextIndex(const std::vector<kIndex>& shape, kIndex idx[]);
 
+	// 计算idx的上一个索引，并写入idx
+	static void prevIndex(const std::vector<kIndex>& shape, kIndex idx[]);
+
 	// 测试函数
 	static void indexTest();
 
