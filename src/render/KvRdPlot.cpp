@@ -263,11 +263,11 @@ void KvRdPlot::showPlotProperty_()
 		auto& coord = plot_->coord();
 		auto lower = coord.lower();
 		auto upper = coord.upper();
-		auto speed = (upper - lower) * 0.1;
+		auto speed = (upper - lower) * 0.001;
 		for (unsigned i = 0; i < speed.size(); i++)
 			if (speed.at(i) == 0) speed.at(i) = 1;
 		static const char* axisName[] = { "X Range", "Y Range", "Z Range" };
-		for (char i = 0; i < plot_->dim(); i++) {
+		for (char i = 0; i < 3; i++) {
 			double val[2] = { lower[i], upper[i] };
 			if (ImGui::DragScalarN(axisName[i], ImGuiDataType_Double, val, 2, speed[i])
 				&& val[1] > val[0]) {

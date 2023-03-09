@@ -9,6 +9,7 @@
 
 unsigned KcLineFilled::majorColorsNeeded() const
 {
+	return super_::majorColorsNeeded();
 	auto lines = linesTotal_(); // overlayCount_();
 	switch (fillMode_) {
 	case k_fill_between:
@@ -75,6 +76,28 @@ unsigned KcLineFilled::overlayIndex_(unsigned ch, unsigned idx) const
 	}
 
 	return 0;
+}
+
+
+KuDataUtil::KpPointGetter1d KcLineFilled::lineOverlayed_(unsigned ch, unsigned idx, unsigned overlayIdx) const
+{
+	auto disc = discreted_();
+
+	if (isOverlayed_(disc->dim() - 1) && disc->channels() > 1)
+		return lineAt_(overlayIdx, idx);
+
+	for (unsigned d = disc->dim() - 2; d != -1; d--) {
+		if (isOverlayed_(d) && disc->size(d) > 1) {
+			auto index = index_(ch, idx);
+			index[d] = overlayIdx;
+			auto shape = KuDataUtil::shape(*disc);
+			shape.pop_back();
+			return lineAt_(ch, KuDataUtil::index2n(shape, index.data()));
+		}
+	}
+
+	assert(false);
+	return lineAt_(ch, overlayIdx);
 }
 
 
@@ -193,11 +216,11 @@ void* KcLineFilled::fillOverlay_(KvPaint* paint) const
 			if (baseMode_ != k_base_point) {
 				auto g2 = baseGetter_(ch, i, g1.getter);
 				auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-				fillBetween_(paint, g1.getter, g2, g1.size, idx, vtx);
+				fillBetween_(paint, g1.getter, g2, g1.size, ch, vtx);
 			}
 			else {
 				auto vtx = geom->newVertex((g1.size - 1) * 3);
-				fillBetween_(paint, basePointAt_(ch, i), g1.getter, g1.size, idx, vtx);
+				fillBetween_(paint, basePointAt_(ch, i), g1.getter, g1.size, ch, vtx);
 			}
 		}
 	}
@@ -213,27 +236,40 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 	unsigned majors = majorColorsNeeded();
 	unsigned idx(0); // 用于获取主色
 
-	GETTER g1 = nullptr;
+	bool stacked = isStacked();
 	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
 
-			auto g1 = lineAt_(ch, i);
+			bool floor = stacked ? isFloorStack_(ch, i) : overlayIndex_(ch, i) == 0;
 
-			if (baseline && isFloorStack_(ch, i)) {
+			if (floor) {
+				if (!baseline) continue;
+				auto g1 = lineAt_(ch, i);
+
 				if (baseMode_ != k_base_point) {
 					auto g2 = baseGetter_(0, 0, g1.getter);
 					auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-					fillBetween_(paint, g1.getter, g2, g1.size, idx++ % majors, vtx);
+					fillBetween_(paint, g1.getter, g2, g1.size, ch, vtx);
 				}
 				else {
 					auto vtx = geom->newVertex((g1.size - 1) * 3);
-					fillBetween_(paint, basePointAt_(0, 0), g1.getter, g1.size, idx++ % majors, vtx);
+					fillBetween_(paint, basePointAt_(0, 0), g1.getter, g1.size, ch, vtx);
 				}
 			}
 			else {
-				auto g2 = lineBelow_(ch, i);
+				auto g1 = lineAt_(ch, i);
 				auto vtx = geom->newVertex((g1.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
-				fillBetween_(paint, g1.getter, g2.getter, g1.size, idx++ % majors, vtx);
+
+				if (stacked) {
+					auto g2 = lineBelow_(ch, i);
+					fillBetween_(paint, g1.getter, g2.getter, g1.size, ch, vtx);
+				}
+				else {
+					auto overlayIdx = overlayIndex_(ch, i);
+					assert(overlayIdx > 0);
+					auto g2 = lineOverlayed_(ch, i, overlayIdx - 1);
+					fillBetween_(paint, g1.getter, g2.getter, g1.size, ch, vtx);
+				}
 			}
 
 		}
@@ -249,7 +285,7 @@ KcLineFilled::GETTER KcLineFilled::baseGetter_(unsigned ch, unsigned idx, GETTER
 		auto yoffset = ridgeOffsetAt_(ch, idx);
 		return [g, this, yoffset](unsigned i) {
 			auto pt = g(i);
-			pt[1] = baseLine_ + yoffset;
+			pt[ydim()] = baseLine_ + yoffset;
 			return pt;
 		};
 	}
@@ -257,7 +293,7 @@ KcLineFilled::GETTER KcLineFilled::baseGetter_(unsigned ch, unsigned idx, GETTER
 		auto xoffset = groupOffsetAt_(ch, idx);
 		return [g, this, xoffset](unsigned i) {
 			auto pt = g(i);
-			pt[0] = baseLine_ + xoffset;
+			pt[xdim()] = baseLine_ + xoffset;
 			return pt;
 		};
 	}
@@ -287,8 +323,8 @@ void KcLineFilled::fillBetween_(KvPaint* paint, GETTER getter1, GETTER getter2,
 		auto p11 = getter2(i);
 
 		using point2 = KtPoint<float_t, 2>;
-		KtLineS2d<float_t> ln0({ p00[0], p00[1] }, { p10[0], p10[1] });
-		KtLineS2d<float_t> ln1({ p01[0], p01[1] }, { p11[0], p11[1] });
+		KtLineS2d<float_t> ln0({ p00[xdim()], p00[ydim()] }, { p10[xdim()], p10[ydim()] });
+		KtLineS2d<float_t> ln1({ p01[xdim()], p01[ydim()] }, { p11[xdim()], p11[ydim()] });
 		auto pt = ln0.intersects(ln1);
 		if (pt) { // 相交
 
@@ -385,7 +421,7 @@ void* KcLineFilled::fillDelta_(KvPaint* paint) const
 					return r1;
 				};
 
-				fillBetween_(paint, g1Real, g2Real, g2.size, idx++, vtx);
+				fillBetween_(paint, g1Real, g2Real, g2.size, ch, vtx);
 				g1 = nullptr;
 			}
 			else {
