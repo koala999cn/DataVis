@@ -11,8 +11,6 @@ public:
 
 	using super_::super_;
 
-	unsigned majorColorsNeeded() const override;
-
 	const color4f& minorColor() const override;
 
 	void setMinorColor_(const color4f& minor) override;
@@ -85,8 +83,10 @@ private:
 	// 返回最内层overlay模式的line数目
 	unsigned overlayCount_() const;
 
-	// 返回line（ch, idx）是ovelay模式的第几条线段
+	// 返回line（ch, idx）是overlay模式的第几条线段
 	unsigned overlayIndex_(unsigned ch, unsigned idx) const;
+
+	KuDataUtil::KpPointGetter1d lineOverlayed_(unsigned ch, unsigned idx, unsigned overlayIdx) const;
 
 private:
 	bool showLine_{ false };

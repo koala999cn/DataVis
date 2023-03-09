@@ -346,6 +346,9 @@ std::vector<kIndex> KuDataUtil::shape(const KvDiscreted& disc)
 
 kIndex KuDataUtil::index2n(const std::vector<kIndex>& shape, const kIndex idx[])
 {
+    if (shape.empty())
+        return idx[0];
+
     kIndex n(idx[shape.size() - 1]);
     kIndex stride = shape.back();
     for (kIndex i = shape.size() - 2; i != -1; i--) {

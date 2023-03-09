@@ -60,6 +60,7 @@ std::vector<kIndex> KvPlottable1d::index_(unsigned ch, unsigned idx) const
 {
 	auto disc = discreted_();
 	auto shape = KuDataUtil::shape(*disc);
+	shape.pop_back();
 	auto index = KuDataUtil::n2index(shape, idx);
 	index.push_back(ch);
 	return index;
