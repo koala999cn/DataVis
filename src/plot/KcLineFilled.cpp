@@ -373,6 +373,7 @@ void KcLineFilled::fillBetween_(KvPaint* paint, const point3& pt, GETTER g,
 void* KcLineFilled::fillDelta_(KvPaint* paint) const
 {
 	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
+	auto disc = discreted_();
 
 	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
@@ -381,7 +382,7 @@ void* KcLineFilled::fillDelta_(KvPaint* paint) const
 				continue;
 
 			auto g = lineOverlayed_(ch, i, idx - 1);
-			auto delta = lineAt_(ch, i);
+			auto delta = KuDataUtil::pointGetter1dAt(disc, ch, i); // 适应原始值delta
 			auto vtx = geom->newVertex((g.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
 
 			auto g1 = [g, delta, this](unsigned i) {
