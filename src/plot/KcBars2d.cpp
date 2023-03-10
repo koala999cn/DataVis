@@ -73,12 +73,12 @@ KcBars2d::aabb_t KcBars2d::calcBoundingBox_() const
 	auto box = super_::calcBoundingBox_();
 
 	// ÐÞÕýxÖá
-	auto xw = barWidth_(xdim());
-	box.lower().x() -= xw; box.upper().x() += xw;
+	//auto xw = barWidth_(xdim());
+	//box.lower().x() -= xw; box.upper().x() += xw;
 
 	// ÐÞÕýyÖá
 	KuMath::updateRange<double>(box.lower().y(), box.upper().y(), baseLine_);
-	box.upper().y() += box.height() * 0.1;
+	//box.upper().y() += box.height() * 0.1;
 
 	return box;
 }
