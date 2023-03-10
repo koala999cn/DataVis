@@ -83,12 +83,6 @@ void KcLegend::draw(KvPaint* paint) const
     rc = rc.intersection(iRect_);
     if (rc.isNull()) return;
 
-    // NB: ogl实现对clipRect进行了修正，此处可不加1，
-    // 但由于目前使用ImGui绘制边框，所以此处加1，否则右边框有时会被裁剪掉
-    rc.upper().x() += 1; 
-
-    paint->pushClipRect(rc);
-
     // 配置paint，以便在legned的局部空间执行绘制操作
     paint->pushCoord(KvPaint::k_coord_screen);
     
@@ -102,11 +96,13 @@ void KcLegend::draw(KvPaint* paint) const
         paint->drawRect(iRect_);
     }
 
-    if (!plts_.empty()) 
+    if (!plts_.empty()) {
+        paint->pushClipRect(rc);
         drawItems_(paint);
-    
+        paint->popClipRect();
+    }
+        
     paint->popCoord();
-    paint->popClipRect();
 }
 
 
