@@ -19,6 +19,8 @@ public:
 
 	void setMinorColor_(const color4f& minor) override;
 
+	unsigned objectCount() const override;
+
 	bool showFill() const { return filled_; }
 	bool& showFill() { return filled_; }
 
@@ -44,8 +46,6 @@ public:
 
 
 protected:
-
-	unsigned objectCount() const override;
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 

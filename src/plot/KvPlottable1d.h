@@ -47,9 +47,9 @@ public:
 	unsigned ydim() const { return axisDim_[1]; } // 返回y轴对应的数据维度
 	unsigned zdim() const { return axisDim_[2]; } // 返回z轴对应的数据维度
 
-	void setXdim(unsigned dim); // 将维度dim映射到x轴
-	void setYdim(unsigned dim); // 将维度dim映射到x轴
-	void setZdim(unsigned dim); // 将维度dim映射到x轴
+	virtual void setXdim(unsigned dim); // 将维度dim映射到x轴
+	virtual void setYdim(unsigned dim); // 将维度dim映射到x轴
+	virtual void setZdim(unsigned dim); // 将维度dim映射到x轴
 
 protected:
 

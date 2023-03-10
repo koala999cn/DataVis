@@ -1,13 +1,13 @@
 #pragma once
-#include "KvPlottable.h"
+#include "KvPlottable1d.h"
 
 
 // 箱线图实现
 // 主色用于绘制箱体，辅色用于绘制箱体外边框
 
-class KcBoxPlot : public KvPlottable
+class KcBoxPlot : public KvPlottable1d
 {
-	using super_ = KvPlottable;
+	using super_ = KvPlottable1d;
 
 public:
 
@@ -51,6 +51,8 @@ private:
 	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
 	aabb_t calcBoundingBox_() const override;
+
+	void setYdim(unsigned dim) override;
 
 	void outputImpl_() override;
 

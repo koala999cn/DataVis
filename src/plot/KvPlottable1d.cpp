@@ -127,6 +127,13 @@ void KvPlottable1d::setGroupSpacing(unsigned dim, float_t spacing)
 
 bool KvPlottable1d::output_()
 {
+	if (arrangeMode_.size() < idata()->dim()) { // TODO：此处为满足某些在outputImpl_中调用lineAt的需要: 
+		arrangeMode_.resize(idata()->dim());
+		ridgeOffset_.resize(idata()->dim());
+		groupOffset_.resize(idata()->dim());
+		groupSpacing_.resize(idata()->dim());
+	}
+
 	if (!super_::output_())
 		return false;
 

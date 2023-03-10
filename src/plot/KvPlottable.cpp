@@ -30,12 +30,10 @@ bool KvPlottable::output_()
 		outputImpl_();
 		dataChanged_ = 1;
 
-		auto dim = odata()->dim();
-		if (odata()->isContinued() && dim != sampCount_.size())
-			sampCount_.assign(dim, std::pow(1000., 1. / dim));
+		syncSampCount_();
 
-		if (odata() && colorMappingDim_ > dim)
-			setColorMappingDim(dim);
+		if (odata() && colorMappingDim_ > odata()->dim())
+			setColorMappingDim(odata()->dim());
 
 		updateColorMappingPalette();
 		setBoundingBoxExpired_();
@@ -174,18 +172,19 @@ std::shared_ptr<const KvDiscreted> KvPlottable::discreted_() const
 {
 	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(odata());
 	if (disc == nullptr) {
+		const_cast<KvPlottable*>(this)->syncSampCount_();
 		auto cont = std::dynamic_pointer_cast<const KvContinued>(odata());
-		if (cont && sampCount_.size() == cont->dim()) {
-			auto samp = std::make_shared<KcSampler>(cont);
-			if (samp) {
-				for (unsigned i = 0; i < cont->dim(); i++) {
-					KtSampling<float_t> samping;
-					auto r = cont->range(i);
-					samping.resetn(sampCount_[i], r.low(), r.high(), 0);
-					samp->reset(i, samping.low(), samping.dx());
-				}
-				disc = samp;
+		assert(cont);
+
+		auto samp = std::make_shared<KcSampler>(cont);
+		if (samp) {
+			for (unsigned i = 0; i < cont->dim(); i++) {
+				KtSampling<float_t> samping;
+				auto r = cont->range(i);
+				samping.resetn(sampCount_[i], r.low(), r.high(), 0);
+				samp->reset(i, samping.low(), samping.dx());
 			}
+			disc = samp;
 		}
 	}
 
@@ -402,4 +401,11 @@ bool KvPlottable::objectReusable_(unsigned objIdx) const
 {
 	return !dataChanged() && (coloringChanged_ == 0 ||
 		(coloringChanged_ == 1 && coloringMode_ == k_one_color_solid)); // 单色模式下，亦可复用vbo;
+}
+
+
+void KvPlottable::syncSampCount_()
+{
+	if (odata() && odata()->isContinued() && odata()->dim() != sampCount_.size())
+		sampCount_.assign(odata()->dim(), std::pow(1000., 1. / odata()->dim()));
 }

@@ -186,6 +186,8 @@ protected:
 
 protected:
 
+	virtual aabb_t calcBoundingBox_() const;
+
 	// 确保传入的valp为数据原值，而非强制替换z之后的值
 	color4f mapValueToColor_(const float_t* valp, unsigned channel) const;
 
@@ -206,7 +208,7 @@ protected:
 
 	void setBoundingBoxExpired_() const { box_.setNull(); }
 
-	virtual aabb_t calcBoundingBox_() const;
+	void syncSampCount_();
 
 private:
 
