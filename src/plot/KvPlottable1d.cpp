@@ -91,7 +91,8 @@ void KvPlottable1d::setArrangeMode(unsigned dim, int mode)
 	arrangeMode_[dim] = mode;
 	setDataChanged(false);
 	setBoundingBoxExpired_();
-	stackedData_.clear(); // TODO: 更精细的控制
+	for (unsigned i = 0; i <= dim; i++)
+	    stackedData_.erase(i); 
 }
 
 
@@ -101,6 +102,8 @@ void KvPlottable1d::setRidgeOffset(unsigned dim, float_t offset)
 	ridgeOffset_[dim] = offset;
 	setDataChanged(false);
 	setBoundingBoxExpired_();
+	for (unsigned i = 0; i <= dim; i++)
+		stackedData_.erase(i);
 }
 
 
@@ -171,7 +174,7 @@ void KvPlottable1d::calcStackData_(unsigned dim) const
 		// 检测多重堆叠的情况
 		unsigned innerStackDim(dim + 1);
 		for (; innerStackDim < odata->dim(); innerStackDim++)
-			if (isStacked_(dim))
+			if (isStacked_(innerStackDim))
 				break;
 
 
@@ -326,6 +329,8 @@ KvPlottable1d::float_t KvPlottable1d::groupOffsetAt_(unsigned ch, unsigned idx) 
 
 KvPlottable1d::GETTER KvPlottable1d::lineRidged_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const
 {
+	assert(isRidged_(dim));
+
 	auto offset = ridgeOffsetAt_(ch, idx, dim);
 	auto getter = g.getter;
 
@@ -339,6 +344,8 @@ KvPlottable1d::GETTER KvPlottable1d::lineRidged_(const KuDataUtil::KpPointGetter
 
 KvPlottable1d::GETTER KvPlottable1d::lineGrouped_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const
 {
+	assert(isGrouped_(dim));
+
 	auto offset = groupOffsetAt_(ch, idx, dim);
 	auto getter = g.getter;
 
@@ -378,12 +385,12 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 
 	// 修正grouped偏移
 	auto disc = discreted_();
-	for (unsigned i = arrangeMode_.size() - 1; i != -1 ; i--) {
+	for (unsigned i = disc->dim() - 1; i != -1 ; i--) {
 		if (isGrouped_(i)) {
 			box.lower().x() += groupOffset_[i];
 			box.upper().x() += groupOffset_[i];
 
-			auto spacing = groupSpacing_[i] * ((i == arrangeMode_.size() - 1) ? disc->channels() - 1 : disc->size(i) - 1);
+			auto spacing = groupSpacing_[i] * ((i == disc->dim() - 1) ? disc->channels() - 1 : disc->size(i) - 1);
 			if (spacing > 0)
 				box.upper().x() += spacing;
 			else

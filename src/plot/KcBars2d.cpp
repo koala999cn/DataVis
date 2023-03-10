@@ -78,7 +78,7 @@ KcBars2d::aabb_t KcBars2d::calcBoundingBox_() const
 
 	// ÐÞÕýyÖá
 	KuMath::updateRange<double>(box.lower().y(), box.upper().y(), baseLine_);
-	//box.upper().y() += box.height() * 0.1;
+	box.upper().y() += box.height() * 0.01;
 
 	return box;
 }
