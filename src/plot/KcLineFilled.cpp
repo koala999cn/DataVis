@@ -11,7 +11,7 @@ bool KcLineFilled::objectVisible_(unsigned objIdx) const
 {
 	if (objIdx & 1)
 		return showLine_ && lineCxt_.visible();
-	else 
+	else
 		return fillCxt_.style != KpBrush::k_none;
 }
 
@@ -100,7 +100,6 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 		fns.reserve(linesTotal_());
 		cnts.reserve(linesTotal_());
 
-		unsigned idx(0);
 		for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 			for (unsigned i = 0; i < linesPerChannel_(); i++) {
 				if (fillMode_ == k_fill_delta) {
@@ -112,8 +111,6 @@ void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 				auto g = lineAt_(ch, i);
 				fns.push_back(toPoint3Getter_(g.getter, ch));
 				cnts.push_back(g.size);
-
-				idx++;
 			}
 		}
 
@@ -215,9 +212,6 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 {
 	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
 
-	unsigned majors = majorColorsNeeded();
-	unsigned idx(0); // 用于获取主色
-
 	bool stacked = isStacked();
 	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
@@ -291,7 +285,7 @@ KcLineFilled::point3 KcLineFilled::basePointAt_(unsigned ch, unsigned idx) const
 }
 
 
-void KcLineFilled::fillBetween_(KvPaint* paint, GETTER getter1, GETTER getter2, 
+void KcLineFilled::fillBetween_(KvPaint* paint, GETTER getter1, GETTER getter2,
 	unsigned count, unsigned ch, void* buf) const
 {
 	assert(count > 0);
@@ -339,7 +333,7 @@ void KcLineFilled::fillBetween_(KvPaint* paint, GETTER getter1, GETTER getter2,
 			vtx[3].clr = mapValueToColor_(p11.data(), ch);
 			vtx[4] = vtx[0];
 			vtx[5] = vtx[2]; // 保持最后一个顶点与另一个三角形一致，以适应flat渲染模式
-			                 // TODO: 使用getter1还是getter2数据作为falt的绘制色
+							 // TODO: 使用getter1还是getter2数据作为falt的绘制色
 		}
 
 		p00 = p10, p01 = p11;
@@ -348,7 +342,7 @@ void KcLineFilled::fillBetween_(KvPaint* paint, GETTER getter1, GETTER getter2,
 }
 
 
-void KcLineFilled::fillBetween_(KvPaint* paint, const point3& pt, GETTER g, 
+void KcLineFilled::fillBetween_(KvPaint* paint, const point3& pt, GETTER g,
 	unsigned count, unsigned ch, void* buf) const
 {
 	assert(count > 0);
@@ -380,36 +374,31 @@ void* KcLineFilled::fillDelta_(KvPaint* paint) const
 {
 	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertex_, unsigned>>(k_triangles);
 
-	unsigned idx(0); // 用于获取主色
-
-	GETTER g1 = nullptr;
 	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
-			auto g2 = lineAt_(ch, i);
+			auto idx = overlayIndex_(ch, i);
+			if (idx % 2 == 0)
+				continue;
 
-			if (g1) {
-				auto vtx = geom->newVertex((g2.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
+			auto g = lineOverlayed_(ch, i, idx - 1);
+			auto delta = lineAt_(ch, i);
+			auto vtx = geom->newVertex((g.size - 1) * 6); // 每个区间绘制2个三角形，共6个顶点
 
-				auto g1Real = [g1, g2](unsigned i) {
-					auto r1 = g1(i);
-					auto r2 = g2.getter(i);
-					r1.back() -= r2.back();
-					return r1;
-				};
+			auto g1 = [g, delta, this](unsigned i) {
+				auto v1 = g.getter(i);
+				auto v2 = delta.getter(i);
+				v1[ydim()] -= v2[ydim()];
+				return v1;
+			};
 
-				auto g2Real = [g1, g2](unsigned i) {
-					auto r1 = g1(i);
-					auto r2 = g2.getter(i);
-					r1.back() += r2.back();
-					return r1;
-				};
+			auto g2 = [g, delta, this](unsigned i) {
+				auto v1 = g.getter(i);
+				auto v2 = delta.getter(i);
+				v1[ydim()] += v2[ydim()];
+				return v1;
+			};
 
-				fillBetween_(paint, g1Real, g2Real, g2.size, ch, vtx);
-				g1 = nullptr;
-			}
-			else {
-				g1 = g2.getter;
-			}
+			fillBetween_(paint, g1, g2, g.size, ch, vtx);
 		}
 	}
 

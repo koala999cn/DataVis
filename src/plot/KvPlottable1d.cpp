@@ -375,6 +375,8 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 		box.lower().z() = r2.low(), box.upper().z() = r2.high();
 	}
 
+
+	// 修正grouped偏移
 	auto disc = discreted_();
 	for (unsigned i = arrangeMode_.size() - 1; i != -1 ; i--) {
 		if (isGrouped_(i)) {
@@ -387,28 +389,25 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 			else
 				box.lower().x() += spacing;
 		}
-		else if (isRidged_(i)) {
-			auto offset = ridgeOffsetAt_(0, 0, i);
-			if (offset > 0) 
-				box.upper().y() += offset;
-			else 
-				box.lower().y() += offset;
-		}
 	}
 
-	if (ydim() == disc->dim()) {
-		for (unsigned i = 0; i < arrangeMode_.size(); i++) {
-			if (isStacked_(i)) {
-				for (unsigned ch = 0; ch < disc->channels(); ch++)
-					for (unsigned idx = 0; idx < linesPerChannel_(); idx++) {
-						auto line = lineArranged_(ch, idx, i);
-						for (unsigned i = 0; i < line.size; i++)
-							KuMath::updateRange(box.lower().y(), box.upper().y(), line.getter(i).back());
-					}
 
-				break; // 只须计算最外围的数据
+	// 修正ridged偏移
+	auto offset = ridgeOffsetAt_(0, 0);
+	if (offset > 0)
+		box.upper().y() += offset;
+	else
+		box.lower().y() += offset;
+	
+
+	// 修正stacked偏移
+	if (ydim() == disc->dim() && isStacked()) {
+		for (unsigned ch = 0; ch < disc->channels(); ch++)
+			for (unsigned idx = 0; idx < linesPerChannel_(); idx++) {
+				auto line = lineAt_(ch, idx);
+				for (unsigned i = 0; i < line.size; i++)
+					KuMath::updateRange(box.lower().y(), box.upper().y(), line.getter(i).back());
 			}
-		}
 	}
 
 	return box;
