@@ -20,7 +20,49 @@ void KvPlottable::setData(const_data_ptr d)
 
 	data_ = d;
 	dataChanged_ = 2;
-	output_(); // NB: 及时同步，否则当输入为高维连续数据时，sampCount_不匹配
+
+	if (odim() != sampCount_.size())
+		sampCount_.assign(odim(), std::pow(1000., 1. / odim()));
+
+	if (colorMappingDim_ > odim())
+		setColorMappingDim(odim());
+}
+
+
+unsigned KvPlottable::odim() const 
+{ 
+	return idata() ? idata()->dim() : 0;
+}
+
+
+void KvPlottable::cloneConfig(const KvPlottable& plt)
+{
+	setColoringMode(plt.coloringMode());
+	setFlatShading(plt.flatShading());
+	setBrightenCoeff(plt.brightenCoeff());
+	setColorMappingRange(plt.colorMappingRange());
+	autoColorMappingRange() = plt.autoColorMappingRange();
+
+	setDefaultZ(plt.defaultZ());
+	setStepZ(plt.stepZ());
+	setForceDefaultZ(plt.forceDefaultZ());
+
+	// clone the theme
+	if (majorColorsNeeded() == plt.majorColorsNeeded()) {
+		std::vector<color4f> majorColors(plt.majorColors());
+		for (unsigned c = 0; c < majorColors.size(); c++)
+			majorColors[c] = plt.majorColor(c);
+		setMajorColors(majorColors);
+	}
+	if (plt.minorColor().isValid())
+		setMinorColor(plt.minorColor());
+
+	if (odim() == plt.odim()) {
+		for (unsigned d = 0; d < odim(); d++)
+		    setSampCount(d, plt.sampCount(d));
+
+		setColorMappingDim(plt.colorMappingDim());
+	}
 }
 
 
@@ -29,11 +71,6 @@ bool KvPlottable::output_()
 	if (dataChanged_ == 2) {
 		outputImpl_();
 		dataChanged_ = 1;
-
-		syncSampCount_();
-
-		if (odata() && colorMappingDim_ > odata()->dim())
-			setColorMappingDim(odata()->dim());
 
 		updateColorMappingPalette();
 		setBoundingBoxExpired_();
@@ -45,8 +82,7 @@ bool KvPlottable::output_()
 
 void KvPlottable::setColorMappingDim(unsigned d)
 {
-	if (odata() && d > odata()->dim())
-		d = odata()->dim();
+	assert(d <= odim());
 
 	if (colorMappingDim_ != d && coloringChanged_ == 0)
 		coloringChanged_ = 1;
@@ -60,7 +96,6 @@ void KvPlottable::fitColorMappingRange()
 	if (odata()) {
 
 		auto d = colorMappingDim();
-		assert(d <= odata()->dim());
 
 		std::pair<float_t, float_t> newRange;
 		if (d < 2 || d == 2 && !usingDefaultZ_()) {
@@ -172,7 +207,7 @@ std::shared_ptr<const KvDiscreted> KvPlottable::discreted_() const
 {
 	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(odata());
 	if (disc == nullptr) {
-		const_cast<KvPlottable*>(this)->syncSampCount_();
+		assert(sampCount_.size() == odim());
 		auto cont = std::dynamic_pointer_cast<const KvContinued>(odata());
 		assert(cont);
 
@@ -401,11 +436,4 @@ bool KvPlottable::objectReusable_(unsigned objIdx) const
 {
 	return !dataChanged() && (coloringChanged_ == 0 ||
 		(coloringChanged_ == 1 && coloringMode_ == k_one_color_solid)); // 单色模式下，亦可复用vbo;
-}
-
-
-void KvPlottable::syncSampCount_()
-{
-	if (odata() && odata()->isContinued() && odata()->dim() != sampCount_.size())
-		sampCount_.assign(odata()->dim(), std::pow(1000., 1. / odata()->dim()));
 }

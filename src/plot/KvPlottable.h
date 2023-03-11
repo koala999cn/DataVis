@@ -11,13 +11,12 @@ class KvPaint;
 
 //
 // 可绘制对象的基类. 内置实现以下功能：
-//    一是绘制数据的存储
+//    一是输入数据的存储，数据输出和更新的管理
 //    二是色彩模式和主色配置
 //    三是对连续数据的采样，派生类只须绘制离散数据
 //    四是分离坐标轴的设置和存储
 //    五是默认z坐标管理
 //    六是数据的着色的变更状态追踪
-//
 
 class KvPlottable : public KvRenderable
 {
@@ -33,9 +32,17 @@ public:
 
 	bool empty() const; // 若无数据，或数据为空，返回true
 
-	void setData(const_data_ptr d);
-
 	const_data_ptr idata() const { return data_; }
+
+	virtual void setData(const_data_ptr d);
+	virtual const_data_ptr odata() const { return data_; }
+
+	// 保证odata还未产生时也能获取输出数据的维度，以便同步相关成员
+	// 缺省实现返回输入数据的维度，若输入数据为空，则返回0
+	virtual unsigned odim() const;
+
+	// 从plt克隆参数设置
+	virtual void cloneConfig(const KvPlottable& plt);
 
 	unsigned sampCount(unsigned dim) const { return sampCount_[dim]; }
 	void setSampCount(unsigned dim, unsigned c);
@@ -148,8 +155,6 @@ public:
 
 public:
 
-	virtual const_data_ptr odata() const { return data_; }
-
 	bool dataChanged() const { return dataChanged_; }
 	void setDataChanged(bool reoutput) { dataChanged_ = 1 + reoutput; }
 
@@ -207,8 +212,6 @@ protected:
 	bool usingDefaultZ_() const;
 
 	void setBoundingBoxExpired_() const { box_.setNull(); }
-
-	void syncSampCount_();
 
 private:
 

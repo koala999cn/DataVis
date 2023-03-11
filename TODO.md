@@ -13,6 +13,7 @@
 ## operator
 - [ ] 测试spectrum的options的sampleRate一致性
 - [x] sampler的采样率动态更改后，输出没有更新 -> 主要是audioplay没有对输入重采样，也没有变换设备频率
+- [ ] 完善kde（参考https://github.com/timnugent/kernel-density）
 
 ## plot
 - [ ] title等设置
@@ -52,12 +53,15 @@
 - [ ] plot的autorange由KvRdPlot负责，根据provider调整，而非data
 - [x] paddingStacked的语义一致性
 - [ ] text支持vbo重用
-- [ ] 完善clip的rect修订，legend的border的有的边会被非正常剪切
+- [x] 完善clip的rect修订，legend的border的有的边会被非正常剪切 --> 绘制item时才设置clip
 - [x] 完善bars2d的padding设置（是否使用像素值？）
 - [ ] range太大时axis不能正常定位tick和label
 - [ ] 所有plot1d都按照兼容stack和ridge模式重构
 - [x] 启动深度测试时，坐标轴的baseline与gridline深度冲突
 - [ ] 三维面积图（参考https://blog.csdn.net/Peter_Zhang_Jie/article/details/49995213）
+- [ ] fitColorMappingRange考虑arrange模式
+- [ ] 测试多通道高维数据的arrange模式
+- [ ] 实现plottable2d的arrange模式
 
 ## theme
 - [ ] 更多theme，SCI等

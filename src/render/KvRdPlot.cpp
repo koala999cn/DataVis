@@ -804,19 +804,9 @@ bool KvRdPlot::showPlottableBasicProperty_(unsigned idx, KvPlottable* plt)
 				auto newPlt = newPlottable_(i, oldPlt->name());
 
 				// clone the data
-				newPlt->setData(oldPlt->idata()); // 需要先设定data，majorColorNeeded才能返回正确的值
+				newPlt->setData(oldPlt->idata()); // 需要先设定data，cloneConfig才能正确工作
 
-				newPlt->setColoringMode(oldPlt->coloringMode()); // TODO:
-
-				// clone the theme
-				if (newPlt->majorColorsNeeded() == oldPlt->majorColorsNeeded()) {
-					std::vector<color4f> majorColors(oldPlt->majorColors());
-					for (unsigned c = 0; c < majorColors.size(); c++)
-						majorColors[c] = oldPlt->majorColor(c);
-					newPlt->setMajorColors(majorColors);
-				}
-				if (oldPlt->minorColor().isValid())
-				    newPlt->setMinorColor(oldPlt->minorColor());
+				newPlt->cloneConfig(*oldPlt);
 
 				// 同步port2Plts_
 				for (auto& i : port2Plts_)
@@ -886,16 +876,18 @@ void KvRdPlot::showPlottableArrangeProperty_(KvPlottable* plt)
 
 					if (mode == KvPlottable1d::k_arrange_ridge) {
 						float offset = plt1d->ridgeOffset(d);
-						if (ImGui::DragFloat("Ridge Offset", &offset))
+						float v_speed = plt1d->empty() ? 1 : plt1d->odata()->range(plt1d->ydim()).length() / 100;
+						if (ImGui::DragFloat("Ridge Offset", &offset, v_speed))
 							plt1d->setRidgeOffset(d, offset);
 					}
 					else if (mode == KvPlottable1d::k_arrange_group) {
 						float offset = plt1d->groupOffset(d);
-						if (ImGui::DragFloat("Group Offset", &offset))
+						float v_speed = plt1d->empty() ? 1 : plt1d->odata()->range(plt1d->xdim()).length() / 100;
+						if (ImGui::DragFloat("Group Offset", &offset, v_speed / 10))
 							plt1d->setGroupOffset(d, offset);
 
 						float spacing = plt1d->groupSpacing(d);
-						if (ImGui::DragFloat("Group Spacing", &spacing))
+						if (ImGui::DragFloat("Group Spacing", &spacing, v_speed))
 							plt1d->setGroupSpacing(d, spacing);
 					}
 

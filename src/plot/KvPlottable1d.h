@@ -6,7 +6,7 @@
 
 
 // 序列图的基类，主要处理串行数据，用于绘制graph、scatter、bars、area等类型图
-// 兼容2d和3d模式，抽象grouped、stacked、ridged两类arrange模式
+// 兼容2d和3d模式，实现维度映射，并抽象grouped、stacked、ridged等arrange模式
 
 class KvPlottable1d : public KvPlottable
 {
@@ -16,6 +16,9 @@ public:
 
 	using super_::super_;
 
+	void setData(const_data_ptr d) override;
+
+	void cloneConfig(const KvPlottable& plt) override;
 
 protected:
 

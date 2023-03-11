@@ -148,13 +148,7 @@ namespace kPrivate
 				fill->setFillMode(KcLineFilled::KeFillMode(fillMode));
 			}
 
-			if (fillMode == 4) {
-				float offset = fill->ridgeOffset(plt->odata()->dim() - 1);
-				if (ImGui::DragFloat("Ridge Offset", &offset))
-					fill->setRidgeOffset(plt->odata()->dim() - 1, offset);
-			}
-
-			ImGui::BeginDisabled(fillMode == 2 || fillMode == 3);
+			ImGui::BeginDisabled(fillMode != 0);
 			static const char* baseStr[] = {
 				"x line", "y line", "point"
 			};

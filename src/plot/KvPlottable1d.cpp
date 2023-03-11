@@ -2,6 +2,42 @@
 #include "KvSampled.h"
 
 
+void KvPlottable1d::setData(const_data_ptr d)
+{
+	super_::setData(d);
+
+	arrangeMode_.resize(odim());
+	ridgeOffset_.resize(odim());
+	groupOffset_.resize(odim());
+	groupSpacing_.resize(odim());
+
+	setYdim(odim());
+	setXdim(odim() - 1);
+	setZdim(odim() > 1 ? odim() - 2 : odim() - 1);
+}
+
+
+void KvPlottable1d::cloneConfig(const KvPlottable& plt)
+{
+	super_::cloneConfig(plt);
+
+	auto plt1d = dynamic_cast<const KvPlottable1d*>(&plt);
+
+	if (plt1d && odim() == plt.odim()) {
+		setXdim(plt1d->xdim());
+		setYdim(plt1d->ydim());
+		setZdim(plt1d->zdim());
+
+		for (unsigned d = 0; d < odim(); d++) {
+			setArrangeMode(d, plt1d->arrangeMode(d));
+			setGroupOffset(d, plt1d->groupOffset(d));
+			setGroupSpacing(d, plt1d->groupSpacing(d));
+			setRidgeOffset(d, plt1d->ridgeOffset(d));
+		}
+	}
+}
+
+
 void KvPlottable1d::setXdim(unsigned dim)
 {
 	axisDim_[0] = dim;
@@ -98,7 +134,6 @@ void KvPlottable1d::setArrangeMode(unsigned dim, int mode)
 
 void KvPlottable1d::setRidgeOffset(unsigned dim, float_t offset)
 {
-	assert(isRidged_(dim));
 	ridgeOffset_[dim] = offset;
 	setDataChanged(false);
 	setBoundingBoxExpired_();
@@ -109,7 +144,6 @@ void KvPlottable1d::setRidgeOffset(unsigned dim, float_t offset)
 
 void KvPlottable1d::setGroupOffset(unsigned dim, float_t offset)
 {
-	assert(isGrouped_(dim));
 	groupOffset_[dim] = offset;
 	setDataChanged(false);
 	setBoundingBoxExpired_();
@@ -118,7 +152,6 @@ void KvPlottable1d::setGroupOffset(unsigned dim, float_t offset)
 
 void KvPlottable1d::setGroupSpacing(unsigned dim, float_t spacing)
 {
-	assert(isGrouped_(dim));
 	groupSpacing_[dim] = spacing;
 	setDataChanged(false);
 	setBoundingBoxExpired_();
@@ -127,22 +160,9 @@ void KvPlottable1d::setGroupSpacing(unsigned dim, float_t spacing)
 
 bool KvPlottable1d::output_()
 {
-	if (arrangeMode_.size() < idata()->dim()) { // TODO：此处为满足某些在outputImpl_中调用lineAt的需要: 
-		arrangeMode_.resize(idata()->dim());
-		ridgeOffset_.resize(idata()->dim());
-		groupOffset_.resize(idata()->dim());
-		groupSpacing_.resize(idata()->dim());
-	}
-
 	if (!super_::output_())
 		return false;
 
-	if (!empty()) {
-		arrangeMode_.resize(odata()->dim());
-		ridgeOffset_.resize(odata()->dim());
-		groupOffset_.resize(odata()->dim());
-		groupSpacing_.resize(odata()->dim());
-	}
 	stackedData_.clear();
 	return true;
 }
