@@ -56,12 +56,14 @@
 - [x] 完善clip的rect修订，legend的border的有的边会被非正常剪切 --> 绘制item时才设置clip
 - [x] 完善bars2d的padding设置（是否使用像素值？）
 - [ ] range太大时axis不能正常定位tick和label
-- [ ] 所有plot1d都按照兼容stack和ridge模式重构
+- [x] 所有plot1d都按照兼容stack和ridge模式重构
 - [x] 启动深度测试时，坐标轴的baseline与gridline深度冲突
 - [ ] 三维面积图（参考https://blog.csdn.net/Peter_Zhang_Jie/article/details/49995213）
 - [ ] fitColorMappingRange考虑arrange模式
 - [ ] 测试多通道高维数据的arrange模式
-- [ ] 实现plottable2d的arrange模式
+- [x] 实现plottable2d的arrange模式
+- [ ] heatmap的维度映射
+- [ ] arrange模式增加zshift实现
 
 ## theme
 - [ ] 更多theme，SCI等

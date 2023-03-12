@@ -1,19 +1,21 @@
 #pragma once
-#include "KvPlottable.h"
+#include "KvPlottable1d.h"
 #include "KvPaint.h"
 
 class KvSampled;
 
 // image图的基类，主要处理grid（sampled2d）数据，用于绘制热图heatmap、曲面图surface等
 // 兼容2d和3d模式
-
-class KvPlottable2d : public KvPlottable
+// 为使用arrange模式，基于KvPlottable1d构建2d接口
+class KvPlottable2d : public KvPlottable1d
 {
-	using super_ = KvPlottable;
+	using super_ = KvPlottable1d;
 
 public:
 
 	using super_::super_;
+
+	void setData(const_data_ptr d) override;
 
 	const color4f& minorColor() const override;
 
@@ -36,11 +38,19 @@ protected:
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
-	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
-	using GETTER = std::function<std::vector<float_t>(unsigned ix, unsigned iy)>;
+	/// 参照line实现的grid接口
 
-	virtual void* drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned ch) const;
+	unsigned gridsPerChannel_() const;
+
+	unsigned gridsTotal_() const;
+
+	unsigned linesPerGrid_() const;
+
+	// 返回第ch通道的第gridIdx个grid的第lineIdx条1d数据访问接口
+	KuDataUtil::KpPointGetter1d gridLineAt_(unsigned ch, unsigned gridIdx, unsigned lineIdx) const;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
 
 private:
 	bool filled_{ true };

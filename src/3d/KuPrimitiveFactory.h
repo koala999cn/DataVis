@@ -37,13 +37,13 @@ public:
 	// @obuf: 输出缓存，可为null
 	// 
 	// grid由nx*ny个顶点构成，顶点排列存储顺序如下：
-	// 0,  1,      ..., ny-1,
-	// ny, ny + 1, ..., 2*ny-1,
+	// 0,  1,      ..., nx-1,
+	// nx, nx + 1, ..., 2*nx-1,
 	// ...
-	// (nx-1)*ny, ..., nx*ny-1
+	// (ny-1)*nx, ..., nx*ny-1
 	//
 	template<typename IDX_TYPE = std::uint32_t, bool CCW = false>
-	static int indexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf);
+	static int indexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf, unsigned startVtx = 0, unsigned idxBase = 0);
 
 	// 构建10点circle
 	template<typename T>
@@ -206,25 +206,54 @@ int KuPrimitiveFactory::indexBox(IDX_TYPE* obuf)
 
 
 template<typename IDX_TYPE, bool CCW>
-int KuPrimitiveFactory::indexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf)
+int KuPrimitiveFactory::indexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf, unsigned startVtx, unsigned idxBase)
 {
+	assert(startVtx < 4);
+
 	int indexCount = (nx - 1) * (ny - 1) * 4; // 构成grid的quads数量
 
 	if (obuf) {
+
+		unsigned offset[] = {
+			idxBase,
+			idxBase,
+			idxBase,
+			idxBase,
+		};
+
+		if (startVtx == 1) {
+			offset[0] += nx;
+			offset[1] += 1;
+			offset[2] -= nx;
+			offset[3] -= 1;
+		}
+		else if (startVtx == 2) {
+			offset[0] += nx + 1;
+			offset[1] -= nx - 1;
+			offset[2] -= nx + 1;
+			offset[3] += nx - 1;
+		}
+		else if (startVtx == 3) {
+			offset[0] += 1;
+			offset[1] -= nx;
+			offset[2] -= 1;
+			offset[3] += nx;
+		}
+
 		for(unsigned i = 1; i < nx; i++)
 			for (unsigned j = 1; j < ny; j++) {
 
 				if constexpr (!CCW) {
-					*obuf++ = static_cast<IDX_TYPE>((i - 1) * ny + (j - 1));
-					*obuf++ = static_cast<IDX_TYPE>((i - 1) * ny + j);
-					*obuf++ = static_cast<IDX_TYPE>(i * ny + j);
-					*obuf++ = static_cast<IDX_TYPE>(i * ny + (j - 1));
+					*obuf++ = static_cast<IDX_TYPE>((i - 1) + (j - 1) * nx + offset[0]);
+					*obuf++ = static_cast<IDX_TYPE>((i - 1) + j * nx + offset[1]);
+					*obuf++ = static_cast<IDX_TYPE>(i + j * nx + offset[2]);
+					*obuf++ = static_cast<IDX_TYPE>(i + (j - 1) * nx + offset[3]);
 				}
 				else {
-					*obuf++ = static_cast<IDX_TYPE>((i - 1) * ny + (j - 1));
-					*obuf++ = static_cast<IDX_TYPE>(i * ny + (j - 1));
-					*obuf++ = static_cast<IDX_TYPE>(i * ny + j);
-					*obuf++ = static_cast<IDX_TYPE>((i - 1) * ny + j);	
+					*obuf++ = static_cast<IDX_TYPE>((i - 1) + (j - 1) * nx + offset[0]);
+					*obuf++ = static_cast<IDX_TYPE>(i + (j - 1) * nx + offset[3]);
+					*obuf++ = static_cast<IDX_TYPE>(i + j * nx + offset[2]);
+					*obuf++ = static_cast<IDX_TYPE>((i - 1) + j * nx + offset[1]);
 				}
 
 			}

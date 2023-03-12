@@ -165,7 +165,7 @@ public:
 		unsigned xsize, ysize;
 	};
 
-	static bool hasPointGetter2d(const std::shared_ptr<const KvDiscreted>& disc);
+	static bool hasPointGetter2d(const KvData& d);
 
 	// 计算disc每个通道有多少条pointGetter1d
 	static unsigned pointGetter1dCount(const std::shared_ptr<const KvDiscreted>& disc);

@@ -489,21 +489,24 @@ KuDataUtil::KpValueGetter2d KuDataUtil::valueGetter2d(const std::shared_ptr<cons
 }
 
 
-bool KuDataUtil::hasPointGetter2d(const std::shared_ptr<const KvDiscreted>& disc)
+bool KuDataUtil::hasPointGetter2d(const KvData& d)
 {
-    return disc->dim() > 1 && disc->isSampled();
+    if (d.dim() < 2)
+        return false;
+
+    return d.isContinued() || dynamic_cast<const KvSampled*>(&d);
 }
 
 
 unsigned KuDataUtil::pointGetter1dCount(const std::shared_ptr<const KvDiscreted>& disc)
 {
-    return hasPointGetter2d(disc) ? disc->size() / disc->size(disc->dim() - 1) : 1;
+    return hasPointGetter2d(*disc) ? disc->size() / disc->size(disc->dim() - 1) : 1;
 }
 
 
 unsigned KuDataUtil::pointGetter2dCount(const std::shared_ptr<const KvDiscreted>& disc)
 {
-    if (!hasPointGetter2d(disc))
+    if (!hasPointGetter2d(*disc))
         return 0;
 
     unsigned c(1);
@@ -517,7 +520,7 @@ unsigned KuDataUtil::pointGetter2dCount(const std::shared_ptr<const KvDiscreted>
 KuDataUtil::KpPointGetter1d KuDataUtil::pointGetter1dAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch, unsigned idx)
 {
     KpPointGetter1d g;
-    if (!hasPointGetter2d(disc)) {
+    if (!hasPointGetter2d(*disc)) {
         assert(idx == 0);
         g.getter = [disc, ch](unsigned ix) { return disc->pointAt(ix, ch); };
         g.size = unsigned(disc->size(0));
@@ -535,7 +538,7 @@ KuDataUtil::KpPointGetter1d KuDataUtil::pointGetter1dAt(const std::shared_ptr<co
 
 KuDataUtil::KpPointGetter2d KuDataUtil::pointGetter2dAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch, unsigned idx)
 {
-    assert(hasPointGetter2d(disc));
+    assert(hasPointGetter2d(*disc));
     KpPointGetter2d g;
 
     auto samp = std::dynamic_pointer_cast<const KvSampled>(disc);

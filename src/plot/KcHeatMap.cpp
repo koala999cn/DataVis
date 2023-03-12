@@ -1,6 +1,8 @@
 #include "KcHeatMap.h"
-#include "KvSampled.h"
 #include "KvPaint.h"
+#include "KtGeometryImpl.h"
+#include "KuPrimitiveFactory.h"
+#include "KvDiscreted.h"
 #include "KuStrUtil.h" // std::to_string不支持格式化，使用KuStrUtil格式化浮点数
 
 
@@ -15,7 +17,7 @@ KcHeatMap::KcHeatMap(const std::string_view& name)
 
 unsigned KcHeatMap::objectCount() const
 {
-	return odata()->channels() * 2;
+	return 2; // 0绘制grid，1绘制text
 }
 
 
@@ -37,19 +39,30 @@ void KcHeatMap::setObjectState_(KvPaint* paint, unsigned objIdx) const
 }
 
 
+std::pair<KcHeatMap::float_t, KcHeatMap::float_t> KcHeatMap::xyshift_() const
+{
+	auto disc = discreted_();
+	auto dx = (xdim() == odim()) ? 1 : std::abs(disc->step(xdim()));
+	auto dy = (ydim() == odim()) ? 1 : std::abs(disc->step(ydim()));
+	assert(KuMath::isDefined(dx) && dx != 0);
+	assert(KuMath::isDefined(dy) && dy != 0);
+
+	return { dx / 2, dy / 2 };
+}
+
+
 KcHeatMap::aabb_t KcHeatMap::calcBoundingBox_() const
 {
+	// TODO：暂不支持维度映射
+	const_cast<KcHeatMap*>(this)->setXdim(odim() - 2);
+	const_cast<KcHeatMap*>(this)->setYdim(odim() - 1);
+	const_cast<KcHeatMap*>(this)->setZdim(odim());
+
 	auto aabb = super_::calcBoundingBox_();
 
 	if (!empty() && odata()->dim() > 1) {
-
-		auto disc = discreted_();
-		assert(disc->size() != 0);
-		auto dx = disc->step(0);
-		auto dy = disc->step(1);
-
-		// aabb膨胀(dx/2, dy/2)
-		aabb.inflate(dx/2, dy/2);
+		auto xyshift = xyshift_();
+		aabb.inflate(xyshift.first, xyshift.second);
 	}
 
 	return aabb;
@@ -58,80 +71,106 @@ KcHeatMap::aabb_t KcHeatMap::calcBoundingBox_() const
 
 void* KcHeatMap::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
-	auto samp = std::dynamic_pointer_cast<const KvSampled>(discreted_());
-	assert(samp && samp->dim() >= 2);
-
-	auto ch = objIdx / 2;
-	auto getter = [&samp, ch](unsigned ix, unsigned iy) {
-		return samp->point(ix, iy, ch);
-	};
+	// TODO：暂不支持维度映射
+	const_cast<KcHeatMap*>(this)->setXdim(odim() - 2);
+	const_cast<KcHeatMap*>(this)->setYdim(odim() - 1);
+	const_cast<KcHeatMap*>(this)->setZdim(odim());
 
 	if (objIdx & 1) 
-		return drawText_(paint, getter, samp->size(0), samp->size(1), ch);
+		return drawText_(paint);
 	else 
-		return drawImpl_(paint, getter, samp->size(0), samp->size(1), ch);
+		return drawGrid_(paint);
 }
 
 
-void* KcHeatMap::drawImpl_(KvPaint* paint, GETTER getter, unsigned nx, unsigned ny, unsigned ch) const
+void* KcHeatMap::drawGrid_(KvPaint* paint) const
 {
-	auto disc = discreted_();
-	auto dx = disc->step(0);
-	auto dy = disc->dim() > 1 ? disc->step(1) : 0;
-	if (dx <= 0)
-		dx = disc->range(0).length() / disc->size(0);
-	if (dy <= 0)
-		dy = disc->range(1).length() / disc->size(disc->dim() > 1 ? 1 : 0);
+	auto xyshift = xyshift_();
 
-	auto half_dx = dx / 2;
-	auto half_dy = dy / 2;
-
-	// quad按照顺时针排列
-	// opengl默认falt渲染模式使用最后一个顶点的数据
-	// 综上，需要将顶点向右下方偏移半个步长（x正向，y负向）
-	auto getterShift = [this, ny, getter, half_dx, half_dy](unsigned ix, unsigned iy) {
-	
-		auto xshift = half_dx;
-		auto yshift = -half_dy;
-
-		if (ix == 0) // 首列数据
-			xshift = -xshift, ix++;
-
-		if (iy == ny) // 首行数据
-			yshift = -yshift, iy--;
-
-		auto pt = getter(ix - 1, iy);
-		pt[0] += xshift, pt[1] += yshift;
-		return pt;
+	struct KpVtxBuffer_
+	{
+		point3f pos;
+		point4f clr;
 	};
 
-	return super_::drawImpl_(paint, getterShift, nx + 1, ny + 1, ch);
+	// 热图数据点居中，所以grid多一行多一列
+	auto nx = linesPerGrid_() + 1; // 列数
+	auto ny = sizePerLine_() + 1; // 行数
+	auto grids = gridsPerChannel_();
+
+	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_>>(k_quads);
+	auto idxPerGrid = KuPrimitiveFactory::indexGrid<std::uint32_t>(nx, ny, nullptr);
+	geom->reserve(nx * ny * gridsTotal_(), idxPerGrid * gridsTotal_());
+	std::uint32_t idxBase(0);
+
+	auto shape = KuDataUtil::shape(*discreted_());
+
+	for (unsigned ch = 0; ch < channels_(); ch++) {
+		for (unsigned i = 0; i < grids; i++) {
+			for (unsigned j = 0; j < nx; j++) {
+				auto line = gridLineAt_(ch, i, j > 0 ? j - 1 : 0);
+				assert(line.size == ny - 1);
+
+				auto vtx = geom->newVertex(ny);
+
+				for (unsigned k = 0; k < ny; k++) {
+					auto pt = line.getter(k > 0 ? k - 1 : 0);
+
+					if (j > 0)
+					    pt[xdim()] += xyshift.first;
+					else 
+						pt[xdim()] -= xyshift.first; // 首列数据为多出的一列
+
+					if (k > 0)
+					    pt[ydim()] += xyshift.second;
+					else 
+						pt[ydim()] -= xyshift.second; // 首行数据为多出的一行
+
+					vtx->pos = toPoint_(pt.data(), ch);
+					vtx->clr = mapValueToColor_(pt.data(), ch);
+					++vtx;
+				}
+			}
+
+			auto idx = geom->newIndex(idxPerGrid);
+
+			// 由于grid整体向右上方偏移，所以应保证quad的最后一个顶点是右上角（opengl默认falt渲染模式使用最后一个顶点的数据）
+			// 因此设定startVtx为3，即起点为右下角，如此顺时针旋转，可保证右上角为终点
+			KuPrimitiveFactory::indexGrid<>(ny, nx, idx, 3, idxBase); // 由于顶点按ny的顺序依次写入的，所以此处ny在前
+			idxBase += nx * ny;
+		}
+	}
+
+	return paint->drawGeomColor(geom);
 }
 
 
-void* KcHeatMap::drawText_(KvPaint* paint, GETTER getter, unsigned nx, unsigned ny, unsigned ch) const
+void* KcHeatMap::drawText_(KvPaint* paint) const
 {
-	auto disc = discreted_();
-	auto dx = disc->step(0);
-	auto dy = disc->dim() > 1 ? disc->step(1) : 0;
-	if (dx <= 0)
-		dx = disc->range(0).length() / disc->size(0);
-	if (dy <= 0)
-		dy = disc->range(1).length() / disc->size(disc->dim() > 1 ? 1 : 0);
+	auto xyshift = xyshift_();
 
-	auto leng = paint->projectv({ dx, dy, 0 }).abs();
+	auto leng = paint->projectv({ xyshift.first * 2, xyshift.second * 2, 0 }).abs();
 	auto minSize = paint->textSize("0");
 	if (leng.x() < minSize.x() || leng.y() < minSize.y()) // 加1个总体判断，否则当nx*ny很大时，非常耗时
 		return nullptr;
 
-	for (unsigned ix = 0; ix < nx; ix++) {
-		for (unsigned iy = 0; iy < ny; iy++) {
-			auto pt = getter(ix, iy);
-			auto text = KuStrUtil::toString(pt[colorMappingDim()]);
-			auto szText = paint->textSize(text.c_str());
-			if (szText.x() <= leng.x() && szText.y() <= leng.y())
-				paint->drawText(toPoint_(pt.data(), ch), text.c_str(),
-					KeAlignment::k_vcenter | KeAlignment::k_hcenter);
+	auto nx = sizePerLine_();
+	auto ny = linesPerGrid_();
+	auto grids = gridsPerChannel_();
+	for (unsigned ch = 0; ch < channels_(); ch++) {
+		for (unsigned i = 0; i < grids; i++) {
+			for (unsigned j = 0; j < ny; j++) {
+				auto line = gridLineAt_(ch, i, j);
+				assert(line.size == nx);
+				for (unsigned k = 0; k < nx; k++) {
+					auto pt = line.getter(k);
+					auto text = KuStrUtil::toString(pt[colorMappingDim()]); // or zdim() ???
+					auto szText = paint->textSize(text.c_str());
+					if (szText.x() <= leng.x() && szText.y() <= leng.y())
+						paint->drawText(toPoint_(pt.data(), ch), text.c_str(),
+							KeAlignment::k_vcenter | KeAlignment::k_hcenter);
+				}
+			}
 		}
 	}
 

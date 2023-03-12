@@ -92,6 +92,18 @@ unsigned KvPlottable1d::linesTotal_() const
 }
 
 
+unsigned KvPlottable1d::sizePerLine_() const
+{
+	return empty() ? 0 : discreted_()->size(odim() - 1);
+}
+
+
+unsigned KvPlottable1d::channels_() const
+{
+	return empty() ? 0 : odata()->channels();
+}
+
+
 std::vector<kIndex> KvPlottable1d::index_(unsigned ch, unsigned idx) const
 {
 	auto disc = discreted_();

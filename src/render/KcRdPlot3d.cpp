@@ -140,7 +140,7 @@ bool KcRdPlot3d::plottableMatchData_(int iType, const KvData& d) const
 	switch (iType)
 	{
 	case 5: // surface
-		return KuDataUtil::isMatrix(d);
+		return KuDataUtil::hasPointGetter2d(d);
 
 	default:
 		break;
@@ -194,7 +194,7 @@ void KcRdPlot3d::showPlottableSpecificProperty_(KvPlottable* plt)
 			ImGuiX::cbTreePop();
 		}
 	}
-	else if (dynamic_cast<KcSurface*>(plt)) {
+	else if (dynamic_cast<KvPlottable2d*>(plt)) {
 		kPrivate::showPlottableSpecificProperty2d(plt);
 	}
 	else {

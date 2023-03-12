@@ -35,6 +35,11 @@ protected:
 	// data1d数据总数
 	unsigned linesTotal_() const;
 
+	// 每条line的数据点数目
+	unsigned sizePerLine_() const;
+
+	unsigned channels_() const;
+
 	aabb_t calcBoundingBox_() const override;
 
 	// 更新stacked数据

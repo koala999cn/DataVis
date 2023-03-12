@@ -1,7 +1,7 @@
 #pragma once
 #include "KvPlottable2d.h"
 
-// 热图：实质为flat渲染模式的grid图（偏移dx/2, -dy/2）
+// 热图：实质为flat渲染模式 + text绘制 + 平面化的surface图（偏移dx/2, -dy/2）
 
 class KcHeatMap : public KvPlottable2d
 {
@@ -27,11 +27,14 @@ private:
 
 	void* drawObject_(KvPaint*, unsigned objIdx) const final;
 
-	void* drawImpl_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned c) const final;
+	void* drawGrid_(KvPaint*) const;
 
-	void* drawText_(KvPaint*, GETTER, unsigned nx, unsigned ny, unsigned c) const;
+	void* drawText_(KvPaint*) const;
 
 	aabb_t calcBoundingBox_() const override;
+
+	// 计算xy平面的偏移量
+	std::pair<float_t, float_t> xyshift_() const;
 
 private:
 

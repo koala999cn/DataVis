@@ -60,15 +60,19 @@ bool KcRdPlot2d::permitInput(int dataSpec, unsigned inPort) const
     assert(inPort == 0);
 
     KpDataSpec sp(dataSpec);
-    return sp.dim == 2 && 
+    return sp.dim > 1 && 
         (sp.type == k_sampled || sp.type == k_continued || sp.type == k_array);
 }
 
 
 namespace kPrivate
 {
+    void showPlottableSpecificProperty1d(KvPlottable*);
+
     void showPlottableSpecificProperty2d(KvPlottable* plt)
     {
+        showPlottableSpecificProperty1d(plt);
+
         auto plt2d = dynamic_cast<KvPlottable2d*>(plt);
         assert(plt2d);
 
