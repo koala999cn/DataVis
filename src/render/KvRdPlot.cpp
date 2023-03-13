@@ -827,12 +827,13 @@ bool KvRdPlot::showPlottableBasicProperty_(unsigned idx, KvPlottable* plt)
 		return true;
 
 	if (data->isContinued()) {
-		unsigned minCount(1), maxCount(std::pow(1024 * 1024, 1. / data->dim()));
+		std::uint32_t minCount(1), maxCount(std::pow(1024, 1. / data->dim()));
 		std::vector<std::uint32_t> c(data->dim());
 		for (unsigned i = 0; i < data->dim(); i++)
 		    c[i] = plt->sampCount(i);
-		if (ImGui::DragScalarN("Sampling Count", ImGuiDataType_U32,
-			c.data(), data->dim(), 1, &minCount, &maxCount)) {
+
+		if (ImGui::SliderScalarN("Sampling Count", ImGuiDataType_U32,
+			c.data(), data->dim(), &minCount, &maxCount)) {
 			for (unsigned i = 0; i < data->dim(); i++)
 			    plt->setSampCount(i, c[i]);
 		}

@@ -648,16 +648,41 @@ KcRenderObject* KcImOglPaint::lastRenderObject_()
 
 void KcImOglPaint::drawText(const point3& anchor, const char* text, int align)
 {
-	auto szText = textSize(text);
-	auto an = projectp(anchor); // 变换到屏幕坐标计算布局
-	auto r = KuLayoutUtil::anchorAlignedRect({ an.x(), an.y() }, szText, align);
-	auto topLeft = unprojectp(point2(r.lower().x(), r.lower().y())); 
-	topLeft.z() = anchor.z();
-	drawText(topLeft, unprojectv(point3(1, 0, 0)), unprojectv(point3(0, 1, 0)), text);
+	drawText_(anchor, text, align, currentRenderList().texts);
 }
 
 
+void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors,
+	const std::vector<std::string>& texts, const std::vector<int>& align)
+{
+	std::vector<KpUvVbo> text;
+	for (unsigned i = 0; i < texts.size(); i++)
+		drawText_(anchors[i], texts[i].c_str(), align[i], text);
+
+	auto obj = makeTextVbo_(text);
+	if (obj)
+	    currentRenderList().objs.emplace_back(obj);
+	return obj;
+}
+
+
+void KcImOglPaint::drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo)
+{
+	auto szText = textSize(text);
+	auto an = projectp(anchor); // 变换到屏幕坐标计算布局
+	auto r = KuLayoutUtil::anchorAlignedRect({ an.x(), an.y() }, szText, align);
+	auto topLeft = unprojectp(point2(r.lower().x(), r.lower().y()));
+	topLeft.z() = anchor.z();
+	drawText_(topLeft, unprojectv(point3(1, 0, 0)), unprojectv(point3(0, 1, 0)), text, vbo);
+}
+
 void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text)
+{
+	drawText_(topLeft, hDir, vDir, text, currentRenderList().texts);
+}
+
+
+void KcImOglPaint::drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo)
 {
 	auto font = ImGui::GetFont();
 	auto eos = text + strlen(text);
@@ -668,8 +693,7 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 
 	auto s = text;
 	auto orig = topLeft;
-	auto& texts = currentRenderList().texts;
-	texts.reserve(texts.size() + (eos - text) * 4);
+	vbo.reserve(vbo.size() + (eos - text) * 4);
 	while (s < eos) {
 		unsigned int c = (unsigned int)*s;
 		if (c < 0x80) {
@@ -696,9 +720,9 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 
 		if (glyph->Visible) {
 
-			auto curPos = texts.size();
-			texts.resize(curPos + 4); // 按quad图元绘制
-			auto buf = texts.data() + curPos;
+			auto curPos = vbo.size();
+			vbo.resize(curPos + 4); // 按quad图元绘制
+			auto buf = vbo.data() + curPos;
 
 			// 文字框的4个顶点对齐glyph
 			auto dx1 = hDir * (hScale * glyph->X0);
@@ -731,9 +755,9 @@ void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 }
 
 
-void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
+KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 {
-	if (!rl.texts.empty()) {
+	if (!text.empty()) {
 		auto obj = new KcRenderObject(k_quads);
 		obj->setShader(KsShaderManager::singleton().progColorUV(true)); // 文字渲染始终使用flat模式
 
@@ -741,15 +765,25 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 		decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_texcoord);
 		decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
-		assert(decl->vertexSize() == sizeof(rl.texts[0]));
+		assert(decl->vertexSize() == sizeof(text[0]));
 
 		auto vbo = std::make_shared<KcGpuBuffer>();
-		vbo->setData(rl.texts.data(), rl.texts.size() * sizeof(rl.texts[0]), KcGpuBuffer::k_stream_draw);
+		vbo->setData(text.data(), text.size() * sizeof(text[0]), KcGpuBuffer::k_stream_draw);
 
 		obj->setVBO(vbo, decl);
 		obj->setProjMatrix(float4x4<>::identity()); // text均使用ndc坐标，不须在shader中进行坐标变换
-		rl.objs.emplace_back(obj);
+		return obj;
 	}
+
+	return nullptr;
+}
+
+
+void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
+{
+	auto obj = makeTextVbo_(rl.texts);
+	if (obj)
+		rl.objs.emplace_back(obj); // TODO: use push???
 }
 
 
@@ -1110,8 +1144,7 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 
 	// 在此置shader为空，由pushRenderObject设定shader，以同步flat渲染状态
 	// pushRenderObject设置shader的版本只考虑了mono和color两种情况，但已能满足目前版本的plot需求
-	assert(obj->shader() == KsShaderManager::singleton().progMono()
-		|| obj->shader() == KsShaderManager::singleton().progColor(false)
+	if (obj->shader() == KsShaderManager::singleton().progColor(false)
 		|| obj->shader() == KsShaderManager::singleton().progColor(true));
-	obj->setShader(nullptr);
+	    obj->setShader(nullptr);
 }

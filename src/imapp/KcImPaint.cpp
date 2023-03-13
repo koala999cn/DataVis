@@ -101,6 +101,9 @@ KcImPaint::point4 KcImPaint::project(const point4& pt) const
 	case k_coord_screen:
 		return pt;
 
+	case k_coord_ndc:
+		return camera_.ndcToScreen(pt);
+
 	default:
 		break;
 	}
@@ -125,6 +128,9 @@ KcImPaint::point4 KcImPaint::unproject(const point4& pt) const
 
 	case k_coord_screen:
 		return pt;
+
+	case k_coord_ndc:
+		return camera_.screenToNdc(pt);
 
 	default:
 		break;

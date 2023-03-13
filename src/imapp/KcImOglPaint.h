@@ -56,6 +56,9 @@ public:
 
 	void drawText(const point3& anchor, const char* text, int align) override;
 
+	void* drawTexts(const std::vector<point3>& anchors,
+		const std::vector<std::string>& texts, const std::vector<int>& align) override;
+
 	void* drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 
 	void* fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
@@ -94,6 +97,8 @@ private:
 	void glScissor_(unsigned id);
 	void glClipPlane_(unsigned id);
 
+	struct KpUvVbo;
+	KcRenderObject* makeTextVbo_(std::vector<KpUvVbo>& vbo); // 生成绘制文本所需的vbo
 	void pushTextVbo_(KpRenderList_& rl); // 生成绘制文本所需的vbo
 	void pushColorVbo_(KpRenderList_& rl); // 生成绘制tris成员所需的vbo
 
@@ -134,6 +139,9 @@ private:
 
 	// 设置对象obj的渲染属性
 	void syncObjProps_(KcRenderObject* obj);
+
+	void drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo);
+	void drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo);
 
 private:
 

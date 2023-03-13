@@ -49,6 +49,8 @@ public:
 		ibo_ = ibo, indexCount_ = idxCount;
 	}
 
+	auto& projMatrix() const { return projMat_; }
+
 	void setProjMatrix(const float4x4<>& projMat) {
 		projMat_ = projMat;
 	}

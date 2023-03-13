@@ -44,7 +44,8 @@ public:
 		k_coord_local,
 		k_coord_world, // 世界坐标系，即绘图坐标系
 		k_coord_local_screen,
-		k_coord_screen // 屏幕坐标系
+		k_coord_screen, // 屏幕坐标系
+		k_coord_ndc
 	};
 
 	// 改变当前坐标系类型
@@ -146,6 +147,10 @@ public:
 	// topLeft点将根据anchor和align确定
 	// @anchor: 文本框的锚点。文本框按align方式对齐于anchor
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
+
+	// 批量绘制文本，返回可复用的渲染对象
+	virtual void* drawTexts(const std::vector<point3>& anchors, 
+		const std::vector<std::string>& texts, const std::vector<int>& align) = 0;
 
 	virtual void* drawGeom(vtx_decl_ptr decl, geom_ptr geom) = 0;
 

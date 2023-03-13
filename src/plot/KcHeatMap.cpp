@@ -54,9 +54,9 @@ std::pair<KcHeatMap::float_t, KcHeatMap::float_t> KcHeatMap::xyshift_() const
 KcHeatMap::aabb_t KcHeatMap::calcBoundingBox_() const
 {
 	// TODO：暂不支持维度映射
-	const_cast<KcHeatMap*>(this)->setXdim(odim() - 2);
-	const_cast<KcHeatMap*>(this)->setYdim(odim() - 1);
-	const_cast<KcHeatMap*>(this)->setZdim(odim());
+	//const_cast<KcHeatMap*>(this)->setXdim(odim() - 2);
+	//const_cast<KcHeatMap*>(this)->setYdim(odim() - 1);
+	//const_cast<KcHeatMap*>(this)->setZdim(odim());
 
 	auto aabb = super_::calcBoundingBox_();
 
@@ -72,9 +72,9 @@ KcHeatMap::aabb_t KcHeatMap::calcBoundingBox_() const
 void* KcHeatMap::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
 	// TODO：暂不支持维度映射
-	const_cast<KcHeatMap*>(this)->setXdim(odim() - 2);
-	const_cast<KcHeatMap*>(this)->setYdim(odim() - 1);
-	const_cast<KcHeatMap*>(this)->setZdim(odim());
+	//const_cast<KcHeatMap*>(this)->setXdim(odim() - 2);
+	//const_cast<KcHeatMap*>(this)->setYdim(odim() - 1);
+	//const_cast<KcHeatMap*>(this)->setZdim(odim());
 
 	if (objIdx & 1) 
 		return drawText_(paint);
@@ -154,6 +154,10 @@ void* KcHeatMap::drawText_(KvPaint* paint) const
 	if (leng.x() < minSize.x() || leng.y() < minSize.y()) // 加1个总体判断，否则当nx*ny很大时，非常耗时
 		return nullptr;
 
+	std::vector<point3> anchors; anchors.reserve(gridsTotal_());
+	std::vector<std::string> texts; texts.reserve(gridsTotal_());
+	std::vector<int> aligns; aligns.reserve(gridsTotal_());
+	
 	auto nx = sizePerLine_();
 	auto ny = linesPerGrid_();
 	auto grids = gridsPerChannel_();
@@ -164,15 +168,17 @@ void* KcHeatMap::drawText_(KvPaint* paint) const
 				assert(line.size == nx);
 				for (unsigned k = 0; k < nx; k++) {
 					auto pt = line.getter(k);
-					auto text = KuStrUtil::toString(pt[colorMappingDim()]); // or zdim() ???
-					auto szText = paint->textSize(text.c_str());
-					if (szText.x() <= leng.x() && szText.y() <= leng.y())
-						paint->drawText(toPoint_(pt.data(), ch), text.c_str(),
-							KeAlignment::k_vcenter | KeAlignment::k_hcenter);
+					auto str = KuStrUtil::toString(pt[colorMappingDim()]); // or zdim() ???
+					auto szText = paint->textSize(str.c_str());
+					if (szText.x() <= leng.x() && szText.y() <= leng.y()) {
+						anchors.push_back(toPoint_(pt.data(), ch));
+						texts.push_back(str);
+						aligns.push_back(KeAlignment::k_vcenter | KeAlignment::k_hcenter);
+					}
 				}
 			}
 		}
 	}
 
-	return nullptr;
+	return paint->drawTexts(anchors, texts, aligns);
 }
