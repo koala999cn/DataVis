@@ -648,7 +648,7 @@ KcRenderObject* KcImOglPaint::lastRenderObject_()
 
 void KcImOglPaint::drawText(const point3& anchor, const char* text, int align)
 {
-	drawText_(anchor, text, align, currentRenderList().texts);
+	drawText_(anchor, text, align, currentRenderList().texts, true);
 }
 
 
@@ -657,32 +657,34 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors,
 {
 	std::vector<KpUvVbo> text;
 	for (unsigned i = 0; i < texts.size(); i++)
-		drawText_(anchors[i], texts[i].c_str(), align[i], text);
+		drawText_(anchors[i], texts[i].c_str(), align[i], text, false);
 
 	auto obj = makeTextVbo_(text);
 	if (obj)
-	    currentRenderList().objs.emplace_back(obj);
+		pushRenderObject_(obj);
+
+	return nullptr; // TODO: issue #I6MQBX
 	return obj;
 }
 
 
-void KcImOglPaint::drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo)
+void KcImOglPaint::drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo, bool normToNdc)
 {
 	auto szText = textSize(text);
 	auto an = projectp(anchor); // 变换到屏幕坐标计算布局
 	auto r = KuLayoutUtil::anchorAlignedRect({ an.x(), an.y() }, szText, align);
 	auto topLeft = unprojectp(point2(r.lower().x(), r.lower().y()));
 	topLeft.z() = anchor.z();
-	drawText_(topLeft, unprojectv(point3(1, 0, 0)), unprojectv(point3(0, 1, 0)), text, vbo);
+	drawText_(topLeft, unprojectv(point3(1, 0, 0)), unprojectv(point3(0, 1, 0)), text, vbo, normToNdc);
 }
 
 void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text)
 {
-	drawText_(topLeft, hDir, vDir, text, currentRenderList().texts);
+	drawText_(topLeft, hDir, vDir, text, currentRenderList().texts, true);
 }
 
 
-void KcImOglPaint::drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo)
+void KcImOglPaint::drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo, bool normToNdc)
 {
 	auto font = ImGui::GetFont();
 	auto eos = text + strlen(text);
@@ -730,10 +732,18 @@ void KcImOglPaint::drawText_(const point3& topLeft, const point3& hDir, const po
 			auto dx2 = hDir * (hScale * glyph->X1);
 			auto dy2 = vDir * (vScale * glyph->Y1);
 
-			buf[0].pos = toNdc_(orig + dx1 + dy1); // top-left
-			buf[1].pos = toNdc_(orig + dx2 + dy1); // top-right
-			buf[2].pos = toNdc_(orig + dx2 + dy2); // bottom-right
-			buf[3].pos = toNdc_(orig + dx1 + dy2); // bottom-left
+			if (normToNdc) {
+				buf[0].pos = toNdc_(orig + dx1 + dy1); // top-left
+				buf[1].pos = toNdc_(orig + dx2 + dy1); // top-right
+				buf[2].pos = toNdc_(orig + dx2 + dy2); // bottom-right
+				buf[3].pos = toNdc_(orig + dx1 + dy2); // bottom-left
+			}
+			else {
+				buf[0].pos = (orig + dx1 + dy1); // top-left
+				buf[1].pos = (orig + dx2 + dy1); // top-right
+				buf[2].pos = (orig + dx2 + dy2); // bottom-right
+				buf[3].pos = (orig + dx1 + dy2); // bottom-left
+			}
 
 			// 文字框的纹理坐标
 			float u1 = glyph->U0;
@@ -771,7 +781,6 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 		vbo->setData(text.data(), text.size() * sizeof(text[0]), KcGpuBuffer::k_stream_draw);
 
 		obj->setVBO(vbo, decl);
-		obj->setProjMatrix(float4x4<>::identity()); // text均使用ndc坐标，不须在shader中进行坐标变换
 		return obj;
 	}
 
@@ -782,8 +791,10 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
 	auto obj = makeTextVbo_(rl.texts);
-	if (obj)
-		rl.objs.emplace_back(obj); // TODO: use push???
+	if (obj) {
+		obj->setProjMatrix(float4x4<>::identity()); // text均使用ndc坐标，不须在shader中进行坐标变换
+		rl.objs.emplace_back(obj); 
+	}
 }
 
 

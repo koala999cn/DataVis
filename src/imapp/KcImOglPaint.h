@@ -140,8 +140,9 @@ private:
 	// 设置对象obj的渲染属性
 	void syncObjProps_(KcRenderObject* obj);
 
-	void drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo);
-	void drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo);
+	// @normToNdc: 若true，则将text坐标规范到ndc坐标系
+	void drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo, bool normToNdc);
+	void drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo, bool normToNdc);
 
 private:
 
