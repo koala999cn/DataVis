@@ -25,15 +25,6 @@ namespace kPrivate
 	static void oglDrawRenderList(const ImDrawList*, const ImDrawCmd* cmd)
 	{
 		auto paint = (KcImOglPaint*)cmd->UserCallbackData;
-
-		auto texId = ImGui::GetIO().Fonts->TexID;
-		glEnable(GL_TEXTURE);
-		glActiveTexture(GL_TEXTURE0);
-		assert(glIsTexture((GLuint)texId));
-		GLint params;
-		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_RESIDENT, &params);
-		assert(params == GL_TRUE);
-		glBindTexture(GL_TEXTURE_2D, (GLuint)texId);
 		paint->drawRenderList_();
 	}
 }
@@ -86,12 +77,55 @@ void KcImOglPaint::beginPaint()
 }
 
 
+namespace kPrivate
+{
+	void test(const ImDrawList*, const ImDrawCmd* cmd)
+	{
+		return;
+		//glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(0);
+		auto texId = ImGui::GetIO().Fonts->TexID;
+		assert(texId == cmd->GetTexID());
+		glEnable(GL_TEXTURE);
+		glActiveTexture(GL_TEXTURE0);
+		assert(glIsTexture((GLuint)(intptr_t)cmd->GetTexID()));
+		GLint params;
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_RESIDENT, &params);
+		assert(params == GL_TRUE);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)cmd->GetTexID());
+
+		glBegin(GL_QUADS);
+
+		glTexCoord2f(0, 0);
+		glVertex2f(0, 0);
+		glColor3f(1, 0, 1);
+
+		glTexCoord2f(0, 1);
+		glVertex2f(0, 1);
+		glColor3f(1, 0, 1);
+
+		glTexCoord2f(1, 1);
+		glVertex2f(1, 1);
+		glColor3f(1, 0, 1);
+
+		glTexCoord2f(1, 0);
+		glVertex2f(1, 0);
+		glColor3f(1, 0, 1);
+
+		glEnd();
+	}
+}
+
+
 void KcImOglPaint::endPaint()
 {
 	if (!renderList_.empty()) {
 		auto dl = ImGui::GetWindowDrawList();
 		dl->AddCallback(kPrivate::oglDrawRenderList, this);
 		dl->AddCallback(ImDrawCallback_ResetRenderState, nullptr); // ÈÃimgui»Ö¸´äÖÈ¾×´Ì¬
+		dl->AddCallback(kPrivate::test, nullptr);
 	}
 
 	super_::endPaint();
@@ -672,7 +706,7 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors,
 	if (obj)
 		pushRenderObject_(obj);
 
-	//return nullptr; // TODO: issue #I6MQBX
+	return nullptr; // TODO: issue #I6MQBX
 	return obj;
 }
 

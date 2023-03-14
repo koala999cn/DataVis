@@ -26,7 +26,7 @@ bool KcHeatMap::objectVisible_(unsigned objIdx) const
 	if (objIdx & 1)
 		return showText_ && clrText_.a() != 0;
 	else
-		return super_::objectVisible_(objIdx);
+		return super_::objectVisible_(objIdx / 2);
 }
 
 
