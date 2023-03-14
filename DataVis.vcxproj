@@ -189,6 +189,7 @@
     <ClCompile Include="src\opengl\KcLineObject.cpp" />
     <ClCompile Include="src\opengl\KcPointObject.cpp" />
     <ClCompile Include="src\opengl\KcRenderObject.cpp" />
+    <ClCompile Include="src\opengl\KcTextObject.cpp" />
     <ClCompile Include="src\opengl\KsShaderManager.cpp" />
     <ClCompile Include="src\opengl\KuOglUtil.cpp" />
     <ClCompile Include="src\op\KcOpFbank.cpp" />
@@ -391,6 +392,7 @@
     <ClInclude Include="src\opengl\KcLineObject.h" />
     <ClInclude Include="src\opengl\KcPointObject.h" />
     <ClInclude Include="src\opengl\KcRenderObject.h" />
+    <ClInclude Include="src\opengl\KcTextObject.h" />
     <ClInclude Include="src\opengl\KsShaderManager.h" />
     <ClInclude Include="src\opengl\KuOglUtil.h" />
     <ClInclude Include="src\opengl\KvVertexBuffer.h" />

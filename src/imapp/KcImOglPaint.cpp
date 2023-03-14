@@ -25,6 +25,15 @@ namespace kPrivate
 	static void oglDrawRenderList(const ImDrawList*, const ImDrawCmd* cmd)
 	{
 		auto paint = (KcImOglPaint*)cmd->UserCallbackData;
+
+		auto texId = ImGui::GetIO().Fonts->TexID;
+		glEnable(GL_TEXTURE);
+		glActiveTexture(GL_TEXTURE0);
+		assert(glIsTexture((GLuint)texId));
+		GLint params;
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_RESIDENT, &params);
+		assert(params == GL_TRUE);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)texId);
 		paint->drawRenderList_();
 	}
 }
@@ -663,7 +672,7 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors,
 	if (obj)
 		pushRenderObject_(obj);
 
-	return nullptr; // TODO: issue #I6MQBX
+	//return nullptr; // TODO: issue #I6MQBX
 	return obj;
 }
 
@@ -769,7 +778,7 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 {
 	if (!text.empty()) {
 		auto obj = new KcRenderObject(k_quads);
-		obj->setShader(KsShaderManager::singleton().progColorUV(true)); // 文字渲染始终使用flat模式
+		obj->setShader(KsShaderManager::singleton().progColorUV(true)); // TODO: 目前文字渲染始终使用flat模式
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -792,7 +801,7 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
 	auto obj = makeTextVbo_(rl.texts);
 	if (obj) {
-		obj->setProjMatrix(float4x4<>::identity()); // text均使用ndc坐标，不须在shader中进行坐标变换
+		obj->setProjMatrix(float4x4<>::identity()); // 全局text使用ndc坐标，不须在shader中进行坐标变换
 		rl.objs.emplace_back(obj); 
 	}
 }

@@ -490,6 +490,9 @@
     <ClCompile Include="src\plot\KcSurface.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\opengl\KcTextObject.cpp">
+      <Filter>opengl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1121,6 +1124,9 @@
     </ClInclude>
     <ClInclude Include="src\plot\KcSurface.h">
       <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl\KcTextObject.h">
+      <Filter>opengl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
