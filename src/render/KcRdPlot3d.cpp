@@ -85,10 +85,10 @@ int KcRdPlot3d::plottableType_(KvPlottable* plt) const
 		return 1;
 	else if (dynamic_cast<KcLineFilled*>(plt))
 		return 2;
+	else if (dynamic_cast<KcBars3d*>(plt)) // ĞëÏÈÅĞ¶Ïbars3d
+		return 4;
 	else if (dynamic_cast<KcBars2d*>(plt))
 		return 3;
-	else if (dynamic_cast<KcBars3d*>(plt))
-		return 4;
 	else if (dynamic_cast<KcSurface*>(plt))
 		return 5;
 
