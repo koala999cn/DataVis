@@ -7,13 +7,12 @@ void KvPlottable1d::setData(const_data_ptr d)
 	super_::setData(d);
 
 	arrangeMode_.resize(odim());
-	ridgeOffset_.resize(odim());
-	groupOffset_.resize(odim());
-	groupSpacing_.resize(odim());
+	offset_.resize(odim());
+	shift_.resize(odim());
 
 	setYdim(odim());
 	setXdim(odim() - 1);
-	setZdim(odim() > 1 ? odim() - 2 : odim() - 1);
+	setZdim(odim() > 1 ? odim() - 2 : odim());
 }
 
 
@@ -30,9 +29,8 @@ void KvPlottable1d::cloneConfig(const KvPlottable& plt)
 
 		for (unsigned d = 0; d < odim(); d++) {
 			setArrangeMode(d, plt1d->arrangeMode(d));
-			setGroupOffset(d, plt1d->groupOffset(d));
-			setGroupSpacing(d, plt1d->groupSpacing(d));
-			setRidgeOffset(d, plt1d->ridgeOffset(d));
+			setOffset(d, plt1d->offset(d));
+			setShift(d, plt1d->shift(d));
 		}
 	}
 }
@@ -122,12 +120,10 @@ KuDataUtil::KpPointGetter1d KvPlottable1d::lineArranged_(unsigned ch, unsigned i
 	auto g = KuDataUtil::pointGetter1dAt(discreted_(), ch, idx);
 
 	for (unsigned i = odata()->dim() - 1; i != -1 && i >= dim; i--) {
-		if (isGrouped_(i))
-			g.getter = lineGrouped_(g, ch, idx, i);
-		else if (isRidged_(i))
-			g.getter = lineRidged_(g, ch, idx, i);
-		else if (isStacked_(i))
+		if (isStacked_(i))
 			g.getter = lineStacked_(g, ch, idx, i);
+		else
+			g.getter = lineDeltaed_(g, ch, idx, i);
 	}
 
 	return g;
@@ -137,6 +133,13 @@ KuDataUtil::KpPointGetter1d KvPlottable1d::lineArranged_(unsigned ch, unsigned i
 void KvPlottable1d::setArrangeMode(unsigned dim, int mode)
 {
 	arrangeMode_[dim] = mode;
+	if (mode == k_arrange_facet && odim() == 1) {
+		offset_[dim] = defaultZ();
+		shift_[dim] = stepZ();
+	}
+	else {
+		offset_[dim] = shift_[dim] = 0;
+	}
 	setDataChanged(false);
 	setBoundingBoxExpired_();
 	for (unsigned i = 0; i <= dim; i++)
@@ -144,9 +147,9 @@ void KvPlottable1d::setArrangeMode(unsigned dim, int mode)
 }
 
 
-void KvPlottable1d::setRidgeOffset(unsigned dim, float_t offset)
+void KvPlottable1d::setOffset(unsigned dim, float_t offset)
 {
-	ridgeOffset_[dim] = offset;
+	offset_[dim] = offset;
 	setDataChanged(false);
 	setBoundingBoxExpired_();
 	for (unsigned i = 0; i <= dim; i++)
@@ -154,19 +157,13 @@ void KvPlottable1d::setRidgeOffset(unsigned dim, float_t offset)
 }
 
 
-void KvPlottable1d::setGroupOffset(unsigned dim, float_t offset)
+void KvPlottable1d::setShift(unsigned dim, float_t sh)
 {
-	groupOffset_[dim] = offset;
+	shift_[dim] = sh;
 	setDataChanged(false);
 	setBoundingBoxExpired_();
-}
-
-
-void KvPlottable1d::setGroupSpacing(unsigned dim, float_t spacing)
-{
-	groupSpacing_[dim] = spacing;
-	setDataChanged(false);
-	setBoundingBoxExpired_();
+	for (unsigned i = 0; i <= dim; i++)
+		stackedData_.erase(i);
 }
 
 
@@ -296,103 +293,74 @@ KvPlottable1d::GETTER KvPlottable1d::lineStacked_(const KuDataUtil::KpPointGette
 }
 
 
-KvPlottable1d::float_t KvPlottable1d::ridgeOffsetAt_(unsigned ch, unsigned idx, unsigned dim) const
-{
-	assert(isRidged_(dim));
 
-	float_t offset(0);
+KvPlottable1d::float_t KvPlottable1d::deltaAt_(unsigned ch, unsigned idx, unsigned dim) const
+{
+	float_t delta(0);
 	if (dim == odata()->dim() - 1) {
-		offset = ridgeOffset_[dim] * (odata()->channels() - ch - 1);
+		delta = offset_[dim] + shift_[dim] * ch;
 	}
 	else if (odata()->dim() == 1) {
 		assert(dim == 0);
-		offset = ridgeOffset_[dim] * (linesPerChannel_() - idx - 1);
+		delta = offset_[dim] + shift_[dim] * idx;
 	}
 	else {
 		auto disc = discreted_();
 		auto shape = KuDataUtil::shape(*disc);
 		shape.pop_back();
 		auto index = KuDataUtil::n2index(shape, idx);
-		offset = ridgeOffset_[dim] * (shape[dim] - index[dim] - 1);
+		delta = offset_[dim] + shift_[dim] * index[dim];
 	}
 
-	return offset;
+	return delta;
 }
 
 
-KvPlottable1d::float_t KvPlottable1d::groupOffsetAt_(unsigned ch, unsigned idx, unsigned dim) const
+unsigned KvPlottable1d::deltaAxis(unsigned d) const
 {
-	assert(isGrouped_(dim));
+	unsigned axis(-1);
+	if (isGrouped_(d))
+		axis = 0;
+	else if (isRidged_(d))
+		axis = 1;
+	else if (isFaceted_(d))
+		axis = 2;
+	return axis;
+}
 
-	float_t offset(0);
-	if (dim == odata()->dim() - 1) {
-		offset = groupOffset_[dim] + groupSpacing_[dim] * ch;
+
+KvPlottable1d::point3 KvPlottable1d::deltaAt_(unsigned ch, unsigned idx) const
+{
+	point3 d(0);
+	for (unsigned i = 0; i < odata()->dim(); i++) {
+		auto axis = deltaAxis(i);
+		if (axis != -1)
+			d[axis] += deltaAt_(ch, idx, i);
 	}
-	else if (odata()->dim() == 1) {
-		assert(dim == 0);
-		offset = groupOffset_[dim] + groupSpacing_[dim] * idx;
+
+	return d;
+}
+
+
+KvPlottable1d::GETTER KvPlottable1d::lineDeltaed_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, 
+	unsigned idx, unsigned dim) const
+{
+	auto axis = deltaAxis(dim);
+	if (axis != -1) {
+		if (axis <= odim()) {
+			auto delta = deltaAt_(ch, idx, dim);
+			auto getter = g.getter;
+
+			return [getter, delta, axis](unsigned i) {
+				auto pt = getter(i);
+				pt[axis] += delta;
+				return pt;
+			};
+		}
+		else { // 对一维数据进行facet排列, 转换为defaultZ
+
+		}
 	}
-	else {
-		auto disc = discreted_();
-		auto shape = KuDataUtil::shape(*disc);
-		shape.pop_back();
-		auto index = KuDataUtil::n2index(shape, idx);
-		offset = groupOffset_[dim] + groupSpacing_[dim] *  index[dim];
-	}
-
-	return offset;
-}
-
-
-KvPlottable1d::float_t KvPlottable1d::ridgeOffsetAt_(unsigned ch, unsigned idx) const
-{
-	float_t offset(0);
-	for (unsigned i = 0; i < odata()->dim(); i++) 
-		if (isRidged_(i))
-			offset += ridgeOffsetAt_(ch, idx, i);
-
-	return offset;
-}
-
-
-KvPlottable1d::float_t KvPlottable1d::groupOffsetAt_(unsigned ch, unsigned idx) const
-{
-	float_t offset(0);
-	for (unsigned i = 0; i < odata()->dim(); i++)
-		if (isGrouped_(i))
-			offset += groupOffsetAt_(ch, idx, i);
-
-	return offset;
-}
-
-
-KvPlottable1d::GETTER KvPlottable1d::lineRidged_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const
-{
-	assert(isRidged_(dim));
-
-	auto offset = ridgeOffsetAt_(ch, idx, dim);
-	auto getter = g.getter;
-
-	return [this, getter, offset](unsigned i) {
-		auto pt = getter(i);
-		pt[ydim()] += offset;
-		return pt;
-	};
-}
-
-
-KvPlottable1d::GETTER KvPlottable1d::lineGrouped_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const
-{
-	assert(isGrouped_(dim));
-
-	auto offset = groupOffsetAt_(ch, idx, dim);
-	auto getter = g.getter;
-
-	return [this, getter, offset](unsigned i) {
-		auto pt = getter(i);
-		pt[xdim()] += offset;
-		return pt;
-	};
 
 	return g.getter;
 }
@@ -422,29 +390,24 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 	}
 
 
-	// 修正grouped偏移
+	// 修正delta偏移
 	auto disc = discreted_();
 	for (unsigned i = disc->dim() - 1; i != -1 ; i--) {
-		if (isGrouped_(i)) {
-			box.lower().x() += groupOffset_[i];
-			box.upper().x() += groupOffset_[i];
+		auto axis = deltaAxis(i);
+		
+		if (axis != -1) {
+			if (!usingDefaultZ_() || axis != 2) {
+				box.lower()[axis] += offset_[i];
+				box.upper()[axis] += offset_[i];
 
-			auto spacing = groupSpacing_[i] * ((i == disc->dim() - 1) ? disc->channels() - 1 : disc->size(i) - 1);
-			if (spacing > 0)
-				box.upper().x() += spacing;
-			else
-				box.lower().x() += spacing;
+				auto shift = shift_[i] * ((i == disc->dim() - 1) ? disc->channels() - 1 : disc->size(i) - 1);
+				if (shift > 0)
+					box.upper()[axis] += shift;
+				else
+					box.lower()[axis] += shift;
+			}
 		}
 	}
-
-
-	// 修正ridged偏移
-	auto offset = ridgeOffsetAt_(0, 0);
-	if (offset > 0)
-		box.upper().y() += offset;
-	else
-		box.lower().y() += offset;
-	
 
 	// 修正stacked偏移
 	if (ydim() == disc->dim() && isStacked()) {

@@ -849,6 +849,7 @@ void KvRdPlot::showPlottableArrangeProperty_(KvPlottable* plt)
 		"overlay",
 		"group",
 		"ridge",
+		"facet",
 		"stack"
 	};
 
@@ -858,7 +859,7 @@ void KvRdPlot::showPlottableArrangeProperty_(KvPlottable* plt)
 	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(plt->odata());
 	if (!disc || disc->isSampled()) {
 		if (ImGuiX::treePush("Arrangement", false)) {
-			std::string label("Dim0");
+			std::string label("Dim1");
 			for (unsigned d = 0; d < plt->odata()->dim(); d++) {
 
 				if (d == plt->odata()->dim() - 1) {
@@ -875,27 +876,26 @@ void KvRdPlot::showPlottableArrangeProperty_(KvPlottable* plt)
 					if (ImGui::Combo("Arrange Mode", &mode, arrangeModes, std::size(arrangeModes)))
 						plt1d->setArrangeMode(d, mode);
 
-					if (mode == KvPlottable1d::k_arrange_ridge) {
-						float offset = plt1d->ridgeOffset(d);
-						float v_speed = plt1d->empty() ? 1 : plt1d->odata()->range(plt1d->ydim()).length() / 100;
-						if (ImGui::DragFloat("Ridge Offset", &offset, v_speed))
-							plt1d->setRidgeOffset(d, offset);
-					}
-					else if (mode == KvPlottable1d::k_arrange_group) {
-						float offset = plt1d->groupOffset(d);
-						float v_speed = plt1d->empty() ? 1 : plt1d->odata()->range(plt1d->xdim()).length() / 100;
-						if (ImGui::DragFloat("Group Offset", &offset, v_speed / 10))
-							plt1d->setGroupOffset(d, offset);
+					auto axis = plt1d->deltaAxis(d);
+					if (axis != -1) {
+						ImGui::BeginDisabled(axis == 2 && axis > plt1d->odim());
 
-						float spacing = plt1d->groupSpacing(d);
-						if (ImGui::DragFloat("Group Spacing", &spacing, v_speed))
-							plt1d->setGroupSpacing(d, spacing);
+						float offset = plt1d->offset(d);
+						float v_speed = (plt1d->empty() || axis > plt1d->odim()) ? 1 : plt1d->odata()->range(axis).length() / 100;
+						if (ImGui::DragFloat("Offset", &offset, v_speed / 10))
+							plt1d->setOffset(d, offset);
+
+						float shift = plt1d->shift(d);
+						if (ImGui::DragFloat("Shift", &shift, v_speed))
+							plt1d->setShift(d, shift);
+
+						ImGui::EndDisabled();
 					}
 
 					ImGuiX::treePop();
 				}
 
-				label.back()++; // "Dim0" -> "Dim1" -> "Dim2" -> ...
+				label.back()++; // "Dim1" -> "Dim2" -> "Dim3" -> ...
 			}
 
 			ImGuiX::treePop();

@@ -258,7 +258,7 @@ void* KcLineFilled::fillBetween_(KvPaint* paint, bool baseline) const
 KcLineFilled::GETTER KcLineFilled::baseGetter_(unsigned ch, unsigned idx, GETTER g) const
 {
 	if (baseMode_ == k_base_xline) {
-		auto yoffset = ridgeOffsetAt_(ch, idx);
+		auto yoffset = deltaAt_(ch, idx).y();
 		return [g, this, yoffset](unsigned i) {
 			auto pt = g(i);
 			pt[ydim()] = baseLine_ + yoffset;
@@ -266,7 +266,7 @@ KcLineFilled::GETTER KcLineFilled::baseGetter_(unsigned ch, unsigned idx, GETTER
 		};
 	}
 	else {
-		auto xoffset = groupOffsetAt_(ch, idx);
+		auto xoffset = deltaAt_(ch, idx).x();
 		return [g, this, xoffset](unsigned i) {
 			auto pt = g(i);
 			pt[xdim()] = baseLine_ + xoffset;
@@ -278,10 +278,7 @@ KcLineFilled::GETTER KcLineFilled::baseGetter_(unsigned ch, unsigned idx, GETTER
 
 KcLineFilled::point3 KcLineFilled::basePointAt_(unsigned ch, unsigned idx) const
 {
-	auto pt = basePoint_;
-	pt[0] += groupOffsetAt_(ch, idx);
-	pt[1] += ridgeOffsetAt_(ch, idx);
-	return pt;
+	return basePoint_ + deltaAt_(ch, idx);
 }
 
 

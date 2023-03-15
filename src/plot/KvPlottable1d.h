@@ -55,6 +55,9 @@ public:
 	unsigned ydim() const { return axisDim_[1]; } // 返回y轴对应的数据维度
 	unsigned zdim() const { return axisDim_[2]; } // 返回z轴对应的数据维度
 
+	// 根据arrange模式返回偏移坐标轴，group模式返回0，ridge模式返回1，facet模式返回2，其他返回-1
+	unsigned deltaAxis(unsigned dim) const;
+
 	virtual void setXdim(unsigned dim); // 将维度dim映射到x轴
 	virtual void setYdim(unsigned dim); // 将维度dim映射到x轴
 	virtual void setZdim(unsigned dim); // 将维度dim映射到x轴
@@ -82,9 +85,10 @@ public:
 	{
 		k_arrange_none, 
 		k_arrange_overlay = k_arrange_none,
-		k_arrange_group, // x轴偏移
-		k_arrange_ridge, // y轴偏移
-		k_arrange_stack  // 值域堆叠
+		k_arrange_group, // 分组：x轴偏移
+		k_arrange_ridge, // 分层：y轴偏移
+		k_arrange_facet, // 分面：z轴偏移
+		k_arrange_stack  // 堆叠：值域累计
 	};
 
 	// dim == odata()->dim()时，返回channel的arrange模式
@@ -94,14 +98,11 @@ public:
 
 	void setArrangeMode(unsigned dim, int mode);
 
-	float_t ridgeOffset(unsigned dim) const { return ridgeOffset_[dim]; }
-	void setRidgeOffset(unsigned dim, float_t offset);
+	float_t offset(unsigned dim) const { return offset_[dim]; }
+	void setOffset(unsigned dim, float_t offset);
 
-	float_t groupOffset(unsigned dim) const { return groupOffset_[dim]; }
-	void setGroupOffset(unsigned dim, float_t offset);
-
-	float_t groupSpacing(unsigned dim) const { return groupSpacing_[dim]; }
-	void setGroupSpacing(unsigned dim, float_t spacing);
+	float_t shift(unsigned dim) const { return shift_[dim]; }
+	void setShift(unsigned dim, float_t sh);
 
 	// 是否存在堆叠模式
 	bool isStacked() const;
@@ -124,17 +125,14 @@ protected:
 	// 按照从高维到低维的顺序（通道为最高维），依次处理arrange模式到dim维度（含dim）
 	KuDataUtil::KpPointGetter1d lineArranged_(unsigned ch, unsigned idx, unsigned dim) const;
 
-	// 由于可能有多个维度为ridge模式，所以此处传递参数dim用于区分
-	GETTER lineGrouped_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const;
-	GETTER lineRidged_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const;
 	GETTER lineStacked_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const;
 
-	float_t ridgeOffsetAt_(unsigned ch, unsigned idx, unsigned dim) const;
-	float_t ridgeOffsetAt_(unsigned ch, unsigned idx) const;
+	// delta = offset + i * shift
+	float_t deltaAt_(unsigned ch, unsigned idx, unsigned dim) const;
 
-	float_t groupOffsetAt_(unsigned ch, unsigned idx, unsigned dim) const;
-	float_t groupOffsetAt_(unsigned ch, unsigned idx) const;
-	
+	point3 deltaAt_(unsigned ch, unsigned idx) const;
+
+
 	bool isStacked_(unsigned dim) const {
 		return arrangeMode_[dim] == k_arrange_stack;
 	}
@@ -143,6 +141,9 @@ protected:
 	}
 	bool isGrouped_(unsigned dim) const {
 		return arrangeMode_[dim] == k_arrange_group;
+	}
+	bool isFaceted_(unsigned dim) const {
+		return arrangeMode_[dim] == k_arrange_facet;
 	}
 	bool isOverlayed_(unsigned dim) const {
 		return arrangeMode_[dim] == k_arrange_overlay;
@@ -154,14 +155,14 @@ private:
 
 	void calcStackData_(unsigned dim) const; // 计算stack数据，内部调用
 
+	GETTER lineDeltaed_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, unsigned idx, unsigned dim) const;
+
 private:
 
 	std::vector<int> arrangeMode_; // 各维度的arrange模式，大小等于odata()->dim()
 	                               // 最后一个值代表channel的arrange模式
 
-	std::vector<float_t> ridgeOffset_;
-
-	std::vector<float_t> groupOffset_, groupSpacing_;
+	std::vector<float_t> offset_, shift_;
 
 	mutable std::map<unsigned, std::shared_ptr<KvDiscreted>> stackedData_; // 保存stack数据计算结果, dim -> data
 };

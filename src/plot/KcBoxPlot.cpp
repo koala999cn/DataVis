@@ -62,13 +62,13 @@ void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx) const
 	for (unsigned ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned idx = 0; idx < linesPerChannel_(); idx++) {
 			unsigned statIdx = ch * linesPerChannel_() + idx;
-			float_t x = odata()->range(xdim()).mid() + groupOffsetAt_(ch, idx);
-			float_t z = usingDefaultZ_() ? defaultZ(ch) : odata()->range(zdim()).mid();
-			auto yoffset = ridgeOffsetAt_(ch, idx);
+			auto delta = deltaAt_(ch, idx);
+			float_t x = odata()->range(xdim()).mid() + delta[0];
+			float_t z = usingDefaultZ_() ? defaultZ(ch) : odata()->range(zdim()).mid() + delta[2];
 
 			auto& s = stats_[statIdx];
-			auto lower = point3{ x - boxWidth_ / 2, s.q1 + yoffset, z };
-			auto upper = point3{ x + boxWidth_ / 2, s.q3 + yoffset, z };
+			auto lower = point3{ x - boxWidth_ / 2, s.q1 + delta[1], z };
+			auto upper = point3{ x + boxWidth_ / 2, s.q3 + delta[1], z };
 
 			// fill box
 			paint->setColor(majorColor(objIdx));
@@ -79,25 +79,25 @@ void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx) const
 			paint->drawRect(lower, upper);
 
 			// draw the median line
-			lower.y() = upper.y() = s.median + yoffset;
+			lower.y() = upper.y() = s.median + delta[1];
 			paint->apply(medianPen_);
 			paint->drawLine(lower, upper);
 
 			// draw the whisker lines
 			paint->apply(whisPen_);
-			paint->drawLine(point3{ x, s.q1 + yoffset, z }, point3{ x, s.lower + yoffset, z });
-			paint->drawLine(point3{ x, s.q3 + yoffset, z }, point3{ x, s.upper + yoffset, z });
+			paint->drawLine(point3{ x, s.q1 + delta[1], z }, point3{ x, s.lower + delta[1], z });
+			paint->drawLine(point3{ x, s.q3 + delta[1], z }, point3{ x, s.upper + delta[1], z });
 
 			// draw the whisker bars
 			auto ww = whisBarWidth_ / 2;
 			paint->apply(whisBarPen_);
-			paint->drawLine(point3{ x - ww, s.lower + yoffset, z }, point3{ x + ww, s.lower + yoffset, z });
-			paint->drawLine(point3{ x - ww, s.upper + yoffset, z }, point3{ x + ww, s.upper + yoffset, z });
+			paint->drawLine(point3{ x - ww, s.lower + delta[1], z }, point3{ x + ww, s.lower + delta[1], z });
+			paint->drawLine(point3{ x - ww, s.upper + delta[1], z }, point3{ x + ww, s.upper + delta[1], z });
 
 			// draw the outliers
 			paint->apply(outlierMarker_);
 			for (auto& y : s.outliers)
-				paint->drawMarker(point3{ x, y + yoffset, z });
+				paint->drawMarker(point3{ x, y + delta[1], z });
 		}
 	}
 

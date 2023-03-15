@@ -73,8 +73,8 @@ KcBars2d::aabb_t KcBars2d::calcBoundingBox_() const
 	auto box = super_::calcBoundingBox_();
 
 	// 修正x轴
-	//auto xw = barWidth_(xdim());
-	//box.lower().x() -= xw; box.upper().x() += xw;
+	auto xw = barWidth_(xdim());
+	box.lower().x() -= xw; box.upper().x() += xw;
 
 	// 修正y轴
 	KuMath::updateRange<double>(box.lower().y(), box.upper().y(), baseLine_);
@@ -110,18 +110,18 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
 			bool floorStack = isFloorStack_(ch, idx);
 
 			KuDataUtil::KpPointGetter1d val;
-			float_t offset(0);
+			float_t yoffset(0);
 			if (!floorStack)
 				val = KuDataUtil::pointGetter1dAt(disc, ch, idx); // 原始数据, 只在floorStack为false时需要
 			else
-				offset = ridgeOffsetAt_(ch, idx); // 底部stack的偏移 只在floorStack为true时需要
+				yoffset = deltaAt_(ch, idx).y(); // 底部stack的偏移 只在floorStack为true时需要
 
 			for (unsigned i = 0; i < line.size; i++) {
 				auto pos = line.getter(i);
 				auto pt = toPoint_(pos.data(), ch); // TODO: 此处多了一次toPoint_调用
 				auto top = pt.y();
 				
-				float_t bottom = floorStack ? baseLine_ + offset : top - val.getter(i).back();
+				float_t bottom = floorStack ? baseLine_ + yoffset : top - val.getter(i).back();
 				auto paddedBottom = bottom + stackPadding * KuMath::sign(top - bottom);
 
 				auto idxBase = geom->vertexCount();
@@ -174,7 +174,7 @@ void KcBars2d::drawOneBar_(float_t* pos, unsigned ch, float_t bottom, void* vtxB
 
 KcBars2d::float_t KcBars2d::barWidth_(unsigned dim) const
 {
-	if ((usingDefaultZ_() && dim == zdim()) || dim >= odata()->dim())
+	if ((forceDefaultZ() && dim == zdim()) || dim >= odim())
 		return stepZ() == 0 ? 1 : stepZ();
 
 	auto disc = discreted_();
