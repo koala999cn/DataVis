@@ -25,4 +25,5 @@ private:
 	std::string text_;
 	handler_t handler_;
 	unsigned dim_; // 维度限制，0表示无限制
+	std::string errorMsg_;
 };

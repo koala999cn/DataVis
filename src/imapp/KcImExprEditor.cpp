@@ -32,6 +32,8 @@ void KcImExprEditor::updateImpl_()
     ImGui::SetItemDefaultFocus();
     ImGui::PopItemWidth();
     ImGui::Spacing();
+    if (!errorMsg_.empty()) 
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), errorMsg_.c_str());
     ImGui::Separator();
     ImGui::Spacing();
 
@@ -40,9 +42,6 @@ void KcImExprEditor::updateImpl_()
         if (data) {
             close();
             handler_(data, text_.c_str());
-        }
-        else {
-            // TODO: messagebox
         }
     }
     ImGui::SameLine();
@@ -54,8 +53,10 @@ void KcImExprEditor::updateImpl_()
 
 std::shared_ptr<KvData> KcImExprEditor::compile_()
 {
+    std::shared_ptr<KvExprtk> expr;
+
     if (dim_ == 0 || dim_ == 1) {
-        auto expr = std::make_shared<KcExprtk1d>();
+        expr = std::make_shared<KcExprtk1d>();
         if (expr->compile(text_))  // 首先尝试编译一维表达式
             return std::make_shared<KcContinuedFn>(
                 [expr](kReal x[]) { return expr->value(x); },
@@ -63,7 +64,7 @@ std::shared_ptr<KvData> KcImExprEditor::compile_()
     }
 
     if (dim_ == 0 || dim_ == 2) {
-        auto expr = std::make_shared<KcExprtk2d>();
+        expr = std::make_shared<KcExprtk2d>();
         if (expr->compile(text_))  // 尝试编译二维表达式
             return std::make_shared<KcContinuedFn>(
                 [expr](kReal x[]) { return expr->value(x); },
@@ -71,12 +72,13 @@ std::shared_ptr<KvData> KcImExprEditor::compile_()
     }
 
     if (dim_ == 0 || dim_ == 3) {
-        auto expr = std::make_shared<KcExprtk3d>();
+        expr = std::make_shared<KcExprtk3d>();
         if (expr->compile(text_))  // 尝试编译三维表达式
             return std::make_shared<KcContinuedFn>(
                 [expr](kReal x[]) { return expr->value(x); },
                 3);
     }
 
+    errorMsg_ = expr->error();
     return nullptr;
 }
