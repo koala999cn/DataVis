@@ -124,15 +124,15 @@ namespace kPrivate
 		auto plt1d = dynamic_cast<KvPlottable1d*>(plt);
 		if (plt1d && !plt1d->empty()) {
 
-			int dim[3] = { int(plt1d->xdim()), int(plt1d->ydim()), int(plt1d->zdim()) };
-			if (ImGui::SliderInt3("Dim Mapping", dim, 0, plt1d->odata()->dim() )) {
-				dim[0] = KuMath::clamp<int>(dim[0], 0, plt1d->odata()->dim());
+			int dim[3] = { int(plt1d->xdim() + 1), int(plt1d->ydim() + 1), int(plt1d->zdim() + 1) };
+			if (ImGui::SliderInt3("Dim Mapping", dim, 1, plt1d->odata()->dim() + 1)) {
+				dim[0] = KuMath::clamp<int>(dim[0] - 1, 0, plt1d->odata()->dim());
 				plt1d->setXdim(dim[0]);
 
-				dim[1] = KuMath::clamp<int>(dim[1], 0, plt1d->odata()->dim());
+				dim[1] = KuMath::clamp<int>(dim[1] - 1, 0, plt1d->odata()->dim());
 				plt1d->setYdim(dim[1]);
 
-				dim[2] = KuMath::clamp<int>(dim[2], 0, plt1d->odata()->dim());
+				dim[2] = KuMath::clamp<int>(dim[2] - 1, 0, plt1d->odata()->dim());
 				plt1d->setZdim(dim[2]);
 			}
 		}

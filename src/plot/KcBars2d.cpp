@@ -74,7 +74,7 @@ KcBars2d::aabb_t KcBars2d::calcBoundingBox_() const
 
 	// ÐÞÕýxÖá
 	auto xw = barWidth_(xdim());
-	box.lower().x() -= xw; box.upper().x() += xw;
+	box.lower().x() -= xw / 2; box.upper().x() += xw / 2;
 
 	// ÐÞÕýyÖá
 	KuMath::updateRange<double>(box.lower().y(), box.upper().y(), baseLine_);
@@ -148,7 +148,7 @@ void KcBars2d::drawOneBar_(float_t* pos, unsigned ch, float_t bottom, void* vtxB
 
 	auto barWidth = barWidthRatio_ * barWidth_(xdim());
 	auto pt = toPoint_(pos, ch);
-	auto left = pt.x();
+	auto left = pt.x() - barWidth / 2;
 	auto right = left + barWidth;
 	auto top = pt.y();
 

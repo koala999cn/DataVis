@@ -63,7 +63,7 @@
 - [ ] 测试多通道高维数据的arrange模式
 - [x] 实现plottable2d的arrange模式
 - [ ] heatmap的维度映射
-- [ ] arrange模式增加zshift实现
+- [x] arrange模式增加zshift实现
 
 ## theme
 - [ ] 更多theme，SCI等

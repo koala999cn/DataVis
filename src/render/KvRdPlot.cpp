@@ -876,20 +876,17 @@ void KvRdPlot::showPlottableArrangeProperty_(KvPlottable* plt)
 					if (ImGui::Combo("Arrange Mode", &mode, arrangeModes, std::size(arrangeModes)))
 						plt1d->setArrangeMode(d, mode);
 
-					auto axis = plt1d->deltaAxis(d);
+					auto axis = plt1d->deltaAxis(d, true);
 					if (axis != -1) {
-						ImGui::BeginDisabled(axis == 2 && axis > plt1d->odim());
-
+						assert(axis <= plt1d->odim() && !plt1d->empty());
 						float offset = plt1d->offset(d);
-						float v_speed = (plt1d->empty() || axis > plt1d->odim()) ? 1 : plt1d->odata()->range(axis).length() / 100;
+						float v_speed = plt1d->odata()->range(axis).length() / 100;
 						if (ImGui::DragFloat("Offset", &offset, v_speed / 10))
 							plt1d->setOffset(d, offset);
 
 						float shift = plt1d->shift(d);
 						if (ImGui::DragFloat("Shift", &shift, v_speed))
 							plt1d->setShift(d, shift);
-
-						ImGui::EndDisabled();
 					}
 
 					ImGuiX::treePop();
@@ -960,9 +957,9 @@ void KvRdPlot::showPlottableColoringProperty_(KvPlottable* plt)
 			}
 
 			if (!plt->empty()) {
-				int dim = plt->colorMappingDim();
-				if (ImGui::SliderInt("Dim Mapping", &dim, 0, plt->odata()->dim()))
-					plt->setColorMappingDim(dim);
+				int dim = plt->colorMappingDim() + 1;
+				if (ImGui::SliderInt("Dim Mapping", &dim, 1, plt->odata()->dim() + 1))
+					plt->setColorMappingDim(dim - 1);
 
 				ImGui::Checkbox("Auto Range", &plt->autoColorMappingRange());
 

@@ -133,13 +133,7 @@ KuDataUtil::KpPointGetter1d KvPlottable1d::lineArranged_(unsigned ch, unsigned i
 void KvPlottable1d::setArrangeMode(unsigned dim, int mode)
 {
 	arrangeMode_[dim] = mode;
-	if (mode == k_arrange_facet && odim() == 1) {
-		offset_[dim] = defaultZ();
-		shift_[dim] = stepZ();
-	}
-	else {
-		offset_[dim] = shift_[dim] = 0;
-	}
+	offset_[dim] = shift_[dim] = 0;
 	setDataChanged(false);
 	setBoundingBoxExpired_();
 	for (unsigned i = 0; i <= dim; i++)
@@ -316,15 +310,15 @@ KvPlottable1d::float_t KvPlottable1d::deltaAt_(unsigned ch, unsigned idx, unsign
 }
 
 
-unsigned KvPlottable1d::deltaAxis(unsigned d) const
+unsigned KvPlottable1d::deltaAxis(unsigned d, bool mapDim) const
 {
 	unsigned axis(-1);
 	if (isGrouped_(d))
-		axis = 0;
+		axis = mapDim ? xdim() : 0;
 	else if (isRidged_(d))
-		axis = 1;
-	else if (isFaceted_(d))
-		axis = 2;
+		axis = mapDim ? ydim() : 1;
+	else if (isFaceted_(d) && !usingDefaultZ_())
+		axis = mapDim ? zdim() : 2;
 	return axis;
 }
 
@@ -333,7 +327,7 @@ KvPlottable1d::point3 KvPlottable1d::deltaAt_(unsigned ch, unsigned idx) const
 {
 	point3 d(0);
 	for (unsigned i = 0; i < odata()->dim(); i++) {
-		auto axis = deltaAxis(i);
+		auto axis = deltaAxis(i, false);
 		if (axis != -1)
 			d[axis] += deltaAt_(ch, idx, i);
 	}
@@ -345,21 +339,16 @@ KvPlottable1d::point3 KvPlottable1d::deltaAt_(unsigned ch, unsigned idx) const
 KvPlottable1d::GETTER KvPlottable1d::lineDeltaed_(const KuDataUtil::KpPointGetter1d& g, unsigned ch, 
 	unsigned idx, unsigned dim) const
 {
-	auto axis = deltaAxis(dim);
+	auto axis = deltaAxis(dim, true);
 	if (axis != -1) {
-		if (axis <= odim()) {
-			auto delta = deltaAt_(ch, idx, dim);
-			auto getter = g.getter;
+		auto delta = deltaAt_(ch, idx, dim);
+		auto getter = g.getter;
 
-			return [getter, delta, axis](unsigned i) {
-				auto pt = getter(i);
-				pt[axis] += delta;
-				return pt;
-			};
-		}
-		else { // 对一维数据进行facet排列, 转换为defaultZ
-
-		}
+		return [getter, delta, axis](unsigned i) {
+			auto pt = getter(i);
+			pt[axis] += delta;
+			return pt;
+		};
 	}
 
 	return g.getter;
@@ -380,9 +369,10 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 
 	// zrange
 	if (usingDefaultZ_()) {
-		// 不用关心lower.z与upper.z的大小，aabb构造函数会自动调整大小值
 		box.lower().z() = defaultZ(0);
-		box.upper().z() = defaultZ(odata()->channels() - 1); // TODO: 此处固定使用通道数来配置z平面的数量，可考虑由用户定制
+		box.upper().z() = defaultZ(channels_() - 1); // TODO: 此处固定使用通道数来配置z平面的数量，可考虑由用户定制
+		if (box.lower().z() > box.upper().z())
+			std::swap(box.lower().z(), box.upper().z());
 	}
 	else {
 		auto r2 = odata()->range(zdim());
@@ -393,19 +383,17 @@ KvPlottable::aabb_t KvPlottable1d::calcBoundingBox_() const
 	// 修正delta偏移
 	auto disc = discreted_();
 	for (unsigned i = disc->dim() - 1; i != -1 ; i--) {
-		auto axis = deltaAxis(i);
-		
-		if (axis != -1) {
-			if (!usingDefaultZ_() || axis != 2) {
-				box.lower()[axis] += offset_[i];
-				box.upper()[axis] += offset_[i];
+		auto axis = deltaAxis(i, false);
 
-				auto shift = shift_[i] * ((i == disc->dim() - 1) ? disc->channels() - 1 : disc->size(i) - 1);
-				if (shift > 0)
-					box.upper()[axis] += shift;
-				else
-					box.lower()[axis] += shift;
-			}
+		if (axis != -1) {
+			box.lower()[axis] += offset_[i];
+			box.upper()[axis] += offset_[i];
+
+			auto shift = shift_[i] * ((i == disc->dim() - 1) ? disc->channels() - 1 : disc->size(i) - 1);
+			if (shift > 0)
+				box.upper()[axis] += shift;
+			else
+				box.lower()[axis] += shift;
 		}
 	}
 

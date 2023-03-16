@@ -18,7 +18,7 @@ KcBars3d::aabb_t KcBars3d::calcBoundingBox_() const
 
 	// ÐÞÕýzÖá
 	auto zw = barWidth_(zdim());
-	box.lower().z() -= zw; box.upper().z() += zw;
+	box.lower().z() -= zw / 2; box.upper().z() += zw / 2;
 
 	return box;
 }

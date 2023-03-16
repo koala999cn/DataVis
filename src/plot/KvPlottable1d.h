@@ -56,7 +56,8 @@ public:
 	unsigned zdim() const { return axisDim_[2]; } // 返回z轴对应的数据维度
 
 	// 根据arrange模式返回偏移坐标轴，group模式返回0，ridge模式返回1，facet模式返回2，其他返回-1
-	unsigned deltaAxis(unsigned dim) const;
+	// @mapDim: 若true，则返回xdim, ydim, zdim，而非0, 1, 2
+	unsigned deltaAxis(unsigned dim, bool mapDim) const;
 
 	virtual void setXdim(unsigned dim); // 将维度dim映射到x轴
 	virtual void setYdim(unsigned dim); // 将维度dim映射到x轴
