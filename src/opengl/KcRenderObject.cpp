@@ -8,14 +8,27 @@
 KcRenderObject::KcRenderObject(const KcRenderObject& rhs)
 	: type_(rhs.type_)
 	, prog_(rhs.prog_)
-	, vbo_(rhs.vbo_)
-	, ibo_(rhs.ibo_)
-	, vtxDecl_(rhs.vtxDecl_)
-	, indexCount_(rhs.indexCount_) 
+	, vbos_(rhs.vbos_)
+	, ibos_(rhs.ibos_)
 	, projMat_(rhs.projMat_)
 	, clipBox_(rhs.clipBox_)
 	, color_(rhs.color_)
 {
+}
+
+
+KcRenderObject::~KcRenderObject()
+{
+	resetVao_();
+}
+
+
+void KcRenderObject::resetVao_()
+{
+	if (vaoId_ != 0) {
+		glDeleteVertexArrays(1, &vaoId_);
+		vaoId_ = 0;
+	}
 }
 
 
@@ -31,8 +44,23 @@ void KcRenderObject::draw() const
 
 void KcRenderObject::bindVbo_() const
 {
-	vbo_->bind(); // 激活vbo
-	vtxDecl_->declare(); // 声明vbo数据规格
+	if (vbos_.size() > 1) { // 使用vao
+		if (vaoId_) {
+			glBindVertexArray(vaoId_);
+		}
+		else {
+			glGenVertexArrays(1, &vaoId_);
+			glBindVertexArray(vaoId_);
+			for (auto& i : vbos_) {
+				i.buf->bind();
+				i.decl->declare();
+			}
+		}
+	}
+	else {
+		vbos_[0].buf->bind(); // 激活vbo
+		vbos_[0].decl->declare(); // 声明vbo数据规格
+	}
 }
 
 
@@ -80,15 +108,31 @@ void KcRenderObject::drawVbo_() const
 		GL_POLYGON
 	};
 
-	if (ibo_ && indexCount_ > 0) {
-		ibo_->bind();
-		auto idxSize = ibo_->bytesCount() / indexCount_;
-		assert(idxSize <= 4);
-		GLenum type = (idxSize == 4) ? GL_UNSIGNED_INT : (idxSize == 2) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
-		glDrawElements(glModes[type_], indexCount_, type, 0);
+	if (!ibos_.empty()) {
+		for (auto& i : ibos_) {
+			i.buf->bind();
+			auto idxSize = i.buf->bytesCount() / i.count;
+			assert(idxSize <= 4);
+			GLenum type = (idxSize == 4) ? GL_UNSIGNED_INT : (idxSize == 2) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+			if (instances_ == 1)
+			    glDrawElements(glModes[type_], i.count, type, (const void*)(i.start));
+			else
+			    glDrawElementsInstanced(glModes[type_], i.count, type, (const void*)(i.start), instances_);
+		}
 	}
 	else {
-		glDrawArrays(glModes[type_], 0, vbo_->bytesCount() / vtxDecl_->vertexSize());
+		unsigned count(0);
+		for (auto& i : vbos_) {
+			if (!i.decl->hasInstance()) {
+				count = i.buf->bytesCount() / i.decl->vertexSize();
+				break;
+			}
+		}
+
+		if (instances_ == 1)
+			glDrawArrays(glModes[type_], 0, count);
+		else
+			glDrawArraysInstanced(glModes[type_], 0, count, instances_);
 	}
 }
 
@@ -97,13 +141,13 @@ void KcRenderObject::cloneTo_(KcRenderObject& obj) const
 {
 	obj.type_ = type_;
 	obj.prog_ = prog_;
-	obj.vbo_ = vbo_;
-	obj.ibo_ = ibo_;
-	obj.vtxDecl_ = vtxDecl_;
-	obj.indexCount_ = indexCount_;
+	obj.vbos_ = vbos_;
+	obj.ibos_ = ibos_;
 	obj.projMat_ = projMat_;
 	obj.clipBox_ = clipBox_;
 	obj.color_ = color_;
+	obj.vaoId_ = vaoId_;
+	obj.instances_ = instances_;
 }
 
 
@@ -112,4 +156,28 @@ KcRenderObject* KcRenderObject::clone() const
 	auto obj = new KcRenderObject(type_);
 	cloneTo_(*obj);
 	return obj;
+}
+
+
+void KcRenderObject::calcInst_()
+{
+	instances_ = vbos_.empty() ? 0 : 1; // 初始值
+
+	for (auto& i : vbos_) {
+		for (unsigned j = 0; j < i.decl->attributeCount(); j++) {
+			auto& attr = i.decl->getAttribute(j);
+			if (attr.semantic() == KcVertexAttribute::k_instance) 
+				instances_ = std::max(i.buf->bytesCount() / i.decl->vertexSize() * attr.divisor(), instances_);
+		}
+	}
+}
+
+
+bool KcRenderObject::hasColor() const
+{
+	for (auto& i : vbos_)
+		if (i.decl->hasColor())
+			return true;
+
+	return false;
 }

@@ -31,6 +31,8 @@ public:
 
 	bool hasNormal() const;
 
+	bool hasInstance() const;
+
 	// 顶点元素中纹理坐标元素的数目
 	unsigned texCoordCount() const;
 

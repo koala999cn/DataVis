@@ -21,6 +21,8 @@ public:
 
 	KcRenderObject(const KcRenderObject& rhs);
 
+	~KcRenderObject();
+
 	std::shared_ptr<KcGlslProgram> shader() const {
 		return prog_;
 	}
@@ -29,24 +31,30 @@ public:
 		prog_ = prog;
 	}
 
-	std::shared_ptr<KcGpuBuffer> vbo() const {
-		return vbo_;
+	std::shared_ptr<KcGpuBuffer> vbo(unsigned idx) const {
+		return vbos_[idx].buf;
 	}
 
-	std::shared_ptr<KcVertexDeclaration> vertexDecl() const {
-		return vtxDecl_;
+	std::shared_ptr<KcVertexDeclaration> vertexDecl(unsigned idx) const {
+		return vbos_[idx].decl;
 	}
 
-	void setVBO(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl) {
-		vbo_ = vbo, vtxDecl_ = vtxDecl;
+	void pushVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl) {
+		resetVao_();
+		vbos_.push_back({ vbo, vtxDecl });
+		calcInst_();
 	}
 
-	std::shared_ptr<KcGpuBuffer> ibo() const {
-		return ibo_;
+	std::shared_ptr<KcGpuBuffer> ibo(unsigned idx) const {
+		return ibos_[idx].buf;
 	}
 
-	void setIBO(std::shared_ptr<KcGpuBuffer> ibo, unsigned idxCount) {
-		ibo_ = ibo, indexCount_ = idxCount;
+	void pushIbo(KePrimitiveType type, std::shared_ptr<KcGpuBuffer> ibo, unsigned count, unsigned start = 0) {
+		ibos_.push_back({ type, ibo, count, start });
+	}
+
+	void pushIbo(std::shared_ptr<KcGpuBuffer> ibo, unsigned count, unsigned start = 0) {
+		pushIbo(type_, ibo, count, start);
 	}
 
 	auto& projMatrix() const { return projMat_; }
@@ -67,6 +75,8 @@ public:
 
 	virtual KcRenderObject* clone() const;
 
+	bool hasColor() const;
+
 protected:
 
 	void bindVbo_() const;
@@ -76,13 +86,33 @@ protected:
 	// 拷贝当前对象的属性到obj
 	void cloneTo_(KcRenderObject& obj) const;
 
+	void resetVao_();
+
+	void calcInst_();
+
 protected:
+
+	struct KpVbo_
+	{
+		std::shared_ptr<KcGpuBuffer> buf;
+		std::shared_ptr<KcVertexDeclaration> decl;
+	};
+
+	struct KpIbo_
+	{
+		KePrimitiveType type; // 允许每个ibo使用不同的类型绘制
+		std::shared_ptr<KcGpuBuffer> buf;
+		unsigned count{ 0 };
+		unsigned start{ 0 };
+	};
+
 	KePrimitiveType type_;
 	std::shared_ptr<KcGlslProgram> prog_;
-	std::shared_ptr<KcGpuBuffer> vbo_, ibo_;
-	std::shared_ptr<KcVertexDeclaration> vtxDecl_;
-	unsigned indexCount_{ 0 };
+	std::vector<KpVbo_> vbos_;
+	std::vector<KpIbo_> ibos_;
 	float4x4<> projMat_;
 	aabb_t clipBox_;
 	float4 color_{ 1, 0, 0, 1 };
+	unsigned instances_{ 0 }; // 实例数目
+	mutable unsigned vaoId_{ 0 };
 };

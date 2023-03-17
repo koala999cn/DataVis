@@ -64,6 +64,7 @@
 - [x] 实现plottable2d的arrange模式
 - [ ] heatmap的维度映射
 - [x] arrange模式增加zshift实现
+- [ ] 面积图支持below & above控制项（参考https://gnuplot.sourceforge.net/demo/fillbetween.html）
 
 ## theme
 - [ ] 更多theme，SCI等

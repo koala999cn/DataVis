@@ -44,7 +44,7 @@ void KcEdgedObject::draw() const
             setUniforms_(edgeShader_);
 
             // 若顶点属性没有color，则主色用于fill，须另外设置edge颜色
-            if (!vtxDecl_->hasColor()) {
+            if (!hasColor()) {
                 auto loc = edgeShader_->getUniformLocation("vColor");
                 if (loc != -1)
                     glUniform4f(loc, edgeColor_[0], edgeColor_[1], edgeColor_[2], edgeColor_[3]);

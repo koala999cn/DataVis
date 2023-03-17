@@ -27,6 +27,7 @@ public:
 		k_specular, /// Specular colours
 		k_blend_weights, /// Blending weights	
 		k_blend_indices, /// Blending indices
+		k_instance, // 实例化数组
 		k_semantic_count /// The  number of VertexElementSemantic elements
 	};
 
@@ -69,6 +70,8 @@ public:
 	/// Gets the index of this attribute, only applicable for repeating elements
 	unsigned semanticIndex() const { return semanticIndex_; }
 
+	unsigned divisor() const { return divisor_; }
+
 	// caculate the size in byte of attribute with this format
 	unsigned byteSize() const;
 
@@ -87,11 +90,20 @@ private:
 	/// The meaning of the attribute
 	KeSemantic semantic_{ k_position };
 
-	/// The semantic index for the attribute. A semantic index modifies a semantic, 
-	/// with an integer index number. A semantic index is only needed in a case 
-	/// where there is more than one attribute with the same semantic. 
-	/// only applicable for some attributes like texture coords.
-	unsigned semanticIndex_{ 0 };
+	union {
+		/// The semantic index for the attribute. A semantic index modifies a semantic, 
+		/// with an integer index number. A semantic index is only needed in a case 
+		/// where there is more than one attribute with the same semantic. 
+		/// only applicable for some attributes like texture coords.
+		unsigned semanticIndex_{ 0 };
+
+		/// 仅对k_instance语义有效
+		/// 表示顶点属性的更新频率，每隔多少个实例将又一次设置实例的该属性，比如设置为1。那么每一个实例的属性都不一样，设置为2则每两个实例同样，3则每三个实例改变属性。
+		/// 而该属性的属性数组大小将为(instance / divisor), instance为渲染实例数
+		/// 设divisor为2, instance为100, 则实例化数组尺寸至少为100 / 2 = 50，才能保证每一个实例都有自己的属性。
+		/// 若divisor设置为0, 代表非实例化
+		unsigned divisor_;
+	};
 
 	/// The data type of the attribute data. 
 	KeFormat format_;

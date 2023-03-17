@@ -6,7 +6,7 @@
 void KcVertexDeclaration::pushAttribute(KcVertexAttribute::KeFormat fmt, KcVertexAttribute::KeSemantic semantic, unsigned semanticIndex)
 {
 	pushAttribute(KcVertexAttribute(attributeCount(), fmt, vertexSize(), 
-		semantic, semanticIndex)); // TODO: semanticIndex也可以推算出来
+		semantic, semanticIndex));
 }
 
 
@@ -65,6 +65,17 @@ bool KcVertexDeclaration::hasNormal() const
 }
 
 
+bool KcVertexDeclaration::hasInstance() const
+{
+	for (unsigned i = 0; i < attributeCount(); i++) {
+		if (getAttribute(i).semantic() == KcVertexAttribute::k_instance)
+			return true;
+	}
+
+	return false;
+}
+
+
 unsigned KcVertexDeclaration::texCoordCount() const
 {
 	unsigned c(0);
@@ -97,5 +108,9 @@ void KcVertexDeclaration::declare() const
 
 		glVertexAttribPointer(attr.location(), attr.componentCount(), type, 
 			attr.normalized() ? GL_TRUE : GL_FALSE, stride, ((char*)0) + attr.offset());
+
+		// 支持实例化渲染
+		if (attr.semantic() == KcVertexAttribute::k_instance)
+			glVertexAttribDivisor(attr.location(), attr.divisor());
 	}
 }

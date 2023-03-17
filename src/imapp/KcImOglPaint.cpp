@@ -187,7 +187,7 @@ void KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 		vtx.push_back(fn(i));
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
-	obj->setVBO(vbo, decl);
+	obj->pushVbo(vbo, decl);
 	obj->setColor(clr_);
 	obj->setSize(markerSize_);
 	pushRenderObject_(obj);
@@ -225,6 +225,7 @@ void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count)
 	drawGeom(decl, geom);
 
 	if (edged_) { // 描边
+#if 0
 		auto obj = lastRenderObject_();
 		auto vbo = obj->vbo(); // 共用vbo
 		auto edgeObj = new KcLineObject(k_lines);
@@ -255,6 +256,8 @@ void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count)
 
 		obj->setColor(secondaryClr_);
 		pushRenderObject_(edgeObj);
+#endif
+		assert(false);
 	}
 
 	popCoord();
@@ -527,7 +530,7 @@ void* KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
 		vtx.push_back(fn(i));
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
-	obj->setVBO(vbo, decl);
+	obj->pushVbo(vbo, decl);
 	obj->setColor(clr_);
 	obj->setWidth(lineWidth_);
 	obj->setStyle(lineStyle_);
@@ -564,7 +567,7 @@ void* KcImOglPaint::drawLineStrips(const std::vector<point_getter1>& fns, const 
 	assert(vtx.size() == total);
 	vbo->setData(vtx.data(), vtx.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 
-	obj->setVBO(vbo, decl);
+	obj->pushVbo(vbo, decl);
 	obj->setColor(clr_);
 	obj->setWidth(lineWidth_);
 	obj->setStyle(lineStyle_);
@@ -628,7 +631,7 @@ void* KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned c
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
 
-	obj->setVBO(vbo, decl);
+	obj->pushVbo(vbo, decl);
 	obj->setColor(clr_);
 	pushRenderObject_(obj);
 
@@ -638,7 +641,7 @@ void* KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned c
 
 void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 {
-	assert(obj->vbo() && obj->vertexDecl());
+	//assert(obj->vbo() && obj->vertexDecl());
 	
 	switch (currentCoord())
 	{
@@ -673,7 +676,7 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 
 
 	if (obj->shader() == nullptr) { // 自动设置shader
-		if (!obj->vertexDecl()->hasColor())
+		if (!obj->hasColor())
 			obj->setShader(KsShaderManager::singleton().progMono());
 		else
 			obj->setShader(KsShaderManager::singleton().progColor(flatShading()));
@@ -823,7 +826,7 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 		auto vbo = std::make_shared<KcGpuBuffer>();
 		vbo->setData(text.data(), text.size() * sizeof(text[0]), KcGpuBuffer::k_stream_draw);
 
-		obj->setVBO(vbo, decl);
+		obj->pushVbo(vbo, decl);
 		return obj;
 	}
 
@@ -853,7 +856,7 @@ void KcImOglPaint::pushColorVbo_(KpRenderList_& rl)
 
 		auto vbo = std::make_shared<KcGpuBuffer>();
 		vbo->setData(rl.tris.data(), rl.tris.size() * sizeof(KpColorVbo_), KcGpuBuffer::k_stream_draw);
-		obj->setVBO(vbo, decl);
+		obj->pushVbo(vbo, decl);
 
 		pushCoord(k_coord_screen); // 确保pushRenderObject_压入屏幕坐标变换阵
 		// 自带color，不许设置obj的颜色值
@@ -899,11 +902,11 @@ void* KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 	auto vbo = std::make_shared<KcGpuBuffer>();
 	vbo->setData(geom->vertexData(), geom->vertexCount() * geom->vertexSize(), KcGpuBuffer::k_stream_draw);
 
-	obj->setVBO(vbo, decl);
+	obj->pushVbo(vbo, decl);
 	if (geom->indexCount() > 0) {
 		auto ibo = std::make_shared<KcGpuBuffer>(KcGpuBuffer::k_index_buffer);
 		ibo->setData(geom->indexData(), geom->indexCount() * geom->indexSize(), KcGpuBuffer::k_stream_draw);
-		obj->setIBO(ibo, geom->indexCount());
+		obj->pushIbo(ibo, geom->indexCount());
 	}
 
 	obj->setColor(clr_);
