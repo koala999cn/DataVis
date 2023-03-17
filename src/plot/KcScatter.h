@@ -17,7 +17,7 @@ public:
 
 	void setMinorColor_(const color4f& minor) override;
 
-	unsigned objectCount() const override { return 2; } // marker + line
+	unsigned objectCount() const override;
 
 	const KpMarker& marker() const { return marker_; }
 	KpMarker& marker() { return marker_; }

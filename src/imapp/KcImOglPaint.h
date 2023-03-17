@@ -72,7 +72,7 @@ private:
 
 	point3 toNdc_(const point3& pt) const;
 	
-	void drawPoints_(point_getter1 fn, unsigned count); // 绘制点云
+	void* drawPoints_(point_getter1 fn, unsigned count); // 绘制点云
 
 	void drawCircles_(point_getter1 fn, unsigned count);
 

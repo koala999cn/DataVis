@@ -174,7 +174,7 @@ void KcImOglPaint::drawMarker(const point3& pt)
 }
 
 
-void KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
+void* KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 {
 	auto obj = new KcPointObject;
 
@@ -191,6 +191,7 @@ void KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 	obj->setColor(clr_);
 	obj->setSize(markerSize_);
 	pushRenderObject_(obj);
+	return obj;
 }
 
 
@@ -441,8 +442,7 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 	switch (markerType_)
 	{
 	case KpMarker::k_dot:
-		drawPoints_(fn, count);
-		return nullptr;
+		return drawPoints_(fn, count);
 
 	case KpMarker::k_cross:
 	{
@@ -487,7 +487,7 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 		break;
 	};
 
-	// 带outline的marker赞使用ImGui实现(issue I6B5ES)
+	// 带outline的marker暂使用ImGui实现(issue I6B5ES)
 	return super_::drawMarkers(fn, count);
 }
 

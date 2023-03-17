@@ -103,3 +103,25 @@ void* KcGraph::drawObject_(KvPaint* paint, unsigned objIdx) const
 		return paint->drawGeomColor(geom);
 	}
 }
+
+
+KuDataUtil::KpPointGetter1d KcGraph::linesAtChannel_(unsigned ch) const
+{
+	auto lineSize = sizePerLine_();
+	std::vector<GETTER> lines;
+
+	for (unsigned i = 0; i < linesPerChannel_(); i++) {
+		auto g = lineAt_(ch, i);
+		assert(lineSize == g.size);
+		lines.push_back(g.getter);
+	}
+
+	KuDataUtil::KpPointGetter1d g;
+	g.size = linesPerChannel_() * (lineSize + 1) - 1; // ÓÐlinesPerChannel_-1¸önan
+	g.getter = [lines, lineSize](unsigned idx) {
+		return lines.front()(idx);
+	};
+
+	return g;
+}
+

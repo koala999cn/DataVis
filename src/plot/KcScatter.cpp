@@ -3,29 +3,41 @@
 #include "KvData.h"
 
 
+unsigned KcScatter::objectCount() const
+{ 
+	//return 2; // marker + line
+
+	return empty() ? 0 : channels_();
+} 
+
+
 bool KcScatter::objectVisible_(unsigned objIdx) const
 {
-	if (objIdx == 1)
-		return showLine_ && lineCxt_.visible();
-	else
+	//if (objIdx == 1)
+	//	return showLine_ && lineCxt_.visible();
+	//else
 		return true;
 }
 
 
 void KcScatter::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
-	if (objIdx == 1) { // line
-		paint->apply(lineCxt_);
-	}
-	else { // marker
-		paint->apply(marker_);
-		paint->setEdged(marker_.showOutline && marker_.hasOutline() && marker_.outline.a() > 0);
-	}
+	//if (objIdx == 1) { // line
+	//	paint->apply(lineCxt_);
+	//}
+	//else { // marker
+
+	if (coloringMode() == k_one_color_solid)
+	    marker_.fill = majorColor(objIdx);
+	paint->apply(marker_);
+	paint->setEdged(marker_.showOutline && marker_.hasOutline() && marker_.outline.a() > 0);
+	//}
 }
 
 
 void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
+#if 0
 	auto ch = objIdx / 2;
 
 	if (objIdx == 1) {
@@ -47,6 +59,19 @@ void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 					auto pt = toPoint_(val.data(), ch);
 					paint->drawMarker({ pt[0], pt[1], pt[2] });
 				}
+			}
+		}
+	}
+#endif
+
+	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
+		for (unsigned i = 0; i < linesPerChannel_(); i++) {
+			auto g = lineAt_(ch, i);
+			for (unsigned i = 0; i < g.size; i++) {
+				auto val = g.getter(i);
+				paint->setColor(mapValueToColor_(val.data(), ch)); // 支持渐变色
+				auto pt = toPoint_(val.data(), ch);
+				paint->drawMarker({ pt[0], pt[1], pt[2] });
 			}
 		}
 	}
