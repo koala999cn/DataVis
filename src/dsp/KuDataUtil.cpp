@@ -498,9 +498,15 @@ bool KuDataUtil::hasPointGetter2d(const KvData& d)
 }
 
 
+unsigned KuDataUtil::pointGetter1dSize(const std::shared_ptr<const KvDiscreted>& disc)
+{
+    return disc->size(disc->dim() - 1);
+}
+
+
 unsigned KuDataUtil::pointGetter1dCount(const std::shared_ptr<const KvDiscreted>& disc)
 {
-    return hasPointGetter2d(*disc) ? disc->size() / disc->size(disc->dim() - 1) : 1;
+    return disc->size() / pointGetter1dSize(disc);
 }
 
 
@@ -561,6 +567,41 @@ KuDataUtil::KpPointGetter2d KuDataUtil::pointGetter2dAt(const std::shared_ptr<co
 
     g.xsize = unsigned(samp->size(samp->dim() - 2));
     g.ysize = unsigned(samp->size(samp->dim() - 1));
+
+    return g;
+}
+
+
+KuDataUtil::KpPointGetter1d KuDataUtil::linesAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch)
+{
+    auto lineSize = pointGetter1dSize(disc);
+    std::vector<std::function<std::vector<kReal>(unsigned idx)>> lines;
+
+    for (unsigned i = 0; i < pointGetter1dCount(disc); i++) {
+        auto g = pointGetter1dAt(disc, ch, i);
+        assert(lineSize == g.size);
+        lines.push_back(g.getter);
+    }
+
+    std::vector<kReal> nan(disc->dim() + 1, KuMath::nan<kReal>());
+    KuDataUtil::KpPointGetter1d g;
+    g.size = pointGetter1dCount(disc) * (lineSize + 1) - 1; // ÓÐlinesPerChannel_-1¸önan
+    g.getter = [lines, lineSize, nan](unsigned idx) {
+        auto i = idx % (lineSize + 1);
+        return i == lineSize ? nan : lines[idx / (lineSize + 1)](i);
+    };
+
+    return g;
+}
+
+
+KuDataUtil::KpPointGetter1d KuDataUtil::pointsAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch)
+{
+    KuDataUtil::KpPointGetter1d g;
+    g.size = disc->size();
+    g.getter = [disc, ch](unsigned idx) {
+        return disc->pointAt(idx, ch);
+    };
 
     return g;
 }

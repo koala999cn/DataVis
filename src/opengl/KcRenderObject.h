@@ -21,7 +21,6 @@ public:
 
 	KcRenderObject(const KcRenderObject& rhs);
 
-	~KcRenderObject();
 
 	std::shared_ptr<KcGlslProgram> shader() const {
 		return prog_;
@@ -39,11 +38,7 @@ public:
 		return vbos_[idx].decl;
 	}
 
-	void pushVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl) {
-		resetVao_();
-		vbos_.push_back({ vbo, vtxDecl });
-		calcInst_();
-	}
+	void pushVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl);
 
 	std::shared_ptr<KcGpuBuffer> ibo(unsigned idx) const {
 		return ibos_[idx].buf;
@@ -86,8 +81,6 @@ protected:
 	// 拷贝当前对象的属性到obj
 	void cloneTo_(KcRenderObject& obj) const;
 
-	void resetVao_();
-
 	void calcInst_();
 
 protected:
@@ -114,5 +107,4 @@ protected:
 	aabb_t clipBox_;
 	float4 color_{ 1, 0, 0, 1 };
 	unsigned instances_{ 0 }; // 实例数目
-	mutable unsigned vaoId_{ 0 };
 };

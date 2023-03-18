@@ -37,6 +37,11 @@ public:
 	// uniform = matMvp
 	shader_ptr vsColorUV(bool flat);
 
+	// 多实例绘制二维对象的顶点着色
+	// attr = pos(float2) + color(float4) + offset(float3, instanced)
+	// uniform = matMvp(float4x4) + scale(float)
+	shader_ptr vsInst2d();
+
 	// 单色光照着色，区分flat和smooth模式
 	// attr = pos + normal
 	// uniform = matMvp + matNormal + vColor
@@ -58,6 +63,9 @@ public:
 
 	// vsColorUV(flat) + fsColorUV(flat)
 	program_ptr progColorUV(bool flat);
+
+	// vsInst2d() + fsNavie(true)
+	program_ptr progInst2d();
 
 	// vsMonoLight(flat) + fsNavie(flat)
 	program_ptr progMonoLight(bool flat);
@@ -81,6 +89,7 @@ private:
 	shader_ptr vsMono_;
 	shader_ptr vsColor_[2];
 	shader_ptr vsColorUV_[2];
+	shader_ptr vsInst2d_;
 	shader_ptr vsMonoLight_[2];
 	shader_ptr fsNavie_[2];
 	shader_ptr fsColorUV_[2];
@@ -88,5 +97,6 @@ private:
 	program_ptr progMono_;
 	program_ptr progColor_[2];
 	program_ptr progColorUV_[2]; 
+	program_ptr progInst2d_;
 	program_ptr progMonoLight_[2];
 };

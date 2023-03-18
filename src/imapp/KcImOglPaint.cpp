@@ -11,6 +11,7 @@
 #include "opengl/KcPointObject.h"
 #include "opengl/KcLineObject.h"
 #include "opengl/KcEdgedObject.h"
+#include "opengl/KcMarkerObject.h"
 #include "opengl/KcLightenObject.h"
 #include "opengl/KsShaderManager.h"
 #include "opengl/KuOglUtil.h"
@@ -190,6 +191,40 @@ void* KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 	obj->pushVbo(vbo, decl);
 	obj->setColor(clr_);
 	obj->setSize(markerSize_);
+	pushRenderObject_(obj);
+	return obj;
+}
+
+
+void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize)
+{
+	auto obj = new KcMarkerObject(k_lines);
+
+	// 基本元素vbo
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_position);
+	auto vbo = std::make_shared<KcGpuBuffer>();
+	vbo->setData(vtx, vtxSize * sizeof(point2f), KcGpuBuffer::k_static_draw);
+	obj->pushVbo(vbo, decl);
+
+	// 实例化vbo
+	decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute(1, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
+	vbo = std::make_shared<KcGpuBuffer>();
+	std::vector<point3f> offset;
+	for (unsigned i = 0; i < count; i++) { // 装配数据
+		auto pt = fn(i);
+		if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
+		    offset.push_back(pt);
+	}
+	vbo->setData(offset.data(), offset.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
+	obj->pushVbo(vbo, decl);
+
+	// 设置基本属性
+	obj->setShader(KsShaderManager::singleton().progInst2d());
+	obj->setColor(clr_);
+	obj->setSize(markerSize_);
+
 	pushRenderObject_(obj);
 	return obj;
 }
@@ -446,15 +481,14 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 
 	case KpMarker::k_cross:
 	{
-		static const point2 cross[4] = { 
+		static const point2f cross[4] = { 
 			point2(-SQRT_2_2,-SQRT_2_2),
 			point2(SQRT_2_2,SQRT_2_2),
 			point2(SQRT_2_2,-SQRT_2_2),
 			point2(-SQRT_2_2,SQRT_2_2) 
 		};
-		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, cross, markerSize_);
+		return drawLineMarkers_(fn, count, cross, std::size(cross));
 	}
-	    return nullptr;
 
 	case KpMarker::k_plus:
 	{
@@ -709,7 +743,7 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors,
 	if (obj)
 		pushRenderObject_(obj);
 
-	return nullptr; // TODO: issue #I6MQBX
+	//return nullptr; // TODO: issue #I6MQBX
 	return obj;
 }
 
@@ -1007,6 +1041,8 @@ void KcImOglPaint::configOglState_()
 		glDisable(GL_POINT_SMOOTH);
 		glDisable(GL_LINE_SMOOTH);
 		glDisable(GL_POLYGON_SMOOTH);
+
+		// 以下设置能提升文字渲染的清晰度（避免插值）
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
@@ -1194,6 +1230,10 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 		lo->setWidth(lineWidth_);
 		lo->setStyle(lineStyle_);
 	}
+	else if (dynamic_cast<KcMarkerObject*>(obj)) {
+		auto mo = dynamic_cast<KcMarkerObject*>(obj);
+		mo->setSize(markerSize_);
+	}
 
 	obj->setColor(clr_);
 
@@ -1206,6 +1246,6 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 	// 在此置shader为空，由pushRenderObject设定shader，以同步flat渲染状态
 	// pushRenderObject设置shader的版本只考虑了mono和color两种情况，但已能满足目前版本的plot需求
 	if (obj->shader() == KsShaderManager::singleton().progColor(false)
-		|| obj->shader() == KsShaderManager::singleton().progColor(true));
+		|| obj->shader() == KsShaderManager::singleton().progColor(true))
 	    obj->setShader(nullptr);
 }

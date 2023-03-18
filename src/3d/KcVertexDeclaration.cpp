@@ -110,7 +110,9 @@ void KcVertexDeclaration::declare() const
 			attr.normalized() ? GL_TRUE : GL_FALSE, stride, ((char*)0) + attr.offset());
 
 		// 支持实例化渲染
-		if (attr.semantic() == KcVertexAttribute::k_instance)
+		if (attr.semantic() == KcVertexAttribute::k_instance) {
+			assert(glVertexAttribDivisor != nullptr);
 			glVertexAttribDivisor(attr.location(), attr.divisor());
+		}
 	}
 }

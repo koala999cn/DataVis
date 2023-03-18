@@ -3,35 +3,33 @@
 #include "KvData.h"
 
 
+void KcScatter::setMarker(const KpMarker& m)
+{ 
+	if (m.type != marker_.type)
+		setDataChanged(false); // TODO: 由paint处理
+	marker_ = m; 
+}
+
+
 unsigned KcScatter::objectCount() const
 { 
-	//return 2; // marker + line
-
 	return empty() ? 0 : channels_();
 } 
 
 
 bool KcScatter::objectVisible_(unsigned objIdx) const
 {
-	//if (objIdx == 1)
-	//	return showLine_ && lineCxt_.visible();
-	//else
-		return true;
+	return true;
 }
 
 
 void KcScatter::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
-	//if (objIdx == 1) { // line
-	//	paint->apply(lineCxt_);
-	//}
-	//else { // marker
-
-	if (coloringMode() == k_one_color_solid)
-	    marker_.fill = majorColor(objIdx);
 	paint->apply(marker_);
+	if (coloringMode() == k_one_color_solid)
+		paint->setColor(majorColor(objIdx));
+
 	paint->setEdged(marker_.showOutline && marker_.hasOutline() && marker_.outline.a() > 0);
-	//}
 }
 
 
@@ -64,7 +62,7 @@ void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 	}
 #endif
 
-	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
+/*	for (kIndex ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned i = 0; i < linesPerChannel_(); i++) {
 			auto g = lineAt_(ch, i);
 			for (unsigned i = 0; i < g.size; i++) {
@@ -74,9 +72,15 @@ void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 				paint->drawMarker({ pt[0], pt[1], pt[2] });
 			}
 		}
+	}*/
+
+	auto g = KuDataUtil::pointsAt(discreted_(), objIdx);
+
+	if (coloringMode() == k_one_color_solid) {
+		return paint->drawMarkers(toPoint3Getter_(g.getter, objIdx), g.size);
 	}
 
-	return nullptr; // 目前不支持vbo复用
+	return nullptr; 
 }
 
 

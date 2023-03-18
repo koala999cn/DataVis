@@ -115,6 +115,31 @@ KsShaderManager::shader_ptr KsShaderManager::vsColorUV(bool flat)
 }
 
 
+KsShaderManager::shader_ptr KsShaderManager::vsInst2d()
+{
+	const static char* vertex_shader_inst2d =
+		"uniform mat4 matMvp;\n"
+		"uniform vec4 vColor;\n"
+		"uniform float fScale;\n"
+		"layout (location = 0) in vec2 iPosition;\n"
+		"layout (location = 1) in vec3 iOffset;\n"
+		"flat out vec4 Frag_Color;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = matMvp * vec4(iOffset + vec3(iPosition * fScale, 0), 1);\n"
+		"    Frag_Color = vColor;\n"
+		"}\n";
+
+	if (vsInst2d_ == nullptr) {
+		vsInst2d_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_inst2d);
+		auto info = vsInst2d_->infoLog();
+		assert(vsInst2d_->compileStatus());
+	}
+
+	return vsInst2d_;
+}
+
+
 KsShaderManager::shader_ptr KsShaderManager::vsMonoLight(bool flat)
 {
 	const static char* vertex_shader_mono_light =
@@ -167,6 +192,7 @@ KsShaderManager::shader_ptr KsShaderManager::fsNavie(bool flat)
 
 	if (fsNavie_[flat] == nullptr) {
 		fsNavie_[flat] = createShader_(KcGlslShader::k_shader_fragment, frag_shader_navie, flat);
+		auto info = fsNavie_[flat]->infoLog();
 		assert(fsNavie_[flat]->compileStatus());
 	}
 
@@ -212,6 +238,12 @@ KsShaderManager::program_ptr KsShaderManager::progColorUV(bool flat)
 }
 
 
+KsShaderManager::program_ptr KsShaderManager::progInst2d()
+{
+	return createProg_(progInst2d_, vsInst2d(), fsNavie(true));
+}
+
+
 KsShaderManager::program_ptr KsShaderManager::progMonoLight(bool flat)
 {
 	return createProg_(progMonoLight_[flat], vsMonoLight(flat), fsNavie(flat));
@@ -242,6 +274,7 @@ KsShaderManager::program_ptr KsShaderManager::createProg_(program_ptr& out, cons
 		out->attachShader(vs);
 		out->attachShader(fs);
 		out->link();
+		auto info = out->infoLog();
 		assert(out->linked() && out->linkStatus());
 	}
 

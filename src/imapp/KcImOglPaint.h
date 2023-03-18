@@ -72,7 +72,13 @@ private:
 
 	point3 toNdc_(const point3& pt) const;
 	
-	void* drawPoints_(point_getter1 fn, unsigned count); // 绘制点云
+	// 绘制点云
+	void* drawPoints_(point_getter1 fn, unsigned count); 
+
+	// 绘制由线段构成的markers
+	// @vtx: 成对构成线段的顶点
+	// @vtxSize: vtx的尺寸，要求偶数
+	void* drawLineMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize); 
 
 	void drawCircles_(point_getter1 fn, unsigned count);
 

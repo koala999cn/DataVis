@@ -54,22 +54,12 @@ namespace kPrivate
 }
 
 
-void* KcGraph::drawObject_(KvPaint* paint, unsigned objIdx) const
+void* KcGraph::drawObject_(KvPaint* paint, unsigned ch) const
 {
-	std::vector<KvPaint::point_getter1> fns;
-	std::vector<unsigned> cnts;
-	fns.reserve(linesTotal_());
-	cnts.reserve(linesTotal_());
-
-	unsigned idx(0);
-	for (unsigned i = 0; i < linesPerChannel_(); i++) {
-		auto g = kPrivate::downSampling_(lineAt_(objIdx, i));
-		fns.push_back(toPoint3Getter_(g.getter, objIdx)); // toPoint3Getter_按需完成z值替换
-		cnts.push_back(g.size);
-	}
+	auto g = KuDataUtil::linesAt(discreted_(), ch);
 
 	if (coloringMode() == k_one_color_solid) {
-		return paint->drawLineStrips(fns, cnts);
+		return paint->drawLineStrip(toPoint3Getter_(g.getter, ch), g.size);
 	}
 	else {
 		// 构建带color的vbo
@@ -79,49 +69,16 @@ void* KcGraph::drawObject_(KvPaint* paint, unsigned objIdx) const
 		};
 
 		auto geom = std::make_shared<KtGeometryImpl<Vertex_>>(k_line_strip);
-		unsigned total(0);
-		for (auto& i : cnts)
-			total += i;
-		total += cnts.size() - 1;
-	
-		auto vtx = geom->newVertex(total);
+		auto vtx = geom->newVertex(g.size);
 
-		for (unsigned i = 0; i < cnts.size(); i++) {
-			for (unsigned j = 0; j < cnts[i]; j++) {
-				auto pt = fns[i](j);
-				vtx->pos = toPoint_(pt.data(), objIdx);
-				vtx->color = mapValueToColor_(pt.data(), objIdx);
-				vtx++;
-			}
-
-			if (i != cnts.size() - 1) {
-				vtx->pos = float3(KuMath::nan<float>());
-				vtx++;
-			}
+		for (unsigned i = 0; i < g.size; i++) {
+			auto pt = g.getter(i);
+			vtx->pos = toPoint_(pt.data(), ch);
+			vtx->color = mapValueToColor_(pt.data(), ch);
+			vtx++;
 		}
 
 		return paint->drawGeomColor(geom);
 	}
-}
-
-
-KuDataUtil::KpPointGetter1d KcGraph::linesAtChannel_(unsigned ch) const
-{
-	auto lineSize = sizePerLine_();
-	std::vector<GETTER> lines;
-
-	for (unsigned i = 0; i < linesPerChannel_(); i++) {
-		auto g = lineAt_(ch, i);
-		assert(lineSize == g.size);
-		lines.push_back(g.getter);
-	}
-
-	KuDataUtil::KpPointGetter1d g;
-	g.size = linesPerChannel_() * (lineSize + 1) - 1; // 有linesPerChannel_-1个nan
-	g.getter = [lines, lineSize](unsigned idx) {
-		return lines.front()(idx);
-	};
-
-	return g;
 }
 

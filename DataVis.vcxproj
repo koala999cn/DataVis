@@ -188,6 +188,7 @@
     <ClCompile Include="src\opengl\KcGlslShader.cpp" />
     <ClCompile Include="src\opengl\KcLightenObject.cpp" />
     <ClCompile Include="src\opengl\KcLineObject.cpp" />
+    <ClCompile Include="src\opengl\KcMarkerObject.cpp" />
     <ClCompile Include="src\opengl\KcPointObject.cpp" />
     <ClCompile Include="src\opengl\KcRenderObject.cpp" />
     <ClCompile Include="src\opengl\KcTextObject.cpp" />
@@ -392,6 +393,7 @@
     <ClInclude Include="src\opengl\KcGpuBuffer.h" />
     <ClInclude Include="src\opengl\KcLightenObject.h" />
     <ClInclude Include="src\opengl\KcLineObject.h" />
+    <ClInclude Include="src\opengl\KcMarkerObject.h" />
     <ClInclude Include="src\opengl\KcPointObject.h" />
     <ClInclude Include="src\opengl\KcRenderObject.h" />
     <ClInclude Include="src\opengl\KcTextObject.h" />

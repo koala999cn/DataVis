@@ -27,7 +27,7 @@ public:
 		k_count
 	};
 
-	int type{ k_circle };
+	int type{ k_dot };
 	float size{ 5 }; // the size of marker
 	color4f fill{ 0, 0, 0, 1 };
 	color4f outline{ 0, 0, 0, 1 }; // 仅当hasOutline为真时，该成员才有意义

@@ -167,6 +167,9 @@ public:
 
 	static bool hasPointGetter2d(const KvData& d);
 
+	// 返回每条pointGetter1d的样本数
+	static unsigned pointGetter1dSize(const std::shared_ptr<const KvDiscreted>& disc);
+
 	// 计算disc每个通道有多少条pointGetter1d
 	static unsigned pointGetter1dCount(const std::shared_ptr<const KvDiscreted>& disc);
 
@@ -179,6 +182,12 @@ public:
 	// 获取disc的第ch通道的第idx条pointGetter2d
 	static KpPointGetter2d pointGetter2dAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch, unsigned idx);
 	
+
+	// 返回通道ch的线段集合，各线段之间以nan隔开
+	static KuDataUtil::KpPointGetter1d linesAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch);
+
+	// 返回通道ch的点集合，与linesAt_相比不同之处在于没有用nan隔开
+	static KuDataUtil::KpPointGetter1d pointsAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch);
 
 private:
 	KuDataUtil() = default;

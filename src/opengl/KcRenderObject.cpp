@@ -17,21 +17,6 @@ KcRenderObject::KcRenderObject(const KcRenderObject& rhs)
 }
 
 
-KcRenderObject::~KcRenderObject()
-{
-	resetVao_();
-}
-
-
-void KcRenderObject::resetVao_()
-{
-	if (vaoId_ != 0) {
-		glDeleteVertexArrays(1, &vaoId_);
-		vaoId_ = 0;
-	}
-}
-
-
 void KcRenderObject::draw() const
 {
 	// TODO: 此处没有保存和恢复render状态
@@ -44,22 +29,9 @@ void KcRenderObject::draw() const
 
 void KcRenderObject::bindVbo_() const
 {
-	if (vbos_.size() > 1) { // 使用vao
-		if (vaoId_) {
-			glBindVertexArray(vaoId_);
-		}
-		else {
-			glGenVertexArrays(1, &vaoId_);
-			glBindVertexArray(vaoId_);
-			for (auto& i : vbos_) {
-				i.buf->bind();
-				i.decl->declare();
-			}
-		}
-	}
-	else {
-		vbos_[0].buf->bind(); // 激活vbo
-		vbos_[0].decl->declare(); // 声明vbo数据规格
+	for (auto& i : vbos_) {
+		i.buf->bind();
+		i.decl->declare();
 	}
 }
 
@@ -146,7 +118,6 @@ void KcRenderObject::cloneTo_(KcRenderObject& obj) const
 	obj.projMat_ = projMat_;
 	obj.clipBox_ = clipBox_;
 	obj.color_ = color_;
-	obj.vaoId_ = vaoId_;
 	obj.instances_ = instances_;
 }
 
@@ -180,4 +151,13 @@ bool KcRenderObject::hasColor() const
 			return true;
 
 	return false;
+}
+
+
+void KcRenderObject::pushVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl)
+{
+	assert(vbos_.empty() || vtxDecl->getAttribute(0).location() != 0);
+
+	vbos_.push_back({ vbo, vtxDecl });
+	calcInst_();
 }
