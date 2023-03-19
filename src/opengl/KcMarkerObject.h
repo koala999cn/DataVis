@@ -13,8 +13,8 @@ public:
 
 	KcRenderObject* clone() const override;
 
-	void setSize(float sz) { size_ = sz; }
+	void setScale(point2f sz) { size_ = sz; }
 
 private:
-	float size_{ 1 };
+	point2f size_{ 1 };
 };

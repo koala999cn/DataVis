@@ -65,6 +65,8 @@ void KcImOglPaint::beginPaint()
 	clipRectHistList_.emplace_back(point2(crmin.x, crmin.y), point2(crmax.x, crmax.y));
 	clipRectStack_.assign(1, 0);
 	
+	polygonOffset_ = false;
+
 	clipBoxHistList_.clear();
 	curClipBox_ = -1;
 
@@ -126,7 +128,6 @@ void KcImOglPaint::endPaint()
 		auto dl = ImGui::GetWindowDrawList();
 		dl->AddCallback(kPrivate::oglDrawRenderList, this);
 		dl->AddCallback(ImDrawCallback_ResetRenderState, nullptr); // 让imgui恢复渲染状态
-		dl->AddCallback(kPrivate::test, nullptr);
 	}
 
 	super_::endPaint();
@@ -204,26 +205,26 @@ void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const poi
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_position);
 	auto vbo = std::make_shared<KcGpuBuffer>();
-	vbo->setData(vtx, vtxSize * sizeof(point2f), KcGpuBuffer::k_static_draw);
+	vbo->setData(vtx, vtxSize * sizeof(point2f), KcGpuBuffer::k_stream_draw);
 	obj->pushVbo(vbo, decl);
 
 	// 实例化vbo
 	decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute(1, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
 	vbo = std::make_shared<KcGpuBuffer>();
-	std::vector<point3f> offset;
-	for (unsigned i = 0; i < count; i++) { // 装配数据
-		auto pt = fn(i);
-		if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
-		    offset.push_back(pt);
-	}
+	std::vector<point3f> offset; offset.reserve(count);
+	for (unsigned i = 0; i < count; i++) 
+		// NB: 考虑vbo复用，此处不作裁剪，否则只要坐标轴range变化就无法重用
+		//if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
+		offset.push_back(fn(i));
+
 	vbo->setData(offset.data(), offset.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 	obj->pushVbo(vbo, decl);
 
 	// 设置基本属性
 	obj->setShader(KsShaderManager::singleton().progInst2d());
 	obj->setColor(clr_);
-	obj->setSize(markerSize_);
+	obj->setScale(markerScale_());
 
 	pushRenderObject_(obj);
 	return obj;
@@ -1232,7 +1233,7 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 	}
 	else if (dynamic_cast<KcMarkerObject*>(obj)) {
 		auto mo = dynamic_cast<KcMarkerObject*>(obj);
-		mo->setSize(markerSize_);
+		mo->setScale(markerScale_());
 	}
 
 	obj->setColor(clr_);
@@ -1248,4 +1249,10 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 	if (obj->shader() == KsShaderManager::singleton().progColor(false)
 		|| obj->shader() == KsShaderManager::singleton().progColor(true))
 	    obj->setShader(nullptr);
+}
+
+
+point2f KcImOglPaint::markerScale_() const
+{
+	return point2f(unprojectv(point2(1, 0)).length(), unprojectv(point2(0, 1)).length()) * markerSize_;
 }

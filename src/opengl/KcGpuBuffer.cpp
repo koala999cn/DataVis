@@ -147,3 +147,9 @@ void KcGpuBuffer::bind_(unsigned int id) const
 {
     glBindBuffer(kPrivate::oglBufferType(type_), id);
 }
+
+
+void KcGpuBuffer::unbind() const
+{
+    glBindBuffer(kPrivate::oglBufferType(type_), GL_NONE);
+}

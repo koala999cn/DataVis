@@ -120,13 +120,13 @@ KsShaderManager::shader_ptr KsShaderManager::vsInst2d()
 	const static char* vertex_shader_inst2d =
 		"uniform mat4 matMvp;\n"
 		"uniform vec4 vColor;\n"
-		"uniform float fScale;\n"
+		"uniform vec2 vScale;\n"
 		"layout (location = 0) in vec2 iPosition;\n"
 		"layout (location = 1) in vec3 iOffset;\n"
 		"flat out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_Position = matMvp * vec4(iOffset + vec3(iPosition * fScale, 0), 1);\n"
+		"    gl_Position = matMvp * vec4(iOffset + vec3(iPosition * vScale, 0), 1);\n"
 		"    Frag_Color = vColor;\n"
 		"}\n";
 
