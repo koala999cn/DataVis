@@ -114,5 +114,8 @@ void KcVertexDeclaration::declare() const
 			assert(glVertexAttribDivisor != nullptr);
 			glVertexAttribDivisor(attr.location(), attr.divisor());
 		}
+		else {
+			glVertexAttribDivisor(attr.location(), 0); // NB: 非常重要！否则上一次多实例的设置会影响后续opengl渲染
+		}
 	}
 }
