@@ -80,6 +80,11 @@ private:
 	// @vtxSize: vtx的尺寸，要求偶数
 	void* drawLineMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize); 
 
+	// 绘制由凸多边形构成的markers
+	// @vtx: 凸多边形的顶点
+	// @vtxSize: vtx的尺寸
+	void* drawPolygonMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize);
+
 	void drawCircles_(point_getter1 fn, unsigned count);
 
 	void drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4]);

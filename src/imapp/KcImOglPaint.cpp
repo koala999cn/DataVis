@@ -231,6 +231,40 @@ void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const poi
 }
 
 
+void* KcImOglPaint::drawPolygonMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize)
+{
+	auto obj = new KcMarkerObject(k_polygon);
+
+	// 基本元素vbo
+	auto decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_position);
+	auto vbo = std::make_shared<KcGpuBuffer>();
+	vbo->setData(vtx, vtxSize * sizeof(point2f), KcGpuBuffer::k_stream_draw);
+	obj->pushVbo(vbo, decl);
+
+	// 实例化vbo
+	decl = std::make_shared<KcVertexDeclaration>();
+	decl->pushAttribute(KcVertexAttribute(1, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
+	vbo = std::make_shared<KcGpuBuffer>();
+	std::vector<point3f> offset; offset.reserve(count);
+	for (unsigned i = 0; i < count; i++)
+		// NB: 考虑vbo复用，此处不作裁剪，否则只要坐标轴range变化就无法重用
+		//if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
+		offset.push_back(fn(i));
+
+	vbo->setData(offset.data(), offset.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
+	obj->pushVbo(vbo, decl);
+
+	// 设置基本属性
+	obj->setShader(KsShaderManager::singleton().progInst2d());
+	obj->setColor(clr_);
+	obj->setScale(markerScale_());
+
+	pushRenderObject_(obj);
+	return obj;
+}
+
+
 void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count)
 {
 	int segments = 10;
@@ -509,6 +543,10 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 		};
 		return drawLineMarkers_(fn, count, asterisk, std::size(asterisk));
 	}
+
+	case KpMarker::k_circle:
+		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::square<float>(), 4);
+	    break;
 
 	case KpMarker::k_square:
 	case KpMarker::k_diamond:
