@@ -483,34 +483,32 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 	case KpMarker::k_cross:
 	{
 		static const point2f cross[4] = { 
-			point2(-SQRT_2_2,-SQRT_2_2),
-			point2(SQRT_2_2,SQRT_2_2),
-			point2(SQRT_2_2,-SQRT_2_2),
-			point2(-SQRT_2_2,SQRT_2_2) 
+			point2f(-SQRT_2_2,-SQRT_2_2),
+			point2f(SQRT_2_2,SQRT_2_2),
+			point2f(SQRT_2_2,-SQRT_2_2),
+			point2f(-SQRT_2_2,SQRT_2_2) 
 		};
 		return drawLineMarkers_(fn, count, cross, std::size(cross));
 	}
 
 	case KpMarker::k_plus:
 	{
-		static const point2 plus[4] = { point2(-1, 0), point2(1, 0), point2(0, -1), point2(0, 1) };
-		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, plus, markerSize_);
+		static const point2f plus[4] = { point2f(-1, 0), point2f(1, 0), point2f(0, -1), point2f(0, 1) };
+		return drawLineMarkers_(fn, count, plus, std::size(plus));
 	}
-	    return nullptr;
 
 	case KpMarker::k_asterisk:
 	{
-		static const point2 asterisk[6] = { 
-			point2(-SQRT_3_2, -0.5f), 
-			point2(SQRT_3_2, 0.5f),  
-			point2(-SQRT_3_2, 0.5f),
-			point2(SQRT_3_2, -0.5f),
-			point2(0, -1), 
-			point2(0, 1) 
+		static const point2f asterisk[6] = { 
+			point2f(-SQRT_3_2, -0.5f), 
+			point2f(SQRT_3_2, 0.5f),  
+			point2f(-SQRT_3_2, 0.5f),
+			point2f(SQRT_3_2, -0.5f),
+			point2f(0, -1), 
+			point2f(0, 1) 
 		};
-		kPrivate::drawPolyMarkers_<6>(*this, fn, count, asterisk, markerSize_);
+		return drawLineMarkers_(fn, count, asterisk, std::size(asterisk));
 	}
-		return nullptr;
 
 	case KpMarker::k_square:
 	case KpMarker::k_diamond:
