@@ -99,6 +99,23 @@ public:
 		return vtx;
 	}
 
+	template<typename T>
+	static const point2<T>* circle10() {
+		static constexpr point2<T> vtx[] = {
+			{ 1.0f, 0.0f },
+			{ 0.809017f, 0.58778524f },
+			{ 0.30901697f, 0.95105654f },
+			{ -0.30901703f, 0.9510565f },
+			{ -0.80901706f, 0.5877852f },
+			{ -1.0f, 0.0f },
+			{ -0.80901694f, -0.58778536f },
+			{ -0.3090171f, -0.9510565f },
+			{ 0.30901712f, -0.9510565f },
+			{ 0.80901694f, -0.5877853f }
+		};
+		return vtx;
+	}
+
 private:
 	KuPrimitiveFactory() = delete;
 };
@@ -266,20 +283,7 @@ int KuPrimitiveFactory::indexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf, unsi
 template<typename T>
 int KuPrimitiveFactory::makeCircle10(const point3<T>& center, T radius, void* obuf, unsigned stride)
 {
-	static constexpr std::array<T, 2> circle[] = { 
-		{ 1.0f, 0.0f }, 
-		{ 0.809017f, 0.58778524f },
-		{ 0.30901697f, 0.95105654f },
-		{ -0.30901703f, 0.9510565f },
-		{ -0.80901706f, 0.5877852f },
-		{ -1.0f, 0.0f },
-		{ -0.80901694f, -0.58778536f },
-		{ -0.3090171f, -0.9510565f },
-		{ 0.30901712f, -0.9510565f },
-		{ 0.80901694f, -0.5877853f }
-	};
-
-	constexpr int vtxCount = std::size(circle);
+	constexpr int vtxCount = 10;
 
 	if (obuf) {
 
@@ -291,7 +295,7 @@ int KuPrimitiveFactory::makeCircle10(const point3<T>& center, T radius, void* ob
 		for (unsigned i = 0; i < vtxCount; i++) {
 			auto pt = (T*)buf;
 			for (int j = 0; j < 2; j++)
-			    pt[j] = center[j] + radius * circle[i][j];
+			    pt[j] = center[j] + radius * circle10<T>()[i][j];
 			pt[2] = center[2]; // 始终在x-y平面构建circle，z坐标与原点相同
 			buf += stride;
 		}

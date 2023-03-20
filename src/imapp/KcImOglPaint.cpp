@@ -231,6 +231,7 @@ void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const poi
 }
 
 
+#include "KtLine.h"
 void* KcImOglPaint::drawPolygonMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize)
 {
 	auto obj = new KcMarkerObject(k_triangles);
@@ -249,7 +250,9 @@ void* KcImOglPaint::drawPolygonMarkers_(point_getter1 fn, unsigned count, const 
 	std::vector<KpVertex> buf; buf.resize(3 * vtxSize + 1);
 
 	// 构造填充区域和轮廓区域
-	auto outline = 0.5 * lineWidth_ / markerSize_;
+	KtLine<double> line({ vtx[0].x(), vtx[0].y(), 0 }, { vtx[1].x() - vtx[0].x(), vtx[1].y() - vtx[0].y(), 0 });
+	auto scale = line.distanceTo(point3d(0));
+	auto outline = 0.5 * std::round(lineWidth_) / (markerSize_ * scale); // 轮廓线的缩放因子
 
 	// 增加一个零点，以便构建三角形
 	buf[0].pos = point2f(0);
@@ -603,16 +606,28 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::square<float>(), 4);
 
 	case KpMarker::k_diamond:
+		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::diamond<float>(), 4);
+
 	case KpMarker::k_left:
+		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::triangleLeft<float>(), 3);
+
 	case KpMarker::k_right:
+		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::triangleRight<float>(), 3);
+
 	case KpMarker::k_up:
+		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::triangleUp<float>(), 3);
+
 	case KpMarker::k_down:
+		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::triangleDown<float>(), 3);
+
 	case KpMarker::k_circle:
+		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::circle10<float>(), 10);
+
 	default:
 		break;
 	};
 
-	// 带outline的marker暂使用ImGui实现(issue I6B5ES)
+	assert(false);
 	return super_::drawMarkers(fn, count);
 }
 
