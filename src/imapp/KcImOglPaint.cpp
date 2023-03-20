@@ -1138,6 +1138,7 @@ void KcImOglPaint::configOglState_()
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_MULTISAMPLE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1147,6 +1148,7 @@ void KcImOglPaint::configOglState_()
 		glDisable(GL_POINT_SMOOTH);
 		glDisable(GL_LINE_SMOOTH);
 		glDisable(GL_POLYGON_SMOOTH);
+		glDisable(GL_MULTISAMPLE); 
 
 		// 以下设置能提升文字渲染的清晰度（避免插值）
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

@@ -78,7 +78,7 @@ bool KcModuleImGuiGlfw::initGl_()
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_SAMPLES, 4); // 启用多重采样
 
     // Create window with graphics context
     auto window = glfwCreateWindow(width_, height_, title_.c_str(), nullptr, nullptr);
