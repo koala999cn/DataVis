@@ -87,9 +87,9 @@ void KcRenderObject::drawVbo_() const
 			assert(idxSize <= 4);
 			GLenum type = (idxSize == 4) ? GL_UNSIGNED_INT : (idxSize == 2) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
 			if (instances_ == 1)
-			    glDrawElements(glModes[type_], i.count, type, (const void*)(i.start));
+			    glDrawElements(glModes[i.type], i.count, type, (const void*)(i.start));
 			else
-			    glDrawElementsInstanced(glModes[type_], i.count, type, (const void*)(i.start), instances_);
+			    glDrawElementsInstanced(glModes[i.type], i.count, type, (const void*)(i.start), instances_);
 		}
 	}
 	else {

@@ -233,18 +233,47 @@ void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const poi
 
 void* KcImOglPaint::drawPolygonMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize)
 {
-	auto obj = new KcMarkerObject(k_polygon);
+	auto obj = new KcMarkerObject(k_triangles);
 
 	// 基本元素vbo
 	auto decl = std::make_shared<KcVertexDeclaration>();
 	decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_position);
+	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
 	auto vbo = std::make_shared<KcGpuBuffer>();
-	vbo->setData(vtx, vtxSize * sizeof(point2f), KcGpuBuffer::k_stream_draw);
+
+	struct KpVertex
+	{
+		point2f pos;
+		color4f clr;
+	};
+	std::vector<KpVertex> buf; buf.resize(3 * vtxSize + 1);
+
+	// 构造填充区域和轮廓区域
+	auto outline = 0.5 * lineWidth_ / markerSize_;
+
+	// 增加一个零点，以便构建三角形
+	buf[0].pos = point2f(0);
+	buf[0].clr = clr_;
+
+	auto p = buf.data() + 1;
+	for (unsigned i = 0; i < vtxSize; i++, p++) {
+		// fill
+		p[0].pos = vtx[i] * (1 - outline);
+		p[0].clr = clr_;
+
+		// outline
+		p[vtxSize].pos = p[0].pos;
+		p[vtxSize].clr = secondaryClr_;
+		p[2 * vtxSize].pos = vtx[i] * (1 + outline);
+		p[2 * vtxSize].clr = secondaryClr_;
+	}
+
+	vbo->setData(buf.data(), buf.size() * sizeof(KpVertex), KcGpuBuffer::k_stream_draw);
 	obj->pushVbo(vbo, decl);
 
 	// 实例化vbo
 	decl = std::make_shared<KcVertexDeclaration>();
-	decl->pushAttribute(KcVertexAttribute(1, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
+	decl->pushAttribute(KcVertexAttribute(2, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
 	vbo = std::make_shared<KcGpuBuffer>();
 	std::vector<point3f> offset; offset.reserve(count);
 	for (unsigned i = 0; i < count; i++)
@@ -256,9 +285,35 @@ void* KcImOglPaint::drawPolygonMarkers_(point_getter1 fn, unsigned count, const 
 	obj->pushVbo(vbo, decl);
 
 	// 设置基本属性
-	obj->setShader(KsShaderManager::singleton().progInst2d());
+	obj->setShader(KsShaderManager::singleton().progInst2dColor());
 	obj->setColor(clr_);
 	obj->setScale(markerScale_());
+
+	// 构造填充和轮廓的ibo
+	// 为了整体绘制，整合填充和轮廓构建1个ibo
+	std::vector<std::uint32_t> idx;
+
+	auto ibo = std::make_shared<KcGpuBuffer>(KcGpuBuffer::k_index_buffer);
+
+	// fill有vtxSize个三角形，共vtxSize * 3个顶点
+	// outline有vtxSize * 2个三角形，共vtxSize * 2 * 3个顶点
+	idx.resize(vtxSize * 3 + vtxSize * 2 * 3);
+	for (unsigned i = 0; i < vtxSize; i++) {
+		idx[i * 3] = 0; // 零点
+		idx[i * 3 + 1] = i + 1;
+		idx[i * 3 + 2] = (i + 1) % vtxSize + 1;
+
+		idx[vtxSize * 3 + i * 3] = 2 * vtxSize + i + 1;
+		idx[vtxSize * 3 + i * 3 + 1] = 2 * vtxSize + (i + 1) % vtxSize + 1;
+		idx[vtxSize * 3 + i * 3 + 2] = vtxSize + i + 1;
+
+
+		idx[vtxSize * 6 + i * 3] = idx[vtxSize * 3 + i * 3 + 1];
+		idx[vtxSize * 6 + i * 3 + 1] = vtxSize + (i + 1) % vtxSize + 1;
+		idx[vtxSize * 6 + i * 3 + 2] = idx[vtxSize * 3 + i * 3 + 2];
+	}
+	ibo->setData(idx.data(), idx.size() * sizeof(std::uint32_t), KcGpuBuffer::k_stream_draw);
+	obj->pushIbo(ibo, idx.size());
 
 	pushRenderObject_(obj);
 	return obj;
@@ -544,16 +599,15 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 		return drawLineMarkers_(fn, count, asterisk, std::size(asterisk));
 	}
 
-	case KpMarker::k_circle:
-		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::square<float>(), 4);
-	    break;
-
 	case KpMarker::k_square:
+		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::square<float>(), 4);
+
 	case KpMarker::k_diamond:
 	case KpMarker::k_left:
 	case KpMarker::k_right:
 	case KpMarker::k_up:
 	case KpMarker::k_down:
+	case KpMarker::k_circle:
 	default:
 		break;
 	};

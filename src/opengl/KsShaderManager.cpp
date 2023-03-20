@@ -140,6 +140,31 @@ KsShaderManager::shader_ptr KsShaderManager::vsInst2d()
 }
 
 
+KsShaderManager::shader_ptr KsShaderManager::vsInst2dColor()
+{
+	const static char* vertex_shader_inst2d_color =
+		"uniform mat4 matMvp;\n"
+		"uniform vec2 vScale;\n"
+		"layout (location = 0) in vec2 iPosition;\n"
+		"layout (location = 1) in vec4 iColor;\n"
+		"layout (location = 2) in vec3 iOffset;\n"
+		"flat out vec4 Frag_Color;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = matMvp * vec4(iOffset + vec3(iPosition * vScale, 0), 1);\n"
+		"    Frag_Color = iColor;\n"
+		"}\n";
+
+	if (vsInst2dColor_ == nullptr) {
+		vsInst2dColor_ = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, vertex_shader_inst2d_color);
+		auto info = vsInst2dColor_->infoLog();
+		assert(vsInst2dColor_->compileStatus());
+	}
+
+	return vsInst2dColor_;
+}
+
+
 KsShaderManager::shader_ptr KsShaderManager::vsMonoLight(bool flat)
 {
 	const static char* vertex_shader_mono_light =
@@ -241,6 +266,12 @@ KsShaderManager::program_ptr KsShaderManager::progColorUV(bool flat)
 KsShaderManager::program_ptr KsShaderManager::progInst2d()
 {
 	return createProg_(progInst2d_, vsInst2d(), fsNavie(true));
+}
+
+
+KsShaderManager::program_ptr KsShaderManager::progInst2dColor()
+{
+	return createProg_(progInst2dColor_, vsInst2dColor(), fsNavie(true));
 }
 
 

@@ -9,7 +9,7 @@ class KcGlslProgram;
 class KcVertexDeclaration;
 
 
-// 封装待渲染对象：包括vbo、shader等
+// 封装待渲染对象：支持多vbo、多ibo和多实例
 
 class KcRenderObject
 {

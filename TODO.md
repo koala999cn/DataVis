@@ -67,7 +67,7 @@
 - [ ] 面积图支持below & above控制项（参考https://gnuplot.sourceforge.net/demo/fillbetween.html）
 
 ## theme
-- [ ] 更多theme，SCI等
+- [ ] 更多theme，SCI、ggthemes等
 - [ ] 进一步规范化specification
 - [ ] 完善plot2d和plot3d的layout主题
 - [x] 各要素的可见性设置不改变linesyle和alpha等属性 
