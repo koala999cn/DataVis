@@ -579,7 +579,9 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 {
 	auto obj = new KcMarkerObject;
 	obj->setMarker(marker());
-	
+	auto s = unprojectv({ 1, 1 });
+	obj->setScale({ s.x(), s.y() });
+
 	std::vector<point3f> offset; offset.reserve(count);
 	for (unsigned i = 0; i < count; i++)
 		// NB: 考虑vbo复用，此处不作裁剪，否则只要坐标轴range变化就无法重用
@@ -1367,6 +1369,8 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 	else if (dynamic_cast<KcMarkerObject*>(obj)) {
 		auto mo = dynamic_cast<KcMarkerObject*>(obj);
 		mo->setMarker(marker());
+		auto s = unprojectv({ 1, 1 });
+		mo->setScale({ s.x(), s.y() });
 	}
 
 	obj->setColor(clr_);

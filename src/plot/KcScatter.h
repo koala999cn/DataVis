@@ -20,7 +20,7 @@ public:
 	unsigned objectCount() const override;
 
 	const KpMarker& marker() const { return marker_; }
-	void setMarker(const KpMarker&);
+	void setMarker(const KpMarker& m) { marker_ = m; }
 
 private:
 

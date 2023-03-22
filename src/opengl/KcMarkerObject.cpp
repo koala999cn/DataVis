@@ -17,13 +17,15 @@ KcMarkerObject::KcMarkerObject()
 
 void KcMarkerObject::draw() const
 {
-    prog_->useProgram();
-    auto loc = prog_->getUniformLocation("vScale");
-    assert(loc != -1);
-    glUniform2f(loc, size_.x(), size_.y());
-
-	if (type_ == k_points) 
+	if (type_ == k_points) {
 		glPointSize(marker_.size);
+	}
+	else {
+		prog_->useProgram();
+		auto loc = prog_->getUniformLocation("vScale");
+		assert(loc != -1);
+		glUniform2f(loc, marker_.size * scale_.x(), marker_.size * scale_.y());
+	}
 
     super_::draw();
 }
@@ -45,15 +47,16 @@ void KcMarkerObject::setMarker(const KpMarker& marker)
 	// 2. type相同且hasOutline为false，则不须重构，只须更新shader参数
 	// 3. type相同且hasOutline为true，若marker其他成员不同则重构
 
-	if (marker_.type != marker.type // 情况1，无条件重构
-		|| marker_.hasOutline() && marker != marker_) // 情况3
-        buildMarkerVbo_(marker); 
-
-	prog_ = isSolidColor(marker) ? KsShaderManager::singleton().progInst2d()
-		: KsShaderManager::singleton().progInst2dColor();
+	bool rebuild = marker_.type != marker.type // 情况1，无条件重构
+		|| (marker_.hasOutline() && marker != marker_); // 情况3
 
 	marker_ = marker;
+	prog_ = isSolidColor() ? KsShaderManager::singleton().progInst2d()
+		: KsShaderManager::singleton().progInst2dColor();
 	setColor(marker_.fill);
+
+	if (rebuild)
+        buildMarkerVbo_(); 
 }
 
 
@@ -63,7 +66,7 @@ void KcMarkerObject::setOffset(const point3f* pos, unsigned count)
 		vbos_.resize(2);
 		vbos_[1].buf = std::make_shared<KcGpuBuffer>();
 		vbos_[1].decl = std::make_shared<KcVertexDeclaration>();
-		auto loc = isSolidColor(marker_) ? 1 : 2;
+		auto loc = isSolidColor() ? 1 : 2;
 		vbos_[1].decl->pushAttribute(KcVertexAttribute(loc, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
 	}
 
@@ -72,9 +75,9 @@ void KcMarkerObject::setOffset(const point3f* pos, unsigned count)
 }
 
 
-void KcMarkerObject::buildMarkerVbo_(const KpMarker& marker)
+void KcMarkerObject::buildMarkerVbo_()
 {
-	type_ = (marker.type == KpMarker::k_dot) ? k_points : marker.hasOutline() ? k_triangles : k_lines;
+	type_ = (marker_.type == KpMarker::k_dot) ? k_points : marker_.hasOutline() ? k_triangles : k_lines;
 
     if (vbos_.empty())
         vbos_.resize(1);
@@ -83,13 +86,13 @@ void KcMarkerObject::buildMarkerVbo_(const KpMarker& marker)
 
     auto decl = std::make_shared<KcVertexDeclaration>();
     decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_position);
-    if (marker.hasOutline())
+    if (marker_.hasOutline())
         decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
     vbos_[0].decl = decl;
 
-	auto vtx = markerVtx_(marker.type);
+	auto vtx = markerVtx_(marker_.type);
 	ibos_.clear();
-	if (!marker.hasOutline()) {
+	if (!marker_.hasOutline()) {
 		vbos_[0].buf->setData(vtx.first, vtx.second * sizeof(point2f), KcGpuBuffer::k_stream_draw);
 	}
 	else {
@@ -100,32 +103,32 @@ void KcMarkerObject::buildMarkerVbo_(const KpMarker& marker)
 		};
 
 		bool fill = true; //  marker.fill.a() > 0;
-		bool outline = marker.showOutline && marker.outline.a() > 0;
+		bool outline = marker_.showOutline && marker_.outline.a() > 0;
 		std::vector<KpVertex> buf; buf.resize((fill + outline * 2) * vtx.second + fill);
 
 		// 构造填充区域和轮廓区域
 		auto pt = (const point2f*)vtx.first;
 		KtLine<double> line({ pt[0].x(), pt[0].y(), 0 }, { pt[1].x() - pt[0].x(), pt[1].y() - pt[0].y(), 0 });
-		auto f = 0.5 * std::round(marker.weight) / (marker.size * line.distanceTo(point3d(0))); // 轮廓线的缩放因子
+		auto f = 0.5 * std::round(marker_.weight) / (marker_.size * line.distanceTo(point3d(0))); // 轮廓线的缩放因子
 
 		if (fill) {
 			// 增加一个零点，以便构建三角形
 			buf[0].pos = point2f(0);
-			buf[0].clr = marker.fill;
+			buf[0].clr = marker_.fill;
 		}
 
 		auto p = buf.data() + fill;
 		for (unsigned i = 0; i < vtx.second; i++, p++) {
 			// fill
-			p[0].pos = pt[i] * (1 - f);
-			p[0].clr = marker.fill;
+			p[0].pos = pt[i];
+			p[0].clr = marker_.fill;
 
 			if (outline) {
 				// outline
-				p[vtx.second].pos = p[0].pos;
-				p[vtx.second].clr = marker.outline;
+				p[vtx.second].pos = pt[i] * (1 - f);
+				p[vtx.second].clr = marker_.outline;
 				p[2 * vtx.second].pos = pt[i] * (1 + f);
-				p[2 * vtx.second].clr = marker.outline;
+				p[2 * vtx.second].clr = marker_.outline;
 			}
 		}
 
@@ -138,23 +141,28 @@ void KcMarkerObject::buildMarkerVbo_(const KpMarker& marker)
 
 void KcMarkerObject::buildIbo_(unsigned vtxSize)
 {
+	bool fill = true; //  marker.fill.a() > 0;
+	bool outline = marker_.hasOutline() && marker_.showOutline && marker_.outline.a() > 0;
+
 	// 构造填充和轮廓的ibo
 	// 为了整体绘制，整合填充和轮廓构建1个ibo
 	std::vector<std::uint32_t> idx;
-
 	auto ibo = std::make_shared<KcGpuBuffer>(KcGpuBuffer::k_index_buffer);
-
-	bool outline = marker_.hasOutline() && marker_.showOutline && marker_.outline.a() > 0;
 
 	// fill有vtxSize个三角形，共vtxSize * 3个顶点
 	// outline有vtxSize * 2个三角形，共vtxSize * 2 * 3个顶点
-	idx.resize(vtxSize * 3 + outline ? vtxSize * 2 * 3 : 0);
+	idx.resize((fill ? vtxSize * 3 : 0) + (outline ? vtxSize * 2 * 3 : 0));
 	for (unsigned i = 0; i < vtxSize; i++) {
-		idx[i * 3] = 0; // 零点
-		idx[i * 3 + 1] = i + 1;
-		idx[i * 3 + 2] = (i + 1) % vtxSize + 1;
+		if (fill) {
+			idx[i * 3] = 0; // 零点
+			idx[i * 3 + 1] = i + 1;
+			idx[i * 3 + 2] = (i + 1) % vtxSize + 1;
+		}
 
 		if (outline) {
+
+			assert(fill); // TODO:
+
 			idx[vtxSize * 3 + i * 3] = 2 * vtxSize + i + 1;
 			idx[vtxSize * 3 + i * 3 + 1] = 2 * vtxSize + (i + 1) % vtxSize + 1;
 			idx[vtxSize * 3 + i * 3 + 2] = vtxSize + i + 1;
@@ -172,10 +180,11 @@ void KcMarkerObject::buildIbo_(unsigned vtxSize)
 }
 
 
-bool KcMarkerObject::isSolidColor(const KpMarker& marker)
+bool KcMarkerObject::isSolidColor() const
 {
+	return !marker_.hasOutline() || !marker_.showOutline;
 	bool fill = true; // TODO: 暂认为始终填充 marker.fill.a() != 0;
-	bool outline = marker.hasOutline() && marker.showOutline && marker.outline.a();
+	bool outline = marker_.hasOutline() && marker_.showOutline && marker_.outline.a();
 	return !fill || !outline;
 }
 

@@ -3,14 +3,6 @@
 #include "KvData.h"
 
 
-void KcScatter::setMarker(const KpMarker& m)
-{ 
-	if (m.type != marker_.type)
-		setDataChanged(false); // TODO: ÓÉpaint´¦Àí
-	marker_ = m; 
-}
-
-
 unsigned KcScatter::objectCount() const
 { 
 	return empty() ? 0 : channels_();
@@ -28,8 +20,6 @@ void KcScatter::setObjectState_(KvPaint* paint, unsigned objIdx) const
 	paint->apply(marker_);
 	if (coloringMode() == k_one_color_solid)
 		paint->setColor(majorColor(objIdx));
-
-	paint->setEdged(marker_.showOutline && marker_.hasOutline() && marker_.outline.a() > 0);
 }
 
 
