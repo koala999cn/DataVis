@@ -65,6 +65,10 @@ public:
 
 	void grab(int x, int y, int width, int height, void* data) override;
 
+
+	// 辅助函数
+	KpMarker marker() const; // 装配marker绘制上下文
+
 	// 内部函数，由ImGui回调，以绘制renderList_保存的渲染对象
 	void drawRenderList_();
 

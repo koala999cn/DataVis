@@ -37,6 +37,16 @@ public:
 	bool hasOutline() const {
 		return type >= k_circle && type <= k_right;
 	}
+
+	bool operator==(const KpMarker& rhs) const {
+		return type == rhs.type && size == rhs.size &&
+			fill == rhs.fill && outline == rhs.outline &&
+			weight == rhs.weight && showOutline == rhs.showOutline;
+	}
+
+	bool operator!=(const KpMarker& rhs) const {
+		return !(*this == rhs);
+	}
 };
 
 

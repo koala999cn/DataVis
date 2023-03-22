@@ -199,7 +199,7 @@ void* KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 
 void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize)
 {
-	auto obj = new KcMarkerObject(k_lines);
+	auto obj = new KcMarkerObject;
 
 	// 基本元素vbo
 	auto decl = std::make_shared<KcVertexDeclaration>();
@@ -234,7 +234,7 @@ void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const poi
 #include "KtLine.h"
 void* KcImOglPaint::drawPolygonMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize)
 {
-	auto obj = new KcMarkerObject(k_triangles);
+	auto obj = new KcMarkerObject();
 
 	// 基本元素vbo
 	auto decl = std::make_shared<KcVertexDeclaration>();
@@ -562,8 +562,34 @@ void KcImOglPaint::drawTriMarkers_(point_getter1 fn, unsigned count, const point
 }
 
 
+KpMarker KcImOglPaint::marker() const
+{
+	KpMarker m;
+	m.type = markerType_;
+	m.size = markerSize_;
+	m.fill = clr_;
+	m.outline = secondaryClr_;
+	m.weight = lineWidth_;
+	m.showOutline = edged_;
+	return m;
+}
+
+
 void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 {
+	auto obj = new KcMarkerObject;
+	obj->setMarker(marker());
+	
+	std::vector<point3f> offset; offset.reserve(count);
+	for (unsigned i = 0; i < count; i++)
+		// NB: 考虑vbo复用，此处不作裁剪，否则只要坐标轴range变化就无法重用
+		//if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
+		offset.push_back(fn(i));
+	obj->setOffset(offset.data(), offset.size());
+
+	pushRenderObject_(obj);
+	return obj;
+
 	static const double SQRT_2_2 = std::sqrt(2.) / 2.;
 	static const double SQRT_3_2 = std::sqrt(3.) / 2.;
 
@@ -1340,7 +1366,7 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 	}
 	else if (dynamic_cast<KcMarkerObject*>(obj)) {
 		auto mo = dynamic_cast<KcMarkerObject*>(obj);
-		mo->setScale(markerScale_());
+		mo->setMarker(marker());
 	}
 
 	obj->setColor(clr_);
