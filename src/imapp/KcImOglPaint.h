@@ -159,9 +159,6 @@ private:
 	void drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo, bool normToNdc);
 	void drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo, bool normToNdc);
 
-
-	point2f markerScale_() const;
-
 private:
 
 	// render states stacks

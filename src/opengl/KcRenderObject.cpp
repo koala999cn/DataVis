@@ -154,6 +154,24 @@ bool KcRenderObject::hasColor() const
 }
 
 
+bool KcRenderObject::hasUV() const
+{
+
+}
+
+
+bool KcRenderObject::hasNormal() const
+{
+
+}
+
+
+bool KcRenderObject::hasInst() const
+{
+
+}
+
+
 void KcRenderObject::pushVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl)
 {
 	assert(vbos_.empty() || vtxDecl->getAttribute(0).location() != 0);

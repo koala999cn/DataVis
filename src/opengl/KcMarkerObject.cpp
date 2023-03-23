@@ -55,8 +55,7 @@ void KcMarkerObject::setMarker(const KpMarker& marker)
 
 	if (rebuild) {
 		buildMarkerVbo_();
-		prog_ = vbos_.front().decl->hasColor() ? KsShaderManager::singleton().progInst2dColor()
-			: KsShaderManager::singleton().progInst2d();
+		prog_.reset(); // 由于不知道flat和clipBox状态，留给外部自动设置
 
 		vbos_.resize(2);
 		if (!vbos_[1].buf)

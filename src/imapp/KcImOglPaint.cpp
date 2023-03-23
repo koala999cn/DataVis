@@ -222,7 +222,7 @@ void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const poi
 	obj->pushVbo(vbo, decl);
 
 	// 设置基本属性
-	obj->setShader(KsShaderManager::singleton().progInst2d());
+	obj->setShader(KsShaderManager::singleton().progMonoInst(curClipBox_ != -1));
 	obj->setColor(clr_);
 	obj->setScale(markerScale_());
 
@@ -288,7 +288,7 @@ void* KcImOglPaint::drawPolygonMarkers_(point_getter1 fn, unsigned count, const 
 	obj->pushVbo(vbo, decl);
 
 	// 设置基本属性
-	obj->setShader(KsShaderManager::singleton().progInst2dColor());
+	obj->setShader(KsShaderManager::singleton().progColorInst(flatShading_, curClipBox_ != -1));
 	obj->setColor(clr_);
 	obj->setScale(markerScale_());
 
@@ -844,10 +844,14 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 
 
 	if (obj->shader() == nullptr) { // 自动设置shader
+		int type = KsShaderManager::k_mono;
+		if (obj->hasColor()) type |= KsShaderManager::k_color;
+		
+
 		if (!obj->hasColor())
-			obj->setShader(KsShaderManager::singleton().progMono());
+			obj->setShader(KsShaderManager::singleton().progMono(curClipBox_ != -1));
 		else
-			obj->setShader(KsShaderManager::singleton().progColor(flatShading()));
+			obj->setShader(KsShaderManager::singleton().progColor(flatShading_, curClipBox_ != -1));
 	}
 
 	rl.objs.emplace_back(obj);
@@ -983,7 +987,7 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 {
 	if (!text.empty()) {
 		auto obj = new KcRenderObject(k_quads);
-		obj->setShader(KsShaderManager::singleton().progColorUV(true)); // TODO: 目前文字渲染始终使用flat模式
+		obj->setShader(KsShaderManager::singleton().progColorUV(flatShading_, curClipBox_ != -1)); 
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -1016,7 +1020,7 @@ void KcImOglPaint::pushColorVbo_(KpRenderList_& rl)
 {
 	if (!rl.tris.empty()) {
 		auto obj = new KcRenderObject(k_triangles);
-		obj->setShader(KsShaderManager::singleton().progColor(false));
+		obj->setShader(KsShaderManager::singleton().progColor(false, false));
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -1375,21 +1379,6 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 
 	obj->setColor(clr_);
 
-	// 同步flat渲染状态
-	// 目前使用这个比较傻的方案
-	// 有另一种方案设想：把shader作为渲染的对象的通用属性，由pushRenderObject根据vbo统一设定
-	// 按以上设想，就不需要在此处同步flat了
-	// obj->setShader(KsShaderManager::singleton().flatVersion(obj->shader(), flatShading_));
-
 	// 在此置shader为空，由pushRenderObject设定shader，以同步flat渲染状态
-	// pushRenderObject设置shader的版本只考虑了mono和color两种情况，但已能满足目前版本的plot需求
-	if (obj->shader() == KsShaderManager::singleton().progColor(false)
-		|| obj->shader() == KsShaderManager::singleton().progColor(true))
-	    obj->setShader(nullptr);
-}
-
-
-point2f KcImOglPaint::markerScale_() const
-{
-	return point2f(unprojectv(point2(1, 0)).length(), unprojectv(point2(0, 1)).length()) * markerSize_;
+    obj->setShader(nullptr);
 }

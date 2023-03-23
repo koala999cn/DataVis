@@ -41,8 +41,8 @@ public:
 
 	bool operator==(const KpMarker& rhs) const {
 		return type == rhs.type && size == rhs.size &&
-			fill == rhs.fill && outline == rhs.outline &&
-			weight == rhs.weight && showOutline == rhs.showOutline;
+			fill == rhs.fill && outline == rhs.outline && weight == rhs.weight &&
+			showFill == rhs.showFill && showOutline == rhs.showOutline;
 	}
 
 	bool operator!=(const KpMarker& rhs) const {

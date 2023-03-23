@@ -71,6 +71,9 @@ public:
 	virtual KcRenderObject* clone() const;
 
 	bool hasColor() const;
+	bool hasUV() const;
+	bool hasNormal() const;
+	bool hasInst() const;
 
 protected:
 
