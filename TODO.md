@@ -65,6 +65,7 @@
 - [ ] heatmap的维度映射
 - [x] arrange模式增加zshift实现
 - [ ] 面积图支持below & above控制项（参考https://gnuplot.sourceforge.net/demo/fillbetween.html）
+- [ ] 散点图支持渐变色和告示牌模式
 
 ## theme
 - [ ] 更多theme，SCI、ggthemes等

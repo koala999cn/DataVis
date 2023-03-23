@@ -51,24 +51,26 @@ void KcMarkerObject::setMarker(const KpMarker& marker)
 		|| (marker_.hasOutline() && marker != marker_); // ַי¿צ3
 
 	marker_ = marker;
-	prog_ = isSolidColor() ? KsShaderManager::singleton().progInst2d()
-		: KsShaderManager::singleton().progInst2dColor();
 	setColor(marker_.fill);
 
-	if (rebuild)
-        buildMarkerVbo_(); 
+	if (rebuild) {
+		buildMarkerVbo_();
+		prog_ = vbos_.front().decl->hasColor() ? KsShaderManager::singleton().progInst2dColor()
+			: KsShaderManager::singleton().progInst2d();
+
+		vbos_.resize(2);
+		if (!vbos_[1].buf)
+		    vbos_[1].buf = std::make_shared<KcGpuBuffer>();
+		vbos_[1].decl = std::make_shared<KcVertexDeclaration>();
+		auto loc = vbos_.front().decl->attributeCount();
+		vbos_[1].decl->pushAttribute(KcVertexAttribute(loc, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
+	}
 }
 
 
 void KcMarkerObject::setOffset(const point3f* pos, unsigned count)
 {
-	if (vbos_.size() < 2) {
-		vbos_.resize(2);
-		vbos_[1].buf = std::make_shared<KcGpuBuffer>();
-		vbos_[1].decl = std::make_shared<KcVertexDeclaration>();
-		auto loc = isSolidColor() ? 1 : 2;
-		vbos_[1].decl->pushAttribute(KcVertexAttribute(loc, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
-	}
+	assert(vbos_.size() > 1 && vbos_[1].buf && vbos_[1].decl);
 
 	vbos_[1].buf->setData(pos, count * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 	instances_ = count;

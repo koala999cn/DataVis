@@ -32,8 +32,9 @@ public:
 	color4f fill{ 0, 0, 0, 1 };
 	color4f outline{ 0, 0, 0, 1 }; // 仅当hasOutline为真时，该成员才有意义
 	float weight{ 1 }; // the width of outline
+	bool showFill{ true };
 	bool showOutline{ false };
-
+	
 	bool hasOutline() const {
 		return type >= k_circle && type <= k_right;
 	}
@@ -46,6 +47,10 @@ public:
 
 	bool operator!=(const KpMarker& rhs) const {
 		return !(*this == rhs);
+	}
+
+	bool visible() const {
+		return showFill || (hasOutline() && showOutline);
 	}
 };
 
