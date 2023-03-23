@@ -44,12 +44,12 @@ public:
 		return ibos_[idx].buf;
 	}
 
-	void pushIbo(KePrimitiveType type, std::shared_ptr<KcGpuBuffer> ibo, unsigned count, unsigned start = 0) {
-		ibos_.push_back({ type, ibo, count, start });
+	void pushIbo(KePrimitiveType type, std::shared_ptr<KcGpuBuffer> ibo, unsigned count) {
+		ibos_.push_back({ type, ibo, count });
 	}
 
-	void pushIbo(std::shared_ptr<KcGpuBuffer> ibo, unsigned count, unsigned start = 0) {
-		pushIbo(type_, ibo, count, start);
+	void pushIbo(std::shared_ptr<KcGpuBuffer> ibo, unsigned count) {
+		pushIbo(type_, ibo, count);
 	}
 
 	auto& projMatrix() const { return projMat_; }
@@ -75,6 +75,8 @@ public:
 	bool hasNormal() const;
 	bool hasInst() const;
 
+	bool hasSemantic(int semantic) const;
+
 protected:
 
 	void bindVbo_() const;
@@ -99,7 +101,6 @@ protected:
 		KePrimitiveType type; // 允许每个ibo使用不同的类型绘制
 		std::shared_ptr<KcGpuBuffer> buf;
 		unsigned count{ 0 };
-		unsigned start{ 0 };
 	};
 
 	KePrimitiveType type_;

@@ -224,7 +224,7 @@ void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const poi
 	// 设置基本属性
 	obj->setShader(KsShaderManager::singleton().progMonoInst(curClipBox_ != -1));
 	obj->setColor(clr_);
-	obj->setScale(markerScale_());
+	//obj->setScale(markerScale_());
 
 	pushRenderObject_(obj);
 	return obj;
@@ -290,7 +290,7 @@ void* KcImOglPaint::drawPolygonMarkers_(point_getter1 fn, unsigned count, const 
 	// 设置基本属性
 	obj->setShader(KsShaderManager::singleton().progColorInst(flatShading_, curClipBox_ != -1));
 	obj->setColor(clr_);
-	obj->setScale(markerScale_());
+	//obj->setScale(markerScale_());
 
 	// 构造填充和轮廓的ibo
 	// 为了整体绘制，整合填充和轮廓构建1个ibo
@@ -578,9 +578,10 @@ KpMarker KcImOglPaint::marker() const
 void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 {
 	auto obj = new KcMarkerObject;
+	auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+	//assert(KuMath::almostEqual(scale.length(), 1.));
+	obj->setScale({ scale.x(), scale.y(), scale.z() });
 	obj->setMarker(marker());
-	auto s = unprojectv({ 1, 1 });
-	obj->setScale({ s.x(), s.y() });
 
 	std::vector<point3f> offset; offset.reserve(count);
 	for (unsigned i = 0; i < count; i++)
@@ -825,6 +826,10 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		obj->setProjMatrix(camera_.getNsMatR_());
 		break;
 
+	case k_coord_ndc:
+		obj->setProjMatrix(float4x4<>::identity());
+		break;
+
 	case k_coord_local_screen:
 		assert(false);
 		break;
@@ -846,12 +851,11 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 	if (obj->shader() == nullptr) { // 自动设置shader
 		int type = KsShaderManager::k_mono;
 		if (obj->hasColor()) type |= KsShaderManager::k_color;
-		
+		if (obj->hasUV()) type |= KsShaderManager::k_uv;
+		if (obj->hasNormal()) type |= KsShaderManager::k_normal;
+		if (obj->hasInst()) type |= KsShaderManager::k_instance;
 
-		if (!obj->hasColor())
-			obj->setShader(KsShaderManager::singleton().progMono(curClipBox_ != -1));
-		else
-			obj->setShader(KsShaderManager::singleton().progColor(flatShading_, curClipBox_ != -1));
+		obj->setShader(KsShaderManager::singleton().fetchProg(type, flatShading_, curClipBox_ != -1));
 	}
 
 	rl.objs.emplace_back(obj);
@@ -878,8 +882,15 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors,
 		drawText_(anchors[i], texts[i].c_str(), align[i], text, false);
 
 	auto obj = makeTextVbo_(text);
-	if (obj)
-		pushRenderObject_(obj);
+	if (obj) {
+		obj->setProjMatrix(float4x4<>::identity()); // 全局text使用ndc坐标，不须在shader中进行坐标变换
+		currentRenderList().objs.emplace_back(obj); 
+
+		//pushCoord(k_coord_ndc);
+		//pushRenderObject_(obj);
+		//popCoord();
+	}
+		
 
 	//return nullptr; // TODO: issue #I6MQBX
 	return obj;
@@ -987,7 +998,7 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 {
 	if (!text.empty()) {
 		auto obj = new KcRenderObject(k_quads);
-		obj->setShader(KsShaderManager::singleton().progColorUV(flatShading_, curClipBox_ != -1)); 
+		obj->setShader(KsShaderManager::singleton().progColorUV(true, curClipBox_ != -1)); // 目前文字渲染始终使用flat模式
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -1008,10 +1019,10 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 
 void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
-	auto obj = makeTextVbo_(rl.texts);
-	if (obj) {
+	if (!rl.texts.empty()) {
+		auto obj = makeTextVbo_(rl.texts);
 		obj->setProjMatrix(float4x4<>::identity()); // 全局text使用ndc坐标，不须在shader中进行坐标变换
-		rl.objs.emplace_back(obj); 
+		rl.objs.emplace_back(obj); // 此处不能调用pushRenderObject_，否则会被压入currentRenderList
 	}
 }
 
@@ -1372,9 +1383,10 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 	}
 	else if (dynamic_cast<KcMarkerObject*>(obj)) {
 		auto mo = dynamic_cast<KcMarkerObject*>(obj);
+		auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+		//assert(KuMath::almostEqual(scale.length(), 1.));
+		mo->setScale({ scale.x(), scale.y(), scale.z() });
 		mo->setMarker(marker());
-		auto s = unprojectv({ 1, 1 });
-		mo->setScale({ s.x(), s.y() });
 	}
 
 	obj->setColor(clr_);

@@ -52,7 +52,7 @@
 - [ ] 色带编辑器美化（参考https://github.com/CoolLibs/imgui_gradient & https://github.com/effekseer/ImGradientHDR）
 - [ ] plot的autorange由KvRdPlot负责，根据provider调整，而非data
 - [x] paddingStacked的语义一致性
-- [ ] text支持vbo重用
+- [x] text支持vbo重用
 - [x] 完善clip的rect修订，legend的border的有的边会被非正常剪切 --> 绘制item时才设置clip
 - [x] 完善bars2d的padding设置（是否使用像素值？）
 - [ ] range太大时axis不能正常定位tick和label
@@ -65,7 +65,10 @@
 - [ ] heatmap的维度映射
 - [x] arrange模式增加zshift实现
 - [ ] 面积图支持below & above控制项（参考https://gnuplot.sourceforge.net/demo/fillbetween.html）
-- [ ] 散点图支持渐变色和告示牌模式
+- [ ] 散点图支持渐变色
+- [ ] 散点图兼容气泡图
+- [x] 散点图的告示牌模式
+- [ ] text复用情况下的状态同步：①变换矩阵设置，②保持恒定尺寸
 
 ## theme
 - [ ] 更多theme，SCI、ggthemes等
@@ -85,6 +88,8 @@
 - [ ] 更全面地测试数据维度和通道数等发生变化的情况
 
 ## FIXME
+- [ ] 启用多重采样之后，程序启动短暂白屏
+- [ ] 散点图在plot3d下干扰imgui绘制（渲染状态问题？？）
 - [x] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）
 - [x] colorbar的axis留白同步
 - [x] 三维坐标系下，虚线的绘制（ImGui）在旋转到特定方向时会出现错位 --> 使用opengl绘制后，该问题没再出现，估计由于计算误差引起

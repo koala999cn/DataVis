@@ -32,7 +32,7 @@ unsigned KcVertexDeclaration::vertexSize() const
 }
 
 
-bool KcVertexDeclaration::hasSemantic(KcVertexAttribute::KeSemantic semantic) const
+bool KcVertexDeclaration::hasSemantic(int semantic) const
 {
 	for(unsigned i = 0; i < attributeCount(); i++)
 		if(getAttribute(i).semantic() == semantic)

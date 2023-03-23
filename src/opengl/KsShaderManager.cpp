@@ -50,9 +50,6 @@ const char* KsShaderManager::vsMono_()
 	static const char* vertex_shader_mono =
 		"uniform mat4 matMvp;\n"
 		"uniform vec4 vColor;\n"
-		"uniform int  iEnableClip;\n"
-		"uniform vec3 vClipLower;\n"
-		"uniform vec3 vClipUpper;\n"	
 		"in vec3 iPosition;\n"
 		"out vec4 Frag_Color;\n"
 		"void main()\n"
@@ -124,13 +121,13 @@ const char* KsShaderManager::vsMonoInst_()
 	static const char* vertex_shader_mono_inst =
 		"uniform mat4 matMvp;\n"
 		"uniform vec4 vColor;\n"
-		"uniform vec3 vScale;\n"
-		"layout (location = 0) in vec3 iPosition;\n"
-		"layout (location = 1) in vec3 iOffset;\n"
+		"uniform vec2 vScale;\n"
+		"layout (location = 0) in vec2 iVertex;\n"
+		"layout (location = 1) in vec3 iPosition;\n"
 		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_Position = matMvp * vec4(iOffset + iPosition * vScale, 1);\n"
+		"    gl_Position = matMvp * vec4(iPosition, 1) + vec4(iVertex * vScale, 0, 0);\n"
 		"    Frag_Color = vColor;\n"
 		"}\n";
 
@@ -142,14 +139,14 @@ const char* KsShaderManager::vsColorInst_()
 {
 	static const char* vertex_shader_color_inst =
 		"uniform mat4 matMvp;\n"
-		"uniform vec3 vScale;\n"
-		"layout (location = 0) in vec3 iPosition;\n"
+		"uniform vec2 vScale;\n"
+		"layout (location = 0) in vec2 iVertex;\n"
 		"layout (location = 1) in vec4 iColor;\n"
-		"layout (location = 2) in vec3 iOffset;\n"
+		"layout (location = 2) in vec3 iPosition;\n"
 		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_Position = matMvp * vec4(iOffset + iPosition * vScale, 1);\n"
+		"    gl_Position = matMvp * vec4(iPosition, 1) + vec4(iVertex * vScale, 0, 0);\n"
 		"    Frag_Color = iColor;\n"
 		"}\n";
 

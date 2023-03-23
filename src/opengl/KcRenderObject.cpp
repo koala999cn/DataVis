@@ -47,17 +47,12 @@ void KcRenderObject::setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) 
 			glUniformMatrix4fv(loc, 1, GL_FALSE, projMat_.data());
 	}
 
-	GLint enableClip = !clipBox_.isNull();
-	loc = shader->getUniformLocation("iEnableClip");
-	if (loc != -1) {
-		glUniform1i(loc, enableClip);
-		if (enableClip) {
-			loc = shader->getUniformLocation("vClipLower");
-			glUniform3f(loc, clipBox_.lower().x(), clipBox_.lower().y(), clipBox_.lower().z());
-			loc = shader->getUniformLocation("vClipUpper");
-			glUniform3f(loc, clipBox_.upper().x(), clipBox_.upper().y(), clipBox_.upper().z());
-		}
-	}
+	loc = shader->getUniformLocation("vClipLower");
+	if (loc != -1)
+	    glUniform3f(loc, clipBox_.lower().x(), clipBox_.lower().y(), clipBox_.lower().z());
+	loc = shader->getUniformLocation("vClipUpper");
+	if (loc != -1)
+	    glUniform3f(loc, clipBox_.upper().x(), clipBox_.upper().y(), clipBox_.upper().z());
 
 	loc = shader->getUniformLocation("vColor");
 	if (loc != -1)
@@ -87,9 +82,9 @@ void KcRenderObject::drawVbo_() const
 			assert(idxSize <= 4);
 			GLenum type = (idxSize == 4) ? GL_UNSIGNED_INT : (idxSize == 2) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
 			if (instances_ == 1)
-			    glDrawElements(glModes[i.type], i.count, type, (const void*)(i.start));
+			    glDrawElements(glModes[i.type], i.count, type, 0);
 			else
-			    glDrawElementsInstanced(glModes[i.type], i.count, type, (const void*)(i.start), instances_);
+			    glDrawElementsInstanced(glModes[i.type], i.count, type, 0, instances_);
 		}
 	}
 	else {
@@ -144,31 +139,37 @@ void KcRenderObject::calcInst_()
 }
 
 
-bool KcRenderObject::hasColor() const
+bool KcRenderObject::hasSemantic(int semantic) const
 {
 	for (auto& i : vbos_)
-		if (i.decl->hasColor())
+		if (i.decl->hasSemantic(semantic))
 			return true;
 
 	return false;
 }
 
 
+bool KcRenderObject::hasColor() const
+{
+	return hasSemantic(KcVertexAttribute::k_diffuse);
+}
+
+
 bool KcRenderObject::hasUV() const
 {
-
+	return hasSemantic(KcVertexAttribute::k_texcoord);
 }
 
 
 bool KcRenderObject::hasNormal() const
 {
-
+	return hasSemantic(KcVertexAttribute::k_normal);
 }
 
 
 bool KcRenderObject::hasInst() const
 {
-
+	return hasSemantic(KcVertexAttribute::k_instance);
 }
 
 

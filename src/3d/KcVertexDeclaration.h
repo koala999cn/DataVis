@@ -24,7 +24,7 @@ public:
 
 	unsigned vertexSize() const; // 计算输入布局所占字节的大小
 
-	bool hasSemantic(KcVertexAttribute::KeSemantic semantic) const;
+	bool hasSemantic(int semantic) const;
 
 	// 顶点元素中是否含有颜色值
 	bool hasColor() const;
