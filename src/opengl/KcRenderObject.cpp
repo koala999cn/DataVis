@@ -30,8 +30,10 @@ void KcRenderObject::draw() const
 void KcRenderObject::bindVbo_() const
 {
 	for (auto& i : vbos_) {
-		i.buf->bind();
-		i.decl->declare();
+		if (i.buf && i.decl) {
+			i.buf->bind();
+			i.decl->declare();
+		}
 	}
 }
 
@@ -90,7 +92,7 @@ void KcRenderObject::drawVbo_() const
 	else {
 		unsigned count(0);
 		for (auto& i : vbos_) {
-			if (!i.decl->hasInstance()) {
+			if (i.decl && !i.decl->hasInstance()) {
 				count = i.buf->bytesCount() / i.decl->vertexSize();
 				break;
 			}
@@ -130,10 +132,12 @@ void KcRenderObject::calcInst_()
 	instances_ = vbos_.empty() ? 0 : 1; // ≥ı º÷µ
 
 	for (auto& i : vbos_) {
-		for (unsigned j = 0; j < i.decl->attributeCount(); j++) {
-			auto& attr = i.decl->getAttribute(j);
-			if (attr.semantic() == KcVertexAttribute::k_instance) 
-				instances_ = std::max(i.buf->bytesCount() / i.decl->vertexSize() * attr.divisor(), instances_);
+		if (i.buf && i.decl) {
+			for (unsigned j = 0; j < i.decl->attributeCount(); j++) {
+				auto& attr = i.decl->getAttribute(j);
+				if (attr.semantic() == KcVertexAttribute::k_instance)
+					instances_ = std::max(i.buf->bytesCount() / i.decl->vertexSize() * attr.divisor(), instances_);
+			}
 		}
 	}
 }
@@ -141,8 +145,8 @@ void KcRenderObject::calcInst_()
 
 bool KcRenderObject::hasSemantic(int semantic) const
 {
-	for (auto& i : vbos_)
-		if (i.decl->hasSemantic(semantic))
+	for (auto& i : vbos_) 
+		if (i.decl && i.decl->hasSemantic(semantic))
 			return true;
 
 	return false;

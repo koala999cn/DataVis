@@ -197,132 +197,6 @@ void* KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 }
 
 
-void* KcImOglPaint::drawLineMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize)
-{
-	auto obj = new KcMarkerObject;
-
-	// 基本元素vbo
-	auto decl = std::make_shared<KcVertexDeclaration>();
-	decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_position);
-	auto vbo = std::make_shared<KcGpuBuffer>();
-	vbo->setData(vtx, vtxSize * sizeof(point2f), KcGpuBuffer::k_stream_draw);
-	obj->pushVbo(vbo, decl);
-
-	// 实例化vbo
-	decl = std::make_shared<KcVertexDeclaration>();
-	decl->pushAttribute(KcVertexAttribute(1, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
-	vbo = std::make_shared<KcGpuBuffer>();
-	std::vector<point3f> offset; offset.reserve(count);
-	for (unsigned i = 0; i < count; i++) 
-		// NB: 考虑vbo复用，此处不作裁剪，否则只要坐标轴range变化就无法重用
-		//if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
-		offset.push_back(fn(i));
-
-	vbo->setData(offset.data(), offset.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
-	obj->pushVbo(vbo, decl);
-
-	// 设置基本属性
-	obj->setShader(KsShaderManager::singleton().progMonoInst(curClipBox_ != -1));
-	obj->setColor(clr_);
-	//obj->setScale(markerScale_());
-
-	pushRenderObject_(obj);
-	return obj;
-}
-
-
-#include "KtLine.h"
-void* KcImOglPaint::drawPolygonMarkers_(point_getter1 fn, unsigned count, const point2f vtx[], unsigned vtxSize)
-{
-	auto obj = new KcMarkerObject();
-
-	// 基本元素vbo
-	auto decl = std::make_shared<KcVertexDeclaration>();
-	decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_position);
-	decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
-	auto vbo = std::make_shared<KcGpuBuffer>();
-
-	struct KpVertex
-	{
-		point2f pos;
-		color4f clr;
-	};
-	std::vector<KpVertex> buf; buf.resize(3 * vtxSize + 1);
-
-	// 构造填充区域和轮廓区域
-	KtLine<double> line({ vtx[0].x(), vtx[0].y(), 0 }, { vtx[1].x() - vtx[0].x(), vtx[1].y() - vtx[0].y(), 0 });
-	auto scale = line.distanceTo(point3d(0));
-	auto outline = 0.5 * std::round(lineWidth_) / (markerSize_ * scale); // 轮廓线的缩放因子
-
-	// 增加一个零点，以便构建三角形
-	buf[0].pos = point2f(0);
-	buf[0].clr = clr_;
-
-	auto p = buf.data() + 1;
-	for (unsigned i = 0; i < vtxSize; i++, p++) {
-		// fill
-		p[0].pos = vtx[i] * (1 - outline);
-		p[0].clr = clr_;
-
-		// outline
-		p[vtxSize].pos = p[0].pos;
-		p[vtxSize].clr = secondaryClr_;
-		p[2 * vtxSize].pos = vtx[i] * (1 + outline);
-		p[2 * vtxSize].clr = secondaryClr_;
-	}
-
-	vbo->setData(buf.data(), buf.size() * sizeof(KpVertex), KcGpuBuffer::k_stream_draw);
-	obj->pushVbo(vbo, decl);
-
-	// 实例化vbo
-	decl = std::make_shared<KcVertexDeclaration>();
-	decl->pushAttribute(KcVertexAttribute(2, KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_instance, 1));
-	vbo = std::make_shared<KcGpuBuffer>();
-	std::vector<point3f> offset; offset.reserve(count);
-	for (unsigned i = 0; i < count; i++)
-		// NB: 考虑vbo复用，此处不作裁剪，否则只要坐标轴range变化就无法重用
-		//if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
-		offset.push_back(fn(i));
-
-	vbo->setData(offset.data(), offset.size() * sizeof(point3f), KcGpuBuffer::k_stream_draw);
-	obj->pushVbo(vbo, decl);
-
-	// 设置基本属性
-	obj->setShader(KsShaderManager::singleton().progColorInst(flatShading_, curClipBox_ != -1));
-	obj->setColor(clr_);
-	//obj->setScale(markerScale_());
-
-	// 构造填充和轮廓的ibo
-	// 为了整体绘制，整合填充和轮廓构建1个ibo
-	std::vector<std::uint32_t> idx;
-
-	auto ibo = std::make_shared<KcGpuBuffer>(KcGpuBuffer::k_index_buffer);
-
-	// fill有vtxSize个三角形，共vtxSize * 3个顶点
-	// outline有vtxSize * 2个三角形，共vtxSize * 2 * 3个顶点
-	idx.resize(vtxSize * 3 + vtxSize * 2 * 3);
-	for (unsigned i = 0; i < vtxSize; i++) {
-		idx[i * 3] = 0; // 零点
-		idx[i * 3 + 1] = i + 1;
-		idx[i * 3 + 2] = (i + 1) % vtxSize + 1;
-
-		idx[vtxSize * 3 + i * 3] = 2 * vtxSize + i + 1;
-		idx[vtxSize * 3 + i * 3 + 1] = 2 * vtxSize + (i + 1) % vtxSize + 1;
-		idx[vtxSize * 3 + i * 3 + 2] = vtxSize + i + 1;
-
-
-		idx[vtxSize * 6 + i * 3] = idx[vtxSize * 3 + i * 3 + 1];
-		idx[vtxSize * 6 + i * 3 + 1] = vtxSize + (i + 1) % vtxSize + 1;
-		idx[vtxSize * 6 + i * 3 + 2] = idx[vtxSize * 3 + i * 3 + 2];
-	}
-	ibo->setData(idx.data(), idx.size() * sizeof(std::uint32_t), KcGpuBuffer::k_stream_draw);
-	obj->pushIbo(ibo, idx.size());
-
-	pushRenderObject_(obj);
-	return obj;
-}
-
-
 void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count)
 {
 	int segments = 10;
@@ -570,6 +444,7 @@ KpMarker KcImOglPaint::marker() const
 	m.fill = clr_;
 	m.outline = secondaryClr_;
 	m.weight = lineWidth_;
+	m.showFill = filled_;
 	m.showOutline = edged_;
 	return m;
 }
@@ -588,76 +463,10 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 		// NB: 考虑vbo复用，此处不作裁剪，否则只要坐标轴range变化就无法重用
 		//if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
 		offset.push_back(fn(i));
-	obj->setOffset(offset.data(), offset.size());
+	obj->setInstPos(offset.data(), offset.size());
 
 	pushRenderObject_(obj);
 	return obj;
-
-	static const double SQRT_2_2 = std::sqrt(2.) / 2.;
-	static const double SQRT_3_2 = std::sqrt(3.) / 2.;
-
-	switch (markerType_)
-	{
-	case KpMarker::k_dot:
-		return drawPoints_(fn, count);
-
-	case KpMarker::k_cross:
-	{
-		static const point2f cross[4] = { 
-			point2f(-SQRT_2_2,-SQRT_2_2),
-			point2f(SQRT_2_2,SQRT_2_2),
-			point2f(SQRT_2_2,-SQRT_2_2),
-			point2f(-SQRT_2_2,SQRT_2_2) 
-		};
-		return drawLineMarkers_(fn, count, cross, std::size(cross));
-	}
-
-	case KpMarker::k_plus:
-	{
-		static const point2f plus[4] = { point2f(-1, 0), point2f(1, 0), point2f(0, -1), point2f(0, 1) };
-		return drawLineMarkers_(fn, count, plus, std::size(plus));
-	}
-
-	case KpMarker::k_asterisk:
-	{
-		static const point2f asterisk[6] = { 
-			point2f(-SQRT_3_2, -0.5f), 
-			point2f(SQRT_3_2, 0.5f),  
-			point2f(-SQRT_3_2, 0.5f),
-			point2f(SQRT_3_2, -0.5f),
-			point2f(0, -1), 
-			point2f(0, 1) 
-		};
-		return drawLineMarkers_(fn, count, asterisk, std::size(asterisk));
-	}
-
-	case KpMarker::k_square:
-		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::square<float>(), 4);
-
-	case KpMarker::k_diamond:
-		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::diamond<float>(), 4);
-
-	case KpMarker::k_left:
-		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::triangleLeft<float>(), 3);
-
-	case KpMarker::k_right:
-		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::triangleRight<float>(), 3);
-
-	case KpMarker::k_up:
-		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::triangleUp<float>(), 3);
-
-	case KpMarker::k_down:
-		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::triangleDown<float>(), 3);
-
-	case KpMarker::k_circle:
-		return drawPolygonMarkers_(fn, count, (const point2f*)KuPrimitiveFactory::circle10<float>(), 10);
-
-	default:
-		break;
-	};
-
-	assert(false);
-	return super_::drawMarkers(fn, count);
 }
 
 

@@ -136,6 +136,7 @@ void KvPaint::apply(const KpMarker& cxt)
 	setLineWidth(cxt.weight);
 	setLineStyle(KpPen::k_solid);
 	setColor(cxt.fill); // NB: fill始终是主色，当marker可填充时，fill为填充色，否则fill为线条色
+	setFilled(cxt.showFill);
 	setEdged(cxt.showOutline);
 	if (cxt.hasOutline())
 		setSecondaryColor(cxt.outline);

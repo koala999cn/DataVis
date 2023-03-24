@@ -6,6 +6,7 @@
 class KcMarkerObject : public KcRenderObject
 {
 	using super_ = KcRenderObject;
+	super_::pushVbo;
 
 public:
 	KcMarkerObject();
@@ -20,9 +21,16 @@ public:
 	// 根据传入参数初始化marker的vbo
 	void setMarker(const KpMarker& marker);
 	
-	// 根据传入参数初始化offset的vbo
-	void setOffset(const point3f* pos, unsigned count);
+	// 设置各实例的位置
+	void setInstPos(const point3f* pos, unsigned count);
 
+	// 设置各实例的填充色
+	// @clr等于null表示重置该属性
+	void setInstColor(const color4f* clr);
+
+	// 设置各实例的尺寸
+	// @size等于null表示重置该属性
+	void setInstSize(const float* size);
 
 private:
 
@@ -30,9 +38,9 @@ private:
 
 	void buildIbo_(unsigned vtxSize);
 
-	bool isSolidColor() const;
-
 	static std::pair<const void*, unsigned> markerVtx_(int type);
+
+	bool realShowOutline_() const;
 
 private:
 	point3f scale_{ 1 };

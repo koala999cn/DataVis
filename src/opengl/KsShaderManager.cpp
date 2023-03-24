@@ -116,41 +116,38 @@ const char* KsShaderManager::vsColorUV_()
 }
 
 
-const char* KsShaderManager::vsMonoInst_()
+const char* KsShaderManager::vsInst_()
 {
-	static const char* vertex_shader_mono_inst =
+	// @vColor用于fill，@vSecondaryColor用于outline
+	// @iVertex: marker的标准顶点坐标, w值用于标记是fill还是outline顶点
+	// @iPosition: 当前instance的位置坐标
+	// @iColor: 当前instance的fill色（可使每个instance的颜色不同）
+	// @iSize: 当前instance的缩放因子（可使每个instance的大小不同）
+	// @bVaryingColor: 是否启用iColor属性
+	// @bVaryingSize: 是否启用iSize属性
+	static const char* vertex_shader_inst =
 		"uniform mat4 matMvp;\n"
 		"uniform vec4 vColor;\n"
-		"uniform vec2 vScale;\n"
-		"layout (location = 0) in vec2 iVertex;\n"
+		"uniform vec4 vSecondaryColor;\n"
+		"uniform vec3 vScale;\n"
+		"uniform int bColorVarying;\n"
+		"uniform int bSizeVarying;\n"
+		"layout (location = 0) in vec4 iVertex;\n"
 		"layout (location = 1) in vec3 iPosition;\n"
+		"layout (location = 2) in float iSize;\n"
+		"layout (location = 3) in vec4 iColor;\n"
 		"out vec4 Frag_Color;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_Position = matMvp * vec4(iPosition, 1) + vec4(iVertex * vScale, 0, 0);\n"
-		"    Frag_Color = vColor;\n"
+		"    vec3 v = iVertex.xyz * vScale;\n"
+		"    if (bSizeVarying != 0) v *= iSize;\n"
+		"    gl_Position = matMvp * vec4(iPosition, 1) + vec4(v, 0);\n"
+		"    if (iVertex.w != 0) Frag_Color = vSecondaryColor;\n"
+		"    else if (bColorVarying != 0) Frag_Color = iColor;\n"
+		"    else Frag_Color = vColor;\n"
 		"}\n";
 
-	return vertex_shader_mono_inst;
-}
-
-
-const char* KsShaderManager::vsColorInst_()
-{
-	static const char* vertex_shader_color_inst =
-		"uniform mat4 matMvp;\n"
-		"uniform vec2 vScale;\n"
-		"layout (location = 0) in vec2 iVertex;\n"
-		"layout (location = 1) in vec4 iColor;\n"
-		"layout (location = 2) in vec3 iPosition;\n"
-		"out vec4 Frag_Color;\n"
-		"void main()\n"
-		"{\n"
-		"    gl_Position = matMvp * vec4(iPosition, 1) + vec4(iVertex * vScale, 0, 0);\n"
-		"    Frag_Color = iColor;\n"
-		"}\n";
-
-	return vertex_shader_color_inst;
+	return vertex_shader_inst;
 }
 
 
@@ -246,14 +243,12 @@ KsShaderManager::shader_ptr KsShaderManager::fetchShader_(int type)
 				p = vsColor_();
 				if (type & k_uv)
 					p = vsColorUV_();
-				else if (type & k_instance)
-					p = vsColorInst_();
 			}
 			else {
 				if (type & k_uv)
 					p = vsUV_();
 				else if (type & k_instance)
-					p = vsMonoInst_();
+					p = vsInst_();
 			}
 
 			auto src = decorateVertexShader_(p, type & k_flat, type & k_clipbox);
