@@ -1252,6 +1252,10 @@ void KcImOglPaint::drawRenderList_()
 			KcGlslProgram::useProgram(0); // 禁用shader，fns须enable固定管线
 		for (auto& i : rl.fns) i();
 	}
+
+	// NB: ImGui不会恢复多实例状态，此处重置，否则会影响ImGui渲染结果（比如combox下拉框无文字）
+	for (unsigned i = 0; i < 8; i++)
+		glVertexAttribDivisor(i, 0);
 }
 
 
