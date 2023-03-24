@@ -29,6 +29,7 @@ std::string KsShaderManager::decorateVertexShader_(const char* source, bool flat
 		res.insert(pos, clip_statement);
 	}
 
+	res.insert(0, "#version 330 core\n");
 	return res;
 }
 
@@ -40,6 +41,7 @@ std::string KsShaderManager::decorateFragShader_(const char* source, bool flat)
 	if (flat)
 		KuStrUtil::replaceSubstr(res, "in vec4 Frag_Color", "flat in vec4 Frag_Color");
 
+	res.insert(0, "#version 330 core\n");
 	return res;
 }
 

@@ -31,6 +31,9 @@ KcMarkerObject::KcMarkerObject()
 
 	vbos_[3].decl = std::make_shared<KcVertexDeclaration>();
 	vbos_[3].decl->pushAttribute(KcVertexAttribute(3, KcVertexAttribute::k_float4, 0, KcVertexAttribute::k_instance, 1));
+
+	for (unsigned i = 0; i < vbos_.size(); i++)
+		vbos_[i].buf = std::make_shared<KcGpuBuffer>();
 }
 
 
@@ -40,12 +43,13 @@ void KcMarkerObject::draw() const
 	auto loc = prog_->getUniformLocation("vSecondaryColor");
 	glUniform4f(loc, marker_.outline[0], marker_.outline[1], marker_.outline[2], marker_.outline[3]);
 
-	loc = prog_->getUniformLocation("bColorVarying");
-	glUniform1i(loc, vbos_[2].buf != nullptr);
-
-	int bSizeVarying = vbos_[3].buf != nullptr;
+	int bSizeVarying = vbos_[2].decl->getAttribute(0).enabled();
 	loc = prog_->getUniformLocation("bSizeVarying");
 	glUniform1i(loc, bSizeVarying);
+
+	int bColorVarying = vbos_[3].decl->getAttribute(0).enabled();
+	loc = prog_->getUniformLocation("bColorVarying");
+	glUniform1i(loc, bColorVarying);
 
 	if (type_ == k_points) {
 		glPointSize(marker_.size);
@@ -99,8 +103,7 @@ void KcMarkerObject::setMarker(const KpMarker& marker)
 
 void KcMarkerObject::setInstPos(const point3f* pos, unsigned count)
 {
-	if (!vbos_[1].buf)
-		vbos_[1].buf = std::make_shared<KcGpuBuffer>();
+	assert(vbos_[1].buf);
 
 	vbos_[1].buf->setData(pos, count * sizeof(point3f), KcGpuBuffer::k_stream_draw);
 	instances_ = count;
@@ -109,33 +112,17 @@ void KcMarkerObject::setInstPos(const point3f* pos, unsigned count)
 
 void KcMarkerObject::setInstSize(const float* size)
 {
-	if (size == nullptr) {
-		vbos_[2].buf.reset();
-	}
-	else {
-		assert(vbos_[2].decl && vbos_[2].decl->vertexSize() == sizeof(float));
-
-		if (!vbos_[2].buf)
-			vbos_[2].buf = std::make_shared<KcGpuBuffer>();
-
-		vbos_[2].buf->setData(size, instances_ * sizeof(float), KcGpuBuffer::k_stream_draw);
-	}
+	assert(vbos_[2].decl && vbos_[2].decl->vertexSize() == sizeof(float));
+	vbos_[2].buf->setData(size, size ? instances_ * sizeof(float) : 0, KcGpuBuffer::k_stream_draw);
+	vbos_[2].decl->getAttribute(0).enable(size);
 }
 
 
 void KcMarkerObject::setInstColor(const color4f* clr)
 {
-	if (clr == nullptr) {
-		vbos_[3].buf.reset();
-	}
-	else {
-		assert(vbos_[3].decl && vbos_[3].decl->vertexSize() == sizeof(color4f));
-
-		if (!vbos_[3].buf)
-			vbos_[3].buf = std::make_shared<KcGpuBuffer>();
-
-		vbos_[3].buf->setData(clr, instances_ * sizeof(color4f), KcGpuBuffer::k_stream_draw);
-	}
+	assert(vbos_[3].decl && vbos_[3].decl->vertexSize() == sizeof(color4f));
+	vbos_[3].buf->setData(clr, clr ? instances_ * sizeof(color4f) : 0, KcGpuBuffer::k_stream_draw);
+	vbos_[3].decl->getAttribute(0).enable(clr);
 }
 
 

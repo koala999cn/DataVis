@@ -30,13 +30,9 @@ void KcRenderObject::draw() const
 void KcRenderObject::bindVbo_() const
 {
 	for (auto& i : vbos_) {
-		if (i.decl) {
-			if (i.buf)
-				i.buf->bind();
-			else
-				glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
-
-			i.decl->declare(i.buf != nullptr);
+		if (i.decl && i.buf) {
+			i.buf->bind();
+			i.decl->declare();
 		}
 	}
 }
