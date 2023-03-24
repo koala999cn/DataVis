@@ -30,7 +30,7 @@ void KcRenderObject::draw() const
 void KcRenderObject::bindVbo_() const
 {
 	for (auto& i : vbos_) {
-		if (i.buf && i.decl) {
+		if (i.decl && i.buf) {
 			i.buf->bind();
 			i.decl->declare();
 		}

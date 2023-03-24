@@ -7,7 +7,7 @@ class KcVertexDeclaration
 {
 public:
 
-	void declare() const; // 使用opengl函数声明vertex属性格式
+	void declare(bool enable = true) const; // 使用opengl函数声明vertex属性格式
 
 	void pushAttribute(const KcVertexAttribute& attr) { 
 		attrs_.push_back(attr);

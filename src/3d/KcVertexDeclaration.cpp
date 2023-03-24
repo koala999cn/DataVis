@@ -88,34 +88,42 @@ unsigned KcVertexDeclaration::texCoordCount() const
 }
 
 
-void KcVertexDeclaration::declare() const
+void KcVertexDeclaration::declare(bool enable) const
 {
-	auto stride = vertexSize(); // 这个很重要，调试了一晚上才发现。TODO：下一步可优化，避免每次都计算
+	if (enable) {
+		auto stride = vertexSize(); // 这个很重要，调试了一晚上才发现。TODO：下一步可优化，避免每次都计算
 
-	for (unsigned i = 0; i < attributeCount(); i++) {
-		auto& attr = getAttribute(i);
-		glEnableVertexAttribArray(attr.location());
-		int type = attr.baseType();
-		if (type == KcVertexAttribute::k_float)
-			type = GL_FLOAT;
-		else if (type == KcVertexAttribute::k_short)
-			type = GL_SHORT;
-		else if (type == KcVertexAttribute::k_ubyte4)
-			type = GL_UNSIGNED_BYTE;
-		else {
-			assert(false);
+		for (unsigned i = 0; i < attributeCount(); i++) {
+			auto& attr = getAttribute(i);
+			glEnableVertexAttribArray(attr.location());
+			int type = attr.baseType();
+			if (type == KcVertexAttribute::k_float)
+				type = GL_FLOAT;
+			else if (type == KcVertexAttribute::k_short)
+				type = GL_SHORT;
+			else if (type == KcVertexAttribute::k_ubyte4)
+				type = GL_UNSIGNED_BYTE;
+			else {
+				assert(false);
+			}
+
+			glVertexAttribPointer(attr.location(), attr.componentCount(), type,
+				attr.normalized() ? GL_TRUE : GL_FALSE, stride, ((char*)0) + attr.offset());
+
+			// 支持实例化渲染
+			if (attr.semantic() == KcVertexAttribute::k_instance) {
+				assert(glVertexAttribDivisor != nullptr);
+				glVertexAttribDivisor(attr.location(), attr.divisor());
+			}
+			else {
+				glVertexAttribDivisor(attr.location(), 0); // NB: 非常重要！否则上一次多实例的设置会影响后续opengl渲染（坐标轴的label为黑方块)
+			}
 		}
-
-		glVertexAttribPointer(attr.location(), attr.componentCount(), type, 
-			attr.normalized() ? GL_TRUE : GL_FALSE, stride, ((char*)0) + attr.offset());
-
-		// 支持实例化渲染
-		if (attr.semantic() == KcVertexAttribute::k_instance) {
-			assert(glVertexAttribDivisor != nullptr);
-			glVertexAttribDivisor(attr.location(), attr.divisor());
-		}
-		else {
-			glVertexAttribDivisor(attr.location(), 0); // NB: 非常重要！否则上一次多实例的设置会影响后续opengl渲染
+	}
+	else {
+		for (unsigned i = 0; i < attributeCount(); i++) {
+			auto& attr = getAttribute(i);
+			glDisableVertexAttribArray(attr.location());
 		}
 	}
 }

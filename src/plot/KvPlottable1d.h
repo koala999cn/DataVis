@@ -1,6 +1,6 @@
 #pragma once
 #include "KvPlottable.h"
-#include "KvPaint.h" // for KvPaint::point_getter1
+#include "KvPaint.h" // for KvPaint::point_getter
 #include "KuDataUtil.h"
 #include <map>
 
@@ -25,7 +25,7 @@ protected:
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
 
 	// 将GETTER变量转换为KvPaint需要的函数型
-	typename KvPaint::point_getter1 toPoint3Getter_(GETTER g, unsigned channel) const;
+	typename KvPaint::point_getter toPoint3Getter_(GETTER g, unsigned channel) const;
 
 
 	// 返回每个通道包含的1d数据数目. 

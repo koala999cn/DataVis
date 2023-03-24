@@ -44,13 +44,15 @@ public:
 
 	void drawMarker(const point3& pt) override;
 
-	void* drawMarkers(point_getter1 fn, unsigned count) override;
+	void* drawMarkers(point_getter fn, unsigned count) override;
+
+	void* drawMarkers(point_getter fn, color_getter clr, size_getter size, unsigned count) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
-	void* drawLineStrip(point_getter1 fn, unsigned count) override;
+	void* drawLineStrip(point_getter fn, unsigned count) override;
 
-	void* drawLineStrips(const std::vector<point_getter1>& fns, const std::vector<unsigned>& cnts) override;
+	void* drawLineStrips(const std::vector<point_getter>& fns, const std::vector<unsigned>& cnts) override;
 
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
@@ -61,7 +63,7 @@ public:
 
 	void* drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 
-	void* fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
+	void* fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 
 	void grab(int x, int y, int width, int height, void* data) override;
 
@@ -77,13 +79,13 @@ private:
 	point3 toNdc_(const point3& pt) const;
 	
 	// 绘制点云
-	void* drawPoints_(point_getter1 fn, unsigned count); 
+	void* drawPoints_(point_getter fn, unsigned count); 
 
-	void drawCircles_(point_getter1 fn, unsigned count);
+	void drawCircles_(point_getter fn, unsigned count);
 
-	void drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4]);
+	void drawQuadMarkers_(point_getter fn, unsigned count, const point2 quad[4]);
 
-	void drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3]);
+	void drawTriMarkers_(point_getter fn, unsigned count, const point2 tri[3]);
 
 	struct KpRenderList_;
 	KpRenderList_& currentRenderList();
@@ -112,9 +114,9 @@ private:
 	void addLine_(const point3& pt0, const point3& pt1, const float4& clr); // 以tris的形式绘制直线
 
 	// 填充凸多边形，fn返回凸多边形的顶点
-	void addConvexPolyFilled_(point_getter1 fn, unsigned count, const float4& clr);
+	void addConvexPolyFilled_(point_getter fn, unsigned count, const float4& clr);
 
-	void addLineLoop_(point_getter1 fn, unsigned count, const float4& clr);
+	void addLineLoop_(point_getter fn, unsigned count, const float4& clr);
 
 	void addRect_(const point3& lower, const point3& upper);
 	void addRectFilled_(const point3& lower, const point3& upper);
@@ -124,10 +126,10 @@ private:
 	void addQuadFilled_(const point3& p0, const point3& p1, const point3& p2, const point3& p3, const float4& clr);
 
 	// NB: fillVtx使用主色绘制，outlineVtx使用辅色绘制
-	void addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill, 
+	void addMarkers_(point_getter fn, unsigned count, const point2* fillVtx, unsigned numFill, 
 		const point2* outlineVtx, unsigned numOutline);
 
-	void addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill);
+	void addMarkers_(point_getter fn, unsigned count, const point2* fillVtx, unsigned numFill);
 
 	// 在当前渲染列表的tris成员分配count个KpColorVbo_对象
 	struct KpColorVbo_;

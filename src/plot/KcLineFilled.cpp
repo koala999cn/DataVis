@@ -95,7 +95,7 @@ namespace kPrivate
 void* KcLineFilled::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
 	if (objIdx == 1) {
-		std::vector<KvPaint::point_getter1> fns;
+		std::vector<KvPaint::point_getter> fns;
 		std::vector<unsigned> cnts;
 		fns.reserve(linesTotal_());
 		cnts.reserve(linesTotal_());

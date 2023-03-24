@@ -12,7 +12,7 @@ void* KvPaint::drawMarkers(const point3 pts[], unsigned count)
 }
 
 
-void* KvPaint::drawMarkers(point_getter1 fn, unsigned count)
+void* KvPaint::drawMarkers(point_getter fn, unsigned count)
 {
 	for (unsigned i = 0; i < count; i++)
 		drawMarker(fn(i));
@@ -31,7 +31,7 @@ void* KvPaint::drawLineStrip(const point3 pts[], unsigned count)
 }
 
 
-void* KvPaint::drawLineStrip(point_getter1 fn, unsigned count)
+void* KvPaint::drawLineStrip(point_getter fn, unsigned count)
 {
 	for (unsigned i = 1; i < count; i++)
 		drawLine(fn(i - 1), fn(i)); // TODO: 待优化，1个point2次调用fn
@@ -50,7 +50,7 @@ void KvPaint::drawLineLoop(const point3 pts[], unsigned count)
 }
 
 
-void KvPaint::drawLineLoop(point_getter1 fn, unsigned count) 
+void KvPaint::drawLineLoop(point_getter fn, unsigned count) 
 {
 	drawLineStrip(fn, count);
 	if (count > 2)

@@ -89,6 +89,8 @@
 
 ## FIXME
 - [ ] 启用多重采样之后，程序启动短暂白屏
+- [ ] graph和scatter对arrange模式的支持
+- [ ] box和andrews曲线的鲁棒性（渲染samp1d数据导致致命错误）
 - [x] 散点图在plot3d下干扰imgui绘制 --> ok （未恢复多实例渲染状态，即重置glVertexAttribDivisor）
 - [x] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）
 - [x] colorbar的axis留白同步

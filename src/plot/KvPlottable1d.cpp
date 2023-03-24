@@ -60,7 +60,7 @@ void KvPlottable1d::setZdim(unsigned dim)
 }
 
 
-typename KvPaint::point_getter1 KvPlottable1d::toPoint3Getter_(GETTER g, unsigned channel) const
+typename KvPaint::point_getter KvPlottable1d::toPoint3Getter_(GETTER g, unsigned channel) const
 {
 	if (usingDefaultZ_()) {
 		auto z = defaultZ(channel);

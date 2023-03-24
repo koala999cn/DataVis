@@ -36,7 +36,7 @@ void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 			return mapValueToColor_(val.data(), objIdx);
 		};
 
-		//TODO: return paint->drawMarkers(toPoint3Getter_(g.getter, objIdx), coloring, g.size);
+		return paint->drawMarkers(toPoint3Getter_(g.getter, objIdx), coloring, nullptr, g.size);
 	}
 
 	return nullptr; 

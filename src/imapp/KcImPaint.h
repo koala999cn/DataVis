@@ -55,7 +55,7 @@ public:
 
 	void drawLine(const point3& from, const point3& to) override;
 
-	void* drawLineStrip(point_getter1 fn, unsigned count) override;
+	void* drawLineStrip(point_getter fn, unsigned count) override;
 
 	void drawRect(const point3& lower, const point3& upper) override;
 
@@ -67,9 +67,9 @@ public:
 
 	void fillQuad(point3 pts[4]) override;
 
-	void fillConvexPoly(point_getter1 fn, unsigned count) override;
+	void fillConvexPoly(point_getter fn, unsigned count) override;
 
-	void* fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
+	void* fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 
 	void drawText(const point3& anchor, const char* text, int align) override;
 

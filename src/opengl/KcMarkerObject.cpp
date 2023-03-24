@@ -107,6 +107,38 @@ void KcMarkerObject::setInstPos(const point3f* pos, unsigned count)
 }
 
 
+void KcMarkerObject::setInstSize(const float* size)
+{
+	if (size == nullptr) {
+		vbos_[2].buf.reset();
+	}
+	else {
+		assert(vbos_[2].decl && vbos_[2].decl->vertexSize() == sizeof(float));
+
+		if (!vbos_[2].buf)
+			vbos_[2].buf = std::make_shared<KcGpuBuffer>();
+
+		vbos_[2].buf->setData(size, instances_ * sizeof(float), KcGpuBuffer::k_stream_draw);
+	}
+}
+
+
+void KcMarkerObject::setInstColor(const color4f* clr)
+{
+	if (clr == nullptr) {
+		vbos_[3].buf.reset();
+	}
+	else {
+		assert(vbos_[3].decl && vbos_[3].decl->vertexSize() == sizeof(color4f));
+
+		if (!vbos_[3].buf)
+			vbos_[3].buf = std::make_shared<KcGpuBuffer>();
+
+		vbos_[3].buf->setData(clr, instances_ * sizeof(color4f), KcGpuBuffer::k_stream_draw);
+	}
+}
+
+
 bool KcMarkerObject::realShowOutline_() const
 {
 	return marker_.hasOutline() && marker_.showOutline && 

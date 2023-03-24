@@ -176,7 +176,7 @@ void KcImOglPaint::drawMarker(const point3& pt)
 }
 
 
-void* KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
+void* KcImOglPaint::drawPoints_(point_getter fn, unsigned count)
 {
 	auto obj = new KcPointObject;
 
@@ -197,7 +197,7 @@ void* KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 }
 
 
-void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count)
+void KcImOglPaint::drawCircles_(point_getter fn, unsigned count)
 {
 	int segments = 10;
 	auto geom = std::make_shared<KtGeometryImpl<point3f, unsigned>>(k_triangles);
@@ -270,7 +270,7 @@ void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count)
 namespace kPrivate
 {
 	template<int N, bool forceLines = false>
-	void drawPolyMarkers_(KvPaint& paint, KvPaint::point_getter1 fn, unsigned count, 
+	void drawPolyMarkers_(KvPaint& paint, KvPaint::point_getter fn, unsigned count, 
 		const KvPaint::point2 poly[N], float markerSize)
 	{
 		KePrimitiveType type;
@@ -306,7 +306,7 @@ namespace kPrivate
 }
 
 
-void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill,
+void KcImOglPaint::addMarkers_(point_getter fn, unsigned count, const point2* fillVtx, unsigned numFill,
 	const point2* outlineVtx, unsigned numOutline)
 {
 	assert(numFill > 0);
@@ -372,7 +372,7 @@ void KcImOglPaint::addLine_(const point3& pt0, const point3& pt1, const float4& 
 }
 
 
-void KcImOglPaint::addConvexPolyFilled_(point_getter1 fn, unsigned count, const float4& clr)
+void KcImOglPaint::addConvexPolyFilled_(point_getter fn, unsigned count, const float4& clr)
 {
 	assert(count >= 3);
 
@@ -389,7 +389,7 @@ void KcImOglPaint::addConvexPolyFilled_(point_getter1 fn, unsigned count, const 
 }
 
 
-void KcImOglPaint::addLineLoop_(point_getter1 fn, unsigned count, const float4& clr)
+void KcImOglPaint::addLineLoop_(point_getter fn, unsigned count, const float4& clr)
 {
 	for (unsigned j = 1; j < count; j++)
 		addLine_(fn(j - 1), fn(j), clr);
@@ -397,7 +397,7 @@ void KcImOglPaint::addLineLoop_(point_getter1 fn, unsigned count, const float4& 
 }
 
 
-void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* vtxBuf, unsigned numVtx)
+void KcImOglPaint::addMarkers_(point_getter fn, unsigned count, const point2* vtxBuf, unsigned numVtx)
 {
 	assert(numVtx >= 3);
 
@@ -424,13 +424,13 @@ void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* v
 }
 
 
-void KcImOglPaint::drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4])
+void KcImOglPaint::drawQuadMarkers_(point_getter fn, unsigned count, const point2 quad[4])
 {
 	kPrivate::drawPolyMarkers_<4>(*this, fn, count, quad, markerSize_);
 }
 
 
-void KcImOglPaint::drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3])
+void KcImOglPaint::drawTriMarkers_(point_getter fn, unsigned count, const point2 tri[3])
 {
 	kPrivate::drawPolyMarkers_<3>(*this, fn, count, tri, markerSize_);
 }
@@ -450,7 +450,7 @@ KpMarker KcImOglPaint::marker() const
 }
 
 
-void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
+void* KcImOglPaint::drawMarkers(point_getter fn, unsigned count)
 {
 	auto obj = new KcMarkerObject;
 	auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
@@ -463,9 +463,34 @@ void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
 		// NB: 考虑vbo复用，此处不作裁剪，否则只要坐标轴range变化就无法重用
 		//if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
 		offset.push_back(fn(i));
+
 	obj->setInstPos(offset.data(), offset.size());
+	obj->setInstColor(nullptr);
+	obj->setInstSize(nullptr);
 
 	pushRenderObject_(obj);
+	return obj;
+}
+
+
+void* KcImOglPaint::drawMarkers(point_getter fn, color_getter clr, size_getter size, unsigned count)
+{
+	auto obj = (KcMarkerObject*)drawMarkers(fn, count);
+
+	if (clr) {
+		std::vector<color4f> clrs(count);
+		for (unsigned i = 0; i < count; i++)
+			clrs[i] = clr(i);
+		obj->setInstColor(clrs.data());
+	}
+
+	if (size) {
+		std::vector<float> sizes(count);
+		for (unsigned i = 0; i < count; i++)
+			sizes[i] = size(i);
+		obj->setInstSize(sizes.data());
+	}
+
 	return obj;
 }
 
@@ -494,7 +519,7 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 }
 
 
-void* KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
+void* KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 {
 	auto obj = new KcLineObject(k_line_strip);
 
@@ -518,7 +543,7 @@ void* KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
 }
 
 
-void* KcImOglPaint::drawLineStrips(const std::vector<point_getter1>& fns, const std::vector<unsigned>& cnts)
+void* KcImOglPaint::drawLineStrips(const std::vector<point_getter>& fns, const std::vector<unsigned>& cnts)
 {
 	assert(fns.size() == cnts.size());
 
@@ -555,7 +580,7 @@ void* KcImOglPaint::drawLineStrips(const std::vector<point_getter1>& fns, const 
 }
 
 
-void* KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned count)
+void* KcImOglPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
 {
 	// 构造vbo
 
