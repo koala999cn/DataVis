@@ -156,7 +156,11 @@ public:
 public:
 
 	bool dataChanged() const { return dataChanged_; }
-	void setDataChanged(bool reoutput) { dataChanged_ = 1 + reoutput; }
+
+	void setDataChanged(bool reoutput) { 
+		if (dataChanged_ < 1 + reoutput)
+		    dataChanged_ = 1 + reoutput; 
+	}
 
 	int coloringChanged() const { return coloringChanged_; }
 
