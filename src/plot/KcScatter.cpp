@@ -91,28 +91,28 @@ void KcScatter::setSizeVaryingDim(unsigned d)
 {
 	assert(d <= odim());
 	dimSizeVarying_ = d;
-	setDataChanged(false);
+	if (sizeVarying_) setDataChanged(false);
 }
 
 
 void KcScatter::setSizeVaryingByArea(bool b)
 { 
 	varyingByArea_ = b;
-	setDataChanged(false);
+	if (sizeVarying_) setDataChanged(false);
 }
 
 
 void KcScatter::setSizeLower(float s)
 {
 	sizeLower_ = s;
-	setDataChanged(false);
+	if (sizeVarying_) setDataChanged(false);
 }
 
 
 void KcScatter::setSizeUpper(float s)
 {
 	sizeUpper_ = s;
-	setDataChanged(false);
+	if (sizeVarying_) setDataChanged(false);
 }
 
 

@@ -69,6 +69,7 @@
 - [x] 散点图兼容气泡图
 - [x] 散点图的告示牌模式
 - [ ] text复用情况下的状态同步：①变换矩阵设置，②保持恒定尺寸
+- [ ] 散点图启用size varying之后的性能问题（以wav.txt为例）
 
 ## theme
 - [ ] 更多theme，SCI、ggthemes等
@@ -88,7 +89,7 @@
 - [ ] 更全面地测试数据维度和通道数等发生变化的情况
 
 ## FIXME
-- [ ] 启用多重采样之后，程序启动短暂白屏
+- [ ] 启用多重采样之后，程序启动短暂白屏 --> 貌似和多重采样无关
 - [x] graph和scatter对arrange模式的支持
 - [x] box和andrews曲线的鲁棒性（渲染samp1d数据导致致命错误）--> setData中没有及时output
 - [x] 散点图在plot3d下干扰imgui绘制 --> ok （未恢复多实例渲染状态，即重置glVertexAttribDivisor）
