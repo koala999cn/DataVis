@@ -30,6 +30,11 @@ protected:
 	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
 private:
+
+	// 将通道ch的所有lines封装为1个getter，各line之间以nan分割
+	KuDataUtil::KpPointGetter1d linesAt_(unsigned ch) const;
+
+private:
 	KpPen lineCxt_;
 	color4f clrMinor_{ 0, 0, 0, 1 }; // 辅色，用于绘制渐变线条
 };

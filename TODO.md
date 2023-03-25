@@ -65,8 +65,8 @@
 - [ ] heatmap的维度映射
 - [x] arrange模式增加zshift实现
 - [ ] 面积图支持below & above控制项（参考https://gnuplot.sourceforge.net/demo/fillbetween.html）
-- [ ] 散点图支持渐变色
-- [ ] 散点图兼容气泡图
+- [x] 散点图支持渐变色
+- [x] 散点图兼容气泡图
 - [x] 散点图的告示牌模式
 - [ ] text复用情况下的状态同步：①变换矩阵设置，②保持恒定尺寸
 
@@ -89,7 +89,7 @@
 
 ## FIXME
 - [ ] 启用多重采样之后，程序启动短暂白屏
-- [ ] graph和scatter对arrange模式的支持
+- [x] graph和scatter对arrange模式的支持
 - [ ] box和andrews曲线的鲁棒性（渲染samp1d数据导致致命错误）
 - [x] 散点图在plot3d下干扰imgui绘制 --> ok （未恢复多实例渲染状态，即重置glVertexAttribDivisor）
 - [x] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）

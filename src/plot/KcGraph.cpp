@@ -56,7 +56,7 @@ namespace kPrivate
 
 void* KcGraph::drawObject_(KvPaint* paint, unsigned ch) const
 {
-	auto g = KuDataUtil::linesAt(discreted_(), ch);
+	auto g = linesAt_(ch);
 
 	if (coloringMode() == k_one_color_solid) {
 		return paint->drawLineStrip(toPoint3Getter_(g.getter, ch), g.size);
@@ -82,3 +82,25 @@ void* KcGraph::drawObject_(KvPaint* paint, unsigned ch) const
 	}
 }
 
+
+KuDataUtil::KpPointGetter1d KcGraph::linesAt_(unsigned ch) const
+{
+	auto lineSize = sizePerLine_();
+	std::vector<GETTER> lines(linesPerChannel_());
+
+	for (unsigned i = 0; i < lines.size(); i++) {
+		auto g = lineAt_(ch, i);
+		assert(lineSize == g.size);
+		lines[i] = g.getter;
+	}
+
+	std::vector<kReal> nan(odim() + 1, KuMath::nan<kReal>());
+	KuDataUtil::KpPointGetter1d g;
+	g.size = lines.size() * (lineSize + 1) - 1; // ÓÐlinesPerChannel_-1¸önan
+	g.getter = [lines, lineSize, nan](unsigned idx) {
+		auto i = idx % (lineSize + 1);
+		return i == lineSize ? nan : lines[idx / (lineSize + 1)](i);
+	};
+
+	return g;
+}

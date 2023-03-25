@@ -32,7 +32,7 @@ void KcScatter::setObjectState_(KvPaint* paint, unsigned objIdx) const
 
 void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
-	auto g = KuDataUtil::pointsAt(discreted_(), objIdx);
+	auto g = pointsAt_(objIdx);
 
 	KvPaint::color_getter coloring = nullptr;
 	if (coloringMode() != k_one_color_solid) {
@@ -113,4 +113,25 @@ void KcScatter::setSizeUpper(float s)
 {
 	sizeUpper_ = s;
 	setDataChanged(false);
+}
+
+
+KuDataUtil::KpPointGetter1d KcScatter::pointsAt_(unsigned ch) const
+{
+	auto lineSize = sizePerLine_();
+	std::vector<GETTER> lines(linesPerChannel_());
+
+	for (unsigned i = 0; i < lines.size(); i++) {
+		auto g = lineAt_(ch, i);
+		assert(lineSize == g.size);
+		lines[i] = g.getter;
+	}
+
+	KuDataUtil::KpPointGetter1d g;
+	g.size = lines.size() * lineSize;
+	g.getter = [lines, lineSize](unsigned idx) {
+		return lines[idx / lineSize](idx% lineSize);
+	};
+
+	return g;
 }

@@ -55,6 +55,8 @@ private:
 
 	float mapValueToSize_(float_t val) const;
 
+	KuDataUtil::KpPointGetter1d pointsAt_(unsigned ch) const;
+
 protected:
 	KpMarker marker_;
 
