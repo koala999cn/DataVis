@@ -44,8 +44,10 @@ void KvPlottable2d::setObjectState_(KvPaint* paint, unsigned objIdx) const
 	paint->setFilled(filled_);
 	paint->setEdged(edged);
 
-	if (edged)
+	if (edged) {
 		paint->apply(borderPen());
+		paint->setSecondaryColor(borderPen().color);
+	}
 }
 
 

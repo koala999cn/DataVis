@@ -54,6 +54,8 @@ public:
 
 	void* drawLineStrips(const std::vector<point_getter>& fns, const std::vector<unsigned>& cnts) override;
 
+	void drawRect(const point3& lower, const point3& upper) override;
+
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
 	void drawText(const point3& anchor, const char* text, int align) override;

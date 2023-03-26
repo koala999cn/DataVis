@@ -519,6 +519,31 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 }
 
 
+void KcImOglPaint::drawRect(const point3& lower, const point3& upper)
+{
+	// NB: glRectf绘制的矩形并不完美，暂时调用基类的ImGui实现
+	super_::drawRect(lower, upper);
+	return;
+
+	auto clr = clr_;
+	auto width = lineWidth_;
+	auto style = lineStyle_;
+	auto pt0 = toNdc_(lower);
+	auto pt1 = toNdc_(upper);
+
+	auto drawFn = [clr, width, style, pt0, pt1]() {
+
+		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
+		glLineWidth(width);
+		KuOglUtil::glLineStyle(style);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glRectf(pt0.x(), pt0.y(), pt1.x(), pt1.y());
+	};
+
+	currentRenderList().fns.push_back(drawFn);
+}
+
+
 void* KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 {
 	auto obj = new KcLineObject(k_line_strip);
@@ -909,6 +934,7 @@ void* KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 		edgedObj->setEdgeStyle(lineStyle_);
 		edgedObj->setFilled(filled_); edgedObj->setEdged(edged_);
 		edgedObj->setEdgeColor(secondaryClr_);
+		edgedObj->setEdgeShader(KsShaderManager::singleton().progMono(curClipBox_ != -1));
 		obj = edgedObj;
 	}
 

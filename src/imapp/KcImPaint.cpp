@@ -322,7 +322,7 @@ void* KcImPaint::drawLineStrip(point_getter fn, unsigned count)
 void KcImPaint::drawRect(const point3& lower, const point3& upper)
 {
 	auto drawList = ImGui::GetWindowDrawList();
-	drawList->AddRect(project_(lower, true), project_(upper, true), color_());
+	drawList->AddRect(project_(lower, true), project_(upper, true), color_(), 0, 0, lineWidth_);
 }
 
 

@@ -9,8 +9,8 @@
 KcEdgedObject::KcEdgedObject(KePrimitiveType type)
     : super_(type)
 {
-    // TODO: 此处假定clipBox始终为true
-    edgeShader_ = KsShaderManager::singleton().progMono(true); // 设置缺省的edge渲染程序
+    // NB: 此处假定clipBox始终为false，若设置为true，则会导致plot2d的edge不能正常显示
+    edgeShader_ = KsShaderManager::singleton().progMono(false); // 设置缺省的edge渲染程序
 }
 
 
@@ -44,13 +44,12 @@ void KcEdgedObject::draw() const
             edgeShader_->useProgram();
             setUniforms_(edgeShader_);
 
-            // 若顶点属性没有color，则主色用于fill，须另外设置edge颜色
-            if (!hasColor()) {
-                auto loc = edgeShader_->getUniformLocation("vColor");
-                if (loc != -1)
-                    glUniform4f(loc, edgeColor_[0], edgeColor_[1], edgeColor_[2], edgeColor_[3]);
-            }
-
+            // 在fill的情况下，始终用辅色描边
+            // 此处修正setUniforms_设置的主色
+            auto loc = edgeShader_->getUniformLocation("vColor");
+            if (loc != -1)
+                glUniform4f(loc, edgeColor_[0], edgeColor_[1], edgeColor_[2], edgeColor_[3]); 
+  
             drawVbo_(); // 使用已绑定的vbo
         }
         else {
