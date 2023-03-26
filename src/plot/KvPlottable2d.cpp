@@ -48,6 +48,9 @@ void KvPlottable2d::setObjectState_(KvPaint* paint, unsigned objIdx) const
 		paint->apply(borderPen());
 		paint->setSecondaryColor(borderPen().color);
 	}
+
+	if (coloringMode() == k_one_color_solid)
+		paint->setColor(majorColor(objIdx));
 }
 
 

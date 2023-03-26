@@ -15,4 +15,6 @@ private:
 
 	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
+	void* drawSolid_(KvPaint*, unsigned objIdx) const;
+	void* drawColor_(KvPaint*, unsigned objIdx) const;
 };
