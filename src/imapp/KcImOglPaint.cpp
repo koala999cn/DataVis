@@ -741,15 +741,8 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors,
 		drawText_(anchors[i], texts[i].c_str(), align[i], text, false);
 
 	auto obj = makeTextVbo_(text);
-	if (obj) {
-		obj->setProjMatrix(float4x4<>::identity()); // 全局text使用ndc坐标，不须在shader中进行坐标变换
-		currentRenderList().objs.emplace_back(obj); 
-
-		//pushCoord(k_coord_ndc);
-		//pushRenderObject_(obj);
-		//popCoord();
-	}
-		
+	if (obj) 
+		pushRenderObject_(obj);	
 
 	//return nullptr; // TODO: issue #I6MQBX
 	return obj;
@@ -880,8 +873,9 @@ void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
 	if (!rl.texts.empty()) {
 		auto obj = makeTextVbo_(rl.texts);
-		obj->setProjMatrix(float4x4<>::identity()); // 全局text使用ndc坐标，不须在shader中进行坐标变换
-		rl.objs.emplace_back(obj); // 此处不能调用pushRenderObject_，否则会被压入currentRenderList
+		pushCoord(k_coord_ndc); // 全局text使用ndc坐标，不须在shader中进行坐标变换
+		pushRenderObject_(rl, obj);
+		popCoord();
 	}
 }
 

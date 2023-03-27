@@ -121,12 +121,8 @@ private:
 	static const char* fsNavie_();
 
 	// 纹理片段着色
-	// out-color = tex(uv)
-	static const char* fsUV_();
-
-	// 多色 + 纹理片段着色，区分flat和smooth模式
 	// out-color = in-color * tex(uv)
-	static const char* fsColorUV_();
+	static const char* fsUV_();
 
 	shader_ptr fetchShader_(int type);
 

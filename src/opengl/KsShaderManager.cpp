@@ -85,13 +85,16 @@ const char* KsShaderManager::vsUV_()
 {
 	static const char* vertex_shader_uv =
 		"out vec2 Frag_UV;\n"
+		"out vec4 Frag_Color;\n"
 		"uniform mat4 matMvp;\n"
+		"uniform vec4 vColor;\n"
 		"layout (location = 0) in vec3 iPosition;\n"
 		"layout (location = 1) in vec2 iUV;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
 		"    Frag_UV = iUV;\n"
+		"    Frag_Color = vColor;\n"
 		"}\n";
 
 	return vertex_shader_uv;
@@ -191,20 +194,6 @@ const char* KsShaderManager::fsNavie_()
 
 const char* KsShaderManager::fsUV_()
 {
-	static const char* frag_shader_uv =
-		"in vec2 Frag_UV;\n"
-		"uniform sampler2D Texture;\n"
-		"void main()\n"
-		"{\n"
-		"    gl_FragColor = texture2D(Texture, Frag_UV.st);\n"
-		"}\n";
-
-	return frag_shader_uv;
-}
-
-
-const char* KsShaderManager::fsColorUV_()
-{
 	static const char* frag_shader_color_uv =
 		"in vec4 Frag_Color;\n"
 		"in vec2 Frag_UV;\n"
@@ -228,11 +217,8 @@ KsShaderManager::shader_ptr KsShaderManager::fetchShader_(int type)
 			type &= k_fs_mask;
 
 			const char* p = fsNavie_();
-			if (type & k_uv) {
+			if (type & k_uv) 
 				p = fsUV_();
-				if (type & k_color)
-					p = fsColorUV_();
-			}
 
 			auto src = decorateFragShader_(p, type & k_flat);
 			shader = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_fragment, src);
@@ -247,8 +233,10 @@ KsShaderManager::shader_ptr KsShaderManager::fetchShader_(int type)
 					p = vsColorUV_();
 			}
 			else {
-				if (type & k_uv)
+				if (type & k_uv) {
+					assert(!(type & k_instance));
 					p = vsUV_();
+				}
 				else if (type & k_instance)
 					p = vsInst_();
 			}
