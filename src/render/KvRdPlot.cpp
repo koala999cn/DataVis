@@ -9,7 +9,6 @@
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KgPipeline.h"
 #include "imguix.h"
-#include "KuStrUtil.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
@@ -88,6 +87,8 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 		data = streamData_[outPort];
 	}
 
+	bool autoRange = r.first->second->empty();
+
 	if (data->channels() == 1 || numPlts == 1) {
 		r.first->second->setData(data);
 	}
@@ -111,6 +112,50 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 			}
 		}
 	}
+
+	if (autoRange) // 在empty情况下，setData会改变映射维度，所以此处重置坐标轴extend
+		autoRange_();
+}
+
+
+void KvRdPlot::autoRange_()
+{
+	typename KvCoord::point3
+		lower(std::numeric_limits<typename KvCoord::float_t>::max()),
+		upper(std::numeric_limits<typename KvCoord::float_t>::lowest());
+
+	auto inputs = KsImApp::singleton().pipeline().getInputs(id(), 0);
+	for (auto node : inputs) {
+		auto port = dynamic_cast<KcPortNode*>(node);
+		assert(port);
+
+		auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
+		assert(prov);
+
+		auto plts = port2Plts_.equal_range(port->id());
+		auto dim = plts.first->second->odim(); // TODO: 考虑分离坐标轴
+		if (dim == 0) dim = prov->dim(port->index());
+		std::vector<unsigned> dims(dim + 1);
+		for (unsigned i = 0; i <= dim; i++)
+			dims[i] = i;
+		auto plt1d = dynamic_cast<KvPlottable1d*>(plts.first->second);
+		if (plt1d) {
+			dims[0] = plt1d->xdim();
+			dims[1] = plt1d->ydim();
+			if (dim > 1)
+				dims[2] = plt1d->zdim();
+		}
+
+		for (unsigned i = 0; i <= dim; i++) {
+			auto r = prov->range(port->index(), dims[i]);
+			KuMath::uniteRange(lower[i], upper[i], r.low(), r.high());
+		}
+	}
+
+	if (lower.z() == std::numeric_limits<typename KvCoord::float_t>::max()) // 输入全是二维数据
+		lower.z() = upper.z() = 0;
+
+	plot_->coord().setExtents(lower, upper);
 }
 
 
@@ -163,10 +208,6 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 	if (!ins.empty()) {
 		// 根据输入配置plot
 
-		typename KvCoord::point3 
-			lower(std::numeric_limits<typename KvCoord::float_t>::max()), 
-			upper(std::numeric_limits<typename KvCoord::float_t>::lowest());
-
 		for (unsigned i = 0; i < ins.size(); i++) {
 			auto port = ins[i].second;
 			auto node = port->parent().lock();
@@ -174,16 +215,6 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 
 			auto prov = dynamic_cast<KvDataProvider*>(node.get());
 			assert(prov);
-			for (unsigned j = 0; j < std::min<unsigned>(prov->dim(port->index()) + 1, 3); j++) {
-				auto r = prov->range(port->index(), j);
-				if (lower[j] > r.low())
-					lower[j] = r.low();
-				if (upper[j] < r.high())
-					upper[j] = r.high();
-			}
-
-			if (lower.z() == std::numeric_limits<typename KvCoord::float_t>::max()) // 输入全是二维数据
-				lower.z() = upper.z() = 0; 
 
 			auto plts = createPlottable_(port);
 			if (plts.empty())
@@ -217,7 +248,6 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 		// update theme
 		updateTheme_();
 
-		plot_->coord().setExtents(lower, upper);
 		plot_->setVisible(true);
 	}
 

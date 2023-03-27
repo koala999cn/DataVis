@@ -117,6 +117,9 @@ protected:
 	using data_ptr = std::shared_ptr<KvData>;
 	static data_ptr streaming_(data_ptr curData, data_ptr newData, unsigned nx);
 
+	// 根据inputs的range，自动设置plot的坐标轴extend
+	void autoRange_();
+
 protected:
 	std::shared_ptr<KvPlot> plot_;
 	std::multimap<int, KvPlottable*> port2Plts_; // 端口id向plottable序列的映射
