@@ -4,15 +4,20 @@
 
 void KvPlottable1d::setData(const_data_ptr d)
 {
+	// NB: 仅在特定情况重置映射维度，否则对于动态输入将无法调整维度值
+	bool updateDimMapping = !idata() || idata()->dim() != d->dim();
+
 	super_::setData(d);
 
 	arrangeMode_.resize(odim());
 	offset_.resize(odim());
 	shift_.resize(odim());
 
-	setYdim(odim());
-	setXdim(odim() - 1);
-	setZdim(odim() > 1 ? odim() - 2 : odim());
+	if (updateDimMapping) {
+		setYdim(odim());
+		setXdim(odim() - 1);
+		setZdim(odim() > 1 ? odim() - 2 : odim());
+	}
 }
 
 
@@ -33,6 +38,15 @@ void KvPlottable1d::cloneConfig(const KvPlottable& plt)
 			setShift(d, plt1d->shift(d));
 		}
 	}
+}
+
+
+unsigned KvPlottable1d::dimAxis(unsigned d) const
+{
+	for (unsigned i = 0; i < std::size(axisDim_); i++)
+		if (d == axisDim_[i])
+			return i;
+	return -1;
 }
 
 

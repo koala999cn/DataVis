@@ -5,12 +5,16 @@
 
 void KvPlottable2d::setData(const_data_ptr d)
 {
+	bool updateDimMapping = !idata() || idata()->dim() != d->dim();
+
 	super_::setData(d);
 
 	// µ÷ÕûÎ¬¶ÈÓ³Éä
-	setXdim(odim() - 2);
-	setYdim(odim() - 1);
-	setZdim(odim());
+	if (updateDimMapping) {
+		setXdim(odim() - 2);
+		setYdim(odim() - 1);
+		setZdim(odim());
+	}
 }
 
 

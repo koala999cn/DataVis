@@ -70,8 +70,21 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 		assert(prov->isSampled(outPort->index()) || 
 			prov->isArray(outPort->index())); // TODO: other types
 
-		auto xrange = plot_->coord().upper().x() - plot_->coord().lower().x();
-		streamData_[outPort] = streaming_(streamData_[outPort], data, xrange);
+		auto plt1d = dynamic_cast<KvPlottable1d*>(r.first->second);
+		auto xaxis = plt1d ? plt1d->dimAxis(0) : 0;
+		unsigned nx = -1;
+		if (xaxis > data->dim()) {
+			streamData_[outPort].reset();
+		}
+		else {
+			// TODO: 考虑分离坐标轴
+			auto xrange = plot_->coord().upper()[xaxis] - plot_->coord().lower()[xaxis];
+			auto samp = std::dynamic_pointer_cast<KvSampled>(data);
+			assert(samp && samp->step(0) > 0);
+			nx = xrange / samp->step(0);
+		}
+
+		streamData_[outPort] = streaming_(streamData_[outPort], data, nx);
 		data = streamData_[outPort];
 	}
 
@@ -144,7 +157,6 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 		return false;
 
 	plot_->removeAllPlottables();
-	plot_->autoFit() = true;
 	port2Plts_.clear(); 
 	streamData_.clear();
 
@@ -1076,11 +1088,11 @@ namespace kPrivate
 	}
 
 	template<int DIM>
-	static std::shared_ptr<KvData> streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, double xrange)
+	static std::shared_ptr<KvData> streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, unsigned nx)
 	{
 		auto samp = std::dynamic_pointer_cast<KtSampledArray<DIM>>(curData);
 
-		if (xrange == 0) {
+		if (nx == 0) {
 			samp->clear();
 			return samp;
 		}
@@ -1093,20 +1105,19 @@ namespace kPrivate
 		}
 
 		/// 滑动数据
-		auto cnt = xrange / samp->step(0);
 		auto sampArray = std::dynamic_pointer_cast<KtSampledArray<DIM>>(newData);
 		if (sampArray) { // 使用快速版本
-			samp->shift(*sampArray, cnt);
+			samp->shift(*sampArray, nx);
 		}
 		else { // 使用通用版本
-			samp->shift(*std::dynamic_pointer_cast<KvSampled>(newData), cnt);
+			samp->shift(*std::dynamic_pointer_cast<KvSampled>(newData), nx);
 		}
 
 		return samp;
 	}
 }
 
-KvRdPlot::data_ptr KvRdPlot::streaming_(data_ptr curData, data_ptr newData, double xrange)
+KvRdPlot::data_ptr KvRdPlot::streaming_(data_ptr curData, data_ptr newData, unsigned nx)
 {
 	// NB: curData可能为null（当数据源由static变为stream时）
 
@@ -1114,9 +1125,9 @@ KvRdPlot::data_ptr KvRdPlot::streaming_(data_ptr curData, data_ptr newData, doub
 		return curData;
 
 	if (newData->dim() == 1)
-		return kPrivate::streaming_<1>(curData, newData, xrange);
+		return kPrivate::streaming_<1>(curData, newData, nx);
 	else if (newData->dim() == 2)
-		return kPrivate::streaming_<2>(curData, newData, xrange);
+		return kPrivate::streaming_<2>(curData, newData, nx);
 	else {
 		assert(false);
 	}

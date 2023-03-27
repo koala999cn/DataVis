@@ -115,7 +115,7 @@ protected:
 	void updateTheme_();
 
 	using data_ptr = std::shared_ptr<KvData>;
-	static data_ptr streaming_(data_ptr curData, data_ptr newData, double xrange);
+	static data_ptr streaming_(data_ptr curData, data_ptr newData, unsigned nx);
 
 protected:
 	std::shared_ptr<KvPlot> plot_;

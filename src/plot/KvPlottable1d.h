@@ -55,6 +55,9 @@ public:
 	unsigned ydim() const { return axisDim_[1]; } // 返回y轴对应的数据维度
 	unsigned zdim() const { return axisDim_[2]; } // 返回z轴对应的数据维度
 
+	// 返回维度d被映射到的坐标轴: 0表示x轴，1表示y轴，2表示z轴，-1表示未被映射
+	unsigned dimAxis(unsigned d) const;
+
 	// 根据arrange模式返回偏移坐标轴，group模式返回0，ridge模式返回1，facet模式返回2，其他返回-1
 	// @mapDim: 若true，则返回xdim, ydim, zdim，而非0, 1, 2
 	unsigned deltaAxis(unsigned dim, bool mapDim) const;
