@@ -210,6 +210,7 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 
 		for (unsigned i = 0; i < ins.size(); i++) {
 			auto port = ins[i].second;
+			auto portIdx = port->index();
 			auto node = port->parent().lock();
 			if (!node) continue;
 
@@ -225,24 +226,24 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 				port2Plts_.insert(std::make_pair(port->id(), plt));
 			}
 
-			if (prov->isStream(port->index())) {
-				if (prov->dim(port->index()) == 1)
+			if (prov->isStream(portIdx)) {
+				if (prov->dim(portIdx) == 1)
 					streamData_[port] = std::make_shared<KcSampled1d>(
-						prov->step(port->index(), 0), 
-						prov->channels(port->index()));
-				else if (prov->dim(port->index()) == 2) {
+						prov->step(portIdx, 0),
+						prov->channels(portIdx));
+				else if (prov->dim(portIdx) == 2) {
 					auto data = std::make_shared<KcSampled2d>(
-						prov->step(port->index(), 0), 
-						prov->step(port->index(), 1), 
-						prov->channels(port->index()));
+						prov->step(portIdx, 0),
+						prov->step(portIdx, 1),
+						prov->channels(portIdx));
 
-					data->resize(0, prov->size(port->index(), 1));
+					data->resize(0, prov->size(portIdx, 1));
 					streamData_[port] = data;
 				}
 			}
 
 			// 如果有1个dynamic输入，则将autofit置false
-			plot_->autoFit() &= !prov->isDynamic(port->index());
+			plot_->autoFit() &= !prov->isDynamic(portIdx);
 		}
 		
 		// update theme
