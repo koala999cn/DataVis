@@ -107,9 +107,11 @@ private:
 	static const char* vsColorUV_();
 
 	// 多实例绘制的单色顶点着色
-	// attr = pos(float3) + offset(float3, instanced)
+	// attr = pos(float3) + offset(float3, instanced) + color(float4, instanced) + scale(float, instanced)
 	// uniform = matMvp(float4x4) + color(float4) + scale(float3)
 	static const char* vsInst_();
+
+	static const char* vsInstUV_();
 
 	// 单色光照着色，区分flat和smooth模式
 	// attr = pos + normal

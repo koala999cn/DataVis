@@ -12,6 +12,7 @@
 #include "opengl/KcLineObject.h"
 #include "opengl/KcEdgedObject.h"
 #include "opengl/KcMarkerObject.h"
+#include "opengl/KcTextObject.h"
 #include "opengl/KcLightenObject.h"
 #include "opengl/KsShaderManager.h"
 #include "opengl/KuOglUtil.h"
@@ -733,12 +734,11 @@ void KcImOglPaint::drawText(const point3& anchor, const char* text, int align)
 }
 
 
-void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors,
-	const std::vector<std::string>& texts, const std::vector<int>& align)
+void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align)
 {
 	std::vector<KpUvVbo> text;
 	for (unsigned i = 0; i < texts.size(); i++)
-		drawText_(anchors[i], texts[i].c_str(), align[i], text, false);
+		drawText_(anchors[i], texts[i].c_str(), align, text, false);
 
 	auto obj = makeTextVbo_(text);
 	if (obj) 
@@ -758,6 +758,7 @@ void KcImOglPaint::drawText_(const point3& anchor, const char* text, int align, 
 	topLeft.z() = anchor.z();
 	drawText_(topLeft, unprojectv(point3(1, 0, 0)), unprojectv(point3(0, 1, 0)), text, vbo, normToNdc);
 }
+
 
 void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text)
 {
@@ -1245,6 +1246,13 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 		//assert(KuMath::almostEqual(scale.length(), 1.));
 		mo->setScale({ scale.x(), scale.y(), scale.z() });
 		mo->setMarker(marker());
+	}
+	else if (dynamic_cast<KcTextObject*>(obj)) {
+		auto to = dynamic_cast<KcTextObject*>(obj);
+		auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+		to->setScale({ scale.x(), scale.y(), scale.z() });
+		// TODO: ÎÄ±¾ÉèÖÃ
+		//mo->setMarker(marker());
 	}
 
 	obj->setColor(clr_);

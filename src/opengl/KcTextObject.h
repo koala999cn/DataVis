@@ -13,7 +13,13 @@ public:
 
 	KcRenderObject* clone() const override;
 
+	void setScale(point3f s) { scale_ = s; }
+
+	void setBufferData(const point3f* anchors, const point4f* uvs, unsigned count);
+
 private:
 	int texId_{ 0 };
 	int unitIdx_{ 0 };
+
+	point3f scale_{ 1 };
 };

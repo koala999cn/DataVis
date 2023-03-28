@@ -156,6 +156,43 @@ const char* KsShaderManager::vsInst_()
 }
 
 
+const char* KsShaderManager::vsInstUV_()
+{
+	// NB： 仅适用于绘制quad对象（如text）
+	// 
+	// @iVertex: 根据align构建的标准顶点坐标，零点为anchor点
+	// @iUV: 标准uv坐标
+	// @vScale: 用于将iVertex从screen坐标变换到NDC坐标
+	// @iPosition: 相当于各实例的anchor点
+	// @iGlyph: xy存储uv中心点，zw分表存储长度和宽度
+	static const char* vertex_shader_inst_uv =
+		"uniform mat4 matMvp;\n"
+		"uniform vec4 vColor;\n"
+		"uniform vec3 vScale;\n"
+		"uniform int bColorVarying;\n"
+		"uniform int bSizeVarying;\n"
+		"layout (location = 0) in vec3 iVertex;\n"
+		"layout (location = 1) in vec2 iUV;\n"
+		"layout (location = 2) in vec3 iPosition;\n"
+		"layout (location = 3) in vec4 iGlyph;\n"
+		"layout (location = 4) in float iSize;\n"
+		"layout (location = 5) in vec4 iColor;\n"
+		"out vec4 Frag_Color;\n"
+		"out vec2 Frag_UV;\n"
+		"void main()\n"
+		"{\n"
+		"    Frag_UV = iGlyph.xy + iUV * iGlyph.zw;\n"
+		"    vec3 v = iVertex.xyz * vScale;\n"
+		"    if (bSizeVarying != 0) v *= iSize;\n"
+		"    gl_Position = matMvp * vec4(iPosition, 1) + vec4(v, 0);\n"
+		"    if (bColorVarying != 0) Frag_Color = iColor;\n"
+		"    else Frag_Color = vColor;\n"
+		"}\n";
+
+	return vertex_shader_inst_uv;
+}
+
+
 const char* KsShaderManager::vsMonoLight_()
 {
 	static const char* vertex_shader_mono_light =
@@ -234,8 +271,9 @@ KsShaderManager::shader_ptr KsShaderManager::fetchShader_(int type)
 			}
 			else {
 				if (type & k_uv) {
-					assert(!(type & k_instance));
 					p = vsUV_();
+					if (type & k_instance)
+						p = vsInstUV_();
 				}
 				else if (type & k_instance)
 					p = vsInst_();

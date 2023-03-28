@@ -156,7 +156,6 @@ void* KcHeatMap::drawText_(KvPaint* paint) const
 
 	std::vector<point3> anchors; anchors.reserve(gridsTotal_());
 	std::vector<std::string> texts; texts.reserve(gridsTotal_());
-	std::vector<int> aligns; aligns.reserve(gridsTotal_());
 	
 	auto nx = sizePerLine_();
 	auto ny = linesPerGrid_();
@@ -173,12 +172,11 @@ void* KcHeatMap::drawText_(KvPaint* paint) const
 					if (szText.x() <= leng.x() && szText.y() <= leng.y()) {
 						anchors.push_back(toPoint_(pt.data(), ch));
 						texts.push_back(str);
-						aligns.push_back(KeAlignment::k_vcenter | KeAlignment::k_hcenter);
 					}
 				}
 			}
 		}
 	}
 
-	return paint->drawTexts(anchors, texts, aligns);
+	return paint->drawTexts(anchors, texts, KeAlignment::k_vcenter | KeAlignment::k_hcenter);
 }
