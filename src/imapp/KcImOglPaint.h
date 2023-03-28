@@ -5,6 +5,7 @@
 #include <functional>
 #include <tuple>
 #include <map>
+#include <string_view>
 #include "opengl/KcRenderObject.h"
 
 
@@ -151,6 +152,11 @@ private:
 	// @normToNdc: 若true，则将text坐标规范到ndc坐标系
 	void drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo, bool normToNdc);
 	void drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo, bool normToNdc);
+
+	// pos存储顺序（屏幕坐标）: dx, dy, width, height
+	// 其中(dx, dy)为第i个文字quad中心点相对于text-rect左上角的偏移
+	// uv存储顺序（归一化坐标）：u1, v1, u2, v2
+	void pushTextData_(const std::string_view& text, std::vector<point4f>& pos, std::vector<point4f>& uvs) const;
 
 private:
 

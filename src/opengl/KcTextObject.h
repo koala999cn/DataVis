@@ -15,7 +15,7 @@ public:
 
 	void setScale(point3f s) { scale_ = s; }
 
-	void setBufferData(const point3f* anchors, const point4f* uvs, unsigned count);
+	void setBufferData(const point3f* anchors, const point4f* offset, const point4f* uvs, unsigned count);
 
 private:
 	int texId_{ 0 };

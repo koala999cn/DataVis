@@ -160,31 +160,34 @@ const char* KsShaderManager::vsInstUV_()
 {
 	// NB： 仅适用于绘制quad对象（如text）
 	// 
-	// @iVertex: 根据align构建的标准顶点坐标，零点为anchor点
-	// @iUV: 标准uv坐标
-	// @vScale: 用于将iVertex从screen坐标变换到NDC坐标
+	// @iVertex: 用于区分quad的4个顶点
+	// @vScale: 用于将screen坐标变换到NDC坐标
 	// @iPosition: 相当于各实例的anchor点
-	// @iGlyph: xy存储uv中心点，zw分表存储长度和宽度
+	// @iOffset: dx0, dy0, dx1, dy1，均为屏幕坐标尺寸
+	// @iUVs: u0, v0, u1, v1
 	static const char* vertex_shader_inst_uv =
 		"uniform mat4 matMvp;\n"
 		"uniform vec4 vColor;\n"
 		"uniform vec3 vScale;\n"
 		"uniform int bColorVarying;\n"
 		"uniform int bSizeVarying;\n"
-		"layout (location = 0) in vec3 iVertex;\n"
-		"layout (location = 1) in vec2 iUV;\n"
-		"layout (location = 2) in vec3 iPosition;\n"
-		"layout (location = 3) in vec4 iGlyph;\n"
+		"layout (location = 0) in vec4 iVertex;\n"
+		"layout (location = 1) in vec3 iPosition;\n"
+		"layout (location = 2) in vec4 iOffset;\n"
+		"layout (location = 3) in vec4 iUVs;\n"
 		"layout (location = 4) in float iSize;\n"
 		"layout (location = 5) in vec4 iColor;\n"
 		"out vec4 Frag_Color;\n"
 		"out vec2 Frag_UV;\n"
 		"void main()\n"
 		"{\n"
-		"    Frag_UV = iGlyph.xy + iUV * iGlyph.zw;\n"
-		"    vec3 v = iVertex.xyz * vScale;\n"
-		"    if (bSizeVarying != 0) v *= iSize;\n"
-		"    gl_Position = matMvp * vec4(iPosition, 1) + vec4(v, 0);\n"
+		"    Frag_UV.x = dot(iVertex.xz, iUVs.xz);\n"
+		"    Frag_UV.y = dot(iVertex.yw, iUVs.yw);\n"
+		"    vec2 offset;\n "
+		"    offset.x = dot(iVertex.xz, iOffset.xz) * vScale.x;\n"
+		"    offset.y = dot(iVertex.yw, iOffset.yw) * vScale.y;\n"
+		// TODO: "    if (bSizeVarying != 0) v *= iSize;\n"
+		"    gl_Position = matMvp * vec4(iPosition, 1) + vec4(offset, 0, 0);\n"
 		"    if (bColorVarying != 0) Frag_Color = iColor;\n"
 		"    else Frag_Color = vColor;\n"
 		"}\n";

@@ -736,15 +736,34 @@ void KcImOglPaint::drawText(const point3& anchor, const char* text, int align)
 
 void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align)
 {
-	std::vector<KpUvVbo> text;
-	for (unsigned i = 0; i < texts.size(); i++)
-		drawText_(anchors[i], texts[i].c_str(), align, text, false);
+	std::vector<point3f> ans; // 锚点
+	std::vector<point4f> pos;
+	std::vector<point4f> uvs;
+	for (unsigned i = 0; i < texts.size(); i++) {
+		auto szText = textSize(texts[i].c_str());
 
-	auto obj = makeTextVbo_(text);
-	if (obj) 
-		pushRenderObject_(obj);	
+		// TOOD: 暂假定anchor为中心点，即align为居中对其
+		point2f offset{ -szText.x() / 2, -szText.y() / 2 };
 
-	//return nullptr; // TODO: issue #I6MQBX
+		pushTextData_(texts[i], pos, uvs);
+
+		// 修正返回的偏移
+		for (unsigned j = ans.size(); j < pos.size(); j++) {
+			pos[j].x() += offset.x(), pos[j].y() += offset.y();
+			pos[j].z() += offset.x(), pos[j].w() += offset.y();
+		}
+
+		ans.resize(pos.size(), anchors[i]);
+	}
+	
+	int texId = (intptr_t)ImGui::GetWindowDrawList()->CmdBuffer.back().GetTexID();
+	auto obj = new KcTextObject(texId);
+	obj->setBufferData(ans.data(), pos.data(), uvs.data(), ans.size());
+
+	auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+	obj->setScale({ scale.x(), scale.y(), scale.z() });
+
+	pushRenderObject_(obj);	
 	return obj;
 }
 
@@ -763,6 +782,48 @@ void KcImOglPaint::drawText_(const point3& anchor, const char* text, int align, 
 void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text)
 {
 	drawText_(topLeft, hDir, vDir, text, currentRenderList().texts, true);
+}
+
+
+void KcImOglPaint::pushTextData_(const std::string_view& text, std::vector<point4f>& pos, std::vector<point4f>& uvs) const
+{
+	point2f orig(0);
+	auto font = ImGui::GetFont();
+	auto s = text.data();
+	auto eos = s + text.size();
+	pos.reserve(pos.size() + text.size());
+	uvs.reserve(uvs.size() + text.size());
+	while (s < eos) {
+		unsigned int c = (unsigned int)*s;
+		if (c < 0x80) {
+			s += 1;
+		}
+		else {
+			s += ImTextCharFromUtf8(&c, s, eos);
+			if (c == 0) // Malformed UTF-8?
+				break;
+		}
+
+		if (c < 32) {
+			if (c == '\n') {
+				// TODO: 处理换行
+				continue;
+			}
+			if (c == '\r')
+				continue;
+		}
+
+		const ImFontGlyph* glyph = font->FindGlyph((ImWchar)c);
+		if (glyph == nullptr)
+			continue;
+
+		if (glyph->Visible) {
+			pos.emplace_back(orig.x() + glyph->X0, orig.y() + glyph->Y0, orig.x() + glyph->X1, orig.y() + glyph->Y1);
+			uvs.emplace_back(glyph->U0, glyph->V0, glyph->U1, glyph->V1);
+		}
+
+		orig.x() += glyph->AdvanceX;
+	}
 }
 
 
