@@ -6,6 +6,7 @@
 #include <sstream>
 #include <optional>
 #include <charconv>
+#include <iomanip> // Header file needed to use setprecision
 
 
 class KuStrUtil
@@ -107,11 +108,11 @@ public:
 
 	static std::string_view trim(const std::string_view& sv, const char* spaces = k_spaceChars);
 
-    static std::vector<std::string_view> split(const std::string_view& full, const std::string& delims, bool skipEempty = true);
+    static std::vector<std::string_view> split(const std::string_view& full, const std::string& delims, bool skipEmpty = true);
 
-	static std::vector<std::string_view> splitWithQuote(const std::string_view& full, const std::string& delims, bool skipEempty = true);
+	static std::vector<std::string_view> splitWithQuote(const std::string_view& full, const std::string& delims, bool skipEmpty = true);
 
-	static std::vector<std::string> splitRegex(const std::string& full, const std::string& regex, bool skipEempty = true);
+	static std::vector<std::string> splitRegex(const std::string& full, const std::string& regex, bool skipEmpty = true);
 
 	static std::string join(const std::vector<std::string>& input, char c);
 
@@ -136,7 +137,7 @@ public:
 	template<typename T, typename CHAR = char>
 	static std::basic_string<CHAR> toString(T val) {
 		std::basic_ostringstream<CHAR> stream;
-		stream << val;
+		stream << std::setprecision(std::numeric_limits<double>::digits10) << val;
 		return stream.str();
 	}
 
