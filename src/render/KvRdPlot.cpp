@@ -113,7 +113,7 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 		}
 	}
 
-	if (autoRange_) // 在empty情况下，setData会改变映射维度，所以此处重置坐标轴extend
+	if (autoRange_)
 		fitRange_();
 }
 
@@ -150,6 +150,11 @@ void KvRdPlot::fitRange_()
 			auto r = prov->range(port->index(), dims[i]);
 			KuMath::uniteRange(lower[i], upper[i], r.low(), r.high());
 		}
+
+		// NB: 此处合并plottable的aabb，否则很多内部作了偏移的plottable不能正确显示（如热图，arrange模式等）
+		auto box = plts.first->second->boundingBox();
+		for (unsigned i = 0; i < 3; i++)
+			KuMath::uniteRange(lower[i], upper[i], box.lower()[i], box.upper()[i]);
 	}
 
 	if (lower.z() == std::numeric_limits<typename KvCoord::float_t>::max()) // 输入全是二维数据

@@ -1,3 +1,12 @@
+## overall
+- [ ] 增加图标
+   https://github.com/FortAwesome/Font-Awesome & https://github.com/mnesarco/bawr）
+   https://www.microsoft.com/en-us/download/details.aspx?id=35825
+   https://github.com/godotengine/godot/tree/master/editor/icons
+- [ ] 本地化（参考godot）
+- [ ] Undo/Redo（参考 https://github.com/ocornut/imgui/issues/1875）
+
+
 ## provider
 - [ ] 支持hdf5, xlsx数据源
 - [ ] binary data loader
@@ -14,6 +23,7 @@
 - [ ] 测试spectrum的options的sampleRate一致性
 - [x] sampler的采样率动态更改后，输出没有更新 -> 主要是audioplay没有对输入重采样，也没有变换设备频率
 - [ ] 完善kde（参考https://github.com/timnugent/kernel-density）
+- [ ] 检测kde结果的正确性（https://pythonawesome.com/plotting-beautiful-ridgeline-plots-in-python/）
 
 ## plot
 - [ ] title等设置
@@ -71,6 +81,7 @@
 - [x] 散点图的告示牌模式
 - [x] text复用情况下的状态同步：①变换矩阵设置，②保持恒定尺寸
 - [ ] 散点图启用size varying之后的性能问题（以wav.txt为例）
+- [ ] plot3d的colorbar布局问题
 
 ## theme
 - [ ] 更多theme，SCI、ggthemes等
