@@ -129,6 +129,11 @@ namespace kPrivate
                         toks = KuStrUtil::split(tl, " \t", true);
                 }
 
+                if constexpr (COMMA_SEP) {
+                    for (auto& tok : toks)
+                        tok = KuStrUtil::trim(tok);
+                }
+
                 mat.emplace_back(std::move(toks));
             }
             else {
