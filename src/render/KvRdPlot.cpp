@@ -87,7 +87,7 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 		data = streamData_[outPort];
 	}
 
-	bool autoRange = r.first->second->empty();
+	//bool autoRange = r.first->second->empty();
 
 	if (data->channels() == 1 || numPlts == 1) {
 		r.first->second->setData(data);
@@ -113,12 +113,12 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 		}
 	}
 
-	if (autoRange) // 在empty情况下，setData会改变映射维度，所以此处重置坐标轴extend
-		autoRange_();
+	if (autoRange_) // 在empty情况下，setData会改变映射维度，所以此处重置坐标轴extend
+		fitRange_();
 }
 
 
-void KvRdPlot::autoRange_()
+void KvRdPlot::fitRange_()
 {
 	typename KvCoord::point3
 		lower(std::numeric_limits<typename KvCoord::float_t>::max()),
@@ -241,9 +241,6 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 					streamData_[port] = data;
 				}
 			}
-
-			// 如果有1个dynamic输入，则将autofit置false
-			plot_->autoFit() &= !prov->isDynamic(portIdx);
 		}
 		
 		// update theme
@@ -266,13 +263,13 @@ void KvRdPlot::showPropertySet()
 	ImGui::Separator();
 	showThemeProperty_();
 
+	ImGui::Separator();
+	showCoordProperty_();
+
 	if (plot_->plottableCount() > 0) {
 		ImGui::Separator();
 		showPlottableProperty_();
 	}
-
-	ImGui::Separator();
-	showCoordProperty_();
 
 	if (plot_->legend()->itemCount() > 0) {
 		ImGui::Separator();
@@ -302,41 +299,6 @@ void KvRdPlot::showPlotProperty_()
 		ImGui::EndDisabled();
 
 		ImGuiX::margins("Margins", plot_->margins());
-
-		auto& coord = plot_->coord();
-		auto lower = coord.lower();
-		auto upper = coord.upper();
-		auto speed = (upper - lower) * 0.001;
-		for (unsigned i = 0; i < speed.size(); i++)
-			if (speed.at(i) == 0) speed.at(i) = 1;
-		static const char* axisName[] = { "X Range", "Y Range", "Z Range" };
-		for (char i = 0; i < 3; i++) {
-			double val[2] = { lower[i], upper[i] };
-			if (ImGui::DragScalarN(axisName[i], ImGuiDataType_Double, val, 2, speed[i])
-				&& val[1] > val[0]) {
-				lower[i] = val[0], upper[i] = val[1];
-				coord.setExtents(lower, upper);
-				plot_->autoFit() = false;
-			}
-		}
-
-		const char* swapStr[] = { "No Swap", "Swap XY", "Swap XZ", "Swap YZ" };
-		if (ImGui::BeginCombo("Swap Axes", swapStr[coord.axisSwapped()])) {
-			unsigned c = plot_->dim() > 2 ? std::size(swapStr) : plot_->dim();
-			for (unsigned i = 0; i < c; i++)
-				if (ImGui::Selectable(swapStr[i], i == coord.axisSwapped()))
-					coord.swapAxis(KvCoord::KeAxisSwapStatus(i));
-
-			ImGui::EndCombo();
-		}
-
-		ImGui::Checkbox("Auto Fit", &plot_->autoFit());
-		const char* label[] = { "Invert X", "Invert Y", "Invert Z" };
-		for (int i = 0; i < plot_->dim(); i++) {
-			bool inv = coord.axisInversed(i);
-			if (ImGui::Checkbox(label[i], &inv))
-				coord.inverseAxis(i, inv);
-		}
 
 		bool anti = plot_->paint().antialiasing();
 		if (ImGui::Checkbox("Antialiasing", &anti))
@@ -427,24 +389,67 @@ void KvRdPlot::showThemeProperty_()
 
 void KvRdPlot::showCoordProperty_()
 {
-	if (ImGuiX::treePush("Axes", false)) {
+	if (ImGuiX::treePush("Coordinate System", false)) {
 
-		plot_->coord().forAxis([this](KcAxis& axis) {
-			showAxisProperty_(axis);
-			return true;
-			});
+		auto& coord = plot_->coord();
+		if (ImGui::Checkbox("Auto Range", &autoRange_) && autoRange_)
+			fitRange_();
+		ImGui::SameLine();
+		if (ImGui::Button("Fit Data")) {
+			plot_->fitData();
+			autoRange_ = false;
+		}
 
-		ImGuiX::treePop();
-	}
+		auto lower = coord.lower();
+		auto upper = coord.upper();
+		auto speed = (upper - lower) * 0.001;
+		for (unsigned i = 0; i < speed.size(); i++)
+			if (speed.at(i) == 0) speed.at(i) = 1;
+		static const char* axisName[] = { "X Range", "Y Range", "Z Range" };
+		for (char i = 0; i < 3; i++) {
+			double val[2] = { lower[i], upper[i] };
+			if (ImGui::DragScalarN(axisName[i], ImGuiDataType_Double, val, 2, speed[i])
+				&& val[1] > val[0]) {
+				lower[i] = val[0], upper[i] = val[1];
+				coord.setExtents(lower, upper);
+				autoRange_ = false;
+			}
+		}
 
-	ImGui::Separator();
+		const char* label[] = { "Invert X", "Invert Y", "Invert Z" };
+		for (int i = 0; i < plot_->dim(); i++) {
+			bool inv = coord.axisInversed(i);
+			if (ImGui::Checkbox(label[i], &inv))
+				coord.inverseAxis(i, inv);
+		}
 
-	if (ImGuiX::treePush("Planes", false)) {
+		const char* swapStr[] = { "No Swap", "Swap XY", "Swap XZ", "Swap YZ" };
+		if (ImGui::BeginCombo("Swap Axes", swapStr[coord.axisSwapped()])) {
+			unsigned c = plot_->dim() > 2 ? std::size(swapStr) : plot_->dim();
+			for (unsigned i = 0; i < c; i++)
+				if (ImGui::Selectable(swapStr[i], i == coord.axisSwapped()))
+					coord.swapAxis(KvCoord::KeAxisSwapStatus(i));
 
-		plot_->coord().forPlane([this](KcCoordPlane& plane) {
-			showPlaneProperty_(plane);
-			return true;
-			});
+			ImGui::EndCombo();
+		}
+
+		if (ImGuiX::treePush("Axes", false)) {
+			plot_->coord().forAxis([this](KcAxis& axis) {
+				showAxisProperty_(axis);
+				return true;
+				});
+			ImGuiX::treePop();
+		}
+
+		ImGui::Separator();
+
+		if (ImGuiX::treePush("Planes", false)) {
+			plot_->coord().forPlane([this](KcCoordPlane& plane) {
+				showPlaneProperty_(plane);
+				return true;
+				});
+			ImGuiX::treePop();
+		}
 
 		ImGuiX::treePop();
 	}

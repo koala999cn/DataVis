@@ -51,7 +51,7 @@
 - [x] ridgeplot
 - [x] 密度图（参考ggplot2的geom_density）-> 实现operator KDE
 - [ ] 色带编辑器美化（参考https://github.com/CoolLibs/imgui_gradient & https://github.com/effekseer/ImGradientHDR）
-- [ ] plot的autorange由KvRdPlot负责，根据provider调整，而非data
+- [x] plot的autorange由KvRdPlot负责，根据provider调整，而非data
 - [x] paddingStacked的语义一致性
 - [x] text支持vbo重用
 - [x] 完善clip的rect修订，legend的border的有的边会被非正常剪切 --> 绘制item时才设置clip
@@ -69,7 +69,7 @@
 - [x] 散点图支持渐变色
 - [x] 散点图兼容气泡图
 - [x] 散点图的告示牌模式
-- [ ] text复用情况下的状态同步：①变换矩阵设置，②保持恒定尺寸
+- [x] text复用情况下的状态同步：①变换矩阵设置，②保持恒定尺寸
 - [ ] 散点图启用size varying之后的性能问题（以wav.txt为例）
 
 ## theme
