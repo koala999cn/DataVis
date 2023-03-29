@@ -287,7 +287,7 @@ std::pair<const void*, unsigned> KcMarkerObject::markerVtx_(int type)
 		return { KuPrimitiveFactory::triangleDown<float>(), 3 };
 
 	case KpMarker::k_circle:
-		return { KuPrimitiveFactory::circle10<float>(), 10 };
+		return { KuPrimitiveFactory::circle50<float>(), 50 }; // TODO: 应根据marker尺寸自动配置点数
 
 	default:
 		break;
