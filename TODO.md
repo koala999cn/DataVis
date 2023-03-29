@@ -1,10 +1,10 @@
 ## overall
 - [ ] 增加图标
-   https://github.com/FortAwesome/Font-Awesome & https://github.com/mnesarco/bawr）
+   https://github.com/FortAwesome/Font-Awesome & https://github.com/mnesarco/bawr
    https://www.microsoft.com/en-us/download/details.aspx?id=35825
    https://github.com/godotengine/godot/tree/master/editor/icons
 - [ ] 本地化（参考godot）
-- [ ] Undo/Redo（参考 https://github.com/ocornut/imgui/issues/1875）
+- [ ] Undo/Redo（参考 https://github.com/ocornut/imgui/issues/1875 ）
 
 
 ## provider
@@ -14,7 +14,7 @@
 - [x] 多通道连续数据
 - [x] 缓存function的range计算
 - [ ] 整合expression和function，提供parametric标记，并新增实现piecewise expression
-- [ ] 文本文件中日期的解析（参考http://www.partow.net/programming/datetime/index.html）
+- [ ] 文本文件中日期的解析（参考http://www.partow.net/programming/datetime/index.html ）
 - [x] 可选择通道
 - [ ] 解析数据列或通道的label
 
@@ -23,13 +23,13 @@
 - [ ] 测试spectrum的options的sampleRate一致性
 - [x] sampler的采样率动态更改后，输出没有更新 -> 主要是audioplay没有对输入重采样，也没有变换设备频率
 - [ ] 完善kde（参考https://github.com/timnugent/kernel-density）
-- [ ] 检测kde结果的正确性（https://pythonawesome.com/plotting-beautiful-ridgeline-plots-in-python/）
+- [ ] 检测kde结果的正确性（https://pythonawesome.com/plotting-beautiful-ridgeline-plots-in-python/ ）
 
 ## plot
 - [ ] title等设置
 - [ ] 各种类型的axis
 - [ ] 分离axis
-- [ ] 文字渲染系统（参考https://github.com/mosra/magnum/tree/master/src/Magnum/Text）
+- [ ] 文字渲染系统（参考https://github.com/mosra/magnum/tree/master/src/Magnum/Text ）
 - [x] x轴与y轴的交换 --> ok
 - [x] plot3d的legend布局 --> ok
 - [x] colorbar --> ok
@@ -60,7 +60,7 @@
 - [x] plottable侧对复用vbo的通用框架
 - [x] ridgeplot
 - [x] 密度图（参考ggplot2的geom_density）-> 实现operator KDE
-- [ ] 色带编辑器美化（参考https://github.com/CoolLibs/imgui_gradient & https://github.com/effekseer/ImGradientHDR）
+- [ ] 色带编辑器美化（参考https://github.com/CoolLibs/imgui_gradient & https://github.com/effekseer/ImGradientHDR ）
 - [x] plot的autorange由KvRdPlot负责，根据provider调整，而非data
 - [x] paddingStacked的语义一致性
 - [x] text支持vbo重用
@@ -75,7 +75,7 @@
 - [x] 实现plottable2d的arrange模式
 - [ ] heatmap的维度映射
 - [x] arrange模式增加zshift实现
-- [ ] 面积图支持below & above控制项（参考https://gnuplot.sourceforge.net/demo/fillbetween.html）
+- [ ] 面积图支持below & above控制项（参考https://gnuplot.sourceforge.net/demo/fillbetween.html ）
 - [x] 散点图支持渐变色
 - [x] 散点图兼容气泡图
 - [x] 散点图的告示牌模式

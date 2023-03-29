@@ -9,8 +9,6 @@
 
 ## 新特性
 
-v0.4版对底层代码作了较大重构，主要有4方面：
-
 - 使用ImGui作为界面库，不再依赖Qt
 
 - 统一2d/3d绘图接口并内置实现，不再依赖外部库
@@ -19,7 +17,7 @@ v0.4版对底层代码作了较大重构，主要有4方面：
 
 - 全面引入pipeline概念，支持复杂的数据流程
 
-目前，已基本重构0.3版功能。
+- 使用opengl及多实例渲染技术，支持百万量级数据的实时显示
 
 ## 使用
 
@@ -50,7 +48,11 @@ v0.4版对底层代码作了较大重构，主要有4方面：
 | [kfr](https://www.kfr.dev/) | 滤波器支持 | 内联 |
 | [kGraph](https://gitee.com/koala999/kgl) | pipeline和模块加载 | 内联 |
 | [libsndfile](http://libsndfile.github.io/libsndfile/) | 音频文件读写 | 内嵌子项目 |
+| [freetype（可选）](https://freetype.org/) | 字体显示 | 单独编译 |
 
 ## 编译
 
 编译器使用VC2019，预编译的64位依赖库可在[附件页面下载](https://gitee.com/koala999/data-vis/attach_files)。
+
+配置imconfig.h中的IMGUI_ENABLE_FREETYPE宏，可启用或禁用freetype库。
+
