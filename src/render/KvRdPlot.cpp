@@ -112,9 +112,6 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 			}
 		}
 	}
-
-	if (autoRange_)
-		fitRange_();
 }
 
 
@@ -255,6 +252,15 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 	}
 
 	return true;
+}
+
+
+void KvRdPlot::onNewFrame(int frameIdx)
+{
+	// 用户调整plot的维度映射之后，range也跟着变化，但目前没有好的机制检测到这种变化
+	// 所以每帧检测并更新range
+	if (autoRange_)
+		fitRange_();
 }
 
 

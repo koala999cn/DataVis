@@ -29,6 +29,8 @@ public:
 
 	void onInput(KcPortNode* outPort, unsigned inPort) override;
 
+	void onNewFrame(int frameIdx) override;
+
 	void showPropertySet() override;
 
 	void onDoubleClicked() override;
