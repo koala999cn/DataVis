@@ -316,7 +316,7 @@ bool KtAABB<T, DIM>::contains(const point_t& v) const
 	if (isNull())
 		return false;
 
-	return v.geAll(lower) && v.leAll(upper);
+	return v.ge(lower()) && v.le(upper());
 }
 
 template<typename T, int DIM>
@@ -328,7 +328,7 @@ bool KtAABB<T, DIM>::contains(const KtAABB& rhs) const
 	if (isNull())
 		return false;
 
-	return lower_.leAll(rhs.lower()) && upper_.geAll(rhs.upper()); 
+	return lower_.le(rhs.lower()) && upper_.ge(rhs.upper()); 
 }
 
 template<typename T, int DIM>

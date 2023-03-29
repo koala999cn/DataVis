@@ -32,7 +32,7 @@ unsigned KcVertexDeclaration::vertexSize() const
 }
 
 
-bool KcVertexDeclaration::hasSemantic(KcVertexAttribute::KeSemantic semantic) const
+bool KcVertexDeclaration::hasSemantic(int semantic) const
 {
 	for(unsigned i = 0; i < attributeCount(); i++)
 		if(getAttribute(i).semantic() == semantic)
@@ -94,6 +94,11 @@ void KcVertexDeclaration::declare() const
 
 	for (unsigned i = 0; i < attributeCount(); i++) {
 		auto& attr = getAttribute(i);
+		if (!attr.enabled()) {
+			glDisableVertexAttribArray(attr.location());
+			continue;
+		}
+
 		glEnableVertexAttribArray(attr.location());
 		int type = attr.baseType();
 		if (type == KcVertexAttribute::k_float)
@@ -106,11 +111,16 @@ void KcVertexDeclaration::declare() const
 			assert(false);
 		}
 
-		glVertexAttribPointer(attr.location(), attr.componentCount(), type, 
+		glVertexAttribPointer(attr.location(), attr.componentCount(), type,
 			attr.normalized() ? GL_TRUE : GL_FALSE, stride, ((char*)0) + attr.offset());
 
 		// 支持实例化渲染
-		if (attr.semantic() == KcVertexAttribute::k_instance)
+		if (attr.semantic() == KcVertexAttribute::k_instance) {
+			assert(glVertexAttribDivisor != nullptr);
 			glVertexAttribDivisor(attr.location(), attr.divisor());
+		}
+		else {
+			glVertexAttribDivisor(attr.location(), 0); // NB: 非常重要！否则上一次多实例的设置会影响后续opengl渲染（坐标轴的label为黑方块)
+		}
 	}
 }

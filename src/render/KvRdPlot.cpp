@@ -9,7 +9,6 @@
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KgPipeline.h"
 #include "imguix.h"
-#include "KuStrUtil.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
@@ -70,10 +69,25 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 		assert(prov->isSampled(outPort->index()) || 
 			prov->isArray(outPort->index())); // TODO: other types
 
-		auto xrange = plot_->coord().upper().x() - plot_->coord().lower().x();
-		streamData_[outPort] = streaming_(streamData_[outPort], data, xrange);
+		auto plt1d = dynamic_cast<KvPlottable1d*>(r.first->second);
+		auto xaxis = plt1d ? plt1d->dimAxis(0) : 0;
+		unsigned nx = -1;
+		if (xaxis > data->dim()) {
+			streamData_[outPort].reset();
+		}
+		else {
+			// TODO: 考虑分离坐标轴
+			auto xrange = plot_->coord().upper()[xaxis] - plot_->coord().lower()[xaxis];
+			auto samp = std::dynamic_pointer_cast<KvSampled>(data);
+			assert(samp && samp->step(0) > 0);
+			nx = xrange / samp->step(0);
+		}
+
+		streamData_[outPort] = streaming_(streamData_[outPort], data, nx);
 		data = streamData_[outPort];
 	}
+
+	//bool autoRange = r.first->second->empty();
 
 	if (data->channels() == 1 || numPlts == 1) {
 		r.first->second->setData(data);
@@ -98,6 +112,55 @@ void KvRdPlot::onInput(KcPortNode* outPort, unsigned inPort)
 			}
 		}
 	}
+
+	if (autoRange_)
+		fitRange_();
+}
+
+
+void KvRdPlot::fitRange_()
+{
+	typename KvCoord::point3
+		lower(std::numeric_limits<typename KvCoord::float_t>::max()),
+		upper(std::numeric_limits<typename KvCoord::float_t>::lowest());
+
+	auto inputs = KsImApp::singleton().pipeline().getInputs(id(), 0);
+	for (auto node : inputs) {
+		auto port = dynamic_cast<KcPortNode*>(node);
+		assert(port);
+
+		auto prov = std::dynamic_pointer_cast<KvDataProvider>(port->parent().lock());
+		assert(prov);
+
+		auto plts = port2Plts_.equal_range(port->id());
+		auto dim = plts.first->second->odim(); // TODO: 考虑分离坐标轴
+		if (dim == 0) dim = prov->dim(port->index());
+		std::vector<unsigned> dims(dim + 1);
+		for (unsigned i = 0; i <= dim; i++)
+			dims[i] = i;
+		auto plt1d = dynamic_cast<KvPlottable1d*>(plts.first->second);
+		if (plt1d) {
+			dims[0] = plt1d->xdim();
+			dims[1] = plt1d->ydim();
+			if (dim > 1)
+				dims[2] = plt1d->zdim();
+		}
+
+		for (unsigned i = 0; i <= dim; i++) {
+			auto r = prov->range(port->index(), dims[i]);
+			KuMath::uniteRange(lower[i], upper[i], r.low(), r.high());
+		}
+
+		// NB: 此处合并plottable的aabb，否则很多内部作了偏移的plottable不能正确显示（如热图，arrange模式等）
+		auto box = plts.first->second->boundingBox();
+		for (unsigned i = 0; i < 3; i++)
+			KuMath::uniteRange(lower[i], upper[i], box.lower()[i], box.upper()[i]);
+	}
+
+	if (lower.z() == std::numeric_limits<typename KvCoord::float_t>::max()) // 输入全是二维数据
+		lower.z() = upper.z() = 0;
+
+	plot_->coord().setExtents(lower, upper);
 }
 
 
@@ -144,34 +207,20 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 		return false;
 
 	plot_->removeAllPlottables();
-	plot_->autoFit() = true;
 	port2Plts_.clear(); 
 	streamData_.clear();
 
 	if (!ins.empty()) {
 		// 根据输入配置plot
 
-		typename KvCoord::point3 
-			lower(std::numeric_limits<typename KvCoord::float_t>::max()), 
-			upper(std::numeric_limits<typename KvCoord::float_t>::lowest());
-
 		for (unsigned i = 0; i < ins.size(); i++) {
 			auto port = ins[i].second;
+			auto portIdx = port->index();
 			auto node = port->parent().lock();
 			if (!node) continue;
 
 			auto prov = dynamic_cast<KvDataProvider*>(node.get());
 			assert(prov);
-			for (unsigned j = 0; j < std::min<unsigned>(prov->dim(port->index()) + 1, 3); j++) {
-				auto r = prov->range(port->index(), j);
-				if (lower[j] > r.low())
-					lower[j] = r.low();
-				if (upper[j] < r.high())
-					upper[j] = r.high();
-			}
-
-			if (lower.z() == std::numeric_limits<typename KvCoord::float_t>::max()) // 输入全是二维数据
-				lower.z() = upper.z() = 0; 
 
 			auto plts = createPlottable_(port);
 			if (plts.empty())
@@ -182,30 +231,26 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 				port2Plts_.insert(std::make_pair(port->id(), plt));
 			}
 
-			if (prov->isStream(port->index())) {
-				if (prov->dim(port->index()) == 1)
+			if (prov->isStream(portIdx)) {
+				if (prov->dim(portIdx) == 1)
 					streamData_[port] = std::make_shared<KcSampled1d>(
-						prov->step(port->index(), 0), 
-						prov->channels(port->index()));
-				else if (prov->dim(port->index()) == 2) {
+						prov->step(portIdx, 0),
+						prov->channels(portIdx));
+				else if (prov->dim(portIdx) == 2) {
 					auto data = std::make_shared<KcSampled2d>(
-						prov->step(port->index(), 0), 
-						prov->step(port->index(), 1), 
-						prov->channels(port->index()));
+						prov->step(portIdx, 0),
+						prov->step(portIdx, 1),
+						prov->channels(portIdx));
 
-					data->resize(0, prov->size(port->index(), 1));
+					data->resize(0, prov->size(portIdx, 1));
 					streamData_[port] = data;
 				}
 			}
-
-			// 如果有1个dynamic输入，则将autofit置false
-			plot_->autoFit() &= !prov->isDynamic(port->index());
 		}
 		
 		// update theme
 		updateTheme_();
 
-		plot_->coord().setExtents(lower, upper);
 		plot_->setVisible(true);
 	}
 
@@ -223,13 +268,13 @@ void KvRdPlot::showPropertySet()
 	ImGui::Separator();
 	showThemeProperty_();
 
+	ImGui::Separator();
+	showCoordProperty_();
+
 	if (plot_->plottableCount() > 0) {
 		ImGui::Separator();
 		showPlottableProperty_();
 	}
-
-	ImGui::Separator();
-	showCoordProperty_();
 
 	if (plot_->legend()->itemCount() > 0) {
 		ImGui::Separator();
@@ -259,41 +304,6 @@ void KvRdPlot::showPlotProperty_()
 		ImGui::EndDisabled();
 
 		ImGuiX::margins("Margins", plot_->margins());
-
-		auto& coord = plot_->coord();
-		auto lower = coord.lower();
-		auto upper = coord.upper();
-		auto speed = (upper - lower) * 0.001;
-		for (unsigned i = 0; i < speed.size(); i++)
-			if (speed.at(i) == 0) speed.at(i) = 1;
-		static const char* axisName[] = { "X Range", "Y Range", "Z Range" };
-		for (char i = 0; i < 3; i++) {
-			double val[2] = { lower[i], upper[i] };
-			if (ImGui::DragScalarN(axisName[i], ImGuiDataType_Double, val, 2, speed[i])
-				&& val[1] > val[0]) {
-				lower[i] = val[0], upper[i] = val[1];
-				coord.setExtents(lower, upper);
-				plot_->autoFit() = false;
-			}
-		}
-
-		const char* swapStr[] = { "No Swap", "Swap XY", "Swap XZ", "Swap YZ" };
-		if (ImGui::BeginCombo("Swap Axes", swapStr[coord.axisSwapped()])) {
-			unsigned c = plot_->dim() > 2 ? std::size(swapStr) : plot_->dim();
-			for (unsigned i = 0; i < c; i++)
-				if (ImGui::Selectable(swapStr[i], i == coord.axisSwapped()))
-					coord.swapAxis(KvCoord::KeAxisSwapStatus(i));
-
-			ImGui::EndCombo();
-		}
-
-		ImGui::Checkbox("Auto Fit", &plot_->autoFit());
-		const char* label[] = { "Invert X", "Invert Y", "Invert Z" };
-		for (int i = 0; i < plot_->dim(); i++) {
-			bool inv = coord.axisInversed(i);
-			if (ImGui::Checkbox(label[i], &inv))
-				coord.inverseAxis(i, inv);
-		}
 
 		bool anti = plot_->paint().antialiasing();
 		if (ImGui::Checkbox("Antialiasing", &anti))
@@ -384,24 +394,67 @@ void KvRdPlot::showThemeProperty_()
 
 void KvRdPlot::showCoordProperty_()
 {
-	if (ImGuiX::treePush("Axes", false)) {
+	if (ImGuiX::treePush("Coordinate System", false)) {
 
-		plot_->coord().forAxis([this](KcAxis& axis) {
-			showAxisProperty_(axis);
-			return true;
-			});
+		auto& coord = plot_->coord();
+		if (ImGui::Checkbox("Auto Range", &autoRange_) && autoRange_)
+			fitRange_();
+		ImGui::SameLine();
+		if (ImGui::Button("Fit Data")) {
+			plot_->fitData();
+			autoRange_ = false;
+		}
 
-		ImGuiX::treePop();
-	}
+		auto lower = coord.lower();
+		auto upper = coord.upper();
+		auto speed = (upper - lower) * 0.001;
+		for (unsigned i = 0; i < speed.size(); i++)
+			if (speed.at(i) == 0) speed.at(i) = 1;
+		static const char* axisName[] = { "X Range", "Y Range", "Z Range" };
+		for (char i = 0; i < 3; i++) {
+			double val[2] = { lower[i], upper[i] };
+			if (ImGui::DragScalarN(axisName[i], ImGuiDataType_Double, val, 2, speed[i])
+				&& val[1] > val[0]) {
+				lower[i] = val[0], upper[i] = val[1];
+				coord.setExtents(lower, upper);
+				autoRange_ = false;
+			}
+		}
 
-	ImGui::Separator();
+		const char* label[] = { "Invert X", "Invert Y", "Invert Z" };
+		for (int i = 0; i < plot_->dim(); i++) {
+			bool inv = coord.axisInversed(i);
+			if (ImGui::Checkbox(label[i], &inv))
+				coord.inverseAxis(i, inv);
+		}
 
-	if (ImGuiX::treePush("Planes", false)) {
+		const char* swapStr[] = { "No Swap", "Swap XY", "Swap XZ", "Swap YZ" };
+		if (ImGui::BeginCombo("Swap Axes", swapStr[coord.axisSwapped()])) {
+			unsigned c = plot_->dim() > 2 ? std::size(swapStr) : plot_->dim();
+			for (unsigned i = 0; i < c; i++)
+				if (ImGui::Selectable(swapStr[i], i == coord.axisSwapped()))
+					coord.swapAxis(KvCoord::KeAxisSwapStatus(i));
 
-		plot_->coord().forPlane([this](KcCoordPlane& plane) {
-			showPlaneProperty_(plane);
-			return true;
-			});
+			ImGui::EndCombo();
+		}
+
+		if (ImGuiX::treePush("Axes", false)) {
+			plot_->coord().forAxis([this](KcAxis& axis) {
+				showAxisProperty_(axis);
+				return true;
+				});
+			ImGuiX::treePop();
+		}
+
+		ImGui::Separator();
+
+		if (ImGuiX::treePush("Planes", false)) {
+			plot_->coord().forPlane([this](KcCoordPlane& plane) {
+				showPlaneProperty_(plane);
+				return true;
+				});
+			ImGuiX::treePop();
+		}
 
 		ImGuiX::treePop();
 	}
@@ -1076,11 +1129,11 @@ namespace kPrivate
 	}
 
 	template<int DIM>
-	static std::shared_ptr<KvData> streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, double xrange)
+	static std::shared_ptr<KvData> streaming_(std::shared_ptr<KvData> curData, std::shared_ptr<KvData> newData, unsigned nx)
 	{
 		auto samp = std::dynamic_pointer_cast<KtSampledArray<DIM>>(curData);
 
-		if (xrange == 0) {
+		if (nx == 0) {
 			samp->clear();
 			return samp;
 		}
@@ -1093,20 +1146,19 @@ namespace kPrivate
 		}
 
 		/// 滑动数据
-		auto cnt = xrange / samp->step(0);
 		auto sampArray = std::dynamic_pointer_cast<KtSampledArray<DIM>>(newData);
 		if (sampArray) { // 使用快速版本
-			samp->shift(*sampArray, cnt);
+			samp->shift(*sampArray, nx);
 		}
 		else { // 使用通用版本
-			samp->shift(*std::dynamic_pointer_cast<KvSampled>(newData), cnt);
+			samp->shift(*std::dynamic_pointer_cast<KvSampled>(newData), nx);
 		}
 
 		return samp;
 	}
 }
 
-KvRdPlot::data_ptr KvRdPlot::streaming_(data_ptr curData, data_ptr newData, double xrange)
+KvRdPlot::data_ptr KvRdPlot::streaming_(data_ptr curData, data_ptr newData, unsigned nx)
 {
 	// NB: curData可能为null（当数据源由static变为stream时）
 
@@ -1114,9 +1166,9 @@ KvRdPlot::data_ptr KvRdPlot::streaming_(data_ptr curData, data_ptr newData, doub
 		return curData;
 
 	if (newData->dim() == 1)
-		return kPrivate::streaming_<1>(curData, newData, xrange);
+		return kPrivate::streaming_<1>(curData, newData, nx);
 	else if (newData->dim() == 2)
-		return kPrivate::streaming_<2>(curData, newData, xrange);
+		return kPrivate::streaming_<2>(curData, newData, nx);
 	else {
 		assert(false);
 	}

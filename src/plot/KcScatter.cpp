@@ -3,55 +3,53 @@
 #include "KvData.h"
 
 
+void KcScatter::setData(const_data_ptr d)
+{
+	super_::setData(d);
+	dimSizeVarying_ = odim();
+}
+
+
+unsigned KcScatter::objectCount() const
+{ 
+	return empty() ? 0 : channels_();
+} 
+
+
 bool KcScatter::objectVisible_(unsigned objIdx) const
 {
-	if (objIdx == 1)
-		return showLine_ && lineCxt_.visible();
-	else
-		return true;
+	return marker_.visible();
 }
 
 
 void KcScatter::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
-	if (objIdx == 1) { // line
-		paint->apply(lineCxt_);
-	}
-	else { // marker
-		paint->apply(marker_);
-		paint->setEdged(marker_.showOutline && marker_.hasOutline() && marker_.outline.a() > 0);
-	}
+	paint->apply(marker_);
+	if (coloringMode() == k_one_color_solid)
+		paint->setColor(majorColor(objIdx));
 }
 
 
 void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
-	auto ch = objIdx / 2;
+	auto g = pointsAt_(objIdx);
 
-	if (objIdx == 1) {
-		for (kIndex ch = 0; ch < odata()->channels(); ch++) {
-			paint->setColor(majorColor(ch)); // 线段不渐变
-			for (unsigned i = 0; i < linesPerChannel_(); i++) {
-				auto g = lineAt_(ch, i);
-				paint->drawLineStrip(toPoint3Getter_(g.getter, ch), g.size);
-			}
-		}
-	}
-	else {
-		for (kIndex ch = 0; ch < odata()->channels(); ch++) {
-			for (unsigned i = 0; i < linesPerChannel_(); i++) {
-				auto g = lineAt_(ch, i);
-				for (unsigned i = 0; i < g.size; i++) {
-					auto val = g.getter(i);
-					paint->setColor(mapValueToColor_(val.data(), ch)); // 支持渐变色
-					auto pt = toPoint_(val.data(), ch);
-					paint->drawMarker({ pt[0], pt[1], pt[2] });
-				}
-			}
-		}
+	KvPaint::color_getter coloring = nullptr;
+	if (coloringMode() != k_one_color_solid) {
+		coloring = [g, objIdx, this](unsigned i) {
+			auto val = g.getter(i);
+			return mapValueToColor_(val.data(), objIdx);
+		};
 	}
 
-	return nullptr; // 目前不支持vbo复用
+	KvPaint::size_getter sizing = nullptr;
+	if (sizeVarying_) {
+		sizing = [g, this](unsigned i) {
+			return mapValueToSize_(g.getter(i)[sizeVaryingDim()]);
+		};
+	}
+
+	return paint->drawMarkers(toPoint3Getter_(g.getter, objIdx), coloring, sizing, g.size);;
 }
 
 
@@ -64,4 +62,76 @@ const color4f& KcScatter::minorColor() const
 void KcScatter::setMinorColor_(const color4f& minor)
 {
 	marker_.outline = minor;
+}
+
+
+float KcScatter::mapValueToSize_(float_t val) const
+{
+	auto r = odata()->range(dimSizeVarying_);
+
+	if (!sizeVaryingByArea())
+		return KuMath::remap<float_t, true>(val, r.low(), r.high(),
+			sizeLower_, sizeUpper_);
+
+	auto factor = KuMath::remap<float_t, true>(val, r.low(), r.high(),
+		sizeLower_ * float_t(sizeLower_), sizeUpper_ * float_t(sizeUpper_));
+
+	return std::sqrt(factor);
+}
+
+
+void KcScatter::setSizeVarying(bool b)
+{
+	sizeVarying_ = b;
+	setDataChanged(false);
+}
+
+
+void KcScatter::setSizeVaryingDim(unsigned d)
+{
+	assert(d <= odim());
+	dimSizeVarying_ = d;
+	if (sizeVarying_) setDataChanged(false);
+}
+
+
+void KcScatter::setSizeVaryingByArea(bool b)
+{ 
+	varyingByArea_ = b;
+	if (sizeVarying_) setDataChanged(false);
+}
+
+
+void KcScatter::setSizeLower(float s)
+{
+	sizeLower_ = s;
+	if (sizeVarying_) setDataChanged(false);
+}
+
+
+void KcScatter::setSizeUpper(float s)
+{
+	sizeUpper_ = s;
+	if (sizeVarying_) setDataChanged(false);
+}
+
+
+KuDataUtil::KpPointGetter1d KcScatter::pointsAt_(unsigned ch) const
+{
+	auto lineSize = sizePerLine_();
+	std::vector<GETTER> lines(linesPerChannel_());
+
+	for (unsigned i = 0; i < lines.size(); i++) {
+		auto g = lineAt_(ch, i);
+		assert(lineSize == g.size);
+		lines[i] = g.getter;
+	}
+
+	KuDataUtil::KpPointGetter1d g;
+	g.size = lines.size() * lineSize;
+	g.getter = [lines, lineSize](unsigned idx) {
+		return lines[idx / lineSize](idx% lineSize);
+	};
+
+	return g;
 }

@@ -9,7 +9,7 @@ class KcGlslProgram;
 class KcVertexDeclaration;
 
 
-// 封装待渲染对象：包括vbo、shader等
+// 封装待渲染对象：支持多vbo、多ibo和多实例
 
 class KcRenderObject
 {
@@ -21,7 +21,6 @@ public:
 
 	KcRenderObject(const KcRenderObject& rhs);
 
-	~KcRenderObject();
 
 	std::shared_ptr<KcGlslProgram> shader() const {
 		return prog_;
@@ -39,22 +38,18 @@ public:
 		return vbos_[idx].decl;
 	}
 
-	void pushVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl) {
-		resetVao_();
-		vbos_.push_back({ vbo, vtxDecl });
-		calcInst_();
-	}
+	void pushVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl);
 
 	std::shared_ptr<KcGpuBuffer> ibo(unsigned idx) const {
 		return ibos_[idx].buf;
 	}
 
-	void pushIbo(KePrimitiveType type, std::shared_ptr<KcGpuBuffer> ibo, unsigned count, unsigned start = 0) {
-		ibos_.push_back({ type, ibo, count, start });
+	void pushIbo(KePrimitiveType type, std::shared_ptr<KcGpuBuffer> ibo, unsigned count) {
+		ibos_.push_back({ type, ibo, count });
 	}
 
-	void pushIbo(std::shared_ptr<KcGpuBuffer> ibo, unsigned count, unsigned start = 0) {
-		pushIbo(type_, ibo, count, start);
+	void pushIbo(std::shared_ptr<KcGpuBuffer> ibo, unsigned count) {
+		pushIbo(type_, ibo, count);
 	}
 
 	auto& projMatrix() const { return projMat_; }
@@ -76,6 +71,11 @@ public:
 	virtual KcRenderObject* clone() const;
 
 	bool hasColor() const;
+	bool hasUV() const;
+	bool hasNormal() const;
+	bool hasInst() const;
+
+	bool hasSemantic(int semantic) const;
 
 protected:
 
@@ -85,8 +85,6 @@ protected:
 
 	// 拷贝当前对象的属性到obj
 	void cloneTo_(KcRenderObject& obj) const;
-
-	void resetVao_();
 
 	void calcInst_();
 
@@ -103,7 +101,6 @@ protected:
 		KePrimitiveType type; // 允许每个ibo使用不同的类型绘制
 		std::shared_ptr<KcGpuBuffer> buf;
 		unsigned count{ 0 };
-		unsigned start{ 0 };
 	};
 
 	KePrimitiveType type_;
@@ -114,5 +111,4 @@ protected:
 	aabb_t clipBox_;
 	float4 color_{ 1, 0, 0, 1 };
 	unsigned instances_{ 0 }; // 实例数目
-	mutable unsigned vaoId_{ 0 };
 };

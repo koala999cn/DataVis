@@ -295,7 +295,7 @@ void KcImPaint::drawLine(const point3& from, const point3& to)
 }
 
 
-void* KcImPaint::drawLineStrip(point_getter1 fn, unsigned count)
+void* KcImPaint::drawLineStrip(point_getter fn, unsigned count)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 
@@ -322,7 +322,7 @@ void* KcImPaint::drawLineStrip(point_getter1 fn, unsigned count)
 void KcImPaint::drawRect(const point3& lower, const point3& upper)
 {
 	auto drawList = ImGui::GetWindowDrawList();
-	drawList->AddRect(project_(lower, true), project_(upper, true), color_());
+	drawList->AddRect(project_(lower, true), project_(upper, true), color_(), 0, 0, lineWidth_);
 }
 
 
@@ -370,7 +370,7 @@ void KcImPaint::fillQuad(point3 pts[4])
 }
 
 
-void KcImPaint::fillConvexPoly(point_getter1 fn, unsigned count)
+void KcImPaint::fillConvexPoly(point_getter fn, unsigned count)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 
@@ -384,7 +384,7 @@ void KcImPaint::fillConvexPoly(point_getter1 fn, unsigned count)
 
 
 // 基于imgui的优化实现
-void* KcImPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned count)
+void* KcImPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	int vxt_count = count * 2 + count - 1; // 最多可能有count-1个交点

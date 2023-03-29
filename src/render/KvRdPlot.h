@@ -115,7 +115,10 @@ protected:
 	void updateTheme_();
 
 	using data_ptr = std::shared_ptr<KvData>;
-	static data_ptr streaming_(data_ptr curData, data_ptr newData, double xrange);
+	static data_ptr streaming_(data_ptr curData, data_ptr newData, unsigned nx);
+
+	// 根据inputs的range，自动设置plot的坐标轴extend
+	void fitRange_();
 
 protected:
 	std::shared_ptr<KvPlot> plot_;
@@ -128,5 +131,7 @@ protected:
 	std::pair<std::string, std::string> curTheme_[4];
 
 	bool splitChannels_{ false }; // 多通道数据是创建1个还是多个plt？ 
+
+	bool autoRange_{ true };
 
 };

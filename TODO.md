@@ -1,3 +1,12 @@
+## overall
+- [ ] 增加图标
+   https://github.com/FortAwesome/Font-Awesome & https://github.com/mnesarco/bawr）
+   https://www.microsoft.com/en-us/download/details.aspx?id=35825
+   https://github.com/godotengine/godot/tree/master/editor/icons
+- [ ] 本地化（参考godot）
+- [ ] Undo/Redo（参考 https://github.com/ocornut/imgui/issues/1875）
+
+
 ## provider
 - [ ] 支持hdf5, xlsx数据源
 - [ ] binary data loader
@@ -14,11 +23,13 @@
 - [ ] 测试spectrum的options的sampleRate一致性
 - [x] sampler的采样率动态更改后，输出没有更新 -> 主要是audioplay没有对输入重采样，也没有变换设备频率
 - [ ] 完善kde（参考https://github.com/timnugent/kernel-density）
+- [ ] 检测kde结果的正确性（https://pythonawesome.com/plotting-beautiful-ridgeline-plots-in-python/）
 
 ## plot
 - [ ] title等设置
 - [ ] 各种类型的axis
 - [ ] 分离axis
+- [ ] 文字渲染系统（参考https://github.com/mosra/magnum/tree/master/src/Magnum/Text）
 - [x] x轴与y轴的交换 --> ok
 - [x] plot3d的legend布局 --> ok
 - [x] colorbar --> ok
@@ -50,9 +61,9 @@
 - [x] ridgeplot
 - [x] 密度图（参考ggplot2的geom_density）-> 实现operator KDE
 - [ ] 色带编辑器美化（参考https://github.com/CoolLibs/imgui_gradient & https://github.com/effekseer/ImGradientHDR）
-- [ ] plot的autorange由KvRdPlot负责，根据provider调整，而非data
+- [x] plot的autorange由KvRdPlot负责，根据provider调整，而非data
 - [x] paddingStacked的语义一致性
-- [ ] text支持vbo重用
+- [x] text支持vbo重用
 - [x] 完善clip的rect修订，legend的border的有的边会被非正常剪切 --> 绘制item时才设置clip
 - [x] 完善bars2d的padding设置（是否使用像素值？）
 - [ ] range太大时axis不能正常定位tick和label
@@ -65,9 +76,15 @@
 - [ ] heatmap的维度映射
 - [x] arrange模式增加zshift实现
 - [ ] 面积图支持below & above控制项（参考https://gnuplot.sourceforge.net/demo/fillbetween.html）
+- [x] 散点图支持渐变色
+- [x] 散点图兼容气泡图
+- [x] 散点图的告示牌模式
+- [x] text复用情况下的状态同步：①变换矩阵设置，②保持恒定尺寸
+- [ ] 散点图启用size varying之后的性能问题（以wav.txt为例）
+- [ ] plot3d的colorbar布局问题
 
 ## theme
-- [ ] 更多theme，SCI等
+- [ ] 更多theme，SCI、ggthemes等
 - [ ] 进一步规范化specification
 - [ ] 完善plot2d和plot3d的layout主题
 - [x] 各要素的可见性设置不改变linesyle和alpha等属性 
@@ -84,6 +101,10 @@
 - [ ] 更全面地测试数据维度和通道数等发生变化的情况
 
 ## FIXME
+- [ ] 启用多重采样之后，程序启动短暂白屏 --> 貌似和多重采样无关
+- [x] graph和scatter对arrange模式的支持
+- [x] box和andrews曲线的鲁棒性（渲染samp1d数据导致致命错误）--> setData中没有及时output
+- [x] 散点图在plot3d下干扰imgui绘制 --> ok （未恢复多实例渲染状态，即重置glVertexAttribDivisor）
 - [x] 使用layout系统后，plot的axis留白出现问题（tick-label超出coord的innerRect区域）
 - [x] colorbar的axis留白同步
 - [x] 三维坐标系下，虚线的绘制（ImGui）在旋转到特定方向时会出现错位 --> 使用opengl绘制后，该问题没再出现，估计由于计算误差引起

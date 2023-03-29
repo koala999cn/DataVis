@@ -5,12 +5,16 @@
 
 void KvPlottable2d::setData(const_data_ptr d)
 {
+	bool updateDimMapping = !idata() || idata()->dim() != d->dim();
+
 	super_::setData(d);
 
 	// µ÷ÕûÎ¬¶ÈÓ³Éä
-	setXdim(odim() - 2);
-	setYdim(odim() - 1);
-	setZdim(odim());
+	if (updateDimMapping) {
+		setXdim(odim() - 2);
+		setYdim(odim() - 1);
+		setZdim(odim());
+	}
 }
 
 
@@ -44,8 +48,13 @@ void KvPlottable2d::setObjectState_(KvPaint* paint, unsigned objIdx) const
 	paint->setFilled(filled_);
 	paint->setEdged(edged);
 
-	if (edged)
+	if (edged) {
 		paint->apply(borderPen());
+		paint->setSecondaryColor(borderPen().color);
+	}
+
+	if (coloringMode() == k_one_color_solid)
+		paint->setColor(majorColor(objIdx));
 }
 
 

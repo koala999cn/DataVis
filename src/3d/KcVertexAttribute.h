@@ -85,6 +85,9 @@ public:
 
 	bool normalized() const;
 
+	bool enabled() const { return enabled_; }
+	void enable(bool b) { enabled_ = b; }
+
 private:
 
 	/// The meaning of the attribute
@@ -115,4 +118,6 @@ private:
 	/// Use 0 for convenience to define the current attribute directly after the previous one, 
 	/// including any packing if necessary. 
 	unsigned bytesOffset_{ 0 };
+
+	bool enabled_{ true };
 };

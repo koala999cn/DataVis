@@ -1,6 +1,6 @@
 #pragma once
 #include "KvPlottable.h"
-#include "KvPaint.h" // for KvPaint::point_getter1
+#include "KvPaint.h" // for KvPaint::point_getter
 #include "KuDataUtil.h"
 #include <map>
 
@@ -25,7 +25,7 @@ protected:
 	using GETTER = std::function<std::vector<float_t>(unsigned ix)>;
 
 	// 将GETTER变量转换为KvPaint需要的函数型
-	typename KvPaint::point_getter1 toPoint3Getter_(GETTER g, unsigned channel) const;
+	typename KvPaint::point_getter toPoint3Getter_(GETTER g, unsigned channel) const;
 
 
 	// 返回每个通道包含的1d数据数目. 
@@ -54,6 +54,9 @@ public:
 	unsigned xdim() const { return axisDim_[0]; } // 返回x轴对应的数据维度
 	unsigned ydim() const { return axisDim_[1]; } // 返回y轴对应的数据维度
 	unsigned zdim() const { return axisDim_[2]; } // 返回z轴对应的数据维度
+
+	// 返回维度d被映射到的坐标轴: 0表示x轴，1表示y轴，2表示z轴，-1表示未被映射
+	unsigned dimAxis(unsigned d) const;
 
 	// 根据arrange模式返回偏移坐标轴，group模式返回0，ridge模式返回1，facet模式返回2，其他返回-1
 	// @mapDim: 若true，则返回xdim, ydim, zdim，而非0, 1, 2

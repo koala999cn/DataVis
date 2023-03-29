@@ -55,7 +55,7 @@ protected:
 template<class KReal, bool RAY>
 KReal KtLine<KReal, RAY>::squaredDistanceTo(const point3& pt)
 {
-	auto diff = pt - point_; // P-B
+	vec3 diff = pt - point_; // P-B
 	auto t0 = diff.dot(dir_); // M(P-B)
 	if (t0 > 0)
 		diff -= dir_ * t0; // P-B-t0M

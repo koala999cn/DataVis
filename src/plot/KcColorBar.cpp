@@ -80,7 +80,7 @@ void KcColorBar::draw(KvPaint* paint) const
 
     // draw border
     if (showBorder_) {
-        paint->setColor({ 0, 0, 0, 1 });
+        paint->apply(border_);
         paint->drawRect(box);
     }
 

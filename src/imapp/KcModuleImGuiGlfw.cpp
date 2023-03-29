@@ -67,15 +67,19 @@ bool KcModuleImGuiGlfw::initGl_()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 #else
-    // GL 3.0 + GLSL 130
+    // GL 3.3 + GLSL 130
+    // NB: 初始化opengl 3.3，以便使用多实例渲染功能
     glslVer_ = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+    // NB: 为了确保3.3版本下固定管线可用
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); // 3.2+ only
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_SAMPLES, 4); // 启用多重采样
 
     // Create window with graphics context
     auto window = glfwCreateWindow(width_, height_, title_.c_str(), nullptr, nullptr);
@@ -103,8 +107,13 @@ bool KcModuleImGuiGlfw::initGl_()
         return false;
     }
 
-    const GLubyte* vendor = glGetString(GL_VENDOR);
-    const GLubyte* renderer = glGetString(GL_RENDERER);
+    auto vendor = glGetString(GL_VENDOR);
+    auto renderer = glGetString(GL_RENDERER);
+    auto ver = glGetString(GL_VERSION);
+    auto ext = glGetString(GL_EXTENSIONS);
+
+    //if (!GLAD_GL_VERSION_3_3)
+     //   return false;
 
     glfwWin_ = window;
 

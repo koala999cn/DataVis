@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <memory>
 #include "KtSingleton.h"
 
@@ -20,50 +21,61 @@ public:
 	using shader_ptr = std::shared_ptr<KcGlslShader>;
 	using program_ptr = std::shared_ptr<KcGlslProgram>;
 
-	// 单色顶点着色，总是flat模式
-	// 所有顶点同色，颜色值由uniform变量vColor确定
-	// attr = pos
-	// uniform = matMvp + vColor
-	shader_ptr vsMono();
+	enum KeType
+	{
+		k_mono      = 0x0000,
+		k_color     = 0x0001,
+		k_uv        = 0x0002,
+		k_normal    = 0x0004,
 
-	// 多色顶点着色，区分flat和smooth模式
-	// 各顶点异色，颜色值由attribute确定
-	// attr = pos + color
-	// uniform = matMvp
-	shader_ptr vsColor(bool flat);
+		k_instance  = 0x0010,
 
-	// 多色+纹理顶点着色，区分flat和smooth模式
-	// attr = pos + color + uv
-	// uniform = matMvp
-	shader_ptr vsColorUV(bool flat);
+		k_flat      = 0x1000,
+		k_clipbox   = 0x2000,
+		k_frag      = 0x8000, // 用以区分vs和fs
 
-	// 单色光照着色，区分flat和smooth模式
-	// attr = pos + normal
-	// uniform = matMvp + matNormal + vColor
-	shader_ptr vsMonoLight(bool flat);
+		k_vs_mask   = k_color | k_uv | k_normal | k_instance | k_flat | k_clipbox,
+		k_fs_mask   = k_color | k_uv | k_flat,
+		k_prog_mask = k_vs_mask
+	};
 
-	// 直通片段着色，out-color = in-color
-	// 区分flat和smooth模式
-	shader_ptr fsNavie(bool flat);
-
-	// 多色 + 纹理片段着色，区分flat和smooth模式
-	// out-color = in-color * tex(uv)
-	shader_ptr fsColorUV(bool flat);
+	// assert(!(type & (k_flat | k_clipbox)));
+	program_ptr fetchProg(int type, bool flat, bool hasClipBox);
 
 	// vsMono() + fsNavie(true)
-	program_ptr progMono();
+	program_ptr progMono(bool hasClipBox) {
+		return fetchProg(k_mono, true, hasClipBox);
+	}
 
 	// vsColor(flat) + fsNavie(flat)
-	program_ptr progColor(bool flat);
+	program_ptr progColor(bool flat, bool hasClipBox) {
+		return fetchProg(k_color, flat, hasClipBox);
+	}
+
+	program_ptr progUV(bool hasClipBox) {
+		return fetchProg(k_uv, true, hasClipBox);
+	}
 
 	// vsColorUV(flat) + fsColorUV(flat)
-	program_ptr progColorUV(bool flat);
+	program_ptr progColorUV(bool flat, bool hasClipBox) {
+		return fetchProg(k_color | k_uv, flat, hasClipBox);
+	}
+
+	// vsMonoInst() + fsNavie(true)
+	program_ptr progMonoInst(bool hasClipBox) {
+		return fetchProg(k_mono | k_instance, true, hasClipBox);
+	}
+
+	// vsColorInst() + fsNavie(true)
+	program_ptr progColorInst(bool flat, bool hasClipBox) {
+		return fetchProg(k_color | k_instance, flat, hasClipBox);
+	}
 
 	// vsMonoLight(flat) + fsNavie(flat)
-	program_ptr progMonoLight(bool flat);
+	program_ptr progMonoLight(bool flat, bool hasClipBox) {
+		return fetchProg(k_normal, flat, hasClipBox);
+	}
 
-	// 辅助函数，用于定位program的flat版本
-	program_ptr flatVersion(const program_ptr& prog, bool flat);
 
 private:
 	KsShaderManager() = default;
@@ -72,21 +84,55 @@ private:
 	KsShaderManager(const KsShaderManager&) = delete;
 	void operator=(const KsShaderManager&) = delete;
 
-	// 2个帮助函数
-	static shader_ptr createShader_(int type, const char* source, bool flat);
-	static program_ptr createProg_(program_ptr& out, const shader_ptr& vs, const shader_ptr& fs);
+	// 单色顶点着色，总是flat模式
+	// 所有顶点同色，颜色值由uniform变量vColor确定
+	// attr = pos
+	// uniform = matMvp + vColor
+	static const char* vsMono_();
+
+	// 多色顶点着色，区分flat和smooth模式
+	// 各顶点异色，颜色值由attribute确定
+	// attr = pos + color
+	// uniform = matMvp
+	static const char* vsColor_();
+
+	// 纹理顶点着色
+	// attr = pos + uv
+	// uniform = matMvp
+	static const char* vsUV_();
+
+	// 多色+纹理顶点着色，区分flat和smooth模式
+	// attr = pos + color + uv
+	// uniform = matMvp
+	static const char* vsColorUV_();
+
+	// 多实例绘制的单色顶点着色
+	// attr = pos(float3) + offset(float3, instanced) + color(float4, instanced) + scale(float, instanced)
+	// uniform = matMvp(float4x4) + color(float4) + scale(float3)
+	static const char* vsInst_();
+
+	static const char* vsInstUV_();
+
+	// 单色光照着色，区分flat和smooth模式
+	// attr = pos + normal
+	// uniform = matMvp + matNormal + vColor
+	static const char* vsMonoLight_();
+
+	// 直通片段着色，out-color = in-color
+	// 区分flat和smooth模式
+	static const char* fsNavie_();
+
+	// 纹理片段着色
+	// out-color = in-color * tex(uv)
+	static const char* fsUV_();
+
+	shader_ptr fetchShader_(int type);
+
+	// 根据flat和hasClipBox参数，装饰改传入的vs代码source，并返回修改后的结果
+	static std::string decorateVertexShader_(const char* source, bool flat, bool hasClipBox);
+	static std::string decorateFragShader_(const char* source, bool flat);
 
 private:
-	
-	shader_ptr vsMono_;
-	shader_ptr vsColor_[2];
-	shader_ptr vsColorUV_[2];
-	shader_ptr vsMonoLight_[2];
-	shader_ptr fsNavie_[2];
-	shader_ptr fsColorUV_[2];
-
-	program_ptr progMono_;
-	program_ptr progColor_[2];
-	program_ptr progColorUV_[2]; 
-	program_ptr progMonoLight_[2];
+	std::map<int, shader_ptr> shaders_;
+	std::map<int, program_ptr> progs_;
 };

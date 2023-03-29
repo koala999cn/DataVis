@@ -206,14 +206,45 @@ namespace kPrivate
 		else if (dynamic_cast<KcScatter*>(plt)) {
 			auto scat = dynamic_cast<KcScatter*>(plt);
 			if (ImGuiX::treePush("Marker", false)) {
-				ImGuiX::marker(scat->marker());
+				auto m = scat->marker();
+				if (ImGuiX::marker(m))
+					scat->setMarker(m);
 				ImGuiX::treePop();
 			}
 
+			ImGui::BeginDisabled(scat->marker().type == KpMarker::k_dot);
+
 			bool open(false);
-			ImGuiX::cbTreePush("Line", &scat->showLine(), &open);
+			bool varyingSize = scat->sizeVarying();
+			if (ImGuiX::cbTreePush("Size Varying", &varyingSize, &open))
+				scat->setSizeVarying(varyingSize);
+			
 			if (open) {
-				ImGuiX::pen(scat->linePen(), true, false);
+				int dim = scat->sizeVaryingDim();
+				if (ImGui::SliderInt("Varying Dim", &dim, 0, scat->odim())) {
+					dim = KuMath::clamp<int>(dim, 0, scat->odim());
+					scat->setSizeVaryingDim(dim);
+				}
+
+				float lower = scat->sizeLower();
+				float upper = scat->sizeUpper();
+				if (ImGui::DragFloatRange2("Varying Range", &lower, &upper, 0.1, 3, 33, "%.1f")) {
+					scat->setSizeLower(lower);
+					scat->setSizeUpper(upper);
+				}
+					
+				bool varyingByArea = scat->sizeVaryingByArea();
+				if (ImGui::Checkbox("Varying by Area", &varyingByArea))
+					scat->setSizeVaryingByArea(varyingByArea);
+				ImGuiX::cbTreePop();
+			}
+
+			ImGui::EndDisabled();
+
+			ImGuiX::cbTreePush("Text", &scat->showText(), &open);
+			if (open) {
+				ImGui::ColorEdit4("Text Color", scat->textColor());
+				ImGui::ShowFontSelector("Font");
 				ImGuiX::cbTreePop();
 			}
 		}

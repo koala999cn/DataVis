@@ -90,9 +90,6 @@ void KvPlot::removeAllPlottables()
 
 void KvPlot::update()
 {
-	if (autoFit_ && !plottables_.empty())
-		fitData();
-
 	auto axisSwapped = coord_->axisSwapped();
 	if (axisSwapped)
 		paint_->pushLocal(coord_->axisSwapMatrix()); // 先压入坐标轴交换矩阵，autoProject_要用
@@ -108,7 +105,7 @@ void KvPlot::update()
 	paint_->popCoord();
 
 	updateLayout_(rc);
-	if (innerRect().volume() == 0) { // 某个维度为0尺寸布局，不绘制
+	if (innerRect().volume() == 0) { // 某个维度的布局尺寸为0，不绘制
 		paint_->endPaint();
 		return;
 	}
@@ -120,9 +117,10 @@ void KvPlot::update()
 
 	coord_->draw(paint_.get());
 
-	auto axisInversed = coord_->axisInversed();
-	if (axisInversed)
+	if (coord_->axisInversed()) {
 		paint_->pushLocal(coord_->axisInverseMatrix());
+		++locals;
+	}
 
 	if (dim() == 3)
 		paint_->enableClipBox(coord_->lower(), coord_->upper());
@@ -132,13 +130,7 @@ void KvPlot::update()
 	if (dim() == 3)
 		paint_->disableClipBox();
 
-	if (axisInversed)
-		paint_->popLocal();
-
-	if (axisSwapped)
-		paint_->popLocal();
-
-	for (int i = 0; i < locals; i++)
+	for (int i = 0; i < locals + axisSwapped; i++)
 	    paint_->popLocal();
 
 	// draw legend
@@ -209,6 +201,22 @@ int KvPlot::fixPlotView_()
 }
 
 
+namespace kPrivate
+{
+	static void fixInf(double& val)
+	{
+		// NB: 数值太大的话，axis绘制会“飞”
+		constexpr typename KvRenderable::float_t maxV = 1e99; // std::numeric_limits<KvRenderable::float_t>::max() / 10.;
+		constexpr typename KvRenderable::float_t minV = -1e99; // std::numeric_limits<KvRenderable::float_t>::lowest() / 10.;
+
+		if (val == -KuMath::inf<KvRenderable::float_t>())
+			val = minV;
+		else if (val == KuMath::inf<KvRenderable::float_t>())
+			val = maxV;
+	}
+}
+
+
 void KvPlot::fitData()
 {
 	typename KvRenderable::aabb_t box;
@@ -221,19 +229,8 @@ void KvPlot::fitData()
 	for (int i = 0; i < 3; i++) {
 		assert(!std::isnan(box.lower()[i]) && !std::isnan(box.upper()[i]));
 
-		// NB: 数值太大的话，axis绘制会“飞”
-		constexpr typename KvRenderable::float_t maxV = 1e99; // std::numeric_limits<KvRenderable::float_t>::max() / 10.;
-		constexpr typename KvRenderable::float_t minV = -1e99; // std::numeric_limits<KvRenderable::float_t>::lowest() / 10.;
-
-		if (box.lower()[i] == -KuMath::inf<KvRenderable::float_t>())
-			box.lower()[i] = minV;
-		else if (box.lower()[i] == KuMath::inf<KvRenderable::float_t>())
-			box.lower()[i] = maxV;
-
-		if (box.upper()[i] == -KuMath::inf<KvRenderable::float_t>())
-			box.upper()[i] = minV;
-		else if (box.upper()[i] == KuMath::inf<KvRenderable::float_t>())
-			box.upper()[i] = maxV;
+		kPrivate::fixInf(box.lower()[i]);
+		kPrivate::fixInf(box.upper()[i]);
 
 		if (box.lower()[i] == box.upper()[i]) {
 			box.lower()[i] -= 1;

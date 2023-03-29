@@ -21,6 +21,8 @@ public:
 
     void bind() const;
 
+    void unbind() const;
+
     unsigned bytesCount() const { return bytes_; }
 
     void destroy();

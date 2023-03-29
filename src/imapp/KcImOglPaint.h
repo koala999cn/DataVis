@@ -5,6 +5,7 @@
 #include <functional>
 #include <tuple>
 #include <map>
+#include <string_view>
 #include "opengl/KcRenderObject.h"
 
 
@@ -44,26 +45,33 @@ public:
 
 	void drawMarker(const point3& pt) override;
 
-	void* drawMarkers(point_getter1 fn, unsigned count) override;
+	void* drawMarkers(point_getter fn, unsigned count) override;
+
+	void* drawMarkers(point_getter fn, color_getter clr, size_getter size, unsigned count) override;
 
 	void drawLine(const point3& from, const point3& to) override;
 
-	void* drawLineStrip(point_getter1 fn, unsigned count) override;
+	void* drawLineStrip(point_getter fn, unsigned count) override;
 
-	void* drawLineStrips(const std::vector<point_getter1>& fns, const std::vector<unsigned>& cnts) override;
+	void* drawLineStrips(const std::vector<point_getter>& fns, const std::vector<unsigned>& cnts) override;
+
+	void drawRect(const point3& lower, const point3& upper) override;
 
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
 
 	void drawText(const point3& anchor, const char* text, int align) override;
 
-	void* drawTexts(const std::vector<point3>& anchors,
-		const std::vector<std::string>& texts, const std::vector<int>& align) override;
+	void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align) override;
 
 	void* drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 
-	void* fillBetween(point_getter1 line1, point_getter1 line2, unsigned count) override;
+	void* fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 
 	void grab(int x, int y, int width, int height, void* data) override;
+
+
+	// 辅助函数
+	KpMarker marker() const; // 装配marker绘制上下文
 
 	// 内部函数，由ImGui回调，以绘制renderList_保存的渲染对象
 	void drawRenderList_();
@@ -72,13 +80,14 @@ private:
 
 	point3 toNdc_(const point3& pt) const;
 	
-	void drawPoints_(point_getter1 fn, unsigned count); // 绘制点云
+	// 绘制点云
+	void* drawPoints_(point_getter fn, unsigned count); 
 
-	void drawCircles_(point_getter1 fn, unsigned count);
+	void drawCircles_(point_getter fn, unsigned count);
 
-	void drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4]);
+	void drawQuadMarkers_(point_getter fn, unsigned count, const point2 quad[4]);
 
-	void drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3]);
+	void drawTriMarkers_(point_getter fn, unsigned count, const point2 tri[3]);
 
 	struct KpRenderList_;
 	KpRenderList_& currentRenderList();
@@ -107,9 +116,9 @@ private:
 	void addLine_(const point3& pt0, const point3& pt1, const float4& clr); // 以tris的形式绘制直线
 
 	// 填充凸多边形，fn返回凸多边形的顶点
-	void addConvexPolyFilled_(point_getter1 fn, unsigned count, const float4& clr);
+	void addConvexPolyFilled_(point_getter fn, unsigned count, const float4& clr);
 
-	void addLineLoop_(point_getter1 fn, unsigned count, const float4& clr);
+	void addLineLoop_(point_getter fn, unsigned count, const float4& clr);
 
 	void addRect_(const point3& lower, const point3& upper);
 	void addRectFilled_(const point3& lower, const point3& upper);
@@ -119,10 +128,10 @@ private:
 	void addQuadFilled_(const point3& p0, const point3& p1, const point3& p2, const point3& p3, const float4& clr);
 
 	// NB: fillVtx使用主色绘制，outlineVtx使用辅色绘制
-	void addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill, 
+	void addMarkers_(point_getter fn, unsigned count, const point2* fillVtx, unsigned numFill, 
 		const point2* outlineVtx, unsigned numOutline);
 
-	void addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill);
+	void addMarkers_(point_getter fn, unsigned count, const point2* fillVtx, unsigned numFill);
 
 	// 在当前渲染列表的tris成员分配count个KpColorVbo_对象
 	struct KpColorVbo_;
@@ -143,6 +152,11 @@ private:
 	// @normToNdc: 若true，则将text坐标规范到ndc坐标系
 	void drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo, bool normToNdc);
 	void drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo, bool normToNdc);
+
+	// pos存储顺序（屏幕坐标）: dx, dy, width, height
+	// 其中(dx, dy)为第i个文字quad中心点相对于text-rect左上角的偏移
+	// uv存储顺序（归一化坐标）：u1, v1, u2, v2
+	void pushTextData_(const std::string_view& text, std::vector<point4f>& pos, std::vector<point4f>& uvs) const;
 
 private:
 

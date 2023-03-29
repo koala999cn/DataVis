@@ -19,13 +19,15 @@ void KvPlottable::setData(const_data_ptr d)
 	assert(d);
 
 	data_ = d;
-	dataChanged_ = 2;
 
 	if (odim() != sampCount_.size())
 		sampCount_.assign(odim(), std::pow(1000., 1. / odim()));
 
 	if (colorMappingDim_ > odim())
 		setColorMappingDim(odim());
+
+	dataChanged_ = 2;
+	output_(); // 此处须及时生成数据，否则可能造成无输出，empty返回true，导致很多场景错误
 }
 
 

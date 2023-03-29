@@ -216,6 +216,8 @@ template<int DIM>
 void KtSampledArray<DIM>::pushBack(const KvSampled& d, kIndex pos, kIndex frames)
 {
     assert(step(0) == d.step(0) && channels() == d.channels());
+    assert(pos >= 0 && frames >= 0);
+
     if (frames <= 0 || frames > d.size(0) - pos)
         frames = d.size(0) - pos;
 

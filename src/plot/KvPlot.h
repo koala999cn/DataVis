@@ -29,15 +29,12 @@ public:
 	virtual std::string title() const = 0;
 	virtual std::string& title() = 0;
 
-	virtual void fitData();
-
 	virtual void update(); // 更新绘图
+
+	void fitData();
 
 	const KpBrush& background() const { return bkgnd_; }
 	KpBrush& background() { return bkgnd_; }
-
-	bool autoFit() const { return autoFit_; }
-	bool& autoFit() { return autoFit_; }
 
 	bool showLayoutRect() const { return showLayoutRect_; }
 	bool& showLayoutRect() { return showLayoutRect_; }
@@ -101,6 +98,5 @@ private:
 
 	char dim_{ 3 }; // 取值2或3，用来标记this是plot2d还是plot3d
 
-	bool autoFit_{ true }; // 若true，则每次update都将根据数据range自动调整坐标系extents
 	bool showLayoutRect_{ false }; // for debug
 };

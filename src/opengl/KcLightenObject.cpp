@@ -1,5 +1,4 @@
 #include "KcLightenObject.h"
-#include "KsShaderManager.h"
 #include "KcGlslProgram.h"
 #include "glad.h"
 #include <assert.h>
@@ -8,7 +7,7 @@
 KcLightenObject::KcLightenObject(KePrimitiveType type)
     : super_(type)
 {
-    prog_ = KsShaderManager::singleton().progMonoLight(false); // TODO: flat shading ?
+    
 }
 
 

@@ -11,6 +11,8 @@
 #include "opengl/KcPointObject.h"
 #include "opengl/KcLineObject.h"
 #include "opengl/KcEdgedObject.h"
+#include "opengl/KcMarkerObject.h"
+#include "opengl/KcTextObject.h"
 #include "opengl/KcLightenObject.h"
 #include "opengl/KsShaderManager.h"
 #include "opengl/KuOglUtil.h"
@@ -64,6 +66,8 @@ void KcImOglPaint::beginPaint()
 	clipRectHistList_.emplace_back(point2(crmin.x, crmin.y), point2(crmax.x, crmax.y));
 	clipRectStack_.assign(1, 0);
 	
+	polygonOffset_ = false;
+
 	clipBoxHistList_.clear();
 	curClipBox_ = -1;
 
@@ -125,7 +129,6 @@ void KcImOglPaint::endPaint()
 		auto dl = ImGui::GetWindowDrawList();
 		dl->AddCallback(kPrivate::oglDrawRenderList, this);
 		dl->AddCallback(ImDrawCallback_ResetRenderState, nullptr); // 让imgui恢复渲染状态
-		dl->AddCallback(kPrivate::test, nullptr);
 	}
 
 	super_::endPaint();
@@ -174,7 +177,7 @@ void KcImOglPaint::drawMarker(const point3& pt)
 }
 
 
-void KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
+void* KcImOglPaint::drawPoints_(point_getter fn, unsigned count)
 {
 	auto obj = new KcPointObject;
 
@@ -191,10 +194,11 @@ void KcImOglPaint::drawPoints_(point_getter1 fn, unsigned count)
 	obj->setColor(clr_);
 	obj->setSize(markerSize_);
 	pushRenderObject_(obj);
+	return obj;
 }
 
 
-void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count)
+void KcImOglPaint::drawCircles_(point_getter fn, unsigned count)
 {
 	int segments = 10;
 	auto geom = std::make_shared<KtGeometryImpl<point3f, unsigned>>(k_triangles);
@@ -267,7 +271,7 @@ void KcImOglPaint::drawCircles_(point_getter1 fn, unsigned count)
 namespace kPrivate
 {
 	template<int N, bool forceLines = false>
-	void drawPolyMarkers_(KvPaint& paint, KvPaint::point_getter1 fn, unsigned count, 
+	void drawPolyMarkers_(KvPaint& paint, KvPaint::point_getter fn, unsigned count, 
 		const KvPaint::point2 poly[N], float markerSize)
 	{
 		KePrimitiveType type;
@@ -303,7 +307,7 @@ namespace kPrivate
 }
 
 
-void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* fillVtx, unsigned numFill,
+void KcImOglPaint::addMarkers_(point_getter fn, unsigned count, const point2* fillVtx, unsigned numFill,
 	const point2* outlineVtx, unsigned numOutline)
 {
 	assert(numFill > 0);
@@ -369,7 +373,7 @@ void KcImOglPaint::addLine_(const point3& pt0, const point3& pt1, const float4& 
 }
 
 
-void KcImOglPaint::addConvexPolyFilled_(point_getter1 fn, unsigned count, const float4& clr)
+void KcImOglPaint::addConvexPolyFilled_(point_getter fn, unsigned count, const float4& clr)
 {
 	assert(count >= 3);
 
@@ -386,7 +390,7 @@ void KcImOglPaint::addConvexPolyFilled_(point_getter1 fn, unsigned count, const 
 }
 
 
-void KcImOglPaint::addLineLoop_(point_getter1 fn, unsigned count, const float4& clr)
+void KcImOglPaint::addLineLoop_(point_getter fn, unsigned count, const float4& clr)
 {
 	for (unsigned j = 1; j < count; j++)
 		addLine_(fn(j - 1), fn(j), clr);
@@ -394,7 +398,7 @@ void KcImOglPaint::addLineLoop_(point_getter1 fn, unsigned count, const float4& 
 }
 
 
-void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* vtxBuf, unsigned numVtx)
+void KcImOglPaint::addMarkers_(point_getter fn, unsigned count, const point2* vtxBuf, unsigned numVtx)
 {
 	assert(numVtx >= 3);
 
@@ -421,74 +425,74 @@ void KcImOglPaint::addMarkers_(point_getter1 fn, unsigned count, const point2* v
 }
 
 
-void KcImOglPaint::drawQuadMarkers_(point_getter1 fn, unsigned count, const point2 quad[4])
+void KcImOglPaint::drawQuadMarkers_(point_getter fn, unsigned count, const point2 quad[4])
 {
 	kPrivate::drawPolyMarkers_<4>(*this, fn, count, quad, markerSize_);
 }
 
 
-void KcImOglPaint::drawTriMarkers_(point_getter1 fn, unsigned count, const point2 tri[3])
+void KcImOglPaint::drawTriMarkers_(point_getter fn, unsigned count, const point2 tri[3])
 {
 	kPrivate::drawPolyMarkers_<3>(*this, fn, count, tri, markerSize_);
 }
 
 
-void* KcImOglPaint::drawMarkers(point_getter1 fn, unsigned count)
+KpMarker KcImOglPaint::marker() const
 {
-	static const double SQRT_2_2 = std::sqrt(2.) / 2.;
-	static const double SQRT_3_2 = std::sqrt(3.) / 2.;
+	KpMarker m;
+	m.type = markerType_;
+	m.size = markerSize_;
+	m.fill = clr_;
+	m.outline = secondaryClr_;
+	m.weight = lineWidth_;
+	m.showFill = filled_;
+	m.showOutline = edged_;
+	return m;
+}
 
-	switch (markerType_)
-	{
-	case KpMarker::k_dot:
-		drawPoints_(fn, count);
-		return nullptr;
 
-	case KpMarker::k_cross:
-	{
-		static const point2 cross[4] = { 
-			point2(-SQRT_2_2,-SQRT_2_2),
-			point2(SQRT_2_2,SQRT_2_2),
-			point2(SQRT_2_2,-SQRT_2_2),
-			point2(-SQRT_2_2,SQRT_2_2) 
-		};
-		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, cross, markerSize_);
+void* KcImOglPaint::drawMarkers(point_getter fn, unsigned count)
+{
+	auto obj = new KcMarkerObject;
+	auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+	//assert(KuMath::almostEqual(scale.length(), 1.));
+	obj->setScale({ scale.x(), scale.y(), scale.z() });
+	obj->setMarker(marker());
+
+	std::vector<point3f> offset; offset.reserve(count);
+	for (unsigned i = 0; i < count; i++)
+		// NB: 考虑vbo复用，此处不作裁剪，否则只要坐标轴range变化就无法重用
+		//if (curClipBox_ == -1 || clipBoxHistList_[curClipBox_].contains(pt)) // 预先裁剪
+		offset.push_back(fn(i));
+
+	obj->setInstPos(offset.data(), offset.size());
+	obj->setInstColor(nullptr);
+	obj->setInstSize(nullptr);
+
+	pushRenderObject_(obj);
+	return obj;
+}
+
+
+void* KcImOglPaint::drawMarkers(point_getter fn, color_getter clr, size_getter size, unsigned count)
+{
+	auto obj = (KcMarkerObject*)drawMarkers(fn, count);
+
+	if (clr) {
+		std::vector<color4f> clrs(count);
+		for (unsigned i = 0; i < count; i++)
+			clrs[i] = clr(i);
+		obj->setInstColor(clrs.data());
 	}
-	    return nullptr;
 
-	case KpMarker::k_plus:
-	{
-		static const point2 plus[4] = { point2(-1, 0), point2(1, 0), point2(0, -1), point2(0, 1) };
-		kPrivate::drawPolyMarkers_<4, true>(*this, fn, count, plus, markerSize_);
+	if (size) {
+		std::vector<float> sizes(count);
+		for (unsigned i = 0; i < count; i++)
+			sizes[i] = size(i);
+		obj->setInstSize(sizes.data());
 	}
-	    return nullptr;
 
-	case KpMarker::k_asterisk:
-	{
-		static const point2 asterisk[6] = { 
-			point2(-SQRT_3_2, -0.5f), 
-			point2(SQRT_3_2, 0.5f),  
-			point2(-SQRT_3_2, 0.5f),
-			point2(SQRT_3_2, -0.5f),
-			point2(0, -1), 
-			point2(0, 1) 
-		};
-		kPrivate::drawPolyMarkers_<6>(*this, fn, count, asterisk, markerSize_);
-	}
-		return nullptr;
-
-	case KpMarker::k_square:
-	case KpMarker::k_diamond:
-	case KpMarker::k_left:
-	case KpMarker::k_right:
-	case KpMarker::k_up:
-	case KpMarker::k_down:
-	default:
-		break;
-	};
-
-	// 带outline的marker赞使用ImGui实现(issue I6B5ES)
-	return super_::drawMarkers(fn, count);
+	return obj;
 }
 
 
@@ -516,7 +520,32 @@ void KcImOglPaint::drawLine(const point3& from, const point3& to)
 }
 
 
-void* KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
+void KcImOglPaint::drawRect(const point3& lower, const point3& upper)
+{
+	// NB: glRectf绘制的矩形并不完美，暂时调用基类的ImGui实现
+	super_::drawRect(lower, upper);
+	return;
+
+	auto clr = clr_;
+	auto width = lineWidth_;
+	auto style = lineStyle_;
+	auto pt0 = toNdc_(lower);
+	auto pt1 = toNdc_(upper);
+
+	auto drawFn = [clr, width, style, pt0, pt1]() {
+
+		glColor4f(clr.r(), clr.g(), clr.b(), clr.a());
+		glLineWidth(width);
+		KuOglUtil::glLineStyle(style);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glRectf(pt0.x(), pt0.y(), pt1.x(), pt1.y());
+	};
+
+	currentRenderList().fns.push_back(drawFn);
+}
+
+
+void* KcImOglPaint::drawLineStrip(point_getter fn, unsigned count)
 {
 	auto obj = new KcLineObject(k_line_strip);
 
@@ -540,7 +569,7 @@ void* KcImOglPaint::drawLineStrip(point_getter1 fn, unsigned count)
 }
 
 
-void* KcImOglPaint::drawLineStrips(const std::vector<point_getter1>& fns, const std::vector<unsigned>& cnts)
+void* KcImOglPaint::drawLineStrips(const std::vector<point_getter>& fns, const std::vector<unsigned>& cnts)
 {
 	assert(fns.size() == cnts.size());
 
@@ -577,7 +606,7 @@ void* KcImOglPaint::drawLineStrips(const std::vector<point_getter1>& fns, const 
 }
 
 
-void* KcImOglPaint::fillBetween(point_getter1 fn1, point_getter1 fn2, unsigned count)
+void* KcImOglPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
 {
 	// 构造vbo
 
@@ -657,6 +686,10 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		obj->setProjMatrix(camera_.getNsMatR_());
 		break;
 
+	case k_coord_ndc:
+		obj->setProjMatrix(float4x4<>::identity());
+		break;
+
 	case k_coord_local_screen:
 		assert(false);
 		break;
@@ -676,10 +709,13 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 
 
 	if (obj->shader() == nullptr) { // 自动设置shader
-		if (!obj->hasColor())
-			obj->setShader(KsShaderManager::singleton().progMono());
-		else
-			obj->setShader(KsShaderManager::singleton().progColor(flatShading()));
+		int type = KsShaderManager::k_mono;
+		if (obj->hasColor()) type |= KsShaderManager::k_color;
+		if (obj->hasUV()) type |= KsShaderManager::k_uv;
+		if (obj->hasNormal()) type |= KsShaderManager::k_normal;
+		if (obj->hasInst()) type |= KsShaderManager::k_instance;
+
+		obj->setShader(KsShaderManager::singleton().fetchProg(type, flatShading_, curClipBox_ != -1));
 	}
 
 	rl.objs.emplace_back(obj);
@@ -698,18 +734,36 @@ void KcImOglPaint::drawText(const point3& anchor, const char* text, int align)
 }
 
 
-void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors,
-	const std::vector<std::string>& texts, const std::vector<int>& align)
+void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align)
 {
-	std::vector<KpUvVbo> text;
-	for (unsigned i = 0; i < texts.size(); i++)
-		drawText_(anchors[i], texts[i].c_str(), align[i], text, false);
+	std::vector<point3f> ans; // 锚点
+	std::vector<point4f> pos;
+	std::vector<point4f> uvs;
+	for (unsigned i = 0; i < texts.size(); i++) {
+		auto szText = textSize(texts[i].c_str());
 
-	auto obj = makeTextVbo_(text);
-	if (obj)
-		pushRenderObject_(obj);
+		// TOOD: 暂假定anchor为中心点，即align为居中对其
+		point2f offset{ -szText.x() / 2, -szText.y() / 2 };
 
-	return nullptr; // TODO: issue #I6MQBX
+		pushTextData_(texts[i], pos, uvs);
+
+		// 修正返回的偏移
+		for (unsigned j = ans.size(); j < pos.size(); j++) {
+			pos[j].x() += offset.x(), pos[j].y() += offset.y();
+			pos[j].z() += offset.x(), pos[j].w() += offset.y();
+		}
+
+		ans.resize(pos.size(), anchors[i]);
+	}
+	
+	int texId = (intptr_t)ImGui::GetWindowDrawList()->CmdBuffer.back().GetTexID();
+	auto obj = new KcTextObject(texId);
+	obj->setBufferData(ans.data(), pos.data(), uvs.data(), ans.size());
+
+	auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+	obj->setScale({ scale.x(), scale.y(), scale.z() });
+
+	pushRenderObject_(obj);	
 	return obj;
 }
 
@@ -724,9 +778,52 @@ void KcImOglPaint::drawText_(const point3& anchor, const char* text, int align, 
 	drawText_(topLeft, unprojectv(point3(1, 0, 0)), unprojectv(point3(0, 1, 0)), text, vbo, normToNdc);
 }
 
+
 void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text)
 {
 	drawText_(topLeft, hDir, vDir, text, currentRenderList().texts, true);
+}
+
+
+void KcImOglPaint::pushTextData_(const std::string_view& text, std::vector<point4f>& pos, std::vector<point4f>& uvs) const
+{
+	point2f orig(0);
+	auto font = ImGui::GetFont();
+	auto s = text.data();
+	auto eos = s + text.size();
+	pos.reserve(pos.size() + text.size());
+	uvs.reserve(uvs.size() + text.size());
+	while (s < eos) {
+		unsigned int c = (unsigned int)*s;
+		if (c < 0x80) {
+			s += 1;
+		}
+		else {
+			s += ImTextCharFromUtf8(&c, s, eos);
+			if (c == 0) // Malformed UTF-8?
+				break;
+		}
+
+		if (c < 32) {
+			if (c == '\n') {
+				// TODO: 处理换行
+				continue;
+			}
+			if (c == '\r')
+				continue;
+		}
+
+		const ImFontGlyph* glyph = font->FindGlyph((ImWchar)c);
+		if (glyph == nullptr)
+			continue;
+
+		if (glyph->Visible) {
+			pos.emplace_back(orig.x() + glyph->X0, orig.y() + glyph->Y0, orig.x() + glyph->X1, orig.y() + glyph->Y1);
+			uvs.emplace_back(glyph->U0, glyph->V0, glyph->U1, glyph->V1);
+		}
+
+		orig.x() += glyph->AdvanceX;
+	}
 }
 
 
@@ -815,7 +912,7 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 {
 	if (!text.empty()) {
 		auto obj = new KcRenderObject(k_quads);
-		obj->setShader(KsShaderManager::singleton().progColorUV(true)); // TODO: 目前文字渲染始终使用flat模式
+		obj->setShader(KsShaderManager::singleton().progColorUV(true, curClipBox_ != -1)); // 目前文字渲染始终使用flat模式
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -836,10 +933,11 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 
 void KcImOglPaint::pushTextVbo_(KpRenderList_& rl)
 {
-	auto obj = makeTextVbo_(rl.texts);
-	if (obj) {
-		obj->setProjMatrix(float4x4<>::identity()); // 全局text使用ndc坐标，不须在shader中进行坐标变换
-		rl.objs.emplace_back(obj); 
+	if (!rl.texts.empty()) {
+		auto obj = makeTextVbo_(rl.texts);
+		pushCoord(k_coord_ndc); // 全局text使用ndc坐标，不须在shader中进行坐标变换
+		pushRenderObject_(rl, obj);
+		popCoord();
 	}
 }
 
@@ -848,7 +946,7 @@ void KcImOglPaint::pushColorVbo_(KpRenderList_& rl)
 {
 	if (!rl.tris.empty()) {
 		auto obj = new KcRenderObject(k_triangles);
-		obj->setShader(KsShaderManager::singleton().progColor(false));
+		obj->setShader(KsShaderManager::singleton().progColor(false, false));
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -892,6 +990,7 @@ void* KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 		edgedObj->setEdgeStyle(lineStyle_);
 		edgedObj->setFilled(filled_); edgedObj->setEdged(edged_);
 		edgedObj->setEdgeColor(secondaryClr_);
+		edgedObj->setEdgeShader(KsShaderManager::singleton().progMono(curClipBox_ != -1));
 		obj = edgedObj;
 	}
 
@@ -998,6 +1097,7 @@ void KcImOglPaint::configOglState_()
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_MULTISAMPLE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1007,6 +1107,9 @@ void KcImOglPaint::configOglState_()
 		glDisable(GL_POINT_SMOOTH);
 		glDisable(GL_LINE_SMOOTH);
 		glDisable(GL_POLYGON_SMOOTH);
+		glDisable(GL_MULTISAMPLE); 
+
+		// 以下设置能提升文字渲染的清晰度（避免插值）
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
@@ -1065,6 +1168,10 @@ void KcImOglPaint::drawRenderList_()
 			KcGlslProgram::useProgram(0); // 禁用shader，fns须enable固定管线
 		for (auto& i : rl.fns) i();
 	}
+
+	// NB: ImGui不会恢复多实例状态，此处重置，否则会影响ImGui渲染结果（比如combox下拉框无文字）
+	for (unsigned i = 0; i < 8; i++)
+		glVertexAttribDivisor(i, 0);
 }
 
 
@@ -1194,18 +1301,23 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 		lo->setWidth(lineWidth_);
 		lo->setStyle(lineStyle_);
 	}
+	else if (dynamic_cast<KcMarkerObject*>(obj)) {
+		auto mo = dynamic_cast<KcMarkerObject*>(obj);
+		auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+		//assert(KuMath::almostEqual(scale.length(), 1.));
+		mo->setScale({ scale.x(), scale.y(), scale.z() });
+		mo->setMarker(marker());
+	}
+	else if (dynamic_cast<KcTextObject*>(obj)) {
+		auto to = dynamic_cast<KcTextObject*>(obj);
+		auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+		to->setScale({ scale.x(), scale.y(), scale.z() });
+		// TODO: 文本设置
+		//mo->setMarker(marker());
+	}
 
 	obj->setColor(clr_);
 
-	// 同步flat渲染状态
-	// 目前使用这个比较傻的方案
-	// 有另一种方案设想：把shader作为渲染的对象的通用属性，由pushRenderObject根据vbo统一设定
-	// 按以上设想，就不需要在此处同步flat了
-	// obj->setShader(KsShaderManager::singleton().flatVersion(obj->shader(), flatShading_));
-
 	// 在此置shader为空，由pushRenderObject设定shader，以同步flat渲染状态
-	// pushRenderObject设置shader的版本只考虑了mono和color两种情况，但已能满足目前版本的plot需求
-	if (obj->shader() == KsShaderManager::singleton().progColor(false)
-		|| obj->shader() == KsShaderManager::singleton().progColor(true));
-	    obj->setShader(nullptr);
+    obj->setShader(nullptr);
 }

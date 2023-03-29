@@ -7,6 +7,48 @@
 
 void* KcSurface::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
+	bool solid = coloringMode() == k_one_color_solid;
+	return solid ? drawSolid_(paint, objIdx) : drawColor_(paint, objIdx);
+}
+
+
+void* KcSurface::drawSolid_(KvPaint* paint, unsigned objIdx) const
+{
+	auto nx = sizePerLine_();
+	auto nz = linesPerGrid_();
+	auto grids = gridsPerChannel_();
+
+	auto geom = std::make_shared<KtGeometryImpl<point3f, std::uint32_t>>(k_quads);
+	auto idxPerGrid = KuPrimitiveFactory::indexGrid<std::uint32_t>(nx, nz, nullptr);
+	geom->reserve(nx * nz * gridsTotal_(), idxPerGrid * gridsTotal_());
+	std::uint32_t idxBase(0);
+
+	for (unsigned ch = 0; ch < channels_(); ch++) {
+		for (unsigned i = 0; i < grids; i++) {
+			for (unsigned j = 0; j < nz; j++) {
+				auto line = gridLineAt_(ch, i, j);
+				assert(line.size == nx);
+
+				auto vtx = geom->newVertex(nx);
+				for (unsigned k = 0; k < nx; k++) {
+					auto pt = line.getter(k);
+					*vtx = toPoint_(pt.data(), ch);
+					++vtx;
+				}
+			}
+
+			auto idx = geom->newIndex(idxPerGrid);
+			KuPrimitiveFactory::indexGrid<unsigned>(nx, nz, idx, 0, idxBase);
+			idxBase += nx * nz;
+		}
+	}
+
+	return paint->drawGeomSolid(geom);
+}
+
+
+void* KcSurface::drawColor_(KvPaint* paint, unsigned objIdx) const
+{
 	struct KpVtxBuffer_
 	{
 		point3f pos;
@@ -19,7 +61,7 @@ void* KcSurface::drawObject_(KvPaint* paint, unsigned objIdx) const
 
 	auto geom = std::make_shared<KtGeometryImpl<KpVtxBuffer_, std::uint32_t>>(k_quads);
 	auto idxPerGrid = KuPrimitiveFactory::indexGrid<std::uint32_t>(nx, nz, nullptr);
-	geom->reserve(nx * nz * gridsTotal_(), idxPerGrid* gridsTotal_());
+	geom->reserve(nx * nz * gridsTotal_(), idxPerGrid * gridsTotal_());
 	std::uint32_t idxBase(0);
 
 	for (unsigned ch = 0; ch < channels_(); ch++) {

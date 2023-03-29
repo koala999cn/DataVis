@@ -534,7 +534,9 @@ namespace ImGuiX
 
         res |= markerType("Type", cxt.type);
         res |= DragFloat("Size", &cxt.size, 0.1, 0.1, 10, "%.1f");
-        res |= ColorEdit4("Color##Fill", cxt.fill);
+        //res |= ColorEdit4("Color##Fill", cxt.fill);
+        res |= Checkbox("Fill", &cxt.showFill);
+
         if (cxt.hasOutline()) {
             bool open(false);
             res |= cbTreePush("Outline", &cxt.showOutline, &open);
