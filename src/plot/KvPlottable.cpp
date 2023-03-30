@@ -100,14 +100,14 @@ void KvPlottable::fitColorMappingRange()
 		auto d = colorMappingDim();
 
 		std::pair<float_t, float_t> newRange;
-		if (d < 2 || d == 2 && !usingDefaultZ_()) {
-			auto r = boundingBox(); // TOOD: ÓëÎ¬¶ÈÓ³ÉäÏàÆ¥Åä
-			newRange = { r.lower()[d], r.upper()[d] };
-		}
-		else {
+//		if (d < 2 || d == 2 && !usingDefaultZ_()) {
+//			auto r = boundingBox(); // TOOD: ÓëÎ¬¶ÈÓ³ÉäÏàÆ¥Åä
+//			newRange = { r.lower()[d], r.upper()[d] };
+//		}
+//		else {
 			auto r = odata()->range(d);
 			newRange = { r.low(), r.high() };
-		}
+//		}
 
 		if (colorMappingRange_ != newRange) {
 			colorMappingRange_ = newRange;
