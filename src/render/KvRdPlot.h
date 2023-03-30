@@ -122,6 +122,11 @@ protected:
 	// 根据inputs的range，自动设置plot的坐标轴extend
 	void fitRange_();
 
+private:
+
+	// 判断plot_中是否包含带输出的plottable
+	bool hasOutput_() const;
+
 protected:
 	std::shared_ptr<KvPlot> plot_;
 	std::multimap<int, KvPlottable*> port2Plts_; // 端口id向plottable序列的映射

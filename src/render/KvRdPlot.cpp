@@ -255,12 +255,28 @@ bool KvRdPlot::onStartPipeline(const std::vector<std::pair<unsigned, KcPortNode*
 }
 
 
+bool KvRdPlot::hasOutput_() const
+{
+	for (unsigned i = 0; i < plot_->plottableCount(); i++) {
+		auto plt = plot_->plottableAt(i);
+		if (plt->idata() != plt->odata())
+			return true;
+	}
+
+	return false;
+}
+
+
 void KvRdPlot::onNewFrame(int frameIdx)
 {
 	// 用户调整plot的维度映射之后，range也跟着变化，但目前没有好的机制检测到这种变化
 	// 所以每帧检测并更新range
-	if (autoRange_)
-		fitRange_();
+	if (autoRange_) {
+		if (!hasOutput_()) // 当plottable输入输出不一致时，fitRange_将失效，此时调用fitData
+			fitRange_();
+		else
+			plot_->fitData();
+	}
 }
 
 
