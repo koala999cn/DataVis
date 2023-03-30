@@ -1,11 +1,12 @@
 #pragma once
 #include "KvPlottable1d.h"
+#include "KmLabeling.h"
 #include "KpContext.h"
 
 
 // 散点图
 
-class KcScatter : public KvPlottable1d
+class KcScatter : public KvPlottable1d, public KmLabeling
 {
 	using super_ = KvPlottable1d;
 
@@ -21,13 +22,8 @@ public:
 
 	unsigned objectCount() const override;
 
-	bool objectReusable_(unsigned objIdx) const override;
-
 	const KpMarker& marker() const { return marker_; }
 	void setMarker(const KpMarker& m) { marker_ = m; }
-
-	const KpLabel& label() const { return label_; }
-	void setLabel(const KpLabel& l);
 
 	bool sizeVaryingByArea() const { return varyingByArea_; }
 	void setSizeVaryingByArea(bool b);
@@ -38,21 +34,17 @@ public:
 	float sizeUpper() const { return sizeUpper_; }
 	void setSizeUpper(float s);
 
-	bool showLabel() const { return showLabel_; }
-	bool& showLabel() { return showLabel_; }
-
 	bool sizeVarying() const { return sizeVarying_; }
 	void setSizeVarying(bool b);
 
 	unsigned sizeVaryingDim() const { return dimSizeVarying_; }
 	void setSizeVaryingDim(unsigned d);
 
-	unsigned labelingDim() const { return dimLabeling_; }
-	void setLabelingDim(unsigned d);
-
 private:
 
 	bool objectVisible_(unsigned objIdx) const override;
+
+	bool objectReusable_(unsigned objIdx) const override;
 
 	void setObjectState_(KvPaint*, unsigned objIdx) const override;
 
@@ -73,9 +65,4 @@ protected:
 	unsigned dimSizeVarying_{ 1 };
 	bool varyingByArea_{ false }; // true表示按面积插值，否则按长度插值
 	float sizeLower_{ 3 }, sizeUpper_{ 33 }; // 尺寸插值范围
-
-	KpLabel label_;
-	bool showLabel_{ false };
-	unsigned dimLabeling_{ 1 };
-	mutable bool labelChanged_{ true };
 };

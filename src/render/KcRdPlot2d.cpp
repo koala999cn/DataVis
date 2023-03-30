@@ -87,11 +87,18 @@ namespace kPrivate
 
         auto heatmap = dynamic_cast<KcHeatMap*>(plt2d);
         if (heatmap) {
-            open = false;
-            ImGuiX::cbTreePush("Text", &heatmap->showText(), &open);
+            ImGuiX::cbTreePush("Labeling", &heatmap->showLabel(), &open);
             if (open) {
-                ImGui::ColorEdit4("Text Color", heatmap->textColor());
-                ImGui::ShowFontSelector("Font");
+                auto label = heatmap->label();
+                if (ImGuiX::label(label))
+                    heatmap->setLabel(label);
+
+                int d = heatmap->labelingDim();
+                if (ImGui::SliderInt("Dim", &d, 0, heatmap->odim())) {
+                    d = KuMath::clamp<int>(d, 0, heatmap->odim());
+                    heatmap->setLabelingDim(d);
+                }
+
                 ImGuiX::cbTreePop();
             }
         }

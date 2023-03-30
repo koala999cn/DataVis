@@ -13,8 +13,8 @@ public:
 
 private:
 
-	void* drawObject_(KvPaint*, unsigned objIdx) const override;
+	void* drawObject_(KvPaint*, unsigned) const override;
 
-	void* drawSolid_(KvPaint*, unsigned objIdx) const;
-	void* drawColor_(KvPaint*, unsigned objIdx) const;
+	void* drawSolid_(KvPaint*, unsigned) const;
+	void* drawColor_(KvPaint*, unsigned) const;
 };

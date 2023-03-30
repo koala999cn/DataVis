@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <ostream>
+#include <iomanip>
 #include "KtColor.h"
 
 
@@ -129,7 +131,7 @@ public:
 	int align{ 0 };
 	point2f spacing{ 0, 0 };
 
-	int precision{ 0 }; // 语义同std::setprecision
+	int precision{ 2 }; // 语义同std::setprecision
 
 	enum KeFormat
 	{
@@ -139,5 +141,16 @@ public:
 		k_defaultfloat  // 语义同std::defaultfloat
 	};
 
-	int format{ 0 };
+	int format{ k_defaultfloat };
+
+	template<class CharT>
+	void formatStream(std::basic_ostream<CharT>& strm) const {
+		strm << std::setprecision(precision);
+		switch (format) {
+		case 0:  strm << std::fixed; break;
+		case 1:  strm << std::scientific; break;
+		case 2:  strm << std::hexfloat; break;
+		default: strm << std::defaultfloat; break;
+		}
+	}
 };

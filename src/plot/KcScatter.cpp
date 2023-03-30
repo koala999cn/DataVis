@@ -2,13 +2,13 @@
 #include "plot/KvPaint.h"
 #include "KvData.h"
 #include <sstream>
-#include <iomanip>
 
 
 void KcScatter::setData(const_data_ptr d)
 {
 	super_::setData(d);
-	dimLabeling_ = dimSizeVarying_ = odim();
+	dimSizeVarying_ = odim();
+	setLabelingDim(odim());
 }
 
 
@@ -20,14 +20,14 @@ unsigned KcScatter::objectCount() const
 
 bool KcScatter::objectVisible_(unsigned objIdx) const
 {
-	return objIdx == channels_() ? showLabel_ : marker_.visible();
+	return objIdx == channels_() ? showLabel() : marker_.visible();
 }
 
 
 bool KcScatter::objectReusable_(unsigned objIdx) const
 {
 	if (objIdx == channels_()) {
-		return !dataChanged() && !labelChanged_;
+		return !dataChanged() && !labelChanged();
 	}
 	else {
 		return super_::objectReusable_(objIdx);
@@ -38,8 +38,8 @@ bool KcScatter::objectReusable_(unsigned objIdx) const
 void KcScatter::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
 	if (objIdx == channels_()) {
-		paint->apply(label_.font);
-		paint->setColor(label_.color);
+		paint->apply(label().font);
+		paint->setColor(label().color);
 	}
 	else {
 		paint->apply(marker_);
@@ -87,27 +87,21 @@ void* KcScatter::drawLabel_(KvPaint* paint) const
 	anchors.reserve(c); texts.reserve(c);
 
 	std::ostringstream strm;
-	strm << std::setprecision(label_.precision);
-	switch (label_.format) {
-	case 0:  strm << std::fixed; break;
-	case 1:  strm << std::scientific; break;
-	case 2:  strm << std::hexfloat; break;
-	default: strm << std::defaultfloat; break;
-	}
+	label().formatStream(strm);
 
 	for (unsigned i = 0; i < channels_(); i++) {
 		auto g = pointsAt_(i);
 		for (unsigned j = 0; j < g.size; j++) {
-			auto pt = toPoint_(g.getter(j).data(), i);
-			anchors.push_back(pt);
+			auto pt = g.getter(j);
+			anchors.push_back(toPoint_(pt.data(), i));
 			strm.str("");
-			strm << pt[dimLabeling_];
+			strm << pt[labelingDim()];
 			texts.push_back(strm.str());
 		}
 	}
 
-	labelChanged_ = false;
-	return paint->drawTexts(anchors, texts, label_.align, label_.spacing);
+	const_cast<KcScatter*>(this)->labelChanged() = false;
+	return paint->drawTexts(anchors, texts, label().align, label().spacing);
 }
 
 
@@ -192,23 +186,4 @@ KuDataUtil::KpPointGetter1d KcScatter::pointsAt_(unsigned ch) const
 	};
 
 	return g;
-}
-
-
-void KcScatter::setLabelingDim(unsigned d)
-{
-	assert(d <= odim());
-	dimLabeling_ = d;
-	labelChanged_ = true;
-}
-
-
-void KcScatter::setLabel(const KpLabel& l)
-{
-	if (label_.precision != l.precision || 
-		label_.format != l.format ||
-		label_.align != l.align ||
-		label_.spacing != l.spacing)
-	    labelChanged_ = true;
-	label_ = l;
 }

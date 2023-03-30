@@ -428,6 +428,7 @@
     <ClInclude Include="src\plot\KcHeatMap.h" />
     <ClInclude Include="src\plot\KcLineFilled.h" />
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
+    <ClInclude Include="src\plot\KmLabeling.h" />
     <ClInclude Include="src\plot\KtGradient.h" />
     <ClInclude Include="src\plot\KpContext.h" />
     <ClInclude Include="src\plot\KsThemeManager.h" />

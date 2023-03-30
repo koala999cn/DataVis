@@ -1137,5 +1137,8 @@
     <ClInclude Include="src\opengl\KcMarkerObject.h">
       <Filter>opengl</Filter>
     </ClInclude>
+    <ClInclude Include="src\plot\KmLabeling.h">
+      <Filter>plot</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

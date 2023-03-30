@@ -5,14 +5,14 @@
 #include "KvDiscreted.h"
 
 
-void* KcSurface::drawObject_(KvPaint* paint, unsigned objIdx) const
+void* KcSurface::drawObject_(KvPaint* paint, unsigned ch) const
 {
 	bool solid = coloringMode() == k_one_color_solid;
-	return solid ? drawSolid_(paint, objIdx) : drawColor_(paint, objIdx);
+	return solid ? drawSolid_(paint, ch) : drawColor_(paint, ch);
 }
 
 
-void* KcSurface::drawSolid_(KvPaint* paint, unsigned objIdx) const
+void* KcSurface::drawSolid_(KvPaint* paint, unsigned ch) const
 {
 	auto nx = sizePerLine_();
 	auto nz = linesPerGrid_();
@@ -23,31 +23,29 @@ void* KcSurface::drawSolid_(KvPaint* paint, unsigned objIdx) const
 	geom->reserve(nx * nz * gridsTotal_(), idxPerGrid * gridsTotal_());
 	std::uint32_t idxBase(0);
 
-	for (unsigned ch = 0; ch < channels_(); ch++) {
-		for (unsigned i = 0; i < grids; i++) {
-			for (unsigned j = 0; j < nz; j++) {
-				auto line = gridLineAt_(ch, i, j);
-				assert(line.size == nx);
+	for (unsigned i = 0; i < grids; i++) {
+		for (unsigned j = 0; j < nz; j++) {
+			auto line = gridLineAt_(ch, i, j);
+			assert(line.size == nx);
 
-				auto vtx = geom->newVertex(nx);
-				for (unsigned k = 0; k < nx; k++) {
-					auto pt = line.getter(k);
-					*vtx = toPoint_(pt.data(), ch);
-					++vtx;
-				}
+			auto vtx = geom->newVertex(nx);
+			for (unsigned k = 0; k < nx; k++) {
+				auto pt = line.getter(k);
+				*vtx = toPoint_(pt.data(), ch);
+				++vtx;
 			}
-
-			auto idx = geom->newIndex(idxPerGrid);
-			KuPrimitiveFactory::indexGrid<unsigned>(nx, nz, idx, 0, idxBase);
-			idxBase += nx * nz;
 		}
+
+		auto idx = geom->newIndex(idxPerGrid);
+		KuPrimitiveFactory::indexGrid<unsigned>(nx, nz, idx, 0, idxBase);
+		idxBase += nx * nz;
 	}
 
 	return paint->drawGeomSolid(geom);
 }
 
 
-void* KcSurface::drawColor_(KvPaint* paint, unsigned objIdx) const
+void* KcSurface::drawColor_(KvPaint* paint, unsigned ch) const
 {
 	struct KpVtxBuffer_
 	{
@@ -64,25 +62,23 @@ void* KcSurface::drawColor_(KvPaint* paint, unsigned objIdx) const
 	geom->reserve(nx * nz * gridsTotal_(), idxPerGrid * gridsTotal_());
 	std::uint32_t idxBase(0);
 
-	for (unsigned ch = 0; ch < channels_(); ch++) {
-		for (unsigned i = 0; i < grids; i++) {
-			for (unsigned j = 0; j < nz; j++) {
-				auto line = gridLineAt_(ch, i, j);
-				assert(line.size == nx);
+	for (unsigned i = 0; i < grids; i++) {
+		for (unsigned j = 0; j < nz; j++) {
+			auto line = gridLineAt_(ch, i, j);
+			assert(line.size == nx);
 
-				auto vtx = geom->newVertex(nx);
-				for (unsigned k = 0; k < nx; k++) {
-					auto pt = line.getter(k);
-					vtx->pos = toPoint_(pt.data(), ch);
-					vtx->clr = mapValueToColor_(pt.data(), ch);
-					++vtx;
-				}
+			auto vtx = geom->newVertex(nx);
+			for (unsigned k = 0; k < nx; k++) {
+				auto pt = line.getter(k);
+				vtx->pos = toPoint_(pt.data(), ch);
+				vtx->clr = mapValueToColor_(pt.data(), ch);
+				++vtx;
 			}
-
-			auto idx = geom->newIndex(idxPerGrid);
-			KuPrimitiveFactory::indexGrid<unsigned>(nx, nz, idx, 0, idxBase);
-			idxBase += nx * nz;
 		}
+
+		auto idx = geom->newIndex(idxPerGrid);
+		KuPrimitiveFactory::indexGrid<unsigned>(nx, nz, idx, 0, idxBase);
+		idxBase += nx * nz;
 	}
 
 	return paint->drawGeomColor(geom);
