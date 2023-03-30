@@ -178,5 +178,5 @@ void* KcHeatMap::drawText_(KvPaint* paint) const
 		}
 	}
 
-	return paint->drawTexts(anchors, texts, KeAlignment::k_vcenter | KeAlignment::k_hcenter);
+	return paint->drawTexts(anchors, texts, KeAlignment::k_vcenter | KeAlignment::k_hcenter, point2f(0));
 }

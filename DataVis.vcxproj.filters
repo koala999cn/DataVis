@@ -376,9 +376,6 @@
     <ClCompile Include="src\plot\KcColorBar.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KuAlignment.cpp">
-      <Filter>plot</Filter>
-    </ClCompile>
     <ClCompile Include="src\layout\KcLayoutFold.cpp">
       <Filter>layout</Filter>
     </ClCompile>

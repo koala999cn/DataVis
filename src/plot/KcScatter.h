@@ -21,8 +21,13 @@ public:
 
 	unsigned objectCount() const override;
 
+	bool objectReusable_(unsigned objIdx) const override;
+
 	const KpMarker& marker() const { return marker_; }
 	void setMarker(const KpMarker& m) { marker_ = m; }
+
+	const KpLabel& label() const { return label_; }
+	void setLabel(const KpLabel& l);
 
 	bool sizeVaryingByArea() const { return varyingByArea_; }
 	void setSizeVaryingByArea(bool b);
@@ -33,17 +38,17 @@ public:
 	float sizeUpper() const { return sizeUpper_; }
 	void setSizeUpper(float s);
 
-	bool showText() const { return showText_; }
-	bool& showText() { return showText_; }
-
-	color4f textColor() const { return clrText_; }
-	color4f& textColor() { return clrText_; }
+	bool showLabel() const { return showLabel_; }
+	bool& showLabel() { return showLabel_; }
 
 	bool sizeVarying() const { return sizeVarying_; }
 	void setSizeVarying(bool b);
 
 	unsigned sizeVaryingDim() const { return dimSizeVarying_; }
 	void setSizeVaryingDim(unsigned d);
+
+	unsigned labelingDim() const { return dimLabeling_; }
+	void setLabelingDim(unsigned d);
 
 private:
 
@@ -57,15 +62,20 @@ private:
 
 	KuDataUtil::KpPointGetter1d pointsAt_(unsigned ch) const;
 
+	void* drawMarker_(KvPaint*, unsigned) const;
+	void* drawLabel_(KvPaint*) const;
+
 protected:
 	KpMarker marker_;
 
 	// 根据value的大小，对bubble的尺寸进行插值
 	bool sizeVarying_{ false };
-	unsigned dimSizeVarying_;
+	unsigned dimSizeVarying_{ 1 };
 	bool varyingByArea_{ false }; // true表示按面积插值，否则按长度插值
 	float sizeLower_{ 3 }, sizeUpper_{ 33 }; // 尺寸插值范围
 
-	bool showText_{ true };
-	color4f clrText_{ 1, 0, 0, 1 };
+	KpLabel label_;
+	bool showLabel_{ false };
+	unsigned dimLabeling_{ 1 };
+	mutable bool labelChanged_{ true };
 };

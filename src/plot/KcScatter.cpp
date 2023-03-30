@@ -1,44 +1,69 @@
 #include "KcScatter.h"
 #include "plot/KvPaint.h"
 #include "KvData.h"
+#include <sstream>
+#include <iomanip>
 
 
 void KcScatter::setData(const_data_ptr d)
 {
 	super_::setData(d);
-	dimSizeVarying_ = odim();
+	dimLabeling_ = dimSizeVarying_ = odim();
 }
 
 
 unsigned KcScatter::objectCount() const
 { 
-	return empty() ? 0 : channels_();
+	return empty() ? 0 : channels_() + 1/*label*/;
 } 
 
 
 bool KcScatter::objectVisible_(unsigned objIdx) const
 {
-	return marker_.visible();
+	return objIdx == channels_() ? showLabel_ : marker_.visible();
+}
+
+
+bool KcScatter::objectReusable_(unsigned objIdx) const
+{
+	if (objIdx == channels_()) {
+		return !dataChanged() && !labelChanged_;
+	}
+	else {
+		return super_::objectReusable_(objIdx);
+	}
 }
 
 
 void KcScatter::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
-	paint->apply(marker_);
-	if (coloringMode() == k_one_color_solid)
-		paint->setColor(majorColor(objIdx));
+	if (objIdx == channels_()) {
+		paint->apply(label_.font);
+		paint->setColor(label_.color);
+	}
+	else {
+		paint->apply(marker_);
+		if (coloringMode() == k_one_color_solid)
+			paint->setColor(majorColor(objIdx));
+	}
 }
 
 
 void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
-	auto g = pointsAt_(objIdx);
+	return objIdx == channels_() ? drawLabel_(paint) : drawMarker_(paint, objIdx);
+}
+
+
+void* KcScatter::drawMarker_(KvPaint* paint, unsigned ch) const
+{
+	auto g = pointsAt_(ch);
 
 	KvPaint::color_getter coloring = nullptr;
 	if (coloringMode() != k_one_color_solid) {
-		coloring = [g, objIdx, this](unsigned i) {
+		coloring = [g, ch, this](unsigned i) {
 			auto val = g.getter(i);
-			return mapValueToColor_(val.data(), objIdx);
+			return mapValueToColor_(val.data(), ch);
 		};
 	}
 
@@ -49,7 +74,40 @@ void* KcScatter::drawObject_(KvPaint* paint, unsigned objIdx) const
 		};
 	}
 
-	return paint->drawMarkers(toPoint3Getter_(g.getter, objIdx), coloring, sizing, g.size);;
+	return paint->drawMarkers(toPoint3Getter_(g.getter, ch), coloring, sizing, g.size);
+}
+
+
+void* KcScatter::drawLabel_(KvPaint* paint) const
+{
+	std::vector<KvPaint::point3> anchors;
+	std::vector<std::string> texts;
+
+	auto c = linesTotal_() * sizePerLine_();
+	anchors.reserve(c); texts.reserve(c);
+
+	std::ostringstream strm;
+	strm << std::setprecision(label_.precision);
+	switch (label_.format) {
+	case 0:  strm << std::fixed; break;
+	case 1:  strm << std::scientific; break;
+	case 2:  strm << std::hexfloat; break;
+	default: strm << std::defaultfloat; break;
+	}
+
+	for (unsigned i = 0; i < channels_(); i++) {
+		auto g = pointsAt_(i);
+		for (unsigned j = 0; j < g.size; j++) {
+			auto pt = toPoint_(g.getter(j).data(), i);
+			anchors.push_back(pt);
+			strm.str("");
+			strm << pt[dimLabeling_];
+			texts.push_back(strm.str());
+		}
+	}
+
+	labelChanged_ = false;
+	return paint->drawTexts(anchors, texts, label_.align, label_.spacing);
 }
 
 
@@ -134,4 +192,23 @@ KuDataUtil::KpPointGetter1d KcScatter::pointsAt_(unsigned ch) const
 	};
 
 	return g;
+}
+
+
+void KcScatter::setLabelingDim(unsigned d)
+{
+	assert(d <= odim());
+	dimLabeling_ = d;
+	labelChanged_ = true;
+}
+
+
+void KcScatter::setLabel(const KpLabel& l)
+{
+	if (label_.precision != l.precision || 
+		label_.format != l.format ||
+		label_.align != l.align ||
+		label_.spacing != l.spacing)
+	    labelChanged_ = true;
+	label_ = l;
 }

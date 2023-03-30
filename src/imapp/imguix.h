@@ -11,6 +11,7 @@ class KvData;
 class KpPen;
 class KpBrush;
 class KpMarker;
+class KpLabel;
 class KeAlignment;
 
 // imguiµÄÀ©Õ¹º¯Êý
@@ -89,6 +90,8 @@ namespace ImGuiX
 	bool markerType(const char* label, int& type);
 
 	bool marker(KpMarker& cxt);
+
+	bool label(KpLabel& l);
 
 	bool margins(const char* label, KtAABB<float, 2>& m);
 

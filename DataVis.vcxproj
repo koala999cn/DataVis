@@ -226,7 +226,6 @@
     <ClCompile Include="src\plot\KcScatter.cpp" />
     <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp" />
     <ClCompile Include="src\plot\KsThemeManager.cpp" />
-    <ClCompile Include="src\plot\KuAlignment.cpp" />
     <ClCompile Include="src\plot\KuColorUtil.cpp" />
     <ClCompile Include="src\plot\KuThemeParser.cpp" />
     <ClCompile Include="src\plot\KvCoord.cpp" />

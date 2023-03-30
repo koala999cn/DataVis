@@ -61,7 +61,7 @@ public:
 
 	void drawText(const point3& anchor, const char* text, int align) override;
 
-	void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align) override;
+	void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing) override;
 
 	void* drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 

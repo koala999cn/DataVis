@@ -152,7 +152,7 @@ public:
 	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
 
 	// 批量绘制文本，返回可复用的渲染对象
-	virtual void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align) = 0;
+	virtual void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing) = 0;
 
 	virtual void* drawGeom(vtx_decl_ptr decl, geom_ptr geom) = 0;
 

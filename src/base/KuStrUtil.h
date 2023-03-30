@@ -135,9 +135,9 @@ public:
 
 	// 数值转换为字符串
 	template<typename T, typename CHAR = char>
-	static std::basic_string<CHAR> toString(T val) {
+	static std::basic_string<CHAR> toString(T val, int prec = std::numeric_limits<T>::digits10) {
 		std::basic_ostringstream<CHAR> stream;
-		stream << std::setprecision(std::numeric_limits<double>::digits10) << val;
+		stream << std::setprecision(prec) << val;
 		return stream.str();
 	}
 

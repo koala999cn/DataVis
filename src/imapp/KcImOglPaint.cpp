@@ -734,7 +734,7 @@ void KcImOglPaint::drawText(const point3& anchor, const char* text, int align)
 }
 
 
-void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align)
+void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing)
 {
 	std::vector<point3f> ans; // 锚点
 	std::vector<point4f> pos;
@@ -744,6 +744,7 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vec
 
 		// TOOD: 暂假定anchor为中心点，即align为居中对其
 		point2f offset{ -szText.x() / 2, -szText.y() / 2 };
+		offset += spacing;
 
 		pushTextData_(texts[i], pos, uvs);
 
@@ -762,6 +763,7 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vec
 
 	auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
 	obj->setScale({ scale.x(), scale.y(), scale.z() });
+	obj->setColor(clr_);
 
 	pushRenderObject_(obj);	
 	return obj;

@@ -241,10 +241,18 @@ namespace kPrivate
 
 			ImGui::EndDisabled();
 
-			ImGuiX::cbTreePush("Text", &scat->showText(), &open);
+			ImGuiX::cbTreePush("Labeling", &scat->showLabel(), &open);
 			if (open) {
-				ImGui::ColorEdit4("Text Color", scat->textColor());
-				ImGui::ShowFontSelector("Font");
+				auto label = scat->label();
+				if (ImGuiX::label(label))
+					scat->setLabel(label);
+
+				int d = scat->labelingDim();
+				if (ImGui::SliderInt("Dim", &d, 0, scat->odim())) {
+					d = KuMath::clamp<int>(d, 0, scat->odim());
+					scat->setLabelingDim(d);
+				}
+
 				ImGuiX::cbTreePop();
 			}
 		}

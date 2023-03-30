@@ -552,6 +552,28 @@ namespace ImGuiX
     }
 
 
+    bool label(KpLabel& cxt)
+    {
+        PushID(&cxt);
+        bool res = false;
+
+        ShowFontSelector("Font"); // TODO:
+        res |= ColorEdit4("Color", cxt.color);
+        res |= DragFloat2("Spacing", (float*)&cxt.spacing, 0.1, -100, 100, "%.1f px");
+
+        res |= SliderInt("Precision", &cxt.precision, 0, 19);
+
+        static const char* format[] = {
+            "fixed", "scientific", "hexfloat", "defaultfloat"
+        };
+
+        res |= Combo("Format", &cxt.format, format, std::size(format));
+
+        PopID();
+        return res;
+    }
+
+
     bool gradient(const char* label, KtGradient<float, color4f>& grad, float& selectedKey)
     {   
         auto drawList = GetWindowDrawList();

@@ -119,3 +119,25 @@ public:
 	bool italic{ false };
 	bool underline{ false };
 };
+
+
+class KpLabel
+{
+public:
+	KpFont font;
+	color4f color{ 0, 0, 0, 1 };
+	int align{ 0 };
+	point2f spacing{ 0, 0 };
+
+	int precision{ 0 }; // 语义同std::setprecision
+
+	enum KeFormat
+	{
+		k_fixed,        // 语义同std::fixed
+		k_scientific,   // 语义同std::scientific
+		k_hexfloat,     // 语义同std::hexfloat
+		k_defaultfloat  // 语义同std::defaultfloat
+	};
+
+	int format{ 0 };
+};
