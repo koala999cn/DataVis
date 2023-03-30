@@ -301,9 +301,6 @@
     <ClCompile Include="src\plot\KcBars3d.cpp">
       <Filter>plot</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KcBubble.cpp">
-      <Filter>plot</Filter>
-    </ClCompile>
     <ClCompile Include="src\plot\KcLineFilled.cpp">
       <Filter>plot</Filter>
     </ClCompile>
@@ -829,9 +826,6 @@
       <Filter>audio</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcBars3d.h">
-      <Filter>plot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\plot\KcBubble.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcLineFilled.h">

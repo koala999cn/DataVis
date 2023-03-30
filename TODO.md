@@ -82,6 +82,8 @@
 - [x] text复用情况下的状态同步：①变换矩阵设置，②保持恒定尺寸
 - [ ] 散点图启用size varying之后的性能问题（以wav.txt为例）
 - [ ] plot3d的colorbar布局问题
+- [ ] andres曲线的autoRange不正确
+- [ ]boxplot的初始尺寸太小
 
 ## theme
 - [ ] 更多theme，SCI、ggthemes等

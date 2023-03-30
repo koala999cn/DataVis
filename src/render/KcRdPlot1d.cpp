@@ -4,7 +4,6 @@
 #include "plot/KcScatter.h"
 #include "plot/KcBars2d.h"
 #include "plot/KcLineFilled.h"
-#include "plot/KcBubble.h"
 #include "plot/KcAndrewsCurves.h"
 #include "plot/KcBoxPlot.h"
 #include "prov/KvDataProvider.h"
@@ -35,14 +34,14 @@ std::vector<KvPlottable*> KcRdPlot1d::createPlottable_(KcPortNode* port)
 
 unsigned KcRdPlot1d::supportPlottableTypes_() const
 {
-	return 7;
+	return 6;
 }
 
 
 int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 {
 	if (dynamic_cast<KcAndrewsCurves*>(plt))
-		return 5;
+		return 4;
 	else if (dynamic_cast<KcGraph*>(plt))
 		return 0;
 	else if (dynamic_cast<KcScatter*>(plt))
@@ -51,10 +50,8 @@ int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 		return 2;
 	else if (dynamic_cast<KcLineFilled*>(plt))
 		return 3;
-	else if (dynamic_cast<KcBubble*>(plt))
-		return 4;
 	else if (dynamic_cast<KcBoxPlot*>(plt))
-		return 6;
+		return 5;
 
 	return -1;
 }
@@ -63,7 +60,7 @@ int KcRdPlot1d::plottableType_(KvPlottable* plt) const
 const char* KcRdPlot1d::plottableTypeStr_(int iType) const
 {
 	static const char* pltTypes[] = {
-		"graph", "scatter", "bar", "area", "bubble", "andrews curves", "box"
+		"graph", "scatter", "bar", "area", "andrews curves", "box"
 	};
 
 	return pltTypes[iType];
@@ -87,12 +84,9 @@ KvPlottable* KcRdPlot1d::newPlottable_(int iType, const std::string& name)
 		return new KcLineFilled(name);
 
 	case 4:
-		return new KcBubble(name);
-
-	case 5:
 		return new KcAndrewsCurves(name);
 
-	case 6:
+	case 5:
 		return new KcBoxPlot(name);
 	}
 
@@ -104,7 +98,7 @@ bool KcRdPlot1d::plottableMatchData_(int iType, const KvData& d) const
 {
 	switch (iType)
 	{
-	case 5:
+	case 4:
 		if (d.isContinued()) // KcAndrewsCurves不支持连续数据
 			return false;
 		break;
@@ -177,29 +171,6 @@ namespace kPrivate
 			ImGuiX::cbTreePush("Line", &fill->showLine(), &open);
 			if (open) {
 				ImGuiX::pen(fill->linePen(), true, true);
-				ImGuiX::cbTreePop();
-			}
-		}
-		else if (dynamic_cast<KcBubble*>(plt)) {
-			auto bub = dynamic_cast<KcBubble*>(plt);
-
-			if (ImGuiX::treePush("Bubble", false)) {
-				ImGui::DragFloatRange2("Size Range", &bub->sizeLower(), &bub->sizeUpper(), 0.1, 3, 33, "%.1f");
-				static const char* modeStr[] = {
-					"by Area", "by Radius"
-				};
-				int mode = bub->radiusAsSize();
-				if (ImGui::Combo("Mapping Mode", &mode, modeStr, std::size(modeStr))) {
-					bub->radiusAsSize() = mode;
-				}
-				ImGuiX::treePop();
-			}
-	
-			bool open = false;
-			ImGuiX::cbTreePush("Text", &bub->showText(), &open);
-			if (open) {
-				ImGui::ColorEdit4("Text Color", bub->textColor());
-				ImGui::ShowFontSelector("Font");
 				ImGuiX::cbTreePop();
 			}
 		}
