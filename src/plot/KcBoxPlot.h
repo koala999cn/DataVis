@@ -65,8 +65,8 @@ private:
 	KpPen whisPen_; // 箱须线：the lines which reach from the upper quartile to the maximum, and from the lower quartile to the minimum.
 	KpPen whisBarPen_; // 箱须端线：the lines parallel to the key axis at each end of the whisker backbone
 
-	float boxWidth_{ 0.1f }; // 箱体的宽度系数，相对于dx，实际宽度等于dx * width_
-	float whisBarWidth_{ 0.08 }; // 箱须端线的长度，相对于dx，默认为boxWidth_的一半. NB: dx==1
+	float boxWidth_{ 0.5f }; // 箱体的宽度系数，相对于dx，实际宽度等于dx * width_
+	float whisBarWidth_{ 0.25 }; // 箱须端线的长度，相对于dx，默认为boxWidth_的一半. NB: dx==1
 	float whisFactor_{ 1.5f }; // 上下须长度系数，默认为1.5倍的IQR. 取0时，置上下须为最大最小值，此时无outliers
 
 	// 统计结果

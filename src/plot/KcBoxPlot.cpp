@@ -59,6 +59,8 @@ bool KcBoxPlot::objectVisible_(unsigned objIdx) const
 
 void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
+	auto half_dx = discreted_()->step(0) * 0.5;
+
 	for (unsigned ch = 0; ch < odata()->channels(); ch++) {
 		for (unsigned idx = 0; idx < linesPerChannel_(); idx++) {
 			unsigned statIdx = ch * linesPerChannel_() + idx;
@@ -67,8 +69,8 @@ void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx) const
 			float_t z = usingDefaultZ_() ? defaultZ(ch) : odata()->range(zdim()).mid() + delta[2];
 
 			auto& s = stats_[statIdx];
-			auto lower = point3{ x - boxWidth_ / 2, s.q1 + delta[1], z };
-			auto upper = point3{ x + boxWidth_ / 2, s.q3 + delta[1], z };
+			auto lower = point3{ x - half_dx * boxWidth_, s.q1 + delta[1], z };
+			auto upper = point3{ x + half_dx * boxWidth_, s.q3 + delta[1], z };
 
 			// fill box
 			paint->setColor(majorColor(objIdx));
@@ -89,7 +91,7 @@ void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx) const
 			paint->drawLine(point3{ x, s.q3 + delta[1], z }, point3{ x, s.upper + delta[1], z });
 
 			// draw the whisker bars
-			auto ww = whisBarWidth_ / 2;
+			auto ww = half_dx * whisBarWidth_;
 			paint->apply(whisBarPen_);
 			paint->drawLine(point3{ x - ww, s.lower + delta[1], z }, point3{ x + ww, s.lower + delta[1], z });
 			paint->drawLine(point3{ x - ww, s.upper + delta[1], z }, point3{ x + ww, s.upper + delta[1], z });

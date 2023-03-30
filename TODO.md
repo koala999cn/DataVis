@@ -83,7 +83,8 @@
 - [ ] 散点图启用size varying之后的性能问题（以wav.txt为例）
 - [ ] plot3d的colorbar布局问题
 - [x] andres曲线的autoRange不正确
-- [ ]boxplot的初始尺寸太小
+- [x]boxplot的初始尺寸太小
+- [ ] boxplot在arrange模式下的布局
 
 ## theme
 - [ ] 更多theme，SCI、ggthemes等
