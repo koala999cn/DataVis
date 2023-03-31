@@ -358,7 +358,7 @@ namespace ImGuiX
             ImVec2 itemSize(CalcTextSize("Outter").x * 2, 0);
 
             bool outter = loc.outter();
-            int spacing = 12;
+            constexpr int spacing = 12;
 
             if (Button(loc & KeAlignment::k_vert_first ? "NW" : "WN", itemSize)) 
                 kPrivate::switchAlign(loc, KeAlignment::k_left | KeAlignment::k_top);
@@ -568,6 +568,12 @@ namespace ImGuiX
         };
 
         res |= Combo("Format", &cxt.format, format, std::size(format));
+
+        KeAlignment loc = cxt.align;
+        if (alignment("Alignment", loc, false)) {
+            cxt.align = loc;
+            res = true;
+        }
 
         PopID();
         return res;

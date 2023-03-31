@@ -740,10 +740,8 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vec
 	std::vector<point4f> pos;
 	std::vector<point4f> uvs;
 	for (unsigned i = 0; i < texts.size(); i++) {
-		auto szText = textSize(texts[i].c_str());
-
-		// TOOD: 暂假定anchor为中心点，即align为居中对其
-		point2f offset{ -szText.x() / 2, -szText.y() / 2 };
+		auto rc = KuLayoutUtil::anchorAlignedRect({ 0, 0 }, textSize(texts[i].c_str()), align);
+		point2f offset(-rc.upper());
 		offset += spacing;
 
 		pushTextData_(texts[i], pos, uvs);

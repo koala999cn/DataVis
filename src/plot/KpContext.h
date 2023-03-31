@@ -131,7 +131,7 @@ public:
 	int align{ 0 };
 	point2f spacing{ 0, 0 };
 
-	int precision{ 2 }; // 语义同std::setprecision
+	int precision{ 6 }; // 语义同std::setprecision
 
 	enum KeFormat
 	{
