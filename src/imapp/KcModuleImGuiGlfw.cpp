@@ -175,8 +175,8 @@ bool KcModuleImGuiGlfw::initImGui_()
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-    ImFont* font = io.Fonts->AddFontFromFileTTF("font/simsun.ttc", 13.0f, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
-    IM_ASSERT(font != NULL);
+    io.Fonts->AddFontFromFileTTF("font/simsun.ttc", 13.0f, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+    io.Fonts->AddFontFromFileTTF("font/NotoSansSC-Regular.otf", 15.0f, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
 
     return true;
 }

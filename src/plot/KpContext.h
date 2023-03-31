@@ -120,6 +120,15 @@ public:
 	bool bold{ false };
 	bool italic{ false };
 	bool underline{ false };
+
+	bool operator==(const KpFont& rhs) const {
+		return family == rhs.family && size == rhs.size &&
+			bold == rhs.bold && italic == rhs.italic && underline == rhs.underline;
+	}
+
+	bool operator!=(const KpFont& rhs) const {
+		return !operator==(rhs);
+	}
 };
 
 

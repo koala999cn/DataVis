@@ -558,6 +558,12 @@ namespace ImGuiX
         bool res = false;
 
         ShowFontSelector("Font"); // TODO:
+
+        if (cxt.font.family != GetFont()->GetDebugName()) {
+            cxt.font.family = GetFont()->GetDebugName();
+            res = true;
+        }
+
         res |= ColorEdit4("Color", cxt.color);
         res |= DragFloat2("Spacing", (float*)&cxt.spacing, 0.1, -100, 100, "%.1f px");
 

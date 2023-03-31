@@ -13,7 +13,8 @@ public:
 		if (label_.precision != l.precision ||
 			label_.format != l.format ||
 			label_.align != l.align ||
-			label_.spacing != l.spacing)
+			label_.spacing != l.spacing ||
+			label_.font != l.font)
 			labelChanged_ = true;
 		label_ = l;
 	}
