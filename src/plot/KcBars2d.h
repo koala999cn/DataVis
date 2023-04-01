@@ -1,19 +1,22 @@
 #pragma once
 #include "KvPlottable1d.h"
 #include "KpContext.h"
+#include "KmLabeling.h"
 #include <functional>
 
 
 // 2维柱状图.
 // 支持堆叠（stacked）、分组（grouped），以及堆叠+分组模式
 
-class KcBars2d : public KvPlottable1d
+class KcBars2d : public KvPlottable1d, public KmLabeling
 {
 	using super_ = KvPlottable1d;
 
 public:
 
 	KcBars2d(const std::string_view& name);
+
+	void setData(const_data_ptr d) override;
 
 	const color4f& minorColor() const override;
 
@@ -51,6 +54,8 @@ protected:
 
 	bool objectVisible_(unsigned objIdx) const override;
 
+	bool objectReusable_(unsigned objIdx) const override;
+
 	void* drawObject_(KvPaint*, unsigned objIdx) const override;
 
 	aabb_t calcBoundingBox_() const override;
@@ -61,6 +66,9 @@ protected:
 	bool realFilled_() const;
 
 	bool realEdged_() const;
+
+	void* drawBars_(KvPaint*) const;
+	void* drawLabel_(KvPaint*) const;
 
 private:
 

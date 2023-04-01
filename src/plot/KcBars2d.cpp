@@ -3,6 +3,7 @@
 #include "KtGeometryImpl.h"
 #include "KvDiscreted.h"
 #include "KuMath.h"
+#include <sstream>
 
 
 KcBars2d::KcBars2d(const std::string_view& name)
@@ -12,24 +13,55 @@ KcBars2d::KcBars2d(const std::string_view& name)
 }
 
 
+void KcBars2d::setData(const_data_ptr d)
+{
+	super_::setData(d);
+	setLabelingDim(odim());
+}
+
+
 unsigned KcBars2d::objectCount() const
 {
-	return 1;
+	return 2; // bars + label
 }
 
 
 void KcBars2d::setObjectState_(KvPaint* paint, unsigned objIdx) const
 {
-	paint->setFilled(realFilled_());
-	paint->setEdged(realEdged_());
-	if (realEdged_())
-		paint->apply(borderPen());
+	if (objIdx == 0) { // bars
+		paint->setFilled(realFilled_());
+		paint->setEdged(realEdged_());
+		if (realEdged_()) {
+			paint->apply(borderPen());
+			paint->setSecondaryColor(borderPen().color);
+		}
+	}
+	else { // label
+		paint->apply(label().font);
+		paint->setColor(label().color);
+	}
 }
 
 
 bool KcBars2d::objectVisible_(unsigned objIdx) const
 {
-	return realFilled_() || realEdged_();
+	if (objIdx == 0) {
+		return realFilled_() || realEdged_();
+	}
+	else {
+		return showLabel();
+	}
+}
+
+
+bool KcBars2d::objectReusable_(unsigned objIdx) const
+{
+	if (objIdx == 0) {
+		return super_::objectReusable_(objIdx);	
+	}
+	else {
+		return !dataChanged() && !labelChanged();
+	}
 }
 
 
@@ -95,16 +127,27 @@ namespace kPrivate
 
 void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
 {
+	if (objIdx == 0) {
+		return drawBars_(paint);
+	}
+	else {
+		return drawLabel_(paint);
+	}
+}
+
+
+void* KcBars2d::drawBars_(KvPaint* paint) const
+{
 	auto stackPadding = stackPadding_ / paint->projectv({ 0, 1, 0 }).length();
 
 	auto disc = discreted_();
 	auto linesPerChannel = linesPerChannel_();
 	auto vtxSize = vtxSizePerBar_();
 	auto geom = std::make_shared<KtGeometryImpl<kPrivate::KpVertexPC>>(k_quads);
-	geom->reserve(disc->size() * disc->channels() * vtxSize.first, 
+	geom->reserve(disc->size() * disc->channels() * vtxSize.first,
 		disc->size() * disc->channels() * vtxSize.second);
 
-	for (unsigned ch = 0; ch < odata()->channels(); ch++) {
+	for (unsigned ch = 0; ch < disc->channels(); ch++) {
 		for (unsigned idx = 0; idx < linesPerChannel; idx++) {
 			auto line = lineAt_(ch, idx);
 			bool floorStack = isFloorStack_(ch, idx);
@@ -120,7 +163,7 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
 				auto pos = line.getter(i);
 				auto pt = toPoint_(pos.data(), ch); // TODO: 此处多了一次toPoint_调用
 				auto top = pt.y();
-				
+
 				float_t bottom = floorStack ? baseLine_ + yoffset : top - val.getter(i).back();
 				auto paddedBottom = bottom + stackPadding * KuMath::sign(top - bottom);
 
@@ -136,9 +179,39 @@ void* KcBars2d::drawObject_(KvPaint* paint, unsigned objIdx) const
 }
 
 
+void* KcBars2d::drawLabel_(KvPaint* paint) const
+{
+	auto disc = discreted_();
+	auto linesPerChannel = linesPerChannel_();
+
+	std::vector<point3> anchors; anchors.reserve(disc->count());
+	std::vector<std::string> texts; texts.reserve(disc->count());
+
+	std::ostringstream strm;
+	label().formatStream(strm);
+
+	for (unsigned ch = 0; ch < disc->channels(); ch++) {
+		for (unsigned idx = 0; idx < linesPerChannel; idx++) {
+			auto line = lineAt_(ch, idx);
+			for (unsigned i = 0; i < line.size; i++) {
+				auto pt = line.getter(i);
+				anchors.push_back(toPoint_(pt.data(), ch));
+				strm.str("");
+				strm << pt[labelingDim()];
+				texts.push_back(strm.str());
+			}
+		}
+	}
+
+	assert(anchors.size() == disc->count());
+	const_cast<KcBars2d*>(this)->labelChanged() = false;
+	return paint->drawTexts(anchors, texts, label().align, label().spacing);
+}
+
+
 std::pair<unsigned, unsigned> KcBars2d::vtxSizePerBar_() const
 {
-	return { 4, 0 }; // 每个bar有4个顶点，无索引
+	return { 4, 0 }; // 2d模式下，每个bar有4个顶点，无索引
 }
 
 

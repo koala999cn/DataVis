@@ -83,8 +83,8 @@ void* KcScatter::drawLabel_(KvPaint* paint) const
 	std::vector<KvPaint::point3> anchors;
 	std::vector<std::string> texts;
 
-	auto c = linesTotal_() * sizePerLine_();
-	anchors.reserve(c); texts.reserve(c);
+	auto count = linesTotal_() * sizePerLine_();
+	anchors.reserve(count); texts.reserve(count);
 
 	std::ostringstream strm;
 	label().formatStream(strm);
@@ -100,6 +100,7 @@ void* KcScatter::drawLabel_(KvPaint* paint) const
 		}
 	}
 
+	assert(anchors.size() == count);
 	const_cast<KcScatter*>(this)->labelChanged() = false;
 	return paint->drawTexts(anchors, texts, label().align, label().spacing);
 }

@@ -67,6 +67,8 @@ bool KcRdPlot2d::permitInput(int dataSpec, unsigned inPort) const
 
 namespace kPrivate
 {
+    void showLabelingProperty(const char* label, KmLabeling* obj, unsigned odim);
+
     void showPlottableSpecificProperty1d(KvPlottable*);
 
     void showPlottableSpecificProperty2d(KvPlottable* plt)
@@ -86,22 +88,8 @@ namespace kPrivate
         }
 
         auto heatmap = dynamic_cast<KcHeatMap*>(plt2d);
-        if (heatmap) {
-            ImGuiX::cbTreePush("Labeling", &heatmap->showLabel(), &open);
-            if (open) {
-                auto label = heatmap->label();
-                if (ImGuiX::label(label))
-                    heatmap->setLabel(label);
-
-                int d = heatmap->labelingDim();
-                if (ImGui::SliderInt("Dim", &d, 0, heatmap->odim())) {
-                    d = KuMath::clamp<int>(d, 0, heatmap->odim());
-                    heatmap->setLabelingDim(d);
-                }
-
-                ImGuiX::cbTreePop();
-            }
-        }
+        if (heatmap)
+            showLabelingProperty("Labeling", heatmap, heatmap->odim());
     }
 }
 

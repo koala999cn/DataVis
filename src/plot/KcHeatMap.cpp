@@ -173,8 +173,9 @@ void* KcHeatMap::drawLabel_(KvPaint* paint) const
 	if (leng.x() < minSize.x() || leng.y() < minSize.y()) // 加1个总体判断，否则当nx*ny很大时，非常耗时
 		return nullptr;
 
-	std::vector<point3> anchors; anchors.reserve(gridsTotal_());
-	std::vector<std::string> texts; texts.reserve(gridsTotal_());
+	auto count = discreted_()->count();
+	std::vector<point3> anchors; anchors.reserve(count);
+	std::vector<std::string> texts; texts.reserve(count);
 	
 	std::ostringstream strm;
 	label().formatStream(strm);
@@ -197,6 +198,8 @@ void* KcHeatMap::drawLabel_(KvPaint* paint) const
 			}
 		}
 	}
+
+	assert(anchors.size() == count);
 
 	const_cast<KcHeatMap*>(this)->labelChanged() = false;
 	return paint->drawTexts(anchors, texts, label().align, label().spacing);

@@ -113,6 +113,27 @@ bool KcRdPlot1d::plottableMatchData_(int iType, const KvData& d) const
 
 namespace kPrivate
 {
+	// 帮助函数，用于显示文本标注的属性
+	void showLabelingProperty(const char* label, KmLabeling* obj, unsigned odim)
+	{
+		bool open{ false };
+		ImGuiX::cbTreePush(label, &obj->showLabel(), &open);
+		if (open) {
+			auto label = obj->label();
+			if (ImGuiX::label(label))
+				obj->setLabel(label);
+
+			int d = obj->labelingDim();
+			if (ImGui::SliderInt("Dim", &d, 0, odim)) {
+				d = KuMath::clamp<int>(d, 0, odim);
+				obj->setLabelingDim(d);
+			}
+
+			ImGuiX::cbTreePop();
+		}
+	}
+
+
 	void showPlottableSpecificProperty1d(KvPlottable* plt)
 	{
 		auto plt1d = dynamic_cast<KvPlottable1d*>(plt);
@@ -212,20 +233,7 @@ namespace kPrivate
 
 			ImGui::EndDisabled();
 
-			ImGuiX::cbTreePush("Labeling", &scat->showLabel(), &open);
-			if (open) {
-				auto label = scat->label();
-				if (ImGuiX::label(label))
-					scat->setLabel(label);
-
-				int d = scat->labelingDim();
-				if (ImGui::SliderInt("Dim", &d, 0, scat->odim())) {
-					d = KuMath::clamp<int>(d, 0, scat->odim());
-					scat->setLabelingDim(d);
-				}
-
-				ImGuiX::cbTreePop();
-			}
+			showLabelingProperty("Labeling", scat, scat->odim());
 		}
 		else if (dynamic_cast<KcGraph*>(plt)) {
 			auto graph = dynamic_cast<KcGraph*>(plt);
@@ -262,6 +270,8 @@ namespace kPrivate
 				ImGuiX::pen(bars->borderPen(), true, true);
 				ImGuiX::cbTreePop();
 			}
+
+			showLabelingProperty("Labeling", bars, bars->odim());
 		}
 		else if (dynamic_cast<KcBoxPlot*>(plt)) {
 			auto box = dynamic_cast<KcBoxPlot*>(plt);
