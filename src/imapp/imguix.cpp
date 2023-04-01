@@ -257,7 +257,10 @@ namespace ImGuiX
         };
 
         vis.resize(cols + 1);
-        showLargeTable(label, rows, cols + 1, fnShow, 1, 1, headers, vis.data());
+        unsigned freezeCols(1);
+        if (type == KuDataUtil::k_sampled_1d || type == KuDataUtil::k_sampled_2d)
+            ++freezeCols;
+        showLargeTable(label, rows, cols + 1, fnShow, freezeCols, 1, headers, vis.data());
     }
 
 
