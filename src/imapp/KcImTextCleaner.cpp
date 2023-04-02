@@ -278,7 +278,7 @@ void KcImTextCleaner::showTable_() const
     };
     
     vis_.resize(maxCols_ + 1);
-    ImGui::PushID(id());
+    ImGui::PushID(this);
     ImGuiX::showLargeTable(source_.data(), rawData_.size(), maxCols_ + 1, fnShow, 1, 1, headers, vis_.data());
     ImGui::PopID();
 }

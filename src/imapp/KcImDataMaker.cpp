@@ -77,7 +77,7 @@ void KcImDataMaker::updateImpl_()
         odata_ = nullptr; // 标记为取消状态
     }
 
-    ImGui::PushID(id());
+    ImGui::PushID(this);
     ImGuiX::showDataTable(name().c_str(), dataType_, idata_, transpose_, vis_);
     ImGui::PopID();
 }

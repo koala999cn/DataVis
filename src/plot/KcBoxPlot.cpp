@@ -73,7 +73,7 @@ void* KcBoxPlot::drawObject_(KvPaint* paint, unsigned objIdx) const
 			auto upper = point3{ x + half_dx * boxWidth_, s.q3 + delta[1], z };
 
 			// fill box
-			paint->setColor(majorColor(objIdx));
+			paint->setColor(majorColor(ch));
 			paint->fillRect(lower, upper);
 
 			// draw the border of box
