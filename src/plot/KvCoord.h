@@ -38,6 +38,9 @@ public:
 
 	virtual void placeElement(KvLayoutElement* ele, KeAlignment loc) = 0;
 
+	// 返回dim维度的缺省主坐标轴，用于设置plottable的axis
+	virtual std::shared_ptr<KcAxis> defaultAxis(unsigned dim) const = 0;
+
 	// the center point
 	point3 center() const {
 		return (upper() + lower()) / 2;

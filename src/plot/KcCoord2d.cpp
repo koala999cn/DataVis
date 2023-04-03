@@ -70,6 +70,13 @@ void KcCoord2d::forPlane(std::function<bool(KcCoordPlane& plane)> fn) const
 }
 
 
+std::shared_ptr<KcAxis> KcCoord2d::defaultAxis(unsigned dim) const
+{
+	static unsigned dimMap[] = { KcAxis::k_bottom, KcAxis::k_left };
+	return axes_[dimMap[dim]].front();
+}
+
+
 KtMargins<KcCoord2d::float_t> KcCoord2d::calcMargins_(KvPaint* paint) const
 {
 	auto l = axes_[KcAxis::k_left].front()->calcMargins(paint);
@@ -243,4 +250,21 @@ void KcCoord2d::placeElement(KvLayoutElement* ele, KeAlignment loc)
 				assert(false);
 		}
 	}
+}
+
+
+void KcCoord2d::addSplitAxis(const axis_ptr& axis)
+{
+	axis->setParent(nullptr);
+	axes_[axis->type()].push_back(axis);
+}
+
+
+void KcCoord2d::eraseSplitAxis(const axis_ptr& axis)
+{
+	KuLayoutHelper::take(axis.get());
+
+	auto type = axis->type();
+	auto pos = std::find(axes_[type].cbegin(), axes_[type].cend(), axis);
+	axes_[type].erase(pos);
 }

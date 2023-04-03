@@ -65,6 +65,9 @@ void KvPlottable::cloneConfig(const KvPlottable& plt)
 
 		setColorMappingDim(plt.colorMappingDim());
 	}
+
+	for (unsigned i = 0; i < selfAxes_.size(); i++)
+		setAxis(i, plt.axis(i));
 }
 
 
@@ -231,7 +234,11 @@ std::shared_ptr<const KvDiscreted> KvPlottable::discreted_() const
 
 bool KvPlottable::hasSelfAxis() const
 {
-	return selfAxes_[0] || selfAxes_[1] || selfAxes_[2];
+	for (unsigned i = 0; i < selfAxes_.size(); i++)
+		if (selfAxes_[i] && !selfAxes_[i]->main())
+			return true;
+
+	return false;
 }
 
 

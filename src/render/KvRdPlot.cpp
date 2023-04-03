@@ -12,7 +12,7 @@
 #include "misc/cpp/imgui_stdlib.h"
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
-#include "plot/KvCoord.h"
+#include "plot/KcCoord2d.h"
 #include "plot/KcCoordPlane.h"
 #include "plot/KvPaint.h"
 #include "plot/KcLegend.h"
@@ -844,6 +844,7 @@ void KvRdPlot::showPlottableProperty_()
 				showPlottableArrangeProperty_(plt);
 				showPlottableColoringProperty_(plt);
 				showPlottableDefaultZProperty_(plt);
+				showPlottableAxisProperty_(plt);
 				showPlottableSpecificProperty_(plt);
 
 				// for debug
@@ -933,7 +934,7 @@ void KvRdPlot::showPlottableArrangeProperty_(KvPlottable* plt)
 
 	auto disc = std::dynamic_pointer_cast<const KvDiscreted>(plt->odata());
 	if (!disc || disc->isSampled()) {
-		if (ImGuiX::treePush("Arrangement", false)) {
+		if (ImGuiX::treePush("Arrange", false)) {
 			std::string label("Dim1");
 			for (unsigned d = 0; d < plt->odata()->dim(); d++) {
 
@@ -948,7 +949,7 @@ void KvRdPlot::showPlottableArrangeProperty_(KvPlottable* plt)
 
 				if (ImGuiX::treePush(label.c_str(), false)) {
 					int mode = plt1d->arrangeMode(d);
-					if (ImGui::Combo("Arrange Mode", &mode, arrangeModes, std::size(arrangeModes)))
+					if (ImGui::Combo("Mode", &mode, arrangeModes, std::size(arrangeModes)))
 						plt1d->setArrangeMode(d, mode);
 
 					auto axis = plt1d->deltaAxis(d, true);
@@ -1068,6 +1069,72 @@ void KvRdPlot::showPlottableDefaultZProperty_(KvPlottable* plt)
 		auto b = plt->forceDefaultZ();
 		if (ImGui::Checkbox("Force Default", &b))
 			plt->setForceDefaultZ(b);
+
+		ImGuiX::treePop();
+	}
+}
+
+
+void KvRdPlot::showPlottableAxisProperty_(KvPlottable* plt)
+{
+	if (plot_->dim() > 2)
+		return; // plot3d不支持分离坐标轴
+
+	if (ImGuiX::treePush("Split Axes", false)) {
+
+		static const char* xmodeStr[] = { "none", "split at bottom", "split at top" };
+		static const char* ymodeStr[] = { "none", "split at left", "split at right" };
+
+		int xmode = plt->axis(0)->main() ? 0 : plt->axis(0)->type() == KcAxis::k_bottom ? 1 : 2;
+		int ymode = plt->axis(1)->main() ? 0 : plt->axis(1)->type() == KcAxis::k_left ? 1 : 2;
+
+		auto& coord2d = (KcCoord2d&)plot_->coord();
+
+		if (ImGui::Combo("X", &xmode, xmodeStr, std::size(xmodeStr))) {	
+			if (xmode == 0) {
+				if (!plt->axis(0)->main())
+					coord2d.eraseSplitAxis(plt->axis(0));
+				plt->setAxis(0, plot_->coord().defaultAxis(0));
+			}
+			else {
+				if (plt->axis(0)->main()) {
+					auto axis = std::make_shared<KcAxis>(*plt->axis(0));
+					axis->setMain(false);
+					axis->setType(xmode == 1 ? KcAxis::k_bottom : KcAxis::k_top);
+					axis->visible() = true;
+					plt->setAxis(0, axis);
+					coord2d.addSplitAxis(axis);
+				}
+				else {
+					coord2d.eraseSplitAxis(plt->axis(0));
+					plt->axis(0)->setType(xmode == 1 ? KcAxis::k_bottom : KcAxis::k_top);
+					coord2d.addSplitAxis(plt->axis(1));
+				}
+			}
+		}
+
+		if (ImGui::Combo("Y", &ymode, ymodeStr, std::size(ymodeStr))) {
+			if (ymode == 0) {
+				if (!plt->axis(1)->main())
+					coord2d.eraseSplitAxis(plt->axis(1));
+				plt->setAxis(1, plot_->coord().defaultAxis(1));
+			}
+			else {
+				if (plt->axis(1)->main()) {
+					auto axis = std::make_shared<KcAxis>(*plt->axis(1));
+					axis->setMain(false);
+					axis->setType(ymode == 1 ? KcAxis::k_left : KcAxis::k_right);
+					axis->visible() = true;
+					plt->setAxis(1, axis);
+					coord2d.addSplitAxis(axis);
+				}
+				else {
+					coord2d.eraseSplitAxis(plt->axis(1));
+					plt->axis(1)->setType(ymode == 1 ? KcAxis::k_left : KcAxis::k_right);
+					coord2d.addSplitAxis(plt->axis(1));
+				}
+			}
+		}
 
 		ImGuiX::treePop();
 	}

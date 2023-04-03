@@ -83,7 +83,7 @@ void KcLegend::draw(KvPaint* paint) const
     rc = rc.intersection(iRect_);
     if (rc.isNull()) return;
 
-    // 配置paint，以便在legned的局部空间执行绘制操作
+    // 使用屏幕坐标绘制legned
     paint->pushCoord(KvPaint::k_coord_screen);
     
     if (showBkgnd_ && bkgnd_.visible()) {

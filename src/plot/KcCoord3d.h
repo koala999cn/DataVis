@@ -24,6 +24,8 @@ public:
 
 	void forPlane(std::function<bool(KcCoordPlane& plane)>) const override;
 
+	std::shared_ptr<KcAxis> defaultAxis(unsigned dim) const final;
+
 	rect_t getPlotRect() const override;
 
 	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;

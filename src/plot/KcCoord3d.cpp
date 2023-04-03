@@ -95,6 +95,13 @@ void KcCoord3d::forPlane(std::function<bool(KcCoordPlane& plane)> fn) const
 }
 
 
+std::shared_ptr<KcAxis> KcCoord3d::defaultAxis(unsigned dim) const
+{
+	static unsigned dimMap[] = { KcAxis::k_bottom, KcAxis::k_left, KcAxis::k_floor_right };
+	return axes_[dimMap[dim]];
+}
+
+
 KcCoord3d::rect_t KcCoord3d::getPlotRect() const
 {
 	return innerRect();

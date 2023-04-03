@@ -46,6 +46,10 @@ void KvPlot::addPlottable(KvPlottable* plt)
 {
 	plottables_.emplace_back(plt);
 
+	for (unsigned i = 0; i < dim_; i++)
+		if (!plt->axis(i))
+			plt->setAxis(i, coord_->defaultAxis(i));
+
 	syncLegendAndColorbars_();
 }
 
@@ -321,8 +325,8 @@ void KvPlot::drawLayoutRect_()
 		auto e = eles.front(); eles.pop();
 		auto c = dynamic_cast<KvLayoutContainer*>(e);
 		if (c) {
-			for (auto& i : c->elements())
-				if (i) eles.push(i.get());
+			for (auto i : c->elements())
+				if (i) eles.push(i);
 		}
 		//else {
 			paint_->setColor({ 0,0,1,1 }); // À¶É«»­ÄÚ¿ò

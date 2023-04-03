@@ -25,6 +25,7 @@ public:
 	using point_t = typename rect_t::point_t;
 
 	KvLayoutElement() = default;
+	KvLayoutElement(const KvLayoutElement&) = default;
 	KvLayoutElement(KvLayoutElement* parent) : parent_(parent) {}
 
 	KeAlignment align() const { return align_; }

@@ -9,7 +9,7 @@
 class KvLayoutContainer : public KvLayoutElement
 {
 public:
-	using container_type = std::vector<std::unique_ptr<KvLayoutElement>>;
+	using container_type = std::vector<KvLayoutElement*>; // 不使用unique智能指针，否则KvLayoutElement无法实现拷贝构造
 
 	using KvLayoutElement::KvLayoutElement;
 
@@ -21,15 +21,18 @@ public:
 
 	KvLayoutElement* getAt(unsigned idx) const {
 		assert(idx < size());
-		return std::next(elements_.cbegin(), idx)->get();
+		return *std::next(elements_.cbegin(), idx);
 	}
 
 	// 同putAt，但不自动增长空间，超范围时将出现assert失败
+	// idx位置的原对象将被销毁
 	void setAt(unsigned idx, KvLayoutElement* ele) {
 		assert(idx < size());
 		assert(ele == nullptr || ele->parent() == nullptr);
 		if (ele) ele->setParent(this);
-		std::next(elements_.begin(), idx)->reset(ele);
+		auto pos = std::next(elements_.begin(), idx);
+		if (*pos) delete *pos;
+		*pos = ele;
 	}
 
 	// 在第idx个位置插入ele元素，元素数量加1
@@ -68,7 +71,9 @@ public:
 	// 删除第idx个元素，元素总量减少1个
 	void removeAt(unsigned idx) {
 		assert(idx < size());
-		elements_.erase(std::next(elements_.cbegin(), idx));
+		auto pos = std::next(elements_.cbegin(), idx);
+		if (*pos) delete* pos;
+		elements_.erase(pos);
 	}
 
 	// 返回第idx个位置的元素对象指针，同时释放对该元素的生命周期管理权限，
@@ -77,16 +82,20 @@ public:
 		assert(idx < size());
 
 		auto pos = std::next(elements_.begin(), idx);
-		if (pos->get())
-			pos->get()->setParent(nullptr);
+		auto ele = *pos;
+	
+		if (ele) {
+			ele->setParent(nullptr);
+			*pos = nullptr;
+		}
 
-		return pos->release();
+		return ele;
 	}
 
 	// 返回元素ele的位置序号，-1表示未找到ele
 	unsigned find(KvLayoutElement* ele) const {
 		for (auto iter = std::cbegin(elements_); iter != std::cend(elements_); iter++)
-			if (iter->get() == ele)
+			if (*iter == ele)
 				return std::distance(std::cbegin(elements_), iter);
 
 		return -1;

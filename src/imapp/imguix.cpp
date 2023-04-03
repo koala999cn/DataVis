@@ -834,7 +834,7 @@ namespace ImGuiX
                 if (treePush("Children", false)) {
                     auto c = dynamic_cast<KvLayoutContainer*>(lay);
                     for (auto& e : c->elements()) 
-                        if (e) layout(layLabel_(e.get()), e.get());
+                        if (e) layout(layLabel_(e), e);
                     treePop();
                 }
             }

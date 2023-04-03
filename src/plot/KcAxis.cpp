@@ -9,6 +9,47 @@
 #include "layout/KuLayoutUtil.h"
 
 
+KcAxis::KcAxis(const KcAxis& axis)
+	: KvRenderable(axis.name())
+	, KvLayoutElement(axis)
+{
+	visible() = axis.visible();
+
+	type_ = axis.type_;
+	title_ = axis.title_;
+	labels_ = axis.labels_; 
+	lower_ = axis.lower_, upper_ = axis.upper_; 
+	showBaseline_ = axis.showBaseline_, showTick_ = axis.showTick_, showSubtick_ = axis.showSubtick_,
+		showTitle_ = axis.showTitle_, showLabel_ = axis.showLabel_;
+
+	baselineCxt_ = axis.baselineCxt_;
+	tickCxt_ = axis.tickCxt_, subtickCxt_ = axis.subtickCxt_;
+
+	labelPadding_ = axis.labelPadding_;
+	labelCxt_ = axis.labelCxt_;
+
+	titlePadding_ = axis.titlePadding_;
+	titleCxt_ = axis.titleCxt_;
+
+	start_ = axis.start_, end_ = axis.end_;
+
+	ticker_ = axis.ticker_;
+
+	dimReal_ = axis.dimReal_;
+	dimSwapped_ = axis.dimSwapped_;
+	main_ = axis.main_;
+	inv_ = axis.inv_;
+
+	tickOrient_ = axis.tickOrient_;
+	labelOrient_ = axis.labelOrient_;
+	labelSize_ = axis.labelSize_;
+	titleSize_ = axis.titleSize_;
+	titleAnchor_ = axis.titleAnchor_;
+	hDir_ = axis.hDir_, vDir_ = axis.vDir_;
+	box_ = axis.box_;
+}
+
+
 KcAxis::KcAxis(KeType type, int dim, bool main)
 	: KvRenderable("Axis")
 	, type_(type)

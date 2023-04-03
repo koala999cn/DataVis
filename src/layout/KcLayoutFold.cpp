@@ -15,13 +15,13 @@ std::vector<std::vector<KvLayoutElement*>> KcLayoutFold::layout_() const
 	for (int i = 0; i < rows - 1; i++) {
 		lay[i].resize(wraps);
 		for (int j = 0; i < cols; j++, ++iter)
-			lay[i][j] = iter->get();
+			lay[i][j] = (*iter);
 	}
 
 	assert(iter != elements().end());
 	lay.back().reserve(wraps);
 	while (iter != elements().end())
-		lay.back().push_back(iter++->get());
+		lay.back().push_back((*iter++));
 
 	return rowMajor_ ? lay : KuMatrixUtil::transpose(lay);
 }

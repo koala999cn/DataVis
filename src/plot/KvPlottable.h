@@ -47,11 +47,11 @@ public:
 	unsigned sampCount(unsigned dim) const { return sampCount_[dim]; }
 	void setSampCount(unsigned dim, unsigned c);
 
-	// 设置第dim维度的分离坐标轴，该函数接管axis的控制权
-	void setAxis(unsigned dim, KcAxis* axis) { selfAxes_[dim].reset(axis); }
+	// 设置第dim维度的分离坐标轴
+	void setAxis(unsigned dim, const std::shared_ptr<KcAxis>& axis) { selfAxes_[dim] = axis; }
 
 	// 返回dim维度的分离坐标轴引用
-	KcAxis* axis(unsigned dim) const { return selfAxes_[dim].get(); }
+	std::shared_ptr<KcAxis> axis(unsigned dim) const { return selfAxes_[dim]; }
 
 	// 该plt是否含有分离坐标轴
 	bool hasSelfAxis() const;
@@ -237,8 +237,8 @@ private:
 	// 各维度的采样点数目, 仅适用于连续数据
 	std::vector<unsigned> sampCount_{ std::vector<unsigned>({ 1000 }) }; 
 
-	// 用于分离坐标轴，缺省为null，表示使用主坐标轴
-	std::array<std::unique_ptr<KcAxis>, 3> selfAxes_; 
+	// 用于分离坐标轴，若null，则在加入plot的时候被置为主坐标轴
+	std::array<std::shared_ptr<KcAxis>, 3> selfAxes_; 
 
 	// 对Z轴的特殊处理：有2个作用：
 	// 一是对于一维数据，填补缺省的z值，以便在3d空间绘制

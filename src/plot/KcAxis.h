@@ -86,6 +86,7 @@ public:
 		float pitch{ 0 }; // 绕hDir或vDir的旋转角度（弧度）
 	};
 
+	KcAxis(const KcAxis& axis);
 	KcAxis(KeType type, int dim, bool main);
 
 	KeType type() const { return type_; }
@@ -194,6 +195,7 @@ public:
 	int dim() const { return dimReal_; }
 
 	bool main() const { return main_; }
+	void setMain(bool b) { main_ = b; }
 
 	bool inversed() const { return inv_; }
 	void setInversed(bool inv) { inv_ = inv; }
