@@ -272,7 +272,7 @@ private:
 	float titlePadding_{ 2 };
 	KpTextContext titleCxt_;
 
-	point3 start_, end_;
+	mutable point3 start_, end_;
 
 	std::shared_ptr<KvTicker> ticker_;
 

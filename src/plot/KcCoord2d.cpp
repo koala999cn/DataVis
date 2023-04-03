@@ -90,15 +90,9 @@ KtMargins<KcCoord2d::float_t> KcCoord2d::calcMargins_(KvPaint* paint) const
 }
 
 
-void KcCoord2d::resetMargins_()
-{
-	margins() = { point2(0), point2(0) };
-}
-
-
 KcCoord2d::size_t KcCoord2d::calcSize_(void* cxt) const
 {
-	const_cast<KcCoord2d*>(this)->resetMargins_();
+	const_cast<KcCoord2d*>(this)->margins() = { point2(0), point2(0) }; // TOOD: 是否可推迟到fixMargins_
 
 	// 重新布局axis
 	forAxis([this](KcAxis& axis) {

@@ -44,7 +44,6 @@ private:
 
 	size_t calcSize_(void* cxt) const final;
 
-	void resetMargins_();
 	void fixMargins_();
 
 private:

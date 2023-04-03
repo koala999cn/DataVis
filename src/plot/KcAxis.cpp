@@ -88,13 +88,27 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 {
 	assert(visible());
 
+	// 根据layout计算结果，修正坐标轴的start & end，确保分离坐标轴能正确定位
+	if (!calcBox && !main_) {
+		assert(dimReal_ < 2);
+		auto d = 1 - dimReal_;
+		auto f = KuMath::remap(start_[d], box_.lower()[d], box_.upper()[d], 0., 1.);
+		auto st = iRect_.lower(), ed = iRect_.upper();
+		std::swap(st.y(), ed.y());
+		
+		d = 1 - dimSwapped_;
+		st[d] = ed[d] = KuMath::lerp(st[d], ed[d], f);
+		start_ = paint->unprojectp(st);
+		end_ = paint->unprojectp(ed);
+	}
+
 	// NB: 无论calcBox是否为true，都须重新计算box_
 	// 因为计算布局（calcBox为true）和真实绘制（calcBox为false）时，
-	// 变化矩阵堆栈可能不同，特别是后者可能新压入了scale矩阵，
+	// 变换矩阵堆栈可能不同，特别是后者可能新压入了scale矩阵，
 	// 这导致前期计算的box_和其他与世界坐标相关的长度和位置不可用
 
-	box_ = aabb_t(start(), end()); // 初始化为point(0)时，在只显示title时出现定位问题
-	                               // NB: 此处不能用setExtent, 因为start不一定都小于end
+	box_ = aabb_t(start(), end()); // NB: 不能初始化为point(0)，否则在只显示title时出现定位问题
+	                               // NB: 不能用setExtent, 因为start不一定都小于end
 
 	// draw baseline
 	if (showBaseline() && baselineCxt_.style != KpPen::k_none) {

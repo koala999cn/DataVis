@@ -1108,7 +1108,7 @@ void KvRdPlot::showPlottableAxisProperty_(KvPlottable* plt)
 				else {
 					coord2d.eraseSplitAxis(plt->axis(0));
 					plt->axis(0)->setType(xmode == 1 ? KcAxis::k_bottom : KcAxis::k_top);
-					coord2d.addSplitAxis(plt->axis(1));
+					coord2d.addSplitAxis(plt->axis(0));
 				}
 			}
 		}

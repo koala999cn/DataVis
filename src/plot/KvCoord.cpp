@@ -65,9 +65,11 @@ void KvCoord::setExtents(const point3& lower, const point3& upper)
 	extent_[0] = lower, extent_[1] = upper;
 
 	forAxis([this](KcAxis& axis) {
-		auto dim = axis.dim();
-		axis.setRange(extent_[0][dim], extent_[1][dim]);
-		resetAxisExtent_(axis, false);
+		if (axis.main()) { // 只设置主坐标轴
+			auto dim = axis.dim();
+			axis.setRange(extent_[0][dim], extent_[1][dim]);
+			resetAxisExtent_(axis, false);
+		}
 		return true;
 		});
 }
