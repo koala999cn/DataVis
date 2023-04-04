@@ -69,7 +69,7 @@
 - [ ] range太大时axis不能正常定位tick和label
 - [x] 所有plot1d都按照兼容stack和ridge模式重构
 - [x] 启动深度测试时，坐标轴的baseline与gridline深度冲突
-- [ ] 三维面积图（参考https://blog.csdn.net/Peter_Zhang_Jie/article/details/49995213）
+- [ ] 三维面积图（参考https://blog.csdn.net/Peter_Zhang_Jie/article/details/49995213 ）
 - [ ] fitColorMappingRange考虑arrange模式
 - [ ] 测试多通道高维数据的arrange模式
 - [x] 实现plottable2d的arrange模式
@@ -98,8 +98,8 @@
 - [x] 给数据加时间戳stamp
 - [x] 考虑管线未启动时的数据时间戳问题，如何体现数据更新？--> 是否动态operate和render
 - [x] 追踪和管理operator配置的变化状态
-- [ ] 实现消息框（参考https://github.com/leiradel/ImGuiAl）
-- [ ] node-editor的连接错误消息提示（考虑渐消隐的tooltip）
+- [ ] 实现消息框（参考https://github.com/leiradel/ImGuiAl ）
+- [ ] node-editor的连接错误消息提示（考虑渐消隐的tooltip，参考https://github.com/ocornut/imgui/issues/1345 ）
 - [x] pipeline非运行状态的数据同步，节点连接管理（若数据参数更改后变得不可连接，强制断开）
 - [ ] 更全面地测试数据维度和通道数等发生变化的情况
 
