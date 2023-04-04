@@ -93,7 +93,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 		assert(dimReal_ < 2);
 		auto d = 1 - dimReal_;
 		auto f = KuMath::remap(start_[d], box_.lower()[d], box_.upper()[d], 0., 1.);
-		auto st = iRect_.lower(), ed = iRect_.upper();
+		auto st = oRect_.lower(), ed = oRect_.upper(); // NB: 不可使用iRect，否则分离坐标轴可能出现缺口（#I6SRQH）
 		std::swap(st.y(), ed.y());
 		
 		d = 1 - dimSwapped_;
