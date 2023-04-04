@@ -211,7 +211,7 @@ void KvCoord::inverseAxis(int dim, bool inv)
 	inv_[dim] = inv;
 
 	forAxis([dim, inv](KcAxis& axis) {
-		if (axis.dim() == dim && axis.main())
+		if (axis.dim() == dim/*&& axis.main()*/) // NB: 分离坐标轴与主坐标轴保持一致
 			axis.setInversed(inv);
 		return true;
 		});

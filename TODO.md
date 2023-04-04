@@ -28,7 +28,7 @@
 ## plot
 - [ ] title等设置
 - [ ] 各种类型的axis
-- [ ] 分离axis
+- [x] 分离axis
 - [ ] 文字渲染系统（参考https://github.com/mosra/magnum/tree/master/src/Magnum/Text ）
 - [x] x轴与y轴的交换 --> ok
 - [x] plot3d的legend布局 --> ok

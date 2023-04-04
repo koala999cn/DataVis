@@ -89,7 +89,7 @@ protected:
 
 		void showPlottableDefaultZProperty_(KvPlottable*);
 
-		void showPlottableAxisProperty_(KvPlottable*); // 用于控制分离坐标轴
+		void showPlottableSplitAxesProperty_(KvPlottable*); // 用于控制分离坐标轴
 
 	    virtual void showPlottableSpecificProperty_(KvPlottable*) {};
 

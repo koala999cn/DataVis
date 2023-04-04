@@ -305,9 +305,28 @@ void KvPlot::drawPlottables_()
 {
 	paint_->pushClipRect(coord_->getPlotRect()); // 设置clipRect，防止plottables超出范围
 
-	for (int idx = 0; idx < plottableCount(); idx++)
-		if (plottableAt(idx)->visible())
-			plottableAt(idx)->draw(paint_.get());
+	for (int idx = 0; idx < plottableCount(); idx++) {
+		auto plt = plottableAt(idx);
+		if (plt->visible()) {
+			vec3d scale(1);
+			for (int i = 0; i < 2; i++) {
+				if (!plt->axis(i)->main())  // 处理分离坐标轴
+					scale[i] = coord_->defaultAxis(i)->length() / plt->axis(i)->length();
+			}
+
+			if (scale != vec3d(1)) {
+				auto mat = KvPaint::mat4::buildScale(scale);
+				mat = mat * KvPaint::mat4::buildTanslation({ -plt->axis(0)->lower(), -plt->axis(1)->lower(), 0 });
+				mat = KvPaint::mat4::buildTanslation({ coord_->defaultAxis(0)->lower(), coord_->defaultAxis(1)->lower(), 0 }) * mat;
+				paint_->pushLocal(mat);
+			}
+
+			plt->draw(paint_.get());
+
+			if (scale != vec3d(1))
+				paint_->popLocal();
+		}
+	}
 
 	paint_->popClipRect();
 }

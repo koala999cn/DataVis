@@ -468,8 +468,6 @@ void KvRdPlot::showCoordProperty_()
 			ImGuiX::treePop();
 		}
 
-		ImGui::Separator();
-
 		if (ImGuiX::treePush("Planes", false)) {
 			plot_->coord().forPlane([this](KcCoordPlane& plane) {
 				showPlaneProperty_(plane);
@@ -555,6 +553,13 @@ namespace kPrivate
 		if (!open) return;
 
 		ImGui::PushID(&ax);
+
+		if (!ax.main()) { // 对于分离坐标轴，显示range设置
+			float lower = ax.lower(), upper = ax.upper();
+			auto speed = ax.length() * 0.005;
+			if (ImGui::DragFloatRange2("Range", &lower, &upper, speed) && lower < upper)
+				ax.setRange(lower, upper);
+		}
 
 		open = false;
 		ImGuiX::cbTreePush("Baseline", &ax.showBaseline(), &open);
@@ -844,7 +849,7 @@ void KvRdPlot::showPlottableProperty_()
 				showPlottableArrangeProperty_(plt);
 				showPlottableColoringProperty_(plt);
 				showPlottableDefaultZProperty_(plt);
-				showPlottableAxisProperty_(plt);
+				showPlottableSplitAxesProperty_(plt);
 				showPlottableSpecificProperty_(plt);
 
 				// for debug
@@ -1075,65 +1080,37 @@ void KvRdPlot::showPlottableDefaultZProperty_(KvPlottable* plt)
 }
 
 
-void KvRdPlot::showPlottableAxisProperty_(KvPlottable* plt)
+void KvRdPlot::showPlottableSplitAxesProperty_(KvPlottable* plt)
 {
 	if (plot_->dim() > 2)
 		return; // plot3d不支持分离坐标轴
 
 	if (ImGuiX::treePush("Split Axes", false)) {
 
-		static const char* xmodeStr[] = { "none", "split at bottom", "split at top" };
-		static const char* ymodeStr[] = { "none", "split at left", "split at right" };
+		static const char* xmodeStr[] = { "share main", "split at bottom", "split at top" };
+		static const char* ymodeStr[] = { "share main", "split at left", "split at right" };
 
 		int xmode = plt->axis(0)->main() ? 0 : plt->axis(0)->type() == KcAxis::k_bottom ? 1 : 2;
 		int ymode = plt->axis(1)->main() ? 0 : plt->axis(1)->type() == KcAxis::k_left ? 1 : 2;
 
 		auto& coord2d = (KcCoord2d&)plot_->coord();
-
-		if (ImGui::Combo("X", &xmode, xmodeStr, std::size(xmodeStr))) {	
-			if (xmode == 0) {
-				if (!plt->axis(0)->main())
-					coord2d.eraseSplitAxis(plt->axis(0));
-				plt->setAxis(0, plot_->coord().defaultAxis(0));
-			}
-			else {
-				if (plt->axis(0)->main()) {
-					auto axis = std::make_shared<KcAxis>(*plt->axis(0));
-					axis->setMain(false);
-					axis->setType(xmode == 1 ? KcAxis::k_bottom : KcAxis::k_top);
-					axis->visible() = true;
-					plt->setAxis(0, axis);
-					coord2d.addSplitAxis(axis);
-				}
-				else {
-					coord2d.eraseSplitAxis(plt->axis(0));
-					plt->axis(0)->setType(xmode == 1 ? KcAxis::k_bottom : KcAxis::k_top);
-					coord2d.addSplitAxis(plt->axis(0));
-				}
-			}
+		
+		bool open = ImGuiX::treePush("##SPLITX", false);
+		ImGui::SameLine(0, ImGui::GetStyle().ItemSpacing.x);
+		if (ImGui::Combo("X", &xmode, coord2d.axisSwapped() ? ymodeStr : xmodeStr, std::size(xmodeStr))) 
+			coord2d.splitAxis(plt, 0, xmode);
+		if (open) {
+			showAxisProperty_(*plt->axis(0));
+			ImGuiX::treePop();
 		}
 
-		if (ImGui::Combo("Y", &ymode, ymodeStr, std::size(ymodeStr))) {
-			if (ymode == 0) {
-				if (!plt->axis(1)->main())
-					coord2d.eraseSplitAxis(plt->axis(1));
-				plt->setAxis(1, plot_->coord().defaultAxis(1));
-			}
-			else {
-				if (plt->axis(1)->main()) {
-					auto axis = std::make_shared<KcAxis>(*plt->axis(1));
-					axis->setMain(false);
-					axis->setType(ymode == 1 ? KcAxis::k_left : KcAxis::k_right);
-					axis->visible() = true;
-					plt->setAxis(1, axis);
-					coord2d.addSplitAxis(axis);
-				}
-				else {
-					coord2d.eraseSplitAxis(plt->axis(1));
-					plt->axis(1)->setType(ymode == 1 ? KcAxis::k_left : KcAxis::k_right);
-					coord2d.addSplitAxis(plt->axis(1));
-				}
-			}
+		open = ImGuiX::treePush("##SPLITY", false);
+		ImGui::SameLine(0, ImGui::GetStyle().ItemSpacing.x);
+		if (ImGui::Combo("Y", &ymode, coord2d.axisSwapped() ? xmodeStr : ymodeStr, std::size(ymodeStr))) 
+			coord2d.splitAxis(plt, 1, ymode);
+		if (open) {
+			showAxisProperty_(*plt->axis(1));
+			ImGuiX::treePop();
 		}
 
 		ImGuiX::treePop();
