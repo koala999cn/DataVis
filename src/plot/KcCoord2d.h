@@ -6,6 +6,7 @@
 
 class KcAxis;
 class KcCoordPlane;
+class KvPlottable; // for split axis
 
 // 二维坐标系实现
 
@@ -35,8 +36,8 @@ public:
 
 	axis_list& axes(int type) { return axes_[type]; }
 
-	void addSplitAxis(const axis_ptr& axis);
-	void eraseSplitAxis(const axis_ptr& axis);
+	// @mode: =0表示取消分离，使用主坐标轴; =1表示分离坐标轴到bottom或left，=2表示分离坐标轴到top或right
+	void splitAxis(KvPlottable* plt, unsigned dim, int mode);
 
 private:
 
@@ -45,6 +46,9 @@ private:
 	size_t calcSize_(void* cxt) const final;
 
 	void fixMargins_();
+
+	void addSplitAxis_(const axis_ptr& axis);
+	void eraseSplitAxis_(const axis_ptr& axis);
 
 private:
 	axis_list axes_[4];

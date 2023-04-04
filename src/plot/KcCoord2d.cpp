@@ -1,6 +1,7 @@
 #include "KcCoord2d.h"
 #include "KcAxis.h"
 #include "KcCoordPlane.h"
+#include "KvPlottable.h"
 #include "KvPaint.h"
 #include "layout/KuLayoutHelper.h"
 
@@ -247,14 +248,44 @@ void KcCoord2d::placeElement(KvLayoutElement* ele, KeAlignment loc)
 }
 
 
-void KcCoord2d::addSplitAxis(const axis_ptr& axis)
+void KcCoord2d::splitAxis(KvPlottable* plt, unsigned dim, int mode)
+{
+	static const KcAxis::KeType type[][2] = {
+		{ KcAxis::k_bottom, KcAxis::k_top },
+		{ KcAxis::k_left, KcAxis::k_right }
+	};
+
+	if (mode == 0) {
+		if (!plt->axis(dim)->main())
+			eraseSplitAxis_(plt->axis(dim));
+		plt->setAxis(dim, defaultAxis(dim));
+	}
+	else {
+		if (plt->axis(dim)->main()) {
+			auto axis = std::make_shared<KcAxis>(*plt->axis(dim));
+			axis->setMain(false);
+			axis->setType(type[dim][mode-1]);
+			axis->visible() = true;
+			plt->setAxis(dim, axis);
+			addSplitAxis_(axis);
+		}
+		else {
+			eraseSplitAxis_(plt->axis(dim));
+			plt->axis(dim)->setType(type[dim][mode - 1]);
+			addSplitAxis_(plt->axis(dim));
+		}
+	}
+}
+
+
+void KcCoord2d::addSplitAxis_(const axis_ptr& axis)
 {
 	axis->setParent(nullptr);
 	axes_[axis->type()].push_back(axis);
 }
 
 
-void KcCoord2d::eraseSplitAxis(const axis_ptr& axis)
+void KcCoord2d::eraseSplitAxis_(const axis_ptr& axis)
 {
 	KuLayoutHelper::take(axis.get());
 
