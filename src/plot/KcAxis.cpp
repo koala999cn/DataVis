@@ -90,7 +90,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	assert(visible());
 
 	// 根据layout计算结果，修正坐标轴的start & end，确保分离坐标轴能正确定位
-	if (!calcBox && !main_) {
+	if (!calcBox && !main_ && dimReal_ != -1) {
 		assert(dimReal_ < 2);
 		auto d = 1 - dimReal_;
 		auto f = KuMath::remap(realStart()[d], box_.lower()[d], box_.upper()[d], 0., 1.);
@@ -621,8 +621,10 @@ namespace kPrivate
 KcAxis::point3 KcAxis::realStart() const
 {
 	point3 st = start();
-	for (int i = 0; i < 2; i++)
-		st[kPrivate::otherDim[dimReal_][i]] += offset_[i];
+	if (dimReal_ != -1) {
+		for (int i = 0; i < 2; i++)
+			st[kPrivate::otherDim[dimReal_][i]] += offset_[i];
+	}
 	return st;
 }
 
@@ -630,7 +632,9 @@ KcAxis::point3 KcAxis::realStart() const
 KcAxis::point3 KcAxis::realEnd() const
 {
 	point3 ed = end();
-	for (int i = 0; i < 2; i++)
-		ed[kPrivate::otherDim[dimReal_][i]] += offset_[i];
+	if (dimReal_ != -1) {
+		for (int i = 0; i < 2; i++)
+			ed[kPrivate::otherDim[dimReal_][i]] += offset_[i];
+	}
 	return ed;
 }
