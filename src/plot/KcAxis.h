@@ -93,18 +93,22 @@ public:
 	void setType(KeType t) { type_ = t; }
 
 	const point3& start() const { return start_; }
-	void setStart(const point3& v) { start_ = v; }
-	void setStart(float_t x, float_t y, float_t z) { start_ = point3(x, y, z); }
+	point3& start() { return start_; }
 
 	const point3& end() const { return end_; }
-	void setEnd(const point3& v) { end_ = v; }
-	void setEnd(float_t x, float_t y, float_t z) { end_ = point3(x, y, z); }
+	point3& end() { return end_; }
+
+	const point2& offset() const { return offset_; }
+	point2& offset() { return offset_; }
 
 	// NB: st, ed均为局部（原始）坐标，不考虑交换和反转
 	void setExtent(const point3& st, const point3& ed) {
 		start_ = st, end_ = ed;
 	}
 
+	// 加上偏移后的起点与终点位置
+	point3 realStart() const;
+	point3 realEnd() const;
 
 	/// range 
 
@@ -117,9 +121,7 @@ public:
 		lower_ = l, upper_ = u;
 	}
 
-	float_t length() const { 
-		return upper() - lower(); 
-	}
+	float_t length() const { return upper() - lower(); }
 
 	bool showBaseline() const { return showBaseline_; }
 	bool& showBaseline() { return showBaseline_; }
@@ -273,6 +275,7 @@ private:
 	KpTextContext titleCxt_;
 
 	mutable point3 start_, end_;
+	point2 offset_{ 0 }; // 坐标轴在另外2个维度的偏移（局部坐标），用于构建灵活的坐标系布局
 
 	std::shared_ptr<KvTicker> ticker_;
 

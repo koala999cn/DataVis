@@ -561,6 +561,9 @@ namespace kPrivate
 				ax.setRange(lower, upper);
 		}
 
+		auto& off = ax.offset();
+		ImGui::DragScalarN("Offset", ImGuiDataType_Double, off.data(), 2);
+
 		open = false;
 		ImGuiX::cbTreePush("Baseline", &ax.showBaseline(), &open);
 		if (open) {

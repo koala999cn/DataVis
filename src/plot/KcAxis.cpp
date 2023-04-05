@@ -32,6 +32,7 @@ KcAxis::KcAxis(const KcAxis& axis)
 	titleCxt_ = axis.titleCxt_;
 
 	start_ = axis.start_, end_ = axis.end_;
+	offset_ = axis.offset_;
 
 	ticker_ = axis.ticker_;
 
@@ -92,7 +93,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	if (!calcBox && !main_) {
 		assert(dimReal_ < 2);
 		auto d = 1 - dimReal_;
-		auto f = KuMath::remap(start_[d], box_.lower()[d], box_.upper()[d], 0., 1.);
+		auto f = KuMath::remap(realStart()[d], box_.lower()[d], box_.upper()[d], 0., 1.);
 		auto st = oRect_.lower(), ed = oRect_.upper(); // NB: 不可使用iRect，否则分离坐标轴可能出现缺口（#I6SRQH）
 		std::swap(st.y(), ed.y());
 		
@@ -100,6 +101,8 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 		st[d] = ed[d] = KuMath::lerp(st[d], ed[d], f);
 		start_ = paint->unprojectp(st);
 		end_ = paint->unprojectp(ed);
+
+		//start_[d] -= offset_[0]; end_[d] -= offset_[0];
 	}
 
 	// NB: 无论calcBox是否为true，都须重新计算box_
@@ -107,14 +110,14 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// 变换矩阵堆栈可能不同，特别是后者可能新压入了scale矩阵，
 	// 这导致前期计算的box_和其他与世界坐标相关的长度和位置不可用
 
-	box_ = aabb_t(start(), end()); // NB: 不能初始化为point(0)，否则在只显示title时出现定位问题
+	box_ = aabb_t(realStart(), realEnd()); // NB: 不能初始化为point(0)，否则在只显示title时出现定位问题
 	                               // NB: 不能用setExtent, 因为start不一定都小于end
 
 	// draw baseline
 	if (showBaseline() && baselineCxt_.style != KpPen::k_none) {
 		if (!calcBox) {
 			paint->apply(baselineCxt_);
-			paint->drawLine(start(), end()); // 物理坐标
+			paint->drawLine(realStart(), realEnd()); // 物理坐标
 		}
 
 		// TODO: 膨胀坐标轴的宽度
@@ -319,7 +322,7 @@ void KcAxis::drawTick_(KvPaint* paint, const point3& anchor, double length, bool
 
 int KcAxis::labelAlignment_(KvPaint* paint) const
 {
-	auto axisOrient = paint->projectv(end() - start());
+	auto axisOrient = paint->projectv(axisOrient_());
 	auto labelOrient = paint->projectv(labelOrient_); // TODO: 区分label和title
 
 	if (std::abs(axisOrient.x()) < std::abs(axisOrient.y())) {
@@ -343,7 +346,7 @@ namespace kPrivate
 
 KcAxis::point3 KcAxis::tickPos(double val) const
 {
-	return kPrivate::remap(val, lower(), upper(), start(), end(), inversed());
+	return kPrivate::remap(val, lower(), upper(), realStart(), realEnd(), inversed());
 }
 
 
@@ -357,27 +360,34 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 		auto paint = (KvPaint*)cxt;
 		auto marg = calcMargins(paint);
 		margins_t m{ point2(0), point2(0) };
+		
+		auto off = paint->projectv({ offset_[0], offset_[0], 0 });
+		constexpr auto minSize = 1e-6; // 一个很小的尺寸值，防止尺寸为0
 
 		switch (typeReal())
 		{
 		case KcAxis::k_left:
 			m.lower().y() = marg.top(), m.upper().y() = marg.bottom();
 			sz.x() = std::max<float_t>(marg.left(), baselineCxt_.width);
+			sz.x() = KuMath::clampFloor(sz.x() - off[0], minSize);
 			break;
 
 		case KcAxis::k_right:
 			m.lower().y() = marg.top(), m.upper().y() = marg.bottom();
 			sz.x() = std::max<float_t>(marg.right(), baselineCxt_.width);
+			sz.x() = KuMath::clampFloor(sz.x() + off[0], minSize);
 			break;
 
 		case KcAxis::k_bottom:
 			m.lower().x() = marg.left(), m.upper().x() = marg.right();
 			sz.y() = std::max<float_t>(marg.bottom(), baselineCxt_.width);
+			sz.y() = KuMath::clampFloor(sz.y() + off[1], minSize);
 			break;
 
 		case KcAxis::k_top:
 			m.lower().x() = marg.left(), m.upper().x() = marg.right();
 			sz.y() = std::max<float_t>(marg.top(), baselineCxt_.width);
+			sz.y() = KuMath::clampFloor(sz.y() - off[1], minSize);
 			break;
 
 		default:
@@ -401,7 +411,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 	draw_(paint, true);
 
 	// 局部坐标转换到屏幕坐标，以方便计算留白的像素值
-	aabb_t ibox(paint->projectp(start()), paint->projectp(end()));
+	aabb_t ibox(paint->projectp(realStart()), paint->projectp(realEnd()));
 	aabb_t obox(paint->projectp(box_.lower()), paint->projectp(box_.upper()));
 
 	auto l = ibox.lower() - obox.lower();
@@ -420,7 +430,7 @@ KtMargins<KcAxis::float_t> KcAxis::calcMargins(KvPaint* paint) const
 
 bool KcAxis::tickAndLabelInSameSide_() const
 {
-	KtLine<float_t> line(point3(0), end() - start());
+	KtLine<float_t> line(point3(0), axisOrient_());
 	auto tickSide = line.whichSide(tickOrient_);
 	auto labelSide = line.whichSide(labelOrient_);
 	return (tickSide * labelSide).ge(point3(0));
@@ -581,9 +591,9 @@ void KcAxis::drawText_(KvPaint* paint, const std::string_view& label, const KpTe
 
 void KcAxis::calcTitleAnchor_(KvPaint* paint) const
 {
-	auto center = (start() + end()) / 2;
+	auto center = (realStart() + realEnd()) / 2;
 
-	aabb_t inner(start(), end());
+	aabb_t inner(realStart(), realEnd());
 	auto low = box_.lower() - inner.lower();
 	auto up = box_.upper() - inner.upper();
 	auto orient = labelOrient_;
@@ -597,4 +607,30 @@ void KcAxis::calcTitleAnchor_(KvPaint* paint) const
 	titleAnchor_ += orient * titlePadding_ * orientScale_(paint, orient);
 
 	// paint->drawBox(box_.lower(), box_.upper()); // for debug
+}
+
+
+namespace kPrivate
+{
+	static int otherDim[][2] = {
+		{ 1, 2 }, { 0, 2 }, { 0, 1 }
+	};
+}
+
+
+KcAxis::point3 KcAxis::realStart() const
+{
+	point3 st = start();
+	for (int i = 0; i < 2; i++)
+		st[kPrivate::otherDim[dimReal_][i]] += offset_[i];
+	return st;
+}
+
+
+KcAxis::point3 KcAxis::realEnd() const
+{
+	point3 ed = end();
+	for (int i = 0; i < 2; i++)
+		ed[kPrivate::otherDim[dimReal_][i]] += offset_[i];
+	return ed;
 }
