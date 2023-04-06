@@ -87,7 +87,7 @@ void KcAxis::setTicker(std::shared_ptr<KvTicker> tic)
 
 bool KcAxis::offsetOutward_() const
 {
-	return (typeReal() == k_left || k_left == k_bottom) ? 
+	return (typeReal() == k_left || typeReal() == k_bottom) ?
 		offset_[0] < 0 : offset_[0] > 0;
 }
 
@@ -103,7 +103,7 @@ void KcAxis::fixExtent_(KvPaint* paint) const
 
 	assert(dimReal_ < 2);
 	
-	if (offsetOutward_()) { // 向外侧偏移
+	if (offsetOutward_() || offset_[0] == 0) { // 向外侧偏移
 		auto d = 1 - dimReal_;
 		auto f = KuMath::remap(realStart()[d], box_.lower()[d], box_.upper()[d], 0., 1.);
 		
@@ -112,9 +112,9 @@ void KcAxis::fixExtent_(KvPaint* paint) const
 		// NB: 坐标轴向要使用orect，否则分离坐标轴可能出现缺口（#I6SRQH）
 		st[dimSwapped_] = oRect_.lower()[dimSwapped_], ed[dimSwapped_] = oRect_.upper()[dimSwapped_];
 
-		std::swap(st.y(), ed.y());
+		std::swap(st.y(), ed.y()); // 把st变换到左下角，ed变换到右上角，以便与世界坐标系对齐
 
-		d = 1 - dimSwapped_;
+		d = 1 - dimSwapped_; // 在屏幕坐标系下，使用dimSwapped_
 		st[d] = ed[d] = KuMath::lerp(st[d], ed[d], f);
 		start_ = paint->unprojectp(st);
 		end_ = paint->unprojectp(ed);
@@ -421,7 +421,7 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 			sz.y() = std::max<float_t>(marg.bottom(), baselineCxt_.width);
 
 			if (off.y() > 0)
-				m.upper().y() = off.y();
+				m.lower().y() = off.y();
 			else
 			    sz.y() = KuMath::clampFloor(sz.y() + off.y(), minSize);
 
@@ -432,7 +432,7 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 			sz.y() = std::max<float_t>(marg.top(), baselineCxt_.width);
 
 			if (off.y() < 0)
-				m.lower().y() = -off.y();
+				m.upper().y() = -off.y();
 			else
 			    sz.y() = KuMath::clampFloor(sz.y() - off.y(), minSize);
 
