@@ -85,25 +85,53 @@ void KcAxis::setTicker(std::shared_ptr<KvTicker> tic)
 }
 
 
-void KcAxis::draw_(KvPaint* paint, bool calcBox) const
+bool KcAxis::offsetOutward_() const
 {
-	assert(visible());
+	return (typeReal() == k_left || k_left == k_bottom) ? 
+		offset_[0] < 0 : offset_[0] > 0;
+}
 
-	// 根据layout计算结果，修正坐标轴的start & end，确保分离坐标轴能正确定位
-	if (!calcBox && !main_ && dimReal_ != -1) {
-		assert(dimReal_ < 2);
+
+void KcAxis::fixExtent_(KvPaint* paint) const
+{
+	if (iRect_.volume() == 0 || // 忽略plot3d
+		dimReal_ == -1) // 忽略自由坐标轴（如colorbar）
+		return;
+	
+	if (main_ && offset_ == point2(0)) // 无偏移的主坐标轴，无须修正
+		return;
+
+	assert(dimReal_ < 2);
+	
+	if (offsetOutward_()) { // 向外侧偏移
 		auto d = 1 - dimReal_;
 		auto f = KuMath::remap(realStart()[d], box_.lower()[d], box_.upper()[d], 0., 1.);
-		auto st = oRect_.lower(), ed = oRect_.upper(); // NB: 不可使用iRect，否则分离坐标轴可能出现缺口（#I6SRQH）
-		std::swap(st.y(), ed.y());
 		
+		auto st = iRect_.lower(), ed = iRect_.upper();
+
+		// NB: 坐标轴向要使用orect，否则分离坐标轴可能出现缺口（#I6SRQH）
+		st[dimSwapped_] = oRect_.lower()[dimSwapped_], ed[dimSwapped_] = oRect_.upper()[dimSwapped_];
+
+		std::swap(st.y(), ed.y());
+
 		d = 1 - dimSwapped_;
 		st[d] = ed[d] = KuMath::lerp(st[d], ed[d], f);
 		start_ = paint->unprojectp(st);
 		end_ = paint->unprojectp(ed);
 
-		//start_[d] -= offset_[0]; end_[d] -= offset_[0];
+		d = 1 - dimReal_; // 换到世界坐标后，要用dimReal_
+		start_[d] -= offset_[0], end_[d] -= offset_[0];
 	}
+}
+
+
+void KcAxis::draw_(KvPaint* paint, bool calcBox) const
+{
+	assert(visible());
+
+	// 根据layout计算结果，修正坐标轴的start & end，确保分离坐标轴能正确定位
+	if (!calcBox)
+	    fixExtent_(paint);
 
 	// NB: 无论calcBox是否为true，都须重新计算box_
 	// 因为计算布局（calcBox为true）和真实绘制（calcBox为false）时，
@@ -111,7 +139,7 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// 这导致前期计算的box_和其他与世界坐标相关的长度和位置不可用
 
 	box_ = aabb_t(realStart(), realEnd()); // NB: 不能初始化为point(0)，否则在只显示title时出现定位问题
-	                               // NB: 不能用setExtent, 因为start不一定都小于end
+	                                       // NB: 不能用setExtent, 因为start不一定都小于end
 
 	// draw baseline
 	if (showBaseline() && baselineCxt_.style != KpPen::k_none) {
@@ -369,25 +397,45 @@ KcAxis::size_t KcAxis::calcSize_(void* cxt) const
 		case KcAxis::k_left:
 			m.lower().y() = marg.top(), m.upper().y() = marg.bottom();
 			sz.x() = std::max<float_t>(marg.left(), baselineCxt_.width);
-			sz.x() = KuMath::clampFloor(sz.x() - off[0], minSize);
+
+			if (off.x() < 0)
+				m.upper().x() = -off.x();
+			else
+				sz.x() = KuMath::clampFloor(sz.x() - off.x(), minSize);
+
 			break;
 
 		case KcAxis::k_right:
 			m.lower().y() = marg.top(), m.upper().y() = marg.bottom();
 			sz.x() = std::max<float_t>(marg.right(), baselineCxt_.width);
-			sz.x() = KuMath::clampFloor(sz.x() + off[0], minSize);
+
+			if (off.x() > 0)
+				m.lower().x() = off.x();
+			else
+			    sz.x() = KuMath::clampFloor(sz.x() + off.x(), minSize);
+
 			break;
 
 		case KcAxis::k_bottom:
 			m.lower().x() = marg.left(), m.upper().x() = marg.right();
 			sz.y() = std::max<float_t>(marg.bottom(), baselineCxt_.width);
-			sz.y() = KuMath::clampFloor(sz.y() + off[1], minSize);
+
+			if (off.y() > 0)
+				m.upper().y() = off.y();
+			else
+			    sz.y() = KuMath::clampFloor(sz.y() + off.y(), minSize);
+
 			break;
 
 		case KcAxis::k_top:
 			m.lower().x() = marg.left(), m.upper().x() = marg.right();
 			sz.y() = std::max<float_t>(marg.top(), baselineCxt_.width);
-			sz.y() = KuMath::clampFloor(sz.y() - off[1], minSize);
+
+			if (off.y() < 0)
+				m.lower().y() = -off.y();
+			else
+			    sz.y() = KuMath::clampFloor(sz.y() - off.y(), minSize);
+
 			break;
 
 		default:

@@ -245,6 +245,12 @@ private:
 	// 处理文本的旋转（yaw & pitch）
 	void fixTextRotation_(const KpTextContext& cxt, const point3& anchor, point3& topLeft, vec3& hDir, vec3& vDir) const;
 
+	// 适应坐标轴偏移，在绘制阶段修正start & end的值
+	void fixExtent_(KvPaint*) const;
+
+	// 坐标轴是否向外侧偏移
+	bool offsetOutward_() const; 
+
 private:
 	KeType type_;
 	std::string title_;
@@ -274,7 +280,10 @@ private:
 	float titlePadding_{ 2 };
 	KpTextContext titleCxt_;
 
+	// NB: 一方面, start & end须适应plot3d和自由坐标轴，使用真实的局部坐标
+	// 另一方面，又要满足坐标轴分离和偏移，须对局部坐标进行修正，该部分工作在fixExtent_中完成
 	mutable point3 start_, end_;
+
 	point2 offset_{ 0 }; // 坐标轴在另外2个维度的偏移（局部坐标），用于构建灵活的坐标系布局
 
 	std::shared_ptr<KvTicker> ticker_;
