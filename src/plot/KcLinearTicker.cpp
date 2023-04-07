@@ -38,24 +38,14 @@ void KcLinearTicker::generate(double lower, double upper, bool genSubticks, bool
     }
 	ticks_.back() = upper; // ·ÀÖ¹ÀÛ¼ÆÎó²î
 
-	if (genSubticks && subtickCount() > 0 && tickCount > 1) {
-        subticks_.clear();
-        subticks_.reserve(subtickCount() * (tickCount - 1));
-		for (unsigned i = 0; i < tickCount - 1; i++) {
-            auto subtickStep = tickStep / (subtickCount() + 1);
-            for (unsigned j = 1; j <= subtickCount(); j++)
-                subticks_.push_back(ticks_[i] + j * subtickStep);
-		}
-	}
+    if (genSubticks && subtickCount() > 0)
+        genSubticks_();
 
     trimTicks_(start, stop, ticks_);
     trimTicks_(start, stop, subticks_);
 
-    if (genLabels) {
-        labels_.resize(ticks_.size());
-        for (unsigned i = 0; i < ticks_.size(); i++)
-            labels_[i] = genLabel_(ticks_[i]);
-    }
+    if (genLabels)
+        genLabels_();
 }
 
 
@@ -76,18 +66,29 @@ unsigned KcLinearTicker::autoRange_(double& lower, double& upper)
 }
 
 
+double KcLinearTicker::getMantissa_(double input, double* magnitude)
+{
+    const double mag = std::pow(10.0, KuMath::floorLog10(input));
+    if (magnitude) *magnitude = mag;
+    return input / mag;
+}
+
+
+double KcLinearTicker::cleanMantissa_(double input) const
+{
+    double magnitude;
+    auto mantissa = getMantissa_(input, &magnitude);
+    return magnitude * KuMath::pickNearest(mantissa, mantissi_.data(), mantissi_.size());
+}
+
+
 double KcLinearTicker::getTickStep_(double lower, double upper) const
 {
     if (tickCount() <= 1)
         return upper - lower;
 
     double exactStep = (upper - lower) / (tickCount() - 1);
-
-    auto exp = KuMath::floorLog10(exactStep);
-    auto mag = std::pow(10, exp);
-    auto mantissa = exactStep / mag;
-
-    return mag * KuMath::pickNearest(mantissa, mantissi_.data(), mantissi_.size());
+    return cleanMantissa_(exactStep);
 }
 
 
@@ -99,4 +100,24 @@ void KcLinearTicker::trimTicks_(double lower, double upper, std::vector<double>&
 
     while (!ticks.empty() && ticks.back() > upper)
         ticks.pop_back();
+}
+
+
+void KcLinearTicker::genSubticks_()
+{
+    subticks_.clear();
+    subticks_.reserve(subtickCount() * (ticks_.size() - 1));
+    for (unsigned i = 0; i < ticks_.size() - 1; i++) {
+        auto subtickStep = (ticks_[i + 1] - ticks_[i]) / (subtickCount() + 1);
+        for (unsigned j = 1; j <= subtickCount(); j++)
+            subticks_.push_back(ticks_[i] + j * subtickStep);
+    }
+}
+
+
+void KcLinearTicker::genLabels_()
+{
+    labels_.resize(ticks_.size());
+    for (unsigned i = 0; i < ticks_.size(); i++)
+        labels_[i] = genLabel_(ticks_[i]);
 }

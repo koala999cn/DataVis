@@ -7,10 +7,15 @@ class KcLogTicker : public KcLinearTicker
 	using super_ = KcLinearTicker;
 
 public:
-	using super_::super_;
+	KcLogTicker();
 
 	void generate(double lower, double upper, bool genSubticks, bool genLabels) override;
 
+	// Sets the logarithm base used for tick coordinate generation. 
+	// The ticks will be placed at integer powers of @base.
+	void setLogBase(double base);
+
 private:
-	std::string genLabel_(double val) const override;
+	double base_;
+	double logToBase_; // 缓存变量，用来执行log[e]到log[base]的转换
 };

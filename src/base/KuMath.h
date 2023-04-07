@@ -140,21 +140,22 @@ public:
         return std::exp(mid(std::log(left), std::log(right))); 
     }
 
-
-    // 基于base的对数值 --> 自然对数值
-    // @ll: 待转换的基于base的对数值
-    // @base: =0表示ll为线性域数值
-    template<typename KREAL>
-    static KREAL logFromBase(KREAL ll, KREAL base) {
-        return base == 0 ? std::log(ll) : ll * std::log(base);
-    }
-
-    // 自然对数值 --> 基于base的对数值
-    // @ll: 待转换的自然对数值
-    // @base: =0表示将ll转换为线性域数值
+    // 自然对数值 -> 基于base的对数值, 即 log[e](x) -> log[base](x)
+    // @ll: 待转换的自然对数值, =log[e](x)
+    // @base: =0表示将ll转换为线性域数值, 此时返回x, =exp(ll)
+    // 推导: 根据换底公式log[a](b) = log[c](b) / log[c](a)，可得出
+    //       log[base](x) = log[e](x) / log[e](base) = ll / ln(base)
     template<typename KREAL>
     static KREAL logToBase(KREAL ll, KREAL base) {
         return base == 0 ? std::exp(ll) : ll / std::log(base);
+    }
+
+    // 基于base的对数值 -> 自然对数值, 即 log[base](x) -> log[e](x)
+    // @ll: 待转换的基于base的对数值, =log[base](x)
+    // @base: =0表示ll为线性域数值, 此时返回ln(ll)
+    template<typename KREAL>
+    static KREAL logFromBase(KREAL ll, KREAL base) {
+        return base == 0 ? std::log(ll) : ll * std::log(base);
     }
 
 
