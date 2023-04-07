@@ -17,6 +17,8 @@
 #include "plot/KvPaint.h"
 #include "plot/KcLegend.h"
 #include "plot/KcColorBar.h"
+#include "plot/KcLinearTicker.h"
+#include "plot/KcLogTicker.h"
 #include "KvNode.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
@@ -546,6 +548,20 @@ namespace kPrivate
 		ImGui::PopID();
 	}
 
+	static int tickerType(const KvTicker* t)
+	{
+		if (dynamic_cast<const KcLogTicker*>(t))
+			return 1;
+		return 0;
+	}
+
+	static std::shared_ptr<KvTicker> newTicker(int type)
+	{
+		if (type == 1)
+			return std::make_shared<KcLogTicker>();
+		return std::make_shared<KcLinearTicker>();
+	}
+
 	void axis(const char* label, KcAxis& ax)
 	{
 		bool open = false;
@@ -553,6 +569,12 @@ namespace kPrivate
 		if (!open) return;
 
 		ImGui::PushID(&ax);
+
+		static const char* typeStr[] = { "linear", "log" };
+		int type = tickerType(ax.ticker().get());
+		if (ImGui::Combo("Type", &type, typeStr, std::size(typeStr))) {
+			ax.setTicker(newTicker(type));
+		}
 
 		if (!ax.main()) { // 对于分离坐标轴，显示range设置
 			float lower = ax.lower(), upper = ax.upper();

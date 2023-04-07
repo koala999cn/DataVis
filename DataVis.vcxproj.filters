@@ -493,6 +493,9 @@
     <ClCompile Include="src\opengl\KcMarkerObject.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcLogTicker.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1132,6 +1135,9 @@
       <Filter>opengl</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KmLabeling.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcLogTicker.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

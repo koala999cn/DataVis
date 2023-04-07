@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "stb/stb_image.h"
 
 
 KcModuleImGuiGlfw::KcModuleImGuiGlfw(int w, int h, const char* title)
@@ -89,10 +90,10 @@ bool KcModuleImGuiGlfw::initGl_()
     }
 
     { // TODO:
-        GLFWimage icon;
-        //icon.pixels = stbi_load_from_memory((const stbi_uc*)Icon_data, Icon_size, &icon.width, &icon.height, nullptr, 4);
-        //glfwSetWindowIcon(window, 1, &icon);
-        //free(icon.pixels);
+        //GLFWimage icon;
+        //icon.pixels = stbi_load("image/main.png", &icon.width, &icon.height, nullptr, 4);
+       // glfwSetWindowIcon(window, 1, &icon);
+       // free(icon.pixels);
     }
 
     // TODO: if (maximize) 

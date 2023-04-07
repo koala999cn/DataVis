@@ -3,6 +3,7 @@
    https://github.com/FortAwesome/Font-Awesome & https://github.com/mnesarco/bawr
    https://www.microsoft.com/en-us/download/details.aspx?id=35825
    https://github.com/godotengine/godot/tree/master/editor/icons
+   https://www.flaticon.com/
 - [ ] 本地化（参考godot）
 - [ ] Undo/Redo（参考 https://github.com/ocornut/imgui/issues/1875 ）
 
