@@ -11,6 +11,8 @@ public:
 
 	void generate(double lower, double upper, bool genSubticks, bool genLabels) override;
 
+	double map(double val) const override;
+
 	// Sets the logarithm base used for tick coordinate generation. 
 	// The ticks will be placed at integer powers of @base.
 	void setLogBase(double base);

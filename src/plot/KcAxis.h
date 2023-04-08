@@ -188,6 +188,9 @@ public:
 		return draw_(paint, false);
 	}
 
+	// 该方法用于坐标变换，将linear域的值val变换到ticker域对应于linear域的位置
+	double transform(double val) const;
+
 	// 根据tick的数值，返回tick在坐标轴上的的3维坐标（世界坐标）
 	point3 tickPos(double val) const;
 

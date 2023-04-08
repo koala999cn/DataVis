@@ -178,6 +178,14 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 }
 
 
+double KcAxis::transform(double val) const
+{
+	return KuMath::remap(ticker_->map(val), 
+		ticker_->map(lower()), ticker_->map(upper()),
+		lower(), upper());
+}
+
+
 KcAxis::vec3 KcAxis::outsideOrient_(KvPaint* paint) const
 {
 	// 12根坐标轴的默认外向朝向
@@ -372,9 +380,10 @@ namespace kPrivate
 	}
 }
 
+
 KcAxis::point3 KcAxis::tickPos(double val) const
 {
-	return kPrivate::remap(val, lower(), upper(), realStart(), realEnd(), inversed());
+	return kPrivate::remap(transform(val), lower(), upper(), realStart(), realEnd(), inversed());
 }
 
 

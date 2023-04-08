@@ -442,6 +442,16 @@ void KvRdPlot::showCoordProperty_()
 				lower[i] = val[0], upper[i] = val[1];
 				coord.setExtents(lower, upper);
 				autoRange_ = false;
+
+				// 第i维度的主坐标轴range发生变化
+				auto tic = coord.defaultAxis(i)->ticker();
+				if (tic->map(lower[i]) != lower[i] || tic->map(upper[i]) != upper[i]) { // 非线性域坐标轴，须重构plt渲染对象
+					for (unsigned i = 0; i < plot_->plottableCount(); i++) {
+						auto plt = plot_->plottableAt(i);
+						if (plt->axis(i)->main())
+							plt->setDataChanged(false);
+					}
+				}
 			}
 		}
 
@@ -464,7 +474,22 @@ void KvRdPlot::showCoordProperty_()
 
 		if (ImGuiX::treePush("Axes", false)) {
 			plot_->coord().forAxis([this](KcAxis& axis) {
-				showAxisProperty_(axis);
+				auto tic = axis.ticker();
+				if (axis.main() && showAxisProperty_(axis)) { // 仅显示主坐标轴
+					for (unsigned i = 0; i < plot_->plottableCount(); i++) {
+						auto plt = plot_->plottableAt(i);
+						if (plt->axis(axis.dim()).get() == &axis)
+							plt->setDataChanged(false);
+					}
+
+					if (axis.ticker() != tic) { // ticker发生变化，须同步其他同一维度的主坐标轴
+						plot_->coord().forAxis([&axis](KcAxis& ax) {
+							if (ax.dim() == axis.dim() && &ax != &axis)
+								ax.setTicker(axis.ticker()); // TODO: ticker不共享
+							return true;
+							});
+					}
+				}
 				return true;
 				});
 			ImGuiX::treePop();
@@ -562,11 +587,13 @@ namespace kPrivate
 		return std::make_shared<KcLinearTicker>();
 	}
 
-	void axis(const char* label, KcAxis& ax)
+	bool axis(const char* label, KcAxis& ax)
 	{
 		bool open = false;
 		ImGuiX::cbTreePush(label, &ax.visible(), &open);
-		if (!open) return;
+		if (!open) return false;
+
+		bool dataChanged(false);
 
 		ImGui::PushID(&ax);
 
@@ -574,13 +601,18 @@ namespace kPrivate
 		int type = tickerType(ax.ticker().get());
 		if (ImGui::Combo("Type", &type, typeStr, std::size(typeStr))) {
 			ax.setTicker(newTicker(type));
+			dataChanged = true;
 		}
 
 		if (!ax.main()) { // 对于分离坐标轴，显示range设置
 			float lower = ax.lower(), upper = ax.upper();
 			auto speed = ax.length() * 0.005;
-			if (ImGui::DragFloatRange2("Range", &lower, &upper, speed) && lower < upper)
+			if (ImGui::DragFloatRange2("Range", &lower, &upper, speed) && lower < upper) {
 				ax.setRange(lower, upper);
+				if (ax.ticker()->map(lower) != lower ||
+					ax.ticker()->map(upper) != upper) // 非线性ticker，须重构数据
+					dataChanged = true;
+			}
 		}
 
 		auto& off = ax.offset();
@@ -639,6 +671,8 @@ namespace kPrivate
 
 		ImGui::PopID();
 		ImGuiX::cbTreePop();
+
+		return dataChanged;
 	}
 
 	void gridMode(int& mode)
@@ -658,7 +692,7 @@ namespace kPrivate
 	}
 }
 
-void KvRdPlot::showAxisProperty_(KcAxis& axis)
+bool KvRdPlot::showAxisProperty_(KcAxis& axis)
 {
 	static const char* name[] = { "X", "Y", "Z" };
 	static const char* loc[] = {
@@ -679,7 +713,7 @@ void KvRdPlot::showAxisProperty_(KcAxis& axis)
 	};
 
 	std::string label = name[axis.dim()]; label += " ["; label += loc[axis.typeReal()]; label += "]";
-	kPrivate::axis(label.c_str(), axis);
+	return kPrivate::axis(label.c_str(), axis);
 }
 
 
@@ -1125,7 +1159,8 @@ void KvRdPlot::showPlottableSplitAxesProperty_(KvPlottable* plt)
 		if (ImGui::Combo("X", &xmode, coord2d.axisSwapped() ? ymodeStr : xmodeStr, std::size(xmodeStr))) 
 			coord2d.splitAxis(plt, 0, xmode);
 		if (open) {
-			showAxisProperty_(*plt->axis(0));
+			if (showAxisProperty_(*plt->axis(0)))
+				plt->setDataChanged(false);
 			ImGuiX::treePop();
 		}
 
@@ -1134,7 +1169,8 @@ void KvRdPlot::showPlottableSplitAxesProperty_(KvPlottable* plt)
 		if (ImGui::Combo("Y", &ymode, coord2d.axisSwapped() ? xmodeStr : ymodeStr, std::size(ymodeStr))) 
 			coord2d.splitAxis(plt, 1, ymode);
 		if (open) {
-			showAxisProperty_(*plt->axis(1));
+			if (showAxisProperty_(*plt->axis(1)))
+				plt->setDataChanged(false);
 			ImGuiX::treePop();
 		}
 

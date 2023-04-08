@@ -70,7 +70,7 @@ protected:
 
 	virtual void showCoordProperty_();
 
-	    virtual void showAxisProperty_(KcAxis&);
+	    virtual bool showAxisProperty_(KcAxis&);
 
 		virtual void showPlaneProperty_(KcCoordPlane&);
 

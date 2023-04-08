@@ -58,6 +58,12 @@ void KcLogTicker::generate(double lower, double upper, bool genSubticks, bool ge
 }
 
 
+double KcLogTicker::map(double val) const
+{
+    return std::log(val) * logToBase_;
+}
+
+
 void KcLogTicker::setLogBase(double base)
 {
 	base_ = base;

@@ -446,3 +446,12 @@ bool KvPlottable::objectReusable_(unsigned objIdx) const
 	return !dataChanged() && (coloringChanged_ == 0 ||
 		(coloringChanged_ == 1 && coloringMode_ == k_one_color_solid)); // 单色模式下，亦可复用vbo;
 }
+
+
+KvPlottable::point3 KvPlottable::toPoint_(const float_t* valp, unsigned ch) const 
+{
+	return { selfAxes_[0]->transform(valp[0]), 
+		selfAxes_[1]->transform(valp[1]), 
+		usingDefaultZ_() ? defaultZ(ch) : selfAxes_[2]->transform(valp[2]) 
+	};
+}

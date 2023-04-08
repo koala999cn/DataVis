@@ -206,9 +206,7 @@ protected:
 
 	// 根据valp构建point3对象
 	// 如果forceDefaultZ_为真，则替换valp的z值，否则用原z值
-	point3 toPoint_(const float_t* valp, unsigned ch) const {
-		return { valp[0], valp[1], usingDefaultZ_() ? defaultZ(ch) : valp[2] };
-	}
+	point3 toPoint_(const float_t* valp, unsigned ch) const;
 
 	// 是否正在是否defaultZ，满足2个条件之一为true：
 	// 一是data_的dim等于1，这种情况始终使用defaultZ填补缺失的z值；

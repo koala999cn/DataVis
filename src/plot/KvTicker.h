@@ -23,6 +23,10 @@ public:
 	// 生成刻度，根据传入的参数填充ticks_, subticks_, labels_成员
 	virtual void generate(double lower, double upper, bool genSubticks, bool genLabels) = 0;
 
+	// 将数据val变换到ticker所在的值域，如log域
+	// 默认输入为linear域
+	virtual double map(double val) const { return val; }
+
 	const std::vector<double>& ticks() const { return ticks_; }
 
 	const std::vector<double>& subticks() const { return subticks_; }

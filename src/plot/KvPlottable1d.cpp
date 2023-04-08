@@ -80,13 +80,16 @@ typename KvPaint::point_getter KvPlottable1d::toPoint3Getter_(GETTER g, unsigned
 		auto z = defaultZ(channel);
 		return [this, g, z](unsigned idx) {
 			auto pt = g(idx);
-			return point3(pt[xdim()], pt[ydim()], z);
+			return point3(axis(0)->transform(pt[xdim()]), 
+				axis(1)->transform(pt[ydim()]), z);
 		};
 	}
 	else {
 		return [this, g](unsigned idx) {
 			auto pt = g(idx);
-			return point3(pt[xdim()], pt[ydim()], pt[zdim()]);
+			return point3(axis(0)->transform(pt[xdim()]), 
+				axis(1)->transform(pt[ydim()]), 
+				axis(2)->transform(pt[zdim()]));
 		};
 	}
 }
