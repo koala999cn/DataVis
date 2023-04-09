@@ -641,6 +641,10 @@ namespace kPrivate
 			if (ImGui::DragInt("Count", &ticks, 1, 0, 1024))
 				ax.ticker()->ticksExpected() = ticks;
 
+			auto ntic = std::dynamic_pointer_cast<KvNumericTicker>(ax.ticker());
+			if (ntic) 
+				ImGuiX::format(ntic->formatter());
+
 			kPrivate::tickContext(ax.tickContext(), false);
 			ImGuiX::cbTreePop();
 		}
