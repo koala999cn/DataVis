@@ -287,10 +287,8 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	if (length() == 0)
 		return; // TODO: draw or not draw ? draw what ??
 
-	ticker()->generate(lower(), upper(), showSubtick(), showLabel());
-	const auto& ticks = ticker()->ticks();
-
-
+	ticker()->update(lower(), upper(), !showSubtick());
+	
 	// 计算屏幕坐标1个像素尺度，相当于世界坐标多少个单位长度
 	float_t tickOrientScale = orientScale_(paint, tickOrient_);
 	float_t labelOrientScale = orientScale_(paint, labelOrient_);
@@ -301,10 +299,10 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	std::vector<point3> labelAnchors;
 	bool sameSide = tickAndLabelInSameSide_();
 	if (showLabel())
-		labelAnchors.resize(ticks.size());
+		labelAnchors.resize(ticker()->ticksTotal());
 
-	for (unsigned i = 0; i < ticks.size(); i++) {
-		auto anchor = tickPos(ticks[i]);
+	for (unsigned i = 0; i < ticker()->ticksTotal(); i++) {
+		auto anchor = tickPos(ticker()->tick(i));
 
 		if (showTick()) 
 			drawTick_(paint, anchor, tickCxt_.length * tickOrientScale, calcBox);
@@ -321,24 +319,21 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 
 		// TODO: paint->setFont();
 		paint->setColor(labelContext().color);
-		auto& labels = ticker()->labels();
-		for (unsigned i = 0; i < ticks.size(); i++) {
-			auto label = i < labels_.size() ? labels_[i] : labels[i];
-			drawText_(paint, label, labelCxt_, labelAnchors[i], calcBox);
+		for (unsigned i = 0; i < ticker()->ticksTotal(); i++) {
+			drawText_(paint, ticker()->label(i), labelCxt_, labelAnchors[i], calcBox);
 			//paint->setPointSize(3);
 			//paint->drawPoint(labelAnchors[i]); // for debug
 		}
 	}
 
 	// minor
-	auto& subticks = ticker()->subticks();
-	if (showSubtick() && !subticks.empty()) {
+	if (showSubtick() && ticker()->subticksTotal() > 0) {
 		
 		paint->apply(subtickCxt_);
 		double subtickLen = subtickCxt_.length * tickOrientScale;
 
-		for (unsigned i = 0; i < subticks.size(); i++) 
-			drawTick_(paint, tickPos(subticks[i]), subtickLen, calcBox);
+		for (unsigned i = 0; i < ticker()->subticksTotal(); i++)
+			drawTick_(paint, tickPos(ticker()->subtick(i)), subtickLen, calcBox);
 	}
 }
 

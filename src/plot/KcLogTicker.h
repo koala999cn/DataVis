@@ -9,7 +9,7 @@ class KcLogTicker : public KcLinearTicker
 public:
 	KcLogTicker();
 
-	void generate(double lower, double upper, bool genSubticks, bool genLabels) override;
+	void update(double lower, double upper, bool skipSubticks) override;
 
 	double map(double val) const override;
 

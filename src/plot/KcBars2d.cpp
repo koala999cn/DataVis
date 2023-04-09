@@ -188,7 +188,7 @@ void* KcBars2d::drawLabel_(KvPaint* paint) const
 	std::vector<std::string> texts; texts.reserve(disc->count());
 
 	std::ostringstream strm;
-	label().formatStream(strm);
+	formatter().apply(strm);
 
 	for (unsigned ch = 0; ch < disc->channels(); ch++) {
 		for (unsigned idx = 0; idx < linesPerChannel; idx++) {

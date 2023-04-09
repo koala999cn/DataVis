@@ -570,19 +570,27 @@ namespace ImGuiX
         res |= ColorEdit4("Color", cxt.color);
         res |= DragFloat2("Spacing", (float*)&cxt.spacing, 0.1, -100, 100, "%.1f px");
 
-        res |= SliderInt("Precision", &cxt.precision, 0, 19);
-
-        static const char* format[] = {
-            "fixed", "scientific", "hexfloat", "defaultfloat"
-        };
-
-        res |= Combo("Format", &cxt.format, format, std::size(format));
-
         KeAlignment loc = cxt.align;
         if (alignment("Alignment", loc, false)) {
             cxt.align = loc;
             res = true;
         }
+
+        PopID();
+        return res;
+    }
+
+
+    bool format(KpNumericFormatter& f)
+    {
+        PushID(&f);
+        bool res = false;
+        static const char* format[] = {
+            "fixed", "scientific", "hexfloat", "defaultfloat"
+        };
+
+        res |= Combo("Format", &f.format, format, std::size(format));
+        res |= SliderInt("Precision", &f.precision, 0, 19);
 
         PopID();
         return res;

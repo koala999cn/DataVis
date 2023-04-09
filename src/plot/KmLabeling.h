@@ -10,13 +10,19 @@ public:
 
 	const KpLabel& label() const { return label_; }
 	void setLabel(const KpLabel& l) {
-		if (label_.precision != l.precision ||
-			label_.format != l.format ||
-			label_.align != l.align ||
+		if (label_.align != l.align ||
 			label_.spacing != l.spacing ||
 			label_.font != l.font)
 			labelChanged_ = true;
 		label_ = l;
+	}
+
+	const KpNumericFormatter& formatter() const { return formatter_; }
+	void setFormatter(const KpNumericFormatter& f) {
+		if (formatter_.precision != f.precision ||
+			formatter_.format != f.format)
+			labelChanged_ = true;
+		formatter_ = f;
 	}
 
 	bool showLabel() const { return showLabel_; }
@@ -33,6 +39,7 @@ public:
 
 private:
 	KpLabel label_;
+	KpNumericFormatter formatter_;
 	bool showLabel_{ false };
 	unsigned dimLabeling_{ 1 };
 	bool labelChanged_{ true };

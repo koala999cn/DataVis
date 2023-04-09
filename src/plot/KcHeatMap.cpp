@@ -178,7 +178,7 @@ void* KcHeatMap::drawLabel_(KvPaint* paint) const
 	std::vector<std::string> texts; texts.reserve(count);
 	
 	std::ostringstream strm;
-	label().formatStream(strm);
+	formatter().apply(strm);
 
 	auto nx = sizePerLine_();
 	auto ny = linesPerGrid_();

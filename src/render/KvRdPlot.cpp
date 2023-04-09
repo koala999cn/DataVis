@@ -484,7 +484,7 @@ void KvRdPlot::showCoordProperty_()
 
 					if (axis.ticker() != tic) { // ticker发生变化，须同步其他同一维度的主坐标轴
 						plot_->coord().forAxis([&axis](KcAxis& ax) {
-							if (ax.dim() == axis.dim() && &ax != &axis)
+							if (ax.main() && ax.dim() == axis.dim() && &ax != &axis)
 								ax.setTicker(axis.ticker()); // TODO: ticker不共享
 							return true;
 							});
@@ -637,9 +637,9 @@ namespace kPrivate
 		open = false;
 		ImGuiX::cbTreePush("Tick", &ax.showTick(), &open);
 		if (open) {
-			int ticks = ax.ticker()->tickCount();
+			int ticks = ax.ticker()->ticksExpected();
 			if (ImGui::DragInt("Count", &ticks, 1, 0, 1024))
-				ax.ticker()->setTickCount(ticks);
+				ax.ticker()->ticksExpected() = ticks;
 
 			kPrivate::tickContext(ax.tickContext(), false);
 			ImGuiX::cbTreePop();
@@ -648,9 +648,9 @@ namespace kPrivate
 		open = false;
 		ImGuiX::cbTreePush("Subtick", &ax.showSubtick(), &open);
 		if (open) {
-			int subticks = ax.ticker()->subtickCount();
+			int subticks = ax.ticker()->subticksExpected();
 			if (ImGui::DragInt("Count", &subticks, 1, 0, 1024))
-				ax.ticker()->setSubtickCount(subticks);
+				ax.ticker()->subticksExpected() = subticks;
 
 			kPrivate::tickContext(ax.subtickContext(), true);
 			ImGuiX::cbTreePop();

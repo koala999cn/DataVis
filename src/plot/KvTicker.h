@@ -8,43 +8,32 @@
 class KvTicker
 {
 public:
-	KvTicker();
-	virtual ~KvTicker();
 
-	unsigned tickCount() const { return tickCount_; }
-	void setTickCount(unsigned count) { tickCount_ = count; }
+	unsigned ticksExpected() const { return ticksExpected_; }
+	unsigned& ticksExpected() { return ticksExpected_; }
 
-	unsigned subtickCount() const { return subtickCount_; }
-	void setSubtickCount(unsigned count) { subtickCount_ = count; }
-
-	std::string labelFormat() const { return format_; }
-	void setLabelFormat(const std::string& fmt) { format_ = fmt; }
-
-	// 生成刻度，根据传入的参数填充ticks_, subticks_, labels_成员
-	virtual void generate(double lower, double upper, bool genSubticks, bool genLabels) = 0;
-
+	unsigned subticksExpected() const { return subticksExpected_; }
+	unsigned& subticksExpected() { return subticksExpected_; }
+	
 	// 将数据val变换到ticker所在的值域，如log域
-	// 默认输入为linear域
+	// NB: 输入为linear域
 	virtual double map(double val) const { return val; }
 
-	const std::vector<double>& ticks() const { return ticks_; }
+	// 根据传入的参数生成刻度
+	virtual void update(double lower, double upper, bool skipSubticks) = 0;
 
-	const std::vector<double>& subticks() const { return subticks_; }
+	virtual unsigned ticksTotal() const = 0;
 
-	const std::vector<std::string>& labels() const { return labels_; }
+	// NB: 该函数返回subticks的总数，而非两个主刻度之间的subticks数
+	virtual unsigned subticksTotal() const = 0;
 
-protected:
+	virtual double tick(unsigned idx) const = 0;
 
-	// 返回刻度值val对应的label，缺省实现调用sprintf返回val的格式串
-	virtual std::string genLabel_(double val) const;
+	virtual double subtick(unsigned idx) const = 0;
 
-protected:
-	unsigned tickCount_; // 期望的主刻度数量
-	unsigned subtickCount_; // 期望的两个主刻度之间的副刻度数量
-	std::string format_; // 生成tick-label的格式模板
+	virtual std::string label(unsigned idx) const = 0;
 
-	// 以下为生成的刻度值与label文本
-	std::vector<double> ticks_;
-	std::vector<double> subticks_;
-	std::vector<std::string> labels_;
+private:
+	unsigned ticksExpected_{ 5 }; // 期望的主刻度数量
+	unsigned subticksExpected_{ 4 }; // 期望的两个主刻度之间的副刻度数量
 };

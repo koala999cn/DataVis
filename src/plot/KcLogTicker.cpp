@@ -9,7 +9,7 @@ KcLogTicker::KcLogTicker()
 
 
 // ²Î¿¼QCustomPlotÊµÏÖ
-void KcLogTicker::generate(double lower, double upper, bool genSubticks, bool genLabels)
+void KcLogTicker::update(double lower, double upper, bool skipSubticks)
 {
     assert(upper > lower);
 
@@ -21,9 +21,9 @@ void KcLogTicker::generate(double lower, double upper, bool genSubticks, bool ge
     if (lower > 0 && upper > 0) { // positive range
         const double baseTickCount = std::log(upper / lower) * logToBase_;
         if (baseTickCount < 1.6) // if too few log ticks would be visible in axis range, fall back to regular tick vector generation
-            return super_::generate(lower, upper, genSubticks, genLabels);
+            return super_::update(lower, upper, skipSubticks);
 
-        const double exactPowerStep = baseTickCount / double(tickCount_ + 1e-10);
+        const double exactPowerStep = baseTickCount / double(ticksExpected() + 1e-10);
         const double newLogBase = std::pow(base_, std::max(int(cleanMantissa_(exactPowerStep)), 1));
         double currentTick = std::pow(newLogBase, std::floor(std::log(lower) / std::log(newLogBase)));
         ticks_.push_back(currentTick);
@@ -35,9 +35,9 @@ void KcLogTicker::generate(double lower, double upper, bool genSubticks, bool ge
     else { // negative range
         const double baseTickCount = std::log(lower / upper) * logToBase_;
         if (baseTickCount < 1.6) // if too few log ticks would be visible in axis range, fall back to regular tick vector generation
-            return super_::generate(lower, upper, genSubticks, genLabels);
+            return super_::update(lower, upper, skipSubticks);
 
-        const double exactPowerStep = baseTickCount / double(tickCount_ + 1e-10);
+        const double exactPowerStep = baseTickCount / double(ticksExpected() + 1e-10);
         const double newLogBase = std::pow(base_, std::max(int(cleanMantissa_(exactPowerStep)), 1));
         double currentTick = -std::pow(newLogBase, std::ceil(std::log(-lower) / std::log(newLogBase)));
         ticks_.push_back(currentTick);
@@ -47,14 +47,11 @@ void KcLogTicker::generate(double lower, double upper, bool genSubticks, bool ge
         }
     }
 
-    if (genSubticks && subtickCount() > 0)
-        genSubticks_();
+    if (!skipSubticks && subticksExpected() > 0)
+        genSubticks_(subticksExpected());
 
     trimTicks_(lower, upper, ticks_);
     trimTicks_(lower, upper, subticks_);
-
-    if (genLabels)
-        genLabels_();
 }
 
 

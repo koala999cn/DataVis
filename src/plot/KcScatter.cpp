@@ -87,7 +87,7 @@ void* KcScatter::drawLabel_(KvPaint* paint) const
 	anchors.reserve(count); texts.reserve(count);
 
 	std::ostringstream strm;
-	label().formatStream(strm);
+	formatter().apply(strm);
 
 	for (unsigned i = 0; i < channels_(); i++) {
 		auto g = pointsAt_(i);

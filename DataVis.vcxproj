@@ -229,6 +229,7 @@
     <ClCompile Include="src\plot\KuColorUtil.cpp" />
     <ClCompile Include="src\plot\KuThemeParser.cpp" />
     <ClCompile Include="src\plot\KvCoord.cpp" />
+    <ClCompile Include="src\plot\KvNumericTicker.cpp" />
     <ClCompile Include="src\plot\KvPaint.cpp" />
     <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvPlot2d.cpp" />
@@ -237,7 +238,6 @@
     <ClCompile Include="src\plot\KvPlottable1d.cpp" />
     <ClCompile Include="src\plot\KvPlottable2d.cpp" />
     <ClCompile Include="src\plot\KvThemedPlot.cpp" />
-    <ClCompile Include="src\plot\KvTicker.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\prov\KcPvAudioInput.cpp" />
     <ClCompile Include="src\prov\KcPvData.cpp" />
@@ -437,6 +437,7 @@
     <ClInclude Include="src\plot\KuColorUtil.h" />
     <ClInclude Include="src\plot\KuThemeParser.h" />
     <ClInclude Include="src\plot\KvCoord.h" />
+    <ClInclude Include="src\plot\KvNumericTicker.h" />
     <ClInclude Include="src\plot\KvPaint.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\plot\KvPlot2d.h" />

@@ -123,6 +123,10 @@ namespace kPrivate
 			if (ImGuiX::label(label))
 				obj->setLabel(label);
 
+			auto f = obj->formatter();
+			if (ImGuiX::format(f))
+				obj->setFormatter(f);
+
 			int d = obj->labelingDim();
 			if (ImGui::SliderInt("Dim", &d, 0, odim)) {
 				d = KuMath::clamp<int>(d, 0, odim);

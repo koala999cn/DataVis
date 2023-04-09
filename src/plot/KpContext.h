@@ -139,10 +139,14 @@ public:
 	color4f color{ 0, 0, 0, 1 };
 	int align{ 0 };
 	point2f spacing{ 0, 0 };
+};
 
-	int precision{ 6 }; // 语义同std::setprecision
 
-	enum KeFormat
+class KpNumericFormatter
+{
+public:
+
+	enum
 	{
 		k_fixed,        // 语义同std::fixed
 		k_scientific,   // 语义同std::scientific
@@ -151,9 +155,10 @@ public:
 	};
 
 	int format{ k_defaultfloat };
+	int precision{ 6 }; // 语义同std::setprecision
 
 	template<class CharT>
-	void formatStream(std::basic_ostream<CharT>& strm) const {
+	void apply(std::basic_ostream<CharT>& strm) const {
 		strm << std::setprecision(precision);
 		switch (format) {
 		case 0:  strm << std::fixed; break;
