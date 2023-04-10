@@ -9,6 +9,7 @@
 #include "imapp/KgImWindowManager.h"
 #include "imapp/KgPipeline.h"
 #include "imguix.h"
+#include "imgui/misc/cpp/imgui_stdlib.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "plot/KsThemeManager.h"
 #include "plot/KcThemedPlotImpl_.h"
@@ -19,6 +20,7 @@
 #include "plot/KcColorBar.h"
 #include "plot/KcLinearTicker.h"
 #include "plot/KcLogTicker.h"
+#include "plot/KcLabelTicker.h"
 #include "KvNode.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
@@ -577,6 +579,8 @@ namespace kPrivate
 	{
 		if (dynamic_cast<const KcLogTicker*>(t))
 			return 1;
+		else if (dynamic_cast<const KcLabelTicker*>(t))
+			return 2;
 		return 0;
 	}
 
@@ -584,8 +588,52 @@ namespace kPrivate
 	{
 		if (type == 1)
 			return std::make_shared<KcLogTicker>();
+		else if (type == 2)
+			return std::make_shared<KcLabelTicker>();
 		return std::make_shared<KcLinearTicker>();
 	}
+
+
+	static void tickerSpecific(KcAxis& ax)
+	{
+		if (std::dynamic_pointer_cast<KvNumericTicker>(ax.ticker())) {
+			auto numeric = std::dynamic_pointer_cast<KvNumericTicker>(ax.ticker());
+			if (ImGuiX::treePush("Formatter", false)) {
+				ImGuiX::format(numeric->formatter());
+				ImGuiX::treePop();
+			}
+		}
+		else if (std::dynamic_pointer_cast<KcLabelTicker>(ax.ticker())) {
+			auto label = std::dynamic_pointer_cast<KcLabelTicker>(ax.ticker());
+			if (ImGuiX::treePush("Text(s)", false)) {
+				label->update(ax.lower(), ax.upper(), true);
+
+				for (unsigned i = 0; i < label->ticksTotal(); i++) {
+
+					ImGui::PushID(i);
+
+					auto w = ImGui::CalcItemWidth();
+					ImGui::PushItemWidth(0.5 * (w - ImGui::GetStyle().ItemSpacing.x));
+
+					float tick = label->tick(i);
+					if (ImGui::DragFloat("##", &tick, ax.length() * 0.001, ax.lower(), ax.upper()))
+						label->setTick(i, tick);
+		
+					ImGui::SameLine(0, ImGui::GetStyle().ItemSpacing.x);
+
+					auto text = label->label(i);
+					std::string id = "Label"; id += std::to_string(i + 1);
+					if (ImGui::InputText(id.c_str(), &text))
+						label->setLabel(i, text);
+
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+				}
+				ImGuiX::treePop();
+			}
+		}
+	}
+
 
 	bool axis(const char* label, KcAxis& ax)
 	{
@@ -597,10 +645,12 @@ namespace kPrivate
 
 		ImGui::PushID(&ax);
 
-		static const char* typeStr[] = { "linear", "log" };
+		static const char* typeStr[] = { "linear", "log", "labels"};
 		int type = tickerType(ax.ticker().get());
 		if (ImGui::Combo("Type", &type, typeStr, std::size(typeStr))) {
-			ax.setTicker(newTicker(type));
+			auto newtic = newTicker(type);
+			newtic->ticksExpected() = ax.ticker()->ticksExpected();
+			ax.setTicker(newtic);
 			dataChanged = true;
 		}
 
@@ -638,7 +688,7 @@ namespace kPrivate
 		ImGuiX::cbTreePush("Tick", &ax.showTick(), &open);
 		if (open) {
 			int ticks = ax.ticker()->ticksExpected();
-			if (ImGui::DragInt("Count", &ticks, 1, 0, 1024))
+			if (ImGui::SliderInt("Count", &ticks, 1, 16)) 
 				ax.ticker()->ticksExpected() = ticks;
 
 			kPrivate::tickContext(ax.tickContext(), false);
@@ -660,15 +710,11 @@ namespace kPrivate
 		ImGuiX::cbTreePush("Label", &ax.showLabel(), &open);
 		if (open) {
 			kPrivate::textContext(ax.labelContext(), true);
-
-			auto ntic = std::dynamic_pointer_cast<KvNumericTicker>(ax.ticker());
-			if (ntic) {
-				ImGuiX::format(ntic->formatter());
-			}
-
 			ImGui::DragFloat("Padding", &ax.labelPadding(), 1, 0, 20, "%.f px");
 			ImGuiX::cbTreePop();
 		}
+
+		tickerSpecific(ax);
 
 		ImGui::PopID();
 		ImGuiX::cbTreePop();

@@ -496,6 +496,9 @@
     <ClCompile Include="src\plot\KvNumericTicker.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcLabelTicker.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1141,6 +1144,9 @@
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KvNumericTicker.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcLabelTicker.h">
       <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>

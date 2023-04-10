@@ -217,6 +217,7 @@
     <ClCompile Include="src\plot\KcCoord3d.cpp" />
     <ClCompile Include="src\plot\KcGraph.cpp" />
     <ClCompile Include="src\plot\KcCoordPlane.cpp" />
+    <ClCompile Include="src\plot\KcLabelTicker.cpp" />
     <ClCompile Include="src\plot\KcLogTicker.cpp" />
     <ClCompile Include="src\plot\KcSurface.cpp" />
     <ClCompile Include="src\plot\KcLegend.cpp" />
@@ -419,6 +420,7 @@
     <ClInclude Include="src\plot\KcColorBar.h" />
     <ClInclude Include="src\plot\KcCoord2d.h" />
     <ClInclude Include="src\plot\KcCoordPlane.h" />
+    <ClInclude Include="src\plot\KcLabelTicker.h" />
     <ClInclude Include="src\plot\KcLogTicker.h" />
     <ClInclude Include="src\plot\KcSurface.h" />
     <ClInclude Include="src\plot\KcLegend.h" />
