@@ -21,6 +21,7 @@
 #include "plot/KcLinearTicker.h"
 #include "plot/KcLogTicker.h"
 #include "plot/KcLabelTicker.h"
+#include "plot/KcTimeTicker.h"
 #include "KvNode.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
@@ -581,6 +582,8 @@ namespace kPrivate
 			return 1;
 		else if (dynamic_cast<const KcLabelTicker*>(t))
 			return 2;
+		else if (dynamic_cast<const KcTimeTicker*>(t))
+			return 3;
 		return 0;
 	}
 
@@ -590,13 +593,19 @@ namespace kPrivate
 			return std::make_shared<KcLogTicker>();
 		else if (type == 2)
 			return std::make_shared<KcLabelTicker>();
+		else if (type == 3)
+			return std::make_shared<KcTimeTicker>();
 		return std::make_shared<KcLinearTicker>();
 	}
 
 
 	static void tickerSpecific(KcAxis& ax)
 	{
-		if (std::dynamic_pointer_cast<KvNumericTicker>(ax.ticker())) {
+		if (std::dynamic_pointer_cast<KcTimeTicker>(ax.ticker())) {
+			auto time = std::dynamic_pointer_cast<KcTimeTicker>(ax.ticker());
+			ImGui::Combo("Format", &time->format(), time->formatTextList(), time->formatCount());
+		}
+		else if (std::dynamic_pointer_cast<KvNumericTicker>(ax.ticker())) {
 			auto numeric = std::dynamic_pointer_cast<KvNumericTicker>(ax.ticker());
 			if (ImGuiX::treePush("Formatter", false)) {
 				ImGuiX::format(numeric->formatter());
@@ -645,7 +654,7 @@ namespace kPrivate
 
 		ImGui::PushID(&ax);
 
-		static const char* typeStr[] = { "linear", "log", "labels"};
+		static const char* typeStr[] = { "linear", "log", "labels", "time"};
 		int type = tickerType(ax.ticker().get());
 		if (ImGui::Combo("Type", &type, typeStr, std::size(typeStr))) {
 			auto newtic = newTicker(type);
