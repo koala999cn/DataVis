@@ -1155,5 +1155,8 @@
     <ClInclude Include="src\plot\KcTimeTicker.h">
       <Filter>plot</Filter>
     </ClInclude>
+    <ClInclude Include="src\3d\KuMesh.h">
+      <Filter>3d</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

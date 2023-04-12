@@ -93,12 +93,6 @@ public:
 
 	// 辅助函数
 
-	// 计算三点构成平面的法线，其中v1, v2, v3按逆时针排列
-	static KtVector3 normal(const KtVector3& v1, const KtVector3& v2, const KtVector3& v3) { 
-		return (v2 - v1).cross(v3 - v2).getNormalize();
-	}
-
-
 	static const KtVector3& unitX() {
 		static KtVector3 x(1, 0, 0);
 		return x;
