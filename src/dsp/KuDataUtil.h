@@ -153,9 +153,10 @@ public:
 
 	static KpValueGetter2d valueGetter2d(const std::shared_ptr<const KvData>& data);
 
+	using getter1d = std::function<std::vector<kReal>(unsigned idx)>;
 	struct KpPointGetter1d
 	{
-		std::function<std::vector<kReal>(unsigned idx)> getter;
+		getter1d getter;
 		unsigned size;
 	};
 
@@ -182,12 +183,18 @@ public:
 	// 获取disc的第ch通道的第idx条pointGetter2d
 	static KpPointGetter2d pointGetter2dAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch, unsigned idx);
 	
-
 	// 返回通道ch的线段集合，各线段之间以nan隔开
-	static KuDataUtil::KpPointGetter1d linesAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch);
+	static KpPointGetter1d linesAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch);
 
 	// 返回通道ch的点集合，与linesAt_相比不同之处在于没有用nan隔开
-	static KuDataUtil::KpPointGetter1d pointsAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch);
+	static KpPointGetter1d pointsAt(const std::shared_ptr<const KvDiscreted>& disc, unsigned ch);
+
+	// 将多个getter1d合并为1个getter1d，各线段之间以nan隔开
+	// @size: getters中每条线段的长度
+	static KpPointGetter1d linesSet(const std::vector<getter1d>& getters, unsigned size);
+
+	// 将多个getter1d合并为1个getter1d，各线段之间无缝衔接
+	static KpPointGetter1d pointsSet(const std::vector<getter1d>& getters, unsigned size);
 
 private:
 	KuDataUtil() = default;

@@ -21,6 +21,7 @@ public:
 
 	KcRenderObject(const KcRenderObject& rhs);
 
+	KePrimitiveType type() const { return type_; }
 
 	std::shared_ptr<KcGlslProgram> shader() const {
 		return prog_;
@@ -29,6 +30,8 @@ public:
 	void setShader(std::shared_ptr<KcGlslProgram> prog) {
 		prog_ = prog;
 	}
+
+	unsigned vboCount() const { return vbos_.size(); }
 
 	std::shared_ptr<KcGpuBuffer> vbo(unsigned idx) const {
 		return vbos_[idx].buf;
@@ -40,8 +43,15 @@ public:
 
 	void pushVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<KcVertexDeclaration> vtxDecl);
 
+	unsigned iboCount() const { return ibos_.size(); }
+
 	std::shared_ptr<KcGpuBuffer> ibo(unsigned idx) const {
 		return ibos_[idx].buf;
+	}
+
+	// 第idx个ibo的索引数量
+	unsigned iboSize(unsigned idx) const {
+		return ibos_[idx].count;
 	}
 
 	void pushIbo(KePrimitiveType type, std::shared_ptr<KcGpuBuffer> ibo, unsigned count) {
@@ -66,16 +76,26 @@ public:
 		color_ = clr;
 	}
 
+	void setNormalMatrix(const float4x4<>& normalMat) {
+		normalMat_ = normalMat;
+	}
+
+	void setLightDir(const float3& dir) {
+		lightDir_ = dir;
+	}
+
 	virtual void draw() const;
 
 	virtual KcRenderObject* clone() const;
 
-	bool hasColor() const;
-	bool hasUV() const;
-	bool hasNormal() const;
-	bool hasInst() const;
+	bool hasColor(bool enableTest) const;
+	bool hasUV(bool enableTest) const;
+	bool hasNormal(bool enableTest) const;
+	bool hasInst(bool enableTest) const;
 
-	bool hasSemantic(int semantic) const;
+	bool hasAttribute(int semantic, bool enableTest) const;
+
+	void enableAttribute(int semantic, bool b);
 
 protected:
 
@@ -111,4 +131,7 @@ protected:
 	aabb_t clipBox_;
 	float4 color_{ 1, 0, 0, 1 };
 	unsigned instances_{ 0 }; // 实例数目
+
+	float4x4<> normalMat_;
+	float3 lightDir_; // 世界坐标，确保已归一化
 };

@@ -203,14 +203,14 @@ const char* KsShaderManager::vsMonoLight_()
 		"uniform mat4 matMvp;\n"
 		"uniform mat4 matNormal;\n"
 		"uniform vec4 vColor;\n"
+		"uniform vec3 vlightDir;\n"
 		"in vec3 iPosition;\n"
 		"in vec3 iNormal;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
 		"    vec3 vNorm = normalize(matNormal * vec4(iNormal, 0)).xyz;\n"
-		"    vec3 vLightDir = vec3(1.0, 1.0, 1.0);\n"
-		"    float fDot = max(0.0, dot(vNorm, vLightDir));\n"
+		"    float fDot = max(0.0, dot(vNorm, -vLightDir));\n"
 		"    Frag_Color.rgb = vColor.rgb * fDot;\n"
 		"    Frag_Color.a = vColor.a;\n"
 		"}\n";
@@ -280,6 +280,8 @@ KsShaderManager::shader_ptr KsShaderManager::fetchShader_(int type)
 				}
 				else if (type & k_instance)
 					p = vsInst_();
+				else if (type & k_normal)
+					p = vsMonoLight_();
 			}
 
 			auto src = decorateVertexShader_(p, type & k_flat, type & k_clipbox);

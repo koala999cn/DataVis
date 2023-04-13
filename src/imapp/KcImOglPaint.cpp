@@ -4,6 +4,7 @@
 #include "glad.h"
 #include "KcVertexDeclaration.h"
 #include "KtLineS2d.h"
+#include "KuMesh.h"
 #include "KuMath.h"
 #include "opengl/KcGlslProgram.h"
 #include "opengl/KcGlslShader.h"
@@ -13,7 +14,6 @@
 #include "opengl/KcEdgedObject.h"
 #include "opengl/KcMarkerObject.h"
 #include "opengl/KcTextObject.h"
-#include "opengl/KcLightenObject.h"
 #include "opengl/KsShaderManager.h"
 #include "opengl/KuOglUtil.h"
 #include "plot/KpContext.h"
@@ -708,12 +708,17 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 	}
 
 
+	bool hasLight = lighting_ && obj->type() >= k_triangles; // 点线元素无须光照
+	if (hasLight && !obj->hasNormal(false)) // 若无法线属性，自动生成法线
+		pushNormals_(obj);
+	obj->enableAttribute(KcVertexAttribute::k_normal, hasLight);
+
 	if (obj->shader() == nullptr) { // 自动设置shader
 		int type = KsShaderManager::k_mono;
-		if (obj->hasColor()) type |= KsShaderManager::k_color;
-		if (obj->hasUV()) type |= KsShaderManager::k_uv;
-		if (obj->hasNormal()) type |= KsShaderManager::k_normal;
-		if (obj->hasInst()) type |= KsShaderManager::k_instance;
+		if (obj->hasColor(true)) type |= KsShaderManager::k_color;
+		if (obj->hasUV(true)) type |= KsShaderManager::k_uv;
+		if (obj->hasNormal(true)) type |= KsShaderManager::k_normal;
+		if (obj->hasInst(true)) type |= KsShaderManager::k_instance;
 
 		obj->setShader(KsShaderManager::singleton().fetchProg(type, flatShading_, curClipBox_ != -1));
 	}
@@ -1320,4 +1325,51 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 
 	// 在此置shader为空，由pushRenderObject设定shader，以同步flat渲染状态
     obj->setShader(nullptr);
+}
+
+
+void KcImOglPaint::pushNormals_(KcRenderObject* obj)
+{
+	if (obj->iboCount() == 0) {
+
+	}
+	else {
+		assert(obj->iboCount() == 1); // 只能处理单个索引对象的情况
+		assert(obj->vertexDecl(0)->getAttribute(0).semantic() == KcVertexAttribute::k_position);
+		auto ibo = obj->ibo(0);
+		auto iboSize = obj->iboSize(0);
+		auto idxSize = ibo->bytesCount() / iboSize;
+
+		auto vbo = obj->vbo(0);
+		auto vtxSize = obj->vertexDecl(0)->vertexSize(); // 默认第1个元素为position
+		auto vboSize = vbo->bytesCount() / vtxSize;
+
+		auto vtx = vbo->map(KcGpuBuffer::k_read_only);
+		auto idx = ibo->map(KcGpuBuffer::k_read_only);
+
+		assert(idxSize == 4);
+
+		std::vector<vec3f> normals(vboSize);
+		if (obj->type() == k_triangles) {
+			KuMesh::triNormalsAve((const std::uint32_t*)idx, iboSize, 
+				(const point3f*)vtx, normals.data(), vboSize, vtxSize);
+		}
+		else if (obj->type() == k_quads) {
+			KuMesh::quadNormalsAve((const std::uint32_t*)idx, iboSize,
+				(const point3f*)vtx, normals.data(), vboSize, vtxSize);
+		}
+		else {
+			assert(false);
+		}
+
+		ibo->unmap();
+		vbo->unmap();
+
+		auto nvbo = std::make_shared<KcGpuBuffer>();
+		nvbo->setData(normals.data(), normals.size() * sizeof(normals[0]), KcGpuBuffer::k_dynamic_draw);
+		auto decl = std::make_shared<KcVertexDeclaration>();
+		decl->pushAttribute(KcVertexAttribute(obj->vertexDecl(0)->attributeCount(), 
+			KcVertexAttribute::k_float3, 0, KcVertexAttribute::k_normal));
+		obj->pushVbo(nvbo, decl);
+	}
 }

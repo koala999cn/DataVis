@@ -13,6 +13,8 @@ KcRenderObject::KcRenderObject(const KcRenderObject& rhs)
 	, projMat_(rhs.projMat_)
 	, clipBox_(rhs.clipBox_)
 	, color_(rhs.color_)
+	, normalMat_(rhs.normalMat_)
+	, lightDir_(rhs.lightDir_)
 {
 }
 
@@ -59,6 +61,20 @@ void KcRenderObject::setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) 
 	loc = shader->getUniformLocation("vColor");
 	if (loc != -1)
 		glUniform4f(loc, color_[0], color_[1], color_[2], color_[3]);
+
+	loc = shader->getUniformLocation("matNormal");
+	if (loc != -1) {
+		if constexpr (decltype(normalMat_)::rowMajor())
+			glUniformMatrix4fv(loc, 1, GL_TRUE, normalMat_.data());
+		else
+			glUniformMatrix4fv(loc, 1, GL_FALSE, normalMat_.data());
+	}
+
+	loc = shader->getUniformLocation("vlightDir");
+	if (loc != -1) {
+		KuMath::almostEqual(lightDir_.squaredLength(), 1.f);
+		glUniform3f(loc, lightDir_[0], lightDir_[1], lightDir_[2]);
+	}
 }
 
 
@@ -116,6 +132,9 @@ void KcRenderObject::cloneTo_(KcRenderObject& obj) const
 	obj.clipBox_ = clipBox_;
 	obj.color_ = color_;
 	obj.instances_ = instances_;
+
+	obj.normalMat_ = normalMat_;
+	obj.lightDir_ = lightDir_;
 }
 
 
@@ -143,37 +162,47 @@ void KcRenderObject::calcInst_()
 }
 
 
-bool KcRenderObject::hasSemantic(int semantic) const
+bool KcRenderObject::hasAttribute(int semantic, bool enableTest) const
 {
 	for (auto& i : vbos_) 
 		if (i.decl && i.decl->hasSemantic(semantic))
 			return true;
 
+	for (auto& i : vbos_) {
+		if (i.decl) {
+			for (unsigned j = 0; j < i.decl->attributeCount(); j++) {
+				auto& attr = i.decl->getAttribute(j);
+				if (attr.semantic() == semantic && (!enableTest || attr.enabled()))
+					return true;
+			}
+		}
+	}
+
 	return false;
 }
 
 
-bool KcRenderObject::hasColor() const
+bool KcRenderObject::hasColor(bool enableTest) const
 {
-	return hasSemantic(KcVertexAttribute::k_diffuse);
+	return hasAttribute(KcVertexAttribute::k_diffuse, enableTest);
 }
 
 
-bool KcRenderObject::hasUV() const
+bool KcRenderObject::hasUV(bool enableTest) const
 {
-	return hasSemantic(KcVertexAttribute::k_texcoord);
+	return hasAttribute(KcVertexAttribute::k_texcoord, enableTest);
 }
 
 
-bool KcRenderObject::hasNormal() const
+bool KcRenderObject::hasNormal(bool enableTest) const
 {
-	return hasSemantic(KcVertexAttribute::k_normal);
+	return hasAttribute(KcVertexAttribute::k_normal, enableTest);
 }
 
 
-bool KcRenderObject::hasInst() const
+bool KcRenderObject::hasInst(bool enableTest) const
 {
-	return hasSemantic(KcVertexAttribute::k_instance);
+	return hasAttribute(KcVertexAttribute::k_instance, enableTest);
 }
 
 
@@ -183,4 +212,18 @@ void KcRenderObject::pushVbo(std::shared_ptr<KcGpuBuffer> vbo, std::shared_ptr<K
 
 	vbos_.push_back({ vbo, vtxDecl });
 	calcInst_();
+}
+
+
+void KcRenderObject::enableAttribute(int semantic, bool b)
+{
+	for (auto& i : vbos_) {
+		if (i.decl) {
+			for (unsigned j = 0; j < i.decl->attributeCount(); j++) {
+				auto& attr = i.decl->getAttribute(j);
+				if (attr.semantic() == semantic)
+					attr.enable(b);
+			}
+		}
+	}
 }

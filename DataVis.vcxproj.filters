@@ -439,9 +439,6 @@
     <ClCompile Include="src\3d\KcVertexDeclaration.cpp">
       <Filter>3d</Filter>
     </ClCompile>
-    <ClCompile Include="src\opengl\KcLightenObject.cpp">
-      <Filter>opengl</Filter>
-    </ClCompile>
     <ClCompile Include="src\imapp\KuPlotContextMenu.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
@@ -1046,9 +1043,6 @@
     </ClInclude>
     <ClInclude Include="src\3d\KcVertexDeclaration.h">
       <Filter>3d</Filter>
-    </ClInclude>
-    <ClInclude Include="src\opengl\KcLightenObject.h">
-      <Filter>opengl</Filter>
     </ClInclude>
     <ClInclude Include="src\imapp\KuPlotContextMenu.h">
       <Filter>imapp</Filter>

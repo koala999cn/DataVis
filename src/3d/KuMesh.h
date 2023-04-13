@@ -15,7 +15,7 @@ public:
 	// 计算三点构成平面的法线，其中v1, v2, v3按逆时针排列
 	template<typename T>
 	static vec3<T> normal(const point3<T>& v1, const point3<T>& v2, const point3<T>& v3) {
-		return (v2 - v1).cross(v3 - v2).normalize();
+		return  vec3<T>(v2 - v1).cross(v3 - v2).normalize();
 	}
 
 	// Generate flat normals. All vertices in each triangle face get the same normal vector.
@@ -23,20 +23,33 @@ public:
 	// @normals: 计算的法线结果, 尺寸=3*@ntris
 	// @ntris: 三角形的数量
 	template<typename T>
-	static void triNormalsFlat(const point3<T>* vtx, vec3<T>* normals, unsigned ntris) {
-		for (unsigned i = 0; i < 3 * ntris; i += 3)
-			normals[i] = normals[i + 1] = normals[i + 2] = normal(vtx[i], vtx[i + 1], vtx[i + 2]);
+	static void triNormalsFlat(const point3<T>* vtx, vec3<T>* normals, unsigned ntris, 
+        unsigned vtxStride = 0, unsigned normStride = 0) {
+        if (vtxStride == 0) vtxStride = sizeof(*vtx);
+        if (normStride == 0) normStride = sizeof(*normals);
+        auto pvtx = (const char*)vtx;
+        auto pnorm = (char*)normals;
+        for (unsigned i = 0; i < ntris; i++) {
+            const point3<T>* pos[3]; vec3<T>* norm[3];
+            for (unsigned j = 0; j < 3; j++) {
+                pos[j] = (const point3<T>*)pvtx; pvtx += vtxStride;
+                norm[j] = (vec3<T>*)pnorm; pnorm += normStride;
+            }
+            norm[0] = norm[1] = norm[2] = normal(pos[0], pos[1], pos[2]);
+        }
 	}
 
 
     template<typename T, typename I>
-    static void triNormalsAve(const I* idx, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx) {
-        return normalsAve_<T, I, 3>(idx, ntris, vtx, normals, nvtx);
+    static void triNormalsAve(const I* idx, unsigned idxCount, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
+        unsigned vtxStride = 0, unsigned normStride = 0) {
+        return normalsAve_<T, I, 3>(idx, idxCount / 3, vtx, normals, nvtx);
     }
 
     template<typename T, typename I>
-    static void quadNormalsAve(const I* idx, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx) {
-        return normalsAve_<T, I, 4>(idx, ntris, vtx, normals, nvtx);
+    static void quadNormalsAve(const I* idx, unsigned idxCount, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
+        unsigned vtxStride = 0, unsigned normStride = 0) {
+        return normalsAve_<T, I, 4>(idx, idxCount / 4, vtx, normals, nvtx);
     }
 
 	// Generate smooth normals
@@ -67,7 +80,8 @@ private:
     // 均值法计算N平面的顶点法线
     // @N: 构成平面的顶点数
     template<typename T, typename I, int N>
-    static void normalsAve_(const I* idx, unsigned nfaces, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx);
+    static void normalsAve_(const I* idx, unsigned nfaces, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
+        unsigned vtxStride = 0, unsigned normStride = 0);
 
 
 private:
@@ -76,19 +90,34 @@ private:
 
 
 template<typename T, typename I, int N>
-void KuMesh::normalsAve_(const I* idx, unsigned nfaces, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx)
+void KuMesh::normalsAve_(const I* idx, unsigned nfaces, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
+    unsigned vtxStride, unsigned normStride)
 {
-    for (unsigned i = 0; i < nvtx; i++)
-        normals[i] = vec3<T>::zero();
+    if (vtxStride == 0) vtxStride = sizeof(*vtx);
+    if (normStride == 0) normStride = sizeof(*normals);
+    vec3<T>* norm = normals;
 
-    for (unsigned i = 0; i < N * nfaces; i += N) {
-        auto n = normal(vtx[idx[i]], vtx[idx[i + 1]], vtx[idx[i + 2]]); // 取多边形的前3个点计算面法线
-        for (unsigned j = 0; j < N; j++)
-            normals[idx[j]] += n;
+    for (unsigned i = 0; i < nvtx; i++) {
+        *norm = vec3<T>::zero();
+        norm = (vec3<T>*)((char*)norm + normStride);
     }
 
-    for (unsigned i = 0; i < nvtx; i++)
-        normals[i].normalize();
+    auto pvtx = (const char*)vtx;
+    auto pnorm = (char*)normals;
+    for (unsigned i = 0; i < N * nfaces; i += N) {
+        auto p0 = (const point3<T>*)(pvtx + idx[i] * vtxStride);
+        auto p1 = (const point3<T>*)(pvtx + idx[i + 1] * vtxStride);
+        auto p2 = (const point3<T>*)(pvtx + idx[i + 2] * vtxStride);
+        auto n = normal(*p0, *p1, *p2); // 取多边形的前3个点计算面法线
+        for (unsigned j = 0; j < N; j++)
+            *(vec3<T>*)(pnorm + idx[j] * normStride) += n;
+    }
+
+    norm = normals;
+    for (unsigned i = 0; i < nvtx; i++) {
+        norm->normalize();
+        norm = (vec3<T>*)((char*)norm + normStride);
+    }
 }
 
 

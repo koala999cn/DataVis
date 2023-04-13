@@ -68,6 +68,10 @@ public:
 	virtual void enableFlatShading(bool b) = 0; // 开启/关闭flat着色模式
 	virtual bool flatShading() const = 0; // 是否开启了flat着色模式
 
+	// 光照支持
+	virtual void enableLighting(bool b) = 0;
+	virtual bool lighting() const = 0;
+
 	// project local point/vector to screen point/vector
 	virtual point4 project(const point4& pt) const = 0;
 

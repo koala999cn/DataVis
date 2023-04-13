@@ -38,6 +38,9 @@ public:
 	void enableFlatShading(bool b) override { flatShading_ = b; }
 	bool flatShading() const override { return flatShading_; }
 	
+	void enableLighting(bool b) override { lighting_ = b; }
+	bool lighting() const override { return lighting_; }
+
 	void beginPaint() override;
 	void endPaint() override;
 
@@ -158,6 +161,9 @@ private:
 	// uv存储顺序（归一化坐标）：u1, v1, u2, v2
 	void pushTextData_(const std::string_view& text, std::vector<point4f>& pos, std::vector<point4f>& uvs) const;
 
+	// 自动生成法线vbo
+	static void pushNormals_(KcRenderObject* obj);
+
 private:
 
 	// render states stacks
@@ -174,6 +180,7 @@ private:
 	bool depthTest_{ false }; // 启动深度测试？
 	bool antialiasing_{ false };
 	bool flatShading_{ false };
+	bool lighting_{ false };
 
 	// [0]: viewport idx
 	// [1]: clipRect idx

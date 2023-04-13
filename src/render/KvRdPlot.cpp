@@ -340,6 +340,10 @@ void KvRdPlot::showPlotProperty_()
 		if (ImGui::Checkbox("Depth Test", &depth))
 			plot_->paint().enableDepthTest(depth);
 
+		bool lighting = plot_->paint().lighting();
+		if (ImGui::Checkbox("Lighting", &lighting))
+			plot_->paint().enableLighting(lighting);
+
 		ImGui::Checkbox("Show Layout Rect", &plot_->showLayoutRect());
 
 		ImGuiX::layout("Layout", plot_.get());
