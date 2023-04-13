@@ -679,7 +679,7 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		break;
 
 	case k_coord_world:
-		obj->setProjMatrix(camera_.getVpMatrix());
+		obj->setProjMatrix(camera_.viewProjMatrix());
 		break;
 	
 	case k_coord_screen:

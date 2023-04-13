@@ -50,7 +50,7 @@ public:
 	const mat4& projMatrix() const { return projMat_; }
 	mat4& projMatrix() { return projMat_; }
 
-	const mat4& getVpMatrix() const { return vpMat_; }
+	const mat4& viewProjMatrix() const { return vpMat_; }
 
 	// get the model-view matrix
 	const mat4& getMvMat() const;
@@ -60,13 +60,13 @@ public:
 
 	// 返回法向变换矩阵 
 	// 等于model-view矩阵的逆的转置，即=(mv(-1))T
-	mat4 getNormalMatrix() const;
+	mat4 getNormalMat() const;
 
 	const rect& viewport() const { return vp_; }
 	void setViewport(const rect& vp);
 
 	vec3 getEyePos() const;
-	quat getEyeOrient() const;
+	quat getEyePose() const;
 
 	// 更新与投影有关的变换矩阵
 	// NOTE: 重置viewMat, projMat和viewport之后，须在调用坐标转换方法之前调用该函数
@@ -262,7 +262,7 @@ KtProjector<KREAL, ROW_MAJOR>::getMvpMat() const {
 
 
 template<typename KREAL, bool ROW_MAJOR> typename KtProjector<KREAL, ROW_MAJOR>::mat4
-KtProjector<KREAL, ROW_MAJOR>::getNormalMatrix() const
+KtProjector<KREAL, ROW_MAJOR>::getNormalMat() const
 {
 	return getMvMat().getInverse().getTranspose();
 }
@@ -336,7 +336,7 @@ KtVector3<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyePos() const
 
 
 template<typename KREAL, bool ROW_MAJOR>
-KtQuaternion<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyeOrient() const
+KtQuaternion<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyePose() const
 {
 	return viewMat_.getRotation(); // TODO:
 }

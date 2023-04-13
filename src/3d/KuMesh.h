@@ -23,76 +23,151 @@ public:
 	// @normals: 计算的法线结果, 尺寸=3*@ntris
 	// @ntris: 三角形的数量
 	template<typename T>
-	static void generateNormalsFlat(const point3<T>* vtx, vec3<T>* normals, unsigned ntris) {
+	static void triNormalsFlat(const point3<T>* vtx, vec3<T>* normals, unsigned ntris) {
 		for (unsigned i = 0; i < 3 * ntris; i += 3)
 			normals[i] = normals[i + 1] = normals[i + 2] = normal(vtx[i], vtx[i + 1], vtx[i + 2]);
 	}
 
 
+    template<typename T, typename I>
+    static void triNormalsAve(const I* idx, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx) {
+        return normalsAve_<T, I, 3>(idx, ntris, vtx, normals, nvtx);
+    }
+
+    template<typename T, typename I>
+    static void quadNormalsAve(const I* idx, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx) {
+        return normalsAve_<T, I, 4>(idx, ntris, vtx, normals, nvtx);
+    }
+
 	// Generate smooth normals
-	// Uses @indices array to discover adjacent triangles and then for each
+	// Uses @idx array to discover adjacent triangles and then for each
 	// vertex position calculates a normal averaged from all triangles that share it.
 	// The normal is weighted according to adjacent triangle areaand angle at given
 	// vertex; hard edges are preserved where adjacent triangles don't share vertices.
 	// Triangles with zero area or triangles containing invalid positions(NaNs) don't
 	// contribute to calculated vertex normals.
-	// 实现参考Magnum，算法见[Weighted Vertex Normals](http://www.bytehazard.com/articles/vertnorm.html) by Martijn Buijs.
+	// 实现参考Magnum，算法见 http://www.bytehazard.com/articles/vertnorm.html
 	// @indices: Triangle face indices, 尺寸=3*@ntris
 	// @vtx: Triangle vertex positions, 尺寸=nvtx
 	// @normals: 计算的各顶点法线结果, 尺寸=nvtx
 	template<typename T, typename I>
-	static void generateNormalsTri(const I* idx, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx);
+	static void triNormalsSmooth(const I* idx, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx);
 
 
 	// 同generateNormalsTri，但计算的是四边形的各顶点法线
-	// @indices: Quadrangle face indices, 尺寸=4*@nquads
+	// @idx: Quadrangle face indices, 尺寸=4*@nquads
     // @vtx: Quadrangle vertex positions, 尺寸=nvtx
     // @normals: 计算的各顶点法线结果, 尺寸=nvtx
     // TODO:
 	//template<typename T, typename I>
-	//static void generateNormalsQuad(const I* indices, unsigned nquads, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx);
+	//static void generateQuadNormals(const I* idx, unsigned nquads, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx);
+
+private:
+
+    // 均值法计算N平面的顶点法线
+    // @N: 构成平面的顶点数
+    template<typename T, typename I, int N>
+    static void normalsAve_(const I* idx, unsigned nfaces, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx);
+
 
 private:
 	KuMesh() = delete;
 };
 
 
-template<typename T, typename I>
-void KuMesh::generateNormalsTri(const I* indices, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx)
+template<typename T, typename I, int N>
+void KuMesh::normalsAve_(const I* idx, unsigned nfaces, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx)
 {
+    for (unsigned i = 0; i < nvtx; i++)
+        normals[i] = vec3<T>::zero();
+
+    for (unsigned i = 0; i < N * nfaces; i += N) {
+        auto n = normal(vtx[idx[i]], vtx[idx[i + 1]], vtx[idx[i + 2]]); // 取多边形的前3个点计算面法线
+        for (unsigned j = 0; j < N; j++)
+            normals[idx[j]] += n;
+    }
+
+    for (unsigned i = 0; i < nvtx; i++)
+        normals[i].normalize();
+}
+
+
+template<typename T, typename I>
+void KuMesh::triNormalsSmooth(const I* idx, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx)
+{
+    /* pseudo code
+    for each face A in mesh
+    {
+     n = face A facet normal
+
+     // loop through all vertices in face A
+     for each vert in face A
+     {
+      for each face B in mesh
+      {
+       // ignore self
+       if face A == face B then skip
+
+       // criteria for hard-edges
+       if face A and B smoothing groups match {
+
+        // accumulate normal
+        // v1, v2, v3 are the vertices of face A
+        if face B shares v1 {
+         angle = angle_between_vectors( v1 - v2 , v1 - v3 )
+         n += (face B facet normal) * (face B surface area) * angle // multiply by angle
+        }
+        if face B shares v2 {
+         angle = angle_between_vectors( v2 - v1 , v2 - v3 )
+         n += (face B facet normal) * (face B surface area) * angle // multiply by angle
+        }
+        if face B shares v3 {
+         angle = angle_between_vectors( v3 - v1 , v3 - v2 )
+         n += (face B facet normal) * (face B surface area) * angle // multiply by angle
+        }
+
+       }
+      }
+
+      // normalize vertex normal
+      vn = normalize(n)
+     }
+    }
+    */
+
     /* Gather count of triangles for every vertex. This abuses the output
        storage to avoid extra allocations, zero-initialize it first to avoid
        random memory getting used. */
-    std::vector<unsigned> triangleCount(nvtx);
-    std::fill(triangleCount.begin(), triangleCount.end(), 0);
+    std::vector<unsigned> triCount(nvtx);
+    std::fill(triCount.begin(), triCount.end(), 0);
     for (unsigned i = 0; i < ntris * 3; i++)
-        ++triangleCount[i];
+        ++triCount[i];
 
     /* Turn that into a running offset array:
-       triangleOffset[i + 1] - triangleOffset[i] is triangle count for vertex i
-       triangleOffset[i] is offset into an triangle ID array for vertex i */
-    std::vector<unsigned> triangleOffset(nvtx + 1);
-    triangleOffset[0] = 0;
-    for (std::size_t i = 0; i != triangleCount.size(); ++i)
-        triangleOffset[i + 1] = triangleOffset[i] + triangleCount[i];
+       triOffset[i + 1] - triOffset[i] is triangle count for vertex i
+       triOffset[i] is offset into an triangle ID array for vertex i */
+    std::vector<unsigned> triOffset(nvtx + 1);
+    triOffset[0] = 0;
+    for (std::size_t i = 0; i != triCount.size(); ++i)
+        triOffset[i + 1] = triOffset[i] + triCount[i];
 
-    assert(triangleOffset.back() == ntris * 3);
+    assert(triOffset.back() == ntris * 3);
 
     /* Gather triangle IDs for every vertex. For vertex i,
-       triangleIds[triangleOffset[i]] until triangleIds[triangleOffset[i + 1]]
+       triIds[triOffset[i]] until triIds[triOffset[i + 1]]
        contains IDs of triangles that contain it. */
-    std::vector<I> triangleIds(ntris * 3);
+    std::vector<I> triIds(ntris * 3);
     for (std::size_t i = 0; i != ntris * 3; ++i) {
-        const I triangleId = i / 3;
-        const I vertexId = indices[i];
+        const I triId = i / 3;
+        const I vtxId = idx[i];
 
         /* How many triangle IDs is still left to be written, which also means
            the offset where we put the ID. Decrement that for the next run. */
-        const std::size_t triangleIdsLeftForVertex = triangleCount[vertexId]--;
-        triangleIds[triangleOffset[vertexId + 1] - triangleIdsLeftForVertex] = triangleId;
+        const std::size_t triIdsLeftForVertex = triCount[vtxId]--;
+        triIds[triOffset[vtxId + 1] - triIdsLeftForVertex] = triId;
     }
 
-    /* Now, triangleCount should be all zeros, we don't need it anymore and the
+    /* Now, triCount should be all zeros, we don't need it anymore and the
        underlying `normals` array is ready to get filled with real output. */
 
        /* Precalculate cross product and interior angles of each face --- the loop
@@ -100,9 +175,9 @@ void KuMesh::generateNormalsTri(const I* indices, unsigned ntris, const point3<T
           3x as much work */
     std::vector<std::pair<vec3<T>, vec3<T>>> crossAngles(ntris);
     for (std::size_t i = 0; i != crossAngles.size(); ++i) {
-        auto v0 = vtx[indices[i * 3 + 0]];
-        auto v1 = vtx[indices[i * 3 + 1]];
-        auto v2 = vtx[indices[i * 3 + 2]];
+        auto v0 = vtx[idx[i * 3 + 0]];
+        auto v1 = vtx[idx[i * 3 + 1]];
+        auto v2 = vtx[idx[i * 3 + 2]];
 
         /* Cross product */
         crossAngles[i].first() = vec3(v2 - v1).cross(v0 - v1);
@@ -138,15 +213,15 @@ void KuMesh::generateNormalsTri(const I* indices, unsigned ntris, const point3<T
         normals[v] = vec3<T>(0);
 
         /* Go through all triangles sharing this vertex */
-        for (std::size_t t = triangleOffset[v]; t != triangleOffset[v + 1]; ++t) {
-            const std::size_t baseIndex = triangleIds[t] * 3;
-            auto v0i = indices[baseIndex + 0];
-            auto v1i = indices[baseIndex + 1];
-            auto v2i = indices[baseIndex + 2];
+        for (std::size_t t = triOffset[v]; t != triOffset[v + 1]; ++t) {
+            const std::size_t baseIndex = triIds[t] * 3;
+            auto v0i = idx[baseIndex + 0];
+            auto v1i = idx[baseIndex + 1];
+            auto v2i = idx[baseIndex + 2];
 
             /* Cross product is a vector in direction of the normal with length
                equal to size of the parallelogram */
-            const auto& crossAngle = crossAngles[triangleIds[t]];
+            const auto& crossAngle = crossAngles[triIds[t]];
 
             /* Angle between two sides of the triangle that share vertex `v`.
                The shared vertex can be one of the three. */
