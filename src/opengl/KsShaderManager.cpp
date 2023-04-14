@@ -203,9 +203,9 @@ const char* KsShaderManager::vsMonoLight_()
 		"uniform mat4 matMvp;\n"
 		"uniform mat4 matNormal;\n"
 		"uniform vec4 vColor;\n"
-		"uniform vec3 vlightDir;\n"
-		"in vec3 iPosition;\n"
-		"in vec3 iNormal;\n"
+		"uniform vec3 vLightDir;\n"
+		"layout (location = 0) in vec3 iPosition;\n"
+		"layout (location = 1) in vec3 iNormal;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
@@ -216,6 +216,29 @@ const char* KsShaderManager::vsMonoLight_()
 		"}\n";
 
 	return vertex_shader_mono_light;
+}
+
+
+const char* KsShaderManager::vsColorLight_()
+{
+	static const char* vertex_shader_color_light =
+		"out vec4 Frag_Color;\n"
+		"uniform mat4 matMvp;\n"
+		"uniform mat4 matNormal;\n"
+		"uniform vec3 vLightDir;\n"
+		"layout (location = 0) in vec3 iPosition;\n"
+		"layout (location = 1) in vec4 iColor;\n"
+		"layout (location = 2) in vec3 iNormal;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
+		"    vec3 vNorm = normalize(matNormal * vec4(iNormal, 0)).xyz;\n"
+		"    float fDot = max(0.0, dot(vNorm, -vLightDir));\n"
+		"    Frag_Color.rgb = iColor.rgb * fDot;\n"
+		"    Frag_Color.a = iColor.a;\n"
+		"}\n";
+
+	return vertex_shader_color_light;
 }
 
 
@@ -271,6 +294,8 @@ KsShaderManager::shader_ptr KsShaderManager::fetchShader_(int type)
 				p = vsColor_();
 				if (type & k_uv)
 					p = vsColorUV_();
+				else if (type & k_normal)
+					p = vsColorLight_();
 			}
 			else {
 				if (type & k_uv) {

@@ -70,7 +70,7 @@ void KcRenderObject::setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) 
 			glUniformMatrix4fv(loc, 1, GL_FALSE, normalMat_.data());
 	}
 
-	loc = shader->getUniformLocation("vlightDir");
+	loc = shader->getUniformLocation("vLightDir");
 	if (loc != -1) {
 		KuMath::almostEqual(lightDir_.squaredLength(), 1.f);
 		glUniform3f(loc, lightDir_[0], lightDir_[1], lightDir_[2]);
@@ -164,10 +164,6 @@ void KcRenderObject::calcInst_()
 
 bool KcRenderObject::hasAttribute(int semantic, bool enableTest) const
 {
-	for (auto& i : vbos_) 
-		if (i.decl && i.decl->hasSemantic(semantic))
-			return true;
-
 	for (auto& i : vbos_) {
 		if (i.decl) {
 			for (unsigned j = 0; j < i.decl->attributeCount(); j++) {

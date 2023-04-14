@@ -118,6 +118,11 @@ private:
 	// uniform = matMvp + matNormal + vColor
 	static const char* vsMonoLight_();
 
+	// 单色光照着色，区分flat和smooth模式
+	// attr = pos + color + normal
+	// uniform = matMvp + matNormal
+	static const char* vsColorLight_();
+
 	// 直通片段着色，out-color = in-color
 	// 区分flat和smooth模式
 	static const char* fsNavie_();
