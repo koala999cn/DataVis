@@ -57,6 +57,10 @@ public:
 	}
 
 
+	vec3 xAxis() const { return { m00(), m10(), m20() }; } // 第1列
+	vec3 yAxis() const { return { m01(), m11(), m21() }; } // 第2列
+	vec3 zAxis() const { return { m02(), m12(), m22() }; } // 第3列
+
 	static mat3 zero() {
 		return mat3();
 	}

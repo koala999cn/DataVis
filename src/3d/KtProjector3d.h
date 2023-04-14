@@ -338,7 +338,7 @@ KtVector3<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyePos() const
 template<typename KREAL, bool ROW_MAJOR>
 KtQuaternion<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyePose() const
 {
-	return viewMat_.buildRotation(); // TODO:
+	return viewMat_.getRotation();
 }
 
 #if 0

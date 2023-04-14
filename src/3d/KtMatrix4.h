@@ -270,6 +270,16 @@ public:
 		return false;
 	}
 
+
+	/** Extracts the rotation transformation part of the matrix.
+		*/
+	mat3 getRotation() const {
+		vec3 x(m00(), m10(), m20()), y(m01(), m11(), m21()), z(m02(), m12(), m22());
+		x.normalize(), y.normalize(), z.normalize();
+		return mat3(x, y, z);
+	}
+
+
 	KReal m00() const { return at(0); }
 	KReal m01() const { 
 		if constexpr (ROW_MAJOR)
