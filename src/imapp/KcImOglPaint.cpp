@@ -716,7 +716,7 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		//obj->setNormalMatrix(camera_.getNormalMat());
 		obj->setNormalMatrix(camera_.getMvMat());
 		obj->setLightDir(float3(-1, -1, -1).normalize());
-		//auto dir = camera_.getEyePose().normalize().zAxis();
+		auto dir = camera_.getEyePose().normalize().zAxis();
 		//dir.z() = -dir.z();
 		//obj->setLightDir(dir);
 	}

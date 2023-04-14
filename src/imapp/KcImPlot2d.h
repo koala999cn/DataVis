@@ -35,6 +35,8 @@ public:
 		camera_.projMatrix() = pm;
 	}
 
+	const KtProjector<float_t>& camera() const { return camera_; }
+
 private:
 	void updateImpl_() override;
 

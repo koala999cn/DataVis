@@ -279,6 +279,20 @@ public:
 		return mat3(x, y, z);
 	}
 
+	// TODO: 实现KtMatrix基类，实现矩阵相关的通用算法
+	KReal operator()(unsigned row, unsigned col) const {
+		if constexpr (ROW_MAJOR)
+			return at(row * 4 + col);
+		else
+			return at(col * 4 + row);
+	}
+
+	KReal& operator()(unsigned row, unsigned col) {
+		if constexpr (ROW_MAJOR)
+			return at(row * 4 + col);
+		else
+			return at(col * 4 + row);
+	}
 
 	KReal m00() const { return at(0); }
 	KReal m01() const { 

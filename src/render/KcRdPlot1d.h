@@ -10,6 +10,8 @@ public:
 
 	KcRdPlot1d();
 
+	void showPropertySet() final;
+
 private:
 
 	std::vector<KvPlottable*> createPlottable_(KcPortNode* port) final;

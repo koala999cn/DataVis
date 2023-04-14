@@ -33,41 +33,49 @@ std::vector<KvPlottable*> KcRdPlot3d::createPlottable_(KcPortNode* port)
 }
 
 
+namespace kPrivate
+{
+	void showCameraProperty_(const KtProjector<double>& cam);
+}
+
 void KcRdPlot3d::showPropertySet()
 {
 	super_::showPropertySet();
 
 	ImGui::Separator();
-	if (!ImGuiX::treePush("Projection", false))
-		return;
+	if (ImGuiX::treePush("Projection", false)) {
 
-	auto plot3d = std::dynamic_pointer_cast<KvPlot3d>(plot_);
+		auto plot3d = std::dynamic_pointer_cast<KvPlot3d>(plot_);
 
-	ImGui::Checkbox("Ortho", &plot3d->ortho());
+		ImGui::Checkbox("Ortho", &plot3d->ortho());
 
-	ImGui::Checkbox("Isotropic", &plot3d->isotropic());
-	
-	double minVal(0.1), maxVal(10);
-	static const char* format = "%.3f";
-	ImGui::DragScalar("Zoom", ImGuiDataType_Double, &plot3d->zoom(), 0.01, &minVal, &maxVal, format);
-	ImGui::DragScalarN("Scale", ImGuiDataType_Double, plot3d->scale(), 3, 0.01, &minVal, &maxVal, format);
-	ImGui::DragScalarN("Shift", ImGuiDataType_Double, plot3d->shift(), 2, 1, 0, 0, "%.1f px");
+		ImGui::Checkbox("Isotropic", &plot3d->isotropic());
 
-	auto& orient = plot3d->orient();
-	mat3d<> rot;
-	orient.toRotateMatrix(rot);
-	point3d angle;
-	rot.toEulerAngleXYZ(angle);
-	angle *= KuMath::rad2Deg(1.);
-	minVal = -180;
-	maxVal = 180;
-	if(ImGui::DragScalarN("Rotation", ImGuiDataType_Double, angle, 3, 0.5, &minVal, &maxVal, "%.1f deg")) {
-		angle *= KuMath::deg2Rad(1.);
-		rot.fromEulerAngleXYZ(angle);
-		orient = quatd(rot);
+		double minVal(0.1), maxVal(10);
+		static const char* format = "%.3f";
+		ImGui::DragScalar("Zoom", ImGuiDataType_Double, &plot3d->zoom(), 0.01, &minVal, &maxVal, format);
+		ImGui::DragScalarN("Scale", ImGuiDataType_Double, plot3d->scale(), 3, 0.01, &minVal, &maxVal, format);
+		ImGui::DragScalarN("Shift", ImGuiDataType_Double, plot3d->shift(), 2, 1, 0, 0, "%.1f px");
+
+		auto& orient = plot3d->orient();
+		mat3d<> rot;
+		orient.toRotateMatrix(rot);
+		point3d angle;
+		rot.toEulerAngleXYZ(angle);
+		angle *= KuMath::rad2Deg(1.);
+		minVal = -180;
+		maxVal = 180;
+		if (ImGui::DragScalarN("Rotation", ImGuiDataType_Double, angle, 3, 0.5, &minVal, &maxVal, "%.1f deg")) {
+			angle *= KuMath::deg2Rad(1.);
+			rot.fromEulerAngleXYZ(angle);
+			orient = quatd(rot);
+		}
+
+		ImGuiX::treePop();
 	}
 
-	ImGuiX::treePop();
+	ImGui::Separator();
+	kPrivate::showCameraProperty_(std::dynamic_pointer_cast<KcImPlot3d>(plot_)->camera());
 }
 
 

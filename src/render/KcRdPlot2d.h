@@ -12,6 +12,8 @@ public:
 
 	bool permitInput(int dataSpec, unsigned inPort) const override;
 
+	void showPropertySet() final;
+
 private:
 
 	std::vector<KvPlottable*> createPlottable_(KcPortNode* port) final;

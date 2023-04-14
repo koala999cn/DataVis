@@ -98,3 +98,17 @@ void KcRdPlot2d::showPlottableSpecificProperty_(KvPlottable* plt)
 {
     kPrivate::showPlottableSpecificProperty2d(plt);
 }
+
+
+namespace kPrivate
+{
+    void showCameraProperty_(const KtProjector<double>& cam);
+}
+
+void KcRdPlot2d::showPropertySet()
+{
+    super_::showPropertySet();
+
+    ImGui::Separator();
+    kPrivate::showCameraProperty_(std::dynamic_pointer_cast<KcImPlot2d>(plot_)->camera());
+}

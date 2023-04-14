@@ -323,7 +323,63 @@ namespace kPrivate
 	}
 }
 
+
 void KcRdPlot1d::showPlottableSpecificProperty_(KvPlottable* plt)
 {
 	kPrivate::showPlottableSpecificProperty1d(plt);
+}
+
+
+namespace kPrivate
+{
+	bool vectord(const char* label, double* v, int size)
+	{
+		return ImGui::InputScalarN(label, ImGuiDataType_Double, v, size);
+	}
+
+	bool matrixd(const char* label, double4x4<>& mat)
+	{
+		bool res(false);
+		if (ImGuiX::treePush(label, false)) {
+			ImGui::PushID(&mat);
+			vec4d v;
+			char id[4] = "##0";
+			for (unsigned r = 0; r < 4; r++) {
+				for (unsigned c = 0; c < 4; c++)
+					v[c] = mat(r, c);
+
+				res |= vectord(id, v.data(), 4);
+				id[2] += 1;
+			}
+			ImGui::PopID();
+			ImGuiX::treePop();
+		}
+
+		return res;
+	}
+
+	void showCameraProperty_(const KtProjector<double>& cam) // for debug
+	{
+		if (ImGuiX::treePush("Camera", false)) {
+
+			auto mvp = cam.getMvpMat();
+			kPrivate::matrixd("MVP", mvp);
+
+			auto view = cam.viewMatrix();
+			kPrivate::matrixd("View", view);
+
+			auto pos = cam.getEyePos();
+			kPrivate::vectord("Position", pos.data(), 3);
+
+			ImGuiX::treePop();
+		}
+	}
+}
+
+void KcRdPlot1d::showPropertySet()
+{
+	super_::showPropertySet();
+
+	ImGui::Separator();
+	kPrivate::showCameraProperty_(std::dynamic_pointer_cast<KcImPlot2d>(plot_)->camera());
 }

@@ -138,6 +138,20 @@ public:
 		return fromEulerAngleYXZ(pitch, yaw, roll); 
 	}
 
+	KReal operator()(unsigned row, unsigned col) const {
+		if constexpr (ROW_MAJOR)
+			return at(row * 3 + col);
+		else
+			return at(col * 3 + row);
+	}
+
+	KReal& operator()(unsigned row, unsigned col) {
+		if constexpr (ROW_MAJOR)
+			return at(row * 3 + col);
+		else
+			return at(col * 3 + row);
+	}
+
 	KReal m00() const {	return at(0); }
 	KReal m01() const { 
 		if constexpr (rowMajor()) return at(1);
