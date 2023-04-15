@@ -211,6 +211,7 @@ const char* KsShaderManager::vsMonoLight_()
 		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
 		"    vec3 vNorm = normalize(matNormal * vec4(iNormal, 0)).xyz;\n"
 		"    float fDot = max(0.0, dot(vNorm, -vLightDir));\n"
+	//	"    float fDot = max(0.0, dot(iNormal, -vLightDir));\n"
 		"    Frag_Color.rgb = vColor.rgb * fDot;\n"
 		"    Frag_Color.a = vColor.a;\n"
 		"}\n";
@@ -234,6 +235,7 @@ const char* KsShaderManager::vsColorLight_()
 		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
 		"    vec3 vNorm = normalize(matNormal * vec4(iNormal, 0)).xyz;\n"
 		"    float fDot = max(0.0, dot(vNorm, -vLightDir));\n"
+	//	"    float fDot = max(0.0, dot(iNormal, -vLightDir));\n"
 		"    Frag_Color.rgb = iColor.rgb * fDot;\n"
 		"    Frag_Color.a = iColor.a;\n"
 		"}\n";

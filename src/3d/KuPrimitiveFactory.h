@@ -330,7 +330,7 @@ int KuPrimitiveFactory::indexGrid(unsigned nx, unsigned ny, IDX_TYPE* obuf, unsi
 		for(unsigned i = 1; i < nx; i++)
 			for (unsigned j = 1; j < ny; j++) {
 
-				if constexpr (!CCW) {
+				if constexpr (CCW) {
 					*obuf++ = static_cast<IDX_TYPE>((i - 1) + (j - 1) * nx + offset[0]);
 					*obuf++ = static_cast<IDX_TYPE>((i - 1) + j * nx + offset[1]);
 					*obuf++ = static_cast<IDX_TYPE>(i + j * nx + offset[2]);

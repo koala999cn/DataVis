@@ -37,7 +37,7 @@ void* KcSurface::drawSolid_(KvPaint* paint, unsigned ch) const
 		}
 
 		auto idx = geom->newIndex(idxPerGrid);
-		KuPrimitiveFactory::indexGrid<unsigned>(nx, nz, idx, 0, idxBase);
+		KuPrimitiveFactory::indexGrid<std::uint32_t>(nx, nz, idx, 0, idxBase);
 		idxBase += nx * nz;
 	}
 
@@ -77,7 +77,7 @@ void* KcSurface::drawColor_(KvPaint* paint, unsigned ch) const
 		}
 
 		auto idx = geom->newIndex(idxPerGrid);
-		KuPrimitiveFactory::indexGrid<unsigned>(nx, nz, idx, 0, idxBase);
+		KuPrimitiveFactory::indexGrid<std::uint32_t>(nx, nz, idx, 0, idxBase);
 		idxBase += nx * nz;
 	}
 

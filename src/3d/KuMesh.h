@@ -6,43 +6,43 @@ class KuMesh
 {
 public:
 
-	template<typename T>
-	using point3 = KtPoint<T, 3>;
+	template<typename T> using point3 = KtPoint<T, 3>;
+	template<typename T> using vec3 = KtVector3<T>;
 
-	template<typename T>
-	using vec3 = KtVector3<T>;
-
-	// 计算三点构成平面的法线，其中v1, v2, v3按逆时针排列
-	template<typename T>
+	// 计算三点构成平面的法线
+	template<typename T, bool CCW = false>
 	static vec3<T> normal(const point3<T>& v1, const point3<T>& v2, const point3<T>& v3) {
-		return  vec3<T>(v2 - v1).cross(v3 - v2).normalize();
+        if constexpr (CCW)
+		    return  vec3<T>(v2 - v1).cross(v3 - v1).normalize(); // v1, v2, v3按逆时针排列
+        else 
+            return vec3<T>(v3 - v1).cross(v2 - v1).normalize(); // v1, v2, v3按顺时针排列
 	}
 
 	// @vtx: 三角形各顶点的位置, 尺寸=@nvtx
 	// @normals: 计算的法线结果, 尺寸=@nvtx
 	// @nvtx: 顶点数量
-	template<typename T>
+	template<typename T, bool CCW = false>
 	static void triNormalsFlat(const point3<T>* vtx, vec3<T>* normals, unsigned nvtx, 
-        unsigned vtxStride = 0, unsigned normStride = 0) {
-        return normalsFlat_<T, 3>(vtx, normals, nvtx / 3);
+        unsigned vstride = 0, unsigned nstride = 0) {
+        return normalsFlat_<T, 3, CCW>(vtx, normals, nvtx / 3, vstride, nstride);
 	}
 
-    template<typename T>
+    template<typename T, bool CCW = false>
     static void quadNormalsFlat(const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
-        unsigned vtxStride = 0, unsigned normStride = 0) {
-        return normalsFlat_<T, 4>(vtx, normals, nvtx / 4);
+        unsigned vstride = 0, unsigned nstride = 0) {
+        return normalsFlat_<T, 4, CCW>(vtx, normals, nvtx / 4, vstride, nstride);
     }
 
-    template<typename T, typename I>
-    static void triNormalsAve(const I* idx, unsigned idxCount, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
-        unsigned vtxStride = 0, unsigned normStride = 0) {
-        return normalsAve_<T, I, 3>(idx, idxCount / 3, vtx, normals, nvtx);
+    template<typename T, typename I, bool CCW = false>
+    static void triNormalsAve(const I* idx, unsigned nidx, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
+        unsigned vstride = 0, unsigned nstride = 0) {
+        return normalsAve_<T, I, 3, CCW>(idx, nidx / 3, vtx, normals, nvtx, vstride, nstride);
     }
 
-    template<typename T, typename I>
-    static void quadNormalsAve(const I* idx, unsigned idxCount, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
-        unsigned vtxStride = 0, unsigned normStride = 0) {
-        return normalsAve_<T, I, 4>(idx, idxCount / 4, vtx, normals, nvtx);
+    template<typename T, typename I, bool CCW = false>
+    static void quadNormalsAve(const I* idx, unsigned nidx, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
+        unsigned vstride = 0, unsigned nstride = 0) {
+        return normalsAve_<T, I, 4, CCW>(idx, nidx / 4, vtx, normals, nvtx, vstride, nstride);
     }
 
 	// Generate smooth normals
@@ -56,7 +56,7 @@ public:
 	// @indices: Triangle face indices, 尺寸=3*@ntris
 	// @vtx: Triangle vertex positions, 尺寸=nvtx
 	// @normals: 计算的各顶点法线结果, 尺寸=nvtx
-	template<typename T, typename I>
+	template<typename T, typename I, bool CCW = false>
 	static void triNormalsSmooth(const I* idx, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx);
 
 
@@ -75,15 +75,15 @@ private:
     // @vtx: 顶点位置, 尺寸=N*@nfaces
     // @normals: 计算的法线结果, 尺寸=N*@nfaces
     // @nfaces: N平面的数量
-    template<typename T, int N>
+    template<typename T, int N, bool CCW = false>
     static void normalsFlat_(const point3<T>* vtx, vec3<T>* normals, unsigned nfaces,
-        unsigned vtxStride = 0, unsigned normStride = 0);
+        unsigned vstride = 0, unsigned nstride = 0);
 
     // 均值法计算N平面的顶点法线
     // @N: 构成平面的顶点数
-    template<typename T, typename I, int N>
+    template<typename T, typename I, int N, bool CCW = false>
     static void normalsAve_(const I* idx, unsigned nfaces, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
-        unsigned vtxStride = 0, unsigned normStride = 0);
+        unsigned vstride = 0, unsigned nstride = 0);
 
 
 private:
@@ -91,58 +91,58 @@ private:
 };
 
 
-template<typename T, int N>
+template<typename T, int N, bool CCW>
 void KuMesh::normalsFlat_(const point3<T>* vtx, vec3<T>* normals, unsigned nfaces,
-    unsigned vtxStride, unsigned normStride) {
-    if (vtxStride == 0) vtxStride = sizeof(*vtx);
-    if (normStride == 0) normStride = sizeof(*normals);
+    unsigned vstride, unsigned nstride) {
+    if (vstride == 0) vstride = sizeof(*vtx);
+    if (nstride == 0) nstride = sizeof(*normals);
 
     auto pvtx = (const char*)vtx;
     auto pnorm = (char*)normals;
     for (unsigned i = 0; i < N * nfaces; i += N) {
-        auto p0 = (const point3<T>*)(pvtx + i * vtxStride);
-        auto p1 = (const point3<T>*)(pvtx + (i + 1) * vtxStride);
-        auto p2 = (const point3<T>*)(pvtx + (i + 2) * vtxStride);
-        auto n = normal(*p0, *p1, *p2); // 取多边形的前3个点计算面法线
+        auto p0 = (const point3<T>*)(pvtx + i * vstride);
+        auto p1 = (const point3<T>*)(pvtx + (i + 1) * vstride);
+        auto p2 = (const point3<T>*)(pvtx + (i + 2) * vstride);
+        auto n = normal<T, CCW>(*p0, *p1, *p2); // 取多边形的前3个点计算面法线
         for (unsigned j = 0; j < N; j++)
-            *(vec3<T>*)(pnorm + j * normStride) = n;
+            *(vec3<T>*)(pnorm + j * nstride) = n;
     }
 }
 
 
-template<typename T, typename I, int N>
+template<typename T, typename I, int N, bool CCW>
 void KuMesh::normalsAve_(const I* idx, unsigned nfaces, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx,
-    unsigned vtxStride, unsigned normStride)
+    unsigned vstride, unsigned nstride)
 {
-    if (vtxStride == 0) vtxStride = sizeof(*vtx);
-    if (normStride == 0) normStride = sizeof(*normals);
+    if (vstride == 0) vstride = sizeof(*vtx);
+    if (nstride == 0) nstride = sizeof(*normals);
     vec3<T>* norm = normals;
 
     for (unsigned i = 0; i < nvtx; i++) {
         *norm = vec3<T>::zero();
-        norm = (vec3<T>*)((char*)norm + normStride);
+        norm = (vec3<T>*)((char*)norm + nstride);
     }
 
     auto pvtx = (const char*)vtx;
     auto pnorm = (char*)normals;
     for (unsigned i = 0; i < N * nfaces; i += N) {
-        auto p0 = (const point3<T>*)(pvtx + idx[i] * vtxStride);
-        auto p1 = (const point3<T>*)(pvtx + idx[i + 1] * vtxStride);
-        auto p2 = (const point3<T>*)(pvtx + idx[i + 2] * vtxStride);
-        auto n = normal(*p0, *p1, *p2); // 取多边形的前3个点计算面法线
+        auto p0 = (const point3<T>*)(pvtx + idx[i] * vstride);
+        auto p1 = (const point3<T>*)(pvtx + idx[i + 1] * vstride);
+        auto p2 = (const point3<T>*)(pvtx + idx[i + 2] * vstride);
+        auto n = normal<T, CCW>(*p0, *p1, *p2); // 取多边形的前3个点计算面法线
         for (unsigned j = 0; j < N; j++)
-            *(vec3<T>*)(pnorm + idx[i + j] * normStride) += n;
+            *(vec3<T>*)(pnorm + idx[i + j] * nstride) += n;
     }
 
     norm = normals;
     for (unsigned i = 0; i < nvtx; i++) {
         norm->normalize();
-        norm = (vec3<T>*)((char*)norm + normStride);
+        norm = (vec3<T>*)((char*)norm + nstride);
     }
 }
 
 
-template<typename T, typename I>
+template<typename T, typename I, bool CCW>
 void KuMesh::triNormalsSmooth(const I* idx, unsigned ntris, const point3<T>* vtx, vec3<T>* normals, unsigned nvtx)
 {
     /* pseudo code

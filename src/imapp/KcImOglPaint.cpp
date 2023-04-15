@@ -1138,6 +1138,9 @@ void KcImOglPaint::drawRenderList_()
 {
 	configOglState_();
 
+	//glEnable(GL_CULL_FACE); // for debug
+	//glCullFace(GL_BACK);
+
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	bool polygonOffset(false);
 	unsigned viewport(-1), clipRect(-1), clipBox(-2); // NB: clipBox可以等于-1，所以此处初始化为-2，表示未赋值

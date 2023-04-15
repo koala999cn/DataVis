@@ -166,7 +166,7 @@ void KcGlslProgram::bindAttribLocation(unsigned int index, const std::string_vie
 }
 
 
-int KcGlslProgram::getAttribLocation(const  std::string_view& name) const
+int KcGlslProgram::getAttribLocation(const std::string_view& name) const
 {
 	return glGetAttribLocation(handle(), name.data());
 }
