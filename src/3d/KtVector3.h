@@ -109,7 +109,7 @@ public:
 	}
 
 	// 指向屏幕内的向量(默认x轴正向向左，y轴正向向上)
-	template<bool LEFT_HAND = true>
+	template<bool LEFT_HAND = false>
 	static const KtVector3& forward() {
 		if constexpr (LEFT_HAND) // 左手坐标系
 			return unitZ(); 

@@ -1,4 +1,5 @@
 #pragma once
+#include "KtMatrix.h"
 #include "KtVector3.h"
 #include "KtVector4.h"
 #include "KtMatrix3.h"
@@ -34,9 +35,9 @@
 
 // @ROW_MAJOR: 底层数据的布局. 详见KtMatrix3
 template<class KReal, bool ROW_MAJOR = true>
-class KtMatrix4 : public KtPoint<KReal, 16> // 继承KtPoint的通用运算符
+class KtMatrix4 : public k3d::KtMatrix<KReal, 4, 4, ROW_MAJOR>
 {
-	using super_ = KtPoint<KReal, 16>;
+	using super_ = k3d::KtMatrix<KReal, 4, 4, ROW_MAJOR>;
 	using point2 = KtPoint<KReal, 2>;
 	using point3 = KtPoint<KReal, 3>;
 	using vec3 = KtVector3<KReal>;
@@ -74,8 +75,6 @@ public:
 		m20() = rhs.m20(), m21() = rhs.m21(), m22() = rhs.m22(), m23() = rhs.m23(),
 		m30() = rhs.m30(), m31() = rhs.m31(), m32() = rhs.m32(), m33() = rhs.m33();
 	}
-
-	constexpr static bool rowMajor() { return ROW_MAJOR; }
 
 	static mat4 zero() {
 		return mat4();
@@ -256,188 +255,51 @@ public:
 
 	vec4 extractPerspective() const;
 
-	// 按照先旋转再缩放的顺序分解
+	// 按照先旋转再缩放的顺序分解, 即假定 M = rot * scale
 	bool decomposeRS(vec3& translation, vec3& scale, mat3& rot) const;
 
-	// 按照先缩放再旋转的顺序分解
+	// 按照先缩放再旋转的顺序分解, 即假定 M = scale * rot
 	bool decomposeSR(vec3& translation, vec3& scale, mat3& rot) const;
 
+	KReal m00() const { return at(0, 0); }
+	KReal m01() const { return at(0, 1); }
+	KReal m02() const { return at(0, 2); }
+	KReal m03() const { return at(0, 3); }
 
-	// TODO: 实现KtMatrix基类，实现矩阵相关的通用算法
-	KReal operator()(unsigned row, unsigned col) const {
-		if constexpr (ROW_MAJOR)
-			return at(row * 4 + col);
-		else
-			return at(col * 4 + row);
-	}
+	KReal m10() const { return at(1, 0); }
+	KReal m11() const { return at(1, 1); }
+	KReal m12() const { return at(1, 2); }
+	KReal m13() const { return at(1, 3); }
 
-	KReal& operator()(unsigned row, unsigned col) {
-		if constexpr (ROW_MAJOR)
-			return at(row * 4 + col);
-		else
-			return at(col * 4 + row);
-	}
+	KReal m20() const { return at(2, 0); }
+	KReal m21() const { return at(2, 1); }
+	KReal m22() const { return at(2, 2); }
+	KReal m23() const { return at(2, 3); }
 
-	KReal m00() const { return at(0); }
-	KReal m01() const { 
-		if constexpr (ROW_MAJOR)
-			return at(1);
-		else
-			return at(4);
-	}
-	KReal m02() const { 
-		if constexpr (ROW_MAJOR)
-			return at(2);
-		else
-			return at(8);
-	}
-	KReal m03() const { 
-		if constexpr (ROW_MAJOR)
-			return at(3);
-		else
-			return at(12);
-	}
+	KReal m30() const { return at(3, 0); }
+	KReal m31() const { return at(3, 1); }
+	KReal m32() const { return at(3, 2); }
+	KReal m33() const { return at(3, 3); }
 
-	KReal m10() const { 
-		if constexpr (ROW_MAJOR)
-			return at(4); 
-		else
-			return at(1);
-	}
-	KReal m11() const { return at(5); }
-	KReal m12() const { 
-		if constexpr (ROW_MAJOR)
-			return at(6); 
-		else
-			return at(9);
-	}
-	KReal m13() const { 
-		if constexpr (ROW_MAJOR)
-			return at(7); 
-		else
-			return at(13);
-	}
+	KReal& m00() { return at(0, 0); }
+	KReal& m01() { return at(0, 1); }
+	KReal& m02() { return at(0, 2); }
+	KReal& m03() { return at(0, 3); }
 
-	KReal m20() const { 
-		if constexpr (ROW_MAJOR)
-			return at(8); 
-		else
-			return at(2);
-	}
-	KReal m21() const { 
-		if constexpr (ROW_MAJOR)
-			return at(9); 
-		else
-			return at(6);
-	}
-	KReal m22() const { return at(10); }
-	KReal m23() const { 
-		if constexpr (ROW_MAJOR)
-			return at(11); 
-		else
-			return at(14);
-	}
+	KReal& m10() { return at(1, 0); }
+	KReal& m11() { return at(1, 1); }
+	KReal& m12() { return at(1, 2); }
+	KReal& m13() { return at(1, 3); }
 
-	KReal m30() const { 
-		if constexpr (ROW_MAJOR)
-			return at(12); 
-		else
-			return at(3);
-	}
-	KReal m31() const { 
-		if constexpr (ROW_MAJOR)
-			return at(13);
-		else
-			return at(7);
-	}
-	KReal m32() const { 
-		if constexpr (ROW_MAJOR)
-			return at(14); 
-		else
-			return at(11);
-	}
-	KReal m33() const { return at(15); }
+	KReal& m20() { return at(2, 0); }
+	KReal& m21() { return at(2, 1); }
+	KReal& m22() { return at(2, 2); }
+	KReal& m23() { return at(2, 3); }
 
-
-	KReal& m00() { return at(0); }
-	KReal& m01() {
-		if constexpr (ROW_MAJOR)
-			return at(1);
-		else
-			return at(4);
-	}
-	KReal& m02() {
-		if constexpr (ROW_MAJOR)
-			return at(2);
-		else
-			return at(8);
-	}
-	KReal& m03() {
-		if constexpr (ROW_MAJOR)
-			return at(3);
-		else
-			return at(12);
-	}
-
-	KReal& m10() {
-		if constexpr (ROW_MAJOR)
-			return at(4);
-		else
-			return at(1);
-	}
-	KReal& m11() { return at(5); }
-	KReal& m12() {
-		if constexpr (ROW_MAJOR)
-			return at(6);
-		else
-			return at(9);
-	}
-	KReal& m13() {
-		if constexpr (ROW_MAJOR)
-			return at(7);
-		else
-			return at(13);
-	}
-
-	KReal& m20() {
-		if constexpr (ROW_MAJOR)
-			return at(8);
-		else
-			return at(2);
-	}
-	KReal& m21() {
-		if constexpr (ROW_MAJOR)
-			return at(9);
-		else
-			return at(6);
-	}
-	KReal& m22() { return at(10); }
-	KReal& m23() {
-		if constexpr (ROW_MAJOR)
-			return at(11);
-		else
-			return at(14);
-	}
-
-	KReal& m30() {
-		if constexpr (ROW_MAJOR)
-			return at(12);
-		else
-			return at(3);
-	}
-	KReal& m31() {
-		if constexpr (ROW_MAJOR)
-			return at(13);
-		else
-			return at(7);
-	}
-	KReal& m32() {
-		if constexpr (ROW_MAJOR)
-			return at(14);
-		else
-			return at(11);
-	}
-	KReal& m33() { return at(15); }
+	KReal& m30() { return at(3, 0); }
+	KReal& m31() { return at(3, 1); }
+	KReal& m32() { return at(3, 2); }
+	KReal& m33() { return at(3, 3); }
 };
 
 

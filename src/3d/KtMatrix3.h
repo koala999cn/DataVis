@@ -1,4 +1,5 @@
 #pragma once
+#include "KtMatrix.h"
 #include "KtVector3.h"
 
 // 旋转矩阵(rotation matrix)的实现，用于将局部坐标系的矢量变换到世界坐标系
@@ -27,16 +28,14 @@
 // 若false, 底层数据按列存储，排列顺序为m[0][0], m[1][0], m[2][0], m[0][1], ...
 
 template<class KReal, bool ROW_MAJOR = true>
-class KtMatrix3 : public KtPoint<KReal, 9>
+class KtMatrix3 : public k3d::KtMatrix<KReal, 3, 3, ROW_MAJOR>
 {
+	using super_ = k3d::KtMatrix<KReal, 3, 3, ROW_MAJOR>;
 	using vec3 = KtVector3<KReal>;
 	using mat3 = KtMatrix3<KReal, ROW_MAJOR>;
 	using point3 = KtPoint<KReal, 3>;
-	using super_ = KtPoint<KReal, 9>;
-
+	
 public:
-
-	constexpr static bool rowMajor() { return ROW_MAJOR; }
 
 	KtMatrix3() : super_() {}
 
@@ -70,15 +69,6 @@ public:
 		return v;
 	}
 
-	mat3& operator=(const mat3& rhs) {
-		std::copy(std::cbegin(rhs), std::cend(rhs), super_::begin());
-		return *this;
-	}
-
-	bool operator==(const mat3& rhs) const;
-	bool isApproxEqual(const mat3& rhs) const;
-
-	mat3 operator-();
 	mat3 operator*(const mat3& rhs) const;
 	vec3 operator*(const vec3& v) const;
 
@@ -137,102 +127,31 @@ public:
 		return fromEulerAngleYXZ(pitch, yaw, roll); 
 	}
 
-	KReal operator()(unsigned row, unsigned col) const {
-		if constexpr (ROW_MAJOR)
-			return at(row * 3 + col);
-		else
-			return at(col * 3 + row);
-	}
+	KReal m00() const { return at(0, 0); }
+	KReal m01() const { return at(0, 1); }
+	KReal m02() const { return at(0, 2); }
 
-	KReal& operator()(unsigned row, unsigned col) {
-		if constexpr (ROW_MAJOR)
-			return at(row * 3 + col);
-		else
-			return at(col * 3 + row);
-	}
+	KReal m10() const { return at(1, 0); }
+	KReal m11() const { return at(1, 1); }
+	KReal m12() const { return at(1, 2); }
 
-	KReal m00() const {	return at(0); }
-	KReal m01() const { 
-		if constexpr (rowMajor()) return at(1);
-		else return at(3);
-	}	
-	KReal m02() const { 
-		if constexpr (rowMajor()) return at(2);
-		else return at(6);
-	 }	
-	KReal m10() const { 
-		if constexpr (rowMajor()) return at(3);
-		else return at(1);
-	}
-	KReal m11() const { return at(4); }
-	KReal m12() const { 
-		if constexpr (rowMajor()) return at(5);
-		else return at(7);
-	}
-	KReal m20() const { 
-		if constexpr (rowMajor()) return at(6);
-		else return at(2);
-	}
-	KReal m21() const { 
-		if constexpr (rowMajor()) return at(7);
-		else return at(5);
-	}
-	KReal m22() const { return at(8); }
-	
-	KReal& m00() { return at(0); }
-	KReal& m01() {
-		if constexpr (rowMajor()) return at(1);
-		else return at(3);
-	}
-	KReal& m02() {
-		if constexpr (rowMajor()) return at(2);
-		else return at(6);
-	}
-	KReal& m10() {
-		if constexpr (rowMajor()) return at(3);
-		else return at(1);
-	}
-	KReal& m11() { return at(4); }
-	KReal& m12() {
-		if constexpr (rowMajor()) return at(5);
-		else return at(7);
-	}
-	KReal& m20() {
-		if constexpr (rowMajor()) return at(6);
-		else return at(2);
-	}
-	KReal& m21() {
-		if constexpr (rowMajor()) return at(7);
-		else return at(5);
-	}
-	KReal& m22() { return at(8); }
+	KReal m20() const { return at(2, 0); }
+	KReal m21() const { return at(2, 1); }
+	KReal m22() const { return at(2, 2); }
+
+	KReal& m00() { return at(0, 0); }
+	KReal& m01() { return at(0, 1); }
+	KReal& m02() { return at(0, 2); }
+
+	KReal& m10() { return at(1, 0); }
+	KReal& m11() { return at(1, 1); }
+	KReal& m12() { return at(1, 2); }
+
+	KReal& m20() { return at(2, 0); }
+	KReal& m21() { return at(2, 1); }
+	KReal& m22() { return at(2, 2); }
 };
 
-template<class KReal, bool ROW_MAJOR>
-bool KtMatrix3<KReal, ROW_MAJOR>::operator==(const mat3& rhs) const
-{
-	return m00() == rhs.m00() && m01() == rhs.m01() && m02() == rhs.m02() &&
-		m10() == rhs.m10() && m11() == rhs.m11() && m12() == rhs.m12() &&
-		m20() == rhs.m20() && m21() == rhs.m21() && m22() == rhs.m22();
-}
-
-template<class KReal, bool ROW_MAJOR>
-bool KtMatrix3<KReal, ROW_MAJOR>::isApproxEqual(const mat3& rhs) const
-{
-	return KuMath::approxEqual(m00(), rhs.m00()) && KuMath::approxEqual(m01(), rhs.m01()) && KuMath::approxEqual(m02(), rhs.m02()) &&
-		KuMath::approxEqual(m10(), rhs.m10()) && KuMath::approxEqual(m11(), rhs.m11()) && KuMath::approxEqual(m12(), rhs.m12()) &&
-		KuMath::approxEqual(m20(), rhs.m20()) && KuMath::approxEqual(m21(), rhs.m21()) && KuMath::approxEqual(m22(), rhs.m22());
-}
-
-template<class KReal, bool ROW_MAJOR>
-KtMatrix3<KReal, ROW_MAJOR> KtMatrix3<KReal, ROW_MAJOR>::operator-()
-{
-	mat3 r;
-	for (int i = 0; i < 9; i++)
-		r.m_[i] = -m_[i];
-
-	return r;
-}
 
 // 三维矩阵乘法
 template<class KReal, bool ROW_MAJOR>
