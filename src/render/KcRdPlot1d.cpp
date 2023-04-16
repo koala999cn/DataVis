@@ -362,14 +362,38 @@ namespace kPrivate
 	{
 		if (ImGuiX::treePush("Camera", false)) {
 
-			auto mvp = cam.getMvpMat();
-			kPrivate::matrixd("MVP", mvp);
-
 			auto view = cam.viewMatrix();
-			kPrivate::matrixd("View", view);
+			kPrivate::matrixd("View Matrix", view);
 
-			auto pos = cam.getEyePos();
-			kPrivate::vectord("Position", pos.data(), 3);
+			auto proj = cam.projMatrix();
+			kPrivate::matrixd("Projection Matrix", proj);
+
+			auto mvp = cam.getMvpMat();
+			kPrivate::matrixd("MVP Matrix", mvp);
+
+			auto pos = -cam.getEyePos();
+			kPrivate::vectord("Eye Position", pos.data(), 3);
+
+			vec3d scale, trans, skew;
+			mat3d<> rot;
+			if (view.decomposeRS(trans, scale, rot)) {
+				kPrivate::vectord("Translation", trans.data(), 3);
+				kPrivate::vectord("Scale", scale.data(), 3);
+				
+				auto x = rot.xAxis();
+				auto y = rot.yAxis();
+				auto z = rot.zAxis();
+
+				kPrivate::vectord("X Axis", x.data(), 3);
+				kPrivate::vectord("Y Axis", y.data(), 3);
+				kPrivate::vectord("Z Axis", z.data(), 3);
+
+				vec3d angle;
+				rot.toEulerAngleXYZ(angle);
+				for (int i = 0; i < 3; i++)
+					angle[i] = KuMath::rad2Deg(angle[i]);
+				kPrivate::vectord("Angle", angle.data(), 3);
+			}
 
 			ImGuiX::treePop();
 		}

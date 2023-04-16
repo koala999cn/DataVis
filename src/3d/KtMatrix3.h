@@ -1,5 +1,4 @@
 #pragma once
-#include "KtArray.h"
 #include "KtVector3.h"
 
 // 旋转矩阵(rotation matrix)的实现，用于将局部坐标系的矢量变换到世界坐标系
@@ -28,12 +27,12 @@
 // 若false, 底层数据按列存储，排列顺序为m[0][0], m[1][0], m[2][0], m[0][1], ...
 
 template<class KReal, bool ROW_MAJOR = true>
-class KtMatrix3 : public KtArray<KReal, 9>
+class KtMatrix3 : public KtPoint<KReal, 9>
 {
 	using vec3 = KtVector3<KReal>;
 	using mat3 = KtMatrix3<KReal, ROW_MAJOR>;
 	using point3 = KtPoint<KReal, 3>;
-	using super_ = KtArray<KReal, 9>;
+	using super_ = KtPoint<KReal, 9>;
 
 public:
 

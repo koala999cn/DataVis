@@ -331,7 +331,7 @@ void KtProjector<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
 template<typename KREAL, bool ROW_MAJOR>
 KtVector3<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyePos() const
 {
-	return viewMat_.getTranslation();
+	return viewMat_.extractTranslation();
 }
 
 

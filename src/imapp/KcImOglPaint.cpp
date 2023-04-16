@@ -716,7 +716,7 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		//obj->setNormalMatrix(camera_.getNormalMat());
 		obj->setNormalMatrix(camera_.getMvMat());
 		obj->setLightDir(float3(-1, -1, -1).normalize());
-		auto dir = camera_.getEyePose().normalize().zAxis();
+		//auto dir = camera_.getEyePose().normalize().zAxis();
 		//dir.z() = -dir.z();
 		//obj->setLightDir(dir);
 	}
@@ -1131,15 +1131,16 @@ void KcImOglPaint::configOglState_()
 		glEnable(GL_DEPTH_TEST);
 	else 
 		glDisable(GL_DEPTH_TEST);
+
+	//glFrontFace(GL_CW); // 定义顺时针为正面
+	//glEnable(GL_CULL_FACE); // for debug
+	//glCullFace(GL_FRONT);
 }
 
 
 void KcImOglPaint::drawRenderList_()
 {
 	configOglState_();
-
-	//glEnable(GL_CULL_FACE); // for debug
-	//glCullFace(GL_BACK);
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	bool polygonOffset(false);

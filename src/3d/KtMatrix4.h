@@ -1,5 +1,4 @@
 #pragma once
-#include "KtArray.h"
 #include "KtVector3.h"
 #include "KtVector4.h"
 #include "KtMatrix3.h"
@@ -35,9 +34,9 @@
 
 // @ROW_MAJOR: 底层数据的布局. 详见KtMatrix3
 template<class KReal, bool ROW_MAJOR = true>
-class KtMatrix4 : public KtArray<KReal, 16>
+class KtMatrix4 : public KtPoint<KReal, 16> // 继承KtPoint的通用运算符
 {
-	using super_ = KtArray<KReal, 16>;
+	using super_ = KtPoint<KReal, 16>;
 	using point2 = KtPoint<KReal, 2>;
 	using point3 = KtPoint<KReal, 3>;
 	using vec3 = KtVector3<KReal>;
@@ -224,34 +223,17 @@ public:
         return m30() == 0 && m31() == 0 && m32() == 0 && m33() == 1;
     }
 
-	// 提取
-    /*
-    -----------------------------------------------------------------------
-    Translation Transformation
-    -----------------------------------------------------------------------
-    */
-    /** Sets the translation transformation part of the matrix.
-    */
-   void setTranslation(const vec3& v) {
-        m03() = v.x, m13() = v.y, m23() = v.z;
-    }
+	/// 提取
 
-    /** Extracts the translation transformation part of the matrix.
-        */
-    vec3 getTranslation() const {
-        return vec3(m03(), m13(), m23());
-    }
+	// 提取3x3矩阵
+	mat3 extractMatrix3() const {
+		return mat3(m00(), m01(), m02(),
+			m10(), m11(), m12(),
+			m20(), m21(), m22());
+	}
 
-    /*
-    -----------------------------------------------------------------------
-    Scale Transformation
-    -----------------------------------------------------------------------
-    */
-
-    /** Sets the scale part of the matrix.
-    */
-    void setScale(const vec3& v) {
-        m00() = v.x(), m11() = v.y(), m22() = v.z();
+    vec3 extractTranslation() const {
+        return vec3(m03(), m13(), m23()) / m33();
     }
 
 	/** Determines if this matrix involves a scaling. */
@@ -270,14 +252,16 @@ public:
 		return false;
 	}
 
+	vec3 extractScale() const;
 
-	/** Extracts the rotation transformation part of the matrix.
-		*/
-	mat3 getRotation() const {
-		vec3 x(m00(), m10(), m20()), y(m01(), m11(), m21()), z(m02(), m12(), m22());
-		x.normalize(), y.normalize(), z.normalize();
-		return mat3(x, y, z);
-	}
+	vec4 extractPerspective() const;
+
+	// 按照先旋转再缩放的顺序分解
+	bool decomposeRS(vec3& translation, vec3& scale, mat3& rot) const;
+
+	// 按照先缩放再旋转的顺序分解
+	bool decomposeSR(vec3& translation, vec3& scale, mat3& rot) const;
+
 
 	// TODO: 实现KtMatrix基类，实现矩阵相关的通用算法
 	KReal operator()(unsigned row, unsigned col) const {
@@ -604,14 +588,14 @@ KtMatrix4<KReal, ROW_MAJOR>::projectFrustum(KReal left, KReal right, KReal botto
 	//
 	// [ x   0   a   0  ]
 	// [ 0   y   b   0  ]
-	// [ 0   0   c   d ]
-	// [ 0   0   -1  0  ]
+	// [ 0   0   c   d  ]
+	// [ 0   0  -1   0  ]
 	//
 	// left-handed rules
 	//
 	// [ x   0   a   0  ]
 	// [ 0   y   b   0  ]
-	// [ 0   0   -c  d  ]
+	// [ 0   0  -c   d  ]
 	// [ 0   0   1   0  ]
 	//
 	// x = 2 * near / (right - left)
@@ -682,6 +666,118 @@ KtMatrix4<KReal, ROW_MAJOR>::projectOrtho(KReal left, KReal right, KReal bottom,
 		0, 0, 0, 1
 	};
 }
+
+
+template<typename KReal, bool ROW_MAJOR>
+typename KtMatrix4<KReal, ROW_MAJOR>::vec3 KtMatrix4<KReal, ROW_MAJOR>::extractScale() const
+{
+	vec3 scale, skew, row[3];
+
+	// Now get scale and shear.
+	for (unsigned i = 0; i < 3; ++i)
+		for (unsigned j = 0; j < 3; ++j)
+			row[i][j] = (*this)(j, i) / m33();
+
+	// Compute X scale factor and normalize first row.
+	scale.x() = row[0].length();
+	row[0].normalize();
+
+	// Compute XY shear factor and make 2nd row orthogonal to 1st.
+	skew.z() = row[0].dot(row[1]);
+	row[1] += row[0] * skew.z();
+
+	// Now, compute Y scale and normalize 2nd row.
+	scale.y() = row[1].length();
+	row[1].normalize();
+	skew.z() /= scale.y();
+
+	// Compute XZ and YZ shears, orthogonalize 3rd row.
+	skew.y() = row[0].dot(row[2]);
+	row[2] += row[0] * -skew.y();
+	skew.x() = row[1].dot(row[2]);
+	row[2] += row[1] * -skew.x();
+
+	// Next, get Z scale and normalize 3rd row.
+	scale.z() = row[2].length();
+	row[2].normalize();
+	skew.y() /= scale.z();
+	skew.x() /= scale.z();
+
+	// At this point, the matrix (in rows[]) is orthonormal.
+	// Check for a coordinate system flip.  If the determinant
+	// is -1, then negate the matrix and the scaling factors.
+	auto pdum3 = row[1].cross(row[2]);
+	return row[0].dot(pdum3) >= 0 ? scale : -scale;
+}
+
+
+template<typename KReal, bool ROW_MAJOR>
+typename KtMatrix4<KReal, ROW_MAJOR>::vec4 KtMatrix4<KReal, ROW_MAJOR>::extractPerspective() const
+{
+	vec4 persp(0, 0, 0, 1);
+
+	// perspectiveMatrix is used to solve for perspective, but it also provides
+	// an easy way to test for singularity of the upper 3x3 component.
+	mat4 perspectiveMatrix(*this);
+	if (m33() != 1)
+		perspectiveMatrix /= m33(); // Normalize the matrix.
+
+	// First, isolate perspective.  This is the messiest.
+	if (!KuMath::almostEqual<KReal>(perspectiveMatrix.m30(), 0) ||
+		!KuMath::almostEqual<KReal>(perspectiveMatrix.m31(), 0) ||
+		!KuMath::almostEqual<KReal>(perspectiveMatrix.m32(), 0)) {
+
+		// rightHandSide is the right hand side of the equation.
+		vec4 rightHandSide(perspectiveMatrix.m30(), perspectiveMatrix.m31(), 
+			perspectiveMatrix.m32(), perspectiveMatrix.m33());
+
+		for (unsigned i = 0; i < 3; i++)
+			perspectiveMatrix(3, i) = 0;
+	
+		/// TODO: Fixme!
+		//if (epsilonEqual(determinant(perspectiveMatrix), static_cast<T>(0), epsilon<T>()))
+		//	return false;
+
+		// Solve the equation by inverting PerspectiveMatrix and multiplying
+		// rightHandSide by the inverse.  (This is the easiest way, not
+		// necessarily the best.)
+		auto inversePerspectiveMatrix = perspectiveMatrix.inverse();
+		auto transposedInversePerspectiveMatrix = inversePerspectiveMatrix.getTranspose();
+
+		persp = transposedInversePerspectiveMatrix * rightHandSide;
+	}
+
+	return persp;
+}
+
+
+template<typename KReal, bool ROW_MAJOR>
+bool KtMatrix4<KReal, ROW_MAJOR>::decomposeRS(vec3& trans, vec3& scale, mat3& rot) const
+{
+	if (KuMath::almostEqual<KReal>(m33(), 0.))
+		return false;
+
+	trans = extractTranslation();
+	scale = extractScale();
+	rot = extractMatrix3(); if (m33() != 1) rot /= m33();
+	rot = rot * buildScale({ 1 / scale.x(), 1 / scale.y(), 1 / scale.z() }).extractMatrix3();
+	return true;
+}
+
+
+template<typename KReal, bool ROW_MAJOR>
+bool KtMatrix4<KReal, ROW_MAJOR>::decomposeSR(vec3& trans, vec3& scale, mat3& rot) const
+{
+	if (KuMath::almostEqual<KReal>(m33(), 0.))
+		return false;
+
+	trans = extractTranslation();
+	scale = extractScale();
+	rot = extractMatrix3(); if (m33() != 1) rot /= m33();
+	rot = buildScale({ 1 / scale.x(), 1 / scale.y(), 1 / scale.z() }).extractMatrix3() * rot;
+	return true;
+}
+
 
 template<bool ROW_MAJOR = true>
 using mat4f = KtMatrix4<float, ROW_MAJOR>;

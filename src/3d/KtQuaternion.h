@@ -10,7 +10,7 @@
 // Ëã·¨²Î¿¼<3D Game Engine Design - A Practical Approach To Real-Time Computer Graphics>
 
 template<class KReal>
-class KtQuaternion : protected KtPoint<KReal, 4>
+class KtQuaternion : public KtPoint<KReal, 4>
 {
 	using super_ = KtPoint<KReal, 4>;
 	using vec3 = KtVector3<KReal>;
