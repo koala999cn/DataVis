@@ -371,28 +371,27 @@ namespace kPrivate
 			auto mvp = cam.getMvpMat();
 			kPrivate::matrixd("MVP Matrix", mvp);
 
-			auto pos = -cam.getEyePos();
-			kPrivate::vectord("Eye Position", pos.data(), 3);
-
-			vec3d scale, trans, skew;
+			vec3d scale, trans;
 			mat3d<> rot;
 			if (view.decomposeRS(trans, scale, rot)) {
-				kPrivate::vectord("Translation", trans.data(), 3);
-				kPrivate::vectord("Scale", scale.data(), 3);
-				
-				auto x = rot.xAxis();
-				auto y = rot.yAxis();
-				auto z = rot.zAxis();
 
-				kPrivate::vectord("X Axis", x.data(), 3);
-				kPrivate::vectord("Y Axis", y.data(), 3);
-				kPrivate::vectord("Z Axis", z.data(), 3);
+				if (ImGuiX::treePush("Eye", false)) {
 
-				vec3d angle;
-				rot.toEulerAngleXYZ(angle);
-				for (int i = 0; i < 3; i++)
-					angle[i] = KuMath::rad2Deg(angle[i]);
-				kPrivate::vectord("Angle", angle.data(), 3);
+					auto pos = -trans;
+					kPrivate::vectord("Position", pos.data(), 3);
+
+					quatd quat(rot);
+					quat = quat.inverse();
+					auto up = quat.yAxis();
+					auto right = quat.xAxis();
+					auto dir = quat * vec3d::forward();
+					
+					kPrivate::vectord("Up", up.data(), 3);
+					kPrivate::vectord("Right", right.data(), 3);
+					kPrivate::vectord("Direction", dir.data(), 3);
+
+					ImGuiX::treePop();
+				}
 			}
 
 			ImGuiX::treePop();
