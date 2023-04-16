@@ -231,11 +231,10 @@ KtQuaternion<KReal> KtQuaternion<KReal>::inverse() const
 {
 	auto n = norm();
 
-	if (KuMath::almostEqual(n, 0))
+	if (KuMath::almostEqual<KReal>(n, 0))
 		return zero();
 
-	auto invNorm = 1 / n;
-	return KtQuaternion<KReal>(w * invNorm, -v * invNorm);
+	return KtQuaternion<KReal>(-x(), -y(), -z(), w()) / n;
 }
 
 // 单位四元数q = cos(A/2)+u*sin(A/2)，其中u为旋转轴，A为旋转角度
