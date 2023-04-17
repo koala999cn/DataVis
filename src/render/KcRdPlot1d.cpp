@@ -371,14 +371,15 @@ namespace kPrivate
 			auto mvp = cam.getMvpMat();
 			kPrivate::matrixd("MVP Matrix", mvp);
 
-			vec3d scale, trans;
+			vec3d scale;
 			mat3d<> rot;
-			if (view.decomposeRS(trans, scale, rot)) {
+			if (view.decomposeRS(scale, rot)) { 
 
 				if (ImGuiX::treePush("Eye", false)) {
 
-					auto pos = -trans;
+					auto pos = view.extractEyePostion();
 					kPrivate::vectord("Position", pos.data(), 3);
+					kPrivate::vectord("Scale", scale.data(), 3);
 
 					quatd quat(rot);
 					quat = quat.inverse();

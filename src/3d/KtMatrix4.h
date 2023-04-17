@@ -225,7 +225,7 @@ public:
 	/// 提取
 
 	// 提取3x3矩阵
-	mat3 extractMatrix3() const {
+	mat3 extractM3x3() const {
 		return mat3(m00(), m01(), m02(),
 			m10(), m11(), m12(),
 			m20(), m21(), m22());
@@ -234,6 +234,12 @@ public:
     vec3 extractTranslation() const {
         return vec3(m03(), m13(), m23()) / m33();
     }
+
+	// 零点的逆变换
+	vec3 extractEyePostion() const { 
+		auto eyePos = getInverse() * vec4(0, 0, 0, 1);
+		return vec3(eyePos.x(), eyePos.y(), eyePos.z());
+	}
 
 	/** Determines if this matrix involves a scaling. */
 	bool hasScale() const {
@@ -255,11 +261,11 @@ public:
 
 	vec4 extractPerspective() const;
 
-	// 按照先旋转再缩放的顺序分解, 即假定 M = rot * scale
-	bool decomposeRS(vec3& translation, vec3& scale, mat3& rot) const;
+	// 按照先缩放再旋转的顺序分解, 即假定 M3x3 = R * S, 此时R = M3x3 * S(-1)
+	bool decomposeRS(vec3& scale, mat3& rot) const;
 
-	// 按照先缩放再旋转的顺序分解, 即假定 M = scale * rot
-	bool decomposeSR(vec3& translation, vec3& scale, mat3& rot) const;
+	// 按照先旋转再缩放的顺序分解, 即假定 M3x3 = S * R, 此时R = S(-1) * M3x3 
+	bool decomposeSR(vec3& scale, mat3& rot) const;
 
 	KReal m00() const { return at(0, 0); }
 	KReal m01() const { return at(0, 1); }
@@ -614,29 +620,29 @@ typename KtMatrix4<KReal, ROW_MAJOR>::vec4 KtMatrix4<KReal, ROW_MAJOR>::extractP
 
 
 template<typename KReal, bool ROW_MAJOR>
-bool KtMatrix4<KReal, ROW_MAJOR>::decomposeRS(vec3& trans, vec3& scale, mat3& rot) const
+bool KtMatrix4<KReal, ROW_MAJOR>::decomposeRS(vec3& scale, mat3& rot) const
 {
 	if (KuMath::almostEqual<KReal>(m33(), 0.))
 		return false;
 
-	trans = extractTranslation();
 	scale = extractScale();
-	rot = extractMatrix3(); if (m33() != 1) rot /= m33();
-	rot = rot * buildScale({ 1 / scale.x(), 1 / scale.y(), 1 / scale.z() }).extractMatrix3();
+	auto m3x3 = extractM3x3(); if (m33() != 1) m3x3 /= m33();
+	auto sR = buildScale({ 1 / scale.x(), 1 / scale.y(), 1 / scale.z() }).extractM3x3();
+	rot = m3x3 * sR;
 	return true;
 }
 
 
 template<typename KReal, bool ROW_MAJOR>
-bool KtMatrix4<KReal, ROW_MAJOR>::decomposeSR(vec3& trans, vec3& scale, mat3& rot) const
+bool KtMatrix4<KReal, ROW_MAJOR>::decomposeSR(vec3& scale, mat3& rot) const
 {
 	if (KuMath::almostEqual<KReal>(m33(), 0.))
 		return false;
 
-	trans = extractTranslation();
 	scale = extractScale();
-	rot = extractMatrix3(); if (m33() != 1) rot /= m33();
-	rot = buildScale({ 1 / scale.x(), 1 / scale.y(), 1 / scale.z() }).extractMatrix3() * rot;
+	auto m3x3 = extractM3x3(); if (m33() != 1) m3x3 /= m33();
+	auto sR = buildScale({ 1 / scale.x(), 1 / scale.y(), 1 / scale.z() }).extractM3x3();
+	rot = sR * m3x3;
 	return true;
 }
 
