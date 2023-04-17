@@ -377,7 +377,7 @@ namespace kPrivate
 
 				if (ImGuiX::treePush("Eye", false)) {
 
-					auto pos = view.extractEyePostion();
+					auto pos = view.getEyePostion();
 					kPrivate::vectord("Position", pos.data(), 3);
 					kPrivate::vectord("Scale", scale.data(), 3);
 

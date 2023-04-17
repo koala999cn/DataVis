@@ -235,12 +235,6 @@ public:
         return vec3(m03(), m13(), m23()) / m33();
     }
 
-	// 零点的逆变换
-	vec3 extractEyePostion() const { 
-		auto eyePos = getInverse() * vec4(0, 0, 0, 1);
-		return vec3(eyePos.x(), eyePos.y(), eyePos.z());
-	}
-
 	/** Determines if this matrix involves a scaling. */
 	bool hasScale() const {
 		// check magnitude of column vectors (==local axes)
@@ -261,11 +255,19 @@ public:
 
 	vec4 extractPerspective() const;
 
+	// TODO: 其实可以自动判断是RS还是SR
+	// 
 	// 按照先缩放再旋转的顺序分解, 即假定 M3x3 = R * S, 此时R = M3x3 * S(-1)
 	bool decomposeRS(vec3& scale, mat3& rot) const;
 
 	// 按照先旋转再缩放的顺序分解, 即假定 M3x3 = S * R, 此时R = S(-1) * M3x3 
 	bool decomposeSR(vec3& scale, mat3& rot) const;
+
+	// eye位于摄像机坐标系的零点，因此对零点作逆变换，便得到eye的世界坐标（假定this为view变换阵）
+	vec3 getEyePostion() const {
+		auto eyePos = getInverse() * vec4(0, 0, 0, 1);
+		return vec3(eyePos.x(), eyePos.y(), eyePos.z());
+	}
 
 	KReal m00() const { return at(0, 0); }
 	KReal m01() const { return at(0, 1); }

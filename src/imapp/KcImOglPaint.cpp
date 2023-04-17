@@ -141,27 +141,27 @@ KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 	{
 	case k_coord_local:
 	{
-		auto p = camera_.localToNdc(pt);
-		return { p.x(), p.y(), p.z() };
+		auto p = camera_.localToNdc(vec4d(pt, 1));
+		return p.vec3();
 	}
 
 	case k_coord_world:
 	{
-		auto p = camera_.worldToNdc(pt);
-		return { p.x(), p.y(), p.z() };
+		auto p = camera_.worldToNdc(vec4d(pt, 1));
+		return p.vec3();
 	}
 
 	case k_coord_screen:
 	{
-		auto p = camera_.screenToNdc(pt);
-		return { p.x(), p.y(), p.z() };
+		auto p = camera_.screenToNdc(vec4d(pt, 1));
+		return p.vec3();
 	}
 
 	case k_coord_local_screen:
 	{
-		auto p = camera_.localToWorld(pt);
+		auto p = camera_.localToWorld(vec4d(pt, 1));
 		p = camera_.screenToNdc(p);
-		return { p.x(), p.y(), p.z() };
+		return p.vec3();
 	}
 
 	}

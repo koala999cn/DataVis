@@ -7,7 +7,6 @@ template<class KReal>
 class KtVector4 : public KtPoint<KReal, 4>
 {
 	using super_ = KtPoint<KReal, 4>;
-	using vec3 = KtVector3<KReal>;
 
 public:
 	using super_::x;
@@ -20,7 +19,7 @@ public:
 	KtVector4(const super_& pt) : super_(pt) {}
 
 	// 若v为点，保留w=1; 若为矢量，置w=0
-	KtVector4(const KtPoint<KReal, 3>& v, KReal _w = 1) {
+	explicit KtVector4(const KtPoint<KReal, 3>& v, KReal _w = 1) {
 		x() = v.x(), y() = v.y(), z() = v.z();
 		w() = _w;
 	}
@@ -38,6 +37,8 @@ public:
 
 		return *this;
 	}
+
+	KtVector3<KReal> vec3() const { return { x(), y(), z() }; }
 };
 
 using vec4f = KtVector4<float> ;
