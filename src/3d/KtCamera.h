@@ -21,7 +21,7 @@
 //   7. 屏幕坐标系(screen)，即视窗坐标
 
 template<typename KREAL, bool ROW_MAJOR = true>
-class KtProjector
+class KtCamera
 {
 public:
 	using point2 = KtPoint<KREAL, 2>;
@@ -238,8 +238,8 @@ private:
 };
 
 
-template<typename KREAL, bool ROW_MAJOR> const typename KtProjector<KREAL, ROW_MAJOR>::mat4&
-KtProjector<KREAL, ROW_MAJOR>::getMvMat() const
+template<typename KREAL, bool ROW_MAJOR> const typename KtCamera<KREAL, ROW_MAJOR>::mat4&
+KtCamera<KREAL, ROW_MAJOR>::getMvMat() const
 {
 	if (localMatStack_.empty())
 		return viewMat_;
@@ -250,8 +250,8 @@ KtProjector<KREAL, ROW_MAJOR>::getMvMat() const
 }
 
 
-template<typename KREAL, bool ROW_MAJOR> const typename KtProjector<KREAL, ROW_MAJOR>::mat4&
-KtProjector<KREAL, ROW_MAJOR>::getMvpMat() const {
+template<typename KREAL, bool ROW_MAJOR> const typename KtCamera<KREAL, ROW_MAJOR>::mat4&
+KtCamera<KREAL, ROW_MAJOR>::getMvpMat() const {
 	if (localMatStack_.empty())
 		return vpMat_;
 
@@ -261,19 +261,21 @@ KtProjector<KREAL, ROW_MAJOR>::getMvpMat() const {
 }
 
 
-template<typename KREAL, bool ROW_MAJOR> typename KtProjector<KREAL, ROW_MAJOR>::mat4
-KtProjector<KREAL, ROW_MAJOR>::getNormalMat() const
+template<typename KREAL, bool ROW_MAJOR> typename KtCamera<KREAL, ROW_MAJOR>::mat4
+KtCamera<KREAL, ROW_MAJOR>::getNormalMat() const
 {
-	// return getMvMat().getInverse().getTranspose(); // 该算法返回的结果不能很好工作
-	KtVector3<KREAL> scale;
-	KtMatrix3<KREAL, ROW_MAJOR> rot;
-	getMvMat().decomposeRS(scale, rot); // TODO: 不一定RS
-	return rot;
+	return getMvMat().getInverse().getTranspose();
+
+	// 以下为忽略scale的变换阵
+	//KtVector3<KREAL> scale;
+	//KtMatrix3<KREAL, ROW_MAJOR> rot;
+	//getMvMat().decomposeRS(scale, rot); // TODO: 不一定RS
+	//return rot;
 }
 
 
 template<typename KREAL, bool ROW_MAJOR>
-void KtProjector<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
+void KtCamera<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
 {
 	vp_ = vp;
 
@@ -308,7 +310,7 @@ void KtProjector<KREAL, ROW_MAJOR>::setViewport(const rect& vp)
 
 
 template<typename KREAL, bool ROW_MAJOR>
-void KtProjector<KREAL, ROW_MAJOR>::updateProjectMatrixs()
+void KtCamera<KREAL, ROW_MAJOR>::updateProjectMatrixs()
 {
 	vpMat_ = projMat_ * viewMat_;
 	wsMat_ = nsMat_ * vpMat_;
@@ -322,7 +324,7 @@ void KtProjector<KREAL, ROW_MAJOR>::updateProjectMatrixs()
 
 
 template<typename KREAL, bool ROW_MAJOR>
-void KtProjector<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
+void KtCamera<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
 {
 	mvMat_.reset();
 	mvpMat_.reset();
@@ -333,21 +335,21 @@ void KtProjector<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
 
 
 template<typename KREAL, bool ROW_MAJOR>
-KtVector3<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyePos() const
+KtVector3<KREAL> KtCamera<KREAL, ROW_MAJOR>::getEyePos() const
 {
 	return viewMat_.extractTranslation();
 }
 
 
 template<typename KREAL, bool ROW_MAJOR>
-KtQuaternion<KREAL> KtProjector<KREAL, ROW_MAJOR>::getEyePose() const
+KtQuaternion<KREAL> KtCamera<KREAL, ROW_MAJOR>::getEyePose() const
 {
 	return viewMat_.getRotation();
 }
 
 #if 0
 template<typename KREAL, bool ROW_MAJOR>
-void KtProjector<KREAL, ROW_MAJOR>::setAxisInversed(int dim, bool inv)
+void KtCamera<KREAL, ROW_MAJOR>::setAxisInversed(int dim, bool inv)
 {
 	if (axisInversed(dim) == inv)
 		return; // 状态一致，直接返回

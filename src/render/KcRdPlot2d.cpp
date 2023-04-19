@@ -102,7 +102,7 @@ void KcRdPlot2d::showPlottableSpecificProperty_(KvPlottable* plt)
 
 namespace kPrivate
 {
-    void showCameraProperty_(const KtProjector<double>& cam);
+    void showCameraProperty_(const KtCamera<double>& cam);
 }
 
 void KcRdPlot2d::showPropertySet()

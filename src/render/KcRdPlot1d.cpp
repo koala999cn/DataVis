@@ -358,7 +358,7 @@ namespace kPrivate
 		return res;
 	}
 
-	void showCameraProperty_(const KtProjector<double>& cam) // for debug
+	void showCameraProperty_(const KtCamera<double>& cam) // for debug
 	{
 		if (ImGuiX::treePush("Camera", false)) {
 

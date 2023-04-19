@@ -1023,7 +1023,7 @@
     <ClInclude Include="src\3d\KtPoint.h">
       <Filter>3d</Filter>
     </ClInclude>
-    <ClInclude Include="src\3d\KtProjector3d.h">
+    <ClInclude Include="src\3d\KtCamera.h">
       <Filter>3d</Filter>
     </ClInclude>
     <ClInclude Include="src\3d\KtQuaternion.h">

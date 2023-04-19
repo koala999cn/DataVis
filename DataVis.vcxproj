@@ -60,6 +60,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>freetype.lib;opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;exprtkXd.lib;sndfiled.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
+      <IgnoreSpecificDefaultLibraries>LIBCMTD</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -282,7 +283,7 @@
     <ClInclude Include="src\3d\KtMatrix4.h" />
     <ClInclude Include="src\3d\KtPlane.h" />
     <ClInclude Include="src\3d\KtPoint.h" />
-    <ClInclude Include="src\3d\KtProjector3d.h" />
+    <ClInclude Include="src\3d\KtCamera.h" />
     <ClInclude Include="src\3d\KtQuaternion.h" />
     <ClInclude Include="src\3d\KtTrackballController.h" />
     <ClInclude Include="src\3d\KtVector3.h" />

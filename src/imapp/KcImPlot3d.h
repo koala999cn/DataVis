@@ -1,7 +1,7 @@
 #pragma once
 #include "KvImWindow.h"
 #include "plot/KvPlot3d.h"
-#include "KtProjector3d.h"
+#include "KtCamera.h"
 #include "KtTrackballController.h"
 
 
@@ -43,7 +43,7 @@ public:
 		camera_.projMatrix() = pm;
 	}
 
-	const KtProjector<float_t>& camera() const { return camera_; }
+	const KtCamera<float_t>& camera() const { return camera_; }
 
 private:
 
@@ -53,7 +53,7 @@ private:
 	void handleMouseInput_();
 
 private:
-	KtProjector<float_t> camera_;
+	KtCamera<float_t> camera_;
 	
 	KtTrackballController<float_t> trackball_; // ÓÃÓÚ²Ù¿Øorient_
 };
