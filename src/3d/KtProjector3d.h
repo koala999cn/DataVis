@@ -264,7 +264,11 @@ KtProjector<KREAL, ROW_MAJOR>::getMvpMat() const {
 template<typename KREAL, bool ROW_MAJOR> typename KtProjector<KREAL, ROW_MAJOR>::mat4
 KtProjector<KREAL, ROW_MAJOR>::getNormalMat() const
 {
-	return getMvMat().getInverse().getTranspose();
+	// return getMvMat().getInverse().getTranspose(); // 该算法返回的结果不能很好工作
+	KtVector3<KREAL> scale;
+	KtMatrix3<KREAL, ROW_MAJOR> rot;
+	getMvMat().decomposeRS(scale, rot); // TODO: 不一定RS
+	return rot;
 }
 
 
