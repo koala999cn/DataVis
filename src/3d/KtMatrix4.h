@@ -430,14 +430,16 @@ KtMatrix4<KReal, ROW_MAJOR>::getInverse() const
 template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
 KtMatrix4<KReal, ROW_MAJOR>::lookAt(const vec3& eye, const vec3& at, const vec3& up)
 {
-	vec3 zaxis = (eye - at).normalize(); // 摄像机坐标系与物理坐标系的z轴是相反的，所以此处取反向
+	vec3 zaxis = (eye - at).normalize(); 
 	vec3 xaxis = up.cross(zaxis).normalize();
-	vec3 yaxis = zaxis.cross(xaxis);
+	vec3 yaxis = zaxis.cross(xaxis); yaxis.normalize();
 
 	// look at view
+	// M = mat4::buildTranslation(-eye) * mat4::buidRotation(quat(x, y, z).inverse());
 
 	// 最后1列为eye在摄像机坐标轴的投影取反
 	// 摄像机在物理坐标系的(a, b, c)点，相当于物理坐标系原点在摄像机坐标系的(-a, -b, -c)点
+	// 旋转矩阵的逆等于转置，所以xaxis, yaxis, zaxis均按行排列
 	return {
 	   xaxis.x(), xaxis.y(), xaxis.z(), -xaxis.dot(eye),
 	   yaxis.x(), yaxis.y(), yaxis.z(), -yaxis.dot(eye),
