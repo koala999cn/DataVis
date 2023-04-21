@@ -227,6 +227,8 @@ const char* KsShaderManager::vsColorLight_()
 		"uniform mat4 matMvp;\n"
 		"uniform mat4 matNormal;\n"
 		"uniform vec3 vLightDir;\n"
+		"uniform vec3 vAmbientColor;\n"
+		"uniform vec3 vLightColor;\n"
 		"layout (location = 0) in vec3 iPosition;\n"
 		"layout (location = 1) in vec4 iColor;\n"
 		"layout (location = 2) in vec3 iNormal;\n"
@@ -236,7 +238,7 @@ const char* KsShaderManager::vsColorLight_()
 		"    vec3 vNorm = normalize((matNormal * vec4(iNormal, 0)).xyz);\n"
 		"    float fDot = max(0.0, dot(vNorm, -vLightDir));\n"
 	//	"    float fDot = max(0.0, dot(iNormal, -vLightDir));\n"
-		"    Frag_Color.rgb = iColor.rgb * fDot;\n"
+		"    Frag_Color.rgb = min(iColor.rgb * (vAmbientColor + vLightColor * fDot), vec3(1));\n"
 		"    Frag_Color.a = iColor.a;\n"
 		"}\n";
 

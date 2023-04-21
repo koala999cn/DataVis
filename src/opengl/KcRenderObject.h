@@ -2,6 +2,7 @@
 #include <memory>
 #include "KtMatrix4.h"
 #include "KtAABB.h"
+#include "plot/KtColor.h"
 #include "3d/KePrimitiveType.h"
 
 class KcGpuBuffer;
@@ -85,6 +86,10 @@ public:
 		lightDir_.normalize();
 	}
 
+	void setLightColor(const color3f& clr) { lightColor_ = clr; }
+
+	void setAmbientColor(const color3f& clr) { ambientColor_ = clr; }
+
 	virtual void draw() const;
 
 	virtual KcRenderObject* clone() const;
@@ -135,4 +140,6 @@ protected:
 
 	float4x4<> normalMat_;
 	float3 lightDir_; // 世界坐标，确保已归一化
+	color3f lightColor_;
+	color3f ambientColor_;
 };

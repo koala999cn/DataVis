@@ -169,8 +169,16 @@ public:
 	virtual point2 textSize(const char* text) const = 0;
 
 	/// 光照支持
+
 	virtual point3 lightDirection() const = 0;
 	virtual void setLightDirection(const point3&) = 0;
+
+	virtual color3f lightColor() const = 0;
+	virtual void setLightColor(const color3f&) = 0;
+
+	virtual color3f ambientColor() const = 0;
+	virtual void setAmbientColor(const color3f&) = 0;
+
 
 
 	/// 一些便捷函数

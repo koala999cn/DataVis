@@ -715,6 +715,8 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 	if (hasLight) {
 		obj->setNormalMatrix(camera_.getNormalMat());
 		obj->setLightDir(lightDir_);
+		obj->setLightColor(lightColor_);
+		obj->setAmbientColor(ambientColor_);
 	}
 
 	if (obj->shader() == nullptr) { // ×Ô¶¯ÉèÖÃshader

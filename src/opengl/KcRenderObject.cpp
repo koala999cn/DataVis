@@ -71,10 +71,16 @@ void KcRenderObject::setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) 
 	}
 
 	loc = shader->getUniformLocation("vLightDir");
-	if (loc != -1) {
-		KuMath::almostEqual(lightDir_.squaredLength(), 1.f);
+	if (loc != -1) 
 		glUniform3f(loc, lightDir_[0], lightDir_[1], lightDir_[2]);
-	}
+
+	loc = shader->getUniformLocation("vLightColor");
+	if (loc != -1) 
+		glUniform3f(loc, lightColor_[0], lightColor_[1], lightColor_[2]);
+
+	loc = shader->getUniformLocation("vAmbientColor");
+	if (loc != -1) 
+		glUniform3f(loc, ambientColor_[0], ambientColor_[1], ambientColor_[2]);
 }
 
 

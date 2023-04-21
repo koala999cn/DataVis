@@ -332,26 +332,36 @@ void KvRdPlot::showPlotProperty_()
 
 		ImGuiX::margins("Margins", plot_->margins());
 
-		bool anti = plot_->paint().antialiasing();
+		auto& paint = plot_->paint();
+		bool anti = paint.antialiasing();
 		if (ImGui::Checkbox("Antialiasing", &anti))
-			plot_->paint().enableAntialiasing(anti);
+			paint.enableAntialiasing(anti);
 
-		bool depth = plot_->paint().depthTest();
+		bool depth = paint.depthTest();
 		if (ImGui::Checkbox("Depth Test", &depth))
-			plot_->paint().enableDepthTest(depth);
+			paint.enableDepthTest(depth);
 
-		bool lighting = plot_->paint().lighting();
+		bool lighting = paint.lighting();
 		if (ImGui::Checkbox("Lighting", &lighting))
-			plot_->paint().enableLighting(lighting);
+			paint.enableLighting(lighting);
 
-		auto dir = plot_->paint().lightDirection();
-		vec3 fDir(dir.x(), dir.y(), dir.z());
+		auto ambient = paint.ambientColor();
+		if (ImGui::ColorEdit3("Ambient Color", ambient.data()))
+			paint.setAmbientColor(ambient);
+
+		auto lightColor = paint.lightColor();
+		if (ImGui::ColorEdit3("Light Color", lightColor.data()))
+			paint.setLightColor(lightColor);
+
+		auto lightDir = paint.lightDirection();
+		vec3 fDir(lightDir.x(), lightDir.y(), lightDir.z());
 		bool dirUpdated(false);
 		dirUpdated = ImGui::gizmo3D("Direction", fDir);
 		ImGui::SameLine();
 		dirUpdated |= ImGui::DragFloat3("##", (float*)&fDir, 0.01);
 		if (dirUpdated)
-			plot_->paint().setLightDirection(point3d(fDir.x, fDir.y, fDir.z));
+			paint.setLightDirection(point3d(fDir.x, fDir.y, fDir.z));
+
 
 		ImGui::Checkbox("Show Layout Rect", &plot_->showLayoutRect());
 

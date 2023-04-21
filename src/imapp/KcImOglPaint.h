@@ -37,7 +37,7 @@ public:
 
 	void enableFlatShading(bool b) override { flatShading_ = b; }
 	bool flatShading() const override { return flatShading_; }
-	
+
 	void enableLighting(bool b) override { lighting_ = b; }
 	bool lighting() const override { return lighting_; }
 
@@ -75,6 +75,12 @@ public:
 	point3 lightDirection() const override { return lightDir_; }
 	void setLightDirection(const point3& dir) override { lightDir_ = dir; }
 
+	color3f lightColor() const { return lightColor_; }
+	void setLightColor(const color3f& clr) { lightColor_ = clr; }
+
+	color3f ambientColor() const { return ambientColor_; }
+	void setAmbientColor(const color3f& clr) { ambientColor_ = clr; }
+
 
 	// 辅助函数
 	KpMarker marker() const; // 装配marker绘制上下文
@@ -85,9 +91,9 @@ public:
 private:
 
 	point3 toNdc_(const point3& pt) const;
-	
+
 	// 绘制点云
-	void* drawPoints_(point_getter fn, unsigned count); 
+	void* drawPoints_(point_getter fn, unsigned count);
 
 	void drawCircles_(point_getter fn, unsigned count);
 
@@ -134,7 +140,7 @@ private:
 	void addQuadFilled_(const point3& p0, const point3& p1, const point3& p2, const point3& p3, const float4& clr);
 
 	// NB: fillVtx使用主色绘制，outlineVtx使用辅色绘制
-	void addMarkers_(point_getter fn, unsigned count, const point2* fillVtx, unsigned numFill, 
+	void addMarkers_(point_getter fn, unsigned count, const point2* fillVtx, unsigned numFill,
 		const point2* outlineVtx, unsigned numOutline);
 
 	void addMarkers_(point_getter fn, unsigned count, const point2* fillVtx, unsigned numFill);
@@ -225,5 +231,7 @@ private:
 
 	std::map<void*, std::shared_ptr<KcRenderObject>> savedObjList_;
 
-	point3 lightDir_;
+	point3 lightDir_{ -1., -1., -1. };
+	color3f lightColor_{ 1.f, 1.f, 1.f };
+	color3f ambientColor_{ 0.3f, 0.3f, 0.3f };
 };
