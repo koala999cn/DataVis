@@ -714,10 +714,7 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 	obj->enableAttribute(KcVertexAttribute::k_normal, hasLight);
 	if (hasLight) {
 		obj->setNormalMatrix(camera_.getNormalMat());
-		obj->setLightDir(float3(-1, -1, -1).normalize());
-		//auto dir = camera_.getEyePose().normalize().zAxis();
-		//dir.z() = -dir.z();
-		//obj->setLightDir(dir);
+		obj->setLightDir(lightDir_);
 	}
 
 	if (obj->shader() == nullptr) { // ×Ô¶¯ÉèÖÃshader

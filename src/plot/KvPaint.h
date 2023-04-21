@@ -168,7 +168,12 @@ public:
 
 	virtual point2 textSize(const char* text) const = 0;
 
-	// 一些便捷函数
+	/// 光照支持
+	virtual point3 lightDirection() const = 0;
+	virtual void setLightDirection(const point3&) = 0;
+
+
+	/// 一些便捷函数
 
 	// 点投影
 	point3 projectp(const point3& pt) const {

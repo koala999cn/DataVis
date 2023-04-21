@@ -1,5 +1,4 @@
 #include "imguix.h"
-#include "imgui_internal.h"
 #include "dsp/KuDataUtil.h"
 #include "dsp/KvDiscreted.h"
 #include "dsp/KcSampled2d.h"
@@ -12,6 +11,9 @@
 #include "imapp/KgImWindowManager.h"
 #include "layout/KcLayoutGrid.h"
 #include "layout/KcLayoutOverlay.h"
+
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui_internal.h"
 
 namespace kPrivate
 {

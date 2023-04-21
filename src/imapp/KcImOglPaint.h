@@ -72,6 +72,9 @@ public:
 
 	void grab(int x, int y, int width, int height, void* data) override;
 
+	point3 lightDirection() const override { return lightDir_; }
+	void setLightDirection(const point3& dir) override { lightDir_ = dir; }
+
 
 	// 辅助函数
 	KpMarker marker() const; // 装配marker绘制上下文
@@ -221,4 +224,6 @@ private:
 	std::map<kRenderState_, KpRenderList_> renderList_;
 
 	std::map<void*, std::shared_ptr<KcRenderObject>> savedObjList_;
+
+	point3 lightDir_;
 };

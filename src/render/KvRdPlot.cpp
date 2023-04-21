@@ -25,6 +25,7 @@
 #include "KvNode.h"
 #include "KcSampled1d.h"
 #include "KcSampled2d.h"
+#include "imGuIZMO.quat/imGuIZMOquat.h"
 
 
 KvRdPlot::KvRdPlot(const std::string_view& name, const std::shared_ptr<KvPlot>& plot)
@@ -343,6 +344,15 @@ void KvRdPlot::showPlotProperty_()
 		bool lighting = plot_->paint().lighting();
 		if (ImGui::Checkbox("Lighting", &lighting))
 			plot_->paint().enableLighting(lighting);
+
+		auto dir = plot_->paint().lightDirection();
+		vec3 fDir(dir.x(), dir.y(), dir.z());
+		bool dirUpdated(false);
+		dirUpdated = ImGui::gizmo3D("Direction", fDir);
+		ImGui::SameLine();
+		dirUpdated |= ImGui::DragFloat3("##", (float*)&fDir, 0.01);
+		if (dirUpdated)
+			plot_->paint().setLightDirection(point3d(fDir.x, fDir.y, fDir.z));
 
 		ImGui::Checkbox("Show Layout Rect", &plot_->showLayoutRect());
 

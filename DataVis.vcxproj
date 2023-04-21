@@ -106,6 +106,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="3rdparty\ImFileDialog\ImFileDialog.cpp" />
+    <ClCompile Include="3rdparty\imGuIZMO.quat\imGuIZMOquat.cpp" />
     <ClCompile Include="3rdparty\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="3rdparty\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="3rdparty\imgui\imgui.cpp" />
@@ -258,6 +259,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdparty\ImFileDialog\ImFileDialog.h" />
+    <ClInclude Include="3rdparty\imGuIZMO.quat\imGuIZMOquat.h" />
+    <ClInclude Include="3rdparty\imGuIZMO.quat\vgConfig.h" />
+    <ClInclude Include="3rdparty\imGuIZMO.quat\vGizmo.h" />
+    <ClInclude Include="3rdparty\imGuIZMO.quat\vGizmoMath.h" />
+    <ClInclude Include="3rdparty\imGuIZMO.quat\vgMath.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="3rdparty\imgui\backends\imgui_impl_opengl3_loader.h" />

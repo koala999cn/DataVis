@@ -3,11 +3,12 @@
 #include "imguix.h"
 #include "KuMath.h"
 #include <assert.h>
-#include "imgui_internal.h"
 #include "KtLineS2d.h"
 #include "layout/KuLayoutUtil.h"
 #include "KuPrimitiveFactory.h"
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui_internal.h"
 
 KcImPaint::KcImPaint(camera_type& cam) : camera_(cam)
 {

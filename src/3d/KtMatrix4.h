@@ -430,9 +430,9 @@ KtMatrix4<KReal, ROW_MAJOR>::getInverse() const
 template<typename KReal, bool ROW_MAJOR> KtMatrix4<KReal, ROW_MAJOR>
 KtMatrix4<KReal, ROW_MAJOR>::lookAt(const vec3& eye, const vec3& at, const vec3& up)
 {
-	vec3 zaxis = (eye - at).normalize(); 
+	vec3 zaxis = (eye - at).normalize();
 	vec3 xaxis = up.cross(zaxis).normalize();
-	vec3 yaxis = zaxis.cross(xaxis); yaxis.normalize();
+	vec3 yaxis = zaxis.cross(xaxis);
 
 	// look at view
 	// M = mat4::buildTranslation(-eye) * mat4::buidRotation(quat(x, y, z).inverse());

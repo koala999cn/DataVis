@@ -82,6 +82,7 @@ public:
 
 	void setLightDir(const float3& dir) {
 		lightDir_ = dir;
+		lightDir_.normalize();
 	}
 
 	virtual void draw() const;

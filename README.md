@@ -37,6 +37,7 @@ DataVis是一款集数据清洗、数据分析、数据渲染于一体的实用�
 | [glfw](https://github.com/glfw/glfw) | ImGui依赖 | 单独编译 |
 | [imnodes](https://github.com/Nelarius/imnodes) | 节点编辑器 | 内联 |
 | [ImFileDialog](https://github.com/dfranx/ImFileDialog) | 文件对话框 | 内联 |
+| [imGuIZMO.quat](https://github.com/BrutPitt/imGuIZMO.quat/) | 3d方向控制 | 内嵌子项目 |
 | [stb](https://github.com/nothings/stb) | 图片读写支持 | 内联 |
 | [glad](https://github.com/Dav1dde/glad) | ImFileDialog依赖 | 单独编译 |
 | [nlohmann](https://github.com/nlohmann/json) | 解析theme文件 | 内联 |
