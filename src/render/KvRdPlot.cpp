@@ -362,6 +362,13 @@ void KvRdPlot::showPlotProperty_()
 		if (dirUpdated)
 			paint.setLightDirection(point3d(fDir.x, fDir.y, fDir.z));
 
+		auto specColor = paint.specularColor();
+		if (ImGui::ColorEdit3("Specular Color", specColor.data()))
+			paint.setSpecularColor(specColor);
+
+		float shininess = paint.shininess();
+		if (ImGui::SliderFloat("Shininess", &shininess, 1, 256))
+			paint.setShininess(shininess);
 
 		ImGui::Checkbox("Show Layout Rect", &plot_->showLayoutRect());
 

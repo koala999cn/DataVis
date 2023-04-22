@@ -90,6 +90,12 @@ public:
 
 	void setAmbientColor(const color3f& clr) { ambientColor_ = clr; }
 
+	void setSpecularColor(const color3f& clr) { specularColor_ = clr; }
+
+	void setShininess(float_t s) { shininess_ = s; }
+
+	void setEyePos(const float3& pos) { eyePos_ = pos; }
+
 	virtual void draw() const;
 
 	virtual KcRenderObject* clone() const;
@@ -142,4 +148,7 @@ protected:
 	float3 lightDir_; // 世界坐标，确保已归一化
 	color3f lightColor_;
 	color3f ambientColor_;
+	color3f specularColor_;
+	float shininess_;
+	float3 eyePos_;
 };

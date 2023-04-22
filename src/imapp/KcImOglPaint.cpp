@@ -717,6 +717,9 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		obj->setLightDir(lightDir_);
 		obj->setLightColor(lightColor_);
 		obj->setAmbientColor(ambientColor_);
+		obj->setSpecularColor(specularColor_);
+		obj->setShininess(shininess_);
+		obj->setEyePos(camera_.getEyePos());
 	}
 
 	if (obj->shader() == nullptr) { // ×Ô¶¯ÉèÖÃshader

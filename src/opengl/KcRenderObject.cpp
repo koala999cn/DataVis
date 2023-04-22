@@ -81,6 +81,18 @@ void KcRenderObject::setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) 
 	loc = shader->getUniformLocation("vAmbientColor");
 	if (loc != -1) 
 		glUniform3f(loc, ambientColor_[0], ambientColor_[1], ambientColor_[2]);
+
+	loc = shader->getUniformLocation("vSpecularIntensity");
+	if (loc != -1)
+		glUniform3f(loc, specularColor_[0], specularColor_[1], specularColor_[2]);
+
+	loc = shader->getUniformLocation("fShininess");
+	if (loc != -1)
+		glUniform1f(loc, shininess_);
+
+	loc = shader->getUniformLocation("vEyePos");
+	if (loc != -1)
+		glUniform3f(loc, eyePos_[0], eyePos_[1], eyePos_[2]);
 }
 
 
@@ -141,6 +153,10 @@ void KcRenderObject::cloneTo_(KcRenderObject& obj) const
 
 	obj.normalMat_ = normalMat_;
 	obj.lightDir_ = lightDir_;
+	obj.lightColor_ = lightColor_;
+	obj.ambientColor_ = ambientColor_;
+	obj.specularColor_ = specularColor_;
+	obj.shininess_ = shininess_;
 }
 
 

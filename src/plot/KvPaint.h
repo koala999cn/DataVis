@@ -179,6 +179,11 @@ public:
 	virtual color3f ambientColor() const = 0;
 	virtual void setAmbientColor(const color3f&) = 0;
 
+	virtual color3f specularColor() const = 0;
+	virtual void setSpecularColor(const color3f&) = 0;
+
+	virtual float_t shininess() const = 0;
+	virtual void setShininess(float_t) = 0;
 
 
 	/// Ò»Ð©±ã½Ýº¯Êý

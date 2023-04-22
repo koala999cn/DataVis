@@ -337,7 +337,7 @@ void KtCamera<KREAL, ROW_MAJOR>::resetModelRelatedMats_()
 template<typename KREAL, bool ROW_MAJOR>
 KtVector3<KREAL> KtCamera<KREAL, ROW_MAJOR>::getEyePos() const
 {
-	return viewMat_.extractTranslation();
+	return viewMat_.getEyePostion();
 }
 
 
