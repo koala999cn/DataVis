@@ -178,6 +178,8 @@ private:
 	// 自动生成法线vbo
 	static void pushNormals_(KcRenderObject* obj);
 
+	bool hasClipBox_() const;
+
 private:
 
 	// render states stacks

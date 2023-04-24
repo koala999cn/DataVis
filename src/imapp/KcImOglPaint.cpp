@@ -670,8 +670,6 @@ void* KcImOglPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned cou
 
 void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 {
-	//assert(obj->vbo() && obj->vertexDecl());
-	
 	switch (currentCoord())
 	{
 	case k_coord_local:
@@ -698,10 +696,13 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		assert(false);
 		break;
 	}
+
+	int shaderType = KsShaderManager::k_mono;
 	
-	if (curClipBox_ != -1 && !inScreenCoord()) { // 屏幕坐标系不考虑clipBox
+	if (hasClipBox_()) { // 屏幕坐标系不考虑clipBox
 		auto& box = clipBoxHistList_[curClipBox_];
 		obj->setClipBox({ box.lower(), box.upper() });
+		shaderType |= KsShaderManager::k_clipbox;
 	}
 	else {
 		obj->setClipBox(KcRenderObject::aabb_t());
@@ -720,16 +721,15 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		obj->setSpecularColor(specularColor_);
 		obj->setShininess(shininess_);
 		obj->setEyePos(camera_.getEyePos());
+		shaderType |= KsShaderManager::k_normal;
 	}
 
-	if (obj->shader() == nullptr) { // 自动设置shader
-		int type = KsShaderManager::k_mono;
-		if (obj->hasColor(true)) type |= KsShaderManager::k_color;
-		if (obj->hasUV(true)) type |= KsShaderManager::k_uv;
-		if (obj->hasNormal(true)) type |= KsShaderManager::k_normal;
-		if (obj->hasInst(true)) type |= KsShaderManager::k_instance;
-
-		obj->setShader(KsShaderManager::singleton().fetchProg(type, flatShading_, curClipBox_ != -1));
+	if (obj->shader() == nullptr) { // 自动设置shader	
+		if (obj->hasColor(true)) shaderType |= KsShaderManager::k_color;
+		if (obj->hasUV(true)) shaderType |= KsShaderManager::k_uv;
+		if (obj->hasInst(true)) shaderType |= KsShaderManager::k_instance;
+		if (flatShading_) shaderType |= KsShaderManager::k_flat;
+		obj->setShader(KsShaderManager::singleton().fetchProg(shaderType));
 	}
 
 	rl.objs.emplace_back(obj);
@@ -926,7 +926,7 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 {
 	if (!text.empty()) {
 		auto obj = new KcRenderObject(k_quads);
-		obj->setShader(KsShaderManager::singleton().progColorUV(true, curClipBox_ != -1)); // 目前文字渲染始终使用flat模式
+		obj->setShader(KsShaderManager::singleton().progColorUV(true, hasClipBox_())); // 目前文字渲染始终使用flat模式
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
@@ -1004,7 +1004,7 @@ void* KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 		edgedObj->setEdgeStyle(lineStyle_);
 		edgedObj->setFilled(filled_); edgedObj->setEdged(edged_);
 		edgedObj->setEdgeColor(secondaryClr_);
-		edgedObj->setEdgeShader(KsShaderManager::singleton().progMono(curClipBox_ != -1));
+		edgedObj->setEdgeShader(KsShaderManager::singleton().progMono(hasClipBox_()));
 		obj = edgedObj;
 	}
 
@@ -1085,6 +1085,12 @@ void KcImOglPaint::enableClipBox(point3 lower, point3 upper)
 void KcImOglPaint::disableClipBox()
 {
 	curClipBox_ = -1;
+}
+
+
+bool KcImOglPaint::hasClipBox_() const
+{
+	return curClipBox_ != -1 && !inScreenCoord();
 }
 
 

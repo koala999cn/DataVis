@@ -51,6 +51,10 @@ void KcRenderObject::setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) 
 			glUniformMatrix4fv(loc, 1, GL_FALSE, projMat_.data());
 	}
 
+	loc = shader->getUniformLocation("vColor");
+	if (loc != -1)
+		glUniform4f(loc, color_[0], color_[1], color_[2], color_[3]);
+
 	loc = shader->getUniformLocation("vClipLower");
 	if (loc != -1)
 	    glUniform3f(loc, clipBox_.lower().x(), clipBox_.lower().y(), clipBox_.lower().z());
@@ -58,41 +62,39 @@ void KcRenderObject::setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) 
 	if (loc != -1)
 	    glUniform3f(loc, clipBox_.upper().x(), clipBox_.upper().y(), clipBox_.upper().z());
 
-	loc = shader->getUniformLocation("vColor");
-	if (loc != -1)
-		glUniform4f(loc, color_[0], color_[1], color_[2], color_[3]);
+	if (hasNormal(true)) {
+		loc = shader->getUniformLocation("matNormal");
+		if (loc != -1) {
+			if constexpr (decltype(normalMat_)::rowMajor())
+				glUniformMatrix4fv(loc, 1, GL_TRUE, normalMat_.data());
+			else
+				glUniformMatrix4fv(loc, 1, GL_FALSE, normalMat_.data());
+		}
 
-	loc = shader->getUniformLocation("matNormal");
-	if (loc != -1) {
-		if constexpr (decltype(normalMat_)::rowMajor())
-			glUniformMatrix4fv(loc, 1, GL_TRUE, normalMat_.data());
-		else
-			glUniformMatrix4fv(loc, 1, GL_FALSE, normalMat_.data());
+		loc = shader->getUniformLocation("vLightDir");
+		if (loc != -1)
+			glUniform3f(loc, lightDir_[0], lightDir_[1], lightDir_[2]);
+
+		loc = shader->getUniformLocation("vLightColor");
+		if (loc != -1)
+			glUniform3f(loc, lightColor_[0], lightColor_[1], lightColor_[2]);
+
+		loc = shader->getUniformLocation("vAmbientColor");
+		if (loc != -1)
+			glUniform3f(loc, ambientColor_[0], ambientColor_[1], ambientColor_[2]);
+
+		loc = shader->getUniformLocation("vSpecularIntensity");
+		if (loc != -1)
+			glUniform3f(loc, specularColor_[0], specularColor_[1], specularColor_[2]);
+
+		loc = shader->getUniformLocation("fShininess");
+		if (loc != -1)
+			glUniform1f(loc, shininess_);
+
+		loc = shader->getUniformLocation("vEyePos");
+		if (loc != -1)
+			glUniform3f(loc, eyePos_[0], eyePos_[1], eyePos_[2]);
 	}
-
-	loc = shader->getUniformLocation("vLightDir");
-	if (loc != -1) 
-		glUniform3f(loc, lightDir_[0], lightDir_[1], lightDir_[2]);
-
-	loc = shader->getUniformLocation("vLightColor");
-	if (loc != -1) 
-		glUniform3f(loc, lightColor_[0], lightColor_[1], lightColor_[2]);
-
-	loc = shader->getUniformLocation("vAmbientColor");
-	if (loc != -1) 
-		glUniform3f(loc, ambientColor_[0], ambientColor_[1], ambientColor_[2]);
-
-	loc = shader->getUniformLocation("vSpecularIntensity");
-	if (loc != -1)
-		glUniform3f(loc, specularColor_[0], specularColor_[1], specularColor_[2]);
-
-	loc = shader->getUniformLocation("fShininess");
-	if (loc != -1)
-		glUniform1f(loc, shininess_);
-
-	loc = shader->getUniformLocation("vEyePos");
-	if (loc != -1)
-		glUniform3f(loc, eyePos_[0], eyePos_[1], eyePos_[2]);
 }
 
 
