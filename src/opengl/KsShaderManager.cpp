@@ -3,6 +3,44 @@
 #include "KcGlslProgram.h"
 #include "KuStrUtil.h"
 #include <assert.h>
+#include <sstream>
+
+
+KsShaderManager::KsShaderManager()
+{
+	names_.resize(k_variant_count);
+
+	names_[k_world_matrix] = "k_WorldMatrix";
+	names_[k_model_view_matrix] = "k_ModelViewMatrix";
+	names_[k_proj_matrix] = "k_ProjMatrix";
+	names_[k_mvp_matrix] = "k_MvpMatrix";
+	names_[k_normal_matrix] = "k_NormalMatrix";
+
+	names_[k_clip_lower] = "k_ClipLower";
+	names_[k_clip_upper] = "k_ClipUpper";
+	
+	names_[k_eye_pos] = "k_EyePos";
+	names_[k_light_dir] = "k_LightDir";
+	names_[k_light_color] = "k_LightColor";
+	names_[k_ambient_color] = "k_AmbientColor";
+	names_[k_specular_color] = "k_SpecularColor";
+	names_[k_shininess] = "k_Shininess";
+
+	names_[k_flat_color] = "k_FlatColor";
+
+	names_[k_vertex_position] = "k_inPosition";
+	names_[k_vertex_normal] = "k_inNormal";
+	names_[k_vertex_color] = "k_inColor";
+	names_[k_vertex_secondary_color] = "k_inSecondaryColor";
+	names_[k_vertex_fog_coord] = "k_inFogCoord";
+	names_[k_vertex_tex_coord0] = "k_inUV";
+
+	names_[k_vs_out_position] = "gl_Position";
+	names_[k_vs_out_color] = "k_VertColor";
+	names_[k_vs_out_tex_coord0] = "k_VertUV";
+
+	names_[k_fs_out_color] = "gl_FragColor";
+}
 
 
 std::string KsShaderManager::decorateVertexShader_(const char* source, bool flat, bool hasClipBox)
@@ -10,24 +48,6 @@ std::string KsShaderManager::decorateVertexShader_(const char* source, bool flat
 	std::string res(source);
 	if (flat) 
 		KuStrUtil::replaceSubstr(res, "out vec4 Frag_Color", "flat out vec4 Frag_Color");
-
-	if (hasClipBox) {
-		static const char* clip_decl =
-			"uniform vec3 vClipLower;\n"
-			"uniform vec3 vClipUpper;\n";
-
-		static const char* clip_statement =
-			"    gl_ClipDistance[0] = iPosition.x - vClipLower.x;\n"
-			"    gl_ClipDistance[1] = iPosition.y - vClipLower.y;\n"
-			"    gl_ClipDistance[2] = iPosition.z - vClipLower.z;\n"
-			"    gl_ClipDistance[3] = vClipUpper.x - iPosition.x;\n"
-			"    gl_ClipDistance[4] = vClipUpper.y - iPosition.y;\n"
-			"    gl_ClipDistance[5] = vClipUpper.z - iPosition.z;\n";
-
-		res.insert(0, clip_decl);
-		auto pos = res.find_last_of('}');
-		res.insert(pos, clip_statement);
-	}
 
 	res.insert(0, "#version 330 core\n");
 	return res;
@@ -50,14 +70,14 @@ std::string KsShaderManager::decorateFragShader_(const char* source, bool flat)
 const char* KsShaderManager::vsMono_()
 {
 	static const char* vertex_shader_mono =
-		"uniform mat4 matMvp;\n"
-		"uniform vec4 vColor;\n"
-		"in vec3 iPosition;\n"
-		"out vec4 Frag_Color;\n"
+		"uniform mat4 k_MvpMatrix;\n"
+		"uniform vec4 k_FlatColor;\n"
+		"in vec3 k_inPosition;\n"
+		"out vec4 k_VertColor;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_Position = matMvp * vec4(iPosition, 1);\n"
-		"    Frag_Color = vColor;\n"
+		"    gl_Position = k_MvpMatrix * vec4(k_inPosition, 1);\n"
+		"    k_VertColor = k_FlatColor;\n"
 		"}\n";
 
 	return vertex_shader_mono;
@@ -256,10 +276,10 @@ const char* KsShaderManager::vsColorLight_()
 const char* KsShaderManager::fsNavie_()
 {
 	static const char* frag_shader_navie =
-		"in vec4 Frag_Color;\n"
+		"in vec4 k_VertColor;\n"
 		"void main()\n"
 		"{\n"
-		"    gl_FragColor = Frag_Color;\n"
+		"    gl_FragColor = k_VertColor;\n"
 		"}\n";
 
 	return frag_shader_navie;
@@ -286,43 +306,25 @@ KsShaderManager::shader_ptr KsShaderManager::fetchShader_(int type)
 	auto& shader = shaders_[type];
 
 	if (!shader) { 
-
+		auto shaderType = KcGlslShader::k_shader_vertex;
+		std::string source("#version 330 core\n");
+		
 		if (type & k_frag) {
-			type &= k_fs_mask;
-
-			const char* p = fsNavie_();
-			if (type & k_uv) 
-				p = fsUV_();
-
-			auto src = decorateFragShader_(p, type & k_flat);
-			shader = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_fragment, src);
+			shaderType = KcGlslShader::k_shader_fragment;
+			source += fsDecls_(type);
 		}
 		else {
-			type &= k_vs_mask;
-
-			const char* p = vsMono_();
-			if (type & k_color) {
-				p = vsColor_();
-				if (type & k_uv)
-					p = vsColorUV_();
-				else if (type & k_normal)
-					p = vsColorLight_();
-			}
-			else {
-				if (type & k_uv) {
-					p = vsUV_();
-					if (type & k_instance)
-						p = vsInstUV_();
-				}
-				else if (type & k_instance)
-					p = vsInst_();
-				else if (type & k_normal)
-					p = vsMonoLight_();
-			}
-
-			auto src = decorateVertexShader_(p, type & k_flat, type & k_clipbox);
-			shader = std::make_shared<KcGlslShader>(KcGlslShader::k_shader_vertex, src);
+			source += vsDecls_(type);
 		}
+
+		source += "void main()\n{\n";
+		if (type & k_frag) 
+			source += fsBody_(type);
+		else 
+			source += vsBody_(type);
+		source += "}\n";
+
+		shader = std::make_shared<KcGlslShader>(shaderType, source);
 	}
 
 	auto info = shader->infoLog();
@@ -331,19 +333,155 @@ KsShaderManager::shader_ptr KsShaderManager::fetchShader_(int type)
 }
 
 
-KsShaderManager::program_ptr KsShaderManager::fetchProg(int type, bool flat, bool hasClipBox)
+std::string KsShaderManager::vsDecls_(int type) const
 {
-	assert(!(type & (k_flat | k_clipbox)));
+	int loc(0);
+	std::string decls;
 
-	if (flat) type |= k_flat;
-	if (hasClipBox) type |= k_clipbox;
+	decls += declUniform_("mat4", names_[k_mvp_matrix]);
+
+	decls += layoutPrefix_(loc++);
+	decls += declAttribute_("vec3", names_[k_vertex_position]);
+
+	if (type & k_flat)
+		decls += "flat ";
+	decls += "out vec4 " + names_[k_vs_out_color] + ";\n";
+
+	if (type & k_uv) {
+		decls += layoutPrefix_(loc++);
+		decls += declAttribute_("vec2", names_[k_vertex_tex_coord0]);
+
+		decls += "out vec2 " + names_[k_vs_out_tex_coord0] + ";\n";
+	}
+
+	if (type & k_color) {
+		decls += layoutPrefix_(loc++);
+		decls += declAttribute_("vec4", names_[k_vertex_color]);
+	}
+	else { // k_mono
+		decls += declUniform_("vec4", names_[k_flat_color]);
+	}
+
+	if (type & k_normal) {
+		decls += layoutPrefix_(loc++);
+		decls += declAttribute_("vec3", names_[k_vertex_normal]); 
+
+		decls += declUniform_("mat4", names_[k_normal_matrix]);
+		decls += declUniform_("vec3", names_[k_light_dir]);
+		decls += declUniform_("vec3", names_[k_ambient_color]);
+		decls += declUniform_("vec3", names_[k_light_color]);
+		decls += declUniform_("vec3", names_[k_eye_pos]);
+		decls += declUniform_("vec3", names_[k_specular_color]);
+		decls += declUniform_("float", names_[k_shininess]);
+	}
+
+	if (type & k_clipbox) {
+		decls += declUniform_("vec3", names_[k_clip_lower]);
+		decls += declUniform_("vec3", names_[k_clip_upper]);
+	}
+
+	return decls;
+}
+
+
+std::string KsShaderManager::layoutPrefix_(int loc)
+{
+	return "layout (location = " + std::to_string(loc) + ") ";
+}
+
+
+std::string KsShaderManager::declUniform_(const std::string_view& type, const std::string_view& name)
+{
+	std::string decl("uniform ");
+	decl += type; decl += " ";
+	decl += name; decl += ";\n";
+	return decl;
+}
+
+
+std::string KsShaderManager::declAttribute_(const std::string_view& type, const std::string_view& name)
+{
+	std::string decl("in ");
+	decl += type; decl += " ";
+	decl += name; decl += ";\n";
+	return decl;
+}
+
+
+std::string KsShaderManager::vsBody_(int type) const
+{
+	std::ostringstream body;
+
+	body << "\t" << names_[k_vs_out_position] <<" = ";
+	body << names_[k_mvp_matrix] << " * vec4(" << names_[k_vertex_position] << ", 1);\n";
+
+	if (type & k_color) {
+		body << "\t" << names_[k_vs_out_color] << " = " << names_[k_vertex_color] << ";\n";
+	}
+	else { // k_mono
+		body << "\t" << names_[k_vs_out_color] << " = " << names_[k_flat_color] << ";\n";
+	}
+
+	if (type & k_uv)
+		body << "\t" << names_[k_vs_out_tex_coord0] << " = " << names_[k_vertex_tex_coord0] << ";\n";
+
+	if (type & k_clipbox) {
+		auto& vpos = names_[k_vertex_position];
+		auto& lo = names_[k_clip_lower];
+		auto& up = names_[k_clip_upper];
+
+		body << "\tgl_ClipDistance[0] = " << vpos << ".x - " << lo << ".x;\n";
+		body << "\tgl_ClipDistance[1] = " << vpos << ".y - " << lo << ".y;\n";
+		body << "\tgl_ClipDistance[2] = " << vpos << ".z - " << lo << ".z;\n";
+		body << "\tgl_ClipDistance[3] = " << up << ".x - " << vpos << ".x;\n";
+		body << "\tgl_ClipDistance[4] = " << up << ".y - " << vpos << ".y;\n";
+		body << "\tgl_ClipDistance[5] = " << up << ".z - " << vpos << ".z;\n";
+	}
+
+	return body.str();
+}
+
+
+std::string KsShaderManager::fsDecls_(int type) const
+{
+	std::string decls;
+	if (type & k_flat)
+		decls += "flat ";
+	decls += declAttribute_("vec4", names_[k_vs_out_color]);
+
+	if (type & k_vertex_tex_coord0) {
+		decls += declAttribute_("vec2", names_[k_vs_out_tex_coord0]);
+		decls += declUniform_("sampler2D", "Texture");
+	}
+
+	return decls;
+}
+
+
+std::string KsShaderManager::fsBody_(int type) const
+{
+	std::string body = "    " + names_[k_fs_out_color] + " = ";
+	body += names_[k_vs_out_color] + ";\n"; // TODO: 此非attrib
+
+	if (type & k_uv) {
+		body += "    " + names_[k_fs_out_color] + " *= texture2D(Texture, ";
+		body += names_[k_vs_out_tex_coord0] + ".st);\n"; // TODO: 此非attrib
+	}
+
+	return body;
+}
+
+
+KsShaderManager::program_ptr KsShaderManager::fetchProg(int type)
+{
+	assert(!(type & k_frag));
 
 	auto& prog = progs_[type];
 
 	if (!prog) {
 		prog = std::make_shared<KcGlslProgram>();
-		prog->attachShader(fetchShader_(type & k_vs_mask));
-		prog->attachShader(fetchShader_(type & k_fs_mask | k_frag));
+		prog->attachShader(fetchShader_(type));
+		prog->attachShader(fetchShader_(type | k_frag));
 		prog->link();
 		auto info = prog->infoLog();
 		assert(prog->linked() && prog->linkStatus());

@@ -369,7 +369,7 @@ namespace kPrivate
 			kPrivate::matrixd("Projection Matrix", proj);
 
 			auto mvp = cam.getMvpMat();
-			kPrivate::matrixd("MVP Matrix", mvp);
+			kPrivate::matrixd("MVP Matrix", mvp); // TODO: 此处不正确，camera的状态已破坏
 
 			vec3d scale;
 			mat3d<> rot;

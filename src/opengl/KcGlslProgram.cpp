@@ -111,7 +111,7 @@ bool KcGlslProgram::link(bool forceRelink)
 
 void KcGlslProgram::preLink_()
 {
-
+	
 }
 
 
@@ -255,3 +255,60 @@ void KcGlslProgram::useProgram(unsigned prog)
 {
 	glUseProgram(prog);
 }
+
+
+void KcGlslProgram::setUniform(const std::string_view& name, const mat3f<>& v)
+{
+	auto loc = getUniformLocation(name);
+	if (loc != -1) {
+		if constexpr (std::remove_reference_t<decltype(v)>::rowMajor())
+			glUniformMatrix3fv(loc, 1, GL_TRUE, v.data());
+		else
+			glUniformMatrix3fv(loc, 1, GL_FALSE, v.data());
+	}
+}
+
+
+void KcGlslProgram::setUniform(const std::string_view& name, const mat4f<>& v)
+{
+	auto loc = getUniformLocation(name);
+	if (loc != -1) {
+		if constexpr (std::remove_reference_t<decltype(v)>::rowMajor())
+			glUniformMatrix4fv(loc, 1, GL_TRUE, v.data());
+		else
+			glUniformMatrix4fv(loc, 1, GL_FALSE, v.data());
+	}
+}
+
+
+void KcGlslProgram::setUniform(const std::string_view& name, float v)
+{
+	auto loc = getUniformLocation(name);
+	if (loc != -1)
+		glUniform1f(loc, v);
+}
+
+
+void KcGlslProgram::setUniform(const std::string_view& name, const point2f& v)
+{
+	auto loc = getUniformLocation(name);
+	if (loc != -1)
+		glUniform2f(loc, v[0], v[1]);
+}
+
+
+void KcGlslProgram::setUniform(const std::string_view& name, const point3f& v)
+{
+	auto loc = getUniformLocation(name);
+	if (loc != -1)
+		glUniform3f(loc, v[0], v[1], v[2]);
+}
+
+
+void KcGlslProgram::setUniform(const std::string_view& name, const point4f& v)
+{
+	auto loc = getUniformLocation(name);
+	if (loc != -1)
+		glUniform4f(loc, v[0], v[1], v[2], v[3]);
+}
+

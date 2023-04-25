@@ -46,9 +46,8 @@ void KcEdgedObject::draw() const
 
             // 在fill的情况下，始终用辅色描边
             // 此处修正setUniforms_设置的主色
-            auto loc = edgeShader_->getUniformLocation("vColor");
-            if (loc != -1)
-                glUniform4f(loc, edgeColor_[0], edgeColor_[1], edgeColor_[2], edgeColor_[3]); 
+            edgeShader_->setUniform(KsShaderManager::singleton().
+                varname(KsShaderManager::k_flat_color), edgeColor_);
   
             drawVbo_(); // 使用已绑定的vbo
         }

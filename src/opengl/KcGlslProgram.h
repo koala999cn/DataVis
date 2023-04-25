@@ -3,6 +3,10 @@
 #include <map>
 #include <string>
 #include <memory>
+#include "KtMatrix3.h"
+#include "KtMatrix4.h"
+#include "KtVector3.h"
+#include "KtVector4.h"
 
 class KcGlslShader;
 
@@ -108,6 +112,13 @@ public:
     void getUniformiv(const char* name, int* params) const { 
         getUniformiv(getUniformLocation(name), params); 
     }
+
+    void setUniform(const std::string_view& name, const mat3f<>& v);
+    void setUniform(const std::string_view& name, const mat4f<>& v);
+    void setUniform(const std::string_view& name, float v);
+    void setUniform(const std::string_view& name, const point2f& v);
+    void setUniform(const std::string_view& name, const point3f& v);
+    void setUniform(const std::string_view& name, const point4f& v);
 
     void useProgram();
 

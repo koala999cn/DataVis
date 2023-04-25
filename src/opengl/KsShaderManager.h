@@ -1,5 +1,7 @@
 #pragma once
 #include <map>
+#include <vector>
+#include <string>
 #include <memory>
 #include "KtSingleton.h"
 
@@ -27,58 +29,111 @@ public:
 		k_color     = 0x0001,
 		k_uv        = 0x0002,
 		k_normal    = 0x0004,
+		k_scale     = 0x0008, // inst渲染独用
 
 		k_instance  = 0x0010,
 
 		k_flat      = 0x1000,
 		k_clipbox   = 0x2000,
-		k_frag      = 0x8000, // 用以区分vs和fs
 
-		k_vs_mask   = k_color | k_uv | k_normal | k_instance | k_flat | k_clipbox,
-		k_fs_mask   = k_color | k_uv | k_flat,
-		k_prog_mask = k_vs_mask
+		k_frag      = 0x8000, // 内部使用，用以区分vs和fs
 	};
 
-	// assert(!(type & (k_flat | k_clipbox)));
-	program_ptr fetchProg(int type, bool flat, bool hasClipBox);
+	// @type: KeType的组合
+	program_ptr fetchProg(int type);
 
 	// vsMono() + fsNavie(true)
 	program_ptr progMono(bool hasClipBox) {
-		return fetchProg(k_mono, true, hasClipBox);
+		return fetchProg(combineType_(k_mono, true, hasClipBox));
 	}
 
 	// vsColor(flat) + fsNavie(flat)
 	program_ptr progColor(bool flat, bool hasClipBox) {
-		return fetchProg(k_color, flat, hasClipBox);
+		return fetchProg(combineType_(k_color, flat, hasClipBox));
 	}
 
 	program_ptr progUV(bool hasClipBox) {
-		return fetchProg(k_uv, true, hasClipBox);
+		return fetchProg(combineType_(k_uv, true, hasClipBox));
 	}
 
 	// vsColorUV(flat) + fsColorUV(flat)
 	program_ptr progColorUV(bool flat, bool hasClipBox) {
-		return fetchProg(k_color | k_uv, flat, hasClipBox);
+		return fetchProg(combineType_(k_color | k_uv, flat, hasClipBox));
 	}
 
 	// vsMonoInst() + fsNavie(true)
 	program_ptr progMonoInst(bool hasClipBox) {
-		return fetchProg(k_mono | k_instance, true, hasClipBox);
+		return fetchProg(combineType_(k_mono | k_instance, true, hasClipBox));
 	}
 
 	// vsColorInst() + fsNavie(true)
 	program_ptr progColorInst(bool flat, bool hasClipBox) {
-		return fetchProg(k_color | k_instance, flat, hasClipBox);
+		return fetchProg(combineType_(k_color | k_instance, flat, hasClipBox));
 	}
 
 	// vsMonoLight(flat) + fsNavie(flat)
 	program_ptr progMonoLight(bool flat, bool hasClipBox) {
-		return fetchProg(k_normal, flat, hasClipBox);
+		return fetchProg(combineType_(k_normal, flat, hasClipBox));
 	}
 
+	// 缺省的shader变量
+	enum KeVariant
+	{
+		/// standard uniforms
+
+		k_world_matrix,
+		k_model_view_matrix,
+		k_proj_matrix,
+		k_mvp_matrix,
+		k_normal_matrix,
+
+		k_clip_lower,
+		k_clip_upper,
+
+		// 光照参数
+		k_eye_pos,
+		k_light_dir,
+		k_light_color,
+		k_ambient_color,
+		k_specular_color,
+		k_shininess,
+
+		// 实例化渲染参数
+		k_inst_size,
+
+		k_flat_color, // 所有顶点共用的颜色，仅mono绘制时使用
+
+		k_uniform_first = k_world_matrix,
+		k_uniform_last = k_flat_color,
+
+		/// standard vertex attributes
+
+		k_vertex_position = k_uniform_last + 1,
+		k_vertex_normal,
+		k_vertex_color,
+		k_vertex_secondary_color,
+		k_vertex_scale, // 实例化渲染所需的顶点属性，用于缩放当前实例的尺寸
+		k_vertex_fog_coord,
+		k_vertex_tex_coord0,
+
+		k_attribute_first = k_vertex_position,
+		k_attribute_last = k_vertex_tex_coord0,
+
+		/// vs和fs之间的交换变量，或者默认的全局变量
+
+		k_vs_out_position = k_attribute_last + 1,
+		k_vs_out_color,
+		k_vs_out_tex_coord0,
+
+		k_fs_out_color,
+
+		k_variant_count
+	};
+
+	auto& varname(KeVariant var) const { return names_[var]; }
 
 private:
-	KsShaderManager() = default;
+	KsShaderManager();
 	~KsShaderManager() = default;
 
 	KsShaderManager(const KsShaderManager&) = delete;
@@ -137,7 +192,24 @@ private:
 	static std::string decorateVertexShader_(const char* source, bool flat, bool hasClipBox);
 	static std::string decorateFragShader_(const char* source, bool flat);
 
+	static int combineType_(int baseType, bool flat, bool hasClipBox) {
+		if (flat) baseType |= k_flat;
+		if (hasClipBox) baseType |= k_clipbox;
+		return baseType;
+	}
+
+	std::string vsDecls_(int type) const;
+	std::string vsBody_(int type) const;
+
+	std::string fsDecls_(int type) const;
+	std::string fsBody_(int type) const;
+
+	static std::string declUniform_(const std::string_view& type, const std::string_view& name);
+	static std::string declAttribute_(const std::string_view& type, const std::string_view& name);
+	static std::string layoutPrefix_(int loc);
+
 private:
 	std::map<int, shader_ptr> shaders_;
 	std::map<int, program_ptr> progs_;
+	std::vector<std::string> names_; // KeVariant -> 变量名
 };
