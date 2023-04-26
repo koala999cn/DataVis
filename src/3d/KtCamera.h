@@ -264,7 +264,7 @@ KtCamera<KREAL, ROW_MAJOR>::getMvpMat() const {
 template<typename KREAL, bool ROW_MAJOR> typename KtCamera<KREAL, ROW_MAJOR>::mat4
 KtCamera<KREAL, ROW_MAJOR>::getNormalMat() const
 {
-	return getMvMat().getInverse().getTranspose();
+	return getMvMatR_().getTranspose();
 
 	// 以下为忽略scale的变换阵
 	//KtVector3<KREAL> scale;

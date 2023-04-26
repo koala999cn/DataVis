@@ -714,13 +714,13 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		pushNormals_(obj);
 	obj->enableAttribute(KcVertexAttribute::k_normal, hasLight);
 	if (hasLight) {
-		obj->setNormalMatrix(camera_.getNormalMat());
 		obj->setLightDir(lightDir_);
 		obj->setLightColor(lightColor_);
 		obj->setAmbientColor(ambientColor_);
 		obj->setSpecularColor(specularColor_);
 		obj->setShininess(shininess_);
-		obj->setEyePos(camera_.getEyePos());
+		obj->setNormalMatrix(camera_.getNormalMat());
+		obj->setEyePos(camera_.getMvMat().getEyePostion()); // 此处不可直接调用camera的getEyePostion，否则返回的是世界坐标位置，而shader需要eye的局部坐标位置
 		shaderType |= KsShaderManager::k_normal;
 	}
 

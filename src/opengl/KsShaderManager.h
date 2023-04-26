@@ -87,6 +87,9 @@ public:
 		k_mvp_matrix,
 		k_normal_matrix,
 
+		k_major_color, // 所有顶点共用的主色，仅mono绘制时使用
+		k_minor_color, // 所有顶点共用的辅色，一般用于绘制outline
+
 		k_clip_lower,
 		k_clip_upper,
 
@@ -99,12 +102,10 @@ public:
 		k_shininess,
 
 		// 实例化渲染参数
-		k_inst_size,
-
-		k_flat_color, // 所有顶点共用的颜色，仅mono绘制时使用
+		k_inst_size, // vec3
 
 		k_uniform_first = k_world_matrix,
-		k_uniform_last = k_flat_color,
+		k_uniform_last = k_inst_size,
 
 		/// standard vertex attributes
 
@@ -112,7 +113,8 @@ public:
 		k_vertex_normal,
 		k_vertex_color,
 		k_vertex_secondary_color,
-		k_vertex_scale, // 实例化渲染所需的顶点属性，用于缩放当前实例的尺寸
+		k_inst_vertex, // 单个实例的顶点属性(vec4)，用于区分当前正在渲染实例的哪个顶点
+		k_inst_scale, // 实例的缩放属性(float)，用于尺寸可变的实例渲染
 		k_vertex_fog_coord,
 		k_vertex_tex_coord0,
 

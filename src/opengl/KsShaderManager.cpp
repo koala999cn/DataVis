@@ -16,6 +16,9 @@ KsShaderManager::KsShaderManager()
 	names_[k_mvp_matrix] = "k_MvpMatrix";
 	names_[k_normal_matrix] = "k_NormalMatrix";
 
+	names_[k_major_color] = "k_MajorColor";
+	names_[k_minor_color] = "k_MinorColor";
+
 	names_[k_clip_lower] = "k_ClipLower";
 	names_[k_clip_upper] = "k_ClipUpper";
 	
@@ -25,8 +28,6 @@ KsShaderManager::KsShaderManager()
 	names_[k_ambient_color] = "k_AmbientColor";
 	names_[k_specular_color] = "k_SpecularColor";
 	names_[k_shininess] = "k_Shininess";
-
-	names_[k_flat_color] = "k_FlatColor";
 
 	names_[k_vertex_position] = "k_inPosition";
 	names_[k_vertex_normal] = "k_inNormal";
@@ -359,7 +360,7 @@ std::string KsShaderManager::vsDecls_(int type) const
 		decls += declAttribute_("vec4", names_[k_vertex_color]);
 	}
 	else { // k_mono
-		decls += declUniform_("vec4", names_[k_flat_color]);
+		decls += declUniform_("vec4", names_[k_major_color]);
 	}
 
 	if (type & k_normal) {
@@ -415,11 +416,36 @@ std::string KsShaderManager::vsBody_(int type) const
 	body << "\t" << names_[k_vs_out_position] <<" = ";
 	body << names_[k_mvp_matrix] << " * vec4(" << names_[k_vertex_position] << ", 1);\n";
 
-	if (type & k_color) {
-		body << "\t" << names_[k_vs_out_color] << " = " << names_[k_vertex_color] << ";\n";
+	auto& inColor = names_[(type & k_color) ? k_vertex_color : k_major_color];
+
+	if (type & k_normal) {
+		/*
+		    "    vec3 vNorm = normalize((matNormal * vec4(iNormal, 0)).xyz);\n"
+			"    float fDot = max(0.0, dot(vNorm, -vLightDir));\n"
+			"    vec3 diffuse = vLightColor * fDot;\n"
+			"    vec3 eyeDir = normalize(vEyePos - iPosition);\n"
+			"    vec3 reflectDir = normalize(reflect(-vLightDir, iNormal));\n"
+			"    float spec = pow(max(dot(eyeDir, reflectDir), 0.0), fShininess);\n"
+			"    vec3 specular = spec * vSpecularIntensity * vLightColor;\n"
+			"    Frag_Color.rgb = min(iColor.rgb * (vAmbientColor + diffuse + specular), vec3(1, 1, 1));\n"
+			"    Frag_Color.a = iColor.a;\n"
+			*/
+
+		// TODO: 将normalMatrix调整为float3x3，简化shader代码
+
+		body << "\tvec3 vNorm = normalize((" << names_[k_normal_matrix] << "* vec4(" << names_[k_vertex_normal] << ", 0)).xyz);\n"
+			<< "\tfloat fDot = max(dot(vNorm, -" << names_[k_light_dir] << "), 0.0);\n"
+			<< "\tvec3 diffuse = " << names_[k_light_color] << " * fDot;\n"
+			<< "\tvec3 eyeDir = " << names_[k_eye_pos] << " - " << names_[k_vertex_position] << ";\n"
+			<< "\teyeDir = normalize((" << names_[k_normal_matrix] << "* vec4(eyeDir, 0)).xyz);\n" // 将eyeDir从局部坐标变换到世界坐标
+			<< "\tvec3 reflectDir = normalize(reflect(" << names_[k_light_dir] << ", vNorm));\n" // TODO: 为什么此处lightDir不能取反
+			<< "\tfloat spec = pow(max(dot(eyeDir, reflectDir), 0.0), " << names_[k_shininess] << ");\n"
+			<< "\tvec3 specular = spec * " << names_[k_specular_color] << " * " << names_[k_light_color] << ";\n"
+			<< "\t" << names_[k_vs_out_color] << ".rgb = min(" << inColor << ".rgb * (" << names_[k_ambient_color] << " + diffuse + specular), vec3(1));\n"
+			<< "\t" << names_[k_vs_out_color] << ".a = " << inColor << ".a;\n";
 	}
-	else { // k_mono
-		body << "\t" << names_[k_vs_out_color] << " = " << names_[k_flat_color] << ";\n";
+	else {
+		body << "\t" << names_[k_vs_out_color] << " = " << inColor << ";\n";
 	}
 
 	if (type & k_uv)

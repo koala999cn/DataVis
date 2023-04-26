@@ -47,7 +47,7 @@ void KcRenderObject::setUniforms_(const std::shared_ptr<KcGlslProgram>& shader) 
 	auto& sm = KsShaderManager::singleton();
 	shader->setUniform(sm.varname(KsShaderManager::k_mvp_matrix), projMat_);
 	if (!hasColor(true))
-	    shader->setUniform(sm.varname(KsShaderManager::k_flat_color), color_);
+	    shader->setUniform(sm.varname(KsShaderManager::k_major_color), color_);
 
 	shader->setUniform(sm.varname(KsShaderManager::k_clip_lower), clipBox_.lower());
 	shader->setUniform(sm.varname(KsShaderManager::k_clip_upper), clipBox_.upper());
