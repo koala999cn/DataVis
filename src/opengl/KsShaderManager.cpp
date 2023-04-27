@@ -22,6 +22,10 @@ KsShaderManager::KsShaderManager()
 	names_[k_clip_lower] = "k_ClipLower";
 	names_[k_clip_upper] = "k_ClipUpper";
 	
+	names_[k_inst_scale] = "k_InstScale";
+	names_[k_inst_color_varying] = "k_InstColorVarying";
+	names_[k_inst_size_varying] = "k_InstSizeVarying";
+
 	names_[k_eye_pos] = "k_EyePos";
 	names_[k_light_dir] = "k_LightDir";
 	names_[k_light_color] = "k_LightColor";
@@ -35,6 +39,10 @@ KsShaderManager::KsShaderManager()
 	names_[k_vertex_secondary_color] = "k_inSecondaryColor";
 	names_[k_vertex_fog_coord] = "k_inFogCoord";
 	names_[k_vertex_tex_coord0] = "k_inUV";
+
+	names_[k_inst_vertex] = "k_inInstVertex";
+	names_[k_inst_size] = "k_inInstSize";
+	names_[k_inst_offset] = "k_inInstOffset";
 
 	names_[k_vs_out_position] = "gl_Position";
 	names_[k_vs_out_color] = "k_VertColor";
@@ -341,6 +349,16 @@ std::string KsShaderManager::vsDecls_(int type) const
 
 	decls += declUniform_("mat4", names_[k_mvp_matrix]);
 
+	if (type & k_instance) {
+		decls += layoutPrefix_(loc++);
+		decls += declAttribute_("vec4", names_[k_inst_vertex]);
+
+		decls += declUniform_("vec4", names_[k_minor_color]); // 多实例渲染时可能用到的描边色
+		decls += declUniform_("vec3", names_[k_inst_scale]);
+		decls += declUniform_("int", names_[k_inst_color_varying]);
+		decls += declUniform_("int", names_[k_inst_size_varying]);
+	}
+
 	decls += layoutPrefix_(loc++);
 	decls += declAttribute_("vec3", names_[k_vertex_position]);
 
@@ -355,13 +373,19 @@ std::string KsShaderManager::vsDecls_(int type) const
 		decls += "out vec2 " + names_[k_vs_out_tex_coord0] + ";\n";
 	}
 
-	if (type & k_color) {
+	if (type & k_instance) {
+		decls += layoutPrefix_(loc++);
+		decls += declAttribute_("float", names_[k_inst_size]);
+	}
+	
+	if (type & k_color || type & k_instance) {
 		decls += layoutPrefix_(loc++);
 		decls += declAttribute_("vec4", names_[k_vertex_color]);
 	}
-	else { // k_mono
+	// NB: 多实例渲染须无条件声明majorColor
+	//else { 
 		decls += declUniform_("vec4", names_[k_major_color]);
-	}
+	//}
 
 	if (type & k_normal) {
 		decls += layoutPrefix_(loc++);
@@ -416,7 +440,24 @@ std::string KsShaderManager::vsBody_(int type) const
 	body << "\t" << names_[k_vs_out_position] <<" = ";
 	body << names_[k_mvp_matrix] << " * vec4(" << names_[k_vertex_position] << ", 1);\n";
 
-	auto& inColor = names_[(type & k_color) ? k_vertex_color : k_major_color];
+	if (type & k_instance) {
+		//	vec3 v = iVertex.xyz * vScale;
+		//	if (bSizeVarying != 0) v *= iSize;
+		//	gl_Position = matMvp * vec4(iPosition, 1) + vec4(v, 0);
+		//	if (iVertex.w != 0) Frag_Color = vSecondaryColor;
+		//	else if (bColorVarying != 0) Frag_Color = iColor;
+		//	else Frag_Color = vColor;
+		body << "\tvec3 v = " << names_[k_inst_vertex] << ".xyz * " << names_[k_inst_scale] << ";\n";
+		body << "\tif (" << names_[k_inst_size_varying] << " != 0) v *= " << names_[k_inst_size] << ";\n";
+		body << "\t" << names_[k_vs_out_position] << " += vec4(v, 0);\n";
+		body << "\tif (" << names_[k_inst_vertex] << ".w != 0) " << names_[k_vs_out_color] << " = " << names_[k_minor_color] << ";\n";
+		body << "\t else if (" << names_[k_inst_color_varying] << " != 0) " << names_[k_vs_out_color] << " = " << names_[k_vertex_color] << ";\n";
+		body << "\t else " << names_[k_vs_out_color] << " = " << names_[k_major_color] << ";\n";
+	}
+	else {
+		auto& inColor = names_[(type & k_color) ? k_vertex_color : k_major_color];
+		body << "\t" << names_[k_vs_out_color] << " = " << inColor << ";\n";
+	}
 
 	if (type & k_normal) {
 		/*
@@ -441,11 +482,8 @@ std::string KsShaderManager::vsBody_(int type) const
 			<< "\tvec3 reflectDir = normalize(reflect(" << names_[k_light_dir] << ", vNorm));\n" // TODO: 为什么此处lightDir不能取反
 			<< "\tfloat spec = pow(max(dot(eyeDir, reflectDir), 0.0), " << names_[k_shininess] << ");\n"
 			<< "\tvec3 specular = spec * " << names_[k_specular_color] << " * " << names_[k_light_color] << ";\n"
-			<< "\t" << names_[k_vs_out_color] << ".rgb = min(" << inColor << ".rgb * (" << names_[k_ambient_color] << " + diffuse + specular), vec3(1));\n"
-			<< "\t" << names_[k_vs_out_color] << ".a = " << inColor << ".a;\n";
-	}
-	else {
-		body << "\t" << names_[k_vs_out_color] << " = " << inColor << ";\n";
+			<< "\tvec3 f = " << names_[k_ambient_color] << " + diffuse + specular;\n "
+			<< "\t" << names_[k_vs_out_color] << ".rgb = min(" << names_[k_vs_out_color] << ".rgb * f, vec3(1));\n";
 	}
 
 	if (type & k_uv)

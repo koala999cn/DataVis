@@ -281,14 +281,6 @@ void KcGlslProgram::setUniform(const std::string_view& name, const mat4f<>& v)
 }
 
 
-void KcGlslProgram::setUniform(const std::string_view& name, float v)
-{
-	auto loc = getUniformLocation(name);
-	if (loc != -1)
-		glUniform1f(loc, v);
-}
-
-
 void KcGlslProgram::setUniform(const std::string_view& name, const point2f& v)
 {
 	auto loc = getUniformLocation(name);
@@ -312,3 +304,18 @@ void KcGlslProgram::setUniform(const std::string_view& name, const point4f& v)
 		glUniform4f(loc, v[0], v[1], v[2], v[3]);
 }
 
+
+void KcGlslProgram::setUniform(const std::string_view& name, float v)
+{
+	auto loc = getUniformLocation(name);
+	if (loc != -1)
+		glUniform1f(loc, v);
+}
+
+
+void KcGlslProgram::setUniform(const std::string_view& name, int v)
+{
+	auto loc = getUniformLocation(name);
+	if (loc != -1)
+		glUniform1i(loc, v);
+}

@@ -29,7 +29,7 @@ public:
 		k_color     = 0x0001,
 		k_uv        = 0x0002,
 		k_normal    = 0x0004,
-		k_scale     = 0x0008, // inst渲染独用
+		k_matrix    = 0x0008, // inst渲染独用
 
 		k_instance  = 0x0010,
 
@@ -93,7 +93,12 @@ public:
 		k_clip_lower,
 		k_clip_upper,
 
-		// 光照参数
+		// 多实例渲染uniforms
+		k_inst_scale,
+		k_inst_color_varying,
+		k_inst_size_varying,
+
+		// 光照uniforms
 		k_eye_pos,
 		k_light_dir,
 		k_light_color,
@@ -101,11 +106,8 @@ public:
 		k_specular_color,
 		k_shininess,
 
-		// 实例化渲染参数
-		k_inst_size, // vec3
-
 		k_uniform_first = k_world_matrix,
-		k_uniform_last = k_inst_size,
+		k_uniform_last = k_shininess,
 
 		/// standard vertex attributes
 
@@ -113,8 +115,9 @@ public:
 		k_vertex_normal,
 		k_vertex_color,
 		k_vertex_secondary_color,
-		k_inst_vertex, // 单个实例的顶点属性(vec4)，用于区分当前正在渲染实例的哪个顶点
-		k_inst_scale, // 实例的缩放属性(float)，用于尺寸可变的实例渲染
+		k_inst_vertex, // 单个实例的顶点属性(vec4)，w成员用于区分实例顶点的类别
+		k_inst_size, 
+		k_inst_offset,
 		k_vertex_fog_coord,
 		k_vertex_tex_coord0,
 

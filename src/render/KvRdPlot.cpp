@@ -367,7 +367,7 @@ void KvRdPlot::showPlotProperty_()
 			paint.setSpecularColor(specColor);
 
 		float shininess = paint.shininess();
-		if (ImGui::SliderFloat("Shininess", &shininess, 1, 256))
+		if (ImGui::SliderFloat("Shininess", &shininess, 1, 99))
 			paint.setShininess(shininess);
 
 		ImGui::Checkbox("Show Layout Rect", &plot_->showLayoutRect());

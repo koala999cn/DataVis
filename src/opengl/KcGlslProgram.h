@@ -115,10 +115,11 @@ public:
 
     void setUniform(const std::string_view& name, const mat3f<>& v);
     void setUniform(const std::string_view& name, const mat4f<>& v);
-    void setUniform(const std::string_view& name, float v);
     void setUniform(const std::string_view& name, const point2f& v);
     void setUniform(const std::string_view& name, const point3f& v);
     void setUniform(const std::string_view& name, const point4f& v);
+    void setUniform(const std::string_view& name, float v);
+    void setUniform(const std::string_view& name, int v);
 
     void useProgram();
 

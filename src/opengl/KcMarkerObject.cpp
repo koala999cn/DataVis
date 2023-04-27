@@ -40,30 +40,24 @@ KcMarkerObject::KcMarkerObject()
 void KcMarkerObject::draw() const
 {
 	prog_->useProgram();
-	auto loc = prog_->getUniformLocation("vSecondaryColor");
-	glUniform4f(loc, marker_.outline[0], marker_.outline[1], marker_.outline[2], marker_.outline[3]);
+
+	auto& sm = KsShaderManager::singleton();
+	prog_->setUniform(sm.varname(KsShaderManager::k_minor_color), marker_.outline);
 
 	int bSizeVarying = vbos_[2].decl->getAttribute(0).enabled();
-	loc = prog_->getUniformLocation("bSizeVarying");
-	glUniform1i(loc, bSizeVarying);
+	prog_->setUniform(sm.varname(KsShaderManager::k_inst_size_varying), bSizeVarying);
 
 	int bColorVarying = vbos_[3].decl->getAttribute(0).enabled();
-	loc = prog_->getUniformLocation("bColorVarying");
-	glUniform1i(loc, bColorVarying);
+	prog_->setUniform(sm.varname(KsShaderManager::k_inst_color_varying), bColorVarying);
 
 	if (type_ == k_points) {
 		glPointSize(marker_.size);
 	}
 	else {
-		loc = prog_->getUniformLocation("vScale");
-		if (bSizeVarying) {
-			glUniform3f(loc, scale_.x(), scale_.y(), scale_.z());
-		}
-		else {
-			glUniform3f(loc, marker_.size * scale_.x(),
-				marker_.size * scale_.y(),
-				marker_.size * scale_.z());
-		}
+		if (bSizeVarying) 
+			prog_->setUniform(sm.varname(KsShaderManager::k_inst_scale), scale_);
+		else 
+			prog_->setUniform(sm.varname(KsShaderManager::k_inst_scale), scale_ * marker_.size);
 	}
 
 	// vColor和matMvp参数值由基类设置
