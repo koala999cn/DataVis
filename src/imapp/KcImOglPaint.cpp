@@ -930,8 +930,8 @@ KcRenderObject* KcImOglPaint::makeTextVbo_(std::vector<KpUvVbo>& text)
 
 		auto decl = std::make_shared<KcVertexDeclaration>();
 		decl->pushAttribute(KcVertexAttribute::k_float3, KcVertexAttribute::k_position);
-		decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_texcoord);
 		decl->pushAttribute(KcVertexAttribute::k_float4, KcVertexAttribute::k_diffuse);
+		decl->pushAttribute(KcVertexAttribute::k_float2, KcVertexAttribute::k_texcoord);
 		assert(decl->vertexSize() == sizeof(text[0]));
 
 		auto vbo = std::make_shared<KcGpuBuffer>();

@@ -2,6 +2,7 @@
 #include "glad.h"
 #include "KcGlslProgram.h"
 #include "KcVertexDeclaration.h"
+#include "KsShaderManager.h"
 #include "KcGpuBuffer.h"
 #include <assert.h>
 
@@ -14,10 +15,10 @@ KcTextObject::KcTextObject(int texId, int index)
     // 共6个vbo
     // loc0: 存储标准顶点数据（float4）
     // loc1: 存储各实例的anchor数据（float3）
-    // loc2: 存储各实例的偏移数据（float4），dx0, dy0, dx1, dy1，像素坐标
-    // loc3: 存储各实例的uv数据（float4），u0, v0, u1, v1，归一化坐标
-    // loc4: 存储各实例的尺寸数据（float），可选 
-    // loc5: 存储各实例的填充色数据（float4），可选
+    // loc2: 存储各实例的尺寸数据（float），可选 
+    // loc3: 存储各实例的填充色数据（float4），可选 
+    // loc4: 存储各实例的偏移数据（float4），dx0, dy0, dx1, dy1，像素坐标
+    // loc5: 存储各实例的uv数据（float4），u0, v0, u1, v1，归一化坐标
     vbos_.resize(6);
 
     // loc0
@@ -30,21 +31,21 @@ KcTextObject::KcTextObject(int texId, int index)
 
     // loc2
     vbos_[2].decl = std::make_shared<KcVertexDeclaration>();
-    vbos_[2].decl->pushAttribute(KcVertexAttribute(2, KcVertexAttribute::k_float4, 0, KcVertexAttribute::k_instance, 1));
+    vbos_[2].decl->pushAttribute(KcVertexAttribute(2, KcVertexAttribute::k_float, 0, KcVertexAttribute::k_instance, 1));
+    vbos_[2].decl->getAttribute(0).enable(false);
 
     // loc3
     vbos_[3].decl = std::make_shared<KcVertexDeclaration>();
     vbos_[3].decl->pushAttribute(KcVertexAttribute(3, KcVertexAttribute::k_float4, 0, KcVertexAttribute::k_instance, 1));
+    vbos_[3].decl->getAttribute(0).enable(false);
 
     // loc4
     vbos_[4].decl = std::make_shared<KcVertexDeclaration>();
-    vbos_[4].decl->pushAttribute(KcVertexAttribute(4, KcVertexAttribute::k_float, 0, KcVertexAttribute::k_instance, 1));
-    vbos_[4].decl->getAttribute(0).enable(false);
+    vbos_[4].decl->pushAttribute(KcVertexAttribute(4, KcVertexAttribute::k_float4, 0, KcVertexAttribute::k_instance, 1));
 
     // loc5
     vbos_[5].decl = std::make_shared<KcVertexDeclaration>();
     vbos_[5].decl->pushAttribute(KcVertexAttribute(5, KcVertexAttribute::k_float4, 0, KcVertexAttribute::k_instance, 1));
-    vbos_[5].decl->getAttribute(0).enable(false);
 
     for (unsigned i = 0; i < vbos_.size(); i++)
         vbos_[i].buf = std::make_shared<KcGpuBuffer>();
@@ -71,30 +72,18 @@ void KcTextObject::draw() const
     glActiveTexture(GL_TEXTURE0 + unitIdx_);
     glBindTexture(GL_TEXTURE_2D, texId_);
     
-    auto loc = prog_->getUniformLocation("Texture");
-    assert(loc != -1);
-
     prog_->useProgram();
-    glUniform1i(loc, unitIdx_);
+    prog_->setUniform("Texture", unitIdx_);
 
+    auto& sm = KsShaderManager::singleton();
 
-    int bSizeVarying = vbos_[3].decl->getAttribute(0).enabled();
-    loc = prog_->getUniformLocation("bSizeVarying");
-    glUniform1i(loc, bSizeVarying);
+    int bSizeVarying = vbos_[2].decl->getAttribute(0).enabled();
+    prog_->setUniform(sm.varname(KsShaderManager::k_inst_size_varying), bSizeVarying);
 
-    int bColorVarying = vbos_[4].decl->getAttribute(0).enabled();
-    loc = prog_->getUniformLocation("bColorVarying");
-    glUniform1i(loc, bColorVarying);
+    int bColorVarying = vbos_[3].decl->getAttribute(0).enabled();
+    prog_->setUniform(sm.varname(KsShaderManager::k_inst_color_varying), bColorVarying);
 
-    loc = prog_->getUniformLocation("vScale");
-    //if (bSizeVarying) {
-        glUniform3f(loc, scale_.x(), scale_.y(), scale_.z());
-    //}
-   //else {
-    //    glUniform3f(loc, marker_.size * scale_.x(),
-    //        marker_.size * scale_.y(),
-   //         marker_.size * scale_.z());
-   // }
+    prog_->setUniform(sm.varname(KsShaderManager::k_inst_scale), scale_);
 
     super_::draw();
 }
@@ -114,7 +103,7 @@ KcRenderObject* KcTextObject::clone() const
 void KcTextObject::setBufferData(const point3f* anchors, const point4f* offset, const point4f* uvs, unsigned count)
 {
     vbos_[1].buf->setData(anchors, count * sizeof(point3f), KcGpuBuffer::k_stream_draw);
-    vbos_[2].buf->setData(offset, count * sizeof(point4f), KcGpuBuffer::k_stream_draw);
-    vbos_[3].buf->setData(uvs, count * sizeof(point4f), KcGpuBuffer::k_stream_draw);
+    vbos_[4].buf->setData(offset, count * sizeof(point4f), KcGpuBuffer::k_stream_draw);
+    vbos_[5].buf->setData(uvs, count * sizeof(point4f), KcGpuBuffer::k_stream_draw);
     instances_ = count;
 }

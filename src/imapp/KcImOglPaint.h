@@ -213,8 +213,8 @@ private:
 	struct KpUvVbo
 	{
 		float3 pos;
-		point2f uv;
 		float4 clr;
+		point2f uv;
 	};
 
 	struct KpRenderList_
