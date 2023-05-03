@@ -52,6 +52,9 @@
     <Filter Include="3rdparty\imGuIZMO">
       <UniqueIdentifier>{43cdd4ed-8542-40ec-8e8a-3ebac4e9c777}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cairo">
+      <UniqueIdentifier>{e5ab6f0d-d1a4-472c-a150-2412af93c989}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dsp\KgHist.cpp">
@@ -504,6 +507,12 @@
     </ClCompile>
     <ClCompile Include="3rdparty\imGuIZMO.quat\imGuIZMOquat.cpp">
       <Filter>3rdparty\imGuIZMO</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\backend\cairo\KcCairoPaint.cpp">
+      <Filter>cairo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KvPaintHelper.cpp">
+      <Filter>plot</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1175,6 +1184,12 @@
     </ClInclude>
     <ClInclude Include="3rdparty\imGuIZMO.quat\vgMath.h">
       <Filter>3rdparty\imGuIZMO</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\backend\cairo\KcCairoPaint.h">
+      <Filter>cairo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvPaintHelper.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

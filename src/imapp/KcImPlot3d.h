@@ -30,20 +30,21 @@ public:
 	std::string label() const override;
 
 	mat4 viewMatrix() const override {
-		return camera_.viewMatrix();
+		return camera().viewMatrix();
 	}
 	void setViewMatrix(const mat4& vm) override {
-		camera_.viewMatrix() = vm;
+		camera().viewMatrix() = vm;
 	}
 
 	mat4 projMatrix() const override {
-		return camera_.projMatrix();
+		return camera().projMatrix();
 	}
 	void setProjMatrix(const mat4& pm) override {
-		camera_.projMatrix() = pm;
+		camera().projMatrix() = pm;
 	}
 
-	const KtCamera<float_t>& camera() const { return camera_; }
+	KtCamera<double>& camera();
+	const KtCamera<double>& camera() const;
 
 private:
 
@@ -53,7 +54,5 @@ private:
 	void handleMouseInput_();
 
 private:
-	KtCamera<float_t> camera_;
-	
 	KtTrackballController<float_t> trackball_; // ÓÃÓÚ²Ù¿Øorient_
 };

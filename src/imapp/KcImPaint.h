@@ -1,55 +1,13 @@
 #pragma once
-#include "plot/KvPaint.h"
-#include "KtCamera.h"
+#include "plot/KvPaintHelper.h"
 #include "imgui.h"
 
-
-class KcImPaint : public KvPaint
+class KcImPaint : public KvPaintHelper
 {
 public:
-	using camera_type = KtCamera<float_t>;
-
-	KcImPaint(camera_type& cam);
-
-	void beginPaint() override;
-	void endPaint() override;
-
-	rect_t viewport() const override;
-	void setViewport(const rect_t& vp) override;
 
 	void pushClipRect(const rect_t& cr) override;
 	void popClipRect() override;
-
-	void pushLocal(const mat4& mat) override;
-	void popLocal() override;
-
-	void pushCoord(KeCoordType type) override;
-	void popCoord() override;
-	KeCoordType currentCoord() const override;
-
-	point4 project(const point4& worldPt) const override;
-
-	point4 unproject(const point4& pt) const override;
-
-	point4 localToWorld(const point4& pt) const override;
-
-	point4 worldToLocal(const point4& pt) const override;
-
-	void setColor(const color_t& clr) override;
-
-	void setSecondaryColor(const color_t& clr) override;
-
-	void setMarkerSize(float_t size) override;
-
-	void setMarkerType(int type) override;
-
-	void setLineWidth(float_t width) override;
-
-	void setLineStyle(int style) override;
-
-	void setFilled(bool b) override;
-
-	void setEdged(bool b) override;
 
 	void drawMarker(const point3& pos) override;
 
@@ -95,16 +53,4 @@ protected:
 	void drawLinePattern_(const ImVec2& from, const ImVec2& to, const std::vector<int>& pat);
 
 	void addTriMarker_(const ImVec2& center, const std::array<float, 2> pts[], bool outline);
-
-protected:
-	camera_type& camera_;
-	color_t clr_{ 0, 0, 0, 1 };
-	color_t secondaryClr_{ 0, 0, 0, 0 };
-	float_t lineWidth_{ 1 };
-	int lineStyle_{ 0 };
-	float_t markerSize_{ 1 };
-	int markerType_{ 0 };
-	bool filled_{ true }, edged_{ false };
-
-	std::vector<int> coords_; // ×ø±êÏµ¶ÑÕ»
 };

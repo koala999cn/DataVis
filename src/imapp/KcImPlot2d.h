@@ -29,17 +29,15 @@ public:
 	std::string label() const override;
 
 	mat4 projMatrix() const override {
-		return camera_.projMatrix();
+		return camera().projMatrix();
 	}
 	void setProjMatrix(const mat4& pm) override {
-		camera_.projMatrix() = pm;
+		camera().projMatrix() = pm;
 	}
 
-	const KtCamera<float_t>& camera() const { return camera_; }
+	KtCamera<double>& camera();
+	const KtCamera<double>& camera() const;
 
 private:
 	void updateImpl_() override;
-
-private:
-	KtCamera<float_t> camera_;
 };

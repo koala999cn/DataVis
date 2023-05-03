@@ -32,13 +32,6 @@ namespace kPrivate
 }
 
 
-KcImOglPaint::KcImOglPaint(camera_type& cam)
-	: super_(cam)
-{
-
-}
-
-
 void KcImOglPaint::saveObjList_()
 {
 	savedObjList_.clear();
@@ -141,26 +134,26 @@ KcImOglPaint::point3 KcImOglPaint::toNdc_(const point3& pt) const
 	{
 	case k_coord_local:
 	{
-		auto p = camera_.localToNdc(vec4d(pt, 1));
+		auto p = cam_.localToNdc(vec4d(pt, 1));
 		return p.vec3();
 	}
 
 	case k_coord_world:
 	{
-		auto p = camera_.worldToNdc(vec4d(pt, 1));
+		auto p = cam_.worldToNdc(vec4d(pt, 1));
 		return p.vec3();
 	}
 
 	case k_coord_screen:
 	{
-		auto p = camera_.screenToNdc(vec4d(pt, 1));
+		auto p = cam_.screenToNdc(vec4d(pt, 1));
 		return p.vec3();
 	}
 
 	case k_coord_local_screen:
 	{
-		auto p = camera_.localToWorld(vec4d(pt, 1));
-		p = camera_.screenToNdc(p);
+		auto p = cam_.localToWorld(vec4d(pt, 1));
+		p = cam_.screenToNdc(p);
 		return p.vec3();
 	}
 
@@ -454,7 +447,7 @@ KpMarker KcImOglPaint::marker() const
 void* KcImOglPaint::drawMarkers(point_getter fn, unsigned count)
 {
 	auto obj = new KcMarkerObject;
-	auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+	auto scale = cam_.screenToNdc({ 1, 1, 1, 0 });
 	//assert(KuMath::almostEqual(scale.length(), 1.));
 	obj->setScale({ scale.x(), scale.y(), scale.z() });
 	obj->setMarker(marker());
@@ -673,15 +666,15 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 	switch (currentCoord())
 	{
 	case k_coord_local:
-		obj->setProjMatrix(camera_.getMvpMat());
+		obj->setProjMatrix(cam_.getMvpMat());
 		break;
 
 	case k_coord_world:
-		obj->setProjMatrix(camera_.viewProjMatrix());
+		obj->setProjMatrix(cam_.viewProjMatrix());
 		break;
 	
 	case k_coord_screen:
-		obj->setProjMatrix(camera_.getNsMatR_());
+		obj->setProjMatrix(cam_.getNsMatR_());
 		break;
 
 	case k_coord_ndc:
@@ -719,8 +712,8 @@ void KcImOglPaint::pushRenderObject_(KpRenderList_& rl, KcRenderObject* obj)
 		obj->setAmbientColor(ambientColor_);
 		obj->setSpecularColor(specularColor_);
 		obj->setShininess(shininess_);
-		obj->setNormalMatrix(camera_.getNormalMat());
-		obj->setEyePos(camera_.getMvMat().getEyePostion()); // 此处不可直接调用camera的getEyePostion，否则返回的是世界坐标位置，而shader需要eye的局部坐标位置
+		obj->setNormalMatrix(cam_.getNormalMat());
+		obj->setEyePos(cam_.getMvMat().getEyePostion()); // 此处不可直接调用camera的getEyePostion，否则返回的是世界坐标位置，而shader需要eye的局部坐标位置
 		shaderType |= KsShaderManager::k_normal;
 	}
 
@@ -773,7 +766,7 @@ void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vec
 	auto obj = new KcTextObject(texId);
 	obj->setBufferData(ans.data(), pos.data(), uvs.data(), ans.size());
 
-	auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+	auto scale = cam_.screenToNdc({ 1, 1, 1, 0 });
 	obj->setScale({ scale.x(), scale.y(), scale.z() });
 	obj->setColor(clr_);
 
@@ -1009,7 +1002,7 @@ void* KcImOglPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 	}
 
 	if (hasNormal) {
-		// TODO: ((KcLightenObject*)obj)->setNormalMatrix(camera_.getNormalMatrix());
+		// TODO: ((KcLightenObject*)obj)->setNormalMatrix(cam_.getNormalMatrix());
 	}
 
 	auto vbo = std::make_shared<KcGpuBuffer>();
@@ -1159,7 +1152,7 @@ void KcImOglPaint::drawRenderList_()
 		if (std::get<0>(state) != viewport) {
 			viewport = std::get<0>(state);
 			glViewport_(viewport);
-			camera_.setViewport(viewportHistList_[viewport]); // 更新vp相关变换阵
+			cam_.setViewport(viewportHistList_[viewport]); // 更新vp相关变换阵
 		}
 		if (std::get<1>(state) != clipRect) {
 			clipRect = std::get<1>(state);
@@ -1327,14 +1320,14 @@ void KcImOglPaint::syncObjProps_(KcRenderObject* obj)
 	}
 	else if (dynamic_cast<KcMarkerObject*>(obj)) {
 		auto mo = dynamic_cast<KcMarkerObject*>(obj);
-		auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+		auto scale = cam_.screenToNdc({ 1, 1, 1, 0 });
 		//assert(KuMath::almostEqual(scale.length(), 1.));
 		mo->setScale({ scale.x(), scale.y(), scale.z() });
 		mo->setMarker(marker());
 	}
 	else if (dynamic_cast<KcTextObject*>(obj)) {
 		auto to = dynamic_cast<KcTextObject*>(obj);
-		auto scale = camera_.screenToNdc({ 1, 1, 1, 0 });
+		auto scale = cam_.screenToNdc({ 1, 1, 1, 0 });
 		to->setScale({ scale.x(), scale.y(), scale.z() });
 		// TODO: 文本设置
 		//mo->setMarker(marker());

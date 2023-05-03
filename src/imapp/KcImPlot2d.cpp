@@ -8,10 +8,22 @@
 
 KcImPlot2d::KcImPlot2d(const std::string_view& name)
     : KvImWindow(name)
-    , KvPlot2d(std::make_shared<KcImOglPaint>(camera_), std::make_shared<KcCoord2d>())
+    , KvPlot2d(std::make_shared<KcImOglPaint>(), std::make_shared<KcCoord2d>())
 {
     minSize_[0] = 180, minSize_[1] = 180;
     dynamic_ = true;
+}
+
+
+KtCamera<double>& KcImPlot2d::camera()
+{
+    return ((KvPaintHelper&)paint()).camera();
+}
+
+
+const KtCamera<double>& KcImPlot2d::camera() const
+{
+    return ((const KvPaintHelper&)paint()).camera();
 }
 
 

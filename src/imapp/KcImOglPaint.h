@@ -18,8 +18,6 @@ class KcImOglPaint : public KcImPaint
 
 public:
 
-	KcImOglPaint(camera_type& cam);
-
 	void setViewport(const rect_t& vp) override;
 
 	void pushClipRect(const rect_t& cr) override;
@@ -71,21 +69,6 @@ public:
 	void* fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 
 	void grab(int x, int y, int width, int height, void* data) override;
-
-	point3 lightDirection() const override { return lightDir_; }
-	void setLightDirection(const point3& dir) override { lightDir_ = dir; }
-
-	color3f lightColor() const { return lightColor_; }
-	void setLightColor(const color3f& clr) { lightColor_ = clr; }
-
-	color3f ambientColor() const { return ambientColor_; }
-	void setAmbientColor(const color3f& clr) { ambientColor_ = clr; }
-
-	color3f specularColor() const { return specularColor_; }
-	void setSpecularColor(const color3f& clr) { specularColor_ = clr; }
-
-	float_t shininess() const { return shininess_; }
-	void setShininess(float_t s) { shininess_ = s; }
 
 	// 辅助函数
 	KpMarker marker() const; // 装配marker绘制上下文
@@ -237,10 +220,4 @@ private:
 	std::map<kRenderState_, KpRenderList_> renderList_;
 
 	std::map<void*, std::shared_ptr<KcRenderObject>> savedObjList_;
-
-	point3 lightDir_{ -1., -1., -1. };
-	color3f lightColor_{ 1.f, 1.f, 1.f };
-	color3f ambientColor_{ 0.3f, 0.3f, 0.3f };
-	color3f specularColor_{ 0.5f, 0.5f, 0.5f };
-	float_t shininess_{ 32 };
 };

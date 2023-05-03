@@ -40,6 +40,7 @@ public:
 	bool& showLayoutRect() { return showLayoutRect_; }
 
 	KvPaint& paint() { return *paint_.get(); }
+	const KvPaint& paint() const { return *paint_.get(); }
 	KvCoord& coord() { return *coord_.get(); }
 
 	// 用于外部获取和更改legend与colorbars的属性
