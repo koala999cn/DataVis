@@ -58,7 +58,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freetype.lib;opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;exprtkXd.lib;sndfiled.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cairo.lib;freetype.lib;opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;exprtkXd.lib;sndfiled.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
       <IgnoreSpecificDefaultLibraries>LIBCMTD</IgnoreSpecificDefaultLibraries>
     </Link>
