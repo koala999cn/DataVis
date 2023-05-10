@@ -29,7 +29,7 @@ public:
 	virtual std::string title() const = 0;
 	virtual std::string& title() = 0;
 
-	virtual void update(); // 更新绘图
+	virtual void update(KvPaint* paint = nullptr); // 更新绘图
 
 	void fitData();
 
@@ -71,19 +71,19 @@ private:
 
 	bool showLegend_() const;
 
-	void updateLayout_(const rect_t& rc);
+	void updateLayout_(KvPaint*, const rect_t& rc);
 
 	// 根据所含plottables的色彩模式重新配置legend和colorbar
 	void syncLegendAndColorbars_();
 
-	void drawPlottables_();
+	void drawPlottables_(KvPaint*);
 
 	// 修正绘图视口的偏移和缩放（对plot2d很重要）
 	// 返回压入的local变换矩阵数量
-	int fixPlotView_();
+	int fixPlotView_(KvPaint*);
 
 	// 绘制各布局元素的外边框，用于debug使用
-	void drawLayoutRect_();
+	void drawLayoutRect_(KvPaint*);
 
 	// 将legend和colorbars元素从layout系统中移除（重新同步或者防止被layout系统效果）
 	void unlayoutLegendAndColorbars_();

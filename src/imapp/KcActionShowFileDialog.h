@@ -27,6 +27,9 @@ public:
 		return result_;
 	}
 
+	const std::string& filter() const { return filter_; }
+	std::string& filter() { return filter_; }
+
 private:
 	std::string key_; // 自动生成，内部使用
 	KeType type_;

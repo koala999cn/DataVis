@@ -101,7 +101,7 @@ public:
 	// 对于批量绘制，比如drawGeom, drawLineStrip, drawMarkers等，返回一个可重用的指针对象（nullptr表示不支持重用）
 	// 此对象指针可传递给redraw进行二次绘制，避免重构渲染对象
 	// 返回nullptr表示当前指针无法直接重绘，须重构渲染对象，非空表示重绘成功，并须用户更新对象指针以便下次使用
-	virtual void* redraw(void* obj) = 0;
+	virtual void* redraw(void* obj) { return nullptr; } // 缺省不支持vbo复用
 
 	virtual void drawMarker(const point3& pt) = 0;
 

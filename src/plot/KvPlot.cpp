@@ -92,77 +92,80 @@ void KvPlot::removeAllPlottables()
 }
 
 
-void KvPlot::update()
+void KvPlot::update(KvPaint* paint)
 {
+	if (paint == nullptr)
+		paint = paint_.get();
+
 	auto axisSwapped = coord_->axisSwapped();
 	if (axisSwapped)
-		paint_->pushLocal(coord_->axisSwapMatrix()); // 先压入坐标轴交换矩阵，autoProject_要用
+		paint->pushLocal(coord_->axisSwapMatrix()); // 先压入坐标轴交换矩阵，autoProject_要用
 
 	autoProject_();
 
-	paint_->beginPaint();
+	paint->beginPaint();
 
-	auto rc = paint_->viewport();
-	paint_->pushCoord(KvPaint::k_coord_screen);
-	paint_->apply(background());
-	paint_->fillRect(rc);
-	paint_->popCoord();
+	auto rc = paint->viewport();
+	paint->pushCoord(KvPaint::k_coord_screen);
+	paint->apply(background());
+	paint->fillRect(rc);
+	paint->popCoord();
 
-	updateLayout_(rc);
+	updateLayout_(paint, rc);
 	if (innerRect().volume() == 0) { // 某个维度的布局尺寸为0，不绘制
-		paint_->endPaint();
+		paint->endPaint();
 		return;
 	}
 
-	paint_->setViewport(innerRect()); 
+	paint->setViewport(innerRect()); 
 
 	// 修正视口偏移（主要针对plot2d，把它的坐标系lower点移到视口的左下角）
-	auto locals = fixPlotView_(); // 此处有locals个矩阵入栈，后续须pop
+	auto locals = fixPlotView_(paint); // 此处有locals个矩阵入栈，后续须pop
 
-	coord_->draw(paint_.get());
+	coord_->draw(paint);
 
 	if (coord_->axisInversed()) {
-		paint_->pushLocal(coord_->axisInverseMatrix());
+		paint->pushLocal(coord_->axisInverseMatrix());
 		++locals;
 	}
 
 	if (dim() == 3)
-		paint_->enableClipBox(coord_->lower(), coord_->upper());
+		paint->enableClipBox(coord_->lower(), coord_->upper());
 
-	drawPlottables_();
+	drawPlottables_(paint);
 
 	if (dim() == 3)
-		paint_->disableClipBox();
+		paint->disableClipBox();
 
 	for (int i = 0; i < locals + axisSwapped; i++)
-	    paint_->popLocal();
+	    paint->popLocal();
 
 	// draw legend
 	if (showLegend_()) 
-		legend_->draw(paint_.get());
+		legend_->draw(paint);
 
 	// draw colorbars
-	paint_->setViewport(outterRect()); // 取消内框剪切，允许colorbar的坐标轴label越出内框
+	paint->setViewport(outterRect()); // 取消内框剪切，允许colorbar的坐标轴label越出内框
 	for (auto& i : colorbars_)
 		if (i->visible())
-		    i->draw(paint_.get());
+		    i->draw(paint);
 
 	// draw for debugging
 	if (showLayoutRect_)
-	    drawLayoutRect_();
+	    drawLayoutRect_(paint);
 
-	paint_->endPaint();
+	paint->endPaint();
 }
 
 
-int KvPlot::fixPlotView_()
+int KvPlot::fixPlotView_(KvPaint* paint)
 {
 	if (dim() != 2) {
-		assert(paint_->viewport() == coord_->getPlotRect());
+		assert(paint->viewport() == coord_->getPlotRect());
 		return 0; // 只对plot2d进行修正
 	}
 
-	auto rcCanvas = paint_->viewport();
+	auto rcCanvas = paint->viewport();
 	auto rcPlot = coord_->getPlotRect();
 	if (rcPlot == rcCanvas)
 		return 0;
@@ -176,12 +179,12 @@ int KvPlot::fixPlotView_()
 
 	//if (coord_->axisSwapped() == KvCoord::k_axis_swap_xy)
 	//	std::swap(scale.x(), scale.y());
-	scale = paint_->localToWorldV(scale); // 等价于上述坐标轴交换代码，此处使用更通用的变换方法
+	scale = paint->localToWorldV(scale); // 等价于上述坐标轴交换代码，此处使用更通用的变换方法
 	auto scaleMat = KvPaint::mat4::buildScale(scale);
-	paint_->pushLocal(scaleMat);
+	paint->pushLocal(scaleMat);
 
 	// 把世界坐标系的lower点偏移到rcPlot的左下点
-	auto lower = paint_->unprojectp({ rcPlot.lower().x(), rcPlot.upper().y() });
+	auto lower = paint->unprojectp({ rcPlot.lower().x(), rcPlot.upper().y() });
 	lower.z() = coord_->lower().z(); // z轴不移动
 	auto shiftMat = KvPaint::mat4::buildTanslation(lower - coord_->lower());
 	
@@ -190,16 +193,16 @@ int KvPlot::fixPlotView_()
 	// 绘图区域相对于画布（窗口视图）的偏移，屏幕坐标下的像素值
 	//KvPaint::point2 shift = { rcPlot.lower().x() - rcCanvas.lower().x(),
 	//							rcPlot.upper().y() - rcCanvas.upper().y() };
-	//auto shift3d = paint_->unprojectv(shift); // 转换到世界坐标
+	//auto shift3d = paint->unprojectv(shift); // 转换到世界坐标
 	// 此外，由于缩放变换是相对于原点进行的，这就造成了坐标系的lower点产生了偏移，需要进一步修正
 	//shift3d += (coord_->lower() - coord_->lower() * scale);
 	//auto shiftMat = KvPaint::mat4::buildTanslation(shift3d);
 	//////////////////////////////////////////////////////////////////////////
 
-	paint_->pushLocal(shiftMat);
+	paint->pushLocal(shiftMat);
 
-	//assert(std::floor(paint_->projectp(coord_->lower()).x()) == rcPlot.lower().x());
-	//assert(std::floor(paint_->projectp(coord_->lower()).y()) == rcPlot.upper().y());
+	//assert(std::floor(paint->projectp(coord_->lower()).x()) == rcPlot.lower().x());
+	//assert(std::floor(paint->projectp(coord_->lower()).y()) == rcPlot.upper().y());
 
 	return 2;
 }
@@ -252,7 +255,7 @@ bool KvPlot::showLegend_() const
 }
 
 
-void KvPlot::updateLayout_(const rect_t& rc)
+void KvPlot::updateLayout_(KvPaint* paint, const rect_t& rc)
 {
 	syncLegendAndColorbars_();
 
@@ -270,7 +273,7 @@ void KvPlot::updateLayout_(const rect_t& rc)
 		}
 	}
 
-	this->calcSize(paint_.get());
+	this->calcSize(paint);
 	this->arrange(rc); // 布局plot各元素
 }
 
@@ -301,9 +304,9 @@ void KvPlot::syncLegendAndColorbars_()
 }
 
 
-void KvPlot::drawPlottables_()
+void KvPlot::drawPlottables_(KvPaint* paint)
 {
-	paint_->pushClipRect(coord_->getPlotRect()); // 设置clipRect，防止plottables超出范围
+	paint->pushClipRect(coord_->getPlotRect()); // 设置clipRect，防止plottables超出范围
 
 	for (int idx = 0; idx < plottableCount(); idx++) {
 		auto plt = plottableAt(idx);
@@ -318,27 +321,27 @@ void KvPlot::drawPlottables_()
 				auto mat = KvPaint::mat4::buildScale(scale);
 				mat = mat * KvPaint::mat4::buildTanslation({ -plt->axis(0)->lower(), -plt->axis(1)->lower(), 0 });
 				mat = KvPaint::mat4::buildTanslation({ coord_->defaultAxis(0)->lower(), coord_->defaultAxis(1)->lower(), 0 }) * mat;
-				paint_->pushLocal(mat);
+				paint->pushLocal(mat);
 			}
 
-			plt->draw(paint_.get());
+			plt->draw(paint);
 
 			if (scale != vec3d(1))
-				paint_->popLocal();
+				paint->popLocal();
 		}
 	}
 
-	paint_->popClipRect();
+	paint->popClipRect();
 }
 
 
 #include <queue>
-void KvPlot::drawLayoutRect_()
+void KvPlot::drawLayoutRect_(KvPaint* paint)
 {
 	std::queue<KvLayoutElement*> eles; // 待绘制布局元素
 	eles.push(this);
 
-	paint_->pushCoord(KvPaint::k_coord_screen);
+	paint->pushCoord(KvPaint::k_coord_screen);
 	
 	while (!eles.empty()) {
 		auto e = eles.front(); eles.pop();
@@ -348,13 +351,13 @@ void KvPlot::drawLayoutRect_()
 				if (i) eles.push(i);
 		}
 		//else {
-			paint_->setColor({ 0,0,1,1 }); // 蓝色画内框
-			paint_->drawRect(e->innerRect());
+			paint->setColor({ 0,0,1,1 }); // 蓝色画内框
+			paint->drawRect(e->innerRect());
 
-			paint_->setColor({ 1,0,0,1 }); // 红色画外框
-			paint_->drawRect(e->outterRect());
+			paint->setColor({ 1,0,0,1 }); // 红色画外框
+			paint->drawRect(e->outterRect());
 		//}
 	}
 
-	paint_->popCoord();
+	paint->popCoord();
 }

@@ -84,7 +84,7 @@ protected: // TODO: private
 	color3f lightColor_{ 1.f, 1.f, 1.f };
 	color3f ambientColor_{ 0.3f, 0.3f, 0.3f };
 	color3f specularColor_{ 0.5f, 0.5f, 0.5f };
-	float_t shininess_{ 32 };
+	float_t shininess_{ 15 };
 
 	std::vector<int> coords_{ k_coord_local }; // ×ø±êÏµ¶ÑÕ»
 };
