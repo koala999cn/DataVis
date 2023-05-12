@@ -25,6 +25,12 @@ public:
 	using geom_ptr = std::shared_ptr<KvGeometry>;
 	using vtx_decl_ptr = std::shared_ptr<KcVertexDeclaration>;
 
+	static point_getter pointGetter(const point3 pts[]) {
+		return [pts](unsigned idx) {
+			return pts[idx];
+		};
+	}
+
 	virtual void beginPaint() = 0;
 	virtual void endPaint() = 0;
 
@@ -83,48 +89,52 @@ public:
 	virtual point4 worldToLocal(const point4& pt) const = 0;
 
 	virtual void setColor(const color_t& clr) = 0;
-
+	virtual color_t color() const = 0;
+	
 	virtual void setSecondaryColor(const color_t& clr) = 0;
+	virtual color_t secondaryColor() const = 0;
 
 	virtual void setMarkerSize(double size) = 0;
+	virtual double markerSize() const = 0;
 
 	virtual void setMarkerType(int type) = 0;
+	virtual int markerType() const = 0;
 
 	virtual void setLineWidth(double width) = 0;
 
 	virtual void setLineStyle(int style) = 0;
 
 	virtual void setFilled(bool b) = 0;
+	virtual bool filled() const = 0;
 
 	virtual void setEdged(bool b) = 0;
+	virtual bool edged() const = 0;
 
 	// 对于批量绘制，比如drawGeom, drawLineStrip, drawMarkers等，返回一个可重用的指针对象（nullptr表示不支持重用）
 	// 此对象指针可传递给redraw进行二次绘制，避免重构渲染对象
 	// 返回nullptr表示当前指针无法直接重绘，须重构渲染对象，非空表示重绘成功，并须用户更新对象指针以便下次使用
 	virtual void* redraw(void* obj) { return nullptr; } // 缺省不支持vbo复用
 
-	virtual void drawMarker(const point3& pt) = 0;
-
-	virtual void* drawMarkers(const point3 pts[], unsigned count);
+	// 缺省实现基于drawLine和fillPloy原语
+	virtual void drawMarker(const point3& pt);
 
 	virtual void* drawMarkers(point_getter fn, unsigned count);
+	void* drawMarkers(const point3 pts[], unsigned count) { return drawMarkers(pointGetter(pts), count); }
 
 	using color_getter = std::function<color4f(unsigned)>;
 	using size_getter = std::function<float(unsigned)>;
-	virtual void* drawMarkers(point_getter fn, color_getter clr, size_getter size, unsigned count) = 0;
+	virtual void* drawMarkers(point_getter fn, color_getter clr, size_getter size, unsigned count);
 
 	virtual void drawLine(const point3& from, const point3& to) = 0;
 
-	virtual void* drawLineStrip(const point3 pts[], unsigned count);
-
 	virtual void* drawLineStrip(point_getter fn, unsigned count);
+	void* drawLineStrip(const point3 pts[], unsigned count) { return drawLineStrip(pointGetter(pts), count); }
 
 	// 绘制多条线段集合
 	virtual void* drawLineStrips(const std::vector<point_getter>& fns, const std::vector<unsigned>& cnts) = 0;
 
-	virtual void drawLineLoop(const point3 pts[], unsigned count);
-
-	virtual void drawLineLoop(point_getter fn, unsigned count);
+	virtual void* drawLineLoop(point_getter fn, unsigned count);
+	void* drawLineLoop(const point3 pts[], unsigned count) { return drawLineLoop(pointGetter(pts), count); }
 
 	virtual void drawRect(const point3& lower, const point3& upper);
 
@@ -140,7 +150,8 @@ public:
 
 	virtual void fillQuad(point3 pts[4], color_t clrs[4]);
 
-	virtual void fillConvexPoly(point_getter fn, unsigned count) = 0;
+	virtual void fillPoly(point_getter fn, unsigned count) = 0;
+	void fillPoly(const point3 pts[], unsigned count) { fillPoly(pointGetter(pts), count); }
 
 	virtual void* fillBetween(point_getter line1, point_getter line2, unsigned count) = 0;
 

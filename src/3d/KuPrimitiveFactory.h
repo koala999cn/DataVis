@@ -51,7 +51,7 @@ public:
 
 	// 返回单位长度（高为1）的上三角形的3个顶点，中心点为(0, 0)
 	template<typename T>
-	static const point2<T>* triangleUp() {
+	static const point2<T>* triUp() {
 		static const point2<T> up[] = {
 			{ T(KuMath::sqrt3 / 2), 0.5f }, { 0, -1 }, { -T(KuMath::sqrt3 / 2), 0.5f }
 		};
@@ -59,7 +59,7 @@ public:
 	}
 
 	template<typename T>
-	static const point2<T>* triangleDown() {
+	static const point2<T>* triDown() {
 		static const point2<T> down[] = {
 			{ T(KuMath::sqrt3 / 2), -0.5f }, { 0, 1 }, { -T(KuMath::sqrt3 / 2), -0.5f }
 		};
@@ -67,7 +67,7 @@ public:
 	}
 
 	template<typename T>
-	static const point2<T>* triangleLeft() {
+	static const point2<T>* triLeft() {
 		static const point2<T> left[] = {
 			{ -1, 0 }, { 0.5, T(KuMath::sqrt3 / 2) }, { 0.5, -T(KuMath::sqrt3 / 2) }
 		};
@@ -75,7 +75,7 @@ public:
 	}
 
 	template<typename T>
-	static const point2<T>* triangleRight() {
+	static const point2<T>* triRight() {
 		static const point2<T> right[] = {
 			{ 1, 0 }, { -0.5, T(KuMath::sqrt3 / 2) }, { -0.5, -T(KuMath::sqrt3 / 2) }
 		};
@@ -185,6 +185,9 @@ public:
 			pts[i] = point2<T>{ std::cos(angle), std::sin(angle) };
 		return pts;
 	}
+
+	template<typename T>
+	static std::pair<const point2<T>*, unsigned> marker(int type);
 
 private:
 	KuPrimitiveFactory() = delete;
@@ -372,4 +375,75 @@ int KuPrimitiveFactory::makeCircle10(const point3<T>& center, T radius, void* ob
 	}
 
 	return vtxCount;
+}
+
+
+template<typename T>
+std::pair<const KuPrimitiveFactory::point2<T>*, unsigned> KuPrimitiveFactory::marker(int type)
+{
+	switch (type)
+	{
+	case KpMarker::k_dot:
+	{
+		static const point2<T> dot{ 0 };
+		return { &dot, 1 };
+	}
+
+	case KpMarker::k_cross:
+	{
+		static const point2<T> cross[] = {
+			{ -SQRT_2_2, -SQRT_2_2 },
+			{ SQRT_2_2, SQRT_2_2 },
+			{ SQRT_2_2, -SQRT_2_2 },
+			{ -SQRT_2_2, SQRT_2_2 }
+		};
+		return { cross, std::size(cross) };
+	}
+
+	case KpMarker::k_plus:
+	{
+		static const point2<T> plus[] = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+		return { plus, std::size(plus) };
+	}
+
+	case KpMarker::k_asterisk:
+	{
+		static const point2<T> asterisk[] = {
+			{ -SQRT_3_2, -0.5f },
+			{ SQRT_3_2, 0.5f },
+			{ -SQRT_3_2, 0.5f },
+			{ SQRT_3_2, -0.5f },
+			{ 0, -1 },
+			{ 0, 1 }
+		};
+		return { asterisk, std::size(asterisk) };
+	}
+
+	case KpMarker::k_square:
+		return { KuPrimitiveFactory::square<T>(), 4 };
+
+	case KpMarker::k_diamond:
+		return { KuPrimitiveFactory::diamond<T>(), 4 };
+
+	case KpMarker::k_left:
+		return { KuPrimitiveFactory::triLeft<T>(), 3 };
+
+	case KpMarker::k_right:
+		return { KuPrimitiveFactory::triRight<T>(), 3 };
+
+	case KpMarker::k_up:
+		return { KuPrimitiveFactory::triUp<T>(), 3 };
+
+	case KpMarker::k_down:
+		return { KuPrimitiveFactory::triDown<T>(), 3 };
+
+	case KpMarker::k_circle:
+		return { KuPrimitiveFactory::circle50<T>(), 50 }; // TODO: 应根据marker尺寸自动配置点数
+
+	default:
+		break;
+	};
+
+	assert(false);
+	return { nullptr, 0 };
 }

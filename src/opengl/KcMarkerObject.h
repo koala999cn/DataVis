@@ -38,8 +38,6 @@ private:
 
 	void buildIbo_(unsigned vtxSize);
 
-	static std::pair<const void*, unsigned> markerVtx_(int type);
-
 	bool realShowOutline_() const;
 
 private:

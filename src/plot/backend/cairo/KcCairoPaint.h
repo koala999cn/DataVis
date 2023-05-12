@@ -34,11 +34,10 @@ public:
 
 	void drawLine(const point3& from, const point3& to) override;
 
-	void drawMarker(const point3& pt) override;
-
-	void* drawMarkers(point_getter fn, color_getter clr, size_getter size, unsigned count) override;
-
 	void* drawLineStrips(const std::vector<point_getter>& fns, const std::vector<unsigned>& cnts) override;
+
+	// 重载实现dot & circle的绘制
+	void drawMarker(const point3& pt) override;
 
 	void fillTriangle(point3 pts[3]) override;
 
@@ -46,7 +45,7 @@ public:
 
 	void fillRect(const point3& lower, const point3& upper) override;
 
-	void fillConvexPoly(point_getter fn, unsigned count) override;
+	void fillPoly(point_getter fn, unsigned count) override;
 
 	void* fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 
@@ -58,7 +57,6 @@ public:
 
 	double fontHeight() const;
 	double charSpacing() const;
-	double charWidth(int ch) const;
 
 	point2 textSize(const std::string_view& text) const override;
 

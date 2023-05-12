@@ -9,8 +9,6 @@ public:
 	void pushClipRect(const rect_t& cr) override;
 	void popClipRect() override;
 
-	void drawMarker(const point3& pos) override;
-
 	void drawLine(const point3& from, const point3& to) override;
 
 	void* drawLineStrip(point_getter fn, unsigned count) override;
@@ -25,7 +23,7 @@ public:
 
 	void fillQuad(point3 pts[4]) override;
 
-	void fillConvexPoly(point_getter fn, unsigned count) override;
+	void fillPoly(point_getter fn, unsigned count) override;
 
 	void* fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 

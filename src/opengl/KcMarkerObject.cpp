@@ -134,7 +134,7 @@ void KcMarkerObject::buildMarkerVbo_()
     if (!vbos_[0].buf)
         vbos_[0].buf = std::make_shared<KcGpuBuffer>();
 
-	auto vtx = markerVtx_(marker_.type);
+	auto vtx = KuPrimitiveFactory::marker<float>(marker_.type);
 	auto pt = (const point2f*)vtx.first;
 	
 	std::vector<float4> pos;
@@ -216,77 +216,4 @@ void KcMarkerObject::buildIbo_(unsigned vtxSize)
 
 	ibos_.clear();
 	pushIbo(ibo, idx.size());
-}
-
-
-std::pair<const void*, unsigned> KcMarkerObject::markerVtx_(int type)
-{
-	static const double SQRT_2_2 = std::sqrt(2.) / 2.;
-	static const double SQRT_3_2 = std::sqrt(3.) / 2.;
-
-	switch (type)
-	{
-	case KpMarker::k_dot:
-	{
-		static const point2f dot(0);
-		return { &dot, 1 };
-	}
-
-	case KpMarker::k_cross:
-	{
-		static const point2f cross[4] = {
-			point2f(-SQRT_2_2,-SQRT_2_2),
-			point2f(SQRT_2_2,SQRT_2_2),
-			point2f(SQRT_2_2,-SQRT_2_2),
-			point2f(-SQRT_2_2,SQRT_2_2)
-		};
-		return { &cross, 4 };
-	}
-
-	case KpMarker::k_plus:
-	{
-		static const point2f plus[4] = { point2f(-1, 0), point2f(1, 0), point2f(0, -1), point2f(0, 1) };
-		return { &plus, 4 };
-	}
-
-	case KpMarker::k_asterisk:
-	{
-		static const point2f asterisk[6] = {
-			point2f(-SQRT_3_2, -0.5f),
-			point2f(SQRT_3_2, 0.5f),
-			point2f(-SQRT_3_2, 0.5f),
-			point2f(SQRT_3_2, -0.5f),
-			point2f(0, -1),
-			point2f(0, 1)
-		};
-		return { &asterisk, 6 };
-	}
-
-	case KpMarker::k_square:
-		return { KuPrimitiveFactory::square<float>(), 4 };
-
-	case KpMarker::k_diamond:
-		return { KuPrimitiveFactory::diamond<float>(), 4 };
-
-	case KpMarker::k_left:
-		return { KuPrimitiveFactory::triangleLeft<float>(), 3 };
-
-	case KpMarker::k_right:
-		return { KuPrimitiveFactory::triangleRight<float>(), 3 };
-
-	case KpMarker::k_up:
-		return { KuPrimitiveFactory::triangleUp<float>(), 3 };
-
-	case KpMarker::k_down:
-		return { KuPrimitiveFactory::triangleDown<float>(), 3 };
-
-	case KpMarker::k_circle:
-		return { KuPrimitiveFactory::circle50<float>(), 50 }; // TODO: 应根据marker尺寸自动配置点数
-
-	default:
-		break;
-	};
-
-	assert(false);
-	return { nullptr, 0 };
 }

@@ -1,16 +1,7 @@
 #include "KvPaint.h"
 #include "3d/KcVertexDeclaration.h"
 #include "layout/KuLayoutUtil.h"
-
-
-void* KvPaint::drawMarkers(const point3 pts[], unsigned count)
-{
-	auto getter = [pts](unsigned idx) {
-		return pts[idx];
-	};
-
-	return drawMarkers(getter, count);
-}
+#include "KuPrimitiveFactory.h"
 
 
 void* KvPaint::drawMarkers(point_getter fn, unsigned count)
@@ -22,13 +13,15 @@ void* KvPaint::drawMarkers(point_getter fn, unsigned count)
 }
 
 
-void* KvPaint::drawLineStrip(const point3 pts[], unsigned count)
+void* KvPaint::drawMarkers(point_getter fn, color_getter clr, size_getter size, unsigned count)
 {
-	auto getter = [pts](unsigned idx) {
-		return pts[idx];
-	};
+	for (unsigned i = 0; i < count; i++) {
+		if (clr) setColor(clr(i));
+		if (size) setMarkerSize(size(i));
+		drawMarker(fn(i));
+	}
 
-	return drawLineStrip(getter, count);
+	return nullptr;
 }
 
 
@@ -41,21 +34,13 @@ void* KvPaint::drawLineStrip(point_getter fn, unsigned count)
 }
 
 
-void KvPaint::drawLineLoop(const point3 pts[], unsigned count)
-{
-	auto getter = [pts](unsigned idx) {
-		return pts[idx];
-	};
-
-	drawLineLoop(getter, count);
-}
-
-
-void KvPaint::drawLineLoop(point_getter fn, unsigned count) 
+void* KvPaint::drawLineLoop(point_getter fn, unsigned count) 
 {
 	drawLineStrip(fn, count);
 	if (count > 2)
 		drawLine(fn(count - 1), fn(0));
+
+	return nullptr;
 }
 
 
@@ -161,4 +146,55 @@ void KvPaint::apply(const KpMarker& cxt)
 	setEdged(cxt.showOutline);
 	if (cxt.hasOutline())
 		setSecondaryColor(cxt.outline);
+}
+
+
+void KvPaint::drawMarker(const point3& pt)
+{
+	auto type = markerType();
+	if (type == KpMarker::k_dot)
+		type = KpMarker::k_circle;
+
+	auto scale = unprojectv({ markerSize(), markerSize() });
+
+	auto vtx = KuPrimitiveFactory::marker<float_t>(type);
+	std::vector<point3> pts(vtx.second);
+	for (unsigned i = 0; i < vtx.second; i++)
+		pts[i] = { scale.x() * vtx.first[i][0] + pt.x(),
+				   scale.y() * vtx.first[i][1] + pt.y(),
+		           0 };
+
+	switch (type)
+	{
+	case KpMarker::k_cross:
+	case KpMarker::k_asterisk:
+	case KpMarker::k_plus:
+		for (unsigned i = 0; i < vtx.second / 2; i++)
+			drawLine(pts[i * 2], pts[i * 2 + 1]);
+		break;
+
+	case KpMarker::k_circle:
+		// fall through
+
+	case KpMarker::k_left:
+	case KpMarker::k_up:
+	case KpMarker::k_down:
+	case KpMarker::k_right:
+	case KpMarker::k_square:
+	case KpMarker::k_diamond:
+		if (filled())
+			fillPoly(pts.data(), vtx.second);
+		if (edged()) {
+			auto clr = color();
+			if (filled())
+				setColor(secondaryColor());
+			drawLineLoop(pts.data(), vtx.second); // TODO: 引入path，如此可stroke和fill
+			if (filled())
+				setColor(clr);
+		}
+		break;
+
+	default:
+		break;
+	}
 }

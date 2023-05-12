@@ -38,20 +38,26 @@ public:
 	point4 worldToLocal(const point4& pt) const override;
 
 	void setColor(const color_t& clr) override;
+	color_t color() const override { return clr_; }
 
 	void setSecondaryColor(const color_t& clr) override;
+	color_t secondaryColor() const override { return secondaryClr_; }
 
 	void setMarkerSize(float_t size) override;
+	double markerSize() const override { return markerSize_; }
 
 	void setMarkerType(int type) override;
+	int markerType() const override { return markerType_; }
 
 	void setLineWidth(float_t width) override;
 
 	void setLineStyle(int style) override;
 
 	void setFilled(bool b) override;
+	bool filled() const override { return filled_; }
 
 	void setEdged(bool b) override;
+	bool edged() const override { return edged_; }
 
 	point3 lightDirection() const override { return lightDir_; }
 	void setLightDirection(const point3& dir) override { lightDir_ = dir; }
