@@ -1,5 +1,6 @@
 #include "KvPaint.h"
 #include "3d/KcVertexDeclaration.h"
+#include "layout/KuLayoutUtil.h"
 
 
 void* KvPaint::drawMarkers(const point3 pts[], unsigned count)
@@ -89,6 +90,26 @@ void KvPaint::fillQuad(point3 pts[4], color_t clrs[4])
 	fillTriangle(pts, clrs);
 	std::swap(pts[0], pts[1]); std::swap(clrs[0], clrs[1]);
 	fillTriangle(pts + 1, clrs + 1);
+}
+
+
+void KvPaint::drawText(const point3& anchor, const std::string_view& text, int align, const point2f& spacing)
+{
+	auto szText = textSize(text);
+	auto an = projectp(anchor); // 变换到屏幕坐标计算布局
+	auto r = KuLayoutUtil::anchorAlignedRect({ an.x(), an.y() }, szText, align);
+	auto topLeft = unprojectp(point2(r.lower().x() + spacing.x(), r.lower().y() + spacing.y()));
+	topLeft.z() = anchor.z();
+	drawText(topLeft, unprojectv(point3(1, 0, 0)), unprojectv(point3(0, 1, 0)), text);
+}
+
+
+void* KvPaint::drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing)
+{
+	assert(anchors.size() == texts.size());
+	for (unsigned i = 0; i < anchors.size(); i++)
+		drawText(anchors[i], texts[i], align, spacing);
+	return nullptr;
 }
 
 

@@ -127,6 +127,7 @@
     <ClCompile Include="src\base\KuLex.cpp" />
     <ClCompile Include="src\base\KuPathUtil.cpp" />
     <ClCompile Include="src\base\KuStrUtil.cpp" />
+    <ClCompile Include="src\base\KuUtf8.cpp" />
     <ClCompile Include="src\dsp\KcContinuedFn.cpp" />
     <ClCompile Include="src\dsp\KcInterpolater.cpp" />
     <ClCompile Include="src\dsp\KcSampler.cpp" />
@@ -317,6 +318,7 @@
     <ClInclude Include="src\base\KuMath.h" />
     <ClInclude Include="src\base\KuPathUtil.h" />
     <ClInclude Include="src\base\KuStrUtil.h" />
+    <ClInclude Include="src\base\KuUtf8.h" />
     <ClInclude Include="src\base\stlex.h" />
     <ClInclude Include="src\dsp\KcMonoContinued.h" />
     <ClInclude Include="src\dsp\KcMonoDiscreted.h" />

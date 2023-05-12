@@ -735,12 +735,6 @@ KcRenderObject* KcImOglPaint::lastRenderObject_()
 }
 
 
-void KcImOglPaint::drawText(const point3& anchor, const char* text, int align)
-{
-	drawText_(anchor, text, align, currentRenderList().texts, true);
-}
-
-
 void* KcImOglPaint::drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing)
 {
 	std::vector<point3f> ans; // 锚点
@@ -786,7 +780,7 @@ void KcImOglPaint::drawText_(const point3& anchor, const char* text, int align, 
 }
 
 
-void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text)
+void KcImOglPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const std::string_view& text)
 {
 	drawText_(topLeft, hDir, vDir, text, currentRenderList().texts, true);
 }
@@ -834,18 +828,20 @@ void KcImOglPaint::pushTextData_(const std::string_view& text, std::vector<point
 }
 
 
-void KcImOglPaint::drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo, bool normToNdc)
+void KcImOglPaint::drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const std::string_view& text, std::vector<KpUvVbo>& vbo, bool normToNdc)
 {
 	auto font = ImGui::GetFont();
-	auto eos = text + strlen(text);
 
 	auto hScale = 1.0 / projectv(hDir).length();
 	auto vScale = 1.0 / projectv(vDir).length();
 	auto height = vDir * font->FontSize * vScale; // 每行文字的高度. 暂时只支持单行渲染，该变量用不上
-
-	auto s = text;
+	
 	auto orig = topLeft;
-	vbo.reserve(vbo.size() + (eos - text) * 4);
+	vbo.reserve(vbo.size() + text.length() * 4);
+
+	auto s = text.data();
+	auto eos = s + text.length();
+
 	while (s < eos) {
 		unsigned int c = (unsigned int)*s;
 		if (c < 0x80) {

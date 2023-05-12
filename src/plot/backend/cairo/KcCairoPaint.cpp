@@ -1,6 +1,7 @@
 #include "KcCairoPaint.h"
 #include "cairo/cairo.h"
 #include "cairo/cairo-svg.h" // TODO:
+#include "KuUtf8.h"
 
 #define CAIRO_CR reinterpret_cast<cairo_t*>(cxt_)
 #define CAIRO_SURF reinterpret_cast<cairo_surface_t*>(surf_)
@@ -31,22 +32,6 @@ void KcCairoPaint::destroy_()
 }
 
 
-void KcCairoPaint::beginPaint()
-{
-	///if (!canvas_.lower().isZero())
-	//	pushLocal(mat4::buildTanslation(vec3d(-canvas_.lower().x(), -canvas_.lower().y(), 0)));
-
-	super_::beginPaint();
-}
-
-
-void KcCairoPaint::endPaint()
-{
-	super_::endPaint();
-	//popLocal();
-}
-
-
 void KcCairoPaint::setRect(const rect_t& rc)
 {
 	destroy_();
@@ -56,6 +41,9 @@ void KcCairoPaint::setRect(const rect_t& rc)
 	cairo_translate(CAIRO_CR, -rc.lower().x(), -rc.lower().y());
 	canvas_ = rc;
 	setViewport(rc);
+
+	cairo_select_font_face(CAIRO_CR, u8"ºÚÌå", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_set_font_size(CAIRO_CR, 13.0);
 }
 
 
@@ -139,21 +127,24 @@ void* KcCairoPaint::fillBetween(point_getter line1, point_getter line2, unsigned
 }
 
 
-void KcCairoPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text)
+void KcCairoPaint::drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const std::string_view& text)
 {
+	cairo_set_source_rgba(CAIRO_CR, clr_.r(), clr_.g(), clr_.b(), clr_.a());
 
-}
+	auto pt = projectp(topLeft);
 
+	cairo_font_extents_t fe;
+	cairo_font_extents(CAIRO_CR, &fe);
 
-void KcCairoPaint::drawText(const point3& anchor, const char* text, int align)
-{
+	KuUtf8::forEach(text, [this, &pt, &fe](const char* ch) {
+		cairo_text_extents_t te;
+		cairo_text_extents(CAIRO_CR, ch, &te);
 
-}
-
-
-void* KcCairoPaint::drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing)
-{
-	return nullptr;
+		cairo_move_to(CAIRO_CR, pt.x() - te.x_bearing, pt.y() + fe.height - fe.descent);
+		//cairo_move_to(CAIRO_CR, pt.x() - te.x_bearing, pt.y() + 13. / 2 - te.y_bearing - te.height / 2);
+		pt.x() += te.width + charSpacing();
+		cairo_show_text(CAIRO_CR, ch);
+		});
 }
 
 
@@ -169,7 +160,41 @@ void KcCairoPaint::grab(int x, int y, int width, int height, void* data)
 }
 
 
-KcCairoPaint::point2 KcCairoPaint::textSize(const char* text) const
+double KcCairoPaint::fontHeight() const
 {
-	return { 7 * strlen(text), 13 };
+	cairo_font_extents_t fe;
+	cairo_font_extents(CAIRO_CR, &fe);
+	return fe.height;
+}
+
+
+double KcCairoPaint::charSpacing() const
+{
+	return 1.;
+}
+
+
+double KcCairoPaint::charWidth(int ch) const
+{
+	cairo_text_extents_t te;
+	//char32_t letter[] = { ch, '\0' };
+	//cairo_text_extents(CAIRO_CR, (char*)letter, &te);
+	return te.width;
+}
+
+
+KcCairoPaint::point2 KcCairoPaint::textSize(const std::string_view& text) const
+{
+	cairo_font_extents_t fe;
+	cairo_font_extents(CAIRO_CR, &fe);
+
+	double width(0); int nchs(0);
+	KuUtf8::forEach(text, [this, &width, &nchs](const char* ch) {
+		cairo_text_extents_t te;
+		cairo_text_extents(CAIRO_CR, ch, &te);
+		width += te.width;
+		++nchs;
+		});
+
+	return { nchs == 0 ? 0 : width + (nchs - 1) * charSpacing(), fe.height };
 }

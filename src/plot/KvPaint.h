@@ -144,29 +144,40 @@ public:
 
 	virtual void* fillBetween(point_getter line1, point_getter line2, unsigned count) = 0;
 
+	/// 文本支持
+
+	//virtual double fontHeight() const = 0;
+	//virtual double charSpacing() const = 0; // 字符之间的空隙大小
+	//virtual double charWidth(char ch) const = 0;
+
+	virtual point2 textSize(const std::string_view& text) const = 0;
+
+
 	// 实现文本在三维平面的绘制
 	// @topLeft: 文本框的左上点位置
 	// @hDir: 文字布局的水平方向
 	// @vDir: 文字布局的垂直方向。文字按此方向从上到下书写
-	virtual void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) = 0;
+	// @text: utf8编码的文本字串
+	virtual void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const std::string_view& text) = 0;
 
 	// 该方法默认dir = {1, 0, 0}
 	// topLeft点将根据anchor和align确定
-	// @anchor: 文本框的锚点。文本框按align方式对齐于anchor
-	virtual void drawText(const point3& anchor, const char* text, int align) = 0;
+	// @anchor: 文本框的锚点（local坐标）。文本框按align方式对齐于anchor
+	// @text: utf8编码的文本字串
+	// @align: 文本框相对于anchor的对齐方式
+	// @spacing: 文本框距离anchor的间隙（device坐标）
+	virtual void drawText(const point3& anchor, const std::string_view& text, int align, const point2f& spacing);
 
 	// 批量绘制文本，返回可复用的渲染对象
-	virtual void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing) = 0;
+	// 缺省实现通过调用接口drawText来绘制文本，返回nullptr
+	virtual void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing);
 
 	virtual void* drawGeom(vtx_decl_ptr decl, geom_ptr geom) = 0;
 
 	// 抓取渲染缓存区数据到data.
-	// data大小 = rc.width() * rc.height * 4
+	// data字节大小 = rc.width() * rc.height * 4
 	virtual void grab(int x, int y, int width, int height, void* data) = 0;
 
-	// 一些尺寸计算函数
-
-	virtual point2 textSize(const char* text) const = 0;
 
 	/// 光照支持
 
@@ -283,8 +294,8 @@ public:
 		fillQuad(pt3s, clrs);
 	}
 
-	void drawText(const point2& ach, const char* text, int align) {
-		drawText(point3(ach.x(), ach.y(), 0), text, align);
+	void drawText(const point2& ach, const std::string_view& text, int align, const point2f& spacing) {
+		drawText(point3(ach.x(), ach.y(), 0), text, align, spacing);
 	}
 
 	void* drawGeomSolid(geom_ptr geom);

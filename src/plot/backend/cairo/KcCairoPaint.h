@@ -10,9 +10,6 @@ public:
 	KcCairoPaint();
 	virtual ~KcCairoPaint();
 
-	void beginPaint() override;
-	void endPaint() override;
-
 	void enableClipBox(point3 lower, point3 upper) override {}
 	void disableClipBox() override {}
 
@@ -26,7 +23,6 @@ public:
 
 	void enableFlatShading(bool b) override {}
 	bool flatShading() const override { return false; }
-
 
 	void enableLighting(bool b) override {}
 	bool lighting() const override { return false; }
@@ -54,17 +50,17 @@ public:
 
 	void* fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 
-	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
-
-	void drawText(const point3& anchor, const char* text, int align) override;
-
-	void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing) override;
+	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const std::string_view& text) override;
 
 	void* drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 
 	void grab(int x, int y, int width, int height, void* data) override;
 
-	point2 textSize(const char* text) const override;
+	double fontHeight() const;
+	double charSpacing() const;
+	double charWidth(int ch) const;
+
+	point2 textSize(const std::string_view& text) const override;
 
 protected:
 	void destroy_();

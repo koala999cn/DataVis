@@ -514,6 +514,9 @@
     <ClCompile Include="src\plot\KvPaintHelper.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\base\KuUtf8.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1190,6 +1193,9 @@
     </ClInclude>
     <ClInclude Include="src\plot\KvPaintHelper.h">
       <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\KuUtf8.h">
+      <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -58,9 +58,7 @@ public:
 
 	void drawRect(const point3& lower, const point3& upper) override;
 
-	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text) override;
-
-	void drawText(const point3& anchor, const char* text, int align) override;
+	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const std::string_view& text) override;
 
 	void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing) override;
 
@@ -150,7 +148,7 @@ private:
 	void syncObjProps_(KcRenderObject* obj);
 
 	// @normToNdc: 若true，则将text坐标规范到ndc坐标系
-	void drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const char* text, std::vector<KpUvVbo>& vbo, bool normToNdc);
+	void drawText_(const point3& topLeft, const point3& hDir, const point3& vDir, const std::string_view& text, std::vector<KpUvVbo>& vbo, bool normToNdc);
 	void drawText_(const point3& anchor, const char* text, int align, std::vector<KpUvVbo>& vbo, bool normToNdc);
 
 	// pos存储顺序（屏幕坐标）: dx, dy, width, height

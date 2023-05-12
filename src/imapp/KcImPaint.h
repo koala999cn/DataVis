@@ -29,11 +29,9 @@ public:
 
 	void* fillBetween(point_getter line1, point_getter line2, unsigned count) override;
 
-	void drawText(const point3& anchor, const char* text, int align) override;
-
 	//void drawGeom(vtx_decl_ptr decl, geom_ptr geom) override;
 
-	point2 textSize(const char* text) const override;
+	point2 textSize(const std::string_view& text) const override;
 
 protected:
 	ImVec2 project_(const point3& pt, bool round = false) const;

@@ -287,20 +287,10 @@ void KcImPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 }
 #endif
 
-void KcImPaint::drawText(const point3& anchor, const char* text, int align)
+
+KcImPaint::point2 KcImPaint::textSize(const std::string_view& text) const
 {
-	auto drawList = ImGui::GetWindowDrawList();
-
-	auto ap = projectp(anchor);
-	auto r = KuLayoutUtil::anchorAlignedRect({ ap.x(), ap.y() }, textSize(text), align);
-	
-	drawList->AddText(ImVec2(r.lower().x(), r.lower().y()), color_(), text);
-}
-
-
-KcImPaint::point2 KcImPaint::textSize(const char* text) const
-{
-	auto sz = ImGui::CalcTextSize(text);
+	auto sz = ImGui::CalcTextSize(text.data(), text.data() + text.length());
 	return { sz.x, sz.y };
 }
 

@@ -116,11 +116,12 @@ void KcLegend::drawItem_(KvPaint* paint, KvPlottable* plt, unsigned ch, const re
     paint->fillRect(iconPos, iconPos + iconSize_);
 
     auto lablePos = rc.lower();
-    lablePos.x() += iconSize_.x() + iconTextPadding_;
-    lablePos.y() += rc.height() * 0.5;
     paint->setColor(clrText_);
     paint->apply(fontText_);
-    paint->drawText(lablePos, itemLabel_(plt, ch).c_str(), KeAlignment::k_left | KeAlignment::k_vcenter);
+
+    assert(paint->inScreenCoord()); // 以下调用假定当前为device坐标系，否则spacing设置不对
+    paint->drawText(rc.lower(), itemLabel_(plt, ch).c_str(), KeAlignment::k_left | KeAlignment::k_vcenter,
+        { iconSize_.x() + iconTextPadding_, rc.height() * 0.5f });
 }
 
 
