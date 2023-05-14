@@ -81,7 +81,7 @@ void KcImPaint::drawRect(const point3& lower, const point3& upper)
 }
 
 
-void KcImPaint::fillTriangle(point3 pts[3])
+void KcImPaint::fillTriangle(const point3 pts[3])
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	auto p0 = project_(pts[0]);
@@ -91,7 +91,7 @@ void KcImPaint::fillTriangle(point3 pts[3])
 }
 
 
-void KcImPaint::fillTriangle(point3 pts[3], color_t clrs[3])
+void KcImPaint::fillTriangle(const point3 pts[3], const color_t clrs[3])
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	drawList->PrimReserve(3, 3);
@@ -115,7 +115,7 @@ void KcImPaint::fillRect(const point3& lower, const point3& upper)
 }
 
 
-void KcImPaint::fillQuad(point3 pts[4])
+void KcImPaint::fillQuad(const point3 pts[4])
 {
 	auto drawList = ImGui::GetWindowDrawList();
 	ImVec2 vec[4];

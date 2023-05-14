@@ -15,13 +15,13 @@ public:
 
 	void drawRect(const point3& lower, const point3& upper) override;
 
-	void fillTriangle(point3 pts[3]) override;
+	void fillTriangle(const point3 pts[3]) override;
 
-	void fillTriangle(point3 pts[3], color_t clrs[3]) override;
+	void fillTriangle(const point3 pts[3], const color_t clrs[3]) override;
 
 	void fillRect(const point3& lower, const point3& upper) override;
 
-	void fillQuad(point3 pts[4]) override;
+	void fillQuad(const point3 pts[4]) override;
 
 	void fillPoly(point_getter fn, unsigned count) override;
 

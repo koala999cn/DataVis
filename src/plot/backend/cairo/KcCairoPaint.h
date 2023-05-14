@@ -29,19 +29,20 @@ public:
 
 	void setRect(const rect_t& rc);
 
-	/* Set surface to translucent color without disturbing graphics state. */
-	void clear(const color4f& clr);
+	void clear(); // 用当前主色清空画布
 
 	void drawLine(const point3& from, const point3& to) override;
+
+	void drawRect(const point3& lower, const point3& upper) override;
 
 	void* drawLineStrips(const std::vector<point_getter>& fns, const std::vector<unsigned>& cnts) override;
 
 	// 重载实现dot & circle的绘制
 	void drawMarker(const point3& pt) override;
 
-	void fillTriangle(point3 pts[3]) override;
+	void fillTriangle(const point3 pts[3], const color_t clrs[3]) override;
 
-	void fillTriangle(point3 pts[3], color_t clrs[3]) override;
+	void fillQuad(const point3 pts[4], const color_t clrs[4]) override;
 
 	void fillRect(const point3& lower, const point3& upper) override;
 
@@ -64,6 +65,14 @@ protected:
 	void destroy_();
 
 	void applyLineCxt_();
+
+	void addPath_(point_getter fn, unsigned count);
+	void closePath_();
+	void stroke_();
+	void fill_();
+	void tryFillAndStroke_(); // 根据edged和filled设置stroke和fill
+	void setColor_(const color4f& clr);
+	void setColor_() { setColor_(clr_); }
 
 protected:
 	void* cxt_{ nullptr }; // the cr of cairo

@@ -62,19 +62,23 @@ void KvPaint::drawBox(const point3& lower, const point3& upper)
 }
 
 
-void KvPaint::fillQuad(point3 pts[4])
+void KvPaint::fillQuad(const point3 pts[4], const color_t clrs[4])
 {
-	fillTriangle(pts);
-	std::swap(pts[0], pts[1]);
-	fillTriangle(pts + 1);
+	fillTriangle(pts, clrs);
+	point3 pts2[] = { pts[0], pts[2], pts[3] }; 
+	color_t clrs2[] = { clrs[0], clrs[2], clrs[3] };
+	fillTriangle(pts2, clrs2);
 }
 
 
-void KvPaint::fillQuad(point3 pts[4], color_t clrs[4])
+void KvPaint::fillRect(const point3& lower, const point3& upper)
 {
-	fillTriangle(pts, clrs);
-	std::swap(pts[0], pts[1]); std::swap(clrs[0], clrs[1]);
-	fillTriangle(pts + 1, clrs + 1);
+	point3 pts[4];
+	pts[0] = lower, pts[2] = upper;
+	pts[1] = { lower.x(), upper.y(), lower.z() };
+	pts[3] = { upper.x(), lower.y(), upper.z() };
+
+	fillQuad(pts);
 }
 
 

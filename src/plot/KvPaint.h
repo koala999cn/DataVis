@@ -140,15 +140,15 @@ public:
 
 	virtual void drawBox(const point3& lower, const point3& upper);
 
-	virtual void fillTriangle(point3 pts[3]) = 0;
+	virtual void fillTriangle(const point3 pts[3]) { fillPoly(pts, 3); }
 
-	virtual void fillTriangle(point3 pts[3], color_t clrs[3]) = 0;
+	virtual void fillTriangle(const point3 pts[3], const color_t clrs[3]) = 0;
 
-	virtual void fillRect(const point3& lower, const point3& upper) = 0;
+	virtual void fillRect(const point3& lower, const point3& upper);
 
-	virtual void fillQuad(point3 pts[4]);
+	virtual void fillQuad(const point3 pts[4]) { fillPoly(pts, 4); }
 
-	virtual void fillQuad(point3 pts[4], color_t clrs[4]);
+	virtual void fillQuad(const point3 pts[4], const color_t clrs[4]);
 
 	virtual void fillPoly(point_getter fn, unsigned count) = 0;
 	void fillPoly(const point3 pts[], unsigned count) { fillPoly(pointGetter(pts), count); }
