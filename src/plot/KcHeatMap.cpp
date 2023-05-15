@@ -60,7 +60,7 @@ void KcHeatMap::setObjectState_(KvPaint* paint, unsigned objIdx) const
 }
 
 
-std::pair<KcHeatMap::float_t, KcHeatMap::float_t> KcHeatMap::xyshift_() const
+std::pair<double, double> KcHeatMap::xyshift_() const
 {
 	auto disc = discreted_();
 	auto dx = (xdim() == odim()) ? 1 : std::abs(disc->step(xdim()));
@@ -138,12 +138,12 @@ void* KcHeatMap::drawGrid_(KvPaint* paint, unsigned ch) const
 
 				if (j > 0)
 					pt[xdim()] += xyshift.first;
-				else 
+				else // j == 0
 					pt[xdim()] -= xyshift.first; // 首列数据为多出的一列
 
 				if (k > 0)
 					pt[ydim()] += xyshift.second;
-				else 
+				else // k == 0
 					pt[ydim()] -= xyshift.second; // 首行数据为多出的一行
 
 				vtx->pos = toPoint_(pt.data(), ch);
@@ -156,7 +156,8 @@ void* KcHeatMap::drawGrid_(KvPaint* paint, unsigned ch) const
 
 		// 由于grid整体向右上方偏移，所以应保证quad的最后一个顶点是右上角（opengl默认falt渲染模式使用最后一个顶点的数据）
 		// 因此设定startVtx为3，即起点为右下角，如此顺时针旋转，可保证右上角为终点
-		KuPrimitiveFactory::indexGrid<>(ny, nx, idx, 3, idxBase); // 由于顶点按ny的顺序依次写入的，所以此处ny在前
+		// TODO: 实际startVtx取1时工作正常？？？
+		KuPrimitiveFactory::indexGrid<>(ny, nx, idx, 1, idxBase); // 由于顶点按ny的顺序依次写入的，所以此处ny在前
 		idxBase += nx * ny;
 	}
 

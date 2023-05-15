@@ -34,5 +34,5 @@ private:
 	aabb_t calcBoundingBox_() const override;
 
 	// 计算xy平面的偏移量
-	std::pair<float_t, float_t> xyshift_() const;
+	std::pair<double, double> xyshift_() const;
 };
