@@ -209,7 +209,10 @@
     <ClCompile Include="src\op\KcOpWindowing.cpp" />
     <ClCompile Include="src\op\KvDataOperator.cpp" />
     <ClCompile Include="src\op\KvOpSampled1dHelper.cpp" />
-    <ClCompile Include="src\plot\backend\cairo\KcCairoPaint.cpp" />
+    <ClCompile Include="src\plot\backend\cairo\KcCairoPaintPdf.cpp" />
+    <ClCompile Include="src\plot\backend\cairo\KcCairoPaintPs.cpp" />
+    <ClCompile Include="src\plot\backend\cairo\KcCairoPaintSvg.cpp" />
+    <ClCompile Include="src\plot\backend\cairo\KvCairoPaint.cpp" />
     <ClCompile Include="src\plot\KcAndrewsCurves.cpp" />
     <ClCompile Include="src\plot\KcAxis.cpp" />
     <ClCompile Include="src\plot\KcBars2d.cpp" />
@@ -425,7 +428,10 @@
     <ClInclude Include="src\op\KcOpWindowing.h" />
     <ClInclude Include="src\op\KvDataOperator.h" />
     <ClInclude Include="src\op\KvOpSampled1dHelper.h" />
-    <ClInclude Include="src\plot\backend\cairo\KcCairoPaint.h" />
+    <ClInclude Include="src\plot\backend\cairo\KcCairoPaintPdf.h" />
+    <ClInclude Include="src\plot\backend\cairo\KcCairoPaintPs.h" />
+    <ClInclude Include="src\plot\backend\cairo\KcCairoPaintSvg.h" />
+    <ClInclude Include="src\plot\backend\cairo\KvCairoPaint.h" />
     <ClInclude Include="src\plot\KcAndrewsCurves.h" />
     <ClInclude Include="src\plot\KcBars2d.h" />
     <ClInclude Include="src\plot\KcBars3d.h" />

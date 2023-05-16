@@ -5,7 +5,9 @@
 #include "plot/KvPaint.h"
 #include "plot/KvPlot2d.h"
 #include "plot/KvPlot3d.h"
-#include "plot/backend/cairo/KcCairoPaint.h"
+#include "plot/backend/cairo/KcCairoPaintPdf.h"
+#include "plot/backend/cairo/KcCairoPaintPs.h"
+#include "plot/backend/cairo/KcCairoPaintSvg.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
@@ -23,7 +25,7 @@ void KuPlotContextMenu::update(KvPlot* plot)
 {
     static int lag(0);
     static const char* imgFilter = "Image file (*.png;*.jpg;*.bmp){.png,.jpg,.bmp}";
-    static const char* vctFilter = "Vector File (*.svg;*.pdf;*.ps){.svg,.pdf,.ps}";
+    static const char* vctFilter = "Vector File (*.pdf;*.ps;*.svg){.pdf,.ps,.svg}";
     static KcActionShowFileDialog fd(KcActionShowFileDialog::KeType::k_save, "Export As", imgFilter);
     static KvPlot* activePlot = nullptr;
 
@@ -73,24 +75,34 @@ void KuPlotContextMenu::update(KvPlot* plot)
             }
         }
         else { // 导出矢量图
-            KcCairoPaint cairo;
+            std::unique_ptr<KvCairoPaint> cairo;
+            auto& filepath = fd.result();
+            if (KuStrUtil::endWith(filepath, ".ps", true)) {
+                cairo.reset(new KcCairoPaintPs(filepath));
+            }
+            else if (KuStrUtil::endWith(filepath, ".svg", true)) {
+                cairo.reset(new KcCairoPaintSvg(filepath)); // TODO: cairo的svg实现无法正常绘制mesh-pattern
+            }
+            else {
+                cairo.reset(new KcCairoPaintPdf(filepath));
+            }
+
             point2f l(pos.x, pos.y);
             point2f u(pos.x + sz.x, pos.y + sz.y);
-            cairo.setRect({ l, u });
+            cairo->setRect({ l, u });
 
             if (dynamic_cast<KvPlot2d*>(plot)) {
                 auto plot2d = dynamic_cast<KvPlot2d*>(plot);
-                cairo.camera().projMatrix() = plot2d->projMatrix();
+                cairo->camera().projMatrix() = plot2d->projMatrix();
             }
             else {
                 auto plot3d = dynamic_cast<KvPlot3d*>(plot);
-                cairo.camera().projMatrix() = plot3d->projMatrix();
-                cairo.camera().viewMatrix() = plot3d->viewMatrix();
+                cairo->camera().projMatrix() = plot3d->projMatrix();
+                cairo->camera().viewMatrix() = plot3d->viewMatrix();
             }
             
-            cairo.setRect({ l, u });
-            cairo.syncRenderStateFrom(&plot->paint());
-            plot->update(&cairo);
+            cairo->syncRenderStateFrom(&plot->paint());
+            plot->update(cairo.get());
         }
 
         lag = 0;

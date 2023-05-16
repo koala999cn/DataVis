@@ -2,13 +2,13 @@
 #include "plot/KvPaintHelper.h"
 
 
-class KcCairoPaint : public KvPaintHelper
+class KvCairoPaint : public KvPaintHelper
 {
 	using super_ = KvPaintHelper;
 
 public:
-	KcCairoPaint();
-	virtual ~KcCairoPaint();
+
+	virtual ~KvCairoPaint();
 
 	void enableClipBox(point3 lower, point3 upper) override {}
 	void disableClipBox() override {}
@@ -49,6 +49,8 @@ public:
 	point2 textSize(const std::string_view& text) const override;
 
 protected:
+	virtual void* createSurface_() const = 0;
+
 	void destroy_();
 
 	void applyLineCxt_();
