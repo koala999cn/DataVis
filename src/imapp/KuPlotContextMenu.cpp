@@ -89,6 +89,7 @@ void KuPlotContextMenu::update(KvPlot* plot)
             }
             
             cairo.setRect({ l, u });
+            cairo.syncRenderStateFrom(&plot->paint());
             plot->update(&cairo);
         }
 

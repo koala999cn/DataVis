@@ -26,19 +26,6 @@ public:
 	void enableClipBox(point3 lower, point3 upper) override;
 	void disableClipBox() override;
 
-	void enablePolygonOffset(bool b) override { polygonOffset_ = b; }
-	void enableDepthTest(bool b) override { depthTest_ = b; }
-	bool depthTest() const override { return depthTest_; }
-
-	void enableAntialiasing(bool b) override { antialiasing_ = b; }
-	bool antialiasing() const override { return antialiasing_; }
-
-	void enableFlatShading(bool b) override { flatShading_ = b; }
-	bool flatShading() const override { return flatShading_; }
-
-	void enableLighting(bool b) override { lighting_ = b; }
-	bool lighting() const override { return lighting_; }
-
 	void beginPaint() override;
 	void endPaint() override;
 
@@ -172,12 +159,6 @@ private:
 	std::vector<unsigned> clipRectStack_;
 	unsigned curViewport_{ unsigned(-1) }; // -1表示未设置
 	unsigned curClipBox_{ unsigned(-1) };
-	bool polygonOffset_{ false };
-
-	bool depthTest_{ false }; // 启动深度测试？
-	bool antialiasing_{ false };
-	bool flatShading_{ false };
-	bool lighting_{ false };
 
 	// [0]: viewport idx
 	// [1]: clipRect idx

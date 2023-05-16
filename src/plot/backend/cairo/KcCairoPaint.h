@@ -13,20 +13,6 @@ public:
 	void enableClipBox(point3 lower, point3 upper) override {}
 	void disableClipBox() override {}
 
-	void enablePolygonOffset(bool b) override{}
-
-	void enableDepthTest(bool b) override{}
-	bool depthTest() const override { return false; }
-
-	void enableAntialiasing(bool b) override{}
-	bool antialiasing() const override { return false; }
-
-	void enableFlatShading(bool b) override {}
-	bool flatShading() const override { return false; }
-
-	void enableLighting(bool b) override {}
-	bool lighting() const override { return false; }
-
 	void setRect(const rect_t& rc);
 
 	void clear(); // 用当前主色清空画布
@@ -42,6 +28,7 @@ public:
 
 	void fillTriangle(const point3 pts[3], const color_t clrs[3]) override;
 
+	using super_::fillQuad;
 	void fillQuad(const point3 pts[4], const color_t clrs[4]) override;
 
 	void fillRect(const point3& lower, const point3& upper) override;

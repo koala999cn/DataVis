@@ -203,18 +203,26 @@ void KcCairoPaint::fillTriangle(const point3 pts[3], const color_t clrs[3])
 
 void KcCairoPaint::fillQuad(const point3 pts[4], const color_t clrs[4])
 {
-	auto pat = cairo_pattern_create_mesh();
-	cairo_mesh_pattern_begin_patch(pat);
-	for (int i = 0; i < 4; i++) {
-		auto pt = projectp(pts[i]);
-		cairo_mesh_pattern_line_to(pat, pt.x(), pt.y());
-		cairo_mesh_pattern_set_corner_color_rgba(pat, i, clrs[i].r(), clrs[i].g(), clrs[i].b(), clrs[i].a());
+	if (flatShading()) {
+		auto clrSaved = clr_;
+		clr_ = clrs[3];
+		fillQuad(pts);
+		clr_ = clrSaved;
 	}
-	cairo_mesh_pattern_end_patch(pat);
+	else {
+		auto pat = cairo_pattern_create_mesh();
+		cairo_mesh_pattern_begin_patch(pat);
+		for (int i = 0; i < 4; i++) {
+			auto pt = projectp(pts[i]);
+			cairo_mesh_pattern_line_to(pat, pt.x(), pt.y());
+			cairo_mesh_pattern_set_corner_color_rgba(pat, i, clrs[i].r(), clrs[i].g(), clrs[i].b(), clrs[i].a());
+		}
+		cairo_mesh_pattern_end_patch(pat);
 
-	cairo_set_source(CAIRO_CTX, pat);
-	cairo_paint(CAIRO_CTX);
-	cairo_pattern_destroy(pat);
+		cairo_set_source(CAIRO_CTX, pat);
+		cairo_paint(CAIRO_CTX);
+		cairo_pattern_destroy(pat);
+	}
 }
 
 
@@ -258,8 +266,78 @@ void KcCairoPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 }
 
 
+namespace kPrivate
+{
+	template<typename T>
+	T* next(T* p, unsigned stride) 
+	{
+		using CHAR_T = std::conditional_t<std::is_const_v<T>, const char*, char*>;
+		return (T*)((CHAR_T)p + stride);
+	}
+
+	template<typename T>
+	T* at(void* p, unsigned stride, unsigned idx)
+	{
+		return next<T>((T*)p, stride * idx);
+	}
+}
+
 void* KcCairoPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 {
+	auto vtx = (char*)geom->vertexData();
+	auto nvtx = geom->vertexCount();
+	auto stride = geom->vertexSize();
+	auto idx = geom->indexData();
+	auto nidx = geom->indexCount();
+	auto vtxAttr = decl->findAttribute(KcVertexAttribute::k_position, 0);
+	auto clrAttr = decl->findAttribute(KcVertexAttribute::k_diffuse, 0);
+
+	assert(vtxAttr->format() == KcVertexAttribute::k_float3);
+	assert(!idx || geom->indexSize() == 4);
+	assert(!clrAttr || clrAttr->format() == KcVertexAttribute::k_float4);
+	auto vtxp = (const float3*)(vtx + vtxAttr->offset());
+	const color4f* clrp = clrAttr ? (const color4f*)(vtx + clrAttr->offset()) : nullptr;
+	const std::uint32_t* idxp = idx ? (const std::uint32_t*)idx : nullptr;
+
+	switch (geom->type()) {
+	case k_quads:
+	{
+		unsigned nquad = idxp ? nidx / 4 : nvtx / 4;
+		point3 quads[4];
+		color4f clrs[4];
+		for (unsigned i = 0; i < nquad; i++) {
+			if (idxp) {
+				for (unsigned j = 0; j < 4; j++)
+					quads[j] = *kPrivate::at<const float3>((void*)vtxp, stride, idxp[4 * i + j]);
+
+				if (clrp) {
+					for (unsigned j = 0; j < 4; j++)
+						clrs[j] = *kPrivate::at<const color4f>((void*)clrp, stride, idxp[4 * i + j]);
+				}
+			}
+			else {
+				for (unsigned j = 0; j < 4; j++) {
+					quads[j] = *vtxp;
+					vtxp = kPrivate::next<const float3>(vtxp, stride);
+				}
+
+				if (clrp) {
+					for (unsigned j = 0; j < 4; j++) {
+						clrs[j] = *clrp;
+						clrp = kPrivate::next<const color4f>(clrp, stride);
+					}
+				}
+			}
+
+			if (clrp)
+				fillQuad(quads, clrs);
+			else
+				fillQuad(quads);
+		}
+	}
+	break;
+	}
+
 	return nullptr;
 }
 

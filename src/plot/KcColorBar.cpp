@@ -57,6 +57,8 @@ void KcColorBar::draw(KvPaint* paint) const
         paint->fillQuad(vtx, clr);
     };
 
+    auto flat = paint->flatShading();
+    paint->enableFlatShading(false); // 禁用flat着色，否则不能正确绘制渐变色带
     if (align() & KeAlignment::k_horz_first) { // TODO: 更优雅的修正box的方法
 
         if (align() & KeAlignment::k_right)
@@ -77,6 +79,7 @@ void KcColorBar::draw(KvPaint* paint) const
 
         drawGradient<double, float>(fillQuad, box.lower(), box.upper(), plt_->gradient(), 0);
     }
+    paint->enableFlatShading(flat); // 恢复状态
 
     // draw border
     if (showBorder_) {

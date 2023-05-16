@@ -4,6 +4,16 @@
 #include "KuPrimitiveFactory.h"
 
 
+void KvPaint::syncRenderStateFrom(const KvPaint* paint)
+{
+	enableFlatShading(paint->flatShading());
+	enableAntialiasing(paint->antialiasing());
+	enableDepthTest(paint->depthTest());
+
+	// TODO: more...
+}
+
+
 void* KvPaint::drawMarkers(point_getter fn, unsigned count)
 {
 	for (unsigned i = 0; i < count; i++)

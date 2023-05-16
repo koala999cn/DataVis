@@ -13,6 +13,20 @@ public:
 	camera_type& camera() { return cam_; }
 	const camera_type& camera() const { return cam_; }
 
+	void enablePolygonOffset(bool b) override { polygonOffset_ = b; }
+
+	void enableDepthTest(bool b) override { depthTest_ = b; }
+	bool depthTest() const override { return depthTest_; }
+
+	void enableAntialiasing(bool b) override { antialiasing_ = b; }
+	bool antialiasing() const override { return antialiasing_; }
+
+	void enableFlatShading(bool b) override { flatShading_ = b; }
+	bool flatShading() const override { return flatShading_; }
+
+	void enableLighting(bool b) override { lighting_ = b; }
+	bool lighting() const override { return lighting_; }
+
 	void beginPaint() override;
 	void endPaint() override;
 
@@ -77,6 +91,12 @@ public:
 protected: // TODO: private
 
 	camera_type cam_; // 依托KtCamera实现各类坐标变换
+
+	bool polygonOffset_{ false };
+	bool depthTest_{ false }; // 启动深度测试？
+	bool antialiasing_{ false };
+	bool flatShading_{ false };
+	bool lighting_{ false };
 
 	color_t clr_{ 0, 0, 0, 1 };
 	color_t secondaryClr_{ 0, 0, 0, 0 };
