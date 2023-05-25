@@ -63,6 +63,9 @@ protected:
 	void setColor_(const color4f& clr);
 	void setColor_() { setColor_(clr_); }
 
+	// 绘制渐变色线条
+	void gradLine_(const point3& st, const point3& ed, const color4f& c0, const color4f& c1);
+
 protected:
 	void* cxt_{ nullptr }; // the cr of cairo
 	void* surf_{ nullptr }; // the surface of cairo

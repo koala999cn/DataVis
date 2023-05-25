@@ -86,7 +86,7 @@ void KvCairoPaint::setRect(const rect_t& rc)
 {
 	destroy_();
 
-	canvas_ = rc;
+	canvas_ = rc; // 须在调用createSurface_之前设置canvas_
 	surf_ = createSurface_();
 	cxt_ = cairo_create(CAIRO_SURF);
 
@@ -96,23 +96,6 @@ void KvCairoPaint::setRect(const rect_t& rc)
 
 	//cairo_select_font_face(CAIRO_CTX, u8"黑体", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_size(CAIRO_CTX, 13.0);
-
-
-	/* 
-	cairo_pattern_t* pattern = cairo_pattern_create_mesh();
-	cairo_mesh_pattern_begin_patch(pattern);
-	cairo_mesh_pattern_line_to(pattern, rc.upper().x(), rc.upper().y());
-	cairo_mesh_pattern_line_to(pattern, rc.upper().x(), rc.lower().y());
-	cairo_mesh_pattern_line_to(pattern, rc.lower().x(), rc.lower().y());
-	cairo_mesh_pattern_line_to(pattern, rc.lower().x(), rc.upper().y());
-	cairo_mesh_pattern_set_corner_color_rgb(pattern, 0, 1, 0, 0);
-	cairo_mesh_pattern_set_corner_color_rgb(pattern, 1, 0, 1, 0);
-	cairo_mesh_pattern_set_corner_color_rgb(pattern, 2, 0, 0, 1);
-	cairo_mesh_pattern_set_corner_color_rgb(pattern, 3, 0, 1, 1);
-	cairo_mesh_pattern_end_patch(pattern);
-	cairo_set_source(CAIRO_CTX, pattern);
-	cairo_paint(CAIRO_CTX);
-	cairo_pattern_destroy(pattern);*/
 }
 
 
@@ -215,6 +198,20 @@ void KvCairoPaint::fillQuad(const point3 pts[4], const color_t clrs[4])
 		cairo_paint(CAIRO_CTX);
 		cairo_pattern_destroy(pat);
 	}
+}
+
+
+void KvCairoPaint::gradLine_(const point3& st, const point3& ed, const color4f& c0, const color4f& c1)
+{
+	auto pt0 = projectp(st);
+	auto pt1 = projectp(ed);
+	auto pat = cairo_pattern_create_linear(pt0.x(), pt0.y(), pt1.x(), pt1.y());
+	cairo_pattern_add_color_stop_rgba(pat, 0, c0.r(), c0.g(), c0.b(), c0.a());
+	cairo_pattern_add_color_stop_rgba(pat, 1, c1.r(), c1.g(), c1.b(), c1.a());
+	cairo_set_source(CAIRO_CTX, pat);
+	cairo_move_to(CAIRO_CTX, pt0.x(), pt0.y());
+	cairo_line_to(CAIRO_CTX, pt1.x(), pt1.y());
+	cairo_stroke(CAIRO_CTX);
 }
 
 
@@ -321,10 +318,28 @@ void* KvCairoPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 				}
 			}
 
-			if (clrp)
-				fillQuad(quads, clrs);
-			else
-				fillQuad(quads);
+			if (clrp) {
+				if (filled())
+				    fillQuad(quads, clrs);
+				
+				if (edged()) {
+					if (!filled()) { // 多色stroke
+						applyLineCxt_();
+						for (int i = 0; i < 4; i++)
+							gradLine_(quads[i], quads[(i + 1) % 4], clrs[i], clrs[(i + 1) % 4]);
+					}
+					else { // 单色stroke
+						addPath_(pointGetter(quads), 4);
+						closePath_();
+						stroke_();
+					}
+				}
+			}
+			else {
+				addPath_(pointGetter(quads), 4);
+				closePath_();
+				tryFillAndStroke_(); // TODO: 可放到最后进行批量绘制
+			}
 		}
 	}
 	break;

@@ -28,6 +28,7 @@
 
 ## plot
 - [ ] title等设置
+- [ ] legend在外面时，x坐标轴的title无法正常显示
 - [x] 各种类型的axis --> ok（linear, log, labels, time）
 - [x] 分离axis
 - [ ] 文字渲染系统（参考https://github.com/mosra/magnum/tree/master/src/Magnum/Text ）
