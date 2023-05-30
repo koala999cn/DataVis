@@ -66,6 +66,9 @@ protected:
 	// 绘制渐变色线条
 	void gradLine_(const point3& st, const point3& ed, const color4f& c0, const color4f& c1);
 
+	// nvtx = 3 或者 4
+	void drawMesh_(vtx_decl_ptr decl, geom_ptr geom, int nvtx);
+
 protected:
 	void* cxt_{ nullptr }; // the cr of cairo
 	void* surf_{ nullptr }; // the surface of cairo

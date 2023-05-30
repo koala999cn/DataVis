@@ -142,6 +142,9 @@ void KvCairoPaint::fillRect(const point3& lower, const point3& upper)
 
 void* KvCairoPaint::drawLineStrips(const std::vector<point_getter>& fns, const std::vector<unsigned>& cnts)
 {
+	for (unsigned i = 0; i < fns.size(); i++)
+	    addPath_(fns[i], cnts[i]);
+	stroke_();
 	return nullptr;
 }
 
@@ -226,9 +229,54 @@ void KvCairoPaint::fillPoly(point_getter fn, unsigned count)
 }
 
 
-void* KvCairoPaint::fillBetween(point_getter line1, point_getter line2, unsigned count)
+#include "KtGeometryImpl.h"
+#include "KtLineS2d.h"
+void* KvCairoPaint::fillBetween(point_getter fn1, point_getter fn2, unsigned count)
 {
-	return nullptr;
+	auto geom = std::make_shared<KtGeometryImpl<float3>>(k_triangles);
+
+	geom->reserve((count - 1) * 6, 0); // 每个区间绘制2个三角形，共6个顶点
+
+	auto p00 = fn1(0);
+	auto p01 = fn2(0);
+
+	assert(p00.z() == p01.z()); // 要求各点都在一个z平面上
+
+	for (unsigned i = 1; i < count; i++) {
+		auto p10 = fn1(i);
+		auto p11 = fn2(i);
+
+		using point2 = KtPoint<float_t, 2>;
+		KtLineS2d<float_t> ln0((const point2&)p00, (const point2&)p10);
+		KtLineS2d<float_t> ln1((const point2&)p01, (const point2&)p11);
+		auto pt = ln0.intersects(ln1);
+		auto vtx = geom->newVertex(6);
+		if (pt) { // 相交
+
+			float3 ptm(pt->x(), pt->y(), p00.z());
+
+			vtx[0] = p01;
+			vtx[1] = p00;
+			vtx[2] = ptm;
+
+			vtx[3] = p10;
+			vtx[4] = p11;
+			vtx[5] = ptm;
+		}
+		else { // 不相交
+			vtx[0] = p01;
+			vtx[1] = p00;
+			vtx[2] = p10;
+
+			vtx[3] = p10;
+			vtx[4] = p11;
+			vtx[5] = p01;
+		}
+
+		p00 = p10, p01 = p11;
+	}
+
+	return drawGeomSolid(geom);
 }
 
 
@@ -271,10 +319,10 @@ namespace kPrivate
 	}
 }
 
-void* KvCairoPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
+
+void KvCairoPaint::drawMesh_(vtx_decl_ptr decl, geom_ptr geom, int nvtx)
 {
 	auto vtx = (char*)geom->vertexData();
-	auto nvtx = geom->vertexCount();
 	auto stride = geom->vertexSize();
 	auto idx = geom->indexData();
 	auto nidx = geom->indexCount();
@@ -288,61 +336,78 @@ void* KvCairoPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
 	const color4f* clrp = clrAttr ? (const color4f*)(vtx + clrAttr->offset()) : nullptr;
 	const std::uint32_t* idxp = idx ? (const std::uint32_t*)idx : nullptr;
 
-	switch (geom->type()) {
-	case k_quads:
-	{
-		unsigned nquad = idxp ? nidx / 4 : nvtx / 4;
-		point3 quads[4];
-		color4f clrs[4];
-		for (unsigned i = 0; i < nquad; i++) {
-			if (idxp) {
-				for (unsigned j = 0; j < 4; j++)
-					quads[j] = *kPrivate::at<const float3>((void*)vtxp, stride, idxp[4 * i + j]);
+	unsigned npoly = idxp ? nidx / nvtx : geom->vertexCount() / nvtx;
+	std::vector<point3> polys(nvtx);
+	std::vector<color4f> clrs(nvtx);
+	for (unsigned i = 0; i < npoly; i++) {
+		if (idxp) {
+			for (unsigned j = 0; j < nvtx; j++)
+				polys[j] = *kPrivate::at<const float3>((void*)vtxp, stride, idxp[nvtx * i + j]);
 
-				if (clrp) {
-					for (unsigned j = 0; j < 4; j++)
-						clrs[j] = *kPrivate::at<const color4f>((void*)clrp, stride, idxp[4 * i + j]);
-				}
+			if (clrp) {
+				for (unsigned j = 0; j < nvtx; j++)
+					clrs[j] = *kPrivate::at<const color4f>((void*)clrp, stride, idxp[nvtx * i + j]);
 			}
-			else {
-				for (unsigned j = 0; j < 4; j++) {
-					quads[j] = *vtxp;
-					vtxp = kPrivate::next<const float3>(vtxp, stride);
-				}
-
-				if (clrp) {
-					for (unsigned j = 0; j < 4; j++) {
-						clrs[j] = *clrp;
-						clrp = kPrivate::next<const color4f>(clrp, stride);
-					}
-				}
+		}
+		else {
+			for (unsigned j = 0; j < nvtx; j++) {
+				polys[j] = *vtxp;
+				vtxp = kPrivate::next<const float3>(vtxp, stride);
 			}
 
 			if (clrp) {
-				if (filled())
-				    fillQuad(quads, clrs);
-				
-				if (edged()) {
-					if (!filled()) { // 多色stroke
-						applyLineCxt_();
-						for (int i = 0; i < 4; i++)
-							gradLine_(quads[i], quads[(i + 1) % 4], clrs[i], clrs[(i + 1) % 4]);
-					}
-					else { // 单色stroke
-						addPath_(pointGetter(quads), 4);
-						closePath_();
-						stroke_();
-					}
+				for (unsigned j = 0; j < nvtx; j++) {
+					clrs[j] = *clrp;
+					clrp = kPrivate::next<const color4f>(clrp, stride);
 				}
 			}
-			else {
-				addPath_(pointGetter(quads), 4);
-				closePath_();
-				tryFillAndStroke_(); // TODO: 可放到最后进行批量绘制
+		}
+
+		if (clrp) {
+			if (filled()) {
+				if (nvtx == 3) // TODO: impl fillPoly
+					fillTriangle(polys.data(), clrs.data());
+				else 
+				    fillQuad(polys.data(), clrs.data());
+			}
+
+			if (edged()) {
+				if (!filled()) { // 多色stroke
+					applyLineCxt_();
+					for (int i = 0; i < nvtx; i++)
+						gradLine_(polys[i], polys[(i + 1) % nvtx], clrs[i], clrs[(i + 1) % nvtx]);
+				}
+				else { // 单色stroke
+					addPath_(pointGetter(polys.data()), nvtx);
+					closePath_();
+					stroke_();
+				}
 			}
 		}
+		else {
+			addPath_(pointGetter(polys.data()), nvtx);
+			closePath_();
+			tryFillAndStroke_(); // TODO: 可放到最后进行批量绘制
+		}
 	}
-	break;
+}
+
+
+void* KvCairoPaint::drawGeom(vtx_decl_ptr decl, geom_ptr geom)
+{
+	switch (geom->type()) 
+	{
+	case k_quads:
+		drawMesh_(decl, geom, 4);
+	    break;
+
+	case k_triangles:
+		drawMesh_(decl, geom, 3);
+		break;
+
+	default:
+		assert(false); // TODO
+		break;
 	}
 
 	return nullptr;
