@@ -27,6 +27,8 @@
 - [ ] 检测kde结果的正确性（https://pythonawesome.com/plotting-beautiful-ridgeline-plots-in-python/ ）
 
 ## plot
+- [ ] cairo-paint的clipbox支持
+- [x] cairo-paint的linestyle支持
 - [ ] title等设置
 - [ ] legend在外面时，x坐标轴的title无法正常显示
 - [x] 各种类型的axis --> ok（linear, log, labels, time）
@@ -39,7 +41,7 @@
 - [x] 中文字体显示 --> ok（暂时使用imgui的中文字体支持 ）
 - [x] opengl加速 --> ok
 - [x] 导出图片 --> ok
-- [ ] 导出矢量图
+- [x] 导出矢量图
 - [ ] auto-fold layout
 - [ ] subplot
 - [x] graph的line-style --> ok
@@ -52,7 +54,7 @@
 - [x] legend支持单通道的多主色plottable --> ok
 - [x] sactter图的美化问题。带轮廓线后，各scatter轮廓相互干扰，非常难看，启动深度测试又因为z-fighting也不好看。（#I6B5ES）
 - [x] 色带的编辑
-- [ ] 光照模型
+- [x] 光照模型
 - [x] 辅色控制
 - [ ] 坐标平面水平/垂直坐标轴对的ticks数不同时，如何绘制grid
 - [ ] 给gradient控件添加1个选择pallete的按钮

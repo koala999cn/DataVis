@@ -2,7 +2,7 @@
 #include "cairo/cairo.h"
 #include "KuUtf8.h"
 
-#define CAIRO_CTX reinterpret_cast<cairo_t*>(cxt_)
+#define CAIRO_CXT reinterpret_cast<cairo_t*>(cxt_)
 #define CAIRO_SURF reinterpret_cast<cairo_surface_t*>(surf_)
 
 
@@ -20,7 +20,7 @@ void KvCairoPaint::destroy_()
 	}
 
 	if (cxt_) {
-		cairo_destroy(CAIRO_CTX);
+		cairo_destroy(CAIRO_CXT);
 		cxt_ = nullptr;
 	}
 }
@@ -29,31 +29,31 @@ void KvCairoPaint::destroy_()
 void KvCairoPaint::addPath_(point_getter fn, unsigned count)
 {
 	auto pt = projectp(fn(0));
-	cairo_move_to(CAIRO_CTX, pt.x(), pt.y());
+	cairo_move_to(CAIRO_CXT, pt.x(), pt.y());
 	for (unsigned i = 1; i < count; i++) {
 		pt = projectp(fn(i));
-		cairo_line_to(CAIRO_CTX, pt.x(), pt.y());
+		cairo_line_to(CAIRO_CXT, pt.x(), pt.y());
 	}
 }
 
 
 void KvCairoPaint::closePath_()
 {
-	cairo_close_path(CAIRO_CTX);
+	cairo_close_path(CAIRO_CXT);
 }
 
 
 void KvCairoPaint::stroke_()
 {
 	applyLineCxt_();
-	cairo_stroke(CAIRO_CTX);
+	cairo_stroke(CAIRO_CXT);
 }
 
 
 void KvCairoPaint::fill_()
 {
 	setColor_();
-	cairo_fill(CAIRO_CTX);
+	cairo_fill(CAIRO_CXT);
 }
 
 
@@ -61,7 +61,7 @@ void KvCairoPaint::tryFillAndStroke_()
 {
 	if (filled()) {
 		setColor_();
-		cairo_fill_preserve(CAIRO_CTX);
+		cairo_fill_preserve(CAIRO_CXT);
 	}
 
 	if (edged()) {
@@ -72,13 +72,13 @@ void KvCairoPaint::tryFillAndStroke_()
 		clr_ = clr;
 	}
 
-	cairo_new_path(CAIRO_CTX); // fill调用了preserve版本
+	cairo_new_path(CAIRO_CXT); // fill调用了preserve版本
 }
 
 
 void KvCairoPaint::setColor_(const color4f& clr)
 {
-	cairo_set_source_rgba(CAIRO_CTX, clr.r(), clr.g(), clr.b(), clr.a());
+	cairo_set_source_rgba(CAIRO_CXT, clr.r(), clr.g(), clr.b(), clr.a());
 }
 
 
@@ -92,35 +92,35 @@ void KvCairoPaint::setRect(const rect_t& rc)
 
 	setViewport(rc);
 
-	cairo_translate(CAIRO_CTX, -rc.lower().x(), -rc.lower().y());
+	cairo_translate(CAIRO_CXT, -rc.lower().x(), -rc.lower().y());
 
-	//cairo_select_font_face(CAIRO_CTX, u8"黑体", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-	cairo_set_font_size(CAIRO_CTX, 13.0);
+	//cairo_select_font_face(CAIRO_CXT, u8"黑体", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_set_font_size(CAIRO_CXT, 13.0);
 }
 
 
 void KvCairoPaint::clear()
 {
 	setColor_();
-	cairo_set_operator(CAIRO_CTX, CAIRO_OPERATOR_SOURCE);
-	cairo_paint(CAIRO_CTX);
+	cairo_set_operator(CAIRO_CXT, CAIRO_OPERATOR_SOURCE);
+	cairo_paint(CAIRO_CXT);
 }
 
 
 void KvCairoPaint::setClipRect_()
 {
-	cairo_reset_clip(CAIRO_CTX);
+	cairo_reset_clip(CAIRO_CXT);
 	if (!clipRectStack_.empty()) {
 		auto rc = clipRectStack_.back();
 		point2 pts[4];
 		pts[0] = rc.lower(), pts[2] = rc.upper();
 		pts[1] = { rc.lower().x(), rc.upper().y() };
 		pts[3] = { rc.upper().x(), rc.lower().y() };
-		cairo_move_to(CAIRO_CTX, pts[0].x(), pts[0].y());
+		cairo_move_to(CAIRO_CXT, pts[0].x(), pts[0].y());
 		for (int i = 1; i < 4; i++)
-			cairo_line_to(CAIRO_CTX, pts[i].x(), pts[i].y());
-		cairo_close_path(CAIRO_CTX);
-		cairo_clip(CAIRO_CTX);
+			cairo_line_to(CAIRO_CXT, pts[i].x(), pts[i].y());
+		cairo_close_path(CAIRO_CXT);
+		cairo_clip(CAIRO_CXT);
 	}
 }
 
@@ -154,16 +154,56 @@ void KvCairoPaint::disableClipBox()
 void KvCairoPaint::applyLineCxt_()
 {
 	setColor_();
-	cairo_set_line_width(CAIRO_CTX, lineWidth_);
-	// TODO: cairo_set_dash();
+	applyLineStyle_();
+	cairo_set_line_width(CAIRO_CXT, lineWidth_);
+}
+
+
+void KvCairoPaint::applyLineStyle_()
+{
+	const double* dashes = nullptr;
+	int ndash = 0;
+
+	if (lineStyle_ == KpPen::k_dot) {
+		static const double dot[] = { 1, 1 };
+		dashes = dot;
+		ndash = 2;
+	}
+	else if (lineStyle_ == KpPen::k_dash) {
+		static const double dash[] = { 2, 2 };
+		dashes = dash;
+		ndash = 2;
+	}
+	else if (lineStyle_ == KpPen::k_dash4) {
+		static const double dash4[] = { 4, 4 };
+		dashes = dash4;
+		ndash = 2;
+	}
+	else if (lineStyle_ == KpPen::k_dash8) {
+		static const double dash8[] = { 8, 8 };
+		dashes = dash8;
+		ndash = 2;
+	}
+	else if (lineStyle_ == KpPen::k_dash_dot) {
+		static const double dashdot[] = { 5, 4, 1, 6 }; // 0xF840
+		dashes = dashdot;
+		ndash = 4;
+	}
+	else if (lineStyle_ == KpPen::k_dash_dot_dot) {
+		static const double dashdotdot[] = { 5, 3, 1, 3, 1, 3 }; // 0xF888
+		dashes = dashdotdot;
+		ndash = 6;
+	}
+
+	cairo_set_dash(CAIRO_CXT, dashes, ndash, 0);
 }
 
 
 void KvCairoPaint::drawLine(const point3& from, const point3& to)
 {
 	auto pt0 = projectp(from), pt1 = projectp(to);
-	cairo_move_to(CAIRO_CTX, pt0.x(), pt0.y());
-	cairo_line_to(CAIRO_CTX, pt1.x(), pt1.y());
+	cairo_move_to(CAIRO_CXT, pt0.x(), pt0.y());
+	cairo_line_to(CAIRO_CXT, pt1.x(), pt1.y());
 	stroke_();
 }
 
@@ -171,7 +211,7 @@ void KvCairoPaint::drawLine(const point3& from, const point3& to)
 void KvCairoPaint::drawRect(const point3& lower, const point3& upper)
 {
 	auto pt0 = projectp(lower), pt1 = projectp(upper);
-	cairo_rectangle(CAIRO_CTX, pt0.x(), pt0.y(), pt1.x() - pt0.x(), pt1.y() - pt0.y());
+	cairo_rectangle(CAIRO_CXT, pt0.x(), pt0.y(), pt1.x() - pt0.x(), pt1.y() - pt0.y());
 	stroke_();
 }
 
@@ -179,7 +219,7 @@ void KvCairoPaint::drawRect(const point3& lower, const point3& upper)
 void KvCairoPaint::fillRect(const point3& lower, const point3& upper)
 {
 	auto pt0 = projectp(lower), pt1 = projectp(upper);
-	cairo_rectangle(CAIRO_CTX, pt0.x(), pt0.y(), pt1.x() - pt0.x(), pt1.y() - pt0.y());
+	cairo_rectangle(CAIRO_CXT, pt0.x(), pt0.y(), pt1.x() - pt0.x(), pt1.y() - pt0.y());
 	fill_();
 }
 
@@ -198,7 +238,7 @@ void KvCairoPaint::drawMarker(const point3& pt)
 	if (markerType() == KpMarker::k_circle ||
 		markerType() == KpMarker::k_dot) {
 		auto p = projectp(pt);
-	    cairo_arc(CAIRO_CTX, p.x(), p.y(), markerSize(), 0, KuMath::pi * 2);
+	    cairo_arc(CAIRO_CXT, p.x(), p.y(), markerSize(), 0, KuMath::pi * 2);
 		tryFillAndStroke_();
 	}
 	else {
@@ -217,8 +257,8 @@ void KvCairoPaint::fillTriangle(const point3 pts[3], const color_t clrs[3])
 		cairo_mesh_pattern_set_corner_color_rgba(pat, i, clrs[i].r(), clrs[i].g(), clrs[i].b(), clrs[i].a());
 	}
 	cairo_mesh_pattern_end_patch(pat);
-	cairo_set_source(CAIRO_CTX, pat);
-	cairo_paint(CAIRO_CTX);
+	cairo_set_source(CAIRO_CXT, pat);
+	cairo_paint(CAIRO_CXT);
 	cairo_pattern_destroy(pat);
 }
 
@@ -241,8 +281,8 @@ void KvCairoPaint::fillQuad(const point3 pts[4], const color_t clrs[4])
 		}
 		cairo_mesh_pattern_end_patch(pat);
 
-		cairo_set_source(CAIRO_CTX, pat);
-		cairo_paint(CAIRO_CTX);
+		cairo_set_source(CAIRO_CXT, pat);
+		cairo_paint(CAIRO_CXT);
 		cairo_pattern_destroy(pat);
 	}
 }
@@ -255,10 +295,10 @@ void KvCairoPaint::gradLine_(const point3& st, const point3& ed, const color4f& 
 	auto pat = cairo_pattern_create_linear(pt0.x(), pt0.y(), pt1.x(), pt1.y());
 	cairo_pattern_add_color_stop_rgba(pat, 0, c0.r(), c0.g(), c0.b(), c0.a());
 	cairo_pattern_add_color_stop_rgba(pat, 1, c1.r(), c1.g(), c1.b(), c1.a());
-	cairo_set_source(CAIRO_CTX, pat);
-	cairo_move_to(CAIRO_CTX, pt0.x(), pt0.y());
-	cairo_line_to(CAIRO_CTX, pt1.x(), pt1.y());
-	cairo_stroke(CAIRO_CTX);
+	cairo_set_source(CAIRO_CXT, pat);
+	cairo_move_to(CAIRO_CXT, pt0.x(), pt0.y());
+	cairo_line_to(CAIRO_CXT, pt1.x(), pt1.y());
+	cairo_stroke(CAIRO_CXT);
 }
 
 
@@ -331,19 +371,19 @@ void KvCairoPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 	auto pt = projectp(topLeft);
 
 	cairo_font_extents_t fe;
-	cairo_font_extents(CAIRO_CTX, &fe);
+	cairo_font_extents(CAIRO_CXT, &fe);
 
 	KuUtf8::forEach(text, [this, &pt, &fe](const char* ch) {
 		cairo_text_extents_t te;
-		cairo_text_extents(CAIRO_CTX, ch, &te);
+		cairo_text_extents(CAIRO_CXT, ch, &te);
 
-		cairo_move_to(CAIRO_CTX, pt.x() - te.x_bearing, pt.y() + fe.height - fe.descent);
-		//cairo_move_to(CAIRO_CTX, pt.x() - te.x_bearing, pt.y() + 13. / 2 - te.y_bearing - te.height / 2);
+		cairo_move_to(CAIRO_CXT, pt.x() - te.x_bearing, pt.y() + fe.height - fe.descent);
+		//cairo_move_to(CAIRO_CXT, pt.x() - te.x_bearing, pt.y() + 13. / 2 - te.y_bearing - te.height / 2);
 		pt.x() += te.width + charSpacing();
-		cairo_show_text(CAIRO_CTX, ch);
+		cairo_show_text(CAIRO_CXT, ch);
 		});
 
-	cairo_new_path(CAIRO_CTX);
+	cairo_new_path(CAIRO_CXT);
 }
 
 
@@ -467,7 +507,7 @@ void KvCairoPaint::grab(int x, int y, int width, int height, void* data)
 double KvCairoPaint::fontHeight() const
 {
 	cairo_font_extents_t fe;
-	cairo_font_extents(CAIRO_CTX, &fe);
+	cairo_font_extents(CAIRO_CXT, &fe);
 	return fe.height;
 }
 
@@ -483,7 +523,7 @@ KvCairoPaint::point2 KvCairoPaint::textSize(const std::string_view& text) const
 	double width(0); int nchs(0);
 	KuUtf8::forEach(text, [this, &width, &nchs](const char* ch) {
 		cairo_text_extents_t te;
-		cairo_text_extents(CAIRO_CTX, ch, &te);
+		cairo_text_extents(CAIRO_CXT, ch, &te);
 		width += te.width;
 		++nchs;
 		});

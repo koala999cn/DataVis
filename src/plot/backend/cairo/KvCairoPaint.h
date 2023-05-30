@@ -57,6 +57,7 @@ protected:
 	void destroy_();
 
 	void applyLineCxt_();
+	void applyLineStyle_();
 
 	void addPath_(point_getter fn, unsigned count);
 	void closePath_();
