@@ -10,8 +10,11 @@ public:
 
 	virtual ~KvCairoPaint();
 
-	void enableClipBox(point3 lower, point3 upper) override {}
-	void disableClipBox() override {}
+	void pushClipRect(const rect_t& cr) override;
+	void popClipRect() override;
+
+	void enableClipBox(point3 lower, point3 upper) override;
+	void disableClipBox() override;
 
 	void setRect(const rect_t& rc);
 
@@ -62,6 +65,7 @@ protected:
 	void tryFillAndStroke_(); // 根据edged和filled设置stroke和fill
 	void setColor_(const color4f& clr);
 	void setColor_() { setColor_(clr_); }
+	void setClipRect_();
 
 	// 绘制渐变色线条
 	void gradLine_(const point3& st, const point3& ed, const color4f& c0, const color4f& c1);
@@ -73,4 +77,5 @@ protected:
 	void* cxt_{ nullptr }; // the cr of cairo
 	void* surf_{ nullptr }; // the surface of cairo
 	rect_t canvas_;
+	std::vector<rect_t> clipRectStack_;
 };

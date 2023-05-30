@@ -33,9 +33,6 @@ public:
 	rect_t viewport() const override;
 	void setViewport(const rect_t& vp) override;
 
-	void pushClipRect(const rect_t& cr) override;
-	void popClipRect() override;
-
 	void pushLocal(const mat4& mat) override;
 	void popLocal() override;
 

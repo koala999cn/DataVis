@@ -27,18 +27,6 @@ void KvPaintHelper::setViewport(const rect_t& vp)
 }
 
 
-void KvPaintHelper::pushClipRect(const rect_t& cr)
-{
-
-}
-
-
-void KvPaintHelper::popClipRect()
-{
-
-}
-
-
 void KvPaintHelper::pushLocal(const mat4& mat)
 {
 	cam_.pushLocal(mat);

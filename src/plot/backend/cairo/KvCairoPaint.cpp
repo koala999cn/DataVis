@@ -107,6 +107,50 @@ void KvCairoPaint::clear()
 }
 
 
+void KvCairoPaint::setClipRect_()
+{
+	cairo_reset_clip(CAIRO_CTX);
+	if (!clipRectStack_.empty()) {
+		auto rc = clipRectStack_.back();
+		point2 pts[4];
+		pts[0] = rc.lower(), pts[2] = rc.upper();
+		pts[1] = { rc.lower().x(), rc.upper().y() };
+		pts[3] = { rc.upper().x(), rc.lower().y() };
+		cairo_move_to(CAIRO_CTX, pts[0].x(), pts[0].y());
+		for (int i = 1; i < 4; i++)
+			cairo_line_to(CAIRO_CTX, pts[i].x(), pts[i].y());
+		cairo_close_path(CAIRO_CTX);
+		cairo_clip(CAIRO_CTX);
+	}
+}
+
+
+void KvCairoPaint::pushClipRect(const rect_t& cr)
+{
+	clipRectStack_.push_back(cr);
+	setClipRect_();
+}
+
+
+void KvCairoPaint::popClipRect()
+{
+	clipRectStack_.pop_back();
+	setClipRect_();
+}
+
+
+void KvCairoPaint::enableClipBox(point3 lower, point3 upper)
+{
+	// TODO
+}
+
+
+void KvCairoPaint::disableClipBox()
+{
+	// TODO
+}
+
+
 void KvCairoPaint::applyLineCxt_()
 {
 	setColor_();
