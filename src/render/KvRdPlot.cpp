@@ -355,6 +355,9 @@ void KvRdPlot::showPlotProperty_()
 
 		auto lightDir = paint.lightDirection();
 		vec3 fDir(lightDir.x(), lightDir.y(), lightDir.z());
+		if (fDir.x == -1 && fDir.y == 0 && fDir.z == 0)
+			fDir.y = 0.00001; // NOTE: 防止出现(-1, 0, 0)， 否则方向绘制不正确
+
 		bool dirUpdated(false);
 		dirUpdated = ImGui::gizmo3D("Direction", fDir);
 		ImGui::SameLine();

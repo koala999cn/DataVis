@@ -109,7 +109,7 @@
 - [ ] 更全面地测试数据维度和通道数等发生变化的情况
 
 ## FIXME
-- [ ] imGuIZMO.quat在vec3(-1, 0, 0)时出现bug
+- [ ] imGuIZMO.quat在vec3(-1, 0, 0)时出现bug（ https://github.com/BrutPitt/imGuIZMO.quat/issues/11 ）
 - [ ] 启用多重采样之后，程序启动短暂白屏 --> 貌似和多重采样无关
 - [ ] 绘制samp1d的graph图时，x坐标轴range取[0, 2048]，右侧仍有约1个像素的裁剪（#I6T2G0）
 - [x] graph和scatter对arrange模式的支持
