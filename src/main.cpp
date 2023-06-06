@@ -19,8 +19,18 @@
 static void initActions();
 static bool showMainMenu();
 
+#include "pango/pango.h"
+#include "pango/pangowin32.h"
+
 int main_(int, char**)
 {
+    auto fontmap = pango_win32_font_map_for_display();
+    std::vector<PangoFontFamily**> families;
+    int nfamilies;
+    pango_font_map_list_families(fontmap, nullptr, &nfamilies);
+    families.resize(nfamilies);
+    pango_font_map_list_families(fontmap, families.data(), &nfamilies);
+
     auto& app = KsImApp::singleton();
     
     auto imgui = app.registerModule<KcModuleImGuiGlfw>(1024, 768, "DataVis");
