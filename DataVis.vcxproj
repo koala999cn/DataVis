@@ -58,7 +58,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>pango-1.0.lib;pangowin32-1.0.lib;cairo.lib;freetype.lib;opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;exprtkXd.lib;sndfiled.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glib-2.0.lib;pango-1.0.lib;pangowin32-1.0.lib;cairo.lib;freetype.lib;opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;exprtkXd.lib;sndfiled.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
       <IgnoreSpecificDefaultLibraries>LIBCMTD</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -236,6 +236,7 @@
     <ClCompile Include="src\plot\KcScatter.cpp" />
     <ClCompile Include="src\plot\KcThemedPlotImpl_.cpp" />
     <ClCompile Include="src\plot\KcTimeTicker.cpp" />
+    <ClCompile Include="src\plot\KsPangoFontManager.cpp" />
     <ClCompile Include="src\plot\KsThemeManager.cpp" />
     <ClCompile Include="src\plot\KuColorUtil.cpp" />
     <ClCompile Include="src\plot\KuThemeParser.cpp" />
@@ -454,6 +455,7 @@
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
     <ClInclude Include="src\plot\KcTimeTicker.h" />
     <ClInclude Include="src\plot\KmLabeling.h" />
+    <ClInclude Include="src\plot\KsPangoFontManager.h" />
     <ClInclude Include="src\plot\KtGradient.h" />
     <ClInclude Include="src\plot\KpContext.h" />
     <ClInclude Include="src\plot\KsThemeManager.h" />

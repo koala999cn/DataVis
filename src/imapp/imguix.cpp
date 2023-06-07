@@ -11,6 +11,7 @@
 #include "imapp/KgImWindowManager.h"
 #include "layout/KcLayoutGrid.h"
 #include "layout/KcLayoutOverlay.h"
+#include "plot/KsPangoFontManager.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui_internal.h"
@@ -560,14 +561,8 @@ namespace ImGuiX
     bool label(KpLabel& cxt)
     {
         PushID(&cxt);
-        bool res = false;
 
-        ShowFontSelector("Font"); // TODO:
-
-        if (cxt.font.family != GetFont()->GetDebugName()) {
-            cxt.font.family = GetFont()->GetDebugName();
-            res = true;
-        }
+        auto res = font(cxt.font);
 
         res |= ColorEdit4("Color", cxt.color);
         res |= DragFloat2("Spacing", (float*)&cxt.spacing, 0.1, -100, 100, "%.1f px");
@@ -579,6 +574,28 @@ namespace ImGuiX
         }
 
         PopID();
+        return res;
+    }
+
+
+    bool font(KpFont& f)
+    {
+        bool res = false;
+
+        if (BeginCombo("Font Family", f.family.c_str())) {
+            auto families = KsPangoFontManager::singleton().listFamilies();
+            for (unsigned i = 0; i < families.size(); i++) {
+                auto item_selected = (f.family == families[i]);
+                if (Selectable(families[i].data(), item_selected)) {
+                    f.family = families[i];
+                    res = true;
+                }
+                if (item_selected)
+                    SetItemDefaultFocus();
+            }
+            EndCombo();
+        }
+
         return res;
     }
 

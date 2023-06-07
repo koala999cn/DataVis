@@ -12,6 +12,7 @@ class KpPen;
 class KpBrush;
 class KpMarker;
 class KpLabel;
+class KpFont;
 class KpNumericFormatter;
 class KeAlignment;
 
@@ -98,4 +99,6 @@ namespace ImGuiX
 		std::function<void(std::shared_ptr<KvData>, const char*)> handler);
 
 	void layout(const char* label, KvLayoutElement* lay);
+
+	bool font(KpFont&);
 }
