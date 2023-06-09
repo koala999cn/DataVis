@@ -529,6 +529,9 @@
     <ClCompile Include="src\plot\KsPangoFontManager.cpp">
       <Filter>plot</Filter>
     </ClCompile>
+    <ClCompile Include="src\imapp\KcPangoPaint.cpp">
+      <Filter>imapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1220,6 +1223,9 @@
     </ClInclude>
     <ClInclude Include="src\plot\KsPangoFontManager.h">
       <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imapp\KcPangoPaint.h">
+      <Filter>imapp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -52,13 +52,13 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/pango/subprojects/glib/glib;$(SolutionDir)3rdparty/pango/subprojects/glib;$(SolutionDir)3rdparty/pango/subprojects/harfbuzz;$(SolutionDir)3rdparty/pango;$(SolutionDir)3rdparty/freetype/include;$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;$(SolutionDir)src/3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/cairo;$(SolutionDir)3rdparty/pango/subprojects/glib/glib;$(SolutionDir)3rdparty/pango/subprojects/glib;$(SolutionDir)3rdparty/pango/subprojects/harfbuzz;$(SolutionDir)3rdparty/pango;$(SolutionDir)3rdparty/freetype/include;$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;$(SolutionDir)src/3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glib-2.0.lib;pango-1.0.lib;pangowin32-1.0.lib;cairo.lib;freetype.lib;opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;exprtkXd.lib;sndfiled.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gobject-2.0.lib;glib-2.0.lib;pango-1.0.lib;pangocairo-1.0.lib;cairo.lib;freetype.lib;opengl32.lib;glad.lib;glfw3.lib;rtaudiod.lib;exprtkXd.lib;sndfiled.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
       <IgnoreSpecificDefaultLibraries>LIBCMTD</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -172,6 +172,7 @@
     <ClCompile Include="src\imapp\KcImNodeEditor.cpp" />
     <ClCompile Include="src\imapp\KcImActionPanel.cpp" />
     <ClCompile Include="src\imapp\KcModuleImNode.cpp" />
+    <ClCompile Include="src\imapp\KcPangoPaint.cpp" />
     <ClCompile Include="src\imapp\KgImWindowManager.cpp" />
     <ClCompile Include="src\imapp\KgModuleManager.cpp" />
     <ClCompile Include="src\imapp\KgPipeline.cpp" />
@@ -386,6 +387,7 @@
     <ClInclude Include="src\imapp\KcImNodeEditor.h" />
     <ClInclude Include="src\imapp\KcImActionPanel.h" />
     <ClInclude Include="src\imapp\KcModuleImNode.h" />
+    <ClInclude Include="src\imapp\KcPangoPaint.h" />
     <ClInclude Include="src\imapp\KgImWindowManager.h" />
     <ClInclude Include="src\imapp\KgModuleManager.h" />
     <ClInclude Include="src\imapp\KgPipeline.h" />

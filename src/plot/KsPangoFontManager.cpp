@@ -1,6 +1,6 @@
 #include "KsPangoFontManager.h"
 #include "pango/pango.h"
-#include "pango/pangowin32.h" // TODO: use pangofc
+#include "pango/pangocairo.h"
 
 
 namespace kPrivate
@@ -16,7 +16,7 @@ namespace kPrivate
 
 KsPangoFontManager::KsPangoFontManager()
 {
-    auto fontmap = pango_win32_font_map_for_display(); // TODO: 程序退出时，会引发异常（CacheOverflowException & FileFormatException）
+    auto fontmap = pango_cairo_font_map_new();
     PangoFontFamily** families; int nfamilies;
     pango_font_map_list_families(fontmap, &families, &nfamilies);
 
@@ -39,6 +39,4 @@ KsPangoFontManager::~KsPangoFontManager()
 {
     for each (auto& var in familiesMap_) 
         delete var.second;
-
-    pango_win32_shutdown_display();
 }
