@@ -532,6 +532,12 @@
     <ClCompile Include="src\imapp\KcPangoPaint.cpp">
       <Filter>imapp</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\backend\cairo\KvCairoSurface.cpp">
+      <Filter>cairo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\backend\cairo\KcCairoSurfaceImage.cpp">
+      <Filter>cairo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1226,6 +1232,12 @@
     </ClInclude>
     <ClInclude Include="src\imapp\KcPangoPaint.h">
       <Filter>imapp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\backend\cairo\KvCairoSurface.h">
+      <Filter>cairo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\backend\cairo\KcCairoSurfaceImage.h">
+      <Filter>cairo</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
