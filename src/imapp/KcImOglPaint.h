@@ -59,7 +59,14 @@ public:
 	KpMarker marker() const; // 装配marker绘制上下文
 
 	// 内部函数，由ImGui回调，以绘制renderList_保存的渲染对象
-	void drawRenderList_();
+	virtual void drawRenderList_();
+
+protected:
+
+	// 将pt（坐上角为原点）转换为gl-raster坐标（坐下角为原点）
+	void glRasterPos_(point2& pt);
+
+	void glRasterRect_(rect_t& rc);
 
 private:
 

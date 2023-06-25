@@ -48,9 +48,8 @@ bool KvCairoSurface::create(const rect_t& rc)
 		cxt_ = cairo_create(CAIRO_SURF);
 	}
 
-	// TODO: ¿¼ÂÇÊ¹ÓÃcairo_surface_set_device_offset
-	if (doTrans)
-	    cairo_translate(CAIRO_CXT, -rc.lower().x(), -rc.lower().y());
+	if (doTrans || doCreate)
+		cairo_surface_set_device_offset(CAIRO_SURF, -rc.lower().x(), -rc.lower().y());
 
 	return doCreate;
 }

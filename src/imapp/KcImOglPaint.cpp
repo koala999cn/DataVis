@@ -1188,6 +1188,21 @@ void KcImOglPaint::drawRenderList_()
 }
 
 
+void KcImOglPaint::glRasterPos_(point2& pt)
+{
+	pt.y() = ImGui::GetMainViewport()->Size.y - pt.y();
+}
+
+
+void KcImOglPaint::glRasterRect_(rect_t& rc)
+{
+	point2 lo(rc.lower().x(), rc.upper().y());
+	point2 up(rc.upper().x(), rc.lower().y());
+	glRasterPos_(lo), glRasterPos_(up);
+	rc.setExtents(lo, up);
+}
+
+
 void KcImOglPaint::glViewport_(unsigned id)
 {
 	assert(id != -1);

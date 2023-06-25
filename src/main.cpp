@@ -19,20 +19,8 @@
 static void initActions();
 static bool showMainMenu();
 
-#include "KcPangoPaint.h"
 int main_(int, char**)
 {
-    KcPangoPaint p;
-    p.drawText(point3d{ 0 }, point3d{ 0 }, point3d{ 0 }, u8"this a test text");
-    p.drawText(point3d{ 0 }, point3d{ 0 }, point3d{ 0 }, u8"别管如何结束");
-    p.drawText(point3d{ 0 }, point3d{ 0 }, point3d{ 0 }, u8"我们曾经拥有");
-    p.drawText(point3d{ 0 }, point3d{ 0 }, point3d{ 0 }, u8"我们曾经拥有过1");
-    p.drawText(point3d{ 0 }, point3d{ 0 }, point3d{ 0 }, u8"我们曾经拥有过2");
-    p.drawText(point3d{ 0 }, point3d{ 0 }, point3d{ 0 }, u8"我们曾经拥有过3");
-    p.drawText(point3d{ 0 }, point3d{ 0 }, point3d{ 0 }, u8"我们曾经拥有过4");
-    p.drawText(point3d{ 0 }, point3d{ 0 }, point3d{ 0 }, u8"我们曾经拥有过5");
-    p.drawText(point3d{ 0 }, point3d{ 0 }, point3d{ 0 }, u8"我们曾经拥有过6");
-
     auto& app = KsImApp::singleton();
     
     auto imgui = app.registerModule<KcModuleImGuiGlfw>(1024, 768, "DataVis");

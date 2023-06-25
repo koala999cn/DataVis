@@ -11,13 +11,15 @@ class KvCairoSurface;
 
 class KcPangoPaint : public KcImOglPaint
 {
+	using super_ = KcImOglPaint;
+
 public:
 
 	KcPangoPaint();
 	~KcPangoPaint();
 
 	void beginPaint() override;
-	void endPaint() override;
+	void drawRenderList_() override;
 
 	point2 textSize(const std::string_view& text) const override;
 
@@ -42,4 +44,5 @@ private:
 	std::unique_ptr<KvCairoSurface> cairoSurf_;
 	void* pangoLayout_{ nullptr };
 	std::string fontDesc_; // 临时变量，防止重复设置相同的字体
+	unsigned int texId_;
 };
