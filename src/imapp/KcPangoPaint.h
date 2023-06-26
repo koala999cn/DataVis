@@ -26,23 +26,10 @@ public:
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const std::string_view& text) override;
 
 private:
-
 	void setFont_() const;
 
-	void expandSurf_(); // 拓展cairoSurf_尺寸
-	void expandNodes_(); // 拓展rpnodes_
-
 private:
-	//void* cairoCxt_{ nullptr };
-	//void* cairoSurf_{ nullptr }; // the surface of cairo
-	
-	//void* rectpack_{ nullptr };
-	//void* rpnodes_{ nullptr };
-	//unsigned nnodes_; // # of rpnodes_
-	//unsigned nused_; // # of rpnodes_ used
-
 	std::unique_ptr<KvCairoSurface> cairoSurf_;
 	void* pangoLayout_{ nullptr };
 	std::string fontDesc_; // 临时变量，防止重复设置相同的字体
-	unsigned int texId_;
 };

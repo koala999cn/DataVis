@@ -22,8 +22,6 @@ void KvCairoSurface::destroy()
 		cairo_surface_destroy(CAIRO_SURF);
 		surf_ = nullptr;
 	}
-
-	canvas_.setNull();
 }
 
 
@@ -39,11 +37,10 @@ bool KvCairoSurface::create(const rect_t& rc)
 
 	bool doTrans = (rc.lower() != canvas_.lower());
 	bool doCreate = (canvas_.width() != rc.width() || canvas_.height() != rc.height());
+	canvas_ = rc; // 须在调用createSurface_之前设置canvas_
 
 	if (doCreate) {
-		destroy();
-
-		canvas_ = rc; // 须在调用createSurface_之前设置canvas_
+		destroy(); 
 		surf_ = createSurface_();
 		cxt_ = cairo_create(CAIRO_SURF);
 	}
