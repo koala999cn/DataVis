@@ -110,6 +110,13 @@ public:
 	virtual void setEdged(bool b) = 0;
 	virtual bool edged() const = 0;
 
+	// ÎÄ×ÖäÖÈ¾×´Ì¬
+	virtual void setFontFamily(const std::string_view&) = 0;
+	virtual void setFontSize(int) = 0;
+	virtual void setBold(bool) = 0;
+	virtual void setItalic(bool) = 0;
+	virtual void setUnderline(bool) = 0;
+
 	// ¸³ÖµpaintµÄäÖÈ¾×´Ì¬µ½this
 	void syncRenderStateFrom(const KvPaint* paint);
 

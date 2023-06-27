@@ -115,7 +115,7 @@ public:
 class KpFont
 {
 public:
-	std::string family;
+	std::string family{ "Serif" };
 	double size{ 13 };
 	bool bold{ false };
 	bool italic{ false };

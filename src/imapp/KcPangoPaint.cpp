@@ -78,7 +78,14 @@ void KcPangoPaint::drawText(const point3& topLeft, const point3& hDir, const poi
 void KcPangoPaint::setFont_() const
 {
     assert(pangoLayout_);
-    auto desc = pango_font_description_from_string("Sans 13");
+    std::string face(family_);
+    face += " "; face += std::to_string(ftSize_); //face += "pt";
+    if (bold_)
+        face += " Bold";
+    if (italic_)
+        face += " Oblique";
+
+    auto desc = pango_font_description_from_string(face.c_str());
     pango_layout_set_font_description((PangoLayout*)pangoLayout_, desc);
     pango_font_description_free(desc);
 }

@@ -70,6 +70,12 @@ public:
 	void setEdged(bool b) override;
 	bool edged() const override { return edged_; }
 
+	void setFontFamily(const std::string_view&) override;
+	void setFontSize(int) override;
+	void setBold(bool) override;
+	void setItalic(bool) override;
+	void setUnderline(bool) override;
+
 	point3 lightDirection() const override { return lightDir_; }
 	void setLightDirection(const point3& dir) override { lightDir_ = dir; }
 
@@ -102,6 +108,10 @@ protected: // TODO: private
 	float_t markerSize_{ 1 };
 	int markerType_{ 0 };
 	bool filled_{ true }, edged_{ false };
+
+	std::string family_{ "Serif" };
+	int ftSize_{ 13 };
+	bool bold_{ false }, italic_{ false }, underline_{ false };
 
 	point3 lightDir_{ -1., -1., -1. };
 	color3f lightColor_{ 1.f, 1.f, 1.f };

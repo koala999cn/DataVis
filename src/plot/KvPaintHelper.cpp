@@ -173,3 +173,32 @@ void KvPaintHelper::setEdged(bool b)
 	edged_ = b;
 }
 
+
+void KvPaintHelper::setFontFamily(const std::string_view& f)
+{
+	family_ = f;
+}
+
+
+void KvPaintHelper::setFontSize(int size)
+{
+	ftSize_ = size;
+}
+
+
+void KvPaintHelper::setBold(bool bold)
+{
+	bold_ = bold;
+}
+
+
+void KvPaintHelper::setItalic(bool italic)
+{
+	italic_ = italic;
+}
+
+
+void KvPaintHelper::setUnderline(bool underline)
+{
+	underline_ = underline;
+}

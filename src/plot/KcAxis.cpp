@@ -169,8 +169,10 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// draw title
 	if (realShowTitle) {
 		
-		if (!calcBox)
+		if (!calcBox) {
+			paint->apply(titleContext().font);
 			paint->setColor(titleContext().color);
+		}
 
 		calcTitleAnchor_(paint); 
 		drawText_(paint, title_, titleCxt_, titleAnchor_, calcBox);
@@ -316,14 +318,10 @@ void KcAxis::drawTicks_(KvPaint* paint, bool calcBox) const
 	}
 
 	if (showLabel()) {
-
-		// TODO: paint->setFont();
+		paint->apply(labelContext().font);
 		paint->setColor(labelContext().color);
-		for (unsigned i = 0; i < ticker()->ticksTotal(); i++) {
+		for (unsigned i = 0; i < ticker()->ticksTotal(); i++)
 			drawText_(paint, ticker()->label(i), labelCxt_, labelAnchors[i], calcBox);
-			//paint->setPointSize(3);
-			//paint->drawPoint(labelAnchors[i]); // for debug
-		}
 	}
 
 	// minor

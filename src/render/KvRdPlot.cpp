@@ -596,6 +596,8 @@ namespace kPrivate
 
 		ImGui::ColorEdit4("Color##label", cxt.color);
 
+		ImGuiX::font(cxt.font);
+
 		if (showYawAndPitch) {
 			float yaw = KuMath::rad2Deg(cxt.yaw);
 			if (ImGui::SliderFloat("Yaw", &yaw, -90, 90, "%.f deg"))

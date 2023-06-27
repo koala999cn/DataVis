@@ -581,6 +581,7 @@ namespace ImGuiX
     bool font(KpFont& f)
     {
         bool res = false;
+        PushID(&f);
 
         if (BeginCombo("Font Family", f.family.c_str())) {
             auto families = KsPangoFontManager::singleton().listFamilies();
@@ -596,6 +597,15 @@ namespace ImGuiX
             EndCombo();
         }
 
+        int size = f.size;
+        if (InputInt("Font Size", &size, 1, 10))
+            f.size = size;
+
+        Checkbox("Bold", &f.bold);
+        Checkbox("Italic", &f.italic);
+        Checkbox("Underline", &f.underline);
+
+        PopID();
         return res;
     }
 

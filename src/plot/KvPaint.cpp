@@ -145,7 +145,11 @@ void KvPaint::apply(const KpBrush& cxt)
 
 void KvPaint::apply(const KpFont& cxt)
 {
-	// TODO:
+	setFontFamily(cxt.family);
+	setFontSize(cxt.size);
+	setBold(cxt.bold);
+	setItalic(cxt.italic);
+	setUnderline(cxt.underline);
 }
 
 
