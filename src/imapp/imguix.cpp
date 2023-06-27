@@ -598,7 +598,7 @@ namespace ImGuiX
         }
 
         int size = f.size;
-        if (InputInt("Font Size", &size, 1, 10))
+        if (InputInt("Font Size", &size, 1, 10) && size > 0 && size < 1000)
             f.size = size;
 
         Checkbox("Bold", &f.bold);
