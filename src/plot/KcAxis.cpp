@@ -169,11 +169,10 @@ void KcAxis::draw_(KvPaint* paint, bool calcBox) const
 	// draw title
 	if (realShowTitle) {
 		
-		if (!calcBox) {
-			paint->apply(titleContext().font);
+		if (!calcBox)
 			paint->setColor(titleContext().color);
-		}
 
+		paint->apply(titleContext().font);
 		calcTitleAnchor_(paint); 
 		drawText_(paint, title_, titleCxt_, titleAnchor_, calcBox);
 	}
