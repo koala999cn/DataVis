@@ -71,7 +71,14 @@ void KcPangoPaint::drawText(const point3& topLeft, const point3& hDir, const poi
     auto pos = projectp(topLeft);
     cairo_move_to((cairo_t*)cairoSurf_->cr(), pos.x(), pos.y());
     cairoSurf_->setColor(clr_); // ÉèÖÃ×ÖÌåÑÕÉ«
-    pango_cairo_show_layout((cairo_t*)cairoSurf_->cr(), (PangoLayout*)pangoLayout_);
+
+    auto h = projectv(hDir);
+    auto cr = (cairo_t*)cairoSurf_->cr();
+    cairo_save(cr);
+    cairo_rotate(cr, std::atan2(h.y(), h.x()));
+    pango_cairo_update_layout(cr, (PangoLayout*)pangoLayout_);
+    pango_cairo_show_layout(cr, (PangoLayout*)pangoLayout_);
+    cairo_restore(cr);
 }
 
 
