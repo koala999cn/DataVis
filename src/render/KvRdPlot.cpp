@@ -906,6 +906,8 @@ void KvRdPlot::showLegendProperty_()
 		ImGuiX::treePop();
 	}
 	
+	ImGuiX::font(legend->font());
+
 	bool open = false;
 	ImGuiX::cbTreePush("Border", &legend->showBorder(), &open);
 	if (open) {

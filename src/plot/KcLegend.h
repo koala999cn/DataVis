@@ -58,6 +58,9 @@ public:
 	const color4f& textColor() const { return clrText_; }
 	color4f& textColor() { return clrText_; }
 
+	const KpFont& font() const { return font_; }
+	KpFont& font() { return font_; }
+
 	const point2f& iconSize() const { return iconSize_; }
 	point2f& iconSize() { return iconSize_; }
 
@@ -104,7 +107,7 @@ private:
 	KpPen border_, iconBorder_;
 	KpBrush bkgnd_;
 	margins_t innerMargins_;
-	KpFont fontText_;
+	KpFont font_;
 	color4f clrText_{ 0, 0, 0, 1 };
 	point2f  iconSize_{ 14, 14 }; // { 32, 18 }
 	point2f itemSpacing_{ 8, 8 };

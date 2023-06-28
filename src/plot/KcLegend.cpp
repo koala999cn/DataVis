@@ -42,7 +42,7 @@ KcLegend::size_t KcLegend::calcSize_(void* cxt) const
 point2f KcLegend::maxLabelSize_(KvPaint* paint) const
 {
     point2f maxSize(0, 0);
-    paint->apply(fontText_);
+    paint->apply(font_);
     for (unsigned i = 0; i < plts_.size(); ++i) {
         for (unsigned ch = 0; ch < plts_[i]->majorColorsNeeded(); ch++) {
             auto label = itemLabel_(plts_[i], ch);
@@ -117,7 +117,7 @@ void KcLegend::drawItem_(KvPaint* paint, KvPlottable* plt, unsigned ch, const re
 
     auto lablePos = rc.lower();
     paint->setColor(clrText_);
-    paint->apply(fontText_);
+    paint->apply(font_);
 
     assert(paint->inScreenCoord()); // 以下调用假定当前为device坐标系，否则spacing设置不对
     paint->drawText(rc.lower(), itemLabel_(plt, ch).c_str(), KeAlignment::k_left | KeAlignment::k_vcenter,
