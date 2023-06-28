@@ -42,7 +42,7 @@ KcLegend::size_t KcLegend::calcSize_(void* cxt) const
 point2f KcLegend::maxLabelSize_(KvPaint* paint) const
 {
     point2f maxSize(0, 0);
-
+    paint->apply(fontText_);
     for (unsigned i = 0; i < plts_.size(); ++i) {
         for (unsigned ch = 0; ch < plts_[i]->majorColorsNeeded(); ch++) {
             auto label = itemLabel_(plts_[i], ch);
