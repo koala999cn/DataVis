@@ -125,9 +125,13 @@ void KvCairoPaint::setClipRect_()
 }
 
 
-void KvCairoPaint::pushClipRect(const rect_t& cr)
+void KvCairoPaint::pushClipRect(const rect_t& cr, bool reset)
 {
-	clipRectStack_.push_back(cr);
+	if (reset || clipRectStack_.empty())
+		clipRectStack_.push_back(cr);
+	else
+		clipRectStack_.push_back(clipRectStack_.back().intersection(cr));
+
 	setClipRect_();
 }
 
@@ -136,6 +140,12 @@ void KvCairoPaint::popClipRect()
 {
 	clipRectStack_.pop_back();
 	setClipRect_();
+}
+
+
+KvCairoPaint::rect_t KvCairoPaint::clipRect() const
+{
+	return clipRectStack_.empty() ? canvas_ : clipRectStack_.back();
 }
 
 

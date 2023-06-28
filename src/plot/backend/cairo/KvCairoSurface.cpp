@@ -62,9 +62,10 @@ void KvCairoSurface::clear(const color4f& clr)
 }
 
 
-void KvCairoSurface::setClipRect(const rect_t& rc)
+void KvCairoSurface::setClipRect(const rect_t& rc, bool reset)
 {
-	cairo_reset_clip(CAIRO_CXT);
+	if (reset)
+	    cairo_reset_clip(CAIRO_CXT);
 
 	point2d pts[4];
 	pts[0] = rc.lower(), pts[2] = rc.upper();

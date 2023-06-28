@@ -10,8 +10,9 @@ public:
 
 	virtual ~KvCairoPaint();
 
-	void pushClipRect(const rect_t& cr) override;
+	void pushClipRect(const rect_t& cr, bool reset = true) override;
 	void popClipRect() override;
+	rect_t clipRect() const override;
 
 	void enableClipBox(point3 lower, point3 upper) override;
 	void disableClipBox() override;

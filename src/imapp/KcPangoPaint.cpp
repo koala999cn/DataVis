@@ -18,6 +18,20 @@ KcPangoPaint::~KcPangoPaint()
 }
 
 
+void KcPangoPaint::pushClipRect(const rect_t& cr, bool reset)
+{
+    super_::pushClipRect(cr, reset);
+    cairoSurf_->setClipRect(cr, reset);
+}
+
+
+void KcPangoPaint::popClipRect()
+{
+    super_::popClipRect();
+    cairoSurf_->setClipRect(clipRect(), true);
+}
+
+
 void KcPangoPaint::beginPaint()
 {
     super_::beginPaint();

@@ -6,8 +6,9 @@ class KcImPaint : public KvPaintHelper
 {
 public:
 
-	void pushClipRect(const rect_t& cr) override;
+	void pushClipRect(const rect_t& cr, bool reset = true) override;
 	void popClipRect() override;
+	rect_t clipRect() const override;
 
 	void drawLine(const point3& from, const point3& to) override;
 

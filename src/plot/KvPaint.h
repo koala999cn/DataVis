@@ -37,8 +37,11 @@ public:
 	virtual rect_t viewport() const = 0;
 	virtual void setViewport(const rect_t& vp) = 0;
 
-	virtual void pushClipRect(const rect_t& cr) = 0;
+	
+	// @reset: 若true，则直接设置cr为cliprect，否则设置cr与当前cliprect的交集为cliprect
+	virtual void pushClipRect(const rect_t& cr, bool reset = true) = 0;
 	virtual void popClipRect() = 0;
+	virtual rect_t clipRect() const = 0;
 
 	// 改变model变换矩阵，即局部坐标系
 	virtual void pushLocal(const mat4& mat) = 0;

@@ -1035,8 +1035,11 @@ void KcImOglPaint::setViewport(const rect_t& vp)
 }
 
 
-void KcImOglPaint::pushClipRect(const rect_t& cr)
+void KcImOglPaint::pushClipRect(const rect_t& _cr, bool reset)
 {
+	super_::pushClipRect(_cr, reset); // TODO: 当完全不用ImGui绘制时，可删除此代码
+	auto cr = clipRect();
+
 	auto pos = std::find(clipRectHistList_.cbegin(), clipRectHistList_.cend(), cr);
 	if (pos == clipRectHistList_.cend()) {
 		clipRectStack_.push_back(clipRectHistList_.size());
@@ -1045,8 +1048,6 @@ void KcImOglPaint::pushClipRect(const rect_t& cr)
 	else {
 		clipRectStack_.push_back(std::distance(clipRectHistList_.cbegin(), pos));
 	}
-
-	super_::pushClipRect(cr); // TODO: 当完全不用ImGui绘制时，可删除此代码
 }
 
 

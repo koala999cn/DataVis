@@ -18,6 +18,9 @@ public:
 	KcPangoPaint();
 	~KcPangoPaint();
 
+	void pushClipRect(const rect_t& cr, bool reset = true) override;
+	void popClipRect() override;
+
 	void beginPaint() override;
 	void drawRenderList_() override;
 

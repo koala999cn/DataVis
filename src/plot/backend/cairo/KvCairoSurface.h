@@ -17,7 +17,7 @@ public:
 	void clear(const color4f& clr); // 用clr填充cairo绘制表面/绘制背景
 
 	void setColor(const color4f& clr); // 设置当前主色
-	void setClipRect(const rect_t& rc); // 设置剪切框
+	void setClipRect(const rect_t& rc, bool reset); // 设置剪切框
 
 	auto width() const { return canvas_.width(); }
 	auto height() const { return canvas_.height(); }

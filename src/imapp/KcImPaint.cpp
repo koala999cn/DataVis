@@ -8,16 +8,24 @@
 #include "imgui_internal.h"
 
 
-void KcImPaint::pushClipRect(const rect_t& cr)
+void KcImPaint::pushClipRect(const rect_t& cr, bool reset)
 {
 	ImGui::GetWindowDrawList()->PushClipRect(
-		ImVec2(cr.lower().x(), cr.lower().y()), ImVec2(cr.upper().x(), cr.upper().y()));
+		ImVec2(cr.lower().x(), cr.lower().y()), ImVec2(cr.upper().x(), cr.upper().y()), !reset);
 }
 
 
 void KcImPaint::popClipRect()
 {
 	ImGui::GetWindowDrawList()->PopClipRect();
+}
+
+
+KcImPaint::rect_t KcImPaint::clipRect() const
+{
+	auto lo = ImGui::GetWindowDrawList()->GetClipRectMin();
+	auto up = ImGui::GetWindowDrawList()->GetClipRectMax();
+	return { point2(lo.x, lo.y), point2(up.x, up.y) };
 }
 
 
