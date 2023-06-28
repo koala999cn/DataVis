@@ -115,8 +115,8 @@ public:
 class KpFont
 {
 public:
-	std::string family{ "Serif" };
-	double size{ 13 };
+	std::string family{ "Sans" };
+	double size{ 10 }; // 10 point font will be 13 units high. (10 * 96. / 72. = 13.3).
 	bool bold{ false };
 	bool italic{ false };
 	bool underline{ false };
