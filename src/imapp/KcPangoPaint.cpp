@@ -37,7 +37,7 @@ void KcPangoPaint::beginPaint()
     auto cxt = pango_layout_get_context((PangoLayout*)pangoLayout_);
     auto opt = cairo_font_options_create();
     cairo_font_options_set_antialias(opt, antialiasing() ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE);
-    //pango_cairo_context_set_font_options(cxt, opt); // TODO: 字体抗锯齿无法动态更改配置
+    pango_cairo_context_set_font_options(cxt, opt); // TODO: 字体抗锯齿无法动态更改配置
     pango_cairo_update_context((cairo_t*)cairoSurf_->cr(), cxt);
     pango_layout_context_changed((PangoLayout*)pangoLayout_);
     cairo_font_options_destroy(opt);
@@ -88,6 +88,12 @@ void KcPangoPaint::drawText(const point3& topLeft, const point3& hDir, const poi
     pango_cairo_update_layout(cr, (PangoLayout*)pangoLayout_);
     pango_cairo_show_layout(cr, (PangoLayout*)pangoLayout_);
     cairo_restore(cr);
+}
+
+
+void* KcPangoPaint::drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing)
+{
+    return KvPaint::drawTexts(anchors, texts, align, spacing); // 避免opengl加速，使用pango渲染
 }
 
 

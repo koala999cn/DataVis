@@ -25,6 +25,8 @@ public:
 
 	void drawText(const point3& topLeft, const point3& hDir, const point3& vDir, const std::string_view& text) override;
 
+	void* drawTexts(const std::vector<point3>& anchors, const std::vector<std::string>& texts, int align, const point2f& spacing) override;
+
 private:
 	void setFont_() const;
 
