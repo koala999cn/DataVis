@@ -28,12 +28,21 @@ void KcPangoPaint::beginPaint()
         if (pangoLayout_)
             g_object_unref((PangoLayout*)pangoLayout_);
         pangoLayout_ = pango_cairo_create_layout((cairo_t*)cairoSurf_->cr());
-    }
-    else {
-        pango_cairo_update_layout((cairo_t*)cairoSurf_->cr(), (PangoLayout*)pangoLayout_);
+
+        // TODO: pango_cairo_context_set_resolution(dpi);
     }
 
     cairoSurf_->clear({ 0, 0, 0, 0 });
+
+    auto cxt = pango_layout_get_context((PangoLayout*)pangoLayout_);
+    auto opt = cairo_font_options_create();
+    cairo_font_options_set_antialias(opt, antialiasing() ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE);
+    //pango_cairo_context_set_font_options(cxt, opt); // TODO: 字体抗锯齿无法动态更改配置
+    pango_cairo_update_context((cairo_t*)cairoSurf_->cr(), cxt);
+    pango_layout_context_changed((PangoLayout*)pangoLayout_);
+    cairo_font_options_destroy(opt);
+
+    //cairo_set_antialias((cairo_t*)cairoSurf_->cr(), antialiasing() ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE);
 }
 
 
