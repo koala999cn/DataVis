@@ -68,6 +68,8 @@ protected:
 
 	void glRasterRect_(rect_t& rc);
 
+	void glClipPlane_(unsigned id);
+
 private:
 
 	point3 toNdc_(const point3& pt) const;
@@ -96,7 +98,6 @@ private:
 
 	void glViewport_(unsigned id);
 	void glScissor_(unsigned id);
-	void glClipPlane_(unsigned id);
 
 	struct KpUvVbo;
 	KcRenderObject* makeTextVbo_(std::vector<KpUvVbo>& vbo); // 生成绘制文本所需的vbo

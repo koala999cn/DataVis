@@ -2,7 +2,6 @@
 #include "KcPangoPaint.h"
 #include "plot/KcAxis.h"
 #include "plot/KcCoord2d.h"
-#include "KuStrUtil.h"
 #include "KuPlotContextMenu.h"
 
 
@@ -50,5 +49,5 @@ void KcImPlot2d::updateImpl_()
 std::string KcImPlot2d::label() const
 {
     // Using "###" to display a changing title but keep a static identifier
-    return name() + "###" + KuStrUtil::toString(id());
+    return name() + "###" + std::to_string(id());
 }

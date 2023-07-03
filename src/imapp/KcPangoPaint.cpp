@@ -71,10 +71,18 @@ void KcPangoPaint::drawRenderList_()
 
     auto rc = cairoSurf_->canvas();
     glRasterRect_(rc);
+
+    // 配置gl状态，不恢复
+    glUseProgram(0);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_SCISSOR_TEST);
+    glClipPlane_(-1); // NB: 对plot3d很重要！
+
     glViewport(rc.lower().x(), rc.lower().y(), rc.width(), rc.height()); // glRasterPos2f的坐标相对于当前vp，所以须先重置vp
-    glPixelZoom(1, -1); // 上下颠倒
-    glRasterPos2i(-1, 1); // 设定坐标(-1, -1)，考虑到zoom，此处设定(-1, 1)
-    glDrawPixels(cairoSurf_->width(), cairoSurf_->height(), GL_BGRA, GL_UNSIGNED_BYTE, data);
+    glPixelZoom(1, -1); // 上下颠倒绘制
+    glRasterPos2i(-1, 1); // 设定glDrawPixels绘制坐标(-1, -1)，考虑到zoom，此处设定(-1, 1)
+    glDrawPixels(rc.width(), rc.height(), GL_BGRA, GL_UNSIGNED_BYTE, data);
+    assert(glGetError() == GL_NO_ERROR);
 }
 
 

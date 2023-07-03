@@ -1,14 +1,13 @@
 #include "KcImPlot3d.h"
-#include "KcImOglPaint.h"
+#include "KcPangoPaint.h"
 #include "imgui.h"
 #include "plot/KcCoord3d.h"
 #include "plot/KvPaint.h"
-#include "KuStrUtil.h"
 #include "KuPlotContextMenu.h"
 
 
 KcImPlot3d::KcImPlot3d(const std::string_view& name)
-    : KvPlot3d(std::make_shared<KcImOglPaint>(), std::make_shared<KcCoord3d>())
+    : KvPlot3d(std::make_shared<KcPangoPaint>(), std::make_shared<KcCoord3d>())
     , KvImWindow(name)
 {
     minSize_[0] = 240, minSize_[1] = 240;
@@ -99,5 +98,5 @@ void KcImPlot3d::handleMouseInput_()
 std::string KcImPlot3d::label() const
 {
     // Using "###" to display a changing title but keep a static identifier
-    return name() + "###" + KuStrUtil::toString(id());
+    return name() + "###" + std::to_string(id());
 }
