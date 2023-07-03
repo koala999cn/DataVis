@@ -598,12 +598,14 @@ namespace ImGuiX
         }
 
         int size = f.size;
-        if (InputInt("Font Size", &size, 1, 10) && size > 0 && size < 1000)
+        if (InputInt("Font Size", &size, 1, 10) && size > 0 && size < 1000) {
             f.size = size;
+            res = true;
+        }
 
-        Checkbox("Bold", &f.bold);
-        Checkbox("Italic", &f.italic);
-        Checkbox("Underline", &f.underline);
+        res |= Checkbox("Bold", &f.bold);
+        res |= Checkbox("Italic", &f.italic);
+        res |= Checkbox("Underline", &f.underline);
 
         PopID();
         return res;
