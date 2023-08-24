@@ -1,6 +1,7 @@
 #pragma once
 #include "KcLinearTicker.h"
 
+// 实现log域数值刻度
 
 class KcLogTicker : public KcLinearTicker
 {

@@ -1,6 +1,7 @@
 #pragma once
 #include "KvNumericTicker.h"
 
+// 实现线性域数值刻度
 
 class KcLinearTicker : public KvNumericTicker
 {

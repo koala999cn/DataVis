@@ -2,6 +2,7 @@
 #include "KvTicker.h"
 #include "KpContext.h"
 
+// 数值刻度的抽象类，派生类包括KcLinearTicker, KcLogTicker, ...
 
 class KvNumericTicker : public KvTicker
 {

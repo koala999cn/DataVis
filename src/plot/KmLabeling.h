@@ -41,6 +41,6 @@ private:
 	KpLabel label_;
 	KpNumericFormatter formatter_;
 	bool showLabel_{ false };
-	unsigned dimLabeling_{ 1 };
+	unsigned dimLabeling_{ 1 }; // 矢量数据的第几个维度作为标注数据，zero-based
 	bool labelChanged_{ true };
 };

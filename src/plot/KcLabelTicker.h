@@ -3,6 +3,8 @@
 #include <vector>
 
 
+// 实现基于label的刻度
+
 class KcLabelTicker : public KvTicker
 {
 public:
