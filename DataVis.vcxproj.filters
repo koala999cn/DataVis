@@ -538,6 +538,12 @@
     <ClCompile Include="src\plot\backend\cairo\KcCairoSurfaceImage.cpp">
       <Filter>cairo</Filter>
     </ClCompile>
+    <ClCompile Include="src\plot\KcPlotTitle.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plot\KvDecorator.cpp">
+      <Filter>plot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\dsp\KvData.h">
@@ -1238,6 +1244,15 @@
     </ClInclude>
     <ClInclude Include="src\plot\backend\cairo\KcCairoSurfaceImage.h">
       <Filter>cairo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvDecoratorAligned.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KcPlotTitle.h">
+      <Filter>plot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plot\KvDecorator.h">
+      <Filter>plot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

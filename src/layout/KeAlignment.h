@@ -64,8 +64,10 @@ public:
 	}
 
 	bool outter() const { return inside() & k_outter; }
-
 	bool inner() const { return !outter(); }
+
+	bool hfill() const { return !(inside() & k_horz_location_mask); }
+	bool vfill() const { return !(inside() & k_vert_location_mask); }
 
 	void toggleSide() {
 		inside() ^= k_outter;

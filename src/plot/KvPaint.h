@@ -322,6 +322,14 @@ public:
 		drawText(point3(ach.x(), ach.y(), 0), text, align, spacing);
 	}
 
+	void drawText(const point3& topLeft, const std::string_view& text) {
+		drawText(topLeft, vec3d::unitX(), inScreenCoord() ? vec3d::unitY() : -vec3d::unitY(), text);
+	}
+
+	void drawText(const point2& topLeft, const std::string_view& text) {
+		drawText(point3(topLeft.x(), topLeft.y(), 0), text);
+	}
+
 	void* drawGeomSolid(geom_ptr geom);
 
 	void* drawGeomColor(geom_ptr geom);

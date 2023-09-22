@@ -34,8 +34,8 @@ KuLayoutUtil::rect_t KuLayoutUtil::outterAlignedRect(const rect_t& base, const s
         if (sz[i] == 0 || base.extent(i) == 0)
             sz[i] = base.extent(i);
     
-    // 默认lower点为center点
-    point2d lower(base.center().x() - sz.x() / 2, base.center().y() - sz.y() / 2);
+    // 初始化lower点为center对齐状态下的数值
+    point_t lower(base.center().x() - sz.x() / 2, base.center().y() - sz.y() / 2);
 
     if (align & KeAlignment::k_horz_first) { // 布局于base的左/右侧
  
@@ -77,6 +77,31 @@ KuLayoutUtil::rect_t KuLayoutUtil::outterAlignedRect(const rect_t& base, const s
                 sz.x() = base.extent(0); // xfill
         }
     }
+
+    return { lower, lower + sz };
+}
+
+
+KuLayoutUtil::rect_t KuLayoutUtil::innerAlignedRect(const rect_t& base, const size_t& contentSize, int align, bool fillAsCenter)
+{
+    assert(KeAlignment(align).inner());
+
+    auto sz = contentSize;
+    for (int i = 0; i < 2; i++)
+        if (sz[i] == 0 || base.extent(i) == 0)
+            sz[i] = base.extent(i);
+
+    point_t lower(base.lower());
+
+    if (align & KeAlignment::k_right)
+        lower.x() = base.upper().x() - sz.x();
+    else if ((align & KeAlignment::k_hcenter) || (fillAsCenter && KeAlignment(align).hfill()))
+        lower.x() = base.center().x() - sz.x() / 2;
+
+    if (align & KeAlignment::k_bottom)
+        lower.y() = base.upper().y() - sz.y();
+    else if ((align & KeAlignment::k_vcenter) || (fillAsCenter && KeAlignment(align).vfill()))
+        lower.y() = base.center().y() - sz.y() / 2;
 
     return { lower, lower + sz };
 }

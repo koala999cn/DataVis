@@ -231,6 +231,7 @@
     <ClCompile Include="src\plot\KcCoordPlane.cpp" />
     <ClCompile Include="src\plot\KcLabelTicker.cpp" />
     <ClCompile Include="src\plot\KcLogTicker.cpp" />
+    <ClCompile Include="src\plot\KcPlotTitle.cpp" />
     <ClCompile Include="src\plot\KcSurface.cpp" />
     <ClCompile Include="src\plot\KcLegend.cpp" />
     <ClCompile Include="src\plot\KcLinearTicker.cpp" />
@@ -244,6 +245,7 @@
     <ClCompile Include="src\plot\KuColorUtil.cpp" />
     <ClCompile Include="src\plot\KuThemeParser.cpp" />
     <ClCompile Include="src\plot\KvCoord.cpp" />
+    <ClCompile Include="src\plot\KvDecorator.cpp" />
     <ClCompile Include="src\plot\KvNumericTicker.cpp" />
     <ClCompile Include="src\plot\KvPaint.cpp" />
     <ClCompile Include="src\plot\KvPaintHelper.cpp" />
@@ -451,6 +453,7 @@
     <ClInclude Include="src\plot\KcCoordPlane.h" />
     <ClInclude Include="src\plot\KcLabelTicker.h" />
     <ClInclude Include="src\plot\KcLogTicker.h" />
+    <ClInclude Include="src\plot\KcPlotTitle.h" />
     <ClInclude Include="src\plot\KcSurface.h" />
     <ClInclude Include="src\plot\KcLegend.h" />
     <ClInclude Include="src\plot\KcLinearTicker.h" />
@@ -470,6 +473,8 @@
     <ClInclude Include="src\plot\KuColorUtil.h" />
     <ClInclude Include="src\plot\KuThemeParser.h" />
     <ClInclude Include="src\plot\KvCoord.h" />
+    <ClInclude Include="src\plot\KvDecorator.h" />
+    <ClInclude Include="src\plot\KvDecoratorAligned.h" />
     <ClInclude Include="src\plot\KvNumericTicker.h" />
     <ClInclude Include="src\plot\KvPaint.h" />
     <ClInclude Include="src\plot\KvPaintHelper.h" />

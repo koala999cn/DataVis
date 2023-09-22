@@ -27,6 +27,10 @@ public:
 	// 此处统一按屏幕坐标，即bottom为+y，top为-y
 	static rect_t outterAlignedRect(const rect_t& base, const size_t& contentSize, int align);
 
+	// 返回基于边框内对齐的rect
+	// @fillAsCenter: 若true，则将fill对齐模式当作center对齐模式对待
+	static rect_t innerAlignedRect(const rect_t& base, const size_t& contentSize, int align, bool fillAsCenter);
+
 private:
 	KuLayoutUtil() = delete;
 };
