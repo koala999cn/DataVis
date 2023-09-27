@@ -34,13 +34,13 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 
 	static const char* title[] = { "X", "Y", "Z" };
 	for (unsigned i = 0; i < std::size(axes_); i++) {
-		axes_[i]->visible() = false;
+		axes_[i]->setVisible(false);
 		axes_[i]->title() = title[axes_[i]->dim()];
 	}
 
-	axes_[KcAxis::k_near_bottom]->visible() = true;
-	axes_[KcAxis::k_near_left]->visible() = true;
-	axes_[KcAxis::k_floor_right]->visible() = true;
+	axes_[KcAxis::k_near_bottom]->setVisible(true);
+	axes_[KcAxis::k_near_left]->setVisible(true);
+	axes_[KcAxis::k_floor_right]->setVisible(true);
 
 
 	// 初始化6个grid平面
@@ -69,13 +69,13 @@ KcCoord3d::KcCoord3d(const point3& lower, const point3& upper)
 		axes_[KcAxis::k_floor_left], axes_[KcAxis::k_floor_right]);
 
 	for (unsigned i = 0; i < std::size(planes_); i++) {
-		planes_[i]->visible() = false;
+		planes_[i]->setVisible(false);
 		planes_[i]->minorVisible() = false;
 	}
 
-	planes_[KcCoordPlane::k_back]->visible() = true;
-	planes_[KcCoordPlane::k_left]->visible() = true;
-	planes_[KcCoordPlane::k_floor]->visible() = true;
+	planes_[KcCoordPlane::k_back]->setVisible(true);
+	planes_[KcCoordPlane::k_left]->setVisible(true);
+	planes_[KcCoordPlane::k_floor]->setVisible(true);
 }
 
 

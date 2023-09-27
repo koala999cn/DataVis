@@ -13,7 +13,7 @@ KcAxis::KcAxis(const KcAxis& axis)
 	: KvRenderable(axis.name())
 	, KvLayoutElement(axis)
 {
-	visible() = axis.visible();
+	setVisible(axis.visible());
 
 	type_ = axis.type_;
 	title_ = axis.title_;

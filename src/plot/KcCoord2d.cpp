@@ -30,8 +30,8 @@ KcCoord2d::KcCoord2d(const point2& lower, const point2& upper)
 	for (unsigned i = 0; i < 4; i++)
 		axes_[i].front()->title() = title[axes_[i].front()->dim()];
 
-	axes_[KcAxis::k_right].front()->visible() = false;
-	axes_[KcAxis::k_top].front()->visible() = false;
+	axes_[KcAxis::k_right].front()->setVisible(false);
+	axes_[KcAxis::k_top].front()->setVisible(false);
 
 	// FIXME: 为了兼容3d，此处使用k_back类型，实际应为k_front
 	plane_ = std::make_shared<KcCoordPlane>(KcCoordPlane::k_back,
@@ -265,7 +265,7 @@ void KcCoord2d::splitAxis(KvPlottable* plt, unsigned dim, int mode)
 			auto axis = std::make_shared<KcAxis>(*plt->axis(dim));
 			axis->setMain(false);
 			axis->setType(type[dim][mode-1]);
-			axis->visible() = true;
+			axis->setVisible(true);
 			plt->setAxis(dim, axis);
 			addSplitAxis_(axis);
 		}

@@ -28,7 +28,7 @@ void KcColorBar::resetPlottable(KvPlottable* plt)
 {
     if (plt != plt_) {
         plt_ = plt;
-        name() = plt->name();
+        setName(plt->name());
 
         auto r = plt->colorMappingRange();
         axis_->setRange(r.first, r.second);

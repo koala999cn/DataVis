@@ -10,20 +10,15 @@ public:
 
 	KcImPlot2d(const std::string_view& name);
 
-	void setVisible(bool b) override {
-		KvImWindow::setVisible(b);
+	using KvPlot2d::visible;
+	using KvPlot2d::name;
+
+	void onVisibleChanged() override {
+		KvImWindow::setVisible(visible());
 	}
 
-	bool visible() const override {
-		return KvImWindow::visible();
-	}
-
-	std::string title() const override {
-		return KvImWindow::name();
-	}
-
-	std::string& title() override {
-		return KvImWindow::name();
+	void onNameChanged() override {
+		KvImWindow::name() = name();
 	}
 
 	std::string label() const override;
