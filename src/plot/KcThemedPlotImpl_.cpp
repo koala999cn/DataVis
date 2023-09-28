@@ -15,7 +15,7 @@ KcThemedPlotImpl_::KcThemedPlotImpl_(KvPlot& plot)
 KpBrush KcThemedPlotImpl_::fill(int level) const
 {
 	if (level == k_plot)
-		return plot_.background();
+		return plot_.bkgndBrush();
 	else if (level == k_axis) {
 		auto& coord = plot_.coord();
 		KpBrush bkgnd;
@@ -38,7 +38,7 @@ KpBrush KcThemedPlotImpl_::fill(int level) const
 void KcThemedPlotImpl_::applyFill(int level, const KpBrush& b)
 {
 	if (level & k_plot)
-		plot_.background() = b;
+		plot_.bkgndBrush() = b;
 	else if (level & k_axis) {
 		auto& coord = plot_.coord();
 		coord.forPlane([&b](KcCoordPlane& plane) {
@@ -92,7 +92,7 @@ void KcThemedPlotImpl_::applyVisible(int level, bool b)
 		forAxis_(level, [level, b](KcAxis& axis) {
 
 			if ((level & k_axis_all) == k_axis_all) {
-				axis.visible() = b;
+				axis.setVisible(b);
 			}
 			else {
 				if (level & k_baseline)
@@ -118,7 +118,7 @@ void KcThemedPlotImpl_::applyVisible(int level, bool b)
 		forPlane_(level, [level, b](KcCoordPlane& plane) {
 
 			if ((level & k_grid_all) == k_grid_all) {
-				plane.visible() = b;
+				plane.setVisible(b);
 			}
 			else {
 				if (level & k_majorline)

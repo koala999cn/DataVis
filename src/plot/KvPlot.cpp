@@ -3,7 +3,6 @@
 #include "KvPaint.h"
 #include "KcLegend.h"
 #include "KcColorBar.h"
-#include "layout/KcLayoutGrid.h"
 #include "layout/KuLayoutHelper.h"
 
 
@@ -11,7 +10,9 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, c
 	: paint_(paint)
 	, coord_(coord)
 	, dim_(dim)
+	, KvDecorator(dim == 2 ? "Plot2d" : "Plot3d")
 {
+	showBkgnd() = true;
 	legend_ = std::make_unique<KcLegend>();
 	putAt(0, 0, coord_.get());
 }
@@ -106,16 +107,19 @@ void KvPlot::update(KvPaint* paint)
 	paint->beginPaint();
 
 	auto rc = paint->viewport();
-	paint->pushCoord(KvPaint::k_coord_screen);
-	paint->apply(background());
-	paint->fillRect(rc);
-	paint->popCoord();
 
 	updateLayout_(paint, rc);
 	if (innerRect().volume() == 0) { // 某个维度的布局尺寸为0，不绘制
 		paint->endPaint();
 		return;
 	}
+
+	paint->pushCoord(KvPaint::k_coord_screen);
+	// TODO: layout计算有问题
+	// KvDecorator::draw(paint);
+	paint->apply(bkgndBrush());
+	paint->fillRect(rc);
+	paint->popCoord();
 
 	paint->setViewport(innerRect()); 
 
@@ -213,12 +217,12 @@ namespace kPrivate
 	static void fixInf(double& val)
 	{
 		// NB: 数值太大的话，axis绘制会“飞”
-		constexpr typename KvRenderable::float_t maxV = 1e99; // std::numeric_limits<KvRenderable::float_t>::max() / 10.;
-		constexpr typename KvRenderable::float_t minV = -1e99; // std::numeric_limits<KvRenderable::float_t>::lowest() / 10.;
+		constexpr double maxV = 1e99; // std::numeric_limits<KvRenderable::float_t>::max() / 10.;
+		constexpr double minV = -1e99; // std::numeric_limits<KvRenderable::float_t>::lowest() / 10.;
 
-		if (val == -KuMath::inf<KvRenderable::float_t>())
+		if (val == -KuMath::inf<double>())
 			val = minV;
-		else if (val == KuMath::inf<KvRenderable::float_t>())
+		else if (val == KuMath::inf<double>())
 			val = maxV;
 	}
 }
@@ -236,6 +240,7 @@ void KvPlot::fitData()
 	for (int i = 0; i < 3; i++) {
 		assert(!std::isnan(box.lower()[i]) && !std::isnan(box.upper()[i]));
 
+		// TODO: 更好的处理inf的方式
 		kPrivate::fixInf(box.lower()[i]);
 		kPrivate::fixInf(box.upper()[i]);
 

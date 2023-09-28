@@ -319,10 +319,13 @@ void KvRdPlot::showPlotProperty_()
 {
 	if (ImGuiX::treePush("Plot", false)) {
 		bool vis = plot_->visible();
-		if (ImGuiX::cbInputText("Title", &vis, &plot_->title()))
+		auto name = plot_->name();
+		if (ImGuiX::cbInputText("Title", &vis, &name)) {
 			plot_->setVisible(vis);
+			plot_->setName(name);
+		}
 
-		ImGui::ColorEdit4("Background", plot_->background().color);
+		ImGui::ColorEdit4("Background", plot_->bkgndBrush().color);
 
 		auto rc = plot_->outterRect();
 		int width = std::round(rc.width()), height = std::round(rc.height());
@@ -682,7 +685,9 @@ namespace kPrivate
 	bool axis(const char* label, KcAxis& ax)
 	{
 		bool open = false;
-		ImGuiX::cbTreePush(label, &ax.visible(), &open);
+		auto vis = ax.visible();
+		if (ImGuiX::cbTreePush(label, &vis, &open))
+			ax.setVisible(vis);
 		if (!open) return false;
 
 		bool dataChanged(false);
@@ -820,13 +825,16 @@ void KvRdPlot::showPlaneProperty_(KcCoordPlane& plane)
 	};
 
 	bool open = false;
-
+	auto vis = plane.visible();
+	
 	if (plot_->dim() > 2) {
-		ImGuiX::cbTreePush(loc[plane.type()], &plane.visible(), &open);
+		if (ImGuiX::cbTreePush(loc[plane.type()], &vis, &open))
+			plane.setVisible(vis);
 		if (!open) return;
 	}
 	else {
-		ImGui::Checkbox("Show", &plane.visible());
+		if (ImGui::Checkbox("Show", &vis))
+			plane.setVisible(vis);
 	}
 
 	ImGui::PushID(&plane);
@@ -885,7 +893,9 @@ void KvRdPlot::showLegendProperty_()
 	auto legend = plot_->legend();
 	ImGui::PushID(legend);
 
-	ImGui::Checkbox("Show", &legend->visible());
+	auto vis = legend->visible();
+	if (ImGui::Checkbox("Show", &vis))
+		legend->setVisible(vis);
 
 	ImGuiX::alignment("Alignment", legend->location(), true);
 
@@ -939,7 +949,10 @@ void KvRdPlot::showColorBarProperty_()
 		ImGui::PushID(colorbar);
 
 		bool open(false);
-		ImGuiX::cbTreePush(colorbar->name().c_str(), &colorbar->visible(), &open);
+		auto vis = colorbar->visible();
+		if (ImGuiX::cbTreePush(colorbar->name().c_str(), &vis, &open))
+			colorbar->setVisible(vis);
+
 		if (open) {
 
 			ImGui::DragFloat("Bar Width", &colorbar->barWidth(), 1, 1, 64, "%.f");
@@ -980,8 +993,13 @@ void KvRdPlot::showPlottableProperty_()
 		auto plt = plot_->plottableAt(idx);
 
 		bool open(false);
+		auto vis = plt->visible();
+		auto name = plt->name();
 		ImGui::PushID(plot_.get() + 1 + idx); // NB: 此处不压入plt，否则变换plt类型时属性状态会重置（因为plt不同了）
-		ImGuiX::cbiTreePush("##Node", &plt->visible(), &plt->name(), &open);
+		if (ImGuiX::cbiTreePush("##Node", &vis, &name, &open)) {
+			plt->setVisible(vis);
+			plt->setName(name);
+		}
 
 		// 紧跟其后绘制主色块（不换行），提供一个修改主色的快捷通道
 		std::vector<color4f> majors(plt->majorColors());

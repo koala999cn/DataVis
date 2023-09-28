@@ -4,6 +4,8 @@
 
 void KvDecorator::draw(KvPaint* paint) const
 {
+    assert(visible());
+
     auto box = boundingBox();
 
     if (showBkgnd_ && bkgnd_.visible()) {

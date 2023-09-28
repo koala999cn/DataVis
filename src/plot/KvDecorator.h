@@ -10,6 +10,8 @@ class KvDecorator : public KvRenderable
 
 public:
 
+	using super_::super_;
+
 	bool showBorder() const { return showBorder_; }
 	bool& showBorder() { return showBorder_; }
 

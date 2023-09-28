@@ -17,8 +17,8 @@ public:
 	};
 
 
-	KeAlignedTarget target() const { return target_; }
-	KeAlignedTarget& target() { return target_; }
+	KeAlignedTarget alignedTarget() const { return target_; }
+	KeAlignedTarget& alignedTarget() { return target_; }
 
 	KeAlignment location() const { return location_; }
 	KeAlignment& location() { return location_; }

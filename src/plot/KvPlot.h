@@ -5,6 +5,7 @@
 #include "KpContext.h"
 #include "KtAABB.h"
 #include "layout/KcLayoutGrid.h"
+#include "KvDecorator.h"
 
 
 class KvPaint; // 用来执行具体的plot绘制
@@ -14,7 +15,7 @@ class KcColorBar;
 
 // plot的最底层抽象接口
 
-class KvPlot : public KcLayoutGrid
+class KvPlot : public KvDecorator, public KcLayoutGrid
 {
 	using rect_t = KtAABB<double, 2>;
 	using margins_t = KtMargins<float>;
@@ -23,18 +24,16 @@ public:
 	KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, char dim);
 	~KvPlot();
 
-	virtual void setVisible(bool b) = 0;
-	virtual bool visible() const = 0;
+	aabb_t boundingBox() const override {
+		auto& rc = innerRect();
+		return { point3d(rc.lower().x(), rc.lower().y(), 0),
+			point3d(rc.upper().y(), rc.upper().y(), 0) };
+	}
 
-	virtual std::string title() const = 0;
-	virtual std::string& title() = 0;
-
+	// @paint: 缺省nullptr，表示使用内置KvPaint；否则用传入的paint进行绘制，可用于实现导出功能
 	virtual void update(KvPaint* paint = nullptr); // 更新绘图
 
 	void fitData();
-
-	const KpBrush& background() const { return bkgnd_; }
-	KpBrush& background() { return bkgnd_; }
 
 	bool showLayoutRect() const { return showLayoutRect_; }
 	bool& showLayoutRect() { return showLayoutRect_; }
@@ -67,6 +66,9 @@ public:
 	char dim() const { return dim_; }
 
 private:
+
+	using KvDecorator::draw; // 禁止外部访问该成员函数
+
 	virtual void autoProject_() = 0;
 
 	bool showLegend_() const;
@@ -89,13 +91,11 @@ private:
 	void unlayoutLegendAndColorbars_();
 
 private:
-	std::shared_ptr<KvPaint> paint_; // 由用户创建并传入
-	std::shared_ptr<KvCoord> coord_; // 由用户创建并传入
-	std::unique_ptr<KcLegend> legend_; // 内部创建并管理
-	std::vector<std::unique_ptr<KcColorBar>> colorbars_; // 内部创建并管理，支持多个色带
+	std::shared_ptr<KvPaint> paint_; // 由用户创建并通过构造函数传入
+	std::shared_ptr<KvCoord> coord_; // 由用户创建并通过构造函数传入
+	std::unique_ptr<KcLegend> legend_; // 根据plottables_自动创建并管理
+	std::vector<std::unique_ptr<KcColorBar>> colorbars_; // 根据plottables_自动创建并管理，支持多个色带
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理
-
-	KpBrush bkgnd_;
 
 	char dim_{ 3 }; // 取值2或3，用来标记this是plot2d还是plot3d
 
