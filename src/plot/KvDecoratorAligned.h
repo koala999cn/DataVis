@@ -27,7 +27,7 @@ public:
 	virtual aabb_t boundingBox() const {
 		auto& rc = innerRect();
 		return { point3d(rc.lower().x(), rc.lower().y(), 0), 
-			point3d(rc.upper().y(), rc.upper().y(), 0) };
+			point3d(rc.upper().x(), rc.upper().y(), 0) };
 	}
 
 private:

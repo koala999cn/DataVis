@@ -13,6 +13,7 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, c
 	, KvDecorator(dim == 2 ? "Plot2d" : "Plot3d")
 {
 	showBkgnd() = true;
+	showBorder() = false;
 	legend_ = std::make_unique<KcLegend>();
 	putAt(0, 0, coord_.get());
 }
@@ -115,8 +116,7 @@ void KvPlot::update(KvPaint* paint)
 	}
 
 	paint->pushCoord(KvPaint::k_coord_screen);
-	// TODO: layout计算有问题
-	// KvDecorator::draw(paint);
+	//KvDecorator::draw(paint); // TODO:
 	paint->apply(bkgndBrush());
 	paint->fillRect(rc);
 	paint->popCoord();

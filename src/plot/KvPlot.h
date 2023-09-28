@@ -27,7 +27,7 @@ public:
 	aabb_t boundingBox() const override {
 		auto& rc = innerRect();
 		return { point3d(rc.lower().x(), rc.lower().y(), 0),
-			point3d(rc.upper().y(), rc.upper().y(), 0) };
+			point3d(rc.upper().x(), rc.upper().y(), 0) };
 	}
 
 	// @paint: 缺省nullptr，表示使用内置KvPaint；否则用传入的paint进行绘制，可用于实现导出功能
