@@ -90,8 +90,6 @@ public:
 	// 返回局部坐标的aabb
 	aabb_t boundingBox() const override;
 
-	aabb_t extentsInWorld() const;
-
 private:
 
 	mat4 axisReflectMatrix_(int dim) const;

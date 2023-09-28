@@ -119,7 +119,7 @@ KvCoord::aabb_t KvCoord::boundingBox() const
 	return box;
 }
 
-
+#if 0
 KvCoord::aabb_t KvCoord::extentsInWorld() const
 {
 	aabb_t box(lower(), upper());
@@ -147,7 +147,7 @@ KvCoord::aabb_t KvCoord::extentsInWorld() const
 
 	return box;
 }
-
+#endif
 
 void KvCoord::zoom(float_t factor)
 {
