@@ -10,6 +10,7 @@
 
 class KvPaint; // 用来执行具体的plot绘制
 class KvCoord;
+class KcPlotTitle;
 class KcLegend;
 class KcColorBar;
 
@@ -43,6 +44,7 @@ public:
 	KvCoord& coord() { return *coord_.get(); }
 
 	// 用于外部获取和更改legend与colorbars的属性
+	KcPlotTitle* title() const { return title_.get(); }
 	KcLegend* legend() const { return legend_.get(); }
 	unsigned colorbarCount() const { return colorbars_.size(); }
 	KcColorBar* colorbarAt(unsigned idx) const { return colorbars_[idx].get(); }
@@ -93,6 +95,7 @@ private:
 private:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并通过构造函数传入
 	std::shared_ptr<KvCoord> coord_; // 由用户创建并通过构造函数传入
+	std::unique_ptr<KcPlotTitle> title_;
 	std::unique_ptr<KcLegend> legend_; // 根据plottables_自动创建并管理
 	std::vector<std::unique_ptr<KcColorBar>> colorbars_; // 根据plottables_自动创建并管理，支持多个色带
 	std::vector<std::unique_ptr<KvPlottable>> plottables_; // 由用户通过类成员方法管理

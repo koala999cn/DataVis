@@ -9,6 +9,10 @@ class KvDecoratorAligned : public KvDecorator, public KvLayoutElement
 {
 public:
 
+	KvDecoratorAligned(const std::string_view& name) 
+		: KvDecorator(name), KvLayoutElement() {}
+
+
 	// 可选择对齐的目标
 	enum KeAlignedTarget
 	{

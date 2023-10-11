@@ -6,6 +6,7 @@
 #include "plot/KcCoord2d.h"
 #include "plot/KcCoordPlane.h"
 #include "plot/KvPaint.h"
+#include "plot/KcPlotTitle.h"
 #include "plot/KcLegend.h"
 #include "plot/KcColorBar.h"
 #include "plot/KcLinearTicker.h"
@@ -302,6 +303,9 @@ void KvRdPlot::showPropertySet()
 		ImGui::Separator();
 		showPlottableProperty_();
 	}
+
+	ImGui::Separator();
+	showTitleProperty_();
 
 	if (plot_->legend()->itemCount() > 0) {
 		ImGui::Separator();
@@ -885,6 +889,29 @@ namespace kPrivate
 	}
 }
 
+
+void KvRdPlot::showTitleProperty_()
+{
+	if (!ImGuiX::treePush("Title", false))
+		return;
+
+	auto title = plot_->title();
+	ImGui::PushID(title);
+
+	auto vis = title->visible();
+	if (ImGui::Checkbox("Show", &vis))
+		title->setVisible(vis);
+
+	showDecoratorProperty_(title);
+
+	ImGuiX::font(title->font());
+	ImGui::ColorEdit4("Color", title->color());
+
+	ImGui::PopID();
+	ImGuiX::cbTreePop();
+}
+
+
 void KvRdPlot::showLegendProperty_()
 {
 	if (!ImGuiX::treePush("Legend", false))
@@ -982,6 +1009,23 @@ void KvRdPlot::showColorBarProperty_()
 	ImGuiX::cbTreePop();
 }
 
+
+void KvRdPlot::showDecoratorProperty_(KvDecorator* deco)
+{
+	bool open = false;
+	ImGuiX::cbTreePush("Border", &deco->showBorder(), &open);
+	if (open) {
+		ImGuiX::pen(deco->borderPen(), true, true);
+		ImGuiX::cbTreePop();
+	}
+
+	open = false;
+	ImGuiX::cbTreePush("Background", &deco->showBkgnd(), &open);
+	if (open) {
+		ImGuiX::brush(deco->bkgndBrush(), true);
+		ImGuiX::cbTreePop();
+	}
+}
 
 void KvRdPlot::showPlottableProperty_()
 {

@@ -3,14 +3,30 @@
 #include "layout/KuLayoutUtil.h"
 
 
+KcPlotTitle::KcPlotTitle(const std::string_view& title)
+	: super_(title)
+{
+	showBorder() = false; showBkgnd() = false;
+	setMargins(5, 5, 5, 5);
+	font_.size = 16;
+	align_ = KeAlignment::k_top | KeAlignment::k_hcenter | KeAlignment::k_outter;
+}
+
+
 void KcPlotTitle::draw(KvPaint* paint) const
 {
 	super_::draw(paint); // »æÖÆ±³¾°Óë±ß¿ò
-
-	auto sz = paint->textSize(name());
-	auto rc = KuLayoutUtil::innerAlignedRect(innerRect(), sz, align(), true);
-	
 	paint->apply(font_);
-	paint->drawText(rc.lower(), name());
+	paint->setColor(color_);
+	auto& pt = innerRect().lower();
+	paint->drawText({ pt.x(), pt.y() }, name());
 }
+
+
+KcPlotTitle::size_t KcPlotTitle::calcSize_(void* cxt) const
+{
+	auto paint = (KvPaint*)cxt;
+	return paint->textSize(name());
+}
+
 

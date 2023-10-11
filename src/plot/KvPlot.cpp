@@ -1,6 +1,7 @@
 #include "KvPlot.h"
 #include "KvCoord.h"
 #include "KvPaint.h"
+#include "KcPlotTitle.h"
 #include "KcLegend.h"
 #include "KcColorBar.h"
 #include "layout/KuLayoutHelper.h"
@@ -14,6 +15,9 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, c
 {
 	showBkgnd() = true;
 	showBorder() = false;
+
+	title_ = std::make_unique<KcPlotTitle>(name());
+
 	legend_ = std::make_unique<KcLegend>();
 	putAt(0, 0, coord_.get());
 }
@@ -34,6 +38,8 @@ void KvPlot::unlayoutLegendAndColorbars_()
 	assert(legend_);
 	KuLayoutHelper::take(legend_.get());
 	legend_->clear();
+
+	KuLayoutHelper::take(title_.get());
 }
 
 
@@ -153,6 +159,13 @@ void KvPlot::update(KvPaint* paint)
 	for (auto& i : colorbars_)
 		if (i->visible())
 		    i->draw(paint);
+	
+	if (title_->visible()) {
+		paint->pushCoord(KvPaint::k_coord_screen); // TODO: 让title自行决定绘制坐标系
+		title_->draw(paint);
+		paint->popCoord();
+	}
+	
 
 	// draw for debugging
 	if (showLayoutRect_)
@@ -263,6 +276,10 @@ bool KvPlot::showLegend_() const
 void KvPlot::updateLayout_(KvPaint* paint, const rect_t& rc)
 {
 	syncLegendAndColorbars_();
+
+	if (title_->visible()) {
+		coord_->placeElement(title_.get(), title_->align());
+	}
 
 	if (showLegend_()) {
 		auto loc = legend_->location();

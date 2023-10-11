@@ -10,6 +10,7 @@ class KcCoordPlane;
 class KvPlottable;
 class KvDataProvider;
 class KvThemedPlot;
+class KvDecorator;
 
 class KvRdPlot : public KvDataRender
 {
@@ -74,9 +75,13 @@ protected:
 
 		virtual void showPlaneProperty_(KcCoordPlane&);
 
+	virtual void showTitleProperty_();
+
 	virtual void showLegendProperty_();
 	
 	virtual void showColorBarProperty_();
+
+	    void showDecoratorProperty_(KvDecorator*);
 
 	virtual void showPlottableProperty_();
 
