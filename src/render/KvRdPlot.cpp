@@ -899,13 +899,31 @@ void KvRdPlot::showTitleProperty_()
 	ImGui::PushID(title);
 
 	auto vis = title->visible();
-	if (ImGui::Checkbox("Show", &vis))
+	auto name = title->name();
+	if (ImGuiX::cbInputText("Text", &vis, &name)) {
 		title->setVisible(vis);
+		title->setName(name);
+	}
+
+	ImGui::ColorEdit4("Color", title->color());
+
+	static const char* borderMode[] = {
+		"Outter", "Inner", "Content"
+	};
+	int mode = title->borderMode();
+	if (ImGui::Combo("Border Mode", &mode, borderMode, std::size(borderMode)))
+		title->borderMode() = (KvDecoratorAligned::KeBorderMode)mode;
+
+	ImGuiX::margins("Margins", title->margins());
 
 	showDecoratorProperty_(title);
 
-	ImGuiX::font(title->font());
-	ImGui::ColorEdit4("Color", title->color());
+	ImGuiX::alignment("Location", title->location(), true);
+
+	if (ImGuiX::treePush("Font", false)) {
+		ImGuiX::font(title->font());
+		ImGuiX::treePop();
+	}
 
 	ImGui::PopID();
 	ImGuiX::cbTreePop();

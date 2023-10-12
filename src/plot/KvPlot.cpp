@@ -17,6 +17,7 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, c
 	showBorder() = false;
 
 	title_ = std::make_unique<KcPlotTitle>(name());
+	title_->location() = KeAlignment::k_top | KeAlignment::k_outter; // 设置标题缺省位置在plot的上方
 
 	legend_ = std::make_unique<KcLegend>();
 	putAt(0, 0, coord_.get());
@@ -278,7 +279,7 @@ void KvPlot::updateLayout_(KvPaint* paint, const rect_t& rc)
 	syncLegendAndColorbars_();
 
 	if (title_->visible()) {
-		coord_->placeElement(title_.get(), title_->align());
+		coord_->placeElement(title_.get(), title_->location());
 	}
 
 	if (showLegend_()) {
