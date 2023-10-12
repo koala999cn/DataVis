@@ -7,13 +7,14 @@
 
 
 KcColorBar::KcColorBar(KvPlottable* plt)
-    : KvRenderable(plt->name()) // TODO: name无法随plt动态更新
-    , plt_(nullptr)
+    : super_(plt->name()) // TODO: name无法随plt动态更新
 {
     assert(plt);
 
-    align() = location_ = KeAlignment::k_right | KeAlignment::k_horz_first | KeAlignment::k_outter;
+    align() = location() = KeAlignment::k_right | KeAlignment::k_horz_first | KeAlignment::k_outter;
     
+    showBorder() = false; showBkgnd() = false;
+
     margins_ = margins_t({ 5, 5 }, { 5, 5 });
 
     axis_ = std::make_unique<KcAxis>(KcAxis::k_right, -1, false);
@@ -51,6 +52,8 @@ void KcColorBar::draw(KvPaint* paint) const
 
     paint->pushCoord(KvPaint::k_coord_screen);
 
+    super_::draw(paint);
+
     auto box = innerRect();
 
     auto fillQuad = [paint](KtPoint<double, 2>* vtx, color4f* clr) {
@@ -82,8 +85,8 @@ void KcColorBar::draw(KvPaint* paint) const
     paint->enableFlatShading(flat); // 恢复状态
 
     // draw border
-    if (showBorder_) {
-        paint->apply(border_);
+    if (showBarBorder_) {
+        paint->apply(barPen_);
         paint->drawRect(box);
     }
 
@@ -120,13 +123,6 @@ void KcColorBar::draw(KvPaint* paint) const
     }
 
     paint->popCoord();
-}
-
-
-KcColorBar::aabb_t KcColorBar::boundingBox() const
-{
-    assert(false);
-    return {};
 }
 
 

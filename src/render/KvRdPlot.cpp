@@ -972,19 +972,16 @@ void KvRdPlot::showColorBarProperty_()
 
 		if (open) {
 
+			showDecoratorAlignedProperty_(colorbar);
+
 			ImGui::DragFloat("Bar Width", &colorbar->barWidth(), 1, 1, 64, "%.f");
 
 			ImGui::DragFloat("Bar Length", &colorbar->barLength(), 1, 0, 1024, "%.f");
 
-			ImGuiX::margins("Margins", colorbar->margins());
-
-			auto& loc = colorbar->location();
-			ImGuiX::alignment("Alignment", loc, false);
-
 			open = false;
-			ImGuiX::cbTreePush("Border", &colorbar->showBorder(), &open);
+			ImGuiX::cbTreePush("Bar Border", &colorbar->showBarBorder(), &open);
 			if (open) {
-				ImGuiX::pen(colorbar->borderPen(), true, true);
+				ImGuiX::pen(colorbar->barPen(), true, true);
 				ImGuiX::cbTreePop();
 			}
 

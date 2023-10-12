@@ -1,13 +1,14 @@
 #pragma once
-#include "KvRenderable.h"
+#include "KvDecoratorAligned.h"
 #include "KpContext.h"
 #include "KcAxis.h"
-#include "layout/KvLayoutElement.h"
 
 class KvPlottable;
 
-class KcColorBar : public KvRenderable, public KvLayoutElement
+class KcColorBar : public KvDecoratorAligned
 {
+	using super_ = KvDecoratorAligned;
+
 public:
 
 	KcColorBar(KvPlottable* plt);
@@ -16,16 +17,11 @@ public:
 
 	void draw(KvPaint*) const override;
 
-	aabb_t boundingBox() const override;
+	bool showBarBorder() const { return showBarBorder_; }
+	bool& showBarBorder() { return showBarBorder_; }
 
-	KeAlignment location() const { return location_; }
-	KeAlignment& location() { return location_; }
-
-	bool showBorder() const { return showBorder_; }
-	bool& showBorder() { return showBorder_; }
-
-	const KpPen& borderPen() const { return border_; }
-	KpPen& borderPen() { return border_; }
+	const KpPen& barPen() const { return barPen_; }
+	KpPen& barPen() { return barPen_; }
 
 	float barWidth() const { return barWidth_; }
 	float& barWidth() { return barWidth_; }
@@ -42,15 +38,14 @@ private:
 
 private:
 
-	bool showBorder_{ true };
-	KpPen border_;
+	bool showBarBorder_{ true };
+	KpPen barPen_;
 
 	float barWidth_{ 24 }; // 像素值
 	float barLength_{ 0 }; // 像素值. 0表示延展与coord-plane对齐
 	int ticks_{ 0 }; // 0表示autotick
 
-	KvPlottable* plt_;
-	KeAlignment location_; // colorbar的位置
+	KvPlottable* plt_{ nullptr };
 	
 	std::unique_ptr<KcAxis> axis_; // 用于绘制tick和label
 };
