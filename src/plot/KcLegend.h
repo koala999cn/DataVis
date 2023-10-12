@@ -1,14 +1,13 @@
 #pragma once
-#include "KvRenderable.h"
+#include "KvDecoratorAligned.h"
 #include "KpContext.h"
-#include "layout/KvLayoutElement.h"
 #include <vector>
 
 class KvPlottable;
 
-class KcLegend : public KvRenderable, public KvLayoutElement
+class KcLegend : public KvDecoratorAligned
 {
-	using super_ = KvRenderable;
+	using super_ = KvDecoratorAligned;
 	using KvRenderable::float_t;
 	using point2i = KtPoint<int, 2>;
 
@@ -17,8 +16,6 @@ public:
 	KcLegend();
 
 	void draw(KvPaint*) const override;
-
-	aabb_t boundingBox() const override;
 
 	void addPlottable(KvPlottable* plt) {
 		plts_.push_back(plt);
@@ -39,21 +36,6 @@ public:
 
 	const margins_t& innerMargins() const { return innerMargins_; }
 	margins_t& innerMargins() { return innerMargins_; }
-
-	KeAlignment location() const { return location_; }
-	KeAlignment& location() { return location_; }
-
-	bool showBorder() const { return showBorder_; }
-	bool& showBorder() { return showBorder_; }
-
-	const KpPen& borderPen() const { return border_; }
-	KpPen& borderPen() { return border_; }
-
-	bool showBkgnd() const { return showBkgnd_; }
-	bool& showBkgnd() { return showBkgnd_; }
-
-	const KpBrush& bkgndBrush() const { return bkgnd_; }
-	KpBrush& bkgndBrush() { return bkgnd_; }
 
 	const color4f& textColor() const { return clrText_; }
 	color4f& textColor() { return clrText_; }
@@ -102,10 +84,7 @@ private:
 	bool hasItem_(KvPlottable* plt) const;
 
 private:
-
-	bool showBorder_{ true }, showBkgnd_{ false };
-	KpPen border_, iconBorder_;
-	KpBrush bkgnd_;
+	KpPen iconBorder_;
 	margins_t innerMargins_;
 	KpFont font_;
 	color4f clrText_{ 0, 0, 0, 1 };
@@ -117,6 +96,4 @@ private:
 	int maxItemsPerRow_{ 0 }; // 每行或每列最大的item数目，超过则会换行或换列。<=0代表无限制
 
 	std::vector<KvPlottable*> plts_;
-
-	KeAlignment location_; // legend的位置
 };

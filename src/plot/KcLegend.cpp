@@ -6,11 +6,12 @@
 KcLegend::KcLegend()
     : super_("Legend")
 {
-    align() = location_ = KeAlignment::k_left | KeAlignment::k_top | KeAlignment::k_horz_first;
+    align() = location() = KeAlignment::k_left | KeAlignment::k_top | KeAlignment::k_horz_first;
     
     innerMargins_.lower() = point_t(7, 5);
     innerMargins_.upper() = point_t(7, 4);
     margins() = innerMargins_;
+    borderMode() = k_inner;
 }
 
 
@@ -76,8 +77,6 @@ void KcLegend::draw(KvPaint* paint) const
 {
     assert(visible());
 
-    using point3 = KvPaint::point3;
-
     auto rc = paint->viewport();
     rc = rc.intersection(iRect_);
     if (rc.isNull()) return;
@@ -85,15 +84,7 @@ void KcLegend::draw(KvPaint* paint) const
     // 使用屏幕坐标绘制legned
     paint->pushCoord(KvPaint::k_coord_screen);
     
-    if (showBkgnd_ && bkgnd_.visible()) {
-        paint->apply(bkgnd_);
-        paint->fillRect(iRect_);
-    }
-
-    if (showBorder_ && border_.visible()) {
-        paint->apply(border_);
-        paint->drawRect(iRect_);
-    }
+    super_::draw(paint);
 
     if (!plts_.empty()) {
         paint->pushClipRect(rc);
@@ -121,16 +112,6 @@ void KcLegend::drawItem_(KvPaint* paint, KvPlottable* plt, unsigned ch, const re
     assert(paint->inScreenCoord()); // 以下调用假定当前为device坐标系，否则spacing设置不对
     paint->drawText(rc.lower(), itemLabel_(plt, ch).c_str(), KeAlignment::k_left | KeAlignment::k_vcenter,
         { iconSize_.x() + iconTextPadding_, rc.height() * 0.5f });
-}
-
-
-KcLegend::aabb_t KcLegend::boundingBox() const
-{
-    auto& rc = outterRect();
-    return { 
-        { rc.lower().x(), rc.lower().y(), 0 }, 
-        { rc.upper().x(), rc.upper().y(), 0 } 
-    };
 }
 
 

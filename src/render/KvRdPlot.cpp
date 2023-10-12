@@ -907,18 +907,7 @@ void KvRdPlot::showTitleProperty_()
 
 	ImGui::ColorEdit4("Color", title->color());
 
-	static const char* borderMode[] = {
-		"Outter", "Inner", "Content"
-	};
-	int mode = title->borderMode();
-	if (ImGui::Combo("Border Mode", &mode, borderMode, std::size(borderMode)))
-		title->borderMode() = (KvDecoratorAligned::KeBorderMode)mode;
-
-	ImGuiX::margins("Margins", title->margins());
-
-	showDecoratorProperty_(title);
-
-	ImGuiX::alignment("Location", title->location(), true);
+	showDecoratorAlignedProperty_(title);
 
 	if (ImGuiX::treePush("Font", false)) {
 		ImGuiX::font(title->font());
@@ -942,15 +931,13 @@ void KvRdPlot::showLegendProperty_()
 	if (ImGui::Checkbox("Show", &vis))
 		legend->setVisible(vis);
 
-	ImGuiX::alignment("Alignment", legend->location(), true);
+	showDecoratorAlignedProperty_(legend);
 
 	if (ImGuiX::treePush("Layout", false)) {
 
 		ImGui::DragFloat2("Icon Size", legend->iconSize(), 1, 1, 36, "%.f");
 		ImGui::DragFloat2("Item Spacing", legend->itemSpacing(), 1, 0, 32, "%.f");
 		ImGui::DragFloat("Icon Text Padding", &legend->iconTextPadding(), 1, 0, 32, "%.f");
-
-		ImGuiX::margins("Outter Margins", legend->margins());
 
 		ImGuiX::margins("Inner Margins", legend->innerMargins());
 
@@ -962,21 +949,6 @@ void KvRdPlot::showLegendProperty_()
 	}
 	
 	ImGuiX::font(legend->font());
-
-	bool open = false;
-	ImGuiX::cbTreePush("Border", &legend->showBorder(), &open);
-	if (open) {
-		ImGuiX::pen(legend->borderPen(), true, true);
-		ImGuiX::cbTreePop();
-	}
-
-	open = false;
-	ImGuiX::cbTreePush("Background", &legend->showBkgnd(), &open);
-	if (open) {
-		ImGuiX::brush(legend->bkgndBrush(), true);
-		ImGuiX::cbTreePop();
-	}
-
 
 	ImGui::PopID();
 	ImGuiX::cbTreePop();
@@ -1044,6 +1016,24 @@ void KvRdPlot::showDecoratorProperty_(KvDecorator* deco)
 		ImGuiX::cbTreePop();
 	}
 }
+
+
+void KvRdPlot::showDecoratorAlignedProperty_(KvDecoratorAligned* deco)
+{
+	static const char* borderMode[] = {
+		"outter", "margins", "inner"
+	};
+	int mode = deco->borderMode();
+	if (ImGui::Combo("Border Mode", &mode, borderMode, std::size(borderMode)))
+		deco->borderMode() = (KvDecoratorAligned::KeBorderMode)mode;
+
+	ImGuiX::margins("Margins", deco->margins());
+
+	ImGuiX::alignment("Location", deco->location(), true);
+
+	showDecoratorProperty_(deco);
+}
+
 
 void KvRdPlot::showPlottableProperty_()
 {

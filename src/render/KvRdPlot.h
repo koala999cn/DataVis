@@ -11,6 +11,7 @@ class KvPlottable;
 class KvDataProvider;
 class KvThemedPlot;
 class KvDecorator;
+class KvDecoratorAligned;
 
 class KvRdPlot : public KvDataRender
 {
@@ -82,6 +83,7 @@ protected:
 	virtual void showColorBarProperty_();
 
 	    void showDecoratorProperty_(KvDecorator*);
+		void showDecoratorAlignedProperty_(KvDecoratorAligned*);
 
 	virtual void showPlottableProperty_();
 
