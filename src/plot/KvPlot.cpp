@@ -278,10 +278,6 @@ void KvPlot::updateLayout_(KvPaint* paint, const rect_t& rc)
 {
 	syncLegendAndColorbars_();
 
-	if (title_->visible()) {
-		coord_->placeElement(title_.get(), title_->location());
-	}
-
 	if (showLegend_()) {
 		auto loc = legend_->location();
 		legend_->align() = loc;
@@ -294,6 +290,11 @@ void KvPlot::updateLayout_(KvPaint* paint, const rect_t& rc)
 			i->align() = loc;
 			coord_->placeElement(i.get(), loc);
 		}
+	}
+
+	// 最后放置title，确保title在外侧
+	if (title_->visible()) {
+		coord_->placeElement(title_.get(), title_->location());
 	}
 
 	this->calcSize(paint);
