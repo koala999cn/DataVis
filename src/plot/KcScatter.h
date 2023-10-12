@@ -1,12 +1,12 @@
 #pragma once
 #include "KvPlottable1d.h"
-#include "KmLabeling.h"
+#include "KmDataLabeling.h"
 #include "KpContext.h"
 
 
 // …¢µ„Õº
 
-class KcScatter : public KvPlottable1d, public KmLabeling
+class KcScatter : public KvPlottable1d, public KmDataLabeling
 {
 	using super_ = KvPlottable1d;
 

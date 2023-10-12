@@ -1,14 +1,14 @@
 #pragma once
 #include "KvPlottable1d.h"
 #include "KpContext.h"
-#include "KmLabeling.h"
+#include "KmDataLabeling.h"
 #include <functional>
 
 
 // 2维柱状图.
 // 支持堆叠（stacked）、分组（grouped），以及堆叠+分组模式
 
-class KcBars2d : public KvPlottable1d, public KmLabeling
+class KcBars2d : public KvPlottable1d, public KmDataLabeling
 {
 	using super_ = KvPlottable1d;
 

@@ -67,7 +67,7 @@ bool KcRdPlot2d::permitInput(int dataSpec, unsigned inPort) const
 
 namespace kPrivate
 {
-    void showLabelingProperty(const char* label, KmLabeling* obj, unsigned odim);
+    void showLabelingProperty(const char* label, KmDataLabeling* obj, unsigned odim);
 
     void showPlottableSpecificProperty1d(KvPlottable*);
 

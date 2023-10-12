@@ -463,7 +463,7 @@
     <ClInclude Include="src\plot\KcLineFilled.h" />
     <ClInclude Include="src\plot\KcThemedPlotImpl_.h" />
     <ClInclude Include="src\plot\KcTimeTicker.h" />
-    <ClInclude Include="src\plot\KmLabeling.h" />
+    <ClInclude Include="src\plot\KmDataLabeling.h" />
     <ClInclude Include="src\plot\KsPangoFontManager.h" />
     <ClInclude Include="src\plot\KtGradient.h" />
     <ClInclude Include="src\plot\KpContext.h" />

@@ -1179,7 +1179,7 @@
     <ClInclude Include="src\opengl\KcMarkerObject.h">
       <Filter>opengl</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KmLabeling.h">
+    <ClInclude Include="src\plot\KmDataLabeling.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\plot\KcLogTicker.h">

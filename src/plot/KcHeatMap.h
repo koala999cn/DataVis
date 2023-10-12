@@ -1,11 +1,11 @@
 #pragma once
 #include "KvPlottable2d.h"
-#include "KmLabeling.h"
+#include "KmDataLabeling.h"
 
 
 // 热图：实质为flat渲染模式 + text绘制 + 平面化的surface图（偏移dx/2, -dy/2）
 
-class KcHeatMap : public KvPlottable2d, public KmLabeling
+class KcHeatMap : public KvPlottable2d, public KmDataLabeling
 {
 	using super_ = KvPlottable2d;
 

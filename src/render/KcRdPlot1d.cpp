@@ -114,7 +114,7 @@ bool KcRdPlot1d::plottableMatchData_(int iType, const KvData& d) const
 namespace kPrivate
 {
 	// 帮助函数，用于显示文本标注的属性
-	void showLabelingProperty(const char* label, KmLabeling* obj, unsigned odim)
+	void showLabelingProperty(const char* label, KmDataLabeling* obj, unsigned odim)
 	{
 		bool open{ false };
 		ImGuiX::cbTreePush(label, &obj->showLabel(), &open);

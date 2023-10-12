@@ -4,7 +4,7 @@
 
 // 实现数据标注支持
 
-class KmLabeling
+class KmDataLabeling
 {
 public:
 
