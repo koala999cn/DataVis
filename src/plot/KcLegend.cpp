@@ -1,7 +1,6 @@
 #include "KcLegend.h"
 #include "KvPlottable.h"
 #include "KvPaint.h"
-#include "KuStrUtil.h"
 
 
 KcLegend::KcLegend()
@@ -152,7 +151,7 @@ std::string KcLegend::itemLabel_(KvPlottable* plt, unsigned ch) const
 
     auto label = plt->name();
     if (plt->majorColors() > 1)
-        label += "-ch" + KuStrUtil::toString(ch);
+        label += "-ch" + std::to_string(ch);
     return label;
 }
 
