@@ -37,15 +37,6 @@ void KcColorBar::resetPlottable(KvPlottable* plt)
 }
 
 
-namespace kPrivate
-{
-    // @dim: 0表示在x方向上渐变色，1表示在y方向上渐变色
-    // @dir: 1表示从低到高渐变色，-1表示从高到低渐变色
-    void drawGradient(KvPaint* paint, const KtAABB<double, 2>& rect, 
-        const KtGradient<float, color4f>& grad, int dim, int dir);
-}
-
-
 void KcColorBar::draw(KvPaint* paint) const
 {
     assert(visible());
@@ -151,36 +142,4 @@ KcColorBar::size_t KcColorBar::calcSize_(void* cxt) const
         return { barWidth_ + mar.left() + mar.right(), barLength_ };
     else 
         return { barLength_, barWidth_ + mar.top() + mar.bottom() };
-}
-
-
-#include "KuMath.h"
-namespace kPrivate
-{
-    void drawGradient(KvPaint* paint, const KtAABB<double, 2>& rect,
-        const KtGradient<float, color4f>& grad, int dim, int dir)
-    {
-        auto lower = rect.lower();
-        auto upper = rect.upper();
-        auto width = upper[!dim] - lower[!dim]; // 非渐变维度的尺度
-        auto length = upper[dim] - lower[dim]; // 渐变维度的尺度
-        if (dir < 0) 
-            std::swap(upper[dim], lower[dim]);
-
-        typename KvPaint::color_t clrs[4];
-        clrs[0] = clrs[1] = grad.at(0).second;
-        typename KvPaint::point2 pts[4];
-        pts[0] = pts[1] = pts[3] = lower; 
-        pts[1][!dim] += width;
-        pts[2] = pts[1];
-        for (unsigned i = 1; i < grad.size(); i++) {
-            auto& stop = grad.at(i);
-            clrs[2] = clrs[3] = stop.second;
-            pts[2][dim] = pts[3][dim] = KuMath::remap(stop.first, 0.f, 1.f, lower[dim], upper[dim]);
-            paint->fillQuad(pts, clrs);
-
-            clrs[0] = clrs[1] = clrs[2];
-            pts[0] = pts[3], pts[1] = pts[2];
-        }
-    }
 }
