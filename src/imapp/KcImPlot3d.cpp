@@ -17,13 +17,13 @@ KcImPlot3d::KcImPlot3d(const std::string_view& name)
 
 KtCamera<double>& KcImPlot3d::camera()
 {
-    return ((KvPaintHelper&)paint()).camera();
+    return ((KvPaintDefault&)paint()).camera();
 }
 
 
 const KtCamera<double>& KcImPlot3d::camera() const
 {
-    return ((const KvPaintHelper&)paint()).camera();
+    return ((const KvPaintDefault&)paint()).camera();
 }
 
 

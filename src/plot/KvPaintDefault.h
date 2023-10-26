@@ -5,7 +5,7 @@
 
 // paint的一个缺省实现（半成品，仅实现通用功能）
 
-class KvPaintHelper : public KvPaint
+class KvPaintDefault : public KvPaint
 {
 public:
 	using camera_type = KtCamera<float_t>;

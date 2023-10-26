@@ -1,8 +1,8 @@
 #pragma once
-#include "plot/KvPaintHelper.h"
+#include "plot/KvPaintDefault.h"
 #include "imgui.h"
 
-class KcImPaint : public KvPaintHelper
+class KcImPaint : public KvPaintDefault
 {
 public:
 

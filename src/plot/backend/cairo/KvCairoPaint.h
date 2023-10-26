@@ -1,10 +1,10 @@
 #pragma once
-#include "plot/KvPaintHelper.h"
+#include "plot/KvPaintDefault.h"
 
 
-class KvCairoPaint : public KvPaintHelper
+class KvCairoPaint : public KvPaintDefault
 {
-	using super_ = KvPaintHelper;
+	using super_ = KvPaintDefault;
 
 public:
 

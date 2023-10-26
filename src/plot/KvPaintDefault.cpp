@@ -1,64 +1,64 @@
-#include "KvPaintHelper.h"
+#include "KvPaintDefault.h"
 
 
-void KvPaintHelper::beginPaint()
+void KvPaintDefault::beginPaint()
 {
 	assert(coords_.size() == 1 && coords_.back() == k_coord_local);
 	cam_.updateProjectMatrixs();
 }
 
 
-void KvPaintHelper::endPaint()
+void KvPaintDefault::endPaint()
 {
 	// depth sorting
 	assert(coords_.size() == 1 && coords_.back() == k_coord_local);
 }
 
 
-KvPaintHelper::rect_t KvPaintHelper::viewport() const
+KvPaintDefault::rect_t KvPaintDefault::viewport() const
 {
 	return cam_.viewport();
 }
 
 
-void KvPaintHelper::setViewport(const rect_t& vp)
+void KvPaintDefault::setViewport(const rect_t& vp)
 {
 	cam_.setViewport(vp);
 }
 
 
-void KvPaintHelper::pushLocal(const mat4& mat)
+void KvPaintDefault::pushLocal(const mat4& mat)
 {
 	cam_.pushLocal(mat);
 }
 
 
-void KvPaintHelper::popLocal()
+void KvPaintDefault::popLocal()
 {
 	cam_.popLocal();
 }
 
 
-void KvPaintHelper::pushCoord(KeCoordType type)
+void KvPaintDefault::pushCoord(KeCoordType type)
 {
 	coords_.push_back(type);
 }
 
 
-void KvPaintHelper::popCoord()
+void KvPaintDefault::popCoord()
 {
 	assert(coords_.size() > 1);
 	coords_.pop_back();
 }
 
 
-KvPaintHelper::KeCoordType KvPaintHelper::currentCoord() const
+KvPaintDefault::KeCoordType KvPaintDefault::currentCoord() const
 {
 	return KeCoordType(coords_.back());
 }
 
 
-KvPaintHelper::point4 KvPaintHelper::project(const point4& pt) const
+KvPaintDefault::point4 KvPaintDefault::project(const point4& pt) const
 {
 	switch (coords_.back())
 	{
@@ -86,7 +86,7 @@ KvPaintHelper::point4 KvPaintHelper::project(const point4& pt) const
 }
 
 
-KvPaintHelper::point4 KvPaintHelper::unproject(const point4& pt) const
+KvPaintDefault::point4 KvPaintDefault::unproject(const point4& pt) const
 {
 	switch (coords_.back())
 	{
@@ -114,91 +114,91 @@ KvPaintHelper::point4 KvPaintHelper::unproject(const point4& pt) const
 }
 
 
-KvPaintHelper::point4 KvPaintHelper::localToWorld(const point4& pt) const
+KvPaintDefault::point4 KvPaintDefault::localToWorld(const point4& pt) const
 {
 	return cam_.localToWorld(pt);
 }
 
 
-KvPaintHelper::point4 KvPaintHelper::worldToLocal(const point4& pt) const
+KvPaintDefault::point4 KvPaintDefault::worldToLocal(const point4& pt) const
 {
 	return cam_.worldToLocal(pt);
 }
 
 
-void KvPaintHelper::setColor(const color_t& clr)
+void KvPaintDefault::setColor(const color_t& clr)
 {
 	clr_ = clr;
 }
 
 
-void KvPaintHelper::setSecondaryColor(const color_t& clr)
+void KvPaintDefault::setSecondaryColor(const color_t& clr)
 {
 	secondaryClr_ = clr;
 }
 
 
-void KvPaintHelper::setMarkerSize(float_t size)
+void KvPaintDefault::setMarkerSize(float_t size)
 {
 	markerSize_ = size;
 }
 
 
-void KvPaintHelper::setMarkerType(int type)
+void KvPaintDefault::setMarkerType(int type)
 {
 	markerType_ = type;
 }
 
 
-void KvPaintHelper::setLineWidth(float_t width)
+void KvPaintDefault::setLineWidth(float_t width)
 {
 	lineWidth_ = width;
 }
 
 
-void KvPaintHelper::setLineStyle(int style)
+void KvPaintDefault::setLineStyle(int style)
 {
 	lineStyle_ = style;
 }
 
 
-void KvPaintHelper::setFilled(bool b)
+void KvPaintDefault::setFilled(bool b)
 {
 	filled_ = b;
 }
 
 
-void KvPaintHelper::setEdged(bool b)
+void KvPaintDefault::setEdged(bool b)
 {
 	edged_ = b;
 }
 
 
-void KvPaintHelper::setFontFamily(const std::string_view& f)
+void KvPaintDefault::setFontFamily(const std::string_view& f)
 {
 	family_ = f;
 }
 
 
-void KvPaintHelper::setFontSize(int size)
+void KvPaintDefault::setFontSize(int size)
 {
 	ftSize_ = size;
 }
 
 
-void KvPaintHelper::setBold(bool bold)
+void KvPaintDefault::setBold(bool bold)
 {
 	bold_ = bold;
 }
 
 
-void KvPaintHelper::setItalic(bool italic)
+void KvPaintDefault::setItalic(bool italic)
 {
 	italic_ = italic;
 }
 
 
-void KvPaintHelper::setUnderline(bool underline)
+void KvPaintDefault::setUnderline(bool underline)
 {
 	underline_ = underline;
 }

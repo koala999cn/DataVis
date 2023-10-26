@@ -511,7 +511,7 @@
     <ClCompile Include="src\plot\backend\cairo\KvCairoPaint.cpp">
       <Filter>cairo</Filter>
     </ClCompile>
-    <ClCompile Include="src\plot\KvPaintHelper.cpp">
+    <ClCompile Include="src\plot\KvPaintDefault.cpp">
       <Filter>plot</Filter>
     </ClCompile>
     <ClCompile Include="src\base\KuUtf8.cpp">
@@ -1218,7 +1218,7 @@
     <ClInclude Include="src\plot\backend\cairo\KvCairoPaint.h">
       <Filter>cairo</Filter>
     </ClInclude>
-    <ClInclude Include="src\plot\KvPaintHelper.h">
+    <ClInclude Include="src\plot\KvPaintDefault.h">
       <Filter>plot</Filter>
     </ClInclude>
     <ClInclude Include="src\base\KuUtf8.h">

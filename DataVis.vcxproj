@@ -248,7 +248,7 @@
     <ClCompile Include="src\plot\KvDecorator.cpp" />
     <ClCompile Include="src\plot\KvNumericTicker.cpp" />
     <ClCompile Include="src\plot\KvPaint.cpp" />
-    <ClCompile Include="src\plot\KvPaintHelper.cpp" />
+    <ClCompile Include="src\plot\KvPaintDefault.cpp" />
     <ClCompile Include="src\plot\KvPlot.cpp" />
     <ClCompile Include="src\plot\KvPlot2d.cpp" />
     <ClCompile Include="src\plot\KvPlot3d.cpp" />
@@ -477,7 +477,7 @@
     <ClInclude Include="src\plot\KvDecoratorAligned.h" />
     <ClInclude Include="src\plot\KvNumericTicker.h" />
     <ClInclude Include="src\plot\KvPaint.h" />
-    <ClInclude Include="src\plot\KvPaintHelper.h" />
+    <ClInclude Include="src\plot\KvPaintDefault.h" />
     <ClInclude Include="src\plot\KvPlot.h" />
     <ClInclude Include="src\plot\KvPlot2d.h" />
     <ClInclude Include="src\plot\KvPlottable1d.h" />
