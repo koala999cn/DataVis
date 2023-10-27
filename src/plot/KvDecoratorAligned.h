@@ -12,6 +12,13 @@ public:
 	KvDecoratorAligned(const std::string_view& name) 
 		: KvDecorator(name), KvLayoutElement() {}
 
+	// 对齐的参照体
+	enum KeAlignTarget
+	{
+		k_plot_frame, // 相对于plot边框进行对齐
+		k_coord_frame // 相对于坐标系边框进行对齐
+	};
+
 	// 边框的选择模式
 	enum KeBorderMode
 	{
@@ -26,6 +33,9 @@ public:
 	KeBorderMode borderMode() const { return borderMode_; }
 	KeBorderMode& borderMode() { return borderMode_; }
 
+	KeAlignTarget alignTarget() const { return target_; }
+	KeAlignTarget& alignTarget() { return target_; }
+
 	// 使用内框区域作为bounding-box
 	virtual aabb_t boundingBox() const {
 		auto rc = (borderMode_ == k_inner) ? innerRect() : outterRect();
@@ -38,4 +48,5 @@ public:
 private:
 	KeAlignment location_; // 对齐方式
 	KeBorderMode borderMode_{ k_margins };
+	KeAlignTarget target_{ k_coord_frame };
 };

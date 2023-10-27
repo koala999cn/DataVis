@@ -26,9 +26,7 @@ public:
 
 	std::shared_ptr<KcAxis> defaultAxis(unsigned dim) const final;
 
-	rect_t getPlotRect() const override;
-
-	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;
+	KvLayoutElement* getFrame() const final;
 
 	void arrange_(int dim, float_t lower, float_t upper) override final;
 

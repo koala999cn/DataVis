@@ -1017,6 +1017,8 @@ void KvRdPlot::showDecoratorProperty_(KvDecorator* deco)
 
 void KvRdPlot::showDecoratorAlignedProperty_(KvDecoratorAligned* deco)
 {
+	ImGuiX::margins("Margins", deco->margins());
+
 	static const char* borderMode[] = {
 		"outter", "margins", "inner"
 	};
@@ -1024,7 +1026,12 @@ void KvRdPlot::showDecoratorAlignedProperty_(KvDecoratorAligned* deco)
 	if (ImGui::Combo("Border Mode", &mode, borderMode, std::size(borderMode)))
 		deco->borderMode() = (KvDecoratorAligned::KeBorderMode)mode;
 
-	ImGuiX::margins("Margins", deco->margins());
+	static const char* alignTarget[] = {
+		"plot frame", "coord frame"
+	};
+	int target = deco->alignTarget();
+	if (ImGui::Combo("Align Target", &target, alignTarget, std::size(alignTarget)))
+		deco->alignTarget() = (KvDecoratorAligned::KeAlignTarget)target;
 
 	ImGuiX::alignment("Location", deco->location(), true);
 

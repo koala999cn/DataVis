@@ -19,7 +19,7 @@ namespace kPrivate
 		k_side_vert = k_side_top | k_side_bottom
 	};
 
-	static bool placeSide(KvLayoutElement* who, KvLayoutElement* ele, int dist, int side);
+	static void placeSide(KvLayoutElement* who, KvLayoutElement* ele, int dist, int side);
 }
 
 
@@ -35,27 +35,65 @@ void KuLayoutHelper::take(KvLayoutElement* ele)
 }
 
 
-bool KuLayoutHelper::placeLeft(KvLayoutElement* who, KvLayoutElement* ele, int dist)
+void KuLayoutHelper::placeLeft(KvLayoutElement* who, KvLayoutElement* ele, int dist)
 {
 	return kPrivate::placeSide(who, ele, dist, kPrivate::k_side_left);
 }
 
 
-bool KuLayoutHelper::placeRight(KvLayoutElement* who, KvLayoutElement* ele, int dist)
+void KuLayoutHelper::placeRight(KvLayoutElement* who, KvLayoutElement* ele, int dist)
 {
 	return kPrivate::placeSide(who, ele, dist, kPrivate::k_side_right);
 }
 
 
-bool KuLayoutHelper::placeTop(KvLayoutElement* who, KvLayoutElement* ele, int dist)
+void KuLayoutHelper::placeTop(KvLayoutElement* who, KvLayoutElement* ele, int dist)
 {
 	return kPrivate::placeSide(who, ele, dist, kPrivate::k_side_top);
 }
 
 
-bool KuLayoutHelper::placeBottom(KvLayoutElement* who, KvLayoutElement* ele, int dist)
+void KuLayoutHelper::placeBottom(KvLayoutElement* who, KvLayoutElement* ele, int dist)
 {
 	return kPrivate::placeSide(who, ele, dist, kPrivate::k_side_bottom);
+}
+
+
+void KuLayoutHelper::align(KcLayoutOverlay* target, KvLayoutElement* ele)
+{
+	auto loc = ele->align();
+
+	assert(!target->isAncestorOf(ele));
+
+	if (loc.inner() || target->parent() == nullptr) {
+		target->insert(ele);
+	}
+	else {
+		if (loc & KeAlignment::k_horz_first) {
+			if (loc & KeAlignment::k_left)
+				KuLayoutHelper::placeLeft(target, ele, -1);
+			else if (loc & KeAlignment::k_right)
+				KuLayoutHelper::placeRight(target, ele, -1);
+			else if (loc & KeAlignment::k_top)
+				KuLayoutHelper::placeTop(target, ele, -1);
+			else if (loc & KeAlignment::k_bottom)
+				KuLayoutHelper::placeBottom(target, ele, -1);
+			else
+				assert(false);
+		}
+		else {
+			if (loc & KeAlignment::k_top)
+				KuLayoutHelper::placeTop(target, ele, -1);
+			else if (loc & KeAlignment::k_bottom)
+				KuLayoutHelper::placeBottom(target, ele, -1);
+			else if (loc & KeAlignment::k_left)
+				KuLayoutHelper::placeLeft(target, ele, -1);
+			else if (loc & KeAlignment::k_right)
+				KuLayoutHelper::placeRight(target, ele, -1);
+			else
+				assert(false);
+		}
+	}
 }
 
 
@@ -171,7 +209,7 @@ namespace kPrivate
 		return pos;
 	}
 
-	bool placeSide(KvLayoutElement* who, KvLayoutElement* ele, int dist, int side)
+	void placeSide(KvLayoutElement* who, KvLayoutElement* ele, int dist, int side)
 	{
 		auto par = who->parent();
 		assert(par);
@@ -179,96 +217,20 @@ namespace kPrivate
 		// 先尝试grid
 		auto grid = dynamic_cast<KcLayoutGrid*>(par);
 		assert(grid);
-		//if (grid) {
-			auto pos = grid->find(who); // 定位who的位置
-			assert(pos.first != -1);
+		auto pos = grid->find(who); // 定位who的位置
+		assert(pos.first != -1);
 
-			std::array<unsigned, 2> arPos{ pos.first, pos.second };
-			arPos = kPrivate::stepDist(grid, arPos, dist, side);
-			if (arPos[0] < grid->rows() && arPos[1] < grid->cols() &&
-				grid->getAt(arPos[0], arPos[1]) == nullptr)
-				; // 有空余位置，不增加新行/新列
-			else if (side & k_side_horz)
-				grid->insertColAt(arPos[1]);
-			else
-				grid->insertRowAt(arPos[0]);
+		std::array<unsigned, 2> arPos{ pos.first, pos.second };
+		arPos = kPrivate::stepDist(grid, arPos, dist, side);
+		if (arPos[0] < grid->rows() && arPos[1] < grid->cols() &&
+			grid->getAt(arPos[0], arPos[1]) == nullptr)
+			; // 有空余位置，不增加新行/新列
+		else if (side & k_side_horz)
+			grid->insertColAt(arPos[1]);
+		else
+			grid->insertRowAt(arPos[0]);
 
-			assert(grid->getAt(arPos[0], arPos[1]) == nullptr);
-			grid->putAt(arPos[0], arPos[1], ele);
-
-			return true;
-		//}
-
-#if 0
-		auto vect = dynamic_cast<KcLayout1d*>(par);
-		if (vect) {
-
-			auto idx = vect->find(who);
-
-			if (vect->rowMajor() == bool(side & k_side_horz)) {
-				auto pos = (side & k_side_backword) ? kPrivate::stepBackward(vect, idx, dist)
-					: kPrivate::stepForeward(vect, idx, dist);
-				vect->insertAt(pos, ele);
-			}
-			else { // 创建grid
-				auto grid = makeGridFrom1d(vect);
-
-				point2i pos;
-				int dim = (side & k_side_horz) ? 0 : 1;
-				pos[dim] = idx;
-				pos[!dim] = (side & k_side_foreward) ? 1 : 0;
-
-				grid->putAt(pos.x(), pos.y(), ele);
-				substitute_(vect, grid);
-			}
-
-			return true;
-		}
-#endif
-
-		return false;
+		assert(grid->getAt(arPos[0], arPos[1]) == nullptr);
+		grid->putAt(arPos[0], arPos[1], ele);
 	}
-
-#if 0
-	static KcLayoutGrid* makeGridFrom1d(KcLayout1d* v)
-	{
-		auto grid = new KcLayoutGrid(v->parent());
-		int dim = v->rowMajor() ? 1 : 0;
-		point2i szGrid;
-		szGrid[dim] = v->size(), szGrid[!dim] = 1;
-		grid->resize(szGrid[0], szGrid[1]);
-
-		point2i pos(0);
-		for (; pos[dim] < v->size(); pos[dim]++) {
-			auto e = v->takeAt(pos[dim]);
-			grid->setAt(pos[0], pos[1], e);
-			assert(e == nullptr || e->parent() == grid);
-		}
-
-		return grid;
-	}
-
-	// 递归帮助函数
-	// 在container中递归查找who，并将其替换为ele
-	// 成功返回true
-	static bool substitute(KvLayoutContainer* container, KvLayoutElement* who, KvLayoutElement* ele)
-	{
-		for (unsigned i = 0; i < container->size(); i++) {
-			auto e = container->getAt(i);
-			if (e == nullptr)
-				continue;
-			
-			if (e == who) { // bingo
-				container->setAt(i, ele);
-				return true;
-			}
-
-			auto v = dynamic_cast<KvLayoutContainer*>(e);
-			if (v && substitute(v, who, ele)) // 递归查找
-				return true;
-		}
-
-		return false;
-	}
-#endif
 }

@@ -5,6 +5,7 @@
 #include "KcLegend.h"
 #include "KcColorBar.h"
 #include "layout/KuLayoutHelper.h"
+#include "layout/KcLayoutOverlay.h"
 
 
 KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, char dim)
@@ -20,18 +21,20 @@ KvPlot::KvPlot(std::shared_ptr<KvPaint> paint, std::shared_ptr<KvCoord> coord, c
 	title_->location() = KeAlignment::k_top | KeAlignment::k_outter; // 设置标题缺省位置在plot的上方
 
 	legend_ = std::make_unique<KcLegend>();
-	putAt(0, 0, coord_.get());
+	auto olay = new KcLayoutOverlay();
+	olay->append(coord_.get());
+	putAt(0, 0, olay);
 }
 
 
 KvPlot::~KvPlot()
 {
-	unlayoutLegendAndColorbars_();
+	unlayoutAllDecorators_();
 	KuLayoutHelper::take(coord_.get());
 }
 
 
-void KvPlot::unlayoutLegendAndColorbars_()
+void KvPlot::unlayoutAllDecorators_()
 {
 	for (auto& i : colorbars_)
 		KuLayoutHelper::take(i.get());
@@ -179,12 +182,12 @@ void KvPlot::update(KvPaint* paint)
 int KvPlot::fixPlotView_(KvPaint* paint)
 {
 	if (dim() != 2) {
-		assert(paint->viewport() == coord_->getPlotRect());
+		assert(paint->viewport() == coord_->getFrame()->innerRect());
 		return 0; // 只对plot2d进行修正
 	}
 
 	auto rcCanvas = paint->viewport();
-	auto rcPlot = coord_->getPlotRect();
+	auto rcPlot = coord_->getFrame()->innerRect();
 	if (rcPlot == rcCanvas)
 		return 0;
 		
@@ -276,36 +279,42 @@ bool KvPlot::showLegend_() const
 
 void KvPlot::updateLayout_(KvPaint* paint, const rect_t& rc)
 {
+	unlayoutAllDecorators_();
 	syncLegendAndColorbars_();
 
-	if (showLegend_()) {
-		auto loc = legend_->location();
-		legend_->align() = loc;
-		coord_->placeElement(legend_.get(), loc);
-	}
+	if (showLegend_()) 
+		layoutDecorator_(legend_.get());
 
 	for (auto& i : colorbars_) {
-		if (i->visible()) {
-			auto loc = i->location();
-			i->align() = loc;
-			coord_->placeElement(i.get(), loc);
-		}
+		if (i->visible()) 
+			layoutDecorator_(i.get());
 	}
 
 	// 最后放置title，确保title在外侧
-	if (title_->visible()) {
-		coord_->placeElement(title_.get(), title_->location());
-	}
+	if (title_->visible())
+		layoutDecorator_(title_.get());
 
 	this->calcSize(paint);
 	this->arrange(rc); // 布局plot各元素
 }
 
 
+void KvPlot::layoutDecorator_(KvDecoratorAligned* deco)
+{
+	deco->align() = deco->location(); // TODO: 优化此设计
+
+	auto frame = (deco->alignTarget() == KvDecoratorAligned::k_plot_frame) ?
+		coord_->parent() : coord_->getFrame();
+	auto olay = dynamic_cast<KcLayoutOverlay*>(frame);
+
+	assert(olay);
+	KuLayoutHelper::align(olay, deco);
+}
+
+
 void KvPlot::syncLegendAndColorbars_()
 {
 	assert(legend_);
-	unlayoutLegendAndColorbars_();
 
 	unsigned colorbarCount(0); // 新构建的colorbars数量
 	for (auto& plt : plottables_) {
@@ -330,7 +339,7 @@ void KvPlot::syncLegendAndColorbars_()
 
 void KvPlot::drawPlottables_(KvPaint* paint)
 {
-	paint->pushClipRect(coord_->getPlotRect()); // 设置clipRect，防止plottables超出范围
+	paint->pushClipRect(coord_->innerRect()); // 设置clipRect，防止plottables超出范围
 
 	for (int idx = 0; idx < plottableCount(); idx++) {
 		auto plt = plottableAt(idx);

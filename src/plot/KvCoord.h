@@ -33,10 +33,8 @@ public:
 	// 轮询坐标平面
 	virtual void forPlane(std::function<bool(KcCoordPlane& plane)>) const = 0;
 
-	// 返回实际的绘图区域，paint将此设置为viewport，之后绘制plottables
-	virtual rect_t getPlotRect() const = 0;
-
-	virtual void placeElement(KvLayoutElement* ele, KeAlignment loc) = 0;
+	// 返回用来执行对齐操作的布局元素
+	virtual KvLayoutElement* getFrame() const = 0;
 
 	// 返回dim维度的缺省主坐标轴，用于设置plottable的axis
 	virtual std::shared_ptr<KcAxis> defaultAxis(unsigned dim) const = 0;

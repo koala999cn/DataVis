@@ -14,17 +14,18 @@ public:
 	// 将新元素ele放置在已有元素who的左侧
 	// dist = 0，表示紧邻放置，1表示隔1个有效元素放置，2表示隔2个有效元素放置，-1表示尽远放置
 	// assert(who->parent() != 0)
-	static bool placeLeft(KvLayoutElement* who, KvLayoutElement* ele, int dist);
+	static void placeLeft(KvLayoutElement* who, KvLayoutElement* ele, int dist);
 	
 	// 同上，放置右侧
-	static bool placeRight(KvLayoutElement* who, KvLayoutElement* ele, int dist);
+	static void placeRight(KvLayoutElement* who, KvLayoutElement* ele, int dist);
 
 	// 同上，放置上侧
-	static bool placeTop(KvLayoutElement* who, KvLayoutElement* ele, int dist);
+	static void placeTop(KvLayoutElement* who, KvLayoutElement* ele, int dist);
 
 	// 同上，放置下侧
-	static bool placeBottom(KvLayoutElement* who, KvLayoutElement* ele, int dist);
+	static void placeBottom(KvLayoutElement* who, KvLayoutElement* ele, int dist);
 
+	static void align(KcLayoutOverlay* target, KvLayoutElement* ele);
 
 private:
 

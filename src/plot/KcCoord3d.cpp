@@ -102,12 +102,6 @@ std::shared_ptr<KcAxis> KcCoord3d::defaultAxis(unsigned dim) const
 }
 
 
-KcCoord3d::rect_t KcCoord3d::getPlotRect() const
-{
-	return innerRect();
-}
-
-
 KcCoord3d::size_t KcCoord3d::calcSize_(void* cxt) const
 {
 	rcCoord_.setNull();
@@ -156,18 +150,8 @@ void KcCoord3d::arrange_(int dim, float_t lower, float_t upper)
 }
 
 
-void KcCoord3d::placeElement(KvLayoutElement* ele, KeAlignment loc)
+KvLayoutElement* KcCoord3d::getFrame() const
 {
-	assert(!isAncestorOf(ele));
-
-	ele->align() = loc; // TODO： 并不完全一致，暂时简单处理
-
-	for(unsigned i = 0; i < layCoord_->size(); i++)
-		if (layCoord_->getAt(i) == 0) {
-			layCoord_->setAt(i, ele);
-			return;
-		}
-
-	layCoord_->append(ele);
+	return layCoord_.get();
 }
 

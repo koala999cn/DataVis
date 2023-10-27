@@ -13,6 +13,7 @@ class KvCoord;
 class KcPlotTitle;
 class KcLegend;
 class KcColorBar;
+class KvDecoratorAligned;
 
 // plot的最底层抽象接口
 
@@ -89,8 +90,10 @@ private:
 	// 绘制各布局元素的外边框，用于debug使用
 	void drawLayoutRect_(KvPaint*);
 
-	// 将legend和colorbars元素从layout系统中移除（重新同步或者防止被layout系统效果）
-	void unlayoutLegendAndColorbars_();
+	// 将装饰件从layout系统中移除
+	void unlayoutAllDecorators_();
+
+	void layoutDecorator_(KvDecoratorAligned* deco);
 
 private:
 	std::shared_ptr<KvPaint> paint_; // 由用户创建并通过构造函数传入

@@ -206,45 +206,9 @@ void KcCoord2d::fixMargins_()
 }
 
 
-KcCoord2d::rect_t KcCoord2d::getPlotRect() const
+KvLayoutElement* KcCoord2d::getFrame() const
 {
-	return plane_->innerRect();
-}
-
-
-void KcCoord2d::placeElement(KvLayoutElement* ele, KeAlignment loc)
-{
-	assert(!isAncestorOf(ele));
-
-	if (loc.inner()) {
-		plane_->insert(ele);
-	}
-	else {
-		if (loc & KeAlignment::k_horz_first) {
-			if (loc & KeAlignment::k_left)
-				KuLayoutHelper::placeLeft(plane_.get(), ele, -1);
-			else if (loc & KeAlignment::k_right)
-				KuLayoutHelper::placeRight(plane_.get(), ele, -1);
-			else if (loc & KeAlignment::k_top)
-				KuLayoutHelper::placeTop(plane_.get(), ele, -1);
-			else if (loc & KeAlignment::k_bottom)
-				KuLayoutHelper::placeBottom(plane_.get(), ele, -1);
-			else
-				assert(false);
-		}
-		else {
-			if (loc & KeAlignment::k_top)
-				KuLayoutHelper::placeTop(plane_.get(), ele, -1);
-			else if (loc & KeAlignment::k_bottom)
-				KuLayoutHelper::placeBottom(plane_.get(), ele, -1);
-			else if (loc & KeAlignment::k_left)
-				KuLayoutHelper::placeLeft(plane_.get(), ele, -1);
-			else if (loc & KeAlignment::k_right)
-				KuLayoutHelper::placeRight(plane_.get(), ele, -1);
-			else
-				assert(false);
-		}
-	}
+	return plane_.get();
 }
 
 

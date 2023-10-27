@@ -30,9 +30,7 @@ public:
 
 	std::shared_ptr<KcAxis> defaultAxis(unsigned dim) const final;
 
-	rect_t getPlotRect() const final;
-
-	void placeElement(KvLayoutElement* ele, KeAlignment loc) final;
+	KvLayoutElement* getFrame() const final;
 
 	axis_list& axes(int type) { return axes_[type]; }
 
