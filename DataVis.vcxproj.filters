@@ -487,9 +487,6 @@
     <ClCompile Include="src\opengl\KcTextObject.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
-    <ClCompile Include="3rdparty\imgui\misc\freetype\imgui_freetype.cpp">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="src\opengl\KcMarkerObject.cpp">
       <Filter>opengl</Filter>
     </ClCompile>
@@ -1172,9 +1169,6 @@
     </ClInclude>
     <ClInclude Include="src\opengl\KcTextObject.h">
       <Filter>opengl</Filter>
-    </ClInclude>
-    <ClInclude Include="3rdparty\imgui\misc\freetype\imgui_freetype.h">
-      <Filter>3rdparty\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\opengl\KcMarkerObject.h">
       <Filter>opengl</Filter>
