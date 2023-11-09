@@ -141,12 +141,8 @@ void KcCoord3d::arrange_(int dim, float_t lower, float_t upper)
 {
 	__super::arrange_(dim, lower, upper);
 
-	if (!layCoord_->empty()) {
-		//auto rcCoord = rcCoord_;
-		//for (unsigned i = 0; i < 2; i++)
-		//	if (rc.extent(i) == 0) rcCoord.setExtent(i, 0);
-		layCoord_->arrange_(dim, lower, upper);
-	}
+	if (!layCoord_->empty()) 
+		layCoord_->arrange_(dim, rcCoord_.lower()[dim], rcCoord_.upper()[dim]);
 }
 
 

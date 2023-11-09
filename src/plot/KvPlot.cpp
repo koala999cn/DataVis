@@ -131,7 +131,7 @@ void KvPlot::update(KvPaint* paint)
 	paint->fillRect(rc);
 	paint->popCoord();
 
-	paint->setViewport(innerRect()); 
+	paint->setViewport(coord_->innerRect());
 
 	// 修正视口偏移（主要针对plot2d，把它的坐标系lower点移到视口的左下角）
 	auto locals = fixPlotView_(paint); // 此处有locals个矩阵入栈，后续须pop
@@ -154,12 +154,13 @@ void KvPlot::update(KvPaint* paint)
 	for (int i = 0; i < locals + axisSwapped; i++)
 	    paint->popLocal();
 
+	paint->setViewport(outterRect()); // 本应使用innerRect，此处用outterRect主要允许colorbar的坐标轴label越出内框
+
 	// draw legend
 	if (showLegend_()) 
 		legend_->draw(paint);
 
 	// draw colorbars
-	paint->setViewport(outterRect()); // 取消内框剪切，允许colorbar的坐标轴label越出内框
 	for (auto& i : colorbars_)
 		if (i->visible())
 		    i->draw(paint);
@@ -181,13 +182,8 @@ void KvPlot::update(KvPaint* paint)
 
 int KvPlot::fixPlotView_(KvPaint* paint)
 {
-	if (dim() != 2) {
-		assert(paint->viewport() == coord_->getFrame()->innerRect());
-		return 0; // 只对plot2d进行修正
-	}
-
 	auto rcCanvas = paint->viewport();
-	auto rcPlot = coord_->getFrame()->innerRect();
+	auto rcPlot = (dim() == 2) ? coord_->getFrame()->innerRect() : coord_->innerRect();
 	if (rcPlot == rcCanvas)
 		return 0;
 		
