@@ -1,5 +1,5 @@
 #include "KvCairoSurface.h"
-#include "cairo/cairo.h"
+#include "cairo.h"
 
 #define CAIRO_CXT reinterpret_cast<cairo_t*>(cxt_)
 #define CAIRO_SURF reinterpret_cast<cairo_surface_t*>(surf_)

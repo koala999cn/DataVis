@@ -1,5 +1,5 @@
 #include "KcCairoPaintSvg.h"
-#include "cairo/cairo-svg.h" 
+#include "cairo-svg.h" 
 
 
 KcCairoPaintSvg::KcCairoPaintSvg(const std::string_view& path)

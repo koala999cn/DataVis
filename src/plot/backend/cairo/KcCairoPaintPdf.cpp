@@ -1,5 +1,5 @@
 #include "KcCairoPaintPdf.h"
-#include "cairo/cairo-pdf.h" 
+#include "cairo-pdf.h" 
 
 
 KcCairoPaintPdf::KcCairoPaintPdf(const std::string_view& path)

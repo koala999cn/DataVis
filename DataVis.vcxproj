@@ -52,7 +52,7 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/cairo;$(SolutionDir)3rdparty/pango/subprojects/glib/glib;$(SolutionDir)3rdparty/pango/subprojects/glib;$(SolutionDir)3rdparty/pango/subprojects/harfbuzz;$(SolutionDir)3rdparty/pango;$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;$(SolutionDir)src/3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/pango/subprojects/cairo;$(SolutionDir)3rdparty/pango/subprojects/glib/glib;$(SolutionDir)3rdparty/pango/subprojects/glib;$(SolutionDir)3rdparty/pango/subprojects/harfbuzz;$(SolutionDir)3rdparty/pango;$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;$(SolutionDir)src/3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -68,14 +68,14 @@
     <ClCompile>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/freetype/include;$(SolutionDir)3rdparty/glib;$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;$(SolutionDir)src/3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty/pango/subprojects/cairo;$(SolutionDir)3rdparty/pango/subprojects/glib/glib;$(SolutionDir)3rdparty/pango/subprojects/glib;$(SolutionDir)3rdparty/pango/subprojects/harfbuzz;$(SolutionDir)3rdparty/pango;$(SolutionDir)3rdparty/glib;$(SolutionDir)3rdparty/stb;$(SolutionDir)3rdparty/imgui;$(SolutionDir)3rdparty/glfw;$(SolutionDir)3rdparty/ImGuizmo;$(SolutionDir)3rdparty/glad;$(SolutionDir)3rdparty;$(SolutionDir)src;$(SolutionDir)src/base;$(SolutionDir)src/dsp;$(SolutionDir)src/audio;$(SolutionDir)src/imapp;$(SolutionDir)src/3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819;4828</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform)-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <Version>0.1</Version>
-      <AdditionalDependencies>cairo.lib;opengl32.lib;glad.lib;glfw3.lib;rtaudio.lib;exprtkX.lib;sndfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gobject-2.0.lib;glib-2.0.lib;pango-1.0.lib;pangocairo-1.0.lib;cairo.lib;opengl32.lib;glad.lib;glfw3.lib;rtaudio.lib;exprtkX.lib;sndfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>

@@ -1,5 +1,5 @@
 #include "KcCairoPaintPs.h"
-#include "cairo/cairo-ps.h" 
+#include "cairo-ps.h" 
 
 
 KcCairoPaintPs::KcCairoPaintPs(const std::string_view& path)

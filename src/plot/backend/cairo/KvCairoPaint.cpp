@@ -1,5 +1,5 @@
 #include "KvCairoPaint.h"
-#include "cairo/cairo.h"
+#include "cairo.h"
 #include "KuUtf8.h"
 
 #define CAIRO_CXT reinterpret_cast<cairo_t*>(cxt_)
