@@ -51,12 +51,11 @@ DataVis是一款集数据清洗、数据分析、数据渲染于一体的实用�
 | [kfr](https://www.kfr.dev/) | 滤波器支持 | 内联 |
 | [kGraph](https://gitee.com/koala999/kgl) | pipeline和模块加载 | 内联 |
 | [libsndfile](http://libsndfile.github.io/libsndfile/) | 音频文件读写 | 内嵌子项目 |
-| [cairo](http://www.cairographics.org/) | 矢量绘图 | 单独编译 |
-| [freetype（可选）](https://freetype.org/) | 字体显示 | 单独编译 |
+| [pango](https://pango.gnome.org/) | 字体支持 | 单独编译 |
+| [cairo](http://www.cairographics.org/) | 矢量图导出 | pango子项目 |
+
 
 ## 编译
 
 编译器使用VC2019，预编译的64位依赖库可在[附件页面下载](https://gitee.com/koala999/data-vis/attach_files)。
-
-配置imconfig.h中的IMGUI_ENABLE_FREETYPE宏，可启用或禁用freetype库。
 

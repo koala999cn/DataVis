@@ -29,7 +29,7 @@
 ## plot
 - [ ] cairo-paint的clipbox支持
 - [x] cairo-paint的linestyle支持
-- [ ] title等设置
+- [x] title等设置
 - [ ] legend在外面时，x坐标轴的title无法正常显示
 - [x] 各种类型的axis --> ok（linear, log, labels, time）
 - [x] 分离axis
@@ -85,7 +85,7 @@
 - [x] 散点图的告示牌模式
 - [x] text复用情况下的状态同步：①变换矩阵设置，②保持恒定尺寸
 - [ ] 散点图启用size varying之后的性能问题（以wav.txt为例）
-- [ ] plot3d的colorbar布局问题
+- [x] plot3d的colorbar布局问题
 - [x] andres曲线的autoRange不正确
 - [x] boxplot的初始尺寸太小
 - [ ] boxplot在arrange模式下的布局
