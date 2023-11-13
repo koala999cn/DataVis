@@ -143,13 +143,18 @@ void KvPlot::update(KvPaint* paint)
 		++locals;
 	}
 
+	// 设置clipRect或clipBox，防止plottables超出范围
 	if (dim() == 3)
 		paint->enableClipBox(coord_->lower(), coord_->upper());
+	else 
+		paint->pushClipRect(coord_->getFrame()->innerRect()); 
 
 	drawPlottables_(paint);
 
 	if (dim() == 3)
 		paint->disableClipBox();
+	else
+		paint->popClipRect();
 
 	for (int i = 0; i < locals + axisSwapped; i++)
 	    paint->popLocal();
@@ -180,6 +185,7 @@ void KvPlot::update(KvPaint* paint)
 }
 
 
+// TODO: 实现map(from, to)方法，返回从正方形（矩形）from到to的变换矩阵
 int KvPlot::fixPlotView_(KvPaint* paint)
 {
 	auto rcCanvas = paint->viewport();
@@ -191,32 +197,21 @@ int KvPlot::fixPlotView_(KvPaint* paint)
 	// NB: 当rcPlot的某个维度尺寸为0时，设置缩放因子为1
 	// （当缩放因子为0时，mvp矩阵将不可逆，造成unproject返回nan值）
 	KvPaint::point3 scale = { rcPlot.width() == 0 ? 1 : rcPlot.width() / rcCanvas.width(),
-		                      rcPlot.height() == 0 ? 1 : rcPlot.height() / rcCanvas.height(),
+							  rcPlot.height() == 0 ? 1 : rcPlot.height() / rcCanvas.height(),
 							  1 };
 
 	//if (coord_->axisSwapped() == KvCoord::k_axis_swap_xy)
 	//	std::swap(scale.x(), scale.y());
 	scale = paint->localToWorldV(scale); // 等价于上述坐标轴交换代码，此处使用更通用的变换方法
-	auto scaleMat = KvPaint::mat4::buildScale(scale);
-	paint->pushLocal(scaleMat);
 
 	// 把世界坐标系的lower点偏移到rcPlot的左下点
 	auto lower = paint->unprojectp({ rcPlot.lower().x(), rcPlot.upper().y() });
 	lower.z() = coord_->lower().z(); // z轴不移动
-	auto shiftMat = KvPaint::mat4::buildTanslation(lower - coord_->lower());
-	
-	/////////////////////////////////////////////////////////////////////////
-	// 上述偏移等价于以下代码
-	// 绘图区域相对于画布（窗口视图）的偏移，屏幕坐标下的像素值
-	//KvPaint::point2 shift = { rcPlot.lower().x() - rcCanvas.lower().x(),
-	//							rcPlot.upper().y() - rcCanvas.upper().y() };
-	//auto shift3d = paint->unprojectv(shift); // 转换到世界坐标
-	// 此外，由于缩放变换是相对于原点进行的，这就造成了坐标系的lower点产生了偏移，需要进一步修正
-	//shift3d += (coord_->lower() - coord_->lower() * scale);
-	//auto shiftMat = KvPaint::mat4::buildTanslation(shift3d);
-	//////////////////////////////////////////////////////////////////////////
-
+	auto shiftMat = KvPaint::mat4::buildTanslation(lower - coord_->lower() * scale);
 	paint->pushLocal(shiftMat);
+
+	auto scaleMat = KvPaint::mat4::buildScale(scale);
+	paint->pushLocal(scaleMat);
 
 	//assert(std::floor(paint->projectp(coord_->lower()).x()) == rcPlot.lower().x());
 	//assert(std::floor(paint->projectp(coord_->lower()).y()) == rcPlot.upper().y());
@@ -335,8 +330,6 @@ void KvPlot::syncLegendAndColorbars_()
 
 void KvPlot::drawPlottables_(KvPaint* paint)
 {
-	paint->pushClipRect(coord_->innerRect()); // 设置clipRect，防止plottables超出范围
-
 	for (int idx = 0; idx < plottableCount(); idx++) {
 		auto plt = plottableAt(idx);
 		if (plt->visible()) {
@@ -359,8 +352,6 @@ void KvPlot::drawPlottables_(KvPaint* paint)
 				paint->popLocal();
 		}
 	}
-
-	paint->popClipRect();
 }
 
 
