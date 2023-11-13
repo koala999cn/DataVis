@@ -117,9 +117,19 @@ void KvPlot::update(KvPaint* paint)
 
 	paint->beginPaint();
 
-	auto rc = paint->viewport();
+	auto rc = paint->viewport(); // TODO: 此处假定外部已设定正确的viewport
 
+	// NB: 先压入scale，以确保布局计算前后尺度一致（解决ISSUE #I6T2G0）
+	// NB: 该方法不能完全解决#I6T2G0，因为它依赖于coord的innerRect，而在布局计算前，该值是不准确的，当然后面可逐次迭代逼近
+	auto rcPlot = (dim() == 2) ? coord_->getFrame()->innerRect() : coord_->innerRect();
+	KvPaint::point3 scale = { rcPlot.width() == 0 ? 1 : rcPlot.width() / rc.width(),
+							  rcPlot.height() == 0 ? 1 : rcPlot.height() / rc.height(),
+							  1 };
+	scale = paint->localToWorldV(scale); 
+	paint->pushLocal(KvPaint::mat4::buildScale(scale));
 	updateLayout_(paint, rc);
+	paint->popLocal();
+
 	if (innerRect().volume() == 0) { // 某个维度的布局尺寸为0，不绘制
 		paint->endPaint();
 		return;
@@ -210,6 +220,8 @@ int KvPlot::fixPlotView_(KvPaint* paint)
 	auto shiftMat = KvPaint::mat4::buildTanslation(lower - coord_->lower() * scale);
 	paint->pushLocal(shiftMat);
 
+	// NB: 确保先压入shift阵，后压入scale阵，这样才能先进行尺度变换再进行平移，
+	// 以保持coord内外区域的尺度一致性，从而彻底解决ISSUE #I6B5ET
 	auto scaleMat = KvPaint::mat4::buildScale(scale);
 	paint->pushLocal(scaleMat);
 

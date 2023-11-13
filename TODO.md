@@ -111,7 +111,7 @@
 ## FIXME
 - [ ] imGuIZMO.quat在vec3(-1, 0, 0)时出现bug（ https://github.com/BrutPitt/imGuIZMO.quat/issues/11 ）
 - [ ] 启用多重采样之后，程序启动短暂白屏 --> 貌似和多重采样无关
-- [ ] 绘制samp1d的graph图时，x坐标轴range取[0, 2048]，右侧仍有约1个像素的裁剪（#I6T2G0）
+- [x] 绘制samp1d的graph图时，x坐标轴range取[0, 2048]，右侧仍有约1个像素的裁剪（#I6T2G0）
 - [x] graph和scatter对arrange模式的支持
 - [x] box和andrews曲线的鲁棒性（渲染samp1d数据导致致命错误）--> setData中没有及时output
 - [x] 散点图在plot3d下干扰imgui绘制 --> ok （未恢复多实例渲染状态，即重置glVertexAttribDivisor）
