@@ -52,8 +52,8 @@ void KcPangoPaint::beginPaint()
     auto opt = cairo_font_options_create();
     cairo_font_options_set_antialias(opt, antialiasing() ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE);
     pango_cairo_context_set_font_options(cxt, opt); // TODO: 字体抗锯齿无法动态更改配置
-    pango_cairo_update_context((cairo_t*)cairoSurf_->cr(), cxt);
-    pango_layout_context_changed((PangoLayout*)pangoLayout_);
+    //pango_cairo_update_context((cairo_t*)cairoSurf_->cr(), cxt);
+    //pango_layout_context_changed((PangoLayout*)pangoLayout_);
     cairo_font_options_destroy(opt);
 
     //cairo_set_antialias((cairo_t*)cairoSurf_->cr(), antialiasing() ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE);
@@ -122,14 +122,11 @@ void* KcPangoPaint::drawTexts(const std::vector<point3>& anchors, const std::vec
 void KcPangoPaint::setFont_() const
 {
     assert(pangoLayout_);
-    std::string face(family_);
-    face += " "; face += std::to_string(ftSize_); //face += "pt";
-    if (bold_)
-        face += " Bold";
-    if (italic_)
-        face += " Oblique";
 
-    auto desc = pango_font_description_from_string(face.c_str());
+    auto desc = pango_font_description_from_string(family_.c_str());
+    pango_font_description_set_size(desc, ftSize_ * PANGO_SCALE);
+    pango_font_description_set_weight(desc, bold_ ? PANGO_WEIGHT_BOLD : PANGO_WEIGHT_NORMAL);
+    pango_font_description_set_style(desc, italic_ ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
     pango_layout_set_font_description((PangoLayout*)pangoLayout_, desc);
     pango_font_description_free(desc);
 }
