@@ -129,4 +129,15 @@ void KcPangoPaint::setFont_() const
     pango_font_description_set_style(desc, italic_ ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
     pango_layout_set_font_description((PangoLayout*)pangoLayout_, desc);
     pango_font_description_free(desc);
+
+    // TODO: 此处不能获取现有的attrlist，否则无法正常工作. WHY???
+    PangoAttrList* attrlist = 0; // pango_layout_get_attributes((PangoLayout*)pangoLayout_);
+    if (!attrlist) {
+        attrlist = pango_attr_list_new();
+        pango_layout_set_attributes((PangoLayout*)pangoLayout_, attrlist);
+    }
+    auto attr = pango_attr_underline_new(underline_ ? PANGO_UNDERLINE_SINGLE_LINE : PANGO_UNDERLINE_NONE);
+    pango_attr_list_change(attrlist, attr);
+    //pango_attribute_destroy(attr); NB: 不能释放，否则crash
+    pango_attr_list_unref(attrlist);
 }
