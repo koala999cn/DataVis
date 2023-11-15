@@ -3,6 +3,9 @@
 #include "KvCoord.h"
 #include "KcCoordPlane.h"
 #include "KcAxis.h"
+#include "KcPlotTitle.h"
+#include "KcLegend.h"
+#include "KcColorBar.h"
 
 
 KcThemedPlotImpl_::KcThemedPlotImpl_(KvPlot& plot)
@@ -39,7 +42,8 @@ void KcThemedPlotImpl_::applyFill(int level, const KpBrush& b)
 {
 	if (level & k_plot)
 		plot_.bkgndBrush() = b;
-	else if (level & k_axis) {
+	
+	if (level & k_axis) {
 		auto& coord = plot_.coord();
 		coord.forPlane([&b](KcCoordPlane& plane) {
 			plane.background() = b;
@@ -157,6 +161,20 @@ void KcThemedPlotImpl_::applyLine(int level, std::function<KpPen(const KpPen&)> 
 			return true;
 			});
 	}
+
+	if (level & k_legend) {
+		for (unsigned i = 0; i < plot_.colorbarCount(); i++) {
+			auto& axis = plot_.colorbarAt(i)->axis();
+			if (level & k_baseline)
+				axis.baselineContext() = op(axis.baselineContext());
+			if (level & k_majorline)
+				axis.tickContext() = op(axis.tickContext());
+			if (level & k_minorline)
+				axis.subtickContext() = op(axis.subtickContext());
+
+			plot_.colorbarAt(i)->barPen() = op(plot_.colorbarAt(i)->barPen());
+		}
+	}
 }
 
 
@@ -177,12 +195,36 @@ void KcThemedPlotImpl_::applyTextColor(int level, std::function<color4f(const co
 			return true;
 			});
 	}
+
+	if (level & k_title) {
+		plot_.title()->color() = op(plot_.title()->color());
+	}
+
+	if (level & k_legend) {
+		if (level & k_label)
+		    plot_.legend()->textColor() = op(plot_.legend()->textColor());
+
+		// TODO: colorbarÔÝ¹éÎªlegendÀà±ð
+		for (unsigned i = 0; i < plot_.colorbarCount(); i++) {
+			auto& axis = plot_.colorbarAt(i)->axis();
+			if (level & k_label)
+				axis.labelContext().color = op(axis.labelContext().color);
+			if (level & k_title)
+				axis.titleContext().color = op(axis.titleContext().color);
+		}
+	}
 }
 
 
 void KcThemedPlotImpl_::setTickLength(int level, KeTickSide side, int len)
 {
+	assert(level & k_axis);
 
+	forAxis_(level, [side, len](KcAxis& axis) {
+		side; // TODO
+		axis.tickContext().length = len;
+		return true;
+		});
 }
 
 

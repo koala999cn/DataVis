@@ -3,7 +3,6 @@
 #include "KpContext.h"
 #include "KtMargins.h"
 
-
 // 一个可应用主题的plotting接口
 
 class KvThemedPlot
