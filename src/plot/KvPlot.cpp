@@ -318,6 +318,7 @@ void KvPlot::layoutDecorator_(KvDecoratorAligned* deco)
 void KvPlot::syncLegendAndColorbars_()
 {
 	assert(legend_);
+	legend_->clear();
 
 	unsigned colorbarCount(0); // 新构建的colorbars数量
 	for (auto& plt : plottables_) {

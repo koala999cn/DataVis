@@ -27,10 +27,11 @@
 - [ ] 检测kde结果的正确性（https://pythonawesome.com/plotting-beautiful-ridgeline-plots-in-python/ ）
 
 ## plot
+- [ ] 数学公式渲染
 - [ ] cairo-paint的clipbox支持
 - [x] cairo-paint的linestyle支持
 - [x] title等设置
-- [ ] legend在外面时，x坐标轴的title无法正常显示
+- [x] legend在外面时，x坐标轴的title无法正常显示
 - [x] 各种类型的axis --> ok（linear, log, labels, time）
 - [x] 分离axis
 - [x] 文字渲染系统（使用pango ）
